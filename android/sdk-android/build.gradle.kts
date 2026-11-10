@@ -15,6 +15,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     testImplementation(kotlin("test"))
+    testImplementation("com.google.firebase:firebase-messaging:26.0.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
 }
 tasks.withType<Test>().configureEach { useJUnitPlatform() }

@@ -881,3 +881,9 @@
 - synthetic HTTP/DB 시험 통과: 잔액·catalog·본인 구매 조회, 타 계정 404. 검토에서 내부 CLIENT_PENDING이 공통 공개 enum에 없음을 발견해 PENDING으로 정규화하고 재시험한다.
 - synthetic sandbox HTTP/DB 재시험 통과: 공개 finalization PENDING 정규화, 본인 잔액·catalog·구매 조회와 다른 사용자 404. 실제 store 구매는 아니다.
 - 커밋 전: 서버 읽기 경로 및 소유권 fixture만 포함한다. Native/Unity 상점 UI와 실제 store 연결은 미완료이므로 P05-T07 PARTIAL/WAITING_USER 유지.
+
+### [P06-T01] host forwarding 단위 검증 — 2026-11-10 Asia/Seoul
+- 실제 Firebase 초기화 없이 host가 토큰 회전과 클릭 payload를 adapter에 전달하는 경로를 검증한다. 실제 권한 대화상자·FCM 서버는 실행하지 않는다.
+- host callback 단위시험을 작성했다. test runtime에만 Firebase SDK를 추가하고 mock sample에 google-services 설정은 요구하지 않는다.
+- Android host forwarding 단위 1건 통과(skip 0): 토큰 A→B 회전 callback, 빈 토큰 오류, 허용 route만 클릭 전달. google-services 없는 mock sample assemble도 통과했다. 실제 Firebase 초기화·권한 거부·원격 수신은 미실행이다.
+- 커밋 전: test runtime 의존성과 fake host unit만 포함한다. P06-T01 실제 platform 검증은 WAITING_USER로 유지.

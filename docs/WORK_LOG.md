@@ -1108,3 +1108,9 @@
 - 결과 attachment의 logout 후 status는 여전히 Restored였고 해당 시험 session은 revoked되지 않았다. sticky status 영역에 가려진 버튼 hit 가능성을 줄이도록 안전한 화면 중앙 영역으로 스크롤하고 enabled 상태를 기다린다. sandbox Configure는 toolbar 고정으로 scroll하지 않는다.
 - iOS 26.5 ad-hoc simulator 서명 UI 재시험 2건 통과: Sandbox 빈 설정 CONFIG_REQUIRED 및 LOCAL_MOCK 로그인→구매→재시작 복원→로그아웃. 실제 Apple 계정/스토어 거래는 실행하지 않았다. 이전 unsigned Keychain INTERNAL_ERROR 및 두 UI hit-point 실패는 이력으로 보존한다. 직접 기동한 Backend만 종료하고 DB/volume은 보존했다.
 - 커밋 전: iOS sandbox 화면, 기존 Mock 상태 표시 및 UI 시험만 포함. 실제 Apple Sandbox·Android 실제 sample·Unity player 및 P07 전체 검증은 미완료다.
+- Android 샘플 연결 전 기존 KeystoreTokenStore가 Mock과 실제 provider의 동일 저장 항목을 사용해 서로의 세션을 덮어쓸 수 있음을 발견했다. 기존 default 항목은 보존하고 별도 namespace를 추가한다.
+- Android unit/build 통과. 기존 Java 소비자의 1인자 constructor 호환성을 유지하도록 @JvmOverloads를 추가하고 bytecode를 확인한다. 실제 Keystore namespace 분리 기기 검증은 별도다.
+- Android Keystore namespace의 기기 동작을 확인하기 위해 전용 AVD에만 설치하는 instrumented test를 작성한다. test 전용 무작위 namespace만 사용하고 기존 기본 session 항목은 읽거나 삭제하지 않는다.
+- sample APK 및 Android instrumented test APK build 성공. 기존 전용 AVD만 무창으로 기동해 namespace 시험을 실행하며 사용자 AVD나 데이터 초기화는 하지 않는다.
+- 전용 Android 36 emulator에서 instrumented Keystore namespace 시험 1건 통과: 두 무작위 test namespace가 서로 덮어쓰지 않고 한쪽 삭제가 다른 쪽에 영향 없음. 기존 default 사용자 session은 읽거나 지우지 않았다. Java 1인자 생성자도 bytecode에서 확인했다.
+- 커밋 전: namespace 분리와 전용 AVD 검증만 포함한다. 실제 Google 계정 및 상점은 미실행이다.

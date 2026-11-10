@@ -13,9 +13,10 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 /** Application-private encrypted storage; the encryption key remains in Android Keystore. */
-class KeystoreTokenStore(context: Context) : TokenStore {
-    private val prefs = context.applicationContext.getSharedPreferences("gamebridge_secure_tokens", Context.MODE_PRIVATE)
-    private val alias = "com.gamebridge.sdk.session.v1"
+class KeystoreTokenStore @JvmOverloads constructor(context: Context, namespace: String = "default") : TokenStore {
+    init { require(namespace.matches(Regex("[a-z0-9_-]{1,48}"))) { "Invalid storage namespace" } }
+    private val prefs = context.applicationContext.getSharedPreferences(if (namespace == "default") "gamebridge_secure_tokens" else "gamebridge_secure_tokens_$namespace", Context.MODE_PRIVATE)
+    private val alias = if (namespace == "default") "com.gamebridge.sdk.session.v1" else "com.gamebridge.sdk.session.v1.$namespace"
     companion object { private val keyLock = Any() }
     private fun key(): SecretKey = synchronized(keyLock) {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }

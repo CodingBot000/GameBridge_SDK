@@ -7,7 +7,7 @@ import kotlinx.coroutines.sync.withLock
 enum class SdkState { UNINITIALIZED, INITIALIZING, READY, SHUTTING_DOWN, SHUTDOWN }
 data class Capability(val supported: Boolean, val configured: Boolean, val mode: ProviderMode, val reason: String?)
 data class InitSnapshot(val capabilities: Map<String, Capability>)
-class SdkFailure(val code: String) : IllegalStateException(code)
+class SdkFailure(val code: String, val nativeCode: String? = null) : IllegalStateException(code)
 
 interface SdkProvider {
     suspend fun initialize(config: GameBridgeConfig): InitSnapshot

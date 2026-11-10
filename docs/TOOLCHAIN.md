@@ -21,3 +21,5 @@ Android AGP 8.13.0 / Gradle 8.13 / Kotlin 2.1.20 / API 36 / JDK 21 최소 Compos
 Unity 6000.5.8f1에 포함된 .NET SDK 8.0.318로 Unity managed assembly 대상 C# 독립 컴파일을 수행할 수 있다. 이는 Unity Editor import나 IL2CPP 검증이 아니다. 첫 실행 시 .NET이 개발용 HTTPS 인증서를 자동 설치했다고 출력했으며 신뢰 명령은 실행하지 않았다. 이후 검사에서 인증서 생성을 비활성화한다.
 
 Unity JSON 후보 `com.unity.nuget.newtonsoft-json` 3.2.2는 Unity 공식 registry metadata와 패키지 DLL로 독립 .NET 컴파일·smoke를 확인했다. Unity Editor import 및 IL2CPP 호환성은 미검증이다. 출처: https://packages.unity.com/com.unity.nuget.newtonsoft-json
+
+Android Google adapter: androidx.credentials 및 credentials-play-services-auth 1.6.0, googleid 1.1.1. googleid 1.2.1은 Kotlin metadata 2.4로 기존 Kotlin 2.1.20과 빌드 실패하여 제외했다. 출처: Google Maven metadata 및 https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation.

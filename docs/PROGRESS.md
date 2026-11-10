@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P03 / P03-T05
+- 현재 Phase / Task: P04 / P04-T01
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P02-T01 부분 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P04 실제 인증 Provider 구현; P03 이벤트와 Unity Editor 검증은 미완료
+- 바로 다음 행동: P04-T02 iOS Apple 실제 인증 adapter 구현 및 P04-T03 서버 verifier 연결
 - 불가피한 세션 종료 시 재개 행동: P02-T01 오류 처리와 P02-T02 인증 구현을 진행하고 P00·P01 미완료도 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 43 / IN_PROGRESS 20 / IMPLEMENTED 1 / BLOCKED 0
-- 로컬 검증: NOT_RUN 44 / PASS 1 / FAIL 0 / PARTIAL 19 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 42 / IN_PROGRESS 21 / IMPLEMENTED 1 / BLOCKED 0
+- 로컬 검증: NOT_RUN 43 / PASS 1 / FAIL 0 / PARTIAL 20 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -54,7 +54,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P03-T04 | Swift C ABI 왕복 transport | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T04 | ENV-002 |
 | P03-T05 | Unity facade·dispatcher·request registry | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T05 | ENV-002 |
 | P03-T06 | Unity 최소 Demo·Native 경로 분기 | NOT_STARTED | NOT_RUN | N/A | - | - |
-| P04-T01 | 실제 Android Google 로그인 adapter | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-AUTH-GOOGLE |
+| P04-T01 | 실제 Android Google 로그인 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P04-T01 | USER-AUTH-GOOGLE |
 | P04-T02 | 실제 iOS Apple 로그인 adapter | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-AUTH-APPLE |
 | P04-T03 | 서버 실제 identity 검증·nonce 재사용 방어 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
 | P04-T04 | 세션 복원·single-flight 갱신·로그아웃 | NOT_STARTED | NOT_RUN | N/A | - | - |
@@ -101,6 +101,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 | ID | 유형 | 영향 Task | 실제 증상/실행 명령 | 코드 개발 지속 방법 | 해소 조건 | 상태 |
 |---|---|---|---|---|---|---|
+| BUG-002 | BUG | P04-T01 | googleid 1.2.1 Kotlin metadata 2.4와 compiler 2.1 불일치 | 호환 stable 버전 확인 | 빌드 호환성 확인, adapter fake 검증 계속 | RESOLVED |
 | BUG-001 | BUG | P01-T05 | BackendClientTest 1건 실패 | 원인 확인 및 재실행 | HTTP 검증 통과 | RESOLVED |
 | USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제; 코드 반영 대기 | 등록·회전과 다른 독립 작업 진행 | 결정된 삭제 및 소유권 경로 구현·검증 | RESOLVED |
 | USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프; 코드 반영 대기 | 수동 Mock worker 및 다른 독립 작업 진행 | 결정된 정책을 설정과 실행 코드에 반영 | RESOLVED |

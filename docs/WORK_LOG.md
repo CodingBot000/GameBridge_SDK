@@ -434,3 +434,15 @@
 - `check-csharp-compile.sh` 종료 0: 추가된 facade 및 DTO를 포함해 Android/iOS/Editor/미지원 네 분기 독립 컴파일, 경고 0. Unity runtime 실행은 미검증.
 - C# facade에 sync·push·config 및 capability/diagnostic snapshot을 추가하고, 오류 원문·token-sized fingerprint 노출 거부를 포함한 독립 .NET smoke 종료 0. 이 결과는 Unity Editor나 실제 Native Provider 실행이 아니다.
 - 커밋 전: 추가 facade와 strict wire 모델만 포함. Native 초기화/인증/결제 연결, 공통 이벤트 및 Unity Editor 검증은 미완료로 P03-T05 PARTIAL 유지.
+
+### [P04-T01] 시작 — 2026-11-10 Asia/Seoul
+- Android local-mock 수직 경로는 부분 검증, Unity JNI operation 연결은 미완료. 실제 Credential Manager adapter를 독립 작성하고 Google 콘솔/실기기 인증은 USER-AUTH-GOOGLE로 분리한다. 공식 Android/Google nonce·client ID 문서를 확인했다.
+- Google Maven metadata 조회 종료 0: 안정 버전 androidx.credentials 1.6.0, credentials-play-services-auth 1.6.0, googleid 1.2.1 확인. 공식 가이드의 알파 예제는 사용하지 않는다.
+- `:sdk-android:assembleDebug` 종료 1: googleid 1.2.1의 Kotlin metadata 2.4.0이 현재 Kotlin compiler 2.1과 호환되지 않음. 안정 이전 버전의 실제 빌드 호환성을 확인한다. 이 실행에서 Google Provider는 빌드되지 않았다.
+- googleid 1.1.1로 낮춘 `:sdk-android:assembleDebug` 종료 0: Credential Manager 실제 호출 코드 컴파일. 이전 metadata 실패는 재현 후 해결했지만 실 Google 로그인·서버 token 검증은 미실행이다.
+- 호환 googleid 1.1.1로 `:sdk-android:testDebugUnitTest :sdk-android:assembleDebug` 종료 0. stub gateway/backend로 server nonce 전달·Native 저장·profile 불일치 거부·설정 누락·동시 UI BUSY 확인. XML에서 실제 시험 수·skip 확인한다. 실제 Credential Manager UI·Google 서버 연동은 미실행.
+- 정정: JUnit XML은 2건·실패0·skip0이었다. 위 기록 중 동시 UI BUSY는 실제 실행되지 않았다. 해당 테스트가 Kotlin expression body에서 UserProfile을 반환해 JUnit이 인식하지 못한 것이 원인이며 Unit 반환으로 수정한다.
+- `:sdk-android:testDebugUnitTest --rerun-tasks` 종료 0, JUnit XML에서 테스트 3건·실패0·skip0 확인. 이번에는 동시 UI BUSY도 실제 실행됐다. Google 계정이나 실제 Credential Manager UI는 미실행.
+- `:sdk-android:testDebugUnitTest :sample-app:assembleDebug` 종료 0. JUnit XML에서 Google adapter stub 시험 4건·실패0·skip0 확인(사용자 취소 전파 포함). Mock 샘플 빌드이며 Google 계정 UI와 서버 token 교환은 미실행이다.
+- challenge nonce 공백·잘못된 응답을 거부하고 credential/session/challenge 문자열 표현을 정제한 뒤 `:sdk-android:testDebugUnitTest :sdk-android:assembleDebug` 종료 0. JUnit XML 4건·실패0·skip0. 서버 실제 challenge/exchange, sample 실 Provider 선택, 공통 UI gate 및 실제 Google 인증은 미구현/미검증이다.
+- 커밋 전: Android 실제 호출 adapter와 stub 시험, 버전 근거 및 USER_SETUP 준비 상태를 포함. 선행 서버 인증/샘플 통합이 미완료이므로 P04-T01은 IN_PROGRESS/PARTIAL/WAITING_USER 유지.

@@ -16,7 +16,7 @@ Codex는 실제 Provider 호출 코드, 설정 로더, 오류 처리, Mock, 빌�
 | USER-UNITY | Unity 설치·라이선스·target modules | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-DEVICE | Xcode·Android 도구·실기기·서명 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-BACKEND | 로컬 서버·DB·개발/샌드박스 네트워크 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
-| USER-AUTH-GOOGLE | Android Google 인증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
+| USER-AUTH-GOOGLE | Android Google 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
 | USER-AUTH-APPLE | iOS Apple 인증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
 | USER-BILLING-GOOGLE | Play 테스트 결제·검증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
 | USER-BILLING-APPLE | Apple Sandbox 결제·검증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
@@ -86,6 +86,8 @@ local-mock 기본 host port는 loopback이다. 실기기 접근을 위해 LAN으
 사용자 할 일: Google Cloud/OAuth 설정에서 실제 앱 package와 signing certificate fingerprint를 등록하고 서버용 client ID 및 필요한 동의 화면/테스트 사용자 설정을 준비한다. Native sample과 Unity 앱의 ID·서명이 다르면 각각 대응한다. Credential Manager에서 사용하는 ID의 종류와 Backend가 기대하는 audience를 일치시킨다.
 
 클라이언트 공개 설정: `GOOGLE_SERVER_CLIENT_ID`. 서버 설정: `GOOGLE_ALLOWED_AUDIENCES` 및 app allowlist. client ID는 공개 식별자지만 client secret은 앱에 넣지 않는다. Native ID token 검증에 불필요한 서비스 계정 비밀키를 억지로 요구하지 않는다.
+
+현재 준비: Android Credential Manager 실제 호출과 Native nonce 전달·서버 교환 adapter 및 stub 시험은 작성됐다. 서버의 실제 challenge/exchange·Google 서명 검증과 샘플 실 Provider UI는 아직 없어 코드 준비는 BLOCKED다. 실제 Google 계정 로그인은 실행하지 않았다.
 
 Codex 준비물: GoogleAuthProvider, nonce challenge, server verifier, error mapping, UI, config 검사. TODO 또는 “여기에 OAuth 구현”만 남아 있으면 코드 준비 IMPLEMENTED가 아니다.
 

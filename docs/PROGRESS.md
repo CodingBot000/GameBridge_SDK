@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS
-- 현재 Phase / Task: P00 / P00-T02
+- 현재 Phase / Task: P00 / P00-T03
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 없음
-- 현재 작업 트리 상태: Git 저장소 없음; 제공된 문서만 존재
+- 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
+- 현재 작업 트리 상태: P00-T03 부분 골격 커밋 예정; 사용자 .DS_Store 보존
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P00-T02 부분 결과 커밋 후 P00-T03 최소 프로젝트 빌드로 버전 검증
-- 불가피한 세션 종료 시 재개 행동: 이 체크포인트와 WORK_LOG 마지막 항목을 먼저 대조
+- 바로 다음 행동: P00-T03 Android 앱, iOS 앱·프레임워크, Unity 및 Compose를 구성하고 빌드 확인
+- 불가피한 세션 종료 시 재개 행동: P00-T03 미완료 항목부터 이어서 구현하고 P00-T02 버전 조합을 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 63 / IN_PROGRESS 0 / IMPLEMENTED 1 / BLOCKED 0
-- 로컬 검증: NOT_RUN 63 / PASS 1 / FAIL 0 / PARTIAL 0 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 61 / IN_PROGRESS 2 / IMPLEMENTED 1 / BLOCKED 0
+- 로컬 검증: NOT_RUN 61 / PASS 1 / FAIL 0 / PARTIAL 2 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -34,7 +34,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 |---|---|---|---|---|---|---|
 | P00-T01 | 저장소 보존·작업 원장 초기화 | IMPLEMENTED | PASS | N/A | WORK_LOG P00-T01 | - |
 | P00-T02 | 도구·라이선스·버전 조합 확정 | IN_PROGRESS | PARTIAL | N/A | docs/TOOLCHAIN.md, WORK_LOG P00-T02 | ENV-001 |
-| P00-T03 | 빌드 가능한 최소 프로젝트 구성 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T03 | - |
 | P00-T04 | 진행 문서 검사·기본 명령 진입점 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P00-T05 | 모드·비밀정보·설정 격리 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P01-T01 | 공통 모델·오류·상태 schema | NOT_STARTED | NOT_RUN | N/A | - | - |

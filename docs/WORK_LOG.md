@@ -1429,3 +1429,8 @@
 - 샘플 객체가 UI 요청 중 파괴될 때 늦은 Task가 제거된 상태 UI를 갱신하지 않도록 보호를 추가한다. 최종 sample compile을 확인한다.
 - `scripts/check-unity-sample.sh` 최종 종료 0: Native/Offline sample과 iOS host bridge가 Unity managed/uGUI/Notifications 참조로 경고 0 컴파일됐다. sample object 파괴 후 late Task UI 접근을 막았다. 실제 scene 렌더링·입력·Unity player는 ENV-002로 미검증이다.
 - 커밋 전: UPM Native sample 소스·설치 안내 및 독립 compile project만 포함한다. 기존 미추적 unity/Demo는 보존하고 실제 Native 앱 실행은 미완료다.
+
+### [P07-T04] 기능 matrix 갱신
+- Task 시작: 기존 matrix가 Native bridge·config cache를 미구현으로 표시해 현재 코드와 어긋나므로 호출 경로와 실제 검증 범위를 다시 대조한다. 최종 P11 완료 감사와 혼동하지 않는다.
+- Android/iOS Mock·실 Provider bridge, push, config, sample, packaging의 실제 호출 경로와 WORK_LOG 증거를 대조해 오래된 matrix를 수정했다. 검증은 코드/기록 검토이며 새 플랫폼 실행은 아니다.
+- 커밋 전: 기능 matrix 상태 문서만 포함한다. P11 최종 감사나 전체 완료로 표시하지 않는다.

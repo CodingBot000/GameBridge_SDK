@@ -1,23 +1,20 @@
 # 기능 호출 경로 1차 조사 — 개발 중
 
-2026-11-10 소스 기준. `PARTIAL`은 열거된 일부 경로만 존재한다. 단위/fake 시험, local-mock 실행과 실제 플랫폼 검증은 서로 대체하지 않는다. 최종 P11 감사가 아니다.
+2026-11-11 소스 및 WORK_LOG 기준. `PARTIAL`은 일부 경로만 구현하거나 완료 검증이 남았다는 뜻이다. Fake·LOCAL_MOCK·실제 플랫폼 결과는 서로 대체하지 않는다. 이 문서는 최종 P11 감사가 아니다.
 
-| 기능/Unity 공개 표면 | Editor offline | Android/iOS native bridge | Native sample / Backend | 현재 판정 |
-|---|---|---|---|---|
-| 초기화 `InitializeAsync` | fake 초기화 구현, 독립 .NET smoke | `sdk.initialize` 미연결, 명시적 UNSUPPORTED | Native local-mock sample은 자체 초기화 | PARTIAL |
-| 상태/종료 `GetStatus`, `ShutdownAsync` | fake 및 상태기계 | status/shutdown 제한 처리 | Native sample은 독립 소유 | PARTIAL; Unity Editor/IL2CPP 미실행 |
-| 로그인·복원·로그아웃 | fake 동작 | auth operation 미연결 | Android/iOS local-mock 실제 로컬 Backend 시험; Google/Apple 경계는 fake 시험 | PARTIAL; 실제 인증 미실행 |
-| 상품 조회·구매·잔액·복구 | fake 두 상품과 모의 원장 | store operation 미연결 | Native local-mock 구매/잔액 시험. 실 store gateway, server verifier/grant/finalizer는 부분 구현 | PARTIAL; 실스토어 미실행 |
-| push 권한·등록·해제 | fake 상태 | push operation/Unity host adapter 미연결 | FCM/APNs host와 단발 sender 부분 구현. local-mock token 등록/삭제 확인 | PARTIAL; 실제 원격 미실행 |
-| 설정 `GetServiceConfigAsync` | fake default | config operation 미연결 | Backend 기본값 route; cache/maintenance 제어 미구현 | PARTIAL |
-| 진단 `GetDiagnostics` | C# registry snapshot | Native ring 및 facade 연결 미완료 | Android/iOS typed ring unit 시험만 존재 | PARTIAL |
-| host push/lifecycle | 미완료 | operation 미연결 | Native payload allowlist unit 확인, queue/dedup 미구현 | PARTIAL |
+| 기능/Unity 공개 표면 | Editor offline | Android/iOS Native bridge | 확인한 범위와 잔여 작업 |
+|---|---|---|---|
+| 초기화·상태·종료 | in-memory fake | LOCAL_MOCK과 PLATFORM_SANDBOX 경로, session/종료 경계 구현 | 독립 .NET 및 Native fake/C ABI 시험; Unity Editor/JNI/IL2CPP 미검증 |
+| 로그인·복원·로그아웃 | fake | LOCAL_MOCK 서버, Android Google, iOS Apple Native facade 연결 | 양 Native Mock local DB 및 fake provider 시험. 실제 Google/Apple 계정, Unity player 미실행 |
+| 상품·구매·잔액 | fake 두 상품 | LOCAL_MOCK 서버, Play Billing 및 StoreKit sandbox facade 연결; 검증 전 대기와 검증 후 이벤트 구분 | Mock local DB 및 fake/simulator compile. 실제 Play/Apple 거래와 Unity player 미실행; iOS 26.5 local StoreKit 시험은 ENV-STOREKIT-26 FAIL |
+| 구매 복구 | fake | 양 Native Mock의 암호화 pending 단서·sync, Play/StoreKit recovery 및 동일 계정 single-flight | local DB 응답 유실 모사와 Android emulator Keystore/iOS simulator Keychain 인스턴스 재생성 확인. 실기기 프로세스 재시작·Unity player·실제 스토어 복구 미실행 (BUG-009 OPEN) |
+| push 권한·등록·해제 | fake | LOCAL_MOCK simulated 등록, Android FCM 및 iOS host-managed APNs sandbox 등록 코드 | Mock local DB의 unregister/logout 즉시 삭제, synthetic provider 시험·컴파일. 실제 권한 dialog/원격 FCM·APNs/Unity player 미실행 |
+| push 수신·열기 | fake UI 경로 일부 | Android host forwarding/메모리 cold-start queue, iOS Unity Notifications host adapter 및 C ABI route 연결 | allowlist·중복·session fake 시험. host 앱에 service/Activity forwarding 필요, 실제 원격 알림 및 Unity player 미실행 |
+| 점검 설정 | fake default | LOCAL_MOCK 서버 조회·유효 cache와 구매 차단 연결; sandbox `config.get` 공개 bridge 미연결 | server/fake 및 local HTTP→Unity decoder 확인. sandbox Native 상점의 구매 gate는 별도 연결됨 |
+| 진단 | C# registry snapshot | Native 진단 ring과 Unity 공개 snapshot 전체 연결 미완료 | Native typed ring 단위 시험 일부 |
+| 샘플 | Editor Offline UGUI 소스 | Android/iOS Native sample과 별도 UPM Native Demo 소스 | Native Mock sample의 과거 simulator/emulator UI 일부, 최신 UPM sample은 managed compile만 확인. Unity scene 렌더링 및 Native player는 ENV-002 대기 |
+| 패키지 | UPM staging·export hooks | Android Maven/AAR, iOS static XCFramework script | 과거 산출물의 별도 소비 compile과 hook 시험은 있으나 최근 소스 변경 후 staging 재생성·Unity import/export 미완료 |
 
-구매 서버는 Apple/Google synthetic verifier→인증 HTTP→DB grant 동시 시험과 Google durable finalizer의 fake 완료·암호화 증빙 삭제 시험이 있다. Native store runtime과 proof sink도 내부 조립되어 있으나 공개 Unity/native sample 연결과 실제 스토어 거래 검증은 미완성이다. iOS StoreKit local 상품 조회는 simulator 시험에서 실패했다. Unity staged package의 import 및 Android/iOS export는 라이선스·모듈 제약으로 미검증이다.
+Backend의 Apple/Google synthetic verifier→인증 HTTP→DB grant 및 Google durable finalizer fake 시험은 실제 스토어 검증이 아니다. LOCAL_MOCK의 token 등록·삭제는 실제 local DB에서 확인했지만 개발 push send의 `SIMULATED` 응답은 client 원격 전달이 아니다. `scripts/smoke-local.sh`는 push delivery/routing E2E가 없어 의도적으로 실패 상태다.
 
-초기 검색에서 대상 소스에 `TODO`, `FIXME`, `NotImplementedException`, `fatalError(` 표기는 발견되지 않았지만, 위의 호출 경로 누락은 실제 미구현이다. 이 표는 코드 변경에 따라 계속 갱신한다.
-
-Unity Editor offline sample의 home/store uGUI 소스는 실제 Unity managed assembly 기준 독립 컴파일했다. Unity Editor 렌더링·입력·실행과 Native player 연결은 검증하지 않았다.
-
-iOS sample에는 별도 Apple Sandbox 화면이 추가되었다. 설정 누락 차단만 simulator UI에서 확인했고 실제 Apple 로그인/상품/구매/복원은 미실행이다. local-mock UI 로그인·구매·재시작 복원·로그아웃은 ad-hoc simulator 서명으로 통과했다.
-Android sample에도 별도 Google Sandbox 화면을 추가했다. 빈 설정의 CONFIG_REQUIRED는 전용 emulator에서 확인했지만 실제 Google 인증/Play 상품/구매는 미실행이다.
+`XCODE_STOREKIT` 모드의 전체 구매·서버 지급 경로와 실제 플랫폼 자격증명 설정은 별도로 남았다. 외부 설정·재실행 절차는 `docs/USER_SETUP.md`, 남은 내부 문제와 환경 대기는 `docs/PROGRESS.md` 및 `docs/WORK_LOG.md`를 따른다.

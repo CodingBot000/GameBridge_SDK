@@ -27,7 +27,9 @@ class LocalMockMaintenanceTest {
             assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> { client.purchase("coins_100", UUID.randomUUID(), UUID.randomUUID()) }.code)
             configured.set(true)
             assertEquals("MAINTENANCE", assertFailsWith<SdkFailure> { client.purchase("coins_100", UUID.randomUUID(), UUID.randomUUID()) }.code)
-            assertEquals("0", client.wallet().coinBalance); client.signOut(); assertEquals(0, verificationCalls.get())
+            assertEquals("0", client.wallet().coinBalance); client.signOut()
+            assertEquals("SESSION_EXPIRED", assertFailsWith<SdkFailure> { client.purchase("coins_100", UUID.randomUUID(), UUID.randomUUID()) }.code)
+            assertEquals(0, verificationCalls.get())
         } finally { server.stop(0) }
     }
 }

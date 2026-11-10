@@ -1033,3 +1033,6 @@
 - local-mock device smoke 19 assertions 통과, 원격 push 없음. 직접 기동한 Backend만 종료했고 전용 DB/volume과 시험 기록은 보존했다. sandbox 실제 HTTP에서 점검 미설정 시 503을 확인한다.
 - sandbox synthetic HTTP 통합에서 점검 미설정 config 503 CONFIG_REQUIRED 확인. Android/iOS fake test에서는 미설정·점검 시 새 구매만 차단하고 wallet/logout은 허용했다.
 - 커밋 전: 사용자 선택한 명시 설정 전 차단, 5분 TTL, Native local-mock gate와 시험을 포함한다. config cache의 재시작 후 영속성과 Unity 적용 및 실제 플랫폼 검증은 미완료다.
+- 交叉 검토에서 Android local-mock은 logout 후 config를 먼저 조회해 Swift와 다른 오류를 반환할 수 있음을 발견했다. 인증 상태를 먼저 확인하도록 맞추고 회귀시험한다.
+- Android core unit 통과: logout 뒤 구매는 SESSION_EXPIRED, config 미설정·점검의 신규 구매는 각각 CONFIG_REQUIRED/MAINTENANCE다.
+- 커밋 전: 오류 우선순위와 fake HTTP 회귀만 포함한다.

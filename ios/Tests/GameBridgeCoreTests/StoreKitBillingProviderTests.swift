@@ -1,4 +1,5 @@
 import XCTest
+import StoreKit
 import GameBridgeCore
 @testable import GameBridgeApple
 
@@ -65,6 +66,14 @@ final class StoreKitBillingProviderTests: XCTestCase {
         let result = try await second.value; XCTAssertEqual(result.recoveredCount, 1); XCTAssertEqual(executions, 1)
         do { _ = try await first.value; XCTFail("caller canceled") }
         catch let failure as SdkFailure { XCTAssertEqual(failure.code, "CANCELED") }
+    }
+
+    func testXcodeEnvironmentRejectsSandboxAndProduction() {
+        if #available(iOS 16.0, macOS 13.0, *) {
+            XCTAssertTrue(isXcodeStoreEnvironment(.xcode))
+            XCTAssertFalse(isXcodeStoreEnvironment(.sandbox))
+            XCTAssertFalse(isXcodeStoreEnvironment(.production))
+        }
     }
 
 }

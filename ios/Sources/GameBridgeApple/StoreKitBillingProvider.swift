@@ -68,15 +68,17 @@ final class StoreKitBillingProvider {
     private let uiGate: AppleUiGate
     private let limiter: AppleVerificationLimiter?
     private let onVerified: (ServerGrant) -> Void
+    private let acceptsTransaction: (Transaction) -> Bool
     private var listener: Task<Void, Never>?
     private let recoveryFlight = AppleRecoveryFlight()
 
-    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, onVerified: @escaping (ServerGrant) -> Void = { _ in }, currentAccount: @escaping () -> ApplePurchaseAccount?) {
+    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, onVerified: @escaping (ServerGrant) -> Void = { _ in }, acceptsTransaction: @escaping (Transaction) -> Bool = { _ in true }, currentAccount: @escaping () -> ApplePurchaseAccount?) {
         self.sink = sink
         self.verificationConcurrency = verificationConcurrency
         self.currentAccount = currentAccount
         self.uiGate = uiGate ?? AppleUiGate()
         self.onVerified = onVerified
+        self.acceptsTransaction = acceptsTransaction
         self.limiter = verificationConcurrency.flatMap { $0 > 0 ? AppleVerificationLimiter(limit: $0) : nil }
     }
     deinit { listener?.cancel() }
@@ -148,7 +150,7 @@ final class StoreKitBillingProvider {
     }
 
     @discardableResult private func process(_ result: VerificationResult<Transaction>) async throws -> ServerGrant {
-        guard case .verified(let transaction) = result else { throw SdkFailure("VERIFICATION_FAILED") }
+        guard case .verified(let transaction) = result, acceptsTransaction(transaction) else { throw SdkFailure("VERIFICATION_FAILED") }
         guard let sink, let limiter, let account = currentAccount() else { throw SdkFailure("CONFIG_REQUIRED") }
         guard transaction.appAccountToken == account.binding, transaction.revocationDate == nil else {
             throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH")

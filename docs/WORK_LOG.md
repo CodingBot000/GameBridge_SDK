@@ -1785,3 +1785,12 @@
 - 신규 Swift fake 시험의 첫 컴파일은 JSON 문자열 escaping과 XCTest async autoclosure 오류로 실패했다. 시험 코드를 수정하고 재실행한다.
 - Swift fake account/grant/wallet 시험 재실행 통과. 개발키와 Native access token 헤더를 확인했으며 실 서버/StoreKit과는 별도다.
 - 커밋 준비: local-mock에서만 명시된 Xcode 개발 endpoint 호출을 허용하는 Swift client와 fake 시험. BUG-013 OPEN 유지.
+- Apple 공식 문서의 `Transaction.environment` 및 `.xcode` 구분을 확인했다(https://developer.apple.com/documentation/storekit/transaction/environment, https://developer.apple.com/documentation/storekit/appstore/environment). Xcode fake grant에 실제 sandbox/production 거래가 들어가지 않도록 검증된 거래의 환경을 검사한다.
+### P05-T03 StoreKit Native 합성 시작
+- 기존 StoreKit 2 provider를 재사용하되 Xcode 환경의 검증된 거래만 local fake grant에 전달하고 지급 확인 후 finish한다. 구매·복원 실동작 검증 전까지 미완료다.
+### P05-T03 StoreKit Native compile 검증 시작
+- Swift compile과 기존 StoreKit fake verifier 시험을 수행한다. 실제 StoreKit 거래·Unity player는 실행하지 않는다.
+- 첫 Swift compile 실패: 새 거래 환경 판별 closure가 initializer 매개변수에 추가되지 않아 발생했다. 선언을 바로잡고 재실행한다.
+- Swift compile 오류 수정 후 기존 StoreKit fake 및 개발 client 5건 통과. Xcode 환경만 허용하는 분기와 sandbox/production 거부를 추가 단위 검증한다.
+- Swift StoreKit fake 5건 통과. Xcode 환경만 허용하고 sandbox/production을 거부하는 조건도 확인했다. 실제 transaction에 대한 guard 및 finish는 simulator 재시험이 필요하다.
+- 커밋 준비: Native Xcode session·verified environment gate만 저장한다. Unity bridge와 실제 거래가 남아 BUG-013 OPEN이다.

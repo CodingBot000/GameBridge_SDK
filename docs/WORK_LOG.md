@@ -493,3 +493,85 @@
 - sandbox HTTP 시험 서버 Ctrl-C 종료 130. 전용 DB volume을 보존하고 container만 정지한다.
 - sandbox 시험 DB container 정지 종료 0, 데이터와 전용 volume은 보존했다. 진행 원장 집계가 실제 Task 행과 달라진 것을 발견해 행 기준으로 재계산한다.
 - 커밋 전: HTTP/DB 실험과 자체 서명 fixture 결과를 증거에 기록하고 실제 Task 행 기준 집계를 재계산했다. P04-T03의 구현·필수 로컬 검증은 완료로 표시하되 실제 Google/Apple 토큰 및 실기기는 WAITING_USER로 유지한다.
+
+### [P04-T04] 시작 — 2026-11-10 Asia/Seoul
+- P04-T03 서버 검증은 로컬 완료, 외부 토큰은 대기. Native 세션을 app·mode·Backend에 결속하고 refresh 응답 유실 시 이전 refresh 재사용을 막는다. Mock/실 Provider 실행은 별도 판정한다.
+- Kotlin LOCAL_MOCK session에 app/mode/Backend 결속을 추가하고 refresh 전 암호화 저장소를 token 없는 tombstone으로 원자 교체하도록 변경. `:sdk-core:test` 종료 0이나 신규 유실·환경 불일치 시험은 아직 미실행이다.
+- `:sdk-core:test --rerun-tasks` 종료 0, LocalMockRefreshTest XML 1건·실패0·skip0: 다른 app 설정에서 기존 저장 데이터 사용 거부, refresh 응답 timeout 뒤 tombstone 유지 및 앱 재생성 시 이전 refresh 재사용 없음 확인. mock HTTP fixture이며 실제 Google 세션 검증 아님.
+- Swift LOCAL_MOCK 저장 record에 app·mode·Backend 결속 및 refresh 전 tombstone을 추가한 뒤 기존 `swift test` 종료 0(15 통과·1 skip). 코드 검토 중 session 불일치·갱신 중 재로그인 경합을 발견해 추가 보정한다.
+- 신규 Swift session fixture `swift test` 종료 1: 한 줄 JSON에 Swift 다중행 문자열 구문을 잘못 사용해 테스트 컴파일 실패, 실행 0건. raw string 구문으로 수정한다.
+- Swift 새 session 시험은 최초 raw 문자열 구문 오류로 컴파일 실패 후 수정해 `swift test` 종료 0: 총 18건 중 17 통과·1 skip. Mock URLProtocol로 refresh 응답 유실 시 tombstone 유지, 다른 app 복원 거부, 늦은 401 두 건이 refresh 한 번만 발생시키는지 확인. 실제 플랫폼 인증 아님.
+- Google·Apple Native 저장 session에도 app/mode/Backend provenance 필드를 추가해 다른 환경의 저장값을 오인하지 않도록 보정. `swift test --package-path ios` 종료 0: 17건 통과·1 skip. Apple/Google 실제 token refresh는 아직 연결되지 않았다.
+- `:sdk-core:test :sdk-android:testDebugUnitTest :sample-app:assembleDebug` 종료 0. session provenance 변경 후 core/Google stub 시험 및 Android Mock 샘플 빌드 재확인. opt-in Backend 통합은 이 실행에서 skip이다.
+- 전용 local-mock DB·서버를 재기동. 새 session 한 행만 만료시킨 뒤 병렬 API 호출에서 refresh 회전 횟수를 검사한다.
+- `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... :sdk-core:test --rerun-tasks` 종료 0, local Backend 통합 XML 2건·실패0·skip0. 테스트가 생성한 session만 만료시킨 후 8개 동시 잔액 호출과 refresh history 1건을 확인했다. Kotlin 구현은 요청을 mutex로 직렬화하므로 병렬 조회 성능 검증은 아니다.
+- opt-in local Backend을 포함한 Android `:sdk-core:test :sdk-android:testDebugUnitTest :sample-app:assembleDebug --rerun-tasks` 종료 0. XML 확인: LocalMockIntegration 2건·Refresh 1건·Google stub 4건 모두 실패/skip 0. 다른 app·서버 및 Google 저장 session을 Mock Backend에 보내지 않고 저장값을 보존함을 확인.
+- `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... swift test --package-path ios` 종료 0: XCTest 18건·실패0·skip0. Mock HTTP 유실·늦은 401 및 실제 local Backend 수직 경로, Apple 저장 session을 Mock 서버에 보내지 않고 보존하는 분기를 확인했다. 실제 Apple token refresh는 미구현이다.
+- session provenance/tombstone 변경 후 XcodeBuildMCP `test_sim` 성공: iOS 26.5 UI smoke 1건·실패0·skip0, local-mock 로그인·구매·재시작 Keychain 복원·로그아웃 재확인. 실제 Apple 계정/StoreKit은 아니다.
+- Google Native provider에 app/mode/Backend 결속 복원·직렬화된 refresh·응답 유실 tombstone·오프라인 logout을 추가하고 `:sdk-android:testDebugUnitTest :sample-app:assembleDebug` 종료 0. XML 6건·실패0·skip0: stub에서 8개 동시 복원 refresh 1회, 유실 후 재사용 금지, 서버 revoke 실패에도 로컬 삭제 확인. 실제 Google token/기기 검증은 아니다.
+- Apple Native session 확장 후 `swift test` 종료 1: XCTest assertion의 autoclosure 안에 async task.value를 넣어 테스트 코드 컴파일 실패. 실행 0건이며 값을 먼저 await하도록 수정한다.
+- Apple Native provider의 8개 동시 복원 single-flight·응답 유실 tombstone·다른 서버 결속 및 offline revoke 실패 분기를 fake backend로 구현. 첫 테스트 컴파일 오류 수정 후 `swift test` 종료 0: 19건 통과·1 skip. 실제 Apple 계정/Backend 통합은 미실행.
+- 검토 중 refresh tombstone 이후 로그아웃이 원격 revoke를 확인할 수 없는데 성공을 반환할 수 있음을 발견했다. 로컬 삭제를 먼저 수행하되 미확인 원격 revoke를 명시적으로 보고하도록 보정한다.
+- Kotlin Mock/Google logout에서 refresh 유실 tombstone을 지운 후 `REVOCATION_UNCONFIRMED`를 반환하고, 저장된 다른 환경 session은 삭제하지 않도록 보정. opt-in Backend 포함 Android 테스트·샘플 빌드 종료 0; LocalMock 통합 2, 유실 1, Google fake 6건 모두 실패/skip 0 확인. 실제 Google 인증은 미실행.
+- Swift LocalMock/Apple logout에 저장된 세션의 환경 재확인과 `REVOCATION_UNCONFIRMED` 표시를 추가한 뒤 `swift test` 종료 0: 기존 19건 통과·local Backend 1건 skip. 유실 후 logout 및 동시 복원 검증을 추가한다.
+- Swift에서 동일 저장 세션의 동시 복원과 늦은 401이 refresh를 1회만 수행하는 Mock URLProtocol 시험을 추가하고, tombstone logout을 `REVOCATION_UNCONFIRMED`로 보고하도록 보정. `swift test` 종료 0: 20 통과·local Backend 1 skip. Apple 실제 실연동 검증 아님.
+- `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... swift test --package-path ios` 종료 0: XCTest 21건·실패0·skip0. 새 session format 및 logout 보정 후 실제 local-mock Backend와 Swift 수직 시험도 재통과. 실제 Apple/Google 인증은 아니다.
+- session provenance와 logout 보정 후 XcodeBuildMCP `test_sim` 성공: iOS 26.5 local-mock UI 1건·실패0·skip0, 로그인·구매·재시작 복원·logout 재확인. 실제 Apple 인증/결제 아님.
+- 이번 작업 전용 Android 36 AVD를 재기동하고 boot_completed 확인(종료 0). 기존 사용자 AVD는 사용하지 않았다.
+- 전용 AVD에 최신 Debug APK 설치·Activity 실행·UI dump 종료 0. 새 session format의 로그인/앱 재시작/복원을 자동 입력으로 확인한다.
+- `python3 artifacts/android-avd/session-ui-smoke.py` 종료 1: 첫 로그인 뒤 재시작한 화면에서 Initialize 요소를 찾지 못해 UI 복원 확인 전 중단. 자동 입력/화면 상태를 조사하며 성공으로 기록하지 않는다.
+- `dumpsys window` 종료 0: 실패 시 전용 emulator가 launcher에 있었다. 자동화의 무조건 Back 입력이 키보드가 닫힌 상태에서 앱을 닫은 것으로 보여 키보드 표시 상태를 확인하고 보정한다.
+- 전용 AVD에서 화면 준비 후 테스트 키 입력 시 `dumpsys input_method`의 `mInputShown=true`를 확인했다. 키보드 표시일 때만 Back을 사용해 수동 복원 경로를 재검증한다.
+- 화면 준비 확인 후 재시도에서 `Initialized LOCAL_MOCK`, 이어 앱 재시작 후 `Restored` 표시 확인(각 UI dump 종료 0). 전용 Keystore에 저장된 새 session 형식으로 local-mock 복원된 결과이며 Google 실인증은 아니다. ENV-004 재발 원인은 UI 자동화였고 재검증으로 해소.
+- AVD에서 `Signed out` 표시 후 SDK private preferences에 session 항목이 없음을 내용 비출력 검사(종료 0). 원격 logout 결과가 성공한 local-mock 상황이며 오프라인 revoke 보류 상태는 별도 stub 시험으로 구분한다.
+- `adb -s emulator-5566 emu kill` 종료 0: 이번 작업의 전용 AVD만 정지하고 데이터는 보존했다.
+- Native logout의 remote revoke 실패를 정제된 `REVOCATION_UNCONFIRMED`로 표시하고 Swift session 시각 검증을 강화. Android opt-in Backend 포함 core·Google stub·샘플 빌드 종료 0, 대상 시험 2+1+6건 실제 실행·실패0·skip0.
+- `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... swift test --package-path ios` 종료 0: XCTest 21건·실패0·skip0. mock timeout 후 tombstone, 다른 환경 거부, 동시/지연 401 single-flight 및 Apple fake 복원·오프라인 logout 분기를 확인했다. 원격 revoke 미확인을 UI가 숨기지 않도록 샘플을 보정한다.
+- Android 샘플이 logout 실패 시에도 화면의 이전 재화 상태를 지우고 원격 revoke 미확인을 명시하도록 수정. `:sample-app:assembleDebug` 종료 0, 화면 분기 실제 실행은 아직 미검증.
+- XcodeBuildMCP `build_sim` Debug 성공(경고·오류 0): Swift 샘플의 logout 실패 표시 변경 컴파일. 실패 UI 직접 실행은 미검증.
+- Kotlin logout 중 coroutine 취소도 원격 revoke 미확인으로 구분하고 Google restore 취소를 CANCELED로 정제. local Backend opt-in 포함 Android core·Google stub 시험 및 sample build 종료 0.
+- Kotlin Native HTTP가 401 인증 실패/세션 만료, 409 구매 계정·멱등 충돌, 429 제한 및 설정/네트워크 오류를 허용된 코드만으로 구분하도록 보정. local Backend opt-in 포함 Android core·Google stub·sample build 종료 0; 오류 메시지의 임의 token은 노출하지 않도록 시험. Swift 동등 검증은 이어서 실행한다.
+- Swift Native HTTP도 401 인증/세션, 409 거래 충돌, 429 제한과 503 설정/네트워크를 허용 목록으로 구분하도록 수정. opt-in local Backend 포함 `swift test` 종료 0: XCTest 22건·실패0·skip0. Google/Apple 실제 발급 token 시험은 아니다.
+- 다른 app/server/provider의 저장 세션을 잘못된 client logout이 삭제하지 않도록 하는 Android 검증을 추가했고 local Backend opt-in core·Google stub·sample build 종료 0. Swift 동일 분기는 이어서 시험한다.
+- Swift에서 잘못된 app/server 세션에 대한 logout이 저장값을 보존하는 검사까지 포함해 local Backend opt-in `swift test` 종료 0: XCTest 22건·실패0·skip0.
+- P04-T04 계속: 계획의 access 또는 refresh 기반 logout 계약에 비해 서버는 access만 받는 누락을 발견했다. 소유 세션의 현재 refresh로 revoke하는 경로를 추가하고, 미확인 revoke는 계속 명시한다.
+- 서버 refresh 기반 logout 경로를 추가하고 `./backend/gradlew -p backend test` 종료 0. 실제 PostgreSQL/HTTP 경로 및 Native fallback은 아직 미검증이다.
+- Native Google/Apple 및 local-mock logout에서 access 만료 시 현재 refresh로 server revoke를 요청하도록 추가. Android core·Google stub·sample build 종료 0, opt-in 실제 Backend 검증은 아직 실행 전이다.
+- `:sdk-core:test --rerun-tasks` 종료 0, LocalMockRefreshTest 2건·실패0·skip0: 저장 session으로 access 만료 logout 시 refresh fallback 및 local 삭제를 mock HTTP로 확인. 실제 Backend fallback은 후속 검증한다.
+- `swift test` 종료 1: 새 logout fallback 관련 시험 2건 실패, 전체 24건 중 2 skip. 실패 원인을 로그에서 확인하고 성공으로 기록하지 않는다.
+- 실패 2건은 테스트 URLProtocol에서 refresh logout의 `request.httpBody`가 비어 있어 확인 counter가 0으로 남은 assertion이다. URLSession이 제공하는 body stream도 읽도록 fixture를 보정하며 실제 서버 동작으로 대체해 성공을 주장하지 않는다.
+- Swift URLProtocol fixture가 request body를 stream으로 전달하는 점을 반영한 뒤 `swift test` 종료 0: 24건 중 22 통과·local Backend 2 skip. LocalMock 및 Apple HTTP revoke의 access 401→refresh fallback은 mock transport에서 확인했으며 실제 서버 검증은 아직 미실행.
+- 변경 전 local-mock 서버 Ctrl-C 종료 130. refresh logout 경로를 포함한 새 서버로 재기동한다.
+- refresh logout 구현을 포함한 local-mock 서버와 전용 DB가 정상 기동했다. 테스트 생성 session만 만료시키고 refresh revoke·연결 token 삭제를 확인한다.
+- 새 local-mock 서버에서 `smoke-auth-local.py` 종료 0: 16 assertion(만료 access 후 현재 refresh logout·재호출·refresh 폐기 포함). `smoke-device-local.py` 종료 0: 19 assertion(동일 refresh logout의 해당 push token 삭제 포함). 실제 스토어/원격 push 아님.
+- local Backend opt-in Android core·Google stub·샘플 빌드 종료 0. XML: LocalMockIntegration 3건·Refresh 2건·Google stub 6건, 실패0·skip0. 실제 local-mock DB에서 access를 만료시킨 본인 테스트 session을 Native client가 refresh 기반으로 revoke한 것을 확인.
+- `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... swift test --package-path ios` 종료 0: XCTest 25건·실패0·skip0. 실제 local-mock PostgreSQL에서 만료 access 후 Swift Native client가 refresh 기반 logout을 수행하고 해당 session revoke를 확인. Apple 실제 계정은 사용하지 않았다.
+- Google HTTP revoke test seam 추가 후 Android build 종료 1: constructor lambda의 suspend 함수 타입 추론 실패. 테스트 실행 전 컴파일 오류이며 명시적 suspend 함수형 타입으로 수정한다.
+- 명시적 suspend 타입 보정 후 local Backend opt-in Android core·Google adapter 테스트·sample build 종료 0. XML: local Backend 3건·Mock refresh 2건·Google fake 7건 모두 실패/skip 0. Google HTTP revoke fallback은 stub transport로 확인했고 실제 Google 계정 사용은 아님.
+- local Backend opt-in `swift test --package-path ios` 종료 0: XCTest 25건·실패0·skip0. 실제 local-mock DB에서 access 만료 후 Swift client의 refresh logout 및 revoke 확인, Apple HTTP fallback은 URLProtocol stub으로 확인했다. 실제 Apple token은 사용하지 않았다.
+- 최신 session·logout 변경 후 XcodeBuildMCP `test_sim` 성공: iOS 26.5 local-mock UI 1건·실패0·skip0. 실제 Apple 인증·StoreKit/원격 push 미실행.
+- `bash scripts/smoke-local.sh` 종료 1: Mock 인증 16·구매 13·기기 19 assertion 각각 통과했지만 보호된 개발 push send가 미구현이므로 집계는 실패 유지. 실제 Provider 인증/구매/원격 푸시 통과가 아니다.
+- local-mock 테스트 서버 Ctrl-C 종료 130; 전용 DB는 삭제하지 않고 정지한다.
+- `GAMEBRIDGE_RUN_AUTH_DB_TESTS=true ... ./backend/gradlew -p backend test --rerun-tasks` 종료 1: AuthFlowDatabaseTest 및 AuthHttpIntegrationTest 각 1건 실패. 원인을 확인하기 전 통합 성공으로 기록하지 않는다.
+- 실패 원인 조사: 전용 PostgreSQL container가 `exited`, exit 0, OOM false이며 로그에는 정상 fast shutdown이 기록돼 있다. 중지 주체는 확인하지 못했다. DB가 없어 2개 opt-in 시험이 실패한 환경 사건이며 테스트 DB를 보존한 채 재기동한다.
+- 전용 PostgreSQL container `up -d --wait` 종료 0, healthy. 사용자 DB 삭제 없이 실패한 두 DB 시험을 재실행한다.
+- DB healthy 후 동일 opt-in Backend test 재실행 종료 0. AuthHttpIntegrationTest와 AuthFlowDatabaseTest 각각 1건·실패0·skip0. sandbox 자체 서명 fixture에 대해서도 access 만료 후 현재 refresh logout과 멱등 재호출을 확인. ENV-008 해소.
+- `curl ...:18080/health` 종료 7: local-mock 서버가 현재 실행 중이지 않음. sandbox DB 시험은 통과했으며 Native 최종 회귀를 위해 전용 서버를 다시 시작한다.
+- local-mock server/전용 DB가 새 logout 코드로 기동했다. Native 회귀는 공유 Mock 잔액이 겹치지 않도록 Kotlin과 Swift를 순차 실행한다.
+- 최신 서버로 Android opt-in core·Google stub·sample build `--rerun-tasks` 종료 0. XML: local Backend 3건, refresh fixture 2건, Google stub 7건, 실패/skip 0. 실 Google 계정 UI·token 사용은 아니다.
+- 최신 서버로 Swift local Backend opt-in `swift test` 종료 0: XCTest 25건·실패0·skip0. Native Mock session/refresh logout과 Apple fake callback을 확인했으며 실제 Apple 계정은 사용하지 않았다.
+- 최신 refresh logout 및 session 변경 후 XcodeBuildMCP `test_sim` 성공: iOS 26.5 local-mock UI 1건·실패0·skip0. Google/Apple 계정·실제 구매·원격 push는 실행하지 않았다.
+- 테스트 서버 Ctrl-C 종료 130. 전용 PostgreSQL container를 volume 삭제 없이 정지한다.
+- 전용 DB `docker compose ... stop` 종료 0, volume/시험 데이터 보존. 검토 중 계획의 access 15분·refresh 7일은 코드에서 고정돼 설정 변경이 불가능한 점을 확인해 명시적 설정으로 노출한다.
+- 계획의 세션 TTL을 `GAMEBRIDGE_SESSION_ACCESS_TTL_SECONDS`(기본 900), `GAMEBRIDGE_SESSION_REFRESH_TTL_SECONDS`(기본 604800)로 설정 가능하게 추가한 뒤 Backend test 종료 0. Spring 설정값이 실제 session에 반영되는지는 DB 통합 시험으로 확인한다.
+- 전용 PostgreSQL `up -d --wait` 종료 0, healthy. 격리된 sandbox 시험에서 임시 TTL 설정이 응답에 실제 반영되는지 확인한다.
+- opt-in sandbox DB `./backend/gradlew -p backend test --rerun-tasks` 종료 0. AuthHttpIntegrationTest 1건 실패/skip 0: 시험 전용 access TTL 설정이 발급 시각에 반영되고 refresh logout·재호출이 통과했다. 실제 Provider token은 아니다.
+- refresh 7일 TTL의 기준(최초 로그인 고정 또는 갱신 때마다 연장)은 계획에 명시되지 않아 사용자에게 선택을 요청했다. 현재 고정 만료 코드는 기존 미확정 구현일 뿐 승인된 정책이 아니며, 답변 전 의존 동작을 완료·배포하지 않는다.
+- P04-T04 독립 산출물 `docs/SECURITY.md` 초안을 작성해 현재 token 경계·검증된 Mock·미완료 실제 Provider 및 revoke 한계를 기록. refresh 만료 기준은 사용자 결정 대기이며 이 문서에 임의 확정하지 않았다.
+
+### [P05-T01] 시작 — 2026-11-10 Asia/Seoul
+- P04-T04 refresh TTL 정책은 사용자 결정 대기. 구매 account binding의 독립적 서버 저장·고유성은 계획에 확정되어 있어 먼저 구현한다. 기존 session의 app 귀속은 임의 추정하지 않는다.
+- account binding 초안 컴파일용 `./backend/gradlew -p backend test` 종료 0. 새 DB test는 환경 미설정으로 skip이므로 아직 동시성 증거가 아니다. 플랫폼 간 불필요한 상관을 줄이기 위해 Apple과 Google에 서로 다른 무작위 binding을 사용하고 격리된 test schema에서 검증한다.
+- 전용 local-mock DB healthy 확인(`up -d --wait` 종료 0). UUID로 새 test schema를 만들고 원본 migration을 적용해 binding 동시성 시험을 실행한다. 기존 public schema 데이터는 수정하지 않는다.
+- DB opt-in `./backend/gradlew -p backend test --rerun-tasks` 종료 0, PurchaseBindingsDatabaseTest XML 1건·실패0·skip0. 격리 schema에서 10개 동시 생성이 동일 user/app에 같은 binding을 반환하고 app·user·store별로 구분됨을 확인. 새 시험 schema는 데이터 보존을 위해 삭제하지 않았다.
+- 커밋 전: store별 임의 UUID binding DB 서비스와 격리 schema 동시성 시험만 포함. 기존 session app 귀속, Native 전달·상태기계·스토어 검증은 미구현으로 P05-T01 PARTIAL 유지. refresh TTL 선택은 여전히 대기.

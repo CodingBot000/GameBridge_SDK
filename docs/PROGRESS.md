@@ -10,7 +10,7 @@
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P04-T03 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P05-T01 session app scope·Native binding 연결 및 구매 상태기계; USER-SESSION-TTL 결정 대기
+- 바로 다음 행동: P05-T02 Play Billing 실제 호출 기반 구현; session app scope 및 USER-SESSION-TTL은 미완료
 - 불가피한 세션 종료 시 재개 행동: P04-T04/P04-T05부터 진행하고 P00~P03의 PARTIAL 항목을 재검증
 
 ## 집계

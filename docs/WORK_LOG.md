@@ -575,3 +575,9 @@
 - 전용 local-mock DB healthy 확인(`up -d --wait` 종료 0). UUID로 새 test schema를 만들고 원본 migration을 적용해 binding 동시성 시험을 실행한다. 기존 public schema 데이터는 수정하지 않는다.
 - DB opt-in `./backend/gradlew -p backend test --rerun-tasks` 종료 0, PurchaseBindingsDatabaseTest XML 1건·실패0·skip0. 격리 schema에서 10개 동시 생성이 동일 user/app에 같은 binding을 반환하고 app·user·store별로 구분됨을 확인. 새 시험 schema는 데이터 보존을 위해 삭제하지 않았다.
 - 커밋 전: store별 임의 UUID binding DB 서비스와 격리 schema 동시성 시험만 포함. 기존 session app 귀속, Native 전달·상태기계·스토어 검증은 미구현으로 P05-T01 PARTIAL 유지. refresh TTL 선택은 여전히 대기.
+- P05-T01 계속: 세션 TTL 결정과 독립적인 Native 거래·지급·완료 처리 상태기계를 작성한다. 클라이언트는 자체 재화 지급 없이 서버 검증 결과만 반영한다.
+- `:sdk-android:testDebugUnitTest :sdk-android:assembleDebug` 종료 0. Kotlin purchase 상태기계 XML 1건·실패0·skip0: pending grant 거부, user/binding 불일치 거부, 서버 grant 중복과 finalization 멱등성 확인. Native store 연결·실제 지급은 아니다.
+- `swift test --package-path ios` 종료 0: purchase 상태기계 1건 포함 총 26건 중 23 통과·local Backend 3 skip. pending grant 거부, account mismatch, 중복 grant, finalization 상태를 확인. 실제 StoreKit 거래 검증은 아니다.
+- 거래 binding/transaction 값의 문자열 표현을 정제한 뒤 Android 상태기계 unit test 재실행 종료 0. Swift 동일 변경을 이어서 확인한다.
+- Swift ServerGrant 문자열 정제 후 `swift test --package-path ios` 종료 0: 23 통과·local Backend 3 skip. Native 상태기계는 서버 검증 결과를 상태로 반영할 뿐 자체 코인 지급을 하지 않는다.
+- 커밋 전: Android/Swift 거래 상태기계와 단위 시험만 포함. server app scope·binding API·실제 구매 검증 및 StoreKit/Play 연결은 미완료이므로 P05-T01 PARTIAL 유지.

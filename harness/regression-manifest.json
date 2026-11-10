@@ -76,6 +76,14 @@
       ],
       "mode": "TEST_KEY_AND_FAKE",
       "platform": "Backend/Android/iOS"
+    },
+    "purchase-regression": {
+      "command": [
+        "python3",
+        "harness/run-purchase-regression.py"
+      ],
+      "mode": "LOCAL_DB_AND_FAKE",
+      "platform": "Backend/Android/iOS"
     }
   },
   "scenarios": [
@@ -554,9 +562,7 @@
         "R23"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -576,9 +582,7 @@
         "R24"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -598,9 +602,7 @@
         "R25"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -620,9 +622,7 @@
         "R26"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -642,9 +642,7 @@
         "R27"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -664,9 +662,7 @@
         "R28"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -686,9 +682,7 @@
         "R29"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -708,9 +702,7 @@
         "R30"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -730,9 +722,7 @@
         "R31"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -752,9 +742,7 @@
         "R32"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -774,9 +762,7 @@
         "R33"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -796,9 +782,7 @@
         "R34"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -818,9 +802,7 @@
         "R35"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -840,9 +822,7 @@
         "R36"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -862,9 +842,7 @@
         "R37"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -884,9 +862,7 @@
         "R38"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -906,9 +882,7 @@
         "R39"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "purchase-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."

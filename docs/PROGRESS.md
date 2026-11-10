@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / P09-T03 인증·세션 회귀
+- 현재 Phase / Task: P09 / P09-T04 구매·DB 회귀
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
 - 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 인증 회귀 runner 커밋 후 구매·DB 회귀 suite 구현
+- 바로 다음 행동: 구매 회귀 하위 작업 커밋 후 push·패키징 회귀 구현
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 P05-T07 Android Google Play bridge부터 재개하고 iOS 상점·푸시 등 미완료 P00~P08, P09~P11을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 13 / IN_PROGRESS 49 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 13 / PASS 2 / FAIL 1 / PARTIAL 47 / DEFERRED_ENV 1 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 12 / IN_PROGRESS 50 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 12 / PASS 2 / FAIL 1 / PARTIAL 48 / DEFERRED_ENV 1 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -83,7 +83,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P09-T01 | 후반 하네스 manifest·공통 contract test | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T01 | - |
 | P09-T02 | Core·Bridge 회귀·실패 주입 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T02 | ENV-002 |
 | P09-T03 | 인증·세션·개발모드 차단 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T03 | - |
-| P09-T04 | 구매·DB 동시성·복구 회귀 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P09-T04 | 구매·DB 동시성·복구 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T04 | - |
 | P09-T05 | Push·Lifecycle·패키징 회귀 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P09-T06 | 검증 집계·진행 원장 강제 검사 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P09-T07 | CI 설정·플랫폼 lane 분리 | NOT_STARTED | NOT_RUN | N/A | - | - |

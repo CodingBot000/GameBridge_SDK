@@ -1502,3 +1502,18 @@
 - DB URL에 credentials를 내장한 설정은 runner가 사용하지 않도록 했고, R13~R22의 후보 suite를 synthetic auth runner로 연결했다. DB 미설정 시 DEFERRED_ENV/exit 2를 확인한다.
 - DB 환경값을 제거하고 `harness/run-auth-regression.py` 실행 시 JWT 6·Android 13·Swift 17은 실행됐으나 sandbox DB suite는 DEFERRED_ENV/0건, 전체 exit 2를 확인했다. 결과 `artifacts/auth-regression-iu23pa2v/result.json`; 누락을 성공으로 처리하지 않는다.
 - 커밋 전: test-key sandbox HTTP fake-token 거부 assertion과 재현 가능한 인증 runner만 포함한다. 실 Google/Apple·모든 R13~R22 완전 coverage는 미검증으로 P09-T03 PARTIAL 유지한다.
+
+### [P09-T04] 구매·DB 회귀
+- Task 시작: 격리 PostgreSQL에서 중복 지급·계정 binding·finalization 및 Mock 응답 유실 복구를 실행하고 검증 범위를 분리한다. 실제 스토어 거래는 호출하지 않는다.
+- 구매 원장 unique 불변식 시험을 추가했다. 매 실행마다 새 UUID schema를 만들고 opt-in mutation은 해당 새 schema의 constraint만 제거한다. 기존 schema·DB row는 지우거나 변경하지 않는다. 정상·손상·정상 순서로 검증한다.
+- 격리 local-mock DB에서 `LedgerInvariantDatabaseTest` 정상 실행 종료 0, 1건: 같은 purchase의 두 번째 ledger insert를 DB가 거부했다. 생성된 새 schema는 보존했다. 이제 새 schema에 한정된 제약 제거 음성 시험을 수행한다.
+- `GAMEBRIDGE_MUTATE_LEDGER_TEST=true ... LedgerInvariantDatabaseTest --rerun-tasks`는 의도대로 종료 1, 1건 실패. XML에서 예상한 “중복 insert가 예외 없이 성공” assertion 실패를 확인했다. mutation은 새 test schema 안에서만 수행했고 schema는 보존했다. 원본 설정으로 정상·관련 suite를 재실행한다.
+- 정상 원복 후 격리 local DB 구매 suite 종료 0, 7건(skip 0): ledger invariant·Google/Apple grant·binding·finalization. Android fake 16건, Swift fake 6건 종료 0. 실제 Play/StoreKit은 아니다. 이어 sandbox test-key HTTP/DB fixture를 확인한다.
+- sandbox test-key HTTP/DB `GooglePurchaseHttpIntegrationTest`·`ApplePurchaseHttpIntegrationTest` 종료 0, 2건(skip 0): synthetic verifier와 DB transaction 경로 확인. 실제 Play/Apple API가 아니다. 재현 가능한 구매 suite와 mutation 감지 runner를 작성한다.
+- `harness/check-ledger-mutation.py` 종료 0: 새 test schema의 unique 제약 제거가 예상 assertion 실패로 검출됐고 별도 새 schema에서 정상 불변식을 재실행해 통과했다. 기존 schema는 수정·삭제하지 않았다.
+- 구매 runner는 local-mock DB, sandbox test-key DB, Native fake, 명시적 local response-loss lane을 분리하고 누락/0건을 DEFERRED_ENV 또는 FAIL로 처리한다. 두 DB URL과 local server opt-in은 명시된 경우에만 사용한다.
+- 구매 runner 재현 전 직접 기동한 local Backend의 주기 worker가 별도 DB worker 시험과 경쟁할 수 있음을 확인했다. 검증용 서버의 poll 간격만 임시로 늘려 테스트 간 간섭을 피하며, 제품 기본 정책은 변경하지 않는다.
+- 명시적 test DB/local server 설정으로 `harness/run-purchase-regression.py` 종료 0: local PostgreSQL fixture 7, sandbox HTTP fixture 2, Android fake 16, Swift fake 6, Android/Swift 응답 유실 local DB 각 1건, skip 0. 결과 `artifacts/purchase-regression-sszt6cay/result.json`. 실제 스토어·Unity는 포함하지 않는다.
+- DB/local server opt-in을 제거한 구매 runner는 Native fake 22건만 실행하고 DB·응답 유실 lane 4개를 DEFERRED_ENV/0건으로 표시해 전체 exit 2를 반환했다 (`artifacts/purchase-regression-zm5t9s81`). 직접 기동한 Backend만 종료하고 DB·생성 schema는 보존했다.
+- `check-ledger-mutation.py`의 DB 설정 누락은 DEFERRED_ENV/exit 2로 확인했다. URL 내장 credentials는 사용하지 않으며 runner의 import로 생긴 이번 작업 전용 Python bytecode 1개만 제거했다(기존 `scripts/__pycache__` 보존).
+- 커밋 전: 격리 ledger invariant/mutation, 구매 fixture runner 및 증거만 포함한다. Testcontainers, 실제 Play/Apple, 모든 R23~R39 완전 coverage는 미완료로 P09-T04 PARTIAL 유지한다.

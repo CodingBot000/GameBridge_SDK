@@ -2335,3 +2335,7 @@
 - e9b64fb iOS simulator slice를 별도 Swift consumer source에서 link한다. 실행·서명·Unity link 시험은 아니다.
 - `xcrun --sdk iphonesimulator swiftc ... ios/consumer-check/main.swift` 종료 0. 별도 Swift consumer의 arm64 simulator link만 확인했다.
 - 커밋 준비: TODO 감사 및 최신 iOS consumer link 결과와 FINAL_REPORT 갱신. 새 제품 동작이나 실제 플랫폼 PASS는 주장하지 않는다.
+### P11-T02 외부 설정 형태 확인 시작
+- 실키·서명·기기 설정은 USER_SETUP으로 유지하고 비밀값을 출력하지 않는 check-config만 실행한다. 통과하더라도 실제 provider 검증은 아니다.
+- `bash scripts/verify-external.sh --check-config` exit 2: auth audiences, Google purchase, Apple purchase, FCM, APNs, purchase encryption, push token encryption이 MISSING_OR_INVALID. 비밀값은 출력하지 않았고 실제 인증·발송·결제는 수행하지 않았다.
+- 커밋 준비: 외부 설정 형태 재확인 결과만 기록한다. 실연동은 NOT_RUN이고 USER_SETUP의 사용자 작업이 남아 있다.

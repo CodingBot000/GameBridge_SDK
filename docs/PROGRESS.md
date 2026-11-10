@@ -226,3 +226,6 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - P08-T02 最新 iOS XCFramework 독립 Swift consumer link 검증 시작. Unity 및 실제 기기 실행과 구분한다.
 - P08 e9b64fb iOS simulator slice 독립 Swift consumer link PASS (`artifacts/ios-consumer-e9b64fb`). 실행·Unity·서명된 기기는 미검증이다.
 - P11 문서·산출물 검사와 커밋 준비: source TODO 감사 결과와 최신 독립 iOS link 범위를 저장한다.
+- P11-T02 외부 설정 점검 재검증 시작: 실제 인증·발송·결제를 수행하지 않는 설정 확인만 실행한다.
+- P11-T02 설정 형태 확인 exit 2: 인증 audience, Google/Apple 구매, FCM/APNs 및 구매·푸시 암호화 키가 누락 또는 유효하지 않다. 실제 provider 시험은 NOT_RUN이며 USER_SETUP 대기다.
+- P11-T02 커밋 준비: 설정 확인 결과와 사용자 준비 대기를 기록한다. 외부 설정은 수정하지 않았다.

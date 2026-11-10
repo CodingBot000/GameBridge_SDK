@@ -1056,3 +1056,5 @@
 - synthetic Google HTTP 10건→원장 1건→fake 완료 후 증빙 NULL 통합 시험 통과. readiness의 암호화 키 부재 및 pending 증빙 무지급도 추가 확인한다.
 - 격리 local DB readiness의 암호화 키 누락 503, sandbox 실제 HTTP/security/DB에서 synthetic PENDING 무지급, 10개 동시 verify 중 grant 1건 및 fake 완료 뒤 증빙 NULL을 확인했다. 실제 Google Play 조회/결제/consume/ack는 미실행이다.
 - 커밋 전: Google verifier/readiness/HTTP·Native sink 조립 및 synthetic 통합만 포함한다. 실제 Play와 sample/Unity는 미완료로 P05-T04/T05/T07 PARTIAL·WAITING_USER 유지한다.
+- 1차 feature matrix와 통합 안내의 과거 “Google verify endpoint/worker 미연결” 문구를 현재 synthetic 연결 상태로 정정했다. 실제 외부 검증 미완료 표기는 유지한다.
+- 커밋 전: 추적 문서 정정만 포함한다.

@@ -122,7 +122,7 @@ Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, se
 
 현재 준비: Android Play Billing 9.1 실제 연결·상품 조회·구매 UI·callback·복구 gateway와 fake 경계 시험이 있다. 공식 Google 서버 조회 verifier 경계는 있으나 신규 인증 세션의 app scope 기반 binding 조회가 추가됐지만 Native 연결·proof sink·원장 연결과 샘플/Unity 통합이 미완료라 코드 준비는 BLOCKED이며, 이 상태에서는 실제 구매 UI를 시작하지 않는다.
 
-Codex 준비물: Play Billing provider, real server verifier, purchase binding, 원장 transaction, finalization worker, server consume/acknowledge. 앱에서 consume해서 서버 지급 확인을 건너뛰지 않는다.
+Codex 준비 상태: Play Billing provider, server verifier, purchase binding, 원장 transaction, finalization worker와 server consume/acknowledge 경계는 구현 및 fake 검증했다. 공개 sample/Unity 조립과 실제 Play 검증은 남았다. 앱에서 consume해서 서버 지급 확인을 건너뛰지 않는다.
 
 실제 시나리오: 상품 조회 → 소모성 구매 → 서버 원장 1개/코인 +100 → consume → 재구매 → 비소모성 구매/ack → 재설치 또는 재로그인 복원 → 구매 중 취소/보류 → 네트워크 단절 후 복구 → duplicate verification. 각 원장 변화가 예상과 같아야 한다.
 

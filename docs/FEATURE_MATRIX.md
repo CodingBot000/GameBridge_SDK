@@ -13,7 +13,7 @@
 | 진단 `GetDiagnostics` | C# registry snapshot | Native ring 및 facade 연결 미완료 | Android/iOS typed ring unit 시험만 존재 | PARTIAL |
 | host push/lifecycle | 미완료 | operation 미연결 | Native payload allowlist unit 확인, queue/dedup 미구현 | PARTIAL |
 
-구매 서버는 Apple synthetic verifier→DB grant 동시 시험, Google verifier 및 finalizer fake 시험이 있다. provider 설정·공개 verify endpoint·durable Google finalization·Native sink가 이어지지 않아 실거래 지급 경로는 미완성이다. iOS StoreKit local 상품 조회는 simulator 시험에서 실패했다. Unity staged package의 import 및 Android/iOS export는 라이선스·모듈 제약으로 미검증이다.
+구매 서버는 Apple/Google synthetic verifier→인증 HTTP→DB grant 동시 시험과 Google durable finalizer의 fake 완료·암호화 증빙 삭제 시험이 있다. Native store runtime과 proof sink도 내부 조립되어 있으나 공개 Unity/native sample 연결과 실제 스토어 거래 검증은 미완성이다. iOS StoreKit local 상품 조회는 simulator 시험에서 실패했다. Unity staged package의 import 및 Android/iOS export는 라이선스·모듈 제약으로 미검증이다.
 
 초기 검색에서 대상 소스에 `TODO`, `FIXME`, `NotImplementedException`, `fatalError(` 표기는 발견되지 않았지만, 위의 호출 경로 누락은 실제 미구현이다. 이 표는 코드 변경에 따라 계속 갱신한다.
 

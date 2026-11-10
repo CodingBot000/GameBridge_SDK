@@ -8,7 +8,7 @@ Host가 Android Activity 및 Firebase 초기화, iOS window와 AppDelegate/notif
 
 ## 구매 및 계정
 
-신규 서버 세션은 인증 challenge로 확인한 앱 범위에 연결된다. 범위가 없는 기존 세션은 구매 binding을 받기 전에 재인증해야 하며 자동 변경·삭제하지 않는다. Apple/Google account binding은 Native 내부 값이다. 검증된 거래만 서버에서 지급하며 Apple finish는 서버의 지속된 지급 확인 뒤에만 수행해야 한다. 서버 verifier·실제 스토어·Native 조립은 아직 완성되지 않았다.
+신규 서버 세션은 인증 challenge로 확인한 앱 범위에 연결된다. 범위가 없는 기존 세션은 구매 binding을 받기 전에 재인증해야 하며 자동 변경·삭제하지 않는다. Apple/Google account binding은 Native 내부 값이다. 검증된 거래만 서버에서 지급하며 Apple finish는 서버의 지속된 지급 확인 뒤에만 수행해야 한다. 서버 verifier와 Native 내부 runtime은 synthetic fixture로 연결 검증했으나 공개 sample/Unity 조립과 실제 스토어 검증은 아직 완성되지 않았다.
 
 ## 패키지 소비
 

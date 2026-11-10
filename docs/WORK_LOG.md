@@ -1999,3 +1999,8 @@
 - 변경 문서의 오래된 미연결·미구현 표현과 상태 원장을 점검하고 `smoke-local`의 Unity 미실행 표현을 확인한다.
 - 원장·diff 검사 통과, 갱신한 문서에서 이미 연결된 Provider를 미연결로 쓰던 표현을 제거했다. `smoke-local`은 Unity player 경로가 실제 미실행이므로 계속 실패하며 NOT_RUN으로 표시한다.
 - 커밋 준비: 사실 관계와 검증 범위 문서 및 smoke 상태 문구만 포함한다. 실제 Unity·외부 서비스 PASS는 없다.
+
+### [P09-T05] 최신 Mock 푸시 E2E 재검증 시작
+- Native 저장소 identity 변경 후 새 전용 DB에서 Android·Swift local Mock 발송→수신을 재실행한다. Unity player 및 FCM/APNs는 포함하지 않는다.
+- `artifacts/mock-push-e2e-1sbjzmqn/result.json`: 전용 DB `gamebridge_ci_8353e458cb`에서 Android 및 Swift Native 각 1건 PASS/skip 0. Unity player·원격 발송은 미검증이다.
+- 커밋 준비: 재검증 결과와 원장만 기록한다.

@@ -78,7 +78,7 @@ GAMEBRIDGE_BACKEND_BASE_URL=기기에서 접근 가능한 주소
 
 local-mock 기본 host port는 loopback이다. 실기기 접근을 위해 LAN으로 노출할 경우 fake identity/proof 수락 서버가 공개되지 않게 제한한다. sandbox는 real Provider와 별도 DB/schema/config를 사용한다. `allowAllTLS`, certificate trust 무시, 운영 cleartext 허용은 해결책이 아니다.
 
-현재 준비: `GAMEBRIDGE_DB_PASSWORD`와 local-mock 인증 시험용 `GAMEBRIDGE_DEV_AUTH_KEY`(32자 이상, 비밀값)를 로컬 환경에 설정한 뒤 `bash scripts/run-demo-backend.sh`로 local-mock 서버와 전용 DB를 기동할 수 있다. 최초 기동 시 적용한 DB 비밀번호와 이후 실행 값은 같아야 한다. local-mock A/B 로그인·회전·로그아웃, Mock 구매·중복 지급 및 세션별 Mock 토큰 삭제는 제한된 smoke로 확인했다. Native sample의 local-mock 흐름도 Android emulator와 iOS simulator에서 확인했다. 실제 인증·결제·푸시 전체 smoke와 개발용 push 발송은 미완료다. 전용 volume 수명은 `infra/README.md`를 따른다. 환경 표식이 없는 기존 Flyway DB는 자동 변환하지 않고 기동을 차단하므로, 소유권과 마이그레이션 절차를 확인하기 전 기존 데이터를 재사용하지 않는다.
+현재 준비: `GAMEBRIDGE_DB_PASSWORD`와 local-mock 인증 시험용 `GAMEBRIDGE_DEV_AUTH_KEY`(32자 이상, 비밀값)를 로컬 환경에 설정한 뒤 `bash scripts/run-demo-backend.sh`로 local-mock 서버와 전용 DB를 기동할 수 있다. 최초 기동 시 적용한 DB 비밀번호와 이후 실행 값은 같아야 한다. local-mock A/B 로그인·회전·로그아웃, Mock 구매·중복 지급 및 세션별 Mock 토큰 삭제는 제한된 smoke로 확인했다. Native sample의 local-mock 흐름도 Android emulator와 iOS simulator에서 확인했다. 실제 인증·결제·푸시 전체 smoke와 실제 개발 push 발송은 미완료다. local-mock 개발 endpoint는 명시적으로 SIMULATED를 반환한다. 전용 volume 수명은 `infra/README.md`를 따른다. 환경 표식이 없는 기존 Flyway DB는 자동 변환하지 않고 기동을 차단하므로, 소유권과 마이그레이션 절차를 확인하기 전 기존 데이터를 재사용하지 않는다.
 
 확인 순서: doctor → server start → health → smoke-local → 기기 통신. 기대 결과: 로컬 원장 smoke 통과, 비밀값 미출력, profile 격리. 설정이 맞아도 실제 Google/Apple 검증이 통과했다는 뜻은 아니다.
 
@@ -220,4 +220,6 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 
 Google 완료 처리가 확인되면 암호화 증빙을 즉시 삭제하기로 사용자가 결정했다. Google worker는 fake store와 격리 DB에서 실패 시 증빙 유지 및 완료 확인 시 즉시 삭제를 검증했다. 실제 Play Developer API 확인은 미실행이다.
 
-사용자 정책 결정: 푸시 재시도 최대 3회, 5초부터 지수 백오프(APNs 5xx는 최소 15분 후); 개발 발송 API는 관리자 키별 분당 10회; 세션 푸시 중복 ID 최근 200개; 사용 가능한 config가 없으면 신규 구매 차단. 서버 retry/rate 정책은 단위 검증했으나 발송 endpoint/worker에 아직 연결하지 않았다. 세션 dedup router는 Android/iOS 단위 검증했고 실제 callback 연결은 미완료다. 실제 Native store runtime은 사용 가능한 config가 없으면 신규 구매를 차단한다. 현재 서버 기본 응답에는 expiry가 없어 실제 store 시작이 차단되며 서버 config TTL 결정·구현이 필요하다. local-mock sample에는 아직 이 gate가 연결되지 않았다. 실제 플랫폼 발송은 미실행이다.
+사용자 정책 결정: 푸시 재시도 최대 3회, 5초부터 지수 백오프(APNs 5xx는 최소 15분 후); 개발 발송 API는 관리자 키별 분당 10회; 세션 푸시 중복 ID 최근 200개; 사용 가능한 config가 없으면 신규 구매 차단. 서버 retry 정책은 단위 검증했고 worker에는 아직 미연결이다. 분당 10회 제한은 보호된 local-mock 개발 endpoint에서 HTTP 검증했다. 세션 dedup router는 Android/iOS 단위 검증했고 실제 callback 연결은 미완료다. 실제 Native store runtime은 사용 가능한 config가 없으면 신규 구매를 차단한다. 현재 서버 기본 응답에는 expiry가 없어 실제 store 시작이 차단되며 서버 config TTL 결정·구현이 필요하다. local-mock sample에는 아직 이 gate가 연결되지 않았다. 실제 플랫폼 발송은 미실행이다.
+
+local-mock 개발 push endpoint를 사용하려면 `GAMEBRIDGE_DEV_PUSH_ADMIN_KEY`(기존 개발 인증키와 다른 32자 이상 비밀값)와 쉼표로 구분한 `GAMEBRIDGE_DEV_PUSH_ALLOWLIST` installation UUID 목록을 설정한다. 사용자 인증·소유권도 필요하며 응답 SIMULATED는 원격 전달이 아니다. sandbox 실제 sender는 아직 CONFIG_REQUIRED다.

@@ -17,7 +17,7 @@ import java.io.InputStreamReader
 
 /** Bounded replayable body for synchronous JSON API requests, including chunked requests. */
 @Component
-@Order(-105)
+@Order(-104)
 class RequestBodyLimitFilter(private val mapper: ObjectMapper) : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         if (!request.requestURI.startsWith("/v1/") || request.method !in setOf("POST", "PUT", "PATCH", "DELETE")) {

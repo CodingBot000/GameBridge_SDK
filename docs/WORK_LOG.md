@@ -991,3 +991,12 @@
 - Swift fake config·auth 15건 통과. Android에서 config 미상일 때 신규 구매 UI만 차단하고 store recovery는 계속 호출되는지 별도 확인한다.
 - Android fake store 시험에서 설정 미상 구매 UI 차단과 recovery 허용을 확인했다. 현재 서버 기본 config에는 expiry가 없어 실제 store runtime은 차단 상태이며 TTL 사용자 결정이 필요하다. local-mock sample gate는 미연결이다.
 - 커밋 전: 승인된 안전 기본값, 유효기간 기반 메모리 cache 및 Native store gate와 fake unit만 포함한다. server TTL·영속 cache·sample/Unity 연동은 미완료로 P07-T01 PARTIAL 유지한다.
+
+### [P02-T05] 보호된 개발 push endpoint
+- 별도 admin key·installation allowlist·현재 사용자 소유권·분당 10회 제한을 적용한다. local-mock은 SIMULATED만 반환하며 sandbox 실제 sender 미연결 시 fail-closed한다. production에는 route를 등록하지 않는다.
+- local-mock/sandbox dev endpoint 초안은 key·allowlist·소유권·route·rate를 검사한다. sandbox sender는 아직 CONFIG_REQUIRED이며 실제 push를 실행하지 않는다. compile 및 HTTP fixture를 확인한다.
+- auth rate filter와 body filter가 같은 우선순위였으므로 auth rate 검사 후 body 제한이 적용되도록 순서를 명시했다.
+- 별도 local-mock HTTP 시험으로 익명/잘못된 admin/미허용 installation/다른 사용자 거부 및 관리자 키당 10회 제한을 확인한다. 실제 원격 발송은 하지 않는다.
+- local-mock 진짜 HTTP/security/DB 시험 통과: key·allowlist·소유권 거부와 10회 이후 429 확인. 429의 retryable flag를 true로 보정하고 production route 미등록도 검증한다.
+- local-mock 실제 HTTP 및 production web slice 총 2건 통과(skip 0): 사용자 인증·별도 admin·allowlist·소유권·분당 10회, production route 404. local-mock은 SIMULATED이고 sandbox sender는 fail-closed다.
+- 커밋 전: 개발 endpoint 접근 통제와 mock 응답만 포함한다. sandbox 실제 sender, retry worker 및 전체 push 전달·클릭 smoke는 미완료로 P02-T05/P06-T04 PARTIAL 유지.

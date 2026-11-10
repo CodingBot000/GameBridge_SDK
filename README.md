@@ -23,7 +23,7 @@ bash scripts/build-ios.sh --simulator
 ./backend/gradlew -p backend test
 ```
 
-Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh`는 개발용 push 발송이 미구현이므로 전체 성공하지 않습니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
+Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh`는 push 전달과 라우팅의 전체 경로가 미구현이므로 전체 성공하지 않습니다. 개발 발송 endpoint의 local-mock 응답은 SIMULATED이며 원격 전송이 아닙니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
 
 ## 패키징
 

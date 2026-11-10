@@ -71,8 +71,8 @@ class ApiErrors {
     }
     @ExceptionHandler(ResponseStatusException::class)
     fun status(ex: ResponseStatusException, request: HttpServletRequest): ResponseEntity<Map<String, Any>> {
-        val code = when (ex.statusCode.value()) { 400 -> "INVALID_ARGUMENT"; 401 -> "SESSION_EXPIRED"; 403 -> "PERMISSION_DENIED"; 404 -> "UNSUPPORTED_OPERATION"; 503 -> "CONFIG_REQUIRED"; else -> "INTERNAL_ERROR" }
-        return ResponseEntity.status(ex.statusCode).contentType(MediaType.APPLICATION_JSON).body(mapOf("code" to code, "message" to "Request rejected", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
+        val code = when (ex.statusCode.value()) { 400 -> "INVALID_ARGUMENT"; 401 -> "SESSION_EXPIRED"; 403 -> "PERMISSION_DENIED"; 404 -> "UNSUPPORTED_OPERATION"; 429 -> "BUSY"; 503 -> "CONFIG_REQUIRED"; else -> "INTERNAL_ERROR" }
+        return ResponseEntity.status(ex.statusCode).contentType(MediaType.APPLICATION_JSON).body(mapOf("code" to code, "message" to "Request rejected", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to (code == "BUSY")))
     }
     @ExceptionHandler(NoResourceFoundException::class)
     fun notFound(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON)

@@ -1666,3 +1666,19 @@
 - 메시지를 저장하지 않는 LOCAL_MOCK broker의 사용자·앱·installation 분리 및 미연결 폐기, 실패 구독 정리를 단위 시험한다. 서버 HTTP와 Native 수신 연결은 아직 없다.
 - `backend/gradlew -p backend test --tests com.gamebridge.push.MockPushBrokerTest --rerun-tasks` 종료 0: 2건 통과. 기존 Jackson/FCM deprecation 경고가 출력됐다. HTTP/Native 수신 미구현으로 BUG-014 OPEN.
 - 커밋 준비: 사용자가 승인한 무보관 broker 및 단위 시험만 저장하고 나머지 경로를 계속 연결한다.
+### P06-T05 LOCAL_MOCK HTTP 구독 시작
+- 인증된 세션과 해당 세션 소유 installation을 확인하는 연결 전용 스트림을 추가한다. 전달 직전 세션 및 등록 상태를 재확인하며 오프라인 메시지는 보관하지 않는다. 별도 서버·클라이언트 통합 시험 전까지 미완료다.
+### P06-T05 HTTP 구독 검증 시작
+- 우선 서버 컴파일과 broker 단위 시험을 실행한다. 실제 HTTP 인증·소유권·logout 경쟁 및 Native 수신은 별도 시험이 남았다.
+- 서버 compile과 broker 단위 시험 통과. 구독 등록과 연결 종료가 동시에 일어날 때 dangling 구독이 남을 수 있는 경합을 발견해 종료 flag로 보강했다. 실제 HTTP 및 Native 수신은 아직 미검증이다.
+### P06-T05 HTTP 통합 시험 준비
+- 전용 빈 DB에서 실제 HTTP 연결의 소유권 거부와 연결된 세션의 수신 및 title/body 비노출을 검증한다. 비밀정보는 출력하지 않고 기존 DB·volume은 보존한다.
+- 첫 HTTP 통합 시험 실패: 다른 사용자 구독이 기대 403 대신 500을 반환했고 `HttpMediaTypeNotAcceptableException`이 기록됐다. SSE 요청의 Accept 협상과 오류 응답을 수정한 뒤 재시험한다. 전용 DB `gamebridge_ci_e34ff4020a`는 보존한다.
+- Accept에 SSE와 JSON을 명시한 재시험에서 소유권 거부와 연결 수신 시험은 통과했으나, 클라이언트 종료 뒤 서버 graceful shutdown이 30초 제한까지 대기했다. 끊긴 연결의 heartbeat 정리 및 서버 종료 시 구독 정리가 필요하며, heartbeat 간격은 사용자에게 확인 중이다. 명시 Accept 없는 첫 실패도 수정·재검증 전까지 OPEN이다.
+### P06-T05 스트림 종료·협상 재검증 시작
+- 서버 종료 시 연결을 완료하도록 하고 SSE error 협상을 재시험한다. heartbeat 동작은 사용자 결정 전 미구현이다.
+- `produces` 강제를 제거한 뒤 Accept 미지정 요청의 403과 연결 수신 시험은 통과했다. 서버 종료 시 `@PreDestroy`가 graceful shutdown보다 늦게 호출되어 30초 대기 문제는 재현됐다. lifecycle 종료 순서를 보강한다.
+### P06-T05 lifecycle 종료 검증 시작
+- 별도 빈 DB에서 같은 HTTP 통합 시험을 재실행해 서버 graceful shutdown을 확인한다. heartbeat 및 Native 수신은 아직 미구현이다.
+- 전용 DB `gamebridge_ci_ac6dcaa892`의 HTTP 시험에서 타 사용자 403·연결 수신·title/body 비노출이 통과했고 graceful shutdown이 즉시 완료됐다. DB는 보존한다. Native 수신·재연결과 heartbeat는 미구현이다.
+- 커밋 준비: local 전용 인증 스트림과 HTTP 시험을 저장한다. 사용자 선택 전 heartbeat 정책을 확정하지 않으며 BUG-014 OPEN이다.

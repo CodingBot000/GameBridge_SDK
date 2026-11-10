@@ -27,7 +27,10 @@ internal fun interface DevPushSender { fun send(principal: SessionPrincipal, app
 @Configuration
 @Profile("local-mock", "sandbox")
 internal class DevPushSenderConfiguration {
-    @Bean @Profile("local-mock") fun mockDevPushSender(): DevPushSender = DevPushSender { _, _, _ -> "SIMULATED" }
+    @Bean @Profile("local-mock") fun mockDevPushSender(broker: MockPushBroker): DevPushSender = DevPushSender { principal, app, input ->
+        broker.publish(app, principal.userId, input.installationId, MockPushBroker.Event(input.messageId, input.route, input.campaignId))
+        "SIMULATED"
+    }
     @Bean @Profile("sandbox") fun sandboxDevPushSender(runtime: SandboxPushRuntime): DevPushSender = DevPushSender { principal, app, input ->
         val target = PushDispatchTarget(principal, app, "sandbox", input.installationId)
         val content = PushContent(input.messageId, input.route, input.title, input.body, input.campaignId)

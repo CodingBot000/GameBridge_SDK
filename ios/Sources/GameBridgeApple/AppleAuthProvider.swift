@@ -43,6 +43,7 @@ protocol AppleAuthBackend {
     private let backend: AppleAuthBackend
     private let config: GameBridgeConfig
     private let store: TokenStore
+    internal let uiGate = AppleUiGate()
     private var busy = false
     private var generation = 0
     private var currentSession: AppleSession?
@@ -53,7 +54,8 @@ protocol AppleAuthBackend {
     public func signIn() async throws -> UserProfile {
         guard config.mode == .platformSandbox else { throw SdkFailure("UNSUPPORTED_PROVIDER") }
         guard !busy else { throw SdkFailure("BUSY") }
-        busy = true; defer { busy = false }
+        try uiGate.acquire()
+        busy = true; defer { busy = false; uiGate.release() }
         generation += 1; let started = generation
         if refreshFlight != nil { currentSession = nil }
         refreshFlight?.task.cancel(); refreshFlight = nil

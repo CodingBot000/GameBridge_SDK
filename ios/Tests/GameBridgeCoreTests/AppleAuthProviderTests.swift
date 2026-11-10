@@ -164,6 +164,7 @@ final class AppleAuthProviderTests: XCTestCase {
         let provider = AppleAuthProvider(config: GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com"), store: store, gateway: gateway, backend: AppleFakeBackend())
         let first = Task { try await provider.signIn() }
         await gateway.waitForEntry()
+        do { try provider.uiGate.acquire(); XCTFail("purchase UI must be blocked") } catch let error as SdkFailure { XCTAssertEqual(error.code, "BUSY") }
         do { _ = try await provider.signIn(); XCTFail("concurrent authorization") } catch let error as SdkFailure { XCTAssertEqual(error.code, "BUSY") }
         do { _ = try await provider.checkCredentialState(); XCTFail("concurrent credential state") } catch let error as SdkFailure { XCTAssertEqual(error.code, "BUSY") }
         gateway.release(); _ = try await first.value

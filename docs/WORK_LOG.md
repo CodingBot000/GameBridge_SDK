@@ -844,3 +844,9 @@
 - Swift Apple unit 10건 통과(설정 누락·중복 상품 ID 거부 포함). 새 runtime을 포함하는 iOS simulator static framework compile을 확인한다.
 - Apple runtime 포함 iOS simulator static framework build 성공. 이는 StoreKit 거래를 실행하지 않았으며 Swift fake 시험만 통과했다. 이전 XCFramework/staging은 현재 코드보다 이전 산출물이다.
 - 커밋 전: Apple 내부 조립, 제품 유형 검사와 중복 UI 차단만 포함한다. 공개 facade/sample, timeout 후 event/완료 복구, Android server finish 및 실제 StoreKit 시험은 미완료로 P05-T06 PARTIAL 유지.
+- P05-T06 계속: StoreKit 구매와 transaction listener가 같은 시간에 검증할 때 기존 BUSY 분기에서 복구 항목을 놓칠 수 있다. 승인된 기기별 동시 1건과 계획의 queue 100을 이용해 대기열로 직렬화하고, Apple 로그인/결제 UI도 공통 gate로 상호 배제한다.
+- Apple concurrency 변경 컴파일 실패: actor 격리 생성자를 default argument에서 호출해 Swift actor isolation 오류가 발생했다. 생성 시점으로 옮겨 재검증한다. 실제 구매는 실행하지 않았다.
+- actor default argument 수정 후 Swift auth unit 10건 통과. 검증 limiter 동시 1건·취소 waiter slot 반환과 로그인 중 결제 UI gate 차단을 fake 단위시험으로 확인한다.
+- Swift fake concurrency/auth 단위 12건 통과: verification slot 직렬화·취소 후 반환 및 로그인 중 UI gate BUSY를 확인했다. 실제 StoreKit transaction listener/결제 UI는 실행하지 않았다. simulator framework compile을 재확인한다.
+- iOS simulator static framework compile 성공. Apple limiter/UI gate는 fake unit만 확인했고 실 StoreKit transaction과 Android 공통 UI gate는 미완료다.
+- 커밋 전: Apple verification 대기열·UI 상호 배제와 unit만 포함한다. 취소/복구의 실제 OS 동작과 Google 경로를 확인하지 않았으므로 P05-T06 PARTIAL 유지.

@@ -40,14 +40,16 @@ final class StoreKitBillingProvider {
     private let sink: ApplePurchaseProofSink?
     private let verificationConcurrency: Int?
     private let currentAccount: () -> ApplePurchaseAccount?
+    private let uiGate: AppleUiGate
+    private let limiter: AppleVerificationLimiter?
     private var listener: Task<Void, Never>?
-    private var verifying = 0
-    private var purchasing = false
 
-    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, currentAccount: @escaping () -> ApplePurchaseAccount?) {
+    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, currentAccount: @escaping () -> ApplePurchaseAccount?) {
         self.sink = sink
         self.verificationConcurrency = verificationConcurrency
         self.currentAccount = currentAccount
+        self.uiGate = uiGate ?? AppleUiGate()
+        self.limiter = verificationConcurrency.flatMap { $0 > 0 ? AppleVerificationLimiter(limit: $0) : nil }
     }
     deinit { listener?.cancel() }
 
@@ -70,9 +72,8 @@ final class StoreKitBillingProvider {
         guard sink != nil, let limit = verificationConcurrency, limit > 0, let account = currentAccount() else {
             throw SdkFailure("CONFIG_REQUIRED")
         }
-        guard !purchasing else { throw SdkFailure("BUSY") }
-        purchasing = true
-        defer { purchasing = false }
+        try uiGate.acquire()
+        defer { uiGate.release() }
         switch try await product.purchase(options: [.appAccountToken(account.binding)]) {
         case .success(let result): try await process(result); return .verified
         case .pending: return .pending
@@ -96,19 +97,17 @@ final class StoreKitBillingProvider {
 
     private func process(_ result: VerificationResult<Transaction>) async throws {
         guard case .verified(let transaction) = result else { throw SdkFailure("VERIFICATION_FAILED") }
-        guard let sink, let limit = verificationConcurrency, limit > 0, let account = currentAccount() else {
-            throw SdkFailure("CONFIG_REQUIRED")
-        }
+        guard let sink, let limiter, let account = currentAccount() else { throw SdkFailure("CONFIG_REQUIRED") }
         guard transaction.appAccountToken == account.binding, transaction.revocationDate == nil else {
             throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH")
         }
-        guard verifying < limit else { throw SdkFailure("BUSY") }
-        verifying += 1
-        defer { verifying -= 1 }
-        let proof = ApplePurchaseProof(transactionId: transaction.id, productId: transaction.productID,
-                                       binding: transaction.appAccountToken, signedTransaction: result.jwsRepresentation)
-        let grant = try await sink.verify(proof, userId: account.userId)
-        try acceptAppleGrant(grant, proof: proof, account: account, current: currentAccount())
-        await transaction.finish()
+        try await limiter.withPermit {
+            guard currentAccount() == account else { throw SdkFailure("CANCELED") }
+            let proof = ApplePurchaseProof(transactionId: transaction.id, productId: transaction.productID,
+                                           binding: transaction.appAccountToken, signedTransaction: result.jwsRepresentation)
+            let grant = try await sink.verify(proof, userId: account.userId)
+            try acceptAppleGrant(grant, proof: proof, account: account, current: currentAccount())
+            await transaction.finish()
+        }
     }
 }

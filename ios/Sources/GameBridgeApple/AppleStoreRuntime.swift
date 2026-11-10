@@ -19,7 +19,7 @@ final class AppleStoreRuntime {
         let account = ApplePurchaseAccountSource(auth: auth, client: client)
         self.account = account
         let sink = AppleHttpProofSink(auth: auth, client: client)
-        provider = StoreKitBillingProvider(sink: sink, verificationConcurrency: verificationConcurrency) { [weak account] in account?.current() }
+        provider = StoreKitBillingProvider(sink: sink, verificationConcurrency: verificationConcurrency, uiGate: auth.uiGate) { [weak account] in account?.current() }
     }
     func start() async throws {
         guard try await account.refresh() != nil else { throw SdkFailure("SESSION_EXPIRED") }

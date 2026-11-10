@@ -1,7 +1,28 @@
 import XCTest
+import GameBridgeCore
 @testable import GameBridgeApple
 
 final class StoreKitBillingProviderTests: XCTestCase {
+    @MainActor func testVerificationLimiterSerializesAndReleasesCancelledWaiter() async throws {
+        let limiter = AppleVerificationLimiter(limit: 1)
+        var firstContinuation: CheckedContinuation<Void, Never>?
+        var secondEntered = false
+        let first = Task { @MainActor in
+            try await limiter.withPermit { await withCheckedContinuation { firstContinuation = $0 } }
+        }
+        while firstContinuation == nil { await Task.yield() }
+        let second = Task { @MainActor in try await limiter.withPermit { secondEntered = true } }
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertFalse(secondEntered)
+        second.cancel()
+        firstContinuation?.resume()
+        _ = try await first.value
+        do { _ = try await second.value; XCTFail("cancelled waiter") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CANCELED") }
+        let result = try await limiter.withPermit { 42 }
+        XCTAssertEqual(result, 42)
+        XCTAssertFalse(secondEntered)
+    }
     func testGrantMustMatchAccountAndTransactionAndDoesNotExposeProof() throws {
         let account = ApplePurchaseAccount(userId: UUID(), binding: UUID())
         let proof = ApplePurchaseProof(transactionId: 42, productId: "coins", binding: account.binding, signedTransaction: "secret-jws")

@@ -5,22 +5,22 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P11 / P11-T01 전체 누락 감사
+- 현재 Phase / Task: P11 / P11-T02 사용자 설정·실연동 재개 runbook
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
 - 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 전체 원장·실제 코드·증거·미구현과 대기 항목 대조
-- 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 P05-T07 Android Google Play bridge부터 재개하고 iOS 상점·푸시 등 미완료 P00~P08, P09~P11을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: 설정 점검 명령과 사용자 설정 문서 정리
+- 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 3 / IN_PROGRESS 59 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 3 / PASS 2 / FAIL 1 / PARTIAL 57 / DEFERRED_ENV 1 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 2 / IN_PROGRESS 60 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 2 / PASS 2 / FAIL 1 / PARTIAL 58 / DEFERRED_ENV 1 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
-- 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
+- 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
 
 ## 상태 범례
 
@@ -93,7 +93,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
 | P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | ENV-002 |
 | P11-T01 | 전체 Task·TODO·계약 누락 최종 감사 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T01 | - |
-| P11-T02 | 사용자 설정·실연동 재개 runbook 완성 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P11-T02 | 사용자 설정·실연동 재개 runbook 완성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T02 | - |
 | P11-T03 | 최종 문서·release candidate 로컬 패키지 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P11-T04 | 마지막 검증·커밋·인계 | NOT_STARTED | NOT_RUN | N/A | - | - |
 

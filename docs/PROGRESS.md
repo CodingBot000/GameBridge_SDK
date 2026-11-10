@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P02 / P02-T06
+- 현재 Phase / Task: P01 / P01-T03
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P02-T01 부분 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P01 Native SDK Core 및 Fake 수직 연결을 구현하고 미결정 정책은 대기
+- 바로 다음 행동: P01-T03 Unity facade·나머지 Provider interface 및 timeout; P01-T04 Fake 구현
 - 불가피한 세션 종료 시 재개 행동: P02-T01 오류 처리와 P02-T02 인증 구현을 진행하고 P00·P01 미완료도 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 51 / IN_PROGRESS 12 / IMPLEMENTED 1 / BLOCKED 0
-- 로컬 검증: NOT_RUN 51 / PASS 1 / FAIL 0 / PARTIAL 12 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 50 / IN_PROGRESS 13 / IMPLEMENTED 1 / BLOCKED 0
+- 로컬 검증: NOT_RUN 50 / PASS 1 / FAIL 0 / PARTIAL 13 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -39,7 +39,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P00-T05 | 모드·비밀정보·설정 격리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T05 | - |
 | P01-T01 | 공통 모델·오류·상태 schema | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T01 | - |
 | P01-T02 | Bridge wire protocol·공용 fixture | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T02 | - |
-| P01-T03 | SDK 상태기계·Provider interface | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P01-T03 | SDK 상태기계·Provider interface | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T03 | - |
 | P01-T04 | 결정적인 Fake Provider | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P01-T05 | Native HTTP·저장소·세션 소유권 기반 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P02-T01 | Backend·PostgreSQL·migration 기동 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T01 | - |

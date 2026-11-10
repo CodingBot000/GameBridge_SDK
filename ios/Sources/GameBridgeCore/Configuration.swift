@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ProviderMode: String, Codable {
+public enum ProviderMode: String, Codable, Sendable {
     case editorOffline = "EDITOR_OFFLINE"
     case localMock = "LOCAL_MOCK"
     case xcodeStoreKit = "XCODE_STOREKIT"
@@ -11,7 +11,7 @@ public struct ConfigurationError: Error, Equatable {
     public let missingKeys: [String]
 }
 
-public struct GameBridgeConfig {
+public struct GameBridgeConfig: Equatable, Sendable {
     public let appId: String
     public let mode: ProviderMode
     public let backendBaseURL: String?

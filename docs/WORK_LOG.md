@@ -243,3 +243,13 @@
 - 테스트 서버 Ctrl-C 종료 130. 전용 DB는 volume 보존 후 정지한다.
 - 전용 Compose DB `stop` 종료 0; 테스트로 생성된 Mock 사용자·구매·설치 기록은 전용 volume에 보존.
 - 커밋 전: 세 개의 기존 smoke를 순서대로 실행하며 미구현 필수 기능이 있으면 비성공 처리. P02-T06은 IN_PROGRESS/PARTIAL로 남기고 완성 주장하지 않는다.
+
+### [P01-T03] 시작 — 2026-11-10 Asia/Seoul
+- P01-T01/T02는 부분 완료. 초기화·종료 상태와 Provider 계약은 확정된 범위에서 독립 구현하며 전체 Native/Unity 통합은 별도 검증한다.
+- `./android/gradlew -p android :sdk-core:test` 종료 0: 동시 동일 설정 합류, 다른 설정 거부, shutdown/reinit, 공통 UI gate 검사를 포함한 시험 통과. 검토 중 초기화 완료와 shutdown 경합 및 실패 직후 재시도 상태 보정이 필요함을 확인했다.
+- Kotlin 초기화·종료 경합과 실패 후 상태 복구를 보정한 뒤 `./android/gradlew -p android :sdk-core:test` 종료 0. 초기화 중 shutdown의 취소 및 SHUTDOWN 전이 시험 추가 통과. Android 기기·Unity 연동은 미검증.
+- `swift test --package-path ios` 종료 1: Swift Package에 macOS 최소 버전이 없어서 async Task의 macOS availability 검사 실패. macOS는 로컬 테스트 대상이며 패키지 최소 버전을 설정한 뒤 재검증한다.
+- macOS 12 테스트 플랫폼을 명시한 뒤 `swift test --package-path ios` 종료 0: XCTest 총 8건, 실패 0. Swift 상태기계의 동시 동일 설정 합류·다른 설정 거부·중복 shutdown 확인. iOS simulator/device 및 Unity 검증은 아님.
+- 검토 중 Swift shutdown이 취소된 초기화의 종료를 기다리지 않고 Provider를 종료할 수 있는 경합을 발견하여 수정한다.
+- Swift shutdown이 초기화 취소 완료를 기다리도록 보정 후 `swift test --package-path ios` 종료 0: XCTest 총 9건, 실패 0. 초기화 중 shutdown 시험 추가. 취소에 협력하지 않는 Provider의 timeout 처리는 아직 미구현이다.
+- 커밋 전: Kotlin/Swift coordinator와 최소 Provider interface만 포함. Unity 상태 mirror, 세부 Provider interface, timeout·모든 생명주기 및 플랫폼 빌드는 미구현/미검증이므로 P01-T03 PARTIAL 유지.

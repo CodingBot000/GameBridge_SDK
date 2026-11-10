@@ -723,3 +723,13 @@
 - Unity의 실제 PBXProject managed API를 생성 Xcode 프로젝트에 읽기 전용으로 적용한 독립 .NET 시험에서 같은 file link 2회 추가가 동일 결과임을 확인했다. 이 검증을 재실행 가능한 smoke로 저장한다. 실제 Unity export는 아니다.
 - gerçek Unity Xcode managed API smoke 및 Android/iOS stub hook smoke 재실행 통과. 새 staging 98개 checksum 일치. 실제 Unity Editor import/iOS export·static Swift runtime/IL2CPP 링크는 미검증이다.
 - 커밋 전: iOS Xcode hook, 안전 복사 공통화 및 독립 시험만 포함. P08-T03 PARTIAL/ENV-002 유지한다.
+
+### [P06-T04] 시작 — 2026-11-10 Asia/Seoul
+- FCM/APNs 실제 서버 전송 경계를 작성한다. 재시도 및 개발 API rate 수치는 사용자 결정 대기이므로 그 정책에 의존하는 자동 발송·API 활성화는 하지 않는다. 외부 credential과 원격 발송은 사용자가 준비해야 한다.
+- Firebase Admin 공식 9.11.0과 Apple APNs HTTP/2 토큰 인증 문서를 확인했다. 우선 요청 한 번의 전송/오류 분류를 작성하며 자동 retry·개발 API는 사용자 정책 결정 전 비활성으로 둔다.
+- 실제 Firebase Admin 단발 전송과 APNs HTTP/2 ES256 단발 전송 초안을 추가했다. 자동 재시도·DB token 삭제·dev API 연결은 없다. 컴파일 및 fake transport 검증을 진행한다.
+- Firebase Admin 9.11 컴파일 성공. `setToken`은 Firebase의 2026 FID 전환에서 deprecated로 표시된다. 현재 계획과 Android adapter는 legacy 등록 토큰을 사용하므로 이를 FID로 임의 변환하지 않고 호환 경로로 남긴다. 실제 FID 전환·데이터 이관은 미구현이다.
+- APNs fake transport의 host/topic/status·네트워크 오류와 test-only ES256 서명, FCM 오류 mapping 검증을 실행한다. 실제 스토어·원격 push는 호출하지 않는다.
+- Apple 공식 APNs 지침상 provider JWT는 매 요청 갱신하면 안 되므로 40분 재사용 캐시를 추가한다(20~60분 범위). APNs 5xx 재시도는 별도 15분 지침이 있어 사용자에게 요청한 일반 재시도와 구분해 적용해야 한다.
+- 단발 전송 경계 fake 시험 4건 통과: FCM 오류 구분, APNs host/topic·상태·네트워크 오류, synthetic ES256 서명, provider token 40분 재사용. 실제 Firebase/APNs 외부 호출은 없다.
+- 커밋 전: 실제 SDK/HTTP 단발 sender와 fake 시험만 포함. 사용자가 선택할 재시도·개발 API 제한, DB lifecycle, 실 credential 조립/발송은 미완료이며 P06-T04 PARTIAL/WAITING_USER 유지한다.

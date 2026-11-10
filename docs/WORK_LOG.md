@@ -915,3 +915,5 @@
 - Google DB grant guard 초안과 synthetic DB mismatch 시험을 작성했다. 테스트에서는 실제 Publisher에 호출하지 않는다.
 - synthetic 격리 DB 시험 통과: durable grant가 있을 때만 확인하고 잘못된 proof hash/package/action을 거부했다. 실제 Google 조회와 job 실행은 없다.
 - 커밋 전: DB read-only guard 및 test만 포함한다. 암호화 증빙 완료 후 정책과 worker/실 API는 여전히 미완료다.
+- 진행 문서 점검: 초기 FINAL_REPORT 양식의 “미실행” 문구가 현재 상황으로 오해되지 않도록 양식 보존 안내를 추가했다. StoreKit 실패는 블로커 표의 ENV-STOREKIT-26으로 이동했다. P11 최종 보고서는 아직 작성하지 않았다.
+- 커밋 전: 문서 상태 정확성 수정만 포함한다.

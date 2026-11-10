@@ -1486,3 +1486,10 @@
 - 음성 fixture 시험 후 원본 `harness/run-contracts.py` 재실행 종료 0: Kotlin 4·Swift 4·C# smoke 1. Gradle이 test 전 실패한 경우 오래된 XML을 실행 수로 재사용하지 않도록 report 수정 시각 확인을 추가하고 재검증한다.
 - report 신선도 검사 추가 후 `harness/run-contracts.py` 종료 0: Kotlin 4, Swift 4, C# 독립 smoke 1. 결과는 `artifacts/contracts-_t6il2fe/result.json`에 있으며 작업 트리는 HEAD+미커밋 변경이다. Unity Editor/IL2CPP와 50개 시나리오 전체 PASS가 아니다.
 - 커밋 전: P09 manifest·부분 coverage의 fail-closed runner·공통 계약 및 격리 음성 시험만 포함한다. 50개 개별 assertion 대응과 required platform lane은 아직 미완료로 P09-T01 PARTIAL 유지한다.
+
+### [P09-T02] Bridge 중복 callback 음성 검증
+- Task 시작: 실제 소스는 수정하지 않고 새 격리 디렉터리의 registry 복제본에서 중복 응답 guard만 제거해 기존 smoke가 실패하는지 확인한다. 이후 원본 정상 시험을 재실행한다. Unity Editor scene/Domain Reload는 ENV-002 대기다.
+- disposable .NET project에서 registry의 중복 응답 guard 한 곳만 제거하는 mutation 검사기를 작성했다. 컴파일 오류가 아닌 해당 runtime 경로의 실패여야 감지로 인정한다.
+- `harness/check-bridge-mutation.py` 종료 0: 새 복제본의 중복 응답 guard 제거 시 registry smoke가 해당 runtime 경로 NullReferenceException으로 실패함을 확인했다. 원본 source는 변경하지 않았다. 원본 suite를 재실행한다.
+- 원본 재검증: `scripts/smoke-csharp-registry.sh` 종료 0(독립 .NET smoke 1), `swift test --filter CBridgeTests` 종료 0(3건), Android `:sdk-core:test --tests BridgeDispatcherTest :sdk-unity-bridge:testDebugUnitTest` 종료 0(core 2건·bridge 6건). 일부 Gradle task는 up-to-date이며 실제 Unity Editor/JNI는 아니다.
+- 커밋 전: disposable duplicate guard mutation 검사기와 정제 증거만 포함한다. R01~R12 전체·Unity scene/Domain Reload 및 stress 검증은 미완료로 P09-T02 PARTIAL 유지한다.

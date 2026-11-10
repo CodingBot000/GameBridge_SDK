@@ -237,3 +237,9 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - P05-T03 iOS 26.5 재시험 FAIL (`artifacts/xcode-process-recovery-p8qyld6o`): SKTestSession 생성 중 prepare timeout. 기존 Code 3과 동일 원인인지는 미확정. checkpoint 변경 후 iOS 18.6 양성 대조를 확인한다.
 - P05-T03 동일 계측 iOS 18.6 양성 대조 PASS (`artifacts/xcode-process-recovery-2jktejkt`). iOS 26.5 SKTestSession timeout은 별도 FAIL 유지한다.
 - P05-T03 커밋 준비: 26.5 timeout 단계와 18.6 대조 결과 및 테스트 checkpoint만 기록한다.
+- P09-T03 R20 Native 타깃 회귀 재검증 시작: Android·Swift 오프라인 로그아웃 단일 테스트를 각각 실행한다.
+- R20 Android 타깃 실행 FAIL: ANDROID_HOME 미지정으로 SDK 위치를 찾지 못해 테스트는 미실행. 설치 경로를 설정해 재실행한다.
+- R20 Android SDK 경로 지정 후 재검증 시작.
+- R20 Android 단일 synthetic 테스트 PASS. Swift 단일 회귀 검증을 시작한다.
+- R20 Android·Swift 타깃 synthetic 회귀 각각 1건 PASS, skip 0. 실제 네트워크·Unity 검증은 아니다.
+- P09-T03 커밋 준비: R20 타깃 테스트와 최초 환경 오류를 증거에 기록한다.

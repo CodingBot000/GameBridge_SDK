@@ -2348,3 +2348,10 @@
 - 26.5 전용 simulator에서 SKTestSession 생성 단계 timeout (`artifacts/xcode-process-recovery-p8qyld6o`); Code 3 발생 여부는 미확인. 테스트 계측 자체의 회귀를 배제하기 위해 iOS 18.6에서 동일 runner를 재실행한다.
 - 동일 계측 runner의 iOS 18.6 process recovery PASS (`artifacts/xcode-process-recovery-2jktejkt`), 반면 26.5는 SKTestSession 생성에서 timeout. 두 runtime 결과는 분리해 기록한다.
 - 커밋 준비: 테스트 앱 단계 checkpoint와 timeout 결과, 26.5 실패·18.6 대조 PASS를 보존한다. 실제 Apple sandbox는 미실행이다.
+### P09-T03 R20 타깃 회귀 재검증 시작
+- synthetic revoke 실패 시 로컬 token 삭제와 revoke 미확인 오류를 Android 및 Swift에서 각각 실행한다.
+- R20 Android 단일 테스트 첫 호출은 SDK location 누락으로 Gradle 준비 단계 FAIL, 테스트 0건. 기존 설치 SDK 경로를 지정한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk`로 동일 단일 테스트를 재실행한다.
+- SDK 경로 설정 후 Android R20 단일 테스트 Gradle 종료 0. Swift 대응 테스트를 실행한다.
+- R20 타깃 재시험: Android XML 1 test/0 failure/0 skip, Swift XCTest 1 test/0 failure/0 skip. 첫 Android 호출의 SDK 경로 오류는 환경 지정 후 해결했다.
+- 커밋 준비: R20 단일 테스트 결과·초기 환경 오류 기록만 포함한다.

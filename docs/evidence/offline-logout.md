@@ -4,3 +4,4 @@
 - `ios/Tests/GameBridgeCoreTests/AppleAuthProviderTests.swift`, `testConcurrentRestoreSharesRefreshAndOfflineLogoutClearsLocally`: 동일 오류와 Keychain 대역 저장소의 token 제거를 확인한다.
 - 두 테스트는 `harness/run-auth-regression.py`에서 실행한다. `artifacts/verify-all-2cnr0y99/summary.md`의 Android 17건 및 Swift 22건 synthetic auth suite가 통과했다.
 - 실제 네트워크 차단 기기, 실제 인증 제공자 및 Unity player 검증을 뜻하지 않는다. 서버 revoke는 확인되지 않은 상태로 보고한다.
+- 추가 타깃 재실행: Android `:sdk-android:testDebugUnitTest --tests 'com.gamebridge.android.auth.GoogleAuthProviderTest.concurrent restores rotate once and offline logout clears local session'` 1건 PASS/skip 0; Swift `swift test --package-path ios --filter AppleAuthProviderTests.testConcurrentRestoreSharesRefreshAndOfflineLogoutClearsLocally` 1건 PASS/skip 0. Android 최초 호출은 SDK 경로 미설정으로 실패했고 `ANDROID_HOME` 지정 후 통과했다.

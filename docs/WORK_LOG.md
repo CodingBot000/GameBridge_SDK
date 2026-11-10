@@ -148,3 +148,23 @@
 - P02-T01 계속: 예측 가능한 입력 실패의 공통 오류 응답을 추가하고 requestId가 응답 본문에도 일치하는지 확인한다.
 - `./backend/gradlew -p backend test` 종료 0: 기존 profile 2건과 MockMvc 입력 오류·requestId 검사 1건 통과(유효성 실패 및 JSON 형식 오류 2개 입력). 공통 예외 처리에서 원문 요청을 반환하지 않음. 실 HTTP 인증·구매 endpoint는 아직 없음.
 - 커밋 전: HTTP 입력 오류 처리와 검증만 포함. DB schema의 전체 계약 및 추가 endpoint 검증은 후속 작업으로 남아 P02-T01 PARTIAL 유지.
+
+### [P02-T02] 시작 — 2026-11-10 Asia/Seoul
+- P02-T01 DB 기동과 schema는 부분 검증됨. P01-T05 secure storage는 미완료이나 서버의 독립적 세션 구현과 로컬 검증을 진행한다. local-mock 전용 접근키는 사용자 환경 변수로 공급하고 실 Provider와 구분한다.
+- `./backend/gradlew -p backend test` 종료 0: 신규 세션 코드가 컴파일되고 기존 테스트 3건 통과. 세션 통합·보안 검증은 아직 실행 전이며 기능 완료로 보지 않는다.
+- `./backend/gradlew -p backend test` 재실행 종료 0: 상태 예외 매핑과 filter 중복 등록 방지 추가 후 기존 3건 통과. DB 통합 시험 미실행.
+- 전용 Compose DB `up -d --wait` 종료 0, healthy. 기존 데이터를 삭제하지 않고 로컬 인증 흐름 검증에 사용한다.
+- local-mock 서버가 전용 DB에 연결하여 기동. Spring Security가 사용하지 않는 임시 기본 사용자 설정을 자동 생성하는 경고를 관측했으며 이를 제거한 뒤 재검증할 예정이다. 테스트 세션 토큰은 로그에 남기지 않는다.
+- Python HTTP smoke 종료 0, local-mock에서 10개 assertion 통과: 무인증/잘못된 개발키 거부, A/B 사용자 분리, me, refresh 회전, 이전 refresh 재사용 거부 및 family 폐기, logout 후 접근 차단. 토큰·키 원문은 증거에 기록하지 않음. 실제 Google/Apple 인증이 아니다. 반복 logout 멱등성과 sandbox 차단은 미검증.
+- 기본 Spring Security 사용자 자동 생성을 제외한 뒤 `./backend/gradlew -p backend test` 종료 0, 기존 3건 통과. 해당 변경 반영 후 실제 서버 재기동·Sandbox 분리 확인은 이어서 수행한다.
+- local-mock 테스트 서버 Ctrl-C 종료 130. Sandbox 프로필 차단 시험은 기존 local-mock과 별도 DB로 분리한다.
+- 전용 PostgreSQL에서 `gamebridge_sandbox_verify_20261110` DB 부재를 조회(종료 0, count 0)하고 별도 검증 DB 생성(종료 0). 테스트 데이터는 보존한다.
+- 별도 빈 DB로 sandbox 프로필 서버 기동 및 V1 migration 적용 관측. 기본 사용자 자동 생성 경고는 다시 나타나지 않음. 실제 외부 인증 설정이나 검증이 아닌 프로필 격리 시험이다.
+- 별도 DB의 sandbox 서버에 개발키를 포함해 `POST /v1/dev/auth` 호출: HTTP 404, Python assertion 종료 0. 개발 Mock route가 sandbox에 등록되지 않음을 확인했으며 실제 Sandbox Provider 시험은 아니다.
+- Sandbox 검증 서버 Ctrl-C 종료 130. 이제 logout 재호출을 멱등 처리하고 일반 API의 폐기 토큰 차단과 함께 검증한다.
+- logout 재호출에서만 아직 만료되지 않은 폐기 access token을 인식하도록 보정. `./backend/gradlew -p backend test` 종료 0, 기존 단위 시험 3건 통과; 실제 HTTP 재호출은 아직 미확인.
+- 변경된 서버를 local-mock으로 재기동하고 migration up-to-date 및 서버 시작 확인. 재사용 가능한 인증 smoke를 추가했고 아직 실행 전이다.
+- `GAMEBRIDGE_DEV_AUTH_KEY=<local-test> python3 scripts/smoke-auth-local.py` 종료 0: local-mock HTTP/DB assertion 11건 통과(재호출 logout 포함). 실제 외부 인증 아님.
+- local-mock smoke 서버를 Ctrl-C 종료 130. 전용 DB 컨테이너는 데이터 보존 상태로 정지한다.
+- 전용 Compose DB `stop` 종료 0, named volume 보존. local-mock에는 A/B 사용자 및 테스트 session 기록이 남아 있다. 분리 sandbox 시험 DB도 같은 전용 volume에 남아 있다.
+- 커밋 전: 인증·세션의 제한된 Mock 경로와 11개 smoke 확인. 속도 제한, 실제 identity 검증, Native 보안 저장소와 전체 contract는 미구현이므로 P02-T02는 IN_PROGRESS/PARTIAL로 유지한다.

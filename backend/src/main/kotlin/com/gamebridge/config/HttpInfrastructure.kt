@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.stereotype.Component
+import org.springframework.core.annotation.Order
+import org.springframework.web.server.ResponseStatusException
+import org.springframework.web.servlet.resource.NoResourceFoundException
 import java.util.UUID
 
 @Component
+@Order(-110)
 class RequestIdFilter : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val requestId = UUID.randomUUID().toString()
@@ -31,6 +35,14 @@ class HealthController {
 }
 @RestControllerAdvice
 class ApiErrors {
+    @ExceptionHandler(ResponseStatusException::class)
+    fun status(ex: ResponseStatusException, request: HttpServletRequest): ResponseEntity<Map<String, Any>> {
+        val code = when (ex.statusCode.value()) { 400 -> "INVALID_ARGUMENT"; 401 -> "SESSION_EXPIRED"; 403 -> "PERMISSION_DENIED"; else -> "INTERNAL_ERROR" }
+        return ResponseEntity.status(ex.statusCode).body(mapOf("code" to code, "message" to "Request rejected", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
+    }
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun notFound(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(mapOf("code" to "UNSUPPORTED_OPERATION", "message" to "Not found", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
     @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class, MissingServletRequestParameterException::class)
     fun invalid(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(mapOf("code" to "INVALID_ARGUMENT", "message" to "Invalid request", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))

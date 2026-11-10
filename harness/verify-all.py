@@ -63,6 +63,8 @@ def main() -> int:
             lanes.append({'name':name+'/runner-consistency','status':'FAIL','required':True,'tests':0,'skipped':0,'exitCode':code,'command':command,'evidence':log})
     simple('progress',['python3','scripts/verify-progress.py'],'Progress ledger consistency checks passed')
     simple('manifest',['python3','harness/check-manifest.py'],'Manifest inventory valid')
+    simple('api-baseline',['python3','harness/check-api-baseline.py'],'Baseline source comparison PASS')
+    simple('api-baseline-negative',['python3','harness/check-api-baseline-negative.py'],'Public API mutation detected')
     simple('aggregation-self',['python3','-m','unittest','discover','-s','harness','-p','test_aggregation.py','-v'],'OK')
     simple('progress-negative',['python3','harness/check-progress-negative.py'],'Progress negatives PASS')
     simple('manifest-negative',['python3','harness/check-manifest-negative.py'],'Negative manifest: missing R49 rejected')

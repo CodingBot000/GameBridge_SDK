@@ -95,27 +95,19 @@ namespace GameBridge
         {
             var created = new RequestRegistry(transport.Dispatch, Guid.NewGuid());
             created.PurchaseUpdated += update => { lock (gate) { if (disposed || state != "READY" || !ReferenceEquals(registry, created)) return; } PurchaseUpdated?.Invoke(update); };
-            created.PushUpdated += (update, opened) => {
-                Action deliver = () => { if (opened) PushOpened?.Invoke(update); else PushReceived?.Invoke(update); };
-                lock (gate)
-                {
-                    if (disposed || !ReferenceEquals(registry, created)) return;
-                    if (state == "INITIALIZING") { if (pendingPushEvents.Count < 100) pendingPushEvents.Enqueue(deliver); else droppedPushEvents++; return; }
-                    if (state != "READY") return;
-                }
-                deliver();
-            };
-            created.PushTokenUpdated += update => {
-                Action deliver = () => PushTokenChanged?.Invoke(update);
-                lock (gate)
-                {
-                    if (disposed || !ReferenceEquals(registry, created)) return;
-                    if (state == "INITIALIZING") { if (pendingPushEvents.Count < 100) pendingPushEvents.Enqueue(deliver); else droppedPushEvents++; return; }
-                    if (state != "READY") return;
-                }
-                deliver();
-            };
+            created.PushUpdated += (update, opened) => DispatchOrQueuePush(created, () => { if (opened) PushOpened?.Invoke(update); else PushReceived?.Invoke(update); });
+            created.PushTokenUpdated += update => DispatchOrQueuePush(created, () => PushTokenChanged?.Invoke(update));
             return created;
+        }
+        private void DispatchOrQueuePush(RequestRegistry source, Action deliver)
+        {
+            lock (gate)
+            {
+                if (disposed || !ReferenceEquals(registry, source)) return;
+                if (state == "INITIALIZING") { if (pendingPushEvents.Count < 100) pendingPushEvents.Enqueue(deliver); else droppedPushEvents++; return; }
+                if (state != "READY") return;
+            }
+            deliver();
         }
         private void OnMessage(string json) { RequestRegistry current; lock (gate) current = registry; current?.HandleMessage(json); }
         internal void Pump()

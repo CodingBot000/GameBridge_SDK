@@ -1565,3 +1565,11 @@
 - 구현 완료 표기는 존재하는 구체 test/assertion/evidence mapping 없이는 manifest 검사에서 거부된다. 진행 원장 격리 음성 시험에도 repo 밖 evidence symlink와 중복 집계 key를 추가했다. 전체 self-check를 재실행한다.
 - `harness/run-self-check.py` 최종 재실행 종료 0: 문서·evidence·symlink·집계, scenario/suite 제거·근거 없는 완료 표기, binary 누락, contract/bridge/ledger mutation, 실패/0건, sandbox fake token, 정상 contract 재실행을 각각 확인했다. 결과 `artifacts/harness-self-rd_ntb9t/result.json`. 전체 제품 strict-local은 여전히 FAIL이며 self-check PASS와 다르다.
 - 커밋 전: 진행 원장 검사 강화 및 격리 self-check만 포함한다. Unity/runtime·미구현 delivery 및 모든 required suite 정상 재실행은 미완료로 P09-T08 PARTIAL 유지한다.
+
+### [P10-T01] Bridge 소규모 리팩토링
+- Task 시작: P09 전체 gate가 미완료임을 유지하며 독립적으로 검증 가능한 Unity push 이벤트 queue 중복 분기를 정리한다. P08 snapshot과 공개 API source 형태를 비교하고 callback/session 동작을 재검증한다.
+- P08 snapshot hash를 검증하고 C# public 선언과 나머지 보존 snapshot을 비교하는 보수적인 source 검사기를 추가했다. binary ABI나 Unity 호환성 성공을 주장하지 않는다. 변경 전 기준을 확인한다.
+- 변경 전 `python3 harness/check-api-baseline.py` 종료 0: snapshot 13개 hash와 C# public 선언·나머지 원본 바이트 일치. Unity PushUpdated/PushTokenUpdated의 동일 queue 분기를 하나의 private 메서드로 정리한다.
+- private push queue 분리 후 `check-api-baseline.py` 및 C# registry smoke 종료 0. 초기화 중 알림 queue와 session 분기 회귀를 독립 .NET에서 확인했다. 공개 선언 변경 음성 시험과 Unity 참조 compile을 실행한다.
+- `harness/check-api-baseline-negative.py` 종료 0: 새 소스 사본의 public event 이름 변경을 검출했다. `scripts/check-csharp-compile.sh` 4조건부 및 `scripts/check-unity-ios-host.sh` 공식 참조 compile 종료 0/경고 0. Unity 실행·binary ABI 검증은 아니다.
+- aggregate에 API snapshot 양·음성 검사를 추가했다. 커밋 전: Unity private queue 정리와 source 호환성/fake 검증만 포함하며 전체 P09 gate·Unity ABI·runtime은 미완료다.

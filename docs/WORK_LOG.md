@@ -835,3 +835,12 @@
 - Apple HTTP 경로의 synthetic decoder→실제 인증 filter→격리 sandbox DB grant를 10개 동시 요청으로 연결하는 통합 시험을 작성한다. 사용자 계정·Apple 서명은 사용하지 않는다.
 - synthetic decoder를 주입한 실제 sandbox HTTP·보안 filter·PostgreSQL 통합 시험 1건 통과(skip 0): 10개 동시 verify 모두 200, GRANTED 1건·동일 purchase ID·ledger 1건/100. 실제 Apple signature/StoreKit 거래가 아닌 fixture이다. 시험 DB 기록은 보존했다.
 - 커밋 전: synthetic HTTP/DB 회귀만 포함. 실제 Apple root·Sandbox 및 Native finish는 여전히 미검증이다.
+
+### [P05-T06] 시작 — 2026-11-10 Asia/Seoul
+- Apple Native 인증·binding·StoreKit·server proof sink를 하나의 내부 runtime으로 조립한다. 실제 StoreKit 시험 실패와 실제 Apple credential 부재는 별도로 남기며 공개 Unity 연결은 이 작업으로 완료되지 않는다.
+- AppleStoreRuntime 초안은 유저 binding 획득 후 listener/unfinished 복구를 시작하고 구매 전에 현재 StoreKit 상품과 binding을 재확인한다. 명시적 userRestore에서만 AppStore.sync를 호출한다. 컴파일을 확인한다.
+- 검토에서 StoreKit 상품 유형 불일치와 중복 구매 UI 시작 위험을 발견해 목록/구매 시 유형 확인 및 구매 single-flight를 추가한다. 실제 StoreKit UI 시험은 ENV-STOREKIT-26으로 실패 상태다.
+- StoreKit runtime 类型校验和单一购买 UI 代码编译通过；已有 grant 匹配 unit 1件通过，不代表实际 UI 测试。增加商品配置 fail-closed unit。
+- Swift Apple unit 10건 통과(설정 누락·중복 상품 ID 거부 포함). 새 runtime을 포함하는 iOS simulator static framework compile을 확인한다.
+- Apple runtime 포함 iOS simulator static framework build 성공. 이는 StoreKit 거래를 실행하지 않았으며 Swift fake 시험만 통과했다. 이전 XCFramework/staging은 현재 코드보다 이전 산출물이다.
+- 커밋 전: Apple 내부 조립, 제품 유형 검사와 중복 UI 차단만 포함한다. 공개 facade/sample, timeout 후 event/완료 복구, Android server finish 및 실제 StoreKit 시험은 미완료로 P05-T06 PARTIAL 유지.

@@ -94,6 +94,14 @@ final class AppleAuthProviderTests: XCTestCase {
         do { _ = try await provider.checkCredentialState(); XCTFail("revoke error") } catch let error as SdkFailure { XCTAssertEqual(error.code, "NETWORK_UNAVAILABLE"); XCTAssertEqual(error.nativeCode, "REVOCATION_UNCONFIRMED") }
         XCTAssertNil(store.value); XCTAssertTrue(backend.revoked)
     }
+    @MainActor func testAppleStoreRuntimeRejectsIncompleteProductMapping() throws {
+        let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
+        let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
+        let client = try BackendClient(config: config)
+        XCTAssertThrowsError(try AppleStoreRuntime(auth: auth, client: client, productIds: ["coins_100": "same"]))
+        XCTAssertThrowsError(try AppleStoreRuntime(auth: auth, client: client, productIds: ["coins_100": "same", "premium_unlock": "same"]))
+        XCTAssertNoThrow(try AppleStoreRuntime(auth: auth, client: client, productIds: ["coins_100": "coins", "premium_unlock": "premium"]))
+    }
     @MainActor func testAppleProofSinkRequiresDurableServerGrant() async throws {
         let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
         let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())

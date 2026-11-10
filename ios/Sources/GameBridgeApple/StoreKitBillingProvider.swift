@@ -42,6 +42,7 @@ final class StoreKitBillingProvider {
     private let currentAccount: () -> ApplePurchaseAccount?
     private var listener: Task<Void, Never>?
     private var verifying = 0
+    private var purchasing = false
 
     init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, currentAccount: @escaping () -> ApplePurchaseAccount?) {
         self.sink = sink
@@ -69,6 +70,9 @@ final class StoreKitBillingProvider {
         guard sink != nil, let limit = verificationConcurrency, limit > 0, let account = currentAccount() else {
             throw SdkFailure("CONFIG_REQUIRED")
         }
+        guard !purchasing else { throw SdkFailure("BUSY") }
+        purchasing = true
+        defer { purchasing = false }
         switch try await product.purchase(options: [.appAccountToken(account.binding)]) {
         case .success(let result): try await process(result); return .verified
         case .pending: return .pending

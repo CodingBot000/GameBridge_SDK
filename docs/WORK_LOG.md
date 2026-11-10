@@ -628,3 +628,8 @@
 - Google 공식 client 포함 Kotlin 컴파일 종료 0. fake Publisher 응답과 네트워크 실패를 이용해 승인/거부 경계를 확인한다.
 - Google fake Publisher 응답 시험 2건 통과: PENDING·계정·상품·환경·수량 불일치 거부와 네트워크 오류 분리. 실제 Google API 조회·취소/환불 처리·지급 연결은 미검증이다.
 - 커밋 전: 공식 Google Publisher client 조회 경계와 fake 시험만 포함한다. 자격 증명 조립 및 실제 거래, 원장 연결은 미완료로 P05-T04 PARTIAL 유지.
+
+### [P04-T04] 승인된 만료 기준 추가 검증 — 2026-11-10 Asia/Seoul
+- 최초 로그인 후 refresh 회전 시 DB의 원래 7일 만료가 유지되는지 전용 local-mock DB에서 확인한다. 고유 시험 사용자만 추가하고 기존 데이터를 삭제하지 않는다.
+- local-mock PostgreSQL opt-in 시험 1건 통과(skip 0): 최초 발급 만료가 약 7일이며 refresh 회전 후 정확히 같은 시각으로 유지됨을 확인. 실제 Provider 시험은 아니다.
+- 커밋 전: 사용자 승인 만료 정책의 DB 회귀 시험만 추가한다. P04-T04 실제 기기·서버 revoke 재시도 등 미완료 항목은 PARTIAL 유지.

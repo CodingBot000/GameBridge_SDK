@@ -887,3 +887,9 @@
 - host callback 단위시험을 작성했다. test runtime에만 Firebase SDK를 추가하고 mock sample에 google-services 설정은 요구하지 않는다.
 - Android host forwarding 단위 1건 통과(skip 0): 토큰 A→B 회전 callback, 빈 토큰 오류, 허용 route만 클릭 전달. google-services 없는 mock sample assemble도 통과했다. 실제 Firebase 초기화·권한 거부·원격 수신은 미실행이다.
 - 커밋 전: test runtime 의존성과 fake host unit만 포함한다. P06-T01 실제 platform 검증은 WAITING_USER로 유지.
+
+### [P06-T02] APNs host callback 검증 — 2026-11-10 Asia/Seoul
+- iOS simulator에서 host adapter에 synthetic token/payload를 직접 전달하고 sample background completion handler 호출을 확인한다. 실제 APNs 발급/원격 수신은 아니다.
+- synthetic host callback와 completion handler XCTest를 별도 scheme으로 작성했다. StoreKit 실패 시험과 혼합하지 않는다.
+- iOS 26.5 simulator의 synthetic PushHostTests 1건 통과: token callback, home/store allowlist, sample background completion(.noData) 호출. 실제 APNs token 발급·원격 전송·OS 클릭이 아니다.
+- 커밋 전: 별도 iOS host XCTest/scheme만 포함한다. 실제 APNs 및 server token 연결은 미완료이므로 P06-T02 PARTIAL/WAITING_USER 유지.

@@ -16,7 +16,7 @@ Android Maven 소비 예시는 `android/consumer-check`에 있으며 소스 프�
 
 Unity Android/iOS export hook과 staging script가 있으나 Unity Editor 라이선스 부재로 import 및 실제 export를 검증하지 못했다. 완성된 배포 패키지라고 가정하지 않는다. `scripts/package-sdk.sh`는 기존 output을 덮어쓰지 않으며 필요한 Native 산출물이 없으면 실패한다.
 
-Unity iOS의 Mobile Notifications 2.5.0 host adapter는 명시적으로 권한을 요청하고 foreground remote callback과 마지막 알림 열기를 정규화한다. 해당 Unity API 구독 시 foreground 시스템 알림의 기본 표시는 억제된다. Swift host.pushReceived/Opened는 안전한 route만 Unity 이벤트로 전달하며 synthetic C ABI 시험을 통과했다. host.pushToken은 명시한 installation UUID를 사용해 인증된 Native Backend 등록에 연결됐다. Unity public 권한/등록 facade와 실제 원격 APNs는 아직 검증·완성되지 않았다.
+Unity iOS의 Mobile Notifications 2.5.0 host adapter는 명시적으로 권한을 요청하고 foreground remote callback과 마지막 알림 열기를 정규화한다. 해당 Unity API 구독 시 foreground 시스템 알림의 기본 표시는 억제된다. Swift host.pushReceived/Opened는 안전한 route만 Unity 이벤트로 전달하며 synthetic C ABI 시험을 통과했다. host.pushToken은 명시한 installation UUID를 사용해 인증된 Native Backend 등록에 연결됐다. 활성 host adapter를 Attach하면 Unity public permission/register facade도 명시적 host 요청으로 연결된다. 실제 Unity coroutine 및 원격 APNs는 아직 검증하지 않았다.
 
 ### Unity Android LOCAL_MOCK (부분 연결)
 

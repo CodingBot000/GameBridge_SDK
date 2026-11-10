@@ -228,7 +228,7 @@ local-mock 개발 push endpoint를 사용하려면 `GAMEBRIDGE_DEV_PUSH_ADMIN_KE
 
 서버 점검 상태가 명시되지 않으면 신규 구매를 차단하기로 사용자가 결정했다. 로컬 시험에서 구매를 허용하려면 `GAMEBRIDGE_MAINTENANCE_ENABLED=false`를 명시하며 실제 운영 상태는 운영자가 결정한다.
 
-Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상으로 작성했다. 알림 권한/등록은 host가 명시적으로 요청한다. Unity의 `OnRemoteNotificationReceived` 구독은 foreground 기본 알림 표시를 억제한다. Swift bridge의 `host.pushReceived`/`host.pushOpened`는 synthetic route·중복 제거 시험을 통과했으나 `host.pushToken`은 Native Backend 등록에 연결했고 fake 경계만 확인했다. Unity public permission/register facade와 실제 APNs는 여전히 미완료다. Unity Editor/IL2CPP 및 실제 APNs는 미검증이다.
+Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상으로 작성했다. 알림 권한/등록은 host가 명시적으로 요청한다. Unity의 `OnRemoteNotificationReceived` 구독은 foreground 기본 알림 표시를 억제한다. Swift bridge의 `host.pushReceived`/`host.pushOpened`는 synthetic route·중복 제거 시험을 통과했으나 `host.pushToken`은 Native Backend 등록에 연결했고 fake 경계만 확인했다. Unity public permission/register facade는 host driver에 연결했지만 Unity coroutine과 실제 APNs는 미검증이다. Unity Editor/IL2CPP 및 실제 APNs는 미검증이다.
 
 ### Unity Android 개발 전용 LOCAL_MOCK
 
@@ -253,3 +253,5 @@ Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상�
 Android LOCAL_MOCK의 session과 보류 구매 단서는 별도 Keystore namespace에 저장한다. 직접 Native client를 만드는 경우 네 번째 생성자 인자로 별도 암호화 TokenStore를 제공해야 재시작 복구가 동작한다. 기존 3인자 생성자에는 구매 단서 영속 저장소가 없으며 `recoverPending`은 CONFIG_REQUIRED를 반환한다. Unity/Android sample은 별도 저장소를 구성한다. iOS도 별도 Keychain pending 저장소를 추가했고 synthetic 및 격리 local DB 복구를 확인했다. Android emulator Keystore 및 iOS simulator Keychain의 인스턴스 재생성·격리 DB 복구 시험은 통과했다. 실제 기기의 프로세스 재시작 및 Unity player 검증은 아직 남았다. 직접 Swift client를 만드는 경우 `pendingStore`에 session과 별도 KeychainTokenStore를 전달한다.
 
 Unity iOS host-managed APNs를 사용하려면 `GameBridgeConfig` 10인자 생성자에 host가 안정적으로 관리하는 installation UUID를 명시한다. `IosPushHostAdapter.RequestRegistration()`은 명시적 사용자 동작에서만 호출하며, Native는 host token을 인증된 Backend에 등록하고 `UnregisterPushAsync()`는 해당 등록을 해제한다. token 원문을 로그·저장소·공개 결과에 넣지 않는다. 현재 Unity Editor/실기기 및 원격 APNs 검증은 수행하지 않았다.
+
+Unity iOS에서는 활성 `IosPushHostAdapter`를 SDK client에 `Attach`한 후 `RequestPushPermissionAsync()` 또는 `RegisterPushAsync()`를 사용한다. adapter 연결만으로 권한 창은 열리지 않는다. 등록 결과의 시각은 Backend 등록 응답을 받은 클라이언트 시각이다. 등록 도중 호출자 취소는 이미 시작된 OS/네트워크 작업의 취소를 보장하지 않는다.

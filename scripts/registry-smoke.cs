@@ -21,6 +21,12 @@ internal static class Program
                 ["result"] = result, ["error"] = JValue.CreateNull() }.ToString(Newtonsoft.Json.Formatting.None));
         }
     }
+    private sealed class FakeHostPushDriver : GameBridge.IHostPushDriver
+    {
+        internal int PermissionCalls, RegisterCalls;
+        public Task<GameBridge.PushPermission> RequestPermissionAsync(CancellationToken cancellation) { PermissionCalls++; return Task.FromResult(new GameBridge.PushPermission { provider = "APNS", permission = "GRANTED" }); }
+        public Task<GameBridge.PushRegistration> RegisterAsync(CancellationToken cancellation) { RegisterCalls++; return Task.FromResult(new GameBridge.PushRegistration { provider = "APNS", registered = true, permission = "GRANTED", tokenFingerprint = "abcdef123456", updatedAt = "2026-11-10T00:00:00Z" }); }
+    }
     private static void Check(bool condition, string label) { if (!condition) throw new Exception(label); }
     private static async Task Expect(string code, Task task)
     {
@@ -156,6 +162,13 @@ internal static class Program
         Check((await facade.SyncPurchasesAsync(GameBridge.SyncReason.USER_RESTORE)).entitlements.coinBalance == "100", "facade sync");
         Check((await facade.RequestPushPermissionAsync()).permission == "GRANTED", "fake permission");
         Check((await facade.RegisterPushAsync()).tokenFingerprint == "mock-fingerprint", "fake registration");
+        var hostDriver = new FakeHostPushDriver(); facade.AttachHostPushDriver(hostDriver);
+        Check(hostDriver.PermissionCalls == 0 && hostDriver.RegisterCalls == 0, "attach must not prompt");
+        Check((await facade.RequestPushPermissionAsync()).provider == "APNS", "host permission");
+        Check((await facade.RegisterPushAsync()).tokenFingerprint == "abcdef123456", "host registration");
+        Check(hostDriver.PermissionCalls == 1 && hostDriver.RegisterCalls == 1, "explicit host calls only");
+        facade.DetachHostPushDriver(hostDriver);
+        Check((await facade.RegisterPushAsync()).provider == "MOCK", "detached host uses transport");
         await facade.UnregisterPushAsync(); Check((await facade.GetServiceConfigAsync()).source == "DEFAULT", "fake config");
         Check(facade.GetDiagnostics().PendingCount == 0, "diagnostic snapshot");
         await facade.SignOutAsync(); await facade.ShutdownAsync(); await facade.ShutdownAsync();
@@ -179,6 +192,14 @@ internal static class Program
             Check((string)held.Requests[2]["sdkSessionId"] != oldSession, "new session after shutdown");
             held.Reply(held.Requests[2], InitResponse()); await reinit;
         }
+        var tokenTask = concurrent.ForwardHostPushTokenAsync("010203");
+        var tokenRequest = held.Requests[held.Requests.Count - 1];
+        held.Reply(tokenRequest, new JObject { ["registered"] = true, ["tokenFingerprint"] = "abcdef123456" });
+        Check(await tokenTask == "abcdef123456", "native fingerprint accepted");
+        var badTokenTask = concurrent.ForwardHostPushTokenAsync("010203");
+        var badTokenRequest = held.Requests[held.Requests.Count - 1];
+        held.Reply(badTokenRequest, new JObject { ["registered"] = true, ["tokenFingerprint"] = "raw-device-token" });
+        await Expect("BRIDGE_PROTOCOL_MISMATCH", badTokenTask);
         concurrent.Dispose();
         Console.WriteLine("Registry, facade and offline fake smoke passed; no Unity runtime or real provider tested");
     }

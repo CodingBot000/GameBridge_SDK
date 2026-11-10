@@ -1332,3 +1332,13 @@
 - Swift fake `AppleAuthBridgeTests` 종료 0, 3건 및 Native push registration 시험 종료 0, 1건: 잘못된 token 거부, fingerprint만 반환, unregister, 인증/Backend 설정 불일치 차단을 확인했다. 실제 APNs·Backend 실계정은 아니다. C# 및 UIKit simulator compile을 실행한다.
 - `scripts/check-csharp-compile.sh` 4개 조건부 및 `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 모두 종료 0. 실제 Unity Player·원격 APNs·실계정 Backend 등록은 미검증이다.
 - 커밋 전: iOS host token의 Native Backend 등록·해제와 installation ID 설정, fake 검증만 포함한다. Unity public permission/register facade 연결과 실제 원격 APNs는 미완료다.
+
+### [P06-T03] Unity iOS public push API
+- Task 시작: 공식 Mobile Notifications host adapter가 권한 UI와 APNs 등록을 소유하는 구조를 유지하면서 public permission/register 요청을 host에 연결한다. 사용자 요청 없이 권한 dialog를 띄우지 않는다.
+- Unity public push facade에 host driver 주입 경계와 Native 등록 응답 fingerprint 검증을 추가했다. UI host driver는 아직 구현 중이며 컴파일/동작 검증 전이다.
+- iOS host adapter가 public permission 요청은 OS 권한만, register 요청은 명시적 APNs 등록과 Backend fingerprint 확인을 수행하도록 연결했다. 취소·detach·중복 UI 요청은 오류로 구분한다. Unity 공식 package 참조 컴파일과 fake host API 시험을 진행한다.
+- `scripts/check-unity-ios-host.sh` 종료 0: Unity Mobile Notifications 2.5.0 공식 source와 host adapter 별도 assembly compile, 경고·오류 0. 실제 권한 dialog/Unity 실행은 아니다. public facade의 host 분기와 fingerprint 검증을 fake transport로 확인한다.
+- `scripts/smoke-csharp-registry.sh` 종료 0: fake host는 attach만으로 권한/등록을 호출하지 않고 명시적 public API에서만 실행되며, Native 응답의 raw token 형태 fingerprint는 거부된다. 실제 Unity coroutine·OS 권한 UI는 아니다.
+- client Dispose 시 host driver를 해제하고 대기 중 요청을 종료하도록 연결했다. OS authorization 객체 생성 자체가 실패해도 Task가 무한 대기하지 않도록 보강 후 공식 package compile을 재실행한다.
+- `scripts/check-unity-ios-host.sh` 및 `scripts/check-csharp-compile.sh` 종료 0: 공식 Notifications source와 iOS host assembly, 4개 조건부 C# compile 모두 경고·오류 0. 실제 Unity coroutine/권한 대화상자, 원격 APNs는 검증하지 않았다.
+- 커밋 전: iOS host driver의 public permission/register 연결·fake facade 검증과 source compile만 포함한다. 실제 Unity Player/기기·원격 APNs 및 Android push 연결은 미완료다.

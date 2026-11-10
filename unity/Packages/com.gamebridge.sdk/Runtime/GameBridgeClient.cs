@@ -49,6 +49,12 @@ namespace GameBridge
     }
     public sealed class InitResult { public SdkStatus Status { get; } internal InitResult(SdkStatus status) { Status = status; } }
 
+    internal interface IHostPushDriver
+    {
+        Task<PushPermission> RequestPermissionAsync(CancellationToken cancellation);
+        Task<PushRegistration> RegisterAsync(CancellationToken cancellation);
+    }
+
     /// <summary>Public facade; call lifecycle methods from Unity's main thread.</summary>
     public sealed class GameBridgeClient : IDisposable
     {
@@ -65,6 +71,7 @@ namespace GameBridge
         private SdkCapabilities capabilities = new SdkCapabilities(false, new Dictionary<string, CapabilityStatus>(), DateTimeOffset.UtcNow);
         private int generation;
         private bool disposed;
+        private IHostPushDriver hostPushDriver;
         internal event Action<GameBridgeClient> Disposed;
         public event Action<PurchaseUpdate> PurchaseUpdated;
         public event Action<PushUpdate> PushReceived;
@@ -179,17 +186,35 @@ namespace GameBridge
             if (!Enum.IsDefined(typeof(SyncReason), reason)) throw new SdkException("INVALID_ARGUMENT");
             return WireModels.Decode<PurchaseSyncResult>(await Invoke("store.sync", new JObject { ["reason"] = reason.ToString() }, false, cancellation));
         }
+        internal void AttachHostPushDriver(IHostPushDriver driver) { lock (gate) { if (disposed) throw new SdkException("NOT_INITIALIZED"); hostPushDriver = driver; } }
+        internal void DetachHostPushDriver(IHostPushDriver driver) { lock (gate) { if (ReferenceEquals(hostPushDriver, driver)) hostPushDriver = null; } }
+        private IHostPushDriver ActiveHostPushDriver()
+        {
+            lock (gate) { if (disposed || state != "READY") throw new SdkException("NOT_INITIALIZED"); return hostPushDriver; }
+        }
         public async Task<PushPermission> RequestPushPermissionAsync(CancellationToken cancellation = default)
-        { return WireModels.Decode<PushPermission>(await Invoke("push.permission", new JObject(), true, cancellation)); }
+        {
+            if (cancellation.IsCancellationRequested) throw new SdkException("CANCELED");
+            var host = ActiveHostPushDriver();
+            return host != null ? await host.RequestPermissionAsync(cancellation) : WireModels.Decode<PushPermission>(await Invoke("push.permission", new JObject(), true, cancellation));
+        }
         public async Task<PushRegistration> RegisterPushAsync(CancellationToken cancellation = default)
-        { return WireModels.Decode<PushRegistration>(await Invoke("push.register", new JObject(), false, cancellation)); }
+        {
+            if (cancellation.IsCancellationRequested) throw new SdkException("CANCELED");
+            var host = ActiveHostPushDriver();
+            return host != null ? await host.RegisterAsync(cancellation) : WireModels.Decode<PushRegistration>(await Invoke("push.register", new JObject(), false, cancellation));
+        }
         public async Task UnregisterPushAsync(CancellationToken cancellation = default) { await Invoke("push.unregister", new JObject(), false, cancellation); }
         public async Task<ServiceConfig> GetServiceConfigAsync(CancellationToken cancellation = default)
         { return WireModels.Decode<ServiceConfig>(await Invoke("config.get", new JObject(), false, cancellation)); }
-        internal async Task ForwardHostPushTokenAsync(string token)
+        internal async Task<string> ForwardHostPushTokenAsync(string token, CancellationToken cancellation = default)
         {
             if (string.IsNullOrWhiteSpace(token)) throw new SdkException("INVALID_ARGUMENT");
-            await Invoke("host.pushToken", new JObject { ["provider"] = "APNS", ["token"] = token }, false, default);
+            var result = await Invoke("host.pushToken", new JObject { ["provider"] = "APNS", ["token"] = token }, false, cancellation);
+            if (!(result is JObject obj) || obj["registered"]?.Type != JTokenType.Boolean || !(bool)obj["registered"] ||
+                obj["tokenFingerprint"]?.Type != JTokenType.String || !System.Text.RegularExpressions.Regex.IsMatch((string)obj["tokenFingerprint"], "^[0-9a-f]{12}$"))
+                throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
+            return (string)obj["tokenFingerprint"];
         }
         internal async Task ForwardHostPushEventAsync(string messageId, string route, string campaignId, bool opened)
         {

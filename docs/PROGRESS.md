@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P06 / P06-T03 Unity iOS APNs token 등록
+- 현재 Phase / Task: P06 / P06-T03 Unity iOS public push 연결
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
 - 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: iOS APNs host token 등록 커밋 후 Unity public push 권한·등록 경로 연결
+- 바로 다음 행동: iOS public push 연결 커밋 후 Android FCM host 통합 조사
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 P05-T07 Android Google Play bridge부터 재개하고 iOS 상점·푸시 등 미완료 P00~P08, P09~P11을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계

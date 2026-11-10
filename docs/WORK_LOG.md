@@ -173,3 +173,20 @@
 - P02-T02는 속도 제한 및 Native 연동이 남아 PARTIAL. 인증된 Mock 사용자를 기준으로 구매 검증·원장 경로를 작성하며 실제 스토어 거래와 격리한다.
 - `./backend/gradlew -p backend test` 종료 0: 신규 Mock proof 검사 1건 포함 전체 테스트 4건 통과. 사용자·상품 불일치와 실제처럼 보이는 namespace를 거부한다. 이는 조작 가능한 local-mock 증명이며 실제 스토어 proof 검증이 아니다.
 - 커밋 직전: Mock verifier만 추가. 구매 API·DB 거래 지급·중복 방지·스토어 최종화는 아직 없어 P02-T03 IN_PROGRESS/PARTIAL로 유지한다.
+
+### [P00-T05] 환경 격리 보강 — 2026-11-10 Asia/Seoul
+- Mock session DB를 Sandbox에 잘못 지정하면 기존 token을 조회할 수 있는 위험을 발견했다. 실제 설정 전에도 방지하도록 DB별 환경 소유권을 고정하고 충돌 기동을 차단한다.
+- `./backend/gradlew -p backend test` 종료 0: 환경 guard 코드 컴파일 및 기존 4건 통과. DB별 profile 충돌 방지는 실제 기동 시험 전이다.
+- `scripts/run-demo-backend.sh` local-mock 기동: 전용 DB에 V2 environment marker migration 적용 후 서버 시작 관측. 프로세스는 아직 실행 중이며 종료 코드는 없다.
+- V2 적용 후 `python3 scripts/smoke-auth-local.py` 종료 0, local-mock 세션 assertion 11건 통과.
+- local-mock 서버 Ctrl-C 종료 130. 프로필 충돌을 migration 이후에만 확인하면 잘못된 DB에 향후 migration이 먼저 적용될 수 있어, 이미 marker가 있는 DB는 Flyway 실행 전에도 검사하도록 보강한다.
+- Flyway 실행 전 marker 비교 추가 후 `./backend/gradlew -p backend test` 종료 0, 기존 4개 단위 시험 통과. 환경 충돌 실제 DB 검증을 실행한다.
+- Sandbox 프로필을 의도적으로 local-mock DB에 지정한 `bootRun` 종료 1: Flyway 실행 전 `CONFIG_REQUIRED: database belongs to a different environment profile`로 거부됨. 이는 기대한 음성 시험이다.
+- marker 없는 기존 Flyway DB는 환경을 임의 추정하지 않고 차단하도록 보정. `./backend/gradlew -p backend test` 종료 0, 기존 4건 통과. 이전에 생성한 별도 Sandbox 시험 DB로 음성 검증한다.
+- marker 없는 별도 Sandbox DB 기동 시험은 종료 1. 출력이 잘려 정확한 원인 문구를 확인하지 못해 요약 로그를 별도 파일에 받아 원인을 확인한다.
+- 기존 marker 없는 Sandbox 시험 DB를 향한 `bootRun` 재확인 종료 1: `CONFIG_REQUIRED: existing database has no environment marker`로 migration 전 차단됨을 로그에서 확인. 기대한 음성 시험이다.
+- 동일 local-mock DB와 일치하는 프로필에서는 migration 확인 후 서버가 정상 기동했다.
+- 최종 guard 반영 후 `python3 scripts/smoke-auth-local.py` 종료 0, local-mock assertion 11건 재통과. 신규 빈 DB 최초 기동과 production 전환 검증은 아직 미실행이다.
+- local-mock 테스트 서버 Ctrl-C 종료 130. 전용 DB 컨테이너는 volume 삭제 없이 정지한다.
+- `docker compose ... stop` 종료 0; 전용 volume과 두 시험 DB는 보존.
+- 커밋 직전: 환경 guard 및 V2 migration만 반영. 이 guard는 DB 공유 방어의 일부이며 전체 개발 모드 격리·실 Provider·Unity 검증은 미완료다.

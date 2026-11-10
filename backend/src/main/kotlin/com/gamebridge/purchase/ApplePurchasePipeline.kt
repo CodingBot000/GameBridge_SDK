@@ -9,7 +9,7 @@ internal fun interface AppleVerifierRegistry {
     fun verifier(appId: String, environment: StoreEnvironment): ApplePurchaseVerifier
 }
 internal class ApplePurchasePipeline(private val db: JdbcTemplate, private val registry: AppleVerifierRegistry, private val grants: AppleGrantService) {
-    fun verifyAndGrant(principal: SessionPrincipal, environment: StoreEnvironment, productId: String, signedTransaction: String): AppleGrantResult {
+    fun verifyAndGrant(principal: SessionPrincipal, environment: StoreEnvironment, productId: String, signedTransaction: String, attemptId: UUID? = null): AppleGrantResult {
         val app = db.query("SELECT app_scope FROM sessions WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at>now()",
             { rs, _ -> rs.getString(1) }, principal.sessionId, principal.userId).firstOrNull()
             ?: throw PurchaseConflict("SESSION_EXPIRED")
@@ -18,6 +18,6 @@ internal class ApplePurchasePipeline(private val db: JdbcTemplate, private val r
             ?: throw PurchaseConflict("PURCHASE_ACCOUNT_MISMATCH")
         val verified = registry.verifier(app, environment).verify(signedTransaction, productId, account)
         // Grant locks and revalidates the session/binding after potentially slow signature checks.
-        return grants.grant(principal, environment, verified)
+        return grants.grant(principal, environment, verified, attemptId)
     }
 }

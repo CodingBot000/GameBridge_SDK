@@ -810,3 +810,6 @@
 - P05-T05 추가 검증: Apple 서명 검사 중 logout이 일어나면 늦은 검증 결과가 지급되지 않는지 격리 DB에서 확인한다. 기존 데이터를 변경하지 않는다.
 - 격리 DB 시험 통과: synthetic 검증 도중 session logout 시 grant 단계에서 SESSION_EXPIRED로 거부하고 원장 항목은 증가하지 않았다. 실제 Apple 서명/스토어 거래는 아니다.
 - 커밋 전: 경합 회귀 시험만 포함한다. 서버 endpoint·실 credential 연결은 미완료다.
+- P05-T05 계속: Apple endpoint의 중복 요청 key가 같은 거래에만 재사용되도록 grant transaction에 idempotency record를 연결한다. 실제 인증서 구성과 HTTP 노출은 별도로 검증한다.
+- 격리 PostgreSQL 시험 통과: 같은 attempt key 동시 10개는 원장 1건, 같은 key로 다른 거래는 IDEMPOTENCY_CONFLICT이며 logout 경합도 거부한다. synthetic Apple 응답이다.
+- 커밋 전: Apple grant의 idempotency DB transaction만 포함한다. 공개 endpoint·실 서명·Google finalizer는 미완료다.

@@ -1923,3 +1923,25 @@
 ### P05-T05 내부 구성 StoreKit 통합 검증 시작
 - 격리 iOS 18.6 simulator `444C37EF-E7F9-4EF1-AC2E-012E28889BB1`, `artifacts/storekit-attempt-1794334311.xcresult`: 내부 시험 전용 설정에서 Xcode 구매 2건, fake attempt 결합, finish 및 journal 삭제 1개 시험 PASS/skip 0. Keychain, 실제 local DB 응답 유실·재시작과 Unity 경로는 아직 검증되지 않았다. 공개 Xcode 구매는 계속 차단 중이다.
 - 커밋 준비: journal/finish 통합과 내부 simulator 시험 경계만 저장한다. 테스트 전용 우회는 공개 SDK 설정에 노출하지 않는다.
+### P05-T05 Xcode StoreKit 실제 local DB 응답 유실 시험 시작
+- 새 전용 simulator와 전용 local-mock DB에서 StoreKit 구매→서버 commit 후 응답 유실→Keychain journal 재생성→같은 attempt 복구·finish·단서 삭제를 시험하는 opt-in harness를 구현한다. synthetic 개발키만 사용하며 실제 Apple sandbox·Unity는 포함하지 않는다. 공개 구매 차단은 유지한다.
+### P05-T05 Xcode DB E2E test compile 검증 시작
+- opt-in 없는 simulator 실행에서는 skip되어야 한다. 실제 실행은 전용 DB·synthetic 서버 준비 후 수행한다.
+- opt-in 없는 Xcode DB 시험은 `artifacts/storekit-db-skip-1794334430.xcresult`에서 1건 SKIP, PASS 0으로 확인했다. 이제 독립 DB·서버와 전용 simulator를 준비하는 opt-in runner를 추가한다.
+### P05-T05 실제 local DB 응답 유실 E2E 실행 시작
+- 명시 opt-in runner로 새 DB·role 및 새 iOS 18.6 simulator를 만들고 기존 데이터는 보존한다. server commit 뒤 synthetic 응답 유실, Keychain instance 재생성, 동일 attempt 복구·finish·잔액 확인을 수행한다.
+- 실제 local DB/Xcode E2E 첫 실행 `artifacts/xcode-storekit-e2e-7p8zh2_a/result.json` FAIL, 1건 INTERNAL_ERROR. 전용 DB `gamebridge_ci_ac23f963a3`와 simulator는 보존한다. 무서명 simulator Keychain 가능성을 포함해 실패 단계를 비밀값 없이 계측하고 ad-hoc 서명으로 재시험한다. 공개 구매 차단 유지.
+### P05-T05 local DB E2E 재시험 시작
+- 전용 simulator ad-hoc 서명과 단계 계측을 사용한다. synthetic 키·거래 payload는 기록하지 않는다.
+- ad-hoc 서명 재시험 `artifacts/xcode-storekit-e2e-l4d287dk/result.json`은 1건 PASS였으나, 응답 유실이 실제 서버 commit 뒤였는지 시험이 별도 assertion으로 확인하지 않았다. PASS를 최종 증거로 쓰기 전에 commit 직후 잔액과 의도적 응답 유실 횟수를 명시적으로 검증한다.
+### P05-T05 commit 후 유실 assertion 재검증 시작
+- 새 전용 DB와 simulator에서 commit 후 wallet 100 및 성공 응답 드롭 횟수, 재시작 이후 wallet 100·journal 삭제를 모두 확인한다.
+- 강화된 `artifacts/xcode-storekit-e2e-7p_3v_5l/result.json` PASS/skip 0: 전용 DB `gamebridge_ci_88cb73f12b`에서 commit 뒤 응답 드롭 횟수>0 및 복구 전/후 잔액 100, Keychain 재생성·finish·journal 삭제 확인. 실제 OS 프로세스 kill·Unity 및 Apple sandbox는 아니다.
+- Apple 공식 문서 확인: 기본 `Transaction.all`은 완료된 소모품을 제외한다(https://developer.apple.com/documentation/storekit/transaction/all). finish 직후 journal 삭제 전에 종료되면 완료 이력을 찾지 못해 복구 단서가 남거나 충돌 검사에 빈틈이 생길 수 있으므로, Xcode 내부 시험은 host의 `SKIncludeConsumableInAppPurchaseHistory=true`를 요구하고 이 경계도 검증한다. 공개 구매 차단은 계속 유지.
+### P05-T05 완료된 소모품 이력 guard 검증 시작
+- debug simulator host에만 이력 설정을 넣고 Native session store와 pending store의 동일 인스턴스를 거부한다. 이어 실제 완료 후 journal 삭제 실패·재생성을 시험한다.
+### P05-T05 finish 직후 저장 실패 복구 검증 시작
+- 실제 local DB가 지급한 뒤 StoreKit finish와 journal 삭제 사이의 실패를 주입하고 Keychain 재생성 후 완료된 소모품 이력으로 단서를 안전하게 정리하는지 확인한다. 잔액은 100을 유지해야 한다.
+- `artifacts/xcode-storekit-e2e-3b0ibts2/result.json` PASS/skip 0: 전용 DB `gamebridge_ci_2c900d894e`에서 서버 commit 후 응답 유실, Keychain 재생성, finish 뒤 journal 삭제 실패, 두 번째 재생성에서 완료 소모품 이력 확인·정리 및 잔액 100을 검증했다. 실제 프로세스 kill·Unity player·Apple sandbox는 아니다.
+- 공식 WWDC 자료는 완료된 소모품 이력 opt-in을 iOS 18에서 도입했다고 설명한다(https://developer.apple.com/videos/play/wwdc2024/10061/). 이전 OS에서는 해당 보장을 가정하지 않는다. 공개 구매 차단은 유지한다.
+- 커밋 준비: opt-in local E2E runner와 ad-hoc simulator Keychain 시험 및 debug host 이력 설정을 기록한다. 생성된 전용 DB·simulator는 보존한다.

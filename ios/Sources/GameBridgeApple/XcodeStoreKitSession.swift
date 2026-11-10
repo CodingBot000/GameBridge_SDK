@@ -64,6 +64,10 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
         try await self.init(client: client, pendingStore: pendingStore, enableTestGrant: false, onVerified: onVerified)
     }
     init(client: LocalMockClient, pendingStore: TokenStore, enableTestGrant: Bool, onVerified: @escaping (AppleStorePurchaseResult) -> Void = { _ in }) async throws {
+        guard !(await client.sharesTokenStore(pendingStore)) else { throw SdkFailure("CONFIG_REQUIRED") }
+        if enableTestGrant && Bundle.main.object(forInfoDictionaryKey: "SKIncludeConsumableInAppPurchaseHistory") as? Bool != true {
+            throw SdkFailure("CONFIG_REQUIRED", nativeCode: "XCODE_CONSUMABLE_HISTORY_REQUIRED")
+        }
         self.client = client; self.enableTestGrant = enableTestGrant
         let journal = XcodeAttemptJournal(store: pendingStore); self.journal = journal
         let account = try await client.xcodeAccount(); self.account = account

@@ -67,4 +67,13 @@ final class XcodeMockClientTests: XCTestCase {
         catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED"); XCTAssertEqual(error.nativeCode, "XCODE_TRANSACTION_IDENTITY_UNSTABLE") }
     }
 
+    @MainActor func testXcodePendingStoreCannotShareSessionStore() async throws {
+        let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [XcodeProtocol.self]
+        let shared = XcodeStore(); let config = GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:"http://127.0.0.1:18080")
+        let client = try LocalMockClient(config:config, store:shared, developmentKey:String(repeating:"x", count:32), sessionConfiguration:configuration)
+        _ = try await client.signIn(subject:"A")
+        do { _ = try await XcodeStoreKitSession(client:client, pendingStore:shared); XCTFail("shared storage") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED") }
+    }
+
 }

@@ -1300,3 +1300,16 @@
 - Swift Mock bridge의 store.sync가 실제 pending 저장소와 서버 잔액을 사용하는지 synthetic URLProtocol 경계를 추가 확인한다.
 - `swift test --package-path ios --filter LocalMockMaintenanceTests` 종료 0, 3건: Mock sync의 실제 빈 pending 집계·서버 wallet 및 잘못된 reason 거부를 synthetic 시험으로 확인했다.
 - 커밋 전: iOS Mock Keychain pending·recovery·sample/bridge 및 양 플랫폼 격리 DB 응답 유실 시험만 포함한다. Android/iOS 실제 기기 보안 저장소 및 Unity player 복구가 남아 BUG-009는 OPEN 유지한다. 직접 기동한 Backend만 종료하고 DB·volume은 보존했다.
+
+### [P05-T06] Android 기기 Mock 복구 확인
+- Task 시작: 기존 전용 AVD와 테스트 전용 임의 Keystore namespace만 사용해 저장소 재생성 및 격리 local DB의 응답 유실 복구를 확인한다. 사용자 AVD·기존 저장소·DB volume은 삭제하지 않는다.
+- 전용 AVD에서 임의 test namespace 2개를 사용하여 Android Keystore 재생성 후 local DB의 동일 transaction 복구·중복 지급 방지 instrumented test를 추가했다. 이 테스트는 격리 Mock user B에 지급 1건을 남기며 기존 namespace는 건드리지 않는다.
+- `:sample-app:assembleDebug :sample-app:assembleDebugAndroidTest` 종료 0. 전용 AVD(포트 5566)와 격리 local Backend를 기동해 instrumented test 준비 중이며, 기존 데이터는 지우지 않는다.
+- 전용 Android 36 emulator에서 테스트 APK 설치 후 `am instrument ...KeystoreNamespaceTest#pendingPurchaseSurvivesNewKeystoreInstancesAndDoesNotDoubleGrant` 종료 0, 1건: 별도 Keystore 인스턴스 재생성→격리 local DB 동일 거래 복구→코인 100 한 번 증가·pending 삭제를 확인했다. Mock user B에 테스트 지급 1건을 남겼다. 프로세스 강제 종료나 Unity JNI는 이 시험 범위가 아니다.
+
+### [P05-T06] iOS simulator Mock 복구 확인
+- Task 시작: 전용 iOS simulator와 무작위 test Keychain service만 사용해 Keychain 재생성 및 격리 local DB 응답 유실 복구를 시험한다. 기존 Keychain 항목은 건드리지 않는다.
+- 격리 Xcode project `artifacts/ios-recovery-check.k370d0`에서 ad-hoc 서명 `xcodebuild ... -only-testing:GameBridgePushTests/MockRecoveryDeviceTests test -quiet` 종료 0. quiet 출력에 시험 건수가 나타나지 않아 xcresult에서 실제 실행 수와 결과를 확인하기 전 PASS로 기록하지 않는다.
+- `xcrun xcresulttool get test-results summary/tests` 확인: iOS 26.5 전용 simulator에서 `MockRecoveryDeviceTests/testKeychainInstancesRecoverCommittedMockPurchaseOnce` 1건 실행·통과, skip 0. 임의 test Keychain service 재생성 후 격리 local DB 지급 재검증·100 한 번 증가를 확인했다. 실제 기기·프로세스 강제 종료·Unity player는 아니다. Mock user B에 지급 1건을 남겼다.
+- 직접 기동한 Android 전용 AVD와 local Backend만 종료했다. emulator 데이터·PostgreSQL volume·iOS simulator는 보존했다.
+- 커밋 전: 두 플랫폼의 보안 저장소 인스턴스 재생성 및 격리 DB Mock 복구 기기 시험과 정제된 결과만 포함한다. 실기기 프로세스 재시작·Unity player와 실제 스토어는 미검증이다.

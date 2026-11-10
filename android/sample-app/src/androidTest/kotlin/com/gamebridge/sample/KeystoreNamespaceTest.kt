@@ -3,6 +3,7 @@ package com.gamebridge.sample
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.gamebridge.android.KeystoreTokenStore
+import com.gamebridge.BackendClient
 import com.gamebridge.GameBridgeConfig
 import com.gamebridge.ProviderMode
 import com.gamebridge.LocalMockClient
@@ -52,4 +53,27 @@ class KeystoreNamespaceTest {
             finally { connection.disconnect() }
         } finally { store.clear() }
     }
+    @Test fun pendingPurchaseSurvivesNewKeystoreInstancesAndDoesNotDoubleGrant() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val prefix = "test_" + UUID.randomUUID().toString().replace("-", "")
+        val sessions = KeystoreTokenStore(context, prefix + "s"); val pending = KeystoreTokenStore(context, prefix + "p")
+        val config = GameBridgeConfig("gamebridge-sample", ProviderMode.LOCAL_MOCK, "http://10.0.2.2:18080")
+        val key = "local-test-key-0123456789-abcdef0123456789"
+        try {
+            val client = LocalMockClient(config, sessions, key, pending); val user = client.signIn("B")
+            val before = client.wallet().coinBalance.toLong(); val transaction = UUID.randomUUID().toString(); val attempt = UUID.randomUUID().toString()
+            val access = org.json.JSONObject(sessions.load()!!).getString("accessToken")
+            val item = org.json.JSONObject().put("appId", config.appId).put("backendBaseUrl", config.backendBaseUrl)
+                .put("userId", user.userId).put("productId", "coins_100").put("transactionId", transaction).put("attemptId", attempt)
+            pending.save(org.json.JSONArray().put(item).toString())
+            val body = org.json.JSONObject().put("productId", "coins_100").put("quantity", 1)
+                .put("proof", "mock:${user.userId}:coins_100:$transaction").toString()
+            BackendClient(config).request("/v1/purchases/verify", "POST", body, accessToken = access, idempotencyKey = attempt)
+            val restarted = LocalMockClient(config, KeystoreTokenStore(context, prefix + "s"), key, KeystoreTokenStore(context, prefix + "p"))
+            assertNotNull(restarted.restore()); val counts = restarted.recoverPending()
+            assertEquals(1, counts.examinedCount); assertEquals(1, counts.recoveredCount)
+            assertNull(pending.load()); assertEquals(before + 100, restarted.wallet().coinBalance.toLong()); restarted.signOut()
+        } finally { sessions.clear(); pending.clear() }
+    }
+
 }

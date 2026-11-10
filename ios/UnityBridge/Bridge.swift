@@ -1,6 +1,7 @@
 import Foundation
 #if !GAMEBRIDGE_CORE_EMBEDDED
 import GameBridgeCore
+import GameBridgeApple
 #endif
 
 public typealias GBCallback = @convention(c) (UnsafePointer<UInt8>?, Int32) -> Void
@@ -15,6 +16,8 @@ private final class BridgeState {
     private var callback: GBCallback?
     private var generation: UInt64 = 0
     private var pending = 0
+    private var eventSession: String?
+    private var accountEpoch: UInt64 = 0
     // Accessed only by the serial bridge queue and the one task it waits for.
     private var state = "UNINITIALIZED"
     private var ownerSession: String?
@@ -25,6 +28,7 @@ private final class BridgeState {
     func setCallback(_ value: GBCallback?) {
         lock.lock(); defer { lock.unlock() }
         generation &+= 1; callback = value
+        if value == nil { eventSession = nil; accountEpoch &+= 1 }
     }
     func dispatch(_ data: Data) {
         lock.lock()
@@ -58,6 +62,7 @@ private final class BridgeState {
             switch operation {
             case "sdk.status": result = ["state": state, "sdkVersion": GameBridgeVersion.current]
             case "sdk.shutdown":
+                invalidatePurchaseEvents(clearSession: true)
                 _ = try await invokeActive(operation, payload: payload)
                 state = "SHUTDOWN"; ownerSession = nil; activeMode = nil; result = ["state": state]
             case "sdk.initialize":
@@ -72,7 +77,7 @@ private final class BridgeState {
                     #endif
                 case "PLATFORM_SANDBOX":
                     #if canImport(UIKit) && canImport(AuthenticationServices)
-                    if appleHandler == nil { appleHandler = await makeAppleAuthBridgeHandler() }
+                    if appleHandler == nil { appleHandler = await makeAppleAuthBridgeHandler { self.purchaseEmitter() } }
                     result = try await appleHandler!.invoke(operation, payload: payload)
                     #else
                     throw SdkFailure("UNSUPPORTED_PLATFORM")
@@ -80,7 +85,9 @@ private final class BridgeState {
                 default: throw SdkFailure("UNSUPPORTED_PROVIDER")
                 }
                 state = "READY"; ownerSession = session; activeMode = mode
+                bindEventSession(session)
             default:
+                if operation == "auth.signIn" || operation == "auth.signOut" { invalidatePurchaseEvents(clearSession: false) }
                 result = try await invokeActive(operation, payload: payload)
             }
             return envelope(data, result: result, failure: nil)
@@ -107,6 +114,30 @@ private final class BridgeState {
             throw SdkFailure("NOT_INITIALIZED")
         }
     }
+    private func bindEventSession(_ session: String) {
+        lock.lock(); defer { lock.unlock() }; eventSession = session
+    }
+    private func invalidatePurchaseEvents(clearSession: Bool) {
+        lock.lock(); defer { lock.unlock() }; accountEpoch &+= 1
+        if clearSession { eventSession = nil }
+    }
+    #if canImport(UIKit) && canImport(AuthenticationServices)
+    private func purchaseEmitter() -> (AppleStorePurchaseResult) -> Void {
+        lock.lock(); let expectedGeneration = generation; let expectedEpoch = accountEpoch; let session = eventSession; lock.unlock()
+        return { [weak self] event in self?.emitPurchase(event, generation: expectedGeneration, epoch: expectedEpoch, session: session) }
+    }
+    private func emitPurchase(_ event: AppleStorePurchaseResult, generation expectedGeneration: UInt64, epoch expectedEpoch: UInt64, session: String?) {
+        lock.lock(); defer { lock.unlock() }
+        guard let session, session == eventSession, expectedGeneration == generation, expectedEpoch == accountEpoch,
+              event.status == .purchased, let purchaseId = event.serverPurchaseId,
+              ["coins_100", "premium_unlock"].contains(event.productId), let send = callback else { return }
+        let envelope: [String: Any] = ["protocolVersion": 1, "sdkSessionId": session, "kind": "event", "eventId": UUID().uuidString.lowercased(),
+            "type": "PurchaseUpdated", "occurredAt": ISO8601DateFormatter().string(from: Date()),
+            "payload": ["productId": event.productId, "status": "PURCHASED", "serverPurchaseId": purchaseId.uuidString.lowercased(), "errorCode": NSNull()]]
+        guard let encoded = try? JSONSerialization.data(withJSONObject: envelope), encoded.count <= Int(Int32.max) else { return }
+        encoded.withUnsafeBytes { raw in send(raw.bindMemory(to: UInt8.self).baseAddress, Int32(raw.count)) }
+    }
+    #endif
     private func envelope(_ data: Data, result: Any?, failure: SdkFailure?) -> Data? {
         guard let request = try? BridgeProtocol.parse(data), request["kind"] as? String == "request",
               let operation = request["operation"] as? String, let session = request["sdkSessionId"] as? String,

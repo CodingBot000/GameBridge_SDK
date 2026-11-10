@@ -35,7 +35,7 @@ final class AppleHttpProofSink: ApplePurchaseProofSink {
             guard let output = try? JSONDecoder().decode(Output.self, from: response.json),
                   ["GRANTED", "ALREADY_GRANTED"].contains(output.fulfillmentStatus) else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
             return ServerGrant(userId: output.userId, bindingId: output.bindingId, productId: output.productId,
-                               transactionKey: output.transactionKey, serverPurchaseId: output.serverPurchaseId)
+                               transactionKey: output.transactionKey, serverPurchaseId: output.serverPurchaseId, fulfillmentStatus: output.fulfillmentStatus)
         }
         guard let result else { throw SdkFailure("SESSION_EXPIRED") }
         return result

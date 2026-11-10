@@ -236,12 +236,16 @@ Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상�
 
 ### Unity Android Google 인증 bridge
 
-`PLATFORM_SANDBOX` 구성의 `GameBridgeConfig` 7인자 overload에 Google OAuth 서버 client ID를 설정한다(개발키는 null). SDK는 선택한 sandbox 서버와 Android Credential Manager를 사용하며 Mock으로 자동 전환하지 않는다. Google 서버 client ID가 없으면 auth capability가 미설정으로 표시된다. 현재 fake provider와 컴파일만 확인했으며 Unity JNI·실제 Google 계정/콘솔 인증은 USER-AUTH-GOOGLE과 Unity 라이선스 준비 후 별도 실행해야 한다. 상점·푸시 bridge는 아직 미연결이다.
+`PLATFORM_SANDBOX` 구성의 `GameBridgeConfig` 7인자 overload에 Google OAuth 서버 client ID를 설정한다(개발키는 null). SDK는 선택한 sandbox 서버와 Android Credential Manager를 사용하며 Mock으로 자동 전환하지 않는다. Google 서버 client ID가 없으면 auth capability가 미설정으로 표시된다. 현재 fake provider와 컴파일만 확인했으며 Unity JNI·실제 Google 계정/콘솔 인증은 USER-AUTH-GOOGLE과 Unity 라이선스 준비 후 별도 실행해야 한다. 상점은 상품 조회·구매·잔액 및 검증 완료 이벤트 경로를 연결했으나 사용자 복원/sync bridge와 푸시 bridge는 아직 미연결이다.
 
 ### Unity iOS Apple 인증 bridge
 
-`PLATFORM_SANDBOX`의 HTTPS Backend URL과 app ID를 구성하고 활성 foreground window에서 Apple 로그인을 호출한다. C ABI는 AppleAuthProvider를 사용하고 identity token과 session을 Unity에 반환하지 않는다. fake provider 및 simulator framework compile만 통과했으며 실제 Apple 계정·서명·Unity iOS는 USER-AUTH-APPLE과 Unity 라이선스 준비 후 별도 검증해야 한다. 상점·푸시 bridge는 아직 미연결이다.
+`PLATFORM_SANDBOX`의 HTTPS Backend URL과 app ID를 구성하고 활성 foreground window에서 Apple 로그인을 호출한다. C ABI는 AppleAuthProvider를 사용하고 identity token과 session을 Unity에 반환하지 않는다. fake provider 및 simulator framework compile만 통과했으며 실제 Apple 계정·서명·Unity iOS는 USER-AUTH-APPLE과 Unity 라이선스 준비 후 별도 검증해야 한다. 상점은 상품 조회·구매·잔액 및 검증 완료 이벤트 경로를 연결했으나 사용자 복원/sync bridge와 푸시 bridge는 아직 미연결이다.
 
 ### Unity Android Play Billing 브리지
 
 `PLATFORM_SANDBOX`에서 `GameBridgeConfig` 9인자 생성자에 Google OAuth 서버 client ID와 `coins_100`, `premium_unlock`에 대응하는 서로 다른 실제 Play 상품 ID를 전달한다. 로그인 후 상품 조회·구매·서버 잔액 API를 호출할 수 있다. 구매 창 응답은 서버 지급 확인 전 대기 상태이며, 검증된 결과는 `PurchaseUpdated` 이벤트에서 받는다. purchase sync/recovery bridge는 아직 미연결이다. 사용자 본인의 Play Console 테스트 앱·테스트 계정·테스트 상품과 Backend verifier 설정을 준비한 후 테스트 결제를 실행하고, Unity JNI 및 실제 Play 결과를 별도로 기록한다.
+
+### Unity iOS StoreKit bridge
+
+`PLATFORM_SANDBOX`의 9인자 `GameBridgeConfig`에 Apple 테스트 앱에 등록한 `coins_100`, `premium_unlock`의 서로 다른 StoreKit 상품 ID를 전달한다(Google client ID는 null). Native StoreKit이 상품·가격을 조회하며, 서버 지급 확인과 finish 후에만 구매 완료를 반환한다. 서버 검증이 일시 실패한 거래는 검증 대기로 남고, 추후 확인된 거래는 `PurchaseUpdated` 이벤트로 알린다. 사용자 복원/sync bridge는 미연결이다. 실제 Apple Sandbox 거래, Unity iOS 실행, StoreKit 26.5 local 환경 실패는 별도 검증이 필요하다.

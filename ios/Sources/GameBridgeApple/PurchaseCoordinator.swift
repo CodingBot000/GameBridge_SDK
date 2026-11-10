@@ -17,6 +17,11 @@ struct ServerGrant: CustomStringConvertible {
     let userId, bindingId: UUID
     let productId, transactionKey: String
     let serverPurchaseId: UUID
+    let fulfillmentStatus: String
+    init(userId: UUID, bindingId: UUID, productId: String, transactionKey: String, serverPurchaseId: UUID, fulfillmentStatus: String = "GRANTED") {
+        self.userId = userId; self.bindingId = bindingId; self.productId = productId; self.transactionKey = transactionKey
+        self.serverPurchaseId = serverPurchaseId; self.fulfillmentStatus = fulfillmentStatus
+    }
     var description: String { "ServerGrant([redacted])" }
 }
 /// Native state only; the Backend remains authoritative for balances and entitlements.

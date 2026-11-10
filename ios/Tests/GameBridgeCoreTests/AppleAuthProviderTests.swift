@@ -182,6 +182,9 @@ final class AppleAuthProviderTests: XCTestCase {
         XCTAssertEqual(AppleProofProtocol.capturedAuth, "Bearer test-access")
         XCTAssertNotNil(AppleProofProtocol.capturedIdempotency.flatMap(UUID.init(uuidString:)))
         XCTAssertFalse(String(describing: grant).contains("test-secret-jws"))
+        AppleProofProtocol.responseBody = response("ALREADY_GRANTED")
+        let duplicate = try await sink.verify(proof, userId: UUID(uuidString: user.userId)!)
+        XCTAssertEqual(duplicate.fulfillmentStatus, "ALREADY_GRANTED")
         AppleProofProtocol.responseBody = response("PENDING")
         do { _ = try await sink.verify(proof, userId: UUID(uuidString: user.userId)!); XCTFail("pending is not a grant") }
         catch let error as SdkFailure { XCTAssertEqual(error.code, "BRIDGE_PROTOCOL_MISMATCH") }

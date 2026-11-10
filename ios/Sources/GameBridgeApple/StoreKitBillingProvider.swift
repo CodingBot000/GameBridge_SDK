@@ -23,7 +23,7 @@ struct ApplePurchaseAccount: Equatable {
     let binding: UUID
 }
 
-enum ApplePurchaseOutcome { case pending, cancelled, verified(ServerGrant) }
+enum ApplePurchaseOutcome { case pending, verificationPending, cancelled, verified(ServerGrant) }
 
 func acceptAppleGrant(_ grant: ServerGrant, proof: ApplePurchaseProof, account: ApplePurchaseAccount, current: ApplePurchaseAccount?) throws {
     guard current == account, proof.binding == account.binding,
@@ -42,13 +42,15 @@ final class StoreKitBillingProvider {
     private let currentAccount: () -> ApplePurchaseAccount?
     private let uiGate: AppleUiGate
     private let limiter: AppleVerificationLimiter?
+    private let onVerified: (ServerGrant) -> Void
     private var listener: Task<Void, Never>?
 
-    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, currentAccount: @escaping () -> ApplePurchaseAccount?) {
+    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, onVerified: @escaping (ServerGrant) -> Void = { _ in }, currentAccount: @escaping () -> ApplePurchaseAccount?) {
         self.sink = sink
         self.verificationConcurrency = verificationConcurrency
         self.currentAccount = currentAccount
         self.uiGate = uiGate ?? AppleUiGate()
+        self.onVerified = onVerified
         self.limiter = verificationConcurrency.flatMap { $0 > 0 ? AppleVerificationLimiter(limit: $0) : nil }
     }
     deinit { listener?.cancel() }
@@ -58,7 +60,7 @@ final class StoreKitBillingProvider {
         listener = Task { [weak self] in
             for await result in Transaction.updates {
                 guard !Task.isCancelled, let self else { return }
-                _ = try? await self.process(result)
+                if let grant = try? await self.process(result) { self.onVerified(grant) }
             }
         }
     }
@@ -75,7 +77,10 @@ final class StoreKitBillingProvider {
         try uiGate.acquire()
         defer { uiGate.release() }
         switch try await product.purchase(options: [.appAccountToken(account.binding)]) {
-        case .success(let result): return .verified(try await process(result))
+        case .success(let result):
+            do { return .verified(try await process(result)) }
+            catch let failure as SdkFailure where ["VERIFICATION_FAILED", "PURCHASE_ACCOUNT_MISMATCH", "UNSUPPORTED_OPERATION"].contains(failure.code) { throw failure }
+            catch { return .verificationPending }
         case .pending: return .pending
         case .userCancelled: return .cancelled
         @unknown default: throw SdkFailure("VERIFICATION_FAILED")
@@ -83,10 +88,10 @@ final class StoreKitBillingProvider {
     }
 
     func recoverUnfinished() async {
-        for await result in Transaction.unfinished { _ = try? await process(result) }
+        for await result in Transaction.unfinished { if let grant = try? await process(result) { onVerified(grant) } }
     }
     func recoverEntitlements() async {
-        for await result in Transaction.currentEntitlements { _ = try? await process(result) }
+        for await result in Transaction.currentEntitlements { if let grant = try? await process(result) { onVerified(grant) } }
     }
     /// Only call from an explicit user restore action, never during startup.
     func userRestore() async throws {

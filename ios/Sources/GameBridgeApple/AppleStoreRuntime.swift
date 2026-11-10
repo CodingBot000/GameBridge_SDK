@@ -13,7 +13,8 @@ final class AppleStoreRuntime {
     private let sink: AppleHttpProofSink
     private let serviceConfig: ServiceConfigurationRepository
 
-    init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String], verificationConcurrency: Int = 1, serviceConfig: ServiceConfigurationRepository? = nil) throws {
+    init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String], verificationConcurrency: Int = 1, serviceConfig: ServiceConfigurationRepository? = nil,
+         onVerified: @escaping (String, ServerGrant) -> Void = { _, _ in }) throws {
         guard Set(productIds.keys) == Set(["coins_100", "premium_unlock"]),
               productIds.values.allSatisfy({ !$0.isEmpty }), Set(productIds.values).count == 2,
               verificationConcurrency > 0 else { throw SdkFailure("CONFIG_REQUIRED") }
@@ -23,7 +24,10 @@ final class AppleStoreRuntime {
         self.account = account
         let sink = AppleHttpProofSink(auth: auth, client: client)
         self.sink = sink
-        provider = StoreKitBillingProvider(sink: sink, verificationConcurrency: verificationConcurrency, uiGate: auth.uiGate) { [weak account] in account?.current() }
+        provider = StoreKitBillingProvider(sink: sink, verificationConcurrency: verificationConcurrency, uiGate: auth.uiGate, onVerified: { grant in
+            guard let logical = productIds.first(where: { $0.value == grant.productId })?.key else { return }
+            onVerified(logical, grant)
+        }) { [weak account] in account?.current() }
     }
     func start() async throws {
         guard try await account.refresh() != nil else { throw SdkFailure("SESSION_EXPIRED") }

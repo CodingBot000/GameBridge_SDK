@@ -1223,3 +1223,19 @@
 - `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-unity-bridge:testDebugUnitTest` 종료 0: fake Play 결과가 VERIFICATION_PENDING/NOT_GRANTED로 전달되고 잘못된 상품 mapping은 provider 생성 전에 차단됨을 확인했다. 검증 ID 없는 구매 이벤트 및 로그아웃 이후 이전 이벤트도 차단했다. 실제 Play·Unity JNI는 아니다.
 - `scripts/check-csharp-compile.sh` 및 `scripts/smoke-csharp-registry.sh` 종료 0: 네 조건부 C# compile과 독립 registry smoke 통과. 실제 Unity Editor/JNI 및 Google Play는 검증하지 않았다.
 - 커밋 전: Android Play 상품 조회·대기 구매·서버 잔액·검증 이벤트 연결과 fake 시험만 포함한다. 실제 Play/Unity JNI 및 구매 sync/recovery, iOS 상점은 미완료로 유지한다.
+
+### [P05-T07] iOS StoreKit bridge
+- Task 시작: Native AppleStore의 사용자 인증·상품 ID·지급 후 finish 경로를 C ABI에 연결한다. 명시적 사용자 복원과 앱 복귀 복구를 구분하며 실제 Apple 거래는 실행하지 않는다.
+- StoreKit 거래 수신 이후 서버 검증의 일시 오류를 VERIFICATION_PENDING으로 구분하고, 실제 서버 GRANTED/ALREADY_GRANTED 상태를 Native 결과에 보존하도록 보완했다. 검증 실패·계정 불일치는 계속 오류이며 미검증 거래는 finish하지 않는다.
+- `swift test --package-path ios --filter StoreKitBillingProviderTests` 종료 0, 2건: 기존 server grant 결합과 검증 동시성 시험 통과. 새 검증 대기 분기 자체 및 실제 StoreKit 거래는 이 시험에 포함되지 않는다.
+- iOS AppleStore를 sandbox C ABI에 지연 연결하고 두 상품 mapping, 서버 확인된 지급 상태·finish 결과, pending/cancelled를 구분하는 handler 초안을 작성했다. 복구 수치 및 지연 이벤트는 아직 연결하지 않았다. Swift fake 및 simulator compile을 확인한다.
+- `swift test --package-path ios --filter AppleAuthBridgeTests` 종료 0, 1건으로 기존 인증 경계 회귀 통과. 새 상점 결과의 지급 상태 분기와 서버 응답 상태 전달을 추가 시험한다.
+- `swift test --package-path ios --filter AppleAuthBridgeTests` 종료 1: fake provider가 상품 mapping 없이 구매 결과를 반환해 기존 미설정 차단 시험이 실패했다. handler 자체에서 store 호출 전 mapping을 강제하고 재시험한다. 뒤이은 sink 시험은 실행되지 않았다.
+- 재시험 `swift test --package-path ios --filter AppleAuthBridgeTests` 종료 0, 2건: 미설정 차단, 검증 전 미지급, 서버 ALREADY_GRANTED 보존, 구매 ID 없는 가짜 완료 거부. `--filter AppleAuthProviderTests.testAppleProofSinkRequiresDurableServerGrant` 종료 0, 1건: 서버 ALREADY_GRANTED가 Native에 보존된다. 모두 fake 시험이며 StoreKit UI는 아니다.
+- `xcodebuild -project artifacts/ios-apple-bridge.JMOwJF/... -scheme GameBridgeNative -destination generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. StoreKit·UIKit 포함 무서명 컴파일이며 실제 거래·Unity 실행은 아니다. 이제 verified transaction update의 지연 이벤트를 연결한다.
+- `swift test --package-path ios --filter StoreKitBillingProviderTests` 종료 0, 2건: 기존 검증 불변식·동시성 회귀 통과. StoreKit update 후 verified grant callback 경계가 추가됐으나 실제 transaction listener는 아직 실행하지 않았다.
+- StoreKit listener/미완료 복구에서 서버 검증과 finish를 마친 grant만 Native 업데이트 callback으로 내보내고, C ABI에서 callback 세대·SDK session·계정 epoch를 확인한다. 원본 transaction/JWS는 이벤트에 넣지 않는다. 컴파일과 fake 경계를 확인한다.
+- `swift test --package-path ios --filter CBridgeTests` 종료 0, 2건 및 `--filter AppleAuthBridgeTests` 종료 0, 2건. macOS Swift 시험은 UIKit 분기나 실제 StoreKit update를 실행하지 않는다. simulator framework compile을 재실행한다.
+- `xcodebuild -project artifacts/ios-apple-bridge.JMOwJF/... -scheme GameBridgeNative -destination generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0: UIKit/StoreKit 이벤트 분기 포함 컴파일. 실제 listener·기기·Unity 동작은 미실행이다. 전체 Swift 회귀를 실행한다.
+- `swift test --package-path ios` 종료 0: 총 47건 중 4건 opt-in local Backend skip, 나머지 실패 0. 이 결과는 실제 StoreKit 거래 또는 UIKit 이벤트 실행을 뜻하지 않는다.
+- 커밋 전: iOS sandbox 상점의 상품·구매·잔액 및 검증된 지연 이벤트 코드와 fake/compile 증거만 포함한다. 실제 StoreKit 거래·listener·Unity와 사용자 복원/sync bridge는 미완료다.

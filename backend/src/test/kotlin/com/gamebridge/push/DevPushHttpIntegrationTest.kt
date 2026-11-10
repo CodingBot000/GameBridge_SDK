@@ -22,6 +22,7 @@ import kotlin.test.*
 class DevPushHttpIntegrationTest {
     @Autowired lateinit var rest: TestRestTemplate
     @Autowired internal lateinit var broker: MockPushBroker
+    @Autowired lateinit var db: org.springframework.jdbc.core.JdbcTemplate
     @org.springframework.boot.test.web.server.LocalServerPort var port: Int = 0
     companion object {
         private val installation = UUID.randomUUID()
@@ -114,6 +115,30 @@ class DevPushHttpIntegrationTest {
         val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(8)
         while (broker.subscriberCount() != 0 && System.nanoTime() < deadline) Thread.sleep(50)
         assertEquals(0, broker.subscriberCount())
+    }
+
+    @Test fun `rotation and logout move installation ownership without retaining old tokens`() {
+        fun login(subject: String): Map<*, *> {
+            val headers = HttpHeaders().apply { set("X-Development-Key", authKey) }
+            return rest.exchange("/v1/dev/auth", HttpMethod.POST, HttpEntity(mapOf("subject" to subject), headers), Map::class.java).body!!
+        }
+        val a = login("A"); val b = login("B")
+        fun headers(session: Map<*, *>) = HttpHeaders().apply { setBearerAuth(session["accessToken"] as String) }
+        fun register(session: Map<*, *>, token: String) = rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT,
+            HttpEntity(mapOf("token" to token, "provider" to "MOCK", "platform" to "MOCK", "appId" to "gamebridge-sample"), headers(session)), Map::class.java)
+        val first = register(a, "synthetic-old-token"); assertEquals(200, first.statusCode.value())
+        assertEquals(403, register(b, "synthetic-other-token").statusCode.value())
+        val rotated = register(a, "synthetic-new-token"); assertEquals(200, rotated.statusCode.value())
+        assertNotEquals(first.body!!["tokenFingerprint"], rotated.body!!["tokenFingerprint"])
+        assertEquals(1, db.queryForObject("SELECT count(*) FROM device_tokens WHERE installation_id=?", Int::class.java, installation))
+        val oldHash = java.security.MessageDigest.getInstance("SHA-256").digest("synthetic-old-token".toByteArray())
+        assertEquals(0, db.queryForObject("SELECT count(*) FROM device_tokens WHERE installation_id=? AND token_hash=?", Int::class.java, installation, oldHash))
+        assertEquals(200, rest.exchange("/v1/auth/logout", HttpMethod.POST, HttpEntity<Any>(headers(a)), Map::class.java).statusCode.value())
+        assertEquals(0, db.queryForObject("SELECT count(*) FROM device_tokens WHERE installation_id=?", Int::class.java, installation))
+        assertEquals(200, register(b, "synthetic-new-owner-token").statusCode.value())
+        assertEquals(UUID.fromString(b["userId"] as String), db.queryForObject("SELECT user_id FROM device_tokens WHERE installation_id=?", UUID::class.java, installation))
+        assertEquals(200, rest.exchange("/v1/auth/logout", HttpMethod.POST, HttpEntity<Any>(headers(b)), Map::class.java).statusCode.value())
+        assertEquals(0, db.queryForObject("SELECT count(*) FROM device_tokens WHERE installation_id=?", Int::class.java, installation))
     }
 
 }

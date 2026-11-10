@@ -2235,3 +2235,14 @@
 ### P09-T04 복원 scenario mapping 검증 시작
 - R32/R36/R37/R38 manifest·필수 coverage 음성·원장 검사 통과, 10개 scenario는 PARTIAL로 남긴다. 개별 suite는 격리 DB opt-in을 요구하며 정상 Provider 시험을 대체하지 않는다.
 - 커밋 준비: 복원 assertion·runner 및 검증 범위 evidence만 저장한다.
+
+### [P09-T05] R41/R42 푸시 token 소유권 검증 시작
+- 전용 local DB/HTTP에서 token 회전 시 한 installation의 이전 token이 교체되고 logout 직후 삭제되며 다른 사용자 로그인 시 소유가 바뀌는지 검증한다. 실제 FCM/APNs 발송은 없다.
+### P09-T05 token 회전·소유권 DB 검증 시작
+- 새 전용 DB에서 실제 local HTTP/security 및 암호화 token row를 검증한다. synthetic token만 사용한다.
+- 전용 local DB `gamebridge_ci_f32d3b9216`에서 기존 사용자 소유 중 타 사용자 등록 403, token 회전 후 옛 hash 미존재, logout 시 삭제, 다른 사용자 재등록·logout 삭제가 통과했다. stale invalidation 방지 및 Android host rotation fake와 함께 scenario runner로 확인한다.
+### P09-T05 token 소유권 runner 검증 시작
+- `artifacts/push-ownership-b0926wkl`, 전용 DB `gamebridge_ci_bd89663e7b`: token 회전·logout 후 다른 사용자 소유권 전환, stale invalidation 보호 및 Android host fake PASS. R41/R42는 local/synthetic 범위로 연결하고 strict에서 필수 실행한다. 실제 FCM/APNs는 미검증이다.
+### P09-T05 R41/R42 mapping 검증 시작
+- R41/R42 manifest·누락 음성·원장 검사 통과. 나머지 8개는 PARTIAL이며 Unity 및 실제 원격 푸시는 대기다.
+- 커밋 준비: 격리 HTTP/DB ownership 시험과 scenario runner·strict 연결만 저장한다.

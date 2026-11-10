@@ -187,6 +187,14 @@
       ],
       "mode": "XCODE_LOCAL_AND_ISOLATED_DB",
       "platform": "iOS simulator/Backend"
+    },
+    "push-ownership": {
+      "command": [
+        "python3",
+        "harness/run-push-ownership.py"
+      ],
+      "mode": "ISOLATED_LOCAL_DB_AND_FAKE",
+      "platform": "Backend/Android"
     }
   },
   "scenarios": [
@@ -1416,17 +1424,34 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R41"
       ],
       "candidateSuites": [
-        "push-regression"
+        "push-ownership"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/push-router-maintenance-scenarios.md",
+      "note": "Local mock HTTP/DB and synthetic dispatcher/Android host; real remote services and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "push-ownership",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/push/DevPushHttpIntegrationTest.kt",
+          "testCase": "synthetic-old-token"
+        },
+        {
+          "suite": "push-ownership",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/push/PushDispatcherDatabaseTest.kt",
+          "testCase": "rotation and logout prevent stale invalidation or later sends"
+        },
+        {
+          "suite": "push-ownership",
+          "testFile": "android/sdk-android/src/test/kotlin/com/gamebridge/android/push/AndroidPushHostAdapterTest.kt",
+          "testCase": "token rotation and opened routes are forwarded"
+        }
+      ]
     },
     {
       "id": "R42",
@@ -1436,17 +1461,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R42"
       ],
       "candidateSuites": [
-        "push-regression"
+        "push-ownership"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/push-router-maintenance-scenarios.md",
+      "note": "Local mock HTTP/DB and synthetic dispatcher/Android host; real remote services and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "push-ownership",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/push/DevPushHttpIntegrationTest.kt",
+          "testCase": "rotation and logout move installation ownership without retaining old tokens"
+        },
+        {
+          "suite": "push-ownership",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/push/DevPushHttpIntegrationTest.kt",
+          "testCase": "synthetic-new-owner-token"
+        }
+      ]
     },
     {
       "id": "R43",

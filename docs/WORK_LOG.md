@@ -336,3 +336,16 @@
 - 전용 DB `docker compose ... stop` 종료 0. Swift Mock 구매·세션 시험 기록은 전용 volume에 보존했다. 사용자 Simulator 자체는 그대로 둔다.
 - `bash scripts/generate-ios-project.sh` 종료 0: 로컬 XcodeGen 2.46.0으로 샘플 프로젝트 재생성. 산출 Xcode project와 빌드 산출물은 Git 제외하고 spec을 보존한다.
 - `docs/evidence/p03-t02-ios-local-mock.md`에 Simulator 결과·실패 이력·한계 기록. 커밋 전: Swift Native client와 SwiftUI 샘플, Debug/Release 보안 설정 및 UI smoke 포함. 실제 Apple Provider·StoreKit·Unity와 전체 세션 경합 검증이 남아 P03-T02는 PARTIAL 유지.
+
+### [P03-T03] 시작 — 2026-11-10 Asia/Seoul
+- P03-T01과 Bridge 계약은 부분 검증됨. Unity 클래스를 직접 참조하지 않는 Android 진입점과 명시적 미지원 응답을 작성한다. Unity Editor/JNI 실행은 라이선스 환경과 패키징이 준비된 뒤 검증한다.
+- `ANDROID_HOME=<installed SDK> ./android/gradlew -p android :sdk-core:test :sdk-unity-bridge:assembleDebug` 종료 0: dispatcher 테스트 및 JNI facade AAR 컴파일. Unity 호출·콜백 실행은 미검증이고 status/shutdown 외 모든 작업은 명시적 UNSUPPORTED_OPERATION이다.
+- 검토 중 shutdown 응답 후 status가 고정 UNINITIALIZED로 되돌아가는 문제를 발견해 상태를 보정한다.
+- 상태 보정 후 `ANDROID_HOME=<SDK> ./android/gradlew -p android :sdk-core:test :sdk-unity-bridge:assembleDebug` 종료 0. C# AndroidJavaProxy 소스는 Unity 미실행으로 컴파일·JNI 왕복 미검증.
+- 구현 검토 중 무제한 executor 대기열과 callback 교체 후 이전 응답 전달 위험을 발견해 계획의 큐 상한과 callback 세대 차단을 추가한다.
+- 큐 상한 100 및 BUSY 응답, callback 세대 확인을 추가한 뒤 Android core 시험과 bridge AAR 빌드 종료 0. Unity C# 컴파일·JNI 실행은 여전히 미검증.
+- 세대 확인과 callback 교체 사이의 경합 가능성이 남아 동일 lock에서 검사·전달하도록 수정한다.
+- callback 세대 검사·전달을 동일 lock으로 보호한 뒤 `:sdk-unity-bridge:assembleDebug` 종료 0. Unity 라이선스 부재로 C# 컴파일 및 JNI callback thread 검증은 아직 불가.
+- `unzip -p .../sdk-unity-bridge-debug.aar proguard.txt` 종료 0: facade 및 callback keep 규칙이 AAR에 포함됨을 확인. R8 최종 앱 실행은 미검증.
+- Unity C# callback 대기열의 계획상 상한 100과 drop counter, 종료 후 수신 차단을 작성했다. `python3 scripts/verify-progress.py` 종료 0. Unity Editor 미기동으로 C# 컴파일·런타임 검증은 NOT_RUN이다.
+- 커밋 전: status/shutdown만 처리하고 나머지는 명시적 UNSUPPORTED_OPERATION. 잘못된 envelope는 callback 없이 거부되어 호출자 timeout 처리가 필요하며, 실제 Unity JNI 왕복·인증·lifecycle·R8 release는 미완료이므로 P03-T03 PARTIAL 유지.

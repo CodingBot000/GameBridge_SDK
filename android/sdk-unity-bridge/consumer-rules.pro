@@ -1,0 +1,2 @@
+-keep class com.gamebridge.bridge.BridgeFacade { public *; }
+-keep interface com.gamebridge.bridge.BridgeCallback { public *; }

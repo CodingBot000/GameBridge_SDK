@@ -7,13 +7,14 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import com.gamebridge.PushPayload
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.RemoteMessage
 
 /** Host owns Firebase initialization, service registration and Android permission results. */
 class AndroidPushHostAdapter(
     private val onToken: (String) -> Unit,
-    private val onMessage: (Map<String, String>, Boolean) -> Unit,
+    private val onMessage: (PushPayload, Boolean) -> Unit,
     private val onError: () -> Unit,
 ) {
     fun hasNotificationPermission(context: Context): Boolean = Build.VERSION.SDK_INT < 33 ||
@@ -39,7 +40,7 @@ class AndroidPushHostAdapter(
     }
     /** Host service forwards token rotation; token must be sent only to the configured Backend. */
     fun onNewToken(token: String) { if (token.isNotBlank()) onToken(token) else onError() }
-    fun onMessageReceived(message: RemoteMessage) { onMessage(message.data.toMap(), false) }
+    fun onMessageReceived(message: RemoteMessage) { PushPayload.parse(message.data)?.let { onMessage(it, false) } }
     /** Host validates and forwards its launch/click intent data. */
-    fun onNotificationOpened(data: Map<String, String>) { onMessage(data.toMap(), true) }
+    fun onNotificationOpened(data: Map<String, String>) { PushPayload.parse(data)?.let { onMessage(it, true) } }
 }

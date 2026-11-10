@@ -653,3 +653,10 @@
 - FCM host adapter 초안 작성: 명시적 token 요청·권한 요청·channel·host service callback 전달. Firebase SDK 의존성은 compileOnly이며 실제 host가 설정한다. 컴파일 및 Mock 샘플 빌드를 확인한다.
 - Android unit task 및 Firebase 설정 없는 Mock 샘플 assembleDebug 종료 0. FCM adapter 자체의 token rotation·권한 거부·메시지 unit 및 실제 FCM 발급/수신은 아직 미실행이다. host service/manifest 예시를 추가했다.
 - 커밋 전: host adapter·compileOnly Firebase·통합 예시만 포함한다. Backend 등록 및 실제 OS/스토어 검증은 미완료이므로 P06-T01 PARTIAL/WAITING_USER 유지.
+
+### [P06-T05] 시작 — 2026-11-10 Asia/Seoul
+- 계획에 명시된 messageId·home/store route·campaignId만 허용하는 공통 payload 정규화를 구현한다. 콜드스타트 queue 및 실제 OS 클릭은 별도 미완료로 유지한다.
+- Android/iOS 共通 payload parser와 허용 경로 단위시험을 작성했다. platform host 연결 전 unit 시험을 실행한다.
+- Android·Swift parser unit 시험 각각 통과. host adapter에 parser를 연결해 raw URL/임의 필드가 callback으로 전달되지 않게 하고 Native 빌드를 재확인한다.
+- Android library 및 iOS Simulator sample build 통과. 단위시험은 home/store 외 URL과 빈 messageId를 거부하고 추가 필드를 전달하지 않음을 확인했다. 실제 OS 클릭·콜드스타트·중복 제거는 아직 검증하지 않았다.
+- 커밋 전: payload 정규화 및 host adapter 연결만 포함한다. queue·dedup·Unity routing·실제 원격 수신은 미완료로 P06-T05 PARTIAL 유지.

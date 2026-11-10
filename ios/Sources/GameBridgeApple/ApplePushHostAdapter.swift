@@ -2,6 +2,7 @@
 import Foundation
 import UIKit
 import UserNotifications
+import GameBridgeCore
 
 /// The host owns UIApplicationDelegate and UNUserNotificationCenterDelegate.
 /// Forward callbacks to this adapter; it never replaces either delegate.
@@ -9,7 +10,7 @@ import UserNotifications
 public final class ApplePushHostAdapter {
     public var onDeviceToken: ((Data) -> Void)?
     public var onRegistrationFailure: (() -> Void)?
-    public var onNotification: (([AnyHashable: Any], Bool) -> Void)?
+    public var onNotification: ((PushPayload, Bool) -> Void)?
 
     public init() {}
     public func authorizationStatus() async -> UNAuthorizationStatus {
@@ -24,6 +25,9 @@ public final class ApplePushHostAdapter {
     }
     public func didRegister(deviceToken: Data) { onDeviceToken?(deviceToken) }
     public func didFailRegistration() { onRegistrationFailure?() }
-    public func received(userInfo: [AnyHashable: Any], opened: Bool) { onNotification?(userInfo, opened) }
+    public func received(userInfo: [AnyHashable: Any], opened: Bool) {
+        guard let payload = PushPayload(data: userInfo) else { return }
+        onNotification?(payload, opened)
+    }
 }
 #endif

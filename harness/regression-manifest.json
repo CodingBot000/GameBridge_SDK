@@ -63,10 +63,9 @@
     "harness-self": {
       "command": [
         "python3",
-        "harness/unavailable.py",
-        "harness fail-closed self-test is not yet implemented"
+        "harness/run-self-check.py"
       ],
-      "mode": "LOCAL",
+      "mode": "ISOLATED_NEGATIVE",
       "platform": "Harness"
     },
     "auth-regression": {
@@ -1103,7 +1102,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "NOT_IMPLEMENTED",
+      "coverage": "PARTIAL",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -1113,7 +1112,7 @@
         "harness-self"
       ],
       "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "note": "Isolated negative checks exist; full required lane and CI verification remain incomplete."
     }
   ]
 }

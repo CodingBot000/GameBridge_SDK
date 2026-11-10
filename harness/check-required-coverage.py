@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """CI gate: inventory entries marked partial are not completed tests."""
+import importlib.util
 import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 try:
+    sys.dont_write_bytecode = True
+    spec = importlib.util.spec_from_file_location('manifest_checker', ROOT/'harness/check-manifest.py')
+    checker = importlib.util.module_from_spec(spec); spec.loader.exec_module(checker)
+    if checker.check(ROOT): raise ValueError('scenario manifest validation failed')
     data = json.loads((ROOT/'harness/regression-manifest.json').read_text(encoding='utf-8'))
     scenarios = data['scenarios']
     if len(scenarios) != 50 or {item['id'] for item in scenarios} != {f'R{i:02d}' for i in range(1,51)}: raise ValueError('incomplete inventory')

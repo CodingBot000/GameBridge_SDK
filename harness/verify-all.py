@@ -64,6 +64,7 @@ def main() -> int:
     simple('progress',['python3','scripts/verify-progress.py'],'Progress ledger consistency checks passed')
     simple('manifest',['python3','harness/check-manifest.py'],'Manifest inventory valid')
     simple('aggregation-self',['python3','-m','unittest','discover','-s','harness','-p','test_aggregation.py','-v'],'OK')
+    simple('progress-negative',['python3','harness/check-progress-negative.py'],'Progress negatives PASS')
     simple('manifest-negative',['python3','harness/check-manifest-negative.py'],'Negative manifest: missing R49 rejected')
     simple('contract-negative',['python3','harness/check-contract-negative.py'],'Negative contract: Kotlin and Swift rejected')
     nested('contracts',['python3','harness/run-contracts.py'])

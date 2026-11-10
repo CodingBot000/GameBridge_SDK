@@ -24,8 +24,25 @@ def check(root: Path, manifest_path: Path | None = None) -> list[str]:
                 if not entry.get(field): errors.append(f'{ident}: missing {field}')
             if entry.get('required') is not True: errors.append(f'{ident}: required must be true')
             if entry.get('coverage') not in ('PARTIAL', 'NOT_IMPLEMENTED', 'IMPLEMENTED'): errors.append(f'{ident}: invalid coverage')
+            if entry.get('coverage') == 'IMPLEMENTED':
+                assertions = entry.get('assertions')
+                if not isinstance(assertions, list) or not assertions:
+                    errors.append(f'{ident}: implemented requires assertion mapping')
+                else:
+                    for assertion in assertions:
+                        if not isinstance(assertion, dict): errors.append(f'{ident}: invalid assertion mapping'); continue
+                        test_file = assertion.get('testFile', ''); test_case = assertion.get('testCase', ''); suite = assertion.get('suite', '')
+                        path = Path(test_file)
+                        if (not test_file or path.is_absolute() or '..' in path.parts or suite not in entry.get('candidateSuites', []) or
+                            not (root / path).is_file() or not (root / path).resolve().is_relative_to(root.resolve()) or
+                            not test_case or test_case not in (root / path).read_text(encoding='utf-8')):
+                            errors.append(f'{ident}: invalid assertion mapping')
+                if not str(entry.get('evidence', '')).startswith('docs/evidence/'):
+                    errors.append(f'{ident}: implemented requires specific evidence')
             if entry.get('entry') != ['python3', 'harness/run-scenario.py', ident]: errors.append(f'{ident}: invalid entry')
-            if not (root / entry.get('evidence', '')).is_file(): errors.append(f'{ident}: evidence reference missing')
+            evidence_path = Path(entry.get('evidence', ''))
+            if evidence_path.is_absolute() or '..' in evidence_path.parts or not (root / evidence_path).is_file() or not (root / evidence_path).resolve().is_relative_to(root.resolve()):
+                errors.append(f'{ident}: evidence reference missing')
             for suite in entry.get('candidateSuites', []):
                 if suite not in suites: errors.append(f'{ident}: unknown suite {suite}')
         for ident, suite in suites.items():

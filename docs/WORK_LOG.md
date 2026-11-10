@@ -1553,3 +1553,15 @@
 - 강화된 빈 DB 확인은 새 `gamebridge_ci_d67cc2b8fd70`에서 migration 적용에 성공했다. 그러나 이어진 Gradle test가 DB URL 변경을 입력으로 인식하지 못해 UP-TO-DATE였으므로 그 DB에서 시험 통과라고 기록하지 않는다. CI test 명령에 --rerun-tasks를 추가하고 같은 DB에서 실제 실행한다.
 - `--rerun-tasks`로 새 CI test DB에서 ledger/finalization 3건을 실제 재실행하고 JUnit 3건·skip 0을 확인했다. 변경 후 actionlint 1.7.12 재검증 종료 0. 기존 DB·새 test DB는 보존했다. GitHub 원격 workflow는 실행하지 않았다.
 - 커밋 전: CI workflow·disposable DB 준비·0건/skip 방지 검사와 로컬 정적/대응 검증만 포함한다. Unity lane은 명시적 NOT_IMPLEMENTED로 실패하며 remote Actions 결과는 NOT_RUN이다.
+
+### [P09-T08] 하네스 fail-closed 자체 시험
+- Task 시작: 새 격리 fixture에서 문서 누락, 실패·0건, 필수 시나리오 누락, Native binary 누락, sandbox fake token 거부를 검증한다. 원본 제품 소스와 기존 산출물은 변조하지 않는다.
+- 진행 원장 검사기를 대조한 결과 PASS의 evidence 문자열 존재만 검사하고 실제 파일 부재와 집계 숫자 불일치를 놓친다. P09-T06/08 요구에 맞춰 evidence 경로·WORK_LOG anchor·분모/상태 집계를 검증하고 격리 문서에서 음성 시험한다.
+- 강화한 `scripts/verify-progress.py`는 현재 원장에서 종료 0. `harness/check-progress-negative.py`는 새 복사본에서 USER_SETUP 누락·증거 파일 부재·구현 집계 조작을 각각 거부했으며 원본은 보존했다.
+- 자체 검사 runner는 격리 문서·manifest·binary·fixture 및 중복/원장 mutation, 실패/0건, 명시적 sandbox test-key HTTP, 원본 contract 재실행을 각각 집계한다. DB/Unity 도구가 없으면 성공으로 처리하지 않는다.
+- `harness/run-self-check.py` 명시적 전용 DB/Unity 참조 설정으로 종료 0: progress·manifest·binary·fixture 음성 시험, bridge/ledger mutation, 실패/0건 3검사, sandbox fake token 거부, 원본 계약 재실행을 각각 확인했다. 결과 `artifacts/harness-self-ogtz_a87/result.json`. 제품 전체 완료를 뜻하지 않는다. 필수 suite 자체 제거도 별도로 감지하도록 보강한다.
+- 격리 manifest에서 required suite 자체를 제거해도 검사기가 nonzero를 반환하도록 음성 시험을 추가했다. 원장의 증거 경로가 repo 밖 symlink를 가리키거나 상태 집계 key가 중복되는 경우도 거부하도록 보강했고 기존 문서 및 격리 음성 검사 재실행 종료 0이다. 전체 self-check를 다시 실행한다.
+- manifest에서 coverage를 IMPLEMENTED로 바꾸기만 해 gate를 우회하지 못하도록 구체 test file·test case·suite·evidence mapping을 요구하고, 이를 생략한 격리 mutation의 실패를 추가 검증한다. R50은 self-check 일부 구현이므로 NOT_IMPLEMENTED에서 PARTIAL로만 조정한다.
+- 구현 완료 표기는 존재하는 구체 test/assertion/evidence mapping 없이는 manifest 검사에서 거부된다. 진행 원장 격리 음성 시험에도 repo 밖 evidence symlink와 중복 집계 key를 추가했다. 전체 self-check를 재실행한다.
+- `harness/run-self-check.py` 최종 재실행 종료 0: 문서·evidence·symlink·집계, scenario/suite 제거·근거 없는 완료 표기, binary 누락, contract/bridge/ledger mutation, 실패/0건, sandbox fake token, 정상 contract 재실행을 각각 확인했다. 결과 `artifacts/harness-self-rd_ntb9t/result.json`. 전체 제품 strict-local은 여전히 FAIL이며 self-check PASS와 다르다.
+- 커밋 전: 진행 원장 검사 강화 및 격리 self-check만 포함한다. Unity/runtime·미구현 delivery 및 모든 required suite 정상 재실행은 미완료로 P09-T08 PARTIAL 유지한다.

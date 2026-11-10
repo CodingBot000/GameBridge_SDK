@@ -95,7 +95,7 @@ class SecurityConfiguration {
     @Bean fun disableServletRegistration(filter: SessionFilter) = FilterRegistrationBean(filter).apply { isEnabled = false }
     @Bean fun security(http: HttpSecurity, sessionFilter: SessionFilter): SecurityFilterChain = http
         .csrf { it.disable() }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-        .authorizeHttpRequests { it.requestMatchers("/health", "/v1/dev/auth", "/v1/auth/refresh").permitAll().anyRequest().authenticated() }
+        .authorizeHttpRequests { it.requestMatchers("/health", "/v1/config", "/v1/dev/auth", "/v1/auth/refresh").permitAll().anyRequest().authenticated() }
         .exceptionHandling { it.authenticationEntryPoint { request, response, _ ->
             response.status = 401; response.contentType = "application/json"
             val requestId = request.getAttribute("requestId")?.toString() ?: "unknown"

@@ -224,3 +224,13 @@
 - 테스트 서버 Ctrl-C 종료 130. 전용 DB는 volume을 유지하고 컨테이너를 정지한다.
 - `docker compose ... stop` 종료 0. 자동 worker 동시성·백오프는 사용자 답변 대기. 현재 1초 Mock 재시도 간격과 30초 임대는 수동 시험용 내부값이며 승인된 운영 정책이 아니다. 자동 실행·실제 Provider 작업은 미구현이다.
 - 커밋 전: Mock 지급과 queue 동시 기록 및 PENDING 표시를 포함. P02-T04 IN_PROGRESS/PARTIAL 유지.
+
+### [P02-T05] 시작 — 2026-11-10 Asia/Seoul
+- P02-T04 자동 재시도 정책은 사용자 결정 대기. 별도로 로컬 Mock push token의 암호화·소유권 및 서비스 설정을 구현한다. 실제 FCM/APNs와 전송은 미구현으로 구분한다.
+- `./backend/gradlew -p backend test` 종료 0: AES-GCM 난수 nonce, 복호화, AAD 불일치 거부, 누락 key 실패를 확인하는 2개 단위 시험 통과. DB 기반 token 회전·소유권 검증은 아직 미실행. 실제 FCM/APNs token 및 전송 구현이 아니다.
+- 암호화 key와 개발키를 일회성 테스트 값으로 공급해 local-mock 서버 기동을 확인. 등록 해제 후 토큰 보존 여부는 사용자 결정 대기이므로, 해당 결정에 의존하는 삭제·보관 구현은 잠시 보류하고 독립적인 등록·회전·소유권을 검증한다.
+- `python3 scripts/smoke-device-local.py` 종료 0: local-mock assertion 7건, 공개 기본 설정·등록·token 회전·다른 계정 소유권 차단·응답 원문 미노출 확인. 수신/원격 푸시 검증 아님.
+- 보존 정책 미결정으로 등록 해제 endpoint 임시 구현을 제거했다. `./backend/gradlew -p backend test` 종료 0; 마지막 DB 시험은 변경 전 서버의 등록 기능만 검증했으며 삭제는 검증하지 않았다.
+- local-mock 서버 Ctrl-C 종료 130, 전용 DB container를 데이터 보존 상태로 정지한다.
+- 전용 DB `docker compose ... stop` 종료 0. UUID test installation과 암호화된 Mock token은 전용 volume에 보존했다.
+- 커밋 직전: local-mock 등록·암호화·소유권 확인 및 기본 config만 포함. 등록 해제·로그아웃 연결 제거는 토큰 보존 정책 결정 대기, push sender·실연동은 미구현이므로 P02-T05 PARTIAL.

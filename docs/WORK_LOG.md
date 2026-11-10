@@ -1581,3 +1581,10 @@
 - `check-api-baseline.py`·isolated public API mutation 검사 및 C# registry smoke 종료 0: logout의 REVOCATION_UNCONFIRMED는 보존하고 임의 token 문자열은 제거했다. 실제 오프라인 Unity 기기 logout은 아니다. Native fake와 sample compile을 재검증한다.
 - Android Native auth fake 13건, Swift auth/session fake 17건, `scripts/check-unity-sample.sh` Editor/iOS 조건부 compile 모두 종료 0. 실제 오프라인 Unity 기기 logout은 미검증이다.
 - 커밋 전: 기존 SdkException 생성자를 보존하는 additive 필드, logout 한정 allowlist 및 sample 표시만 포함한다. arbitrary native 문자열은 계속 비노출이며 전체 P10/security 검증은 미완료다.
+
+### [P10-T03] 로컬 lifecycle 측정
+- Task 시작: 계획의 100회 초기화·종료를 독립 .NET EditorOffline fake에서 측정하고 정리 상태를 확인한다. Unity Editor/실기기 latency나 누수 profile로 일반화하지 않는다.
+- 독립 .NET stress는 warm-up 5회와 실제 100회에서 fake 초기화·상품 조회·종료 및 pending 정리를 확인하고 p50/p95를 기록한다. 실행 환경과 실제 Unity/기기 미측정 한계를 함께 남긴다.
+- 첫 stress 실행은 종료 0이나 측정 코드가 client 생성 뒤 stopwatch를 시작하면서 결과 설명에 create를 포함했다. 첫 수치(100회 p50 0.1475ms/p95 0.1907ms)는 생성 제외 측정으로 보존하고, 시작 시점을 생성 앞으로 수정해 새 output에서 재측정한다.
+- 생성 시점 수정 후 `scripts/stress-csharp-lifecycle.sh` 종료 0: macOS Darwin 25.5 arm64, .NET 8.0.21 Release, warm-up 5·sample 100에서 fake create/init/product query/shutdown p50 0.1467ms, p95 0.2125ms; 매 회차 pending 0 확인. 결과 `artifacts/lifecycle-stress.zrf6NN/result.json`. dispose 시간은 측정에 포함하지 않으며 Unity/실기기/메모리 측정이 아니다.
+- 커밋 전: 독립 fake 측정 코드와 증거만 포함한다. Unity scene 교체·기기 profiling·누수 측정은 NOT_RUN으로 P10-T03 PARTIAL 유지한다.

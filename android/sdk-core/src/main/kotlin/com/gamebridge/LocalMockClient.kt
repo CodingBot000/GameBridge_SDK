@@ -8,6 +8,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.util.UUID
 
 private val wireJson = Json { ignoreUnknownKeys = true }
@@ -25,6 +27,7 @@ private val wireJson = Json { ignoreUnknownKeys = true }
 @Serializable private data class PendingMockPurchase(val appId: String, val backendBaseUrl: String, val userId: String,
                                                      val productId: String, val transactionId: String, val attemptId: String)
 data class LocalRecoveryCounts(val examinedCount: Int, val recoveredCount: Int, val deferredCount: Int, val failureCount: Int)
+data class LocalPushRegistration(val tokenFingerprint: String, val updatedAt: String)
 
 /** Native-only local development path. Tokens remain in Native memory/storage. */
 class LocalMockClient @JvmOverloads constructor(private val config: GameBridgeConfig, private val store: TokenStore,
@@ -108,6 +111,20 @@ class LocalMockClient @JvmOverloads constructor(private val config: GameBridgeCo
             result.finalizationStatus !in setOf("PENDING", "FINALIZED", "NOT_REQUIRED") ||
             runCatching { UUID.fromString(result.serverPurchaseId).toString() != result.serverPurchaseId }.getOrDefault(true)) throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH")
         return result
+    }
+    suspend fun registerMockPush(installationId: UUID): LocalPushRegistration = lock.withLock {
+        val body = buildJsonObject { put("token", "mock:" + UUID.randomUUID()); put("provider", "MOCK"); put("platform", "MOCK"); put("appId", config.appId) }.toString()
+        val response = authenticated("/v1/devices/$installationId/push-token", "PUT", body)
+        val json = try { kotlinx.serialization.json.Json.parseToJsonElement(response.json).jsonObject } catch (_: Exception) { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+        val fingerprint = (json["tokenFingerprint"] as? kotlinx.serialization.json.JsonPrimitive)?.takeIf { it.isString }?.content ?: throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH")
+        if (json["provider"] != kotlinx.serialization.json.JsonPrimitive("MOCK") || json["registered"] != kotlinx.serialization.json.JsonPrimitive(true) || !fingerprint.matches(Regex("[0-9a-f]{12}"))) throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH")
+        LocalPushRegistration(fingerprint, java.time.Instant.now().toString())
+    }
+    suspend fun unregisterMockPush(installationId: UUID) = lock.withLock {
+        val response = authenticated("/v1/devices/$installationId/push-token", "DELETE")
+        val json = try { kotlinx.serialization.json.Json.parseToJsonElement(response.json).jsonObject } catch (_: Exception) { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+        if (json["registered"] != kotlinx.serialization.json.JsonPrimitive(false)) throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH")
+        Unit
     }
     suspend fun signOut() = lock.withLock {
         if (store.load() == "{\"state\":\"refresh_pending\"}") {

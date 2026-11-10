@@ -68,7 +68,7 @@ namespace GameBridge
                 if (MockSubject != "A" && MockSubject != "B") errors.Add("mockSubject");
             }
             else if (!string.IsNullOrEmpty(DevelopmentKey)) errors.Add("developmentKey");
-            if (InstallationId != null && (Mode != ProviderMode.PlatformSandbox || !Guid.TryParseExact(InstallationId, "D", out _))) errors.Add("installationId");
+            if (InstallationId != null && ((Mode != ProviderMode.PlatformSandbox && Mode != ProviderMode.LocalMock) || !Guid.TryParseExact(InstallationId, "D", out _))) errors.Add("installationId");
             if (CoinsStoreProductId != null || PremiumStoreProductId != null)
             {
                 if (Mode != ProviderMode.PlatformSandbox || string.IsNullOrWhiteSpace(CoinsStoreProductId) ||

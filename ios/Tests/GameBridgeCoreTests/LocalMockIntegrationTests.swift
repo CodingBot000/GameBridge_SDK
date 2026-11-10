@@ -73,9 +73,12 @@ final class LocalMockIntegrationTests: XCTestCase {
         let key = try XCTUnwrap(ProcessInfo.processInfo.environment["GAMEBRIDGE_DEV_AUTH_KEY"])
         let storage = TestTokenStore(); let handler = LocalMockBridgeHandler { storage }
         let initialization = try await handler.invoke("sdk.initialize", payload: ["appId": "gamebridge-sample", "providerMode": "LOCAL_MOCK",
-            "backendBaseUrl": "http://127.0.0.1:18080", "requestTimeoutMs": 30000, "developmentKey": key, "mockSubject": "B"])
+            "backendBaseUrl": "http://127.0.0.1:18080", "requestTimeoutMs": 30000, "developmentKey": key, "mockSubject": "B", "installationId": UUID().uuidString.lowercased()])
         XCTAssertEqual((initialization as? [String: Any])?["state"] as? String, "READY")
         let profile = try await handler.invoke("auth.signIn", payload: ["provider": "MOCK"])
+        let push = try await handler.invoke("push.register", payload: [:]) as? [String: Any]
+        XCTAssertEqual(push?["registered"] as? Bool, true)
+        _ = try await handler.invoke("push.unregister", payload: [:])
         let encodedProfile = try JSONSerialization.data(withJSONObject: profile)
         XCTAssertFalse(String(decoding: encodedProfile, as: UTF8.self).contains(key))
         let beforeValue = try await handler.invoke("store.entitlements", payload: [:])
@@ -116,6 +119,21 @@ final class LocalMockIntegrationTests: XCTestCase {
         XCTAssertNil(pending.value)
         let wallet = try await restarted.wallet(); XCTAssertEqual(Int64(wallet.coinBalance), try XCTUnwrap(Int64(before.coinBalance)) + 100)
         try await restarted.signOut()
+    }
+
+    func testMockPushUnregisterAndLogoutRemoveToken() async throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST"] == "true", "Explicit local mock backend test only")
+        let key = try XCTUnwrap(ProcessInfo.processInfo.environment["GAMEBRIDGE_DEV_AUTH_KEY"])
+        let config = GameBridgeConfig(appId: "gamebridge-sample", mode: .localMock, backendBaseURL: "http://127.0.0.1:18080")
+        let client = try LocalMockClient(config: config, store: TestTokenStore(), developmentKey: key)
+        _ = try await client.signIn(subject: "B"); let id = UUID()
+        let first = try await client.registerMockPush(installationId: id)
+        XCTAssertNotNil(first.tokenFingerprint.range(of: "^[0-9a-f]{12}$", options: .regularExpression))
+        XCTAssertEqual(try sql("SELECT count(*) FROM device_tokens WHERE installation_id='\(id.uuidString)' AND environment='local-mock';"), "1")
+        try await client.unregisterMockPush(installationId: id)
+        XCTAssertEqual(try sql("SELECT count(*) FROM device_tokens WHERE installation_id='\(id.uuidString)' AND environment='local-mock';"), "0")
+        _ = try await client.registerMockPush(installationId: id); try await client.signOut()
+        XCTAssertEqual(try sql("SELECT count(*) FROM device_tokens WHERE installation_id='\(id.uuidString)' AND environment='local-mock';"), "0")
     }
 
 }

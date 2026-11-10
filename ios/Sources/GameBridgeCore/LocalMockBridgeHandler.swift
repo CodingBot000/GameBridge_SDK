@@ -12,6 +12,7 @@ public actor LocalMockBridgeHandler {
     private var config: GameBridgeConfig?
     private var developmentKey: String?
     private var subject: String?
+    private var installationId: UUID?
 
     public init(tokenStore: @escaping () -> TokenStore, sessionConfiguration: URLSessionConfiguration = .default, pendingStore: (() -> TokenStore)? = nil) {
         self.tokenStore = tokenStore; self.sessionConfiguration = sessionConfiguration; self.pendingStore = pendingStore
@@ -20,7 +21,7 @@ public actor LocalMockBridgeHandler {
     public func invoke(_ operation: String, payload: [String: Any]) async throws -> Any {
         if operation == "sdk.initialize" { return try initialize(payload) }
         if operation == "sdk.shutdown" {
-            client = nil; config = nil; developmentKey = nil; subject = nil
+            client = nil; config = nil; developmentKey = nil; subject = nil; installationId = nil
             return ["state": "SHUTDOWN"]
         }
         guard let client else { throw SdkFailure("NOT_INITIALIZED") }
@@ -33,6 +34,15 @@ public actor LocalMockBridgeHandler {
             return ["signedIn": user != nil, "user": try user.map { try object($0) } ?? NSNull(),
                     "expiresAt": NSNull(), "sessionRestored": user != nil] as [String: Any]
         case "auth.signOut": try await client.signOut(); return [String: Any]()
+        case "push.permission": return ["provider": "MOCK", "permission": "GRANTED"]
+        case "push.register":
+            guard let installationId else { throw SdkFailure("CONFIG_REQUIRED") }
+            let result = try await client.registerMockPush(installationId: installationId)
+            return ["provider": "MOCK", "permission": "GRANTED", "registered": true,
+                    "tokenFingerprint": result.tokenFingerprint, "updatedAt": result.updatedAt] as [String: Any]
+        case "push.unregister":
+            guard let installationId else { throw SdkFailure("CONFIG_REQUIRED") }
+            try await client.unregisterMockPush(installationId: installationId); return ["registered": false]
         case "config.get":
             let effective = try await client.serviceSettings()
             let formatter = ISO8601DateFormatter(); formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -67,19 +77,26 @@ public actor LocalMockBridgeHandler {
               let subject = payload["mockSubject"] as? String, ["A", "B"].contains(subject) else { throw SdkFailure("CONFIG_REQUIRED") }
         let next = GameBridgeConfig(appId: appId, mode: .localMock, backendBaseURL: base, requestTimeoutMs: timeout)
         do { try next.validate() } catch { throw SdkFailure("CONFIG_REQUIRED") }
-        if client != nil && (config != next || developmentKey != key || self.subject != subject) { throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG") }
+        let installation: UUID?
+        if let raw = payload["installationId"] {
+            guard let text = raw as? String, let parsed = UUID(uuidString: text), parsed.uuidString.lowercased() == text.lowercased() else { throw SdkFailure("CONFIG_REQUIRED") }
+            installation = parsed
+        } else { installation = nil }
+        if client != nil && (config != next || developmentKey != key || self.subject != subject || installationId != installation) { throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG") }
         if client == nil {
             client = try LocalMockClient(config: next, store: tokenStore(), developmentKey: key, sessionConfiguration: sessionConfiguration, pendingStore: pendingStore?())
-            config = next; developmentKey = key; self.subject = subject
+            config = next; developmentKey = key; self.subject = subject; installationId = installation
         }
         var capabilities: [String: Any] = [:]
         for name in ["auth", "store", "push", "config"] {
-            let available = name == "auth" || name == "store" || name == "config"
+            let available = name == "auth" || name == "store" || name == "config" || name == "push"
+            let configured = name != "push" || installation != nil
             let reason: Any
             if name == "store" && pendingStore == nil { reason = "Purchase recovery storage is not configured" }
+            else if name == "push" { reason = installation == nil ? "Installation ID required" : "Simulated Mock; no remote delivery" }
             else if available { reason = NSNull() }
             else { reason = "Bridge operation is not connected" }
-            capabilities[name] = ["supported": available, "configured": available, "mode": "LOCAL_MOCK", "reason": reason]
+            capabilities[name] = ["supported": available, "configured": configured, "mode": "LOCAL_MOCK", "reason": reason]
         }
         return ["state": "READY", "mode": "LOCAL_MOCK", "provider": "MOCK", "capabilities": capabilities]
     }

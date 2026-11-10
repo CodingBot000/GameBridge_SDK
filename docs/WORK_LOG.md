@@ -1402,3 +1402,19 @@
 - local `GET /v1/config` 응답을 DateParseHandling.None으로 읽어 Native가 사용하는 source NETWORK로 표기한 뒤 Unity ServiceConfig decoder에 전달한 .NET smoke 재실행 종료 0. 실제 Unity Player/JNI/C ABI 전체 왕복은 아니다.
 - 직접 기동한 local Backend만 종료하고 DB는 보존했다. revision 변경은 기존 실행 중 in-memory cache가 만료되기 전 과거 16진 값을 보유할 수 있으며, cache 만료 또는 재시작 후 새 형식을 사용한다.
 - 커밋 전: 서버 revision 계약 수정과 서버 unit/local HTTP→Unity decoder 증거만 포함한다. Unity Player 전체 config 왕복은 미검증이다.
+
+### [P06-T05] LOCAL_MOCK push 등록
+- Task 시작: host가 명시한 installation UUID로 개발용 Mock token을 Native에서 생성하고 인증된 Backend 등록·해제를 연결한다. Mock permission은 OS dialog를 호출하지 않는 simulated 결과이며 실제 원격 push로 취급하지 않는다.
+- Android Mock client에 Native 생성 가짜 token의 인증된 Backend 등록·해제를 추가했다. Unity LOCAL_MOCK은 Mock permission을 사용해 실제 OS 권한 창을 열지 않으며 installation UUID를 명시해야 한다. iOS 동등 경로를 구현하고 검증한다.
+- Android `:sdk-core:test :sdk-unity-bridge:assembleDebug` 종료 0: 기존 core fake와 bridge AAR compile 통과. 새 Mock token 등록·해제는 별도 local HTTP/DB 검증 전이다.
+- Swift Mock client에도 별도 임의 token의 Backend 등록·해제 및 simulated permission을 추가했다. token 원문은 결과에 넣지 않으며 remote delivery는 구현·성공으로 간주하지 않는다. Swift compile과 fake 경계를 확인한다.
+- `swift test --package-path ios --filter LocalMockMaintenanceTests` 종료 0, 기존 3건 회귀 통과. 양 플랫폼 Mock token의 실제 local DB 등록·해제·로그아웃 삭제를 확인하기 위한 opt-in 시험을 추가한다.
+- Mock에서 실제 host 권한창을 차단한 뒤 기존 .NET smoke가 EditorOffline에 붙인 fake APNs host가 호출되기를 기대해 종료 134. 기대가 새 모드 격리와 충돌하므로 Mock에서는 host 미호출을 검증하고 sandbox fake에서 host 호출을 별도로 검증한다.
+- `scripts/smoke-csharp-registry.sh` 재실행 종료 0: EditorOffline에서 host permission/register가 호출되지 않고 sandbox에서만 명시적 호출됨을 확인했다. LOCAL_MOCK 전체 bridge 및 실제 OS dialog는 이 시험 범위가 아니다.
+- Android opt-in `LocalMockIntegrationTest.mock push registration unregister and logout remove token` 종료 0: 격리 local DB에 Mock token 1건 등록 후 unregister 즉시 삭제, 재등록 후 logout 즉시 삭제를 확인했다. 외부 FCM 발송은 없다.
+- Swift opt-in `LocalMockIntegrationTests.testMockPushUnregisterAndLogoutRemoveToken` 종료 0, 1건: 격리 local DB의 Mock token unregister·logout 즉시 삭제를 확인했다. 실제 APNs는 실행하지 않았다. 두 플랫폼 bridge handler도 같은 Backend와 연결해 확인한다.
+- Android opt-in `LocalMockIntegrationTest.bridge uses real local backend for mock purchase and restore` 종료 0: Native bridge→local Backend의 Mock permission·token 등록/해제와 구매·잔액이 함께 통과했다. 테스트 Mock user B에 구매 1건을 남겼다. Unity JNI 및 FCM은 아니다.
+- Swift opt-in `LocalMockIntegrationTests.testBridgeHandlerAgainstLocalBackend` 종료 0, 1건: Swift handler→local Backend의 Mock token 등록/해제와 구매·잔액 통과. 테스트 Mock user B에 구매 1건을 남겼다. Swift C ABI 전체·Unity iOS 및 APNs는 아니다.
+- Mock token fingerprint는 서버 JSON의 문자열만 허용하도록 엄격화했다. 직접 기동한 Backend만 종료하고 DB volume을 보존했다. C#·iOS compile 및 Android core 회귀를 확인한다.
+- `:sdk-core:test`, `scripts/check-csharp-compile.sh` 4개 조건부, `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 모두 종료 0. 실제 Unity Player와 Mock push 전체 전달은 미검증이다.
+- 커밋 전: 양 Native Mock token 등록·해제, Mock permission 모드 격리, local DB/fake 및 compile 증거만 포함한다. Backend SIMULATED 발송의 client 전달 E2E·실제 FCM/APNs는 미구현/미검증으로 유지한다.

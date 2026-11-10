@@ -24,12 +24,17 @@ internal static class Program
     }
     private sealed class FakePermissionTransport : IWireTransport, GameBridge.IHostPushPermissionDriver
     {
-        private readonly EditorOfflineTransport inner = new EditorOfflineTransport();
         internal int Requests;
-        public event Action<string> Message { add { inner.Message += value; } remove { inner.Message -= value; } }
-        public void Dispatch(string json) => inner.Dispatch(json);
-        public void Pump() => inner.Pump();
-        public void Dispose() => inner.Dispose();
+        public event Action<string> Message;
+        public void Dispatch(string json)
+        {
+            var request = JObject.Parse(json);
+            Message?.Invoke(new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = request["sdkSessionId"], ["kind"] = "response",
+                ["requestId"] = request["requestId"], ["operation"] = request["operation"], ["ok"] = true,
+                ["result"] = InitResponse("PLATFORM_SANDBOX"), ["error"] = JValue.CreateNull() }.ToString(Newtonsoft.Json.Formatting.None));
+        }
+        public void Pump() { }
+        public void Dispose() { Message = null; }
         public Task<GameBridge.PushPermission> RequestPermissionAsync(CancellationToken cancellation) { Requests++; return Task.FromResult(new GameBridge.PushPermission { provider = "FCM", permission = "DENIED" }); }
     }
     private sealed class FakeHostPushDriver : GameBridge.IHostPushDriver
@@ -50,11 +55,11 @@ internal static class Program
         ["result"] = ok ? (JToken)new JObject { ["state"] = "READY" } : JValue.CreateNull(),
         ["error"] = ok ? JValue.CreateNull() : (JToken)new JObject { ["code"] = "BUSY", ["retryable"] = true }
     }.ToString(Newtonsoft.Json.Formatting.None);
-    private static JObject InitResponse()
+    private static JObject InitResponse(string mode = "EDITOR_OFFLINE")
     {
         var caps = new JObject();
-        foreach (var name in new[] { "auth", "store", "push", "config" }) caps[name] = new JObject { ["supported"] = true, ["configured"] = true, ["mode"] = "EDITOR_OFFLINE", ["reason"] = JValue.CreateNull() };
-        return new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE", ["capabilities"] = caps };
+        foreach (var name in new[] { "auth", "store", "push", "config" }) caps[name] = new JObject { ["supported"] = true, ["configured"] = true, ["mode"] = mode, ["reason"] = JValue.CreateNull() };
+        return new JObject { ["state"] = "READY", ["mode"] = mode, ["capabilities"] = caps };
     }
     private static async Task Main()
     {
@@ -189,11 +194,10 @@ internal static class Program
         Check((await facade.RegisterPushAsync()).tokenFingerprint == "mock-fingerprint", "fake registration");
         var hostDriver = new FakeHostPushDriver(); facade.AttachHostPushDriver(hostDriver);
         Check(hostDriver.PermissionCalls == 0 && hostDriver.RegisterCalls == 0, "attach must not prompt");
-        Check((await facade.RequestPushPermissionAsync()).provider == "APNS", "host permission");
-        Check((await facade.RegisterPushAsync()).tokenFingerprint == "abcdef123456", "host registration");
-        Check(hostDriver.PermissionCalls == 1 && hostDriver.RegisterCalls == 1, "explicit host calls only");
+        Check((await facade.RequestPushPermissionAsync()).provider == "MOCK", "mock bypasses host permission");
+        Check((await facade.RegisterPushAsync()).provider == "MOCK", "mock bypasses host registration");
+        Check(hostDriver.PermissionCalls == 0 && hostDriver.RegisterCalls == 0, "mock must not prompt OS");
         facade.DetachHostPushDriver(hostDriver);
-        Check((await facade.RegisterPushAsync()).provider == "MOCK", "detached host uses transport");
         await facade.UnregisterPushAsync(); Check((await facade.GetServiceConfigAsync()).source == "DEFAULT", "fake config");
         Check(facade.GetDiagnostics().PendingCount == 0, "diagnostic snapshot");
         await facade.SignOutAsync(); await facade.ShutdownAsync(); await facade.ShutdownAsync();
@@ -201,9 +205,16 @@ internal static class Program
         await facade.InitializeAsync(config); facade.Dispose();
         var permissionTransport = new FakePermissionTransport();
         var permissionFacade = new GameBridge.GameBridgeClient(permissionTransport);
-        await permissionFacade.InitializeAsync(config); Check(permissionTransport.Requests == 0, "initialization must not prompt Android permission");
+        await permissionFacade.InitializeAsync(new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.PlatformSandbox, "https://example.invalid")); Check(permissionTransport.Requests == 0, "initialization must not prompt Android permission");
         Check((await permissionFacade.RequestPushPermissionAsync()).permission == "DENIED", "Android host denial");
         Check(permissionTransport.Requests == 1, "explicit Android permission request"); permissionFacade.Dispose();
+        var hostTransport = new HeldTransport(); var hostFacade = new GameBridge.GameBridgeClient(hostTransport);
+        var hostInit = hostFacade.InitializeAsync(new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.PlatformSandbox, "https://example.invalid"));
+        hostTransport.Reply(hostTransport.Requests[0], InitResponse("PLATFORM_SANDBOX")); await hostInit;
+        hostFacade.AttachHostPushDriver(hostDriver);
+        Check((await hostFacade.RequestPushPermissionAsync()).provider == "APNS", "sandbox host permission");
+        Check((await hostFacade.RegisterPushAsync()).tokenFingerprint == "abcdef123456", "sandbox host registration");
+        Check(hostDriver.PermissionCalls == 1 && hostDriver.RegisterCalls == 1, "sandbox explicit host calls"); hostFacade.Dispose();
         var coldTransport = new HeldTransport(); var coldFacade = new GameBridge.GameBridgeClient(coldTransport); var coldCount = 0;
         coldFacade.PushOpened += update => { if (update.MessageId == "cold-id") coldCount++; };
         var coldInit = coldFacade.InitializeAsync(config); var coldRequest = coldTransport.Requests[0];

@@ -174,7 +174,7 @@ namespace GameBridge
                 if (value.Mode == ProviderMode.PlatformSandbox && value.GoogleServerClientId != null) payload["googleServerClientId"] = value.GoogleServerClientId;
                 if (value.Mode == ProviderMode.PlatformSandbox && value.CoinsStoreProductId != null)
                     payload["storeProductIds"] = new JObject { ["coins_100"] = value.CoinsStoreProductId, ["premium_unlock"] = value.PremiumStoreProductId };
-                if (value.Mode == ProviderMode.PlatformSandbox && value.InstallationId != null) payload["installationId"] = value.InstallationId;
+                if ((value.Mode == ProviderMode.PlatformSandbox || value.Mode == ProviderMode.LocalMock) && value.InstallationId != null) payload["installationId"] = value.InstallationId;
                 var result = await request.RequestAsync("sdk.initialize", payload, TimeSpan.FromMilliseconds(value.RequestTimeoutMs)).ConfigureAwait(false);
                 if (!(result is JObject obj) || obj["state"]?.Type != JTokenType.String || (string)obj["state"] != "READY" || obj["mode"]?.Type != JTokenType.String || (string)obj["mode"] != ModeString(value.Mode)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
                 var nextCapabilities = ReadCapabilities(obj["capabilities"], value.Mode);
@@ -224,14 +224,15 @@ namespace GameBridge
         internal void DetachHostPushDriver(IHostPushDriver driver) { lock (gate) { if (ReferenceEquals(hostPushDriver, driver)) hostPushDriver = null; } }
         private IHostPushDriver ActiveHostPushDriver()
         {
-            lock (gate) { if (disposed || state != "READY") throw new SdkException("NOT_INITIALIZED"); return hostPushDriver; }
+            lock (gate) { if (disposed || state != "READY") throw new SdkException("NOT_INITIALIZED"); return config.Mode == ProviderMode.PlatformSandbox ? hostPushDriver : null; }
         }
         public async Task<PushPermission> RequestPushPermissionAsync(CancellationToken cancellation = default)
         {
             if (cancellation.IsCancellationRequested) throw new SdkException("CANCELED");
             var host = ActiveHostPushDriver();
             if (host != null) return await host.RequestPermissionAsync(cancellation);
-            if (hostPushPermissionDriver != null) return await hostPushPermissionDriver.RequestPermissionAsync(cancellation);
+            bool useNativePermission; lock (gate) useNativePermission = config != null && config.Mode == ProviderMode.PlatformSandbox;
+            if (useNativePermission && hostPushPermissionDriver != null) return await hostPushPermissionDriver.RequestPermissionAsync(cancellation);
             return WireModels.Decode<PushPermission>(await Invoke("push.permission", new JObject(), true, cancellation));
         }
         public async Task<PushRegistration> RegisterPushAsync(CancellationToken cancellation = default)

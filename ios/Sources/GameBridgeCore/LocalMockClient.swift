@@ -26,6 +26,9 @@ public struct LocalPurchase: Codable {
     public let serverPurchaseId, fulfillmentStatus, finalizationStatus: String
     public let entitlements: LocalWallet
 }
+public struct LocalPushRegistration {
+    public let tokenFingerprint, updatedAt: String
+}
 private struct PendingMockPurchase: Codable, Equatable {
     let appId, backendBaseURL, userId, productId, transactionId, attemptId: String
 }
@@ -156,6 +159,23 @@ public actor LocalMockClient {
               ["PENDING", "FINALIZED", "NOT_REQUIRED"].contains(result.finalizationStatus),
               UUID(uuidString: result.serverPurchaseId)?.uuidString.lowercased() == result.serverPurchaseId else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
         return result
+    }
+    public func registerMockPush(installationId: UUID) async throws -> LocalPushRegistration {
+        struct Output: Decodable { let provider: String; let registered: Bool; let tokenFingerprint: String }
+        let started = generation
+        let body = try encode(["token": "mock:" + UUID().uuidString.lowercased(), "provider": "MOCK", "platform": "MOCK", "appId": config.appId])
+        let response = try await authenticated(path: "/v1/devices/\(installationId.uuidString.lowercased())/push-token", method: "PUT", body: body)
+        let output: Output = try decode(response.json)
+        guard generation == started, output.provider == "MOCK", output.registered,
+              output.tokenFingerprint.range(of: "^[0-9a-f]{12}$", options: .regularExpression) != nil else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+        return LocalPushRegistration(tokenFingerprint: output.tokenFingerprint, updatedAt: ISO8601DateFormatter().string(from: Date()))
+    }
+    public func unregisterMockPush(installationId: UUID) async throws {
+        struct Output: Decodable { let registered: Bool }
+        let started = generation
+        let response = try await authenticated(path: "/v1/devices/\(installationId.uuidString.lowercased())/push-token", method: "DELETE")
+        let output: Output = try decode(response.json)
+        guard generation == started, !output.registered else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
     }
     public func signOut() async throws {
         let raw = try store.load()

@@ -11,12 +11,13 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore, private v
     private var config: GameBridgeConfig? = null
     private var developmentKey: String? = null
     private var mockSubject: String? = null
+    private var installationId: UUID? = null
 
     override fun invoke(operation: String, payload: JsonObject): JsonElement = runBlocking {
         when (operation) {
             "sdk.initialize" -> initialize(payload)
             "sdk.shutdown" -> {
-                client = null; config = null; developmentKey = null; mockSubject = null
+                client = null; config = null; developmentKey = null; mockSubject = null; installationId = null
                 buildJsonObject { put("state", "SHUTDOWN") }
             }
             else -> {
@@ -35,6 +36,13 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore, private v
                         }
                     }
                     "auth.signOut" -> { current.signOut(); buildJsonObject {} }
+                    "push.permission" -> buildJsonObject { put("provider", "MOCK"); put("permission", "GRANTED") }
+                    "push.register" -> {
+                        val result = current.registerMockPush(installationId ?: throw SdkFailure("CONFIG_REQUIRED"))
+                        buildJsonObject { put("provider", "MOCK"); put("permission", "GRANTED"); put("registered", true)
+                            put("tokenFingerprint", result.tokenFingerprint); put("updatedAt", result.updatedAt) }
+                    }
+                    "push.unregister" -> { current.unregisterMockPush(installationId ?: throw SdkFailure("CONFIG_REQUIRED")); buildJsonObject { put("registered", false) } }
                     "config.get" -> {
                         val effective = current.serviceSettings()
                         buildJsonObject {
@@ -87,23 +95,28 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore, private v
         if (key.length < 32 || subject !in setOf("A", "B")) throw SdkFailure("CONFIG_REQUIRED")
         val next = GameBridgeConfig(appId, ProviderMode.LOCAL_MOCK, baseUrl, requestTimeoutMs = timeout)
         try { next.validate() } catch (_: ConfigurationException) { throw SdkFailure("CONFIG_REQUIRED") }
-        if (client != null && (config != next || developmentKey != key || mockSubject != subject)) {
+        val installation = payload["installationId"]?.let {
+            val text = (it as? JsonPrimitive)?.takeIf { value -> value.isString }?.content ?: throw SdkFailure("CONFIG_REQUIRED")
+            runCatching { UUID.fromString(text).also { id -> if (id.toString() != text.lowercase()) throw IllegalArgumentException() } }.getOrElse { throw SdkFailure("CONFIG_REQUIRED") }
+        }
+        if (client != null && (config != next || developmentKey != key || mockSubject != subject || installationId != installation)) {
             throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG")
         }
         if (client == null) {
             client = LocalMockClient(next, tokenStore(), key, pendingStore?.invoke())
-            config = next; developmentKey = key; mockSubject = subject
+            config = next; developmentKey = key; mockSubject = subject; installationId = installation
         }
         return buildJsonObject {
             put("state", "READY"); put("mode", "LOCAL_MOCK"); put("provider", "MOCK")
             put("capabilities", buildJsonObject {
                 for (name in listOf("auth", "store", "push", "config")) {
-                    val available = name == "auth" || name == "store" || name == "config"
+                    val available = name == "auth" || name == "store" || name == "config" || name == "push"
+                    val configured = name != "push" || installation != null
                     put(name, buildJsonObject {
-                        put("supported", available); put("configured", available); put("mode", "LOCAL_MOCK")
+                        put("supported", available); put("configured", configured); put("mode", "LOCAL_MOCK")
                         put("reason", when (name) {
                             "store" -> if (pendingStore == null) JsonPrimitive("Purchase recovery storage is not configured") else JsonNull
-                            "push" -> JsonPrimitive("Bridge operation is not connected")
+                            "push" -> if (installation == null) JsonPrimitive("Installation ID required") else JsonPrimitive("Simulated Mock; no remote delivery")
                             else -> JsonNull
                         })
                     })

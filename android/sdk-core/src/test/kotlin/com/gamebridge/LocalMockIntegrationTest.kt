@@ -71,6 +71,7 @@ class LocalMockIntegrationTest {
         val key = requireNotNull(System.getenv("GAMEBRIDGE_DEV_AUTH_KEY"))
         val store = MemoryTokenStore()
         val dispatcher = BridgeDispatcher(LocalMockBridgeHandler { store })
+        val installation = UUID.randomUUID().toString()
         val session = UUID.randomUUID().toString()
         fun send(operation: String, payload: kotlinx.serialization.json.JsonObject = kotlinx.serialization.json.buildJsonObject {}): kotlinx.serialization.json.JsonObject {
             val request = kotlinx.serialization.json.buildJsonObject {
@@ -88,8 +89,12 @@ class LocalMockIntegrationTest {
             put("providerMode", kotlinx.serialization.json.JsonPrimitive("LOCAL_MOCK")); put("appId", kotlinx.serialization.json.JsonPrimitive("gamebridge-sample"))
             put("backendBaseUrl", kotlinx.serialization.json.JsonPrimitive("http://127.0.0.1:18080")); put("requestTimeoutMs", kotlinx.serialization.json.JsonPrimitive(30000))
             put("developmentKey", kotlinx.serialization.json.JsonPrimitive(key)); put("mockSubject", kotlinx.serialization.json.JsonPrimitive("B"))
+            put("installationId", kotlinx.serialization.json.JsonPrimitive(installation))
         })
         send("auth.signIn", kotlinx.serialization.json.buildJsonObject { put("provider", kotlinx.serialization.json.JsonPrimitive("MOCK")) })
+        assertEquals("MOCK", send("push.permission").getValue("provider").jsonPrimitive.content)
+        assertTrue(send("push.register").getValue("registered").jsonPrimitive.content.toBoolean())
+        send("push.unregister")
         val before = send("store.entitlements").getValue("coinBalance").jsonPrimitive.content.toLong()
         val purchase = send("store.purchase", kotlinx.serialization.json.buildJsonObject { put("productId", kotlinx.serialization.json.JsonPrimitive("coins_100")) })
         assertEquals("GRANTED", purchase.getValue("fulfillmentStatus").jsonPrimitive.content)
@@ -119,6 +124,19 @@ class LocalMockIntegrationTest {
         val restarted = LocalMockClient(config, sessions, key, pending); assertNotNull(restarted.restore())
         assertEquals(LocalRecoveryCounts(1, 1, 0, 0), restarted.recoverPending()); assertNull(pending.load())
         assertEquals(before + 100, restarted.wallet().coinBalance.toLong()); restarted.signOut()
+    }
+
+    @Test fun `mock push registration unregister and logout remove token`() = runBlocking {
+        val key = requireNotNull(System.getenv("GAMEBRIDGE_DEV_AUTH_KEY"))
+        val config = GameBridgeConfig("gamebridge-sample", ProviderMode.LOCAL_MOCK, "http://127.0.0.1:18080")
+        val client = LocalMockClient(config, MemoryTokenStore(), key); client.signIn("B")
+        val id = UUID.randomUUID()
+        val first = client.registerMockPush(id); assertTrue(first.tokenFingerprint.matches(Regex("[0-9a-f]{12}")))
+        assertEquals("1", sql("SELECT count(*) FROM device_tokens WHERE installation_id='$id' AND environment='local-mock';"))
+        client.unregisterMockPush(id)
+        assertEquals("0", sql("SELECT count(*) FROM device_tokens WHERE installation_id='$id' AND environment='local-mock';"))
+        client.registerMockPush(id); client.signOut()
+        assertEquals("0", sql("SELECT count(*) FROM device_tokens WHERE installation_id='$id' AND environment='local-mock';"))
     }
 
 }

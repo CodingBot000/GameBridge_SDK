@@ -1070,3 +1070,11 @@
 - Unity iOS host code/official source 3개 assembly compile 및 queue smoke 통과. NSNumber messageId의 암묵 변환 방지, authorization error와 거부 구분, coroutine 종료 시 gate 반환을 보강한다.
 - Unity Notifications 2.5.0 공식 source와 Unity managed reference의 iOSHost 별도 assembly compile 경고0/오류0, normalized queue fake smoke 통과. Editor/Android/iOS/unsupported C# 조건부 compile 각 통과. Unity Editor import/IL2CPP/실 remote 및 Swift host operation은 미실행·미구현이다.
 - 커밋 전: Unity iOS host adapter, 패키지 의존성, internal 전달 경계, 독립 compile/smoke만 포함. Swift host operation 미연결로 P06-T03 PARTIAL/WAITING_USER 유지.
+
+### [P05-T07] Apple Native store facade
+- 내부 Apple runtime을 공개 Native facade에 연결하고 서버가 확정한 구매 ID와 entitlement 조회만 노출한다. StoreKit proof·계정 binding·session token은 공개 결과에 넣지 않는다. 실제 Apple UI와 서명 시험은 대기다.
+- AppleStore 공개 facade 초안은 StoreKit 가격, server purchase ID, entitlement만 제공하고 raw proof는 포함하지 않는다. Swift unit 및 platform build를 확인한다.
+- Swift auth unit 12건 통과했으나 async 결과 미사용 경고가 있어 명시 처리했다. 공개 entitlement가 현재 session user와 다르면 거부하는 fake HTTP 시험을 추가한다.
+- Apple auth/store fake 단위 15건 통과: 현재 session 외 entitlement 거부 포함. simulator static framework compile을 실행한다.
+- AppleStore 포함 iOS simulator static framework compile 성공. 실제 StoreKit 구매/finish 및 샘플 UI 연결은 미실행이며 이전 XCFramework staging은 갱신 전이다.
+- 커밋 전: 공개 Native facade 및 fake entitlement 검증만 포함한다. P05-T07 PARTIAL/실 Apple WAITING_USER 유지.

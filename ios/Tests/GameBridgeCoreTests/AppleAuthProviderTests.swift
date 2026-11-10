@@ -115,6 +115,24 @@ final class AppleAuthProviderTests: XCTestCase {
         do { _ = try await push.register(deviceToken: Data([1])); XCTFail("signed out") }
         catch let error as SdkFailure { XCTAssertEqual(error.code, "SESSION_EXPIRED") }
     }
+    @MainActor func testAppleStoreEntitlementsAreScopedToCurrentSession() async throws {
+        let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
+        let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
+        let user = try await auth.signIn()
+        let network = URLSessionConfiguration.ephemeral; network.protocolClasses = [AppleProofProtocol.self]
+        let client = try BackendClient(config: config, sessionConfiguration: network)
+        let store = try AppleStore(auth: auth, client: client, productIds: ["coins_100": "coins", "premium_unlock": "premium"])
+        func response(_ id: String) -> Data {
+            Data("{\"userId\":\"\(id)\",\"premiumEnabled\":true,\"coinBalance\":\"100\",\"revision\":\"1\",\"updatedAt\":\"2026-01-01T00:00:00Z\"}".utf8)
+        }
+        AppleProofProtocol.responseBody = response(user.userId)
+        let wallet = try await store.entitlements(); XCTAssertEqual(wallet.coinBalance, "100")
+        XCTAssertEqual(AppleProofProtocol.capturedPath, "/v1/entitlements")
+        AppleProofProtocol.responseBody = response(UUID().uuidString)
+        do { _ = try await store.entitlements(); XCTFail("foreign wallet") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "BRIDGE_PROTOCOL_MISMATCH") }
+        store.stop()
+    }
     @MainActor func testStoreBlocksUnknownAndMaintenanceConfiguration() async throws {
         let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
         let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())

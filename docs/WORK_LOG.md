@@ -705,3 +705,9 @@
 - 블로커: iOS 26.5 simulator에서 StoreKitTest 상품 조회가 빈 배열을 반환해 테스트 1건 실패(가격 assertion 포함). bundle 구성·scheme 및 test environment를 확인한다. 실제 결제나 거래 삭제는 하지 않았으며 로컬 StoreKit PASS가 아니다.
 - 시험 번들에 GameBridge.storekit이 포함됐으나 SKTestSession이 SKInternalErrorDomain Code 3 설정 저장 오류를 출력했다. Apple Developer Forums에 같은 iOS 26.5 증상과 조사 중인 문제 보고가 있다(https://developer.apple.com/forums/thread/826971). 동일 원인이라고 단정하지 않으며 이 로컬 상품 조회는 FAIL로 기록한다.
 - 커밋 전: 사용자 승인 시험 가격, 별도 scheme 및 실패한 회귀 시험을 보존한다. StoreKit local transaction·실 Apple Sandbox·서버 지급은 미검증이다.
+
+### [P08-T03] staging 입력 검증 계속 — 2026-11-10 Asia/Seoul
+- POM만 있고 JAR/AAR 또는 XCFramework slice가 없는 경우를 막는다. 독립 작업이며 StoreKit simulator 실패를 해소한 것으로 간주하지 않는다.
+- 새 staging 96개 checksum 일치. simulator slice 이름을 고정하지 않고 XCFramework Info.plist의 device/simulator 실제 binary를 검사하도록 보정해 다른 아키텍처 환경에서도 동작하게 한다.
+- Info.plist 기반 slice 확인 후 새 staging 생성 및 96개 checksum 재검증 성공. 기존 staging은 보존했다. .NET 테스트의 생성 bin/obj를 ignore해 기존 파일을 제거하지 않았다.
+- 커밋 전: staging 입력 완전성 검사와 로컬 생성물 ignore만 포함한다. Unity import/iOS build hook은 미검증/미구현이다.

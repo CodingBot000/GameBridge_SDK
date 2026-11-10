@@ -9,8 +9,30 @@ for module in sdk-core sdk-android sdk-unity-bridge; do
   if [[ ! -f "$maven/com/gamebridge/$module/0.1.0-dev/$module-0.1.0-dev.pom" ]]; then
     echo "Missing $module Maven POM; run scripts/build-android.sh --mock first." >&2; exit 2
   fi
+  ext=aar; [[ "$module" == sdk-core ]] && ext=jar
+  if [[ ! -f "$maven/com/gamebridge/$module/0.1.0-dev/$module-0.1.0-dev.$ext" ]]; then
+    echo "Missing $module binary; run scripts/build-android.sh --mock first." >&2; exit 2
+  fi
 done
-if [[ ! -f "$ios/Info.plist" ]]; then echo 'Missing XCFramework; run scripts/build-ios.sh --xcframework first.' >&2; exit 2; fi
+if ! python3 - "$ios" <<'PYVERIFY'
+import plistlib
+from pathlib import Path
+import sys
+root = Path(sys.argv[1])
+try:
+    data = plistlib.loads((root / "Info.plist").read_bytes())
+    found = set()
+    for library in data["AvailableLibraries"]:
+        if library.get("SupportedPlatform") != "ios":
+            continue
+        framework = root / library["LibraryIdentifier"] / library["LibraryPath"]
+        if (framework / "GameBridgeNative").is_file():
+            found.add(library.get("SupportedPlatformVariant", "device"))
+    assert {"device", "simulator"} <= found
+except (OSError, KeyError, ValueError, AssertionError, plistlib.InvalidFileException):
+    sys.exit(1)
+PYVERIFY
+then echo 'Missing XCFramework device/simulator slices; run scripts/build-ios.sh --xcframework first.' >&2; exit 2; fi
 if [[ -e "$output" ]]; then echo 'Output already exists; choose a new directory.' >&2; exit 2; fi
 mkdir -p "$(dirname "$output")"
 mkdir "$output"

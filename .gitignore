@@ -26,3 +26,7 @@ ios/Framework/*.xcodeproj/
 
 # Local app/provider configuration
 config/*.local.*
+
+# Local .NET test output
+tests/GradlePatcher/bin/
+tests/GradlePatcher/obj/

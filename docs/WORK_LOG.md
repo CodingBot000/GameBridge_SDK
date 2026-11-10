@@ -1377,3 +1377,10 @@
 - `scripts/smoke-csharp-registry.sh` 종료 0: 초기화 전 이벤트는 READY/Pump까지 보관하고, token fingerprint 검증에서 raw token을 거부함을 독립 .NET fake로 확인했다. 실제 Unity Player는 아니다.
 - `:sdk-unity-bridge:testDebugUnitTest --tests HostPushDeliveryTest` 종료 0: 초기화 전 알림 queue·중복 및 위험 route 거부, session 없는 token 미접수와 fake 등록 실패 이벤트의 raw token 비노출 확인. 실제 Firebase 서비스/앱 cold-start는 아니다. 기존 host의 서비스·Activity에 호출을 삽입하는 예제를 추가했다.
 - 커밋 전: Android host callback API·cold-start 메모리 queue·Unity token/event 검증 및 fake 시험만 포함한다. host 앱 통합, 실제 Firebase 원격 발송·Unity Player 및 process 종료를 넘는 보관은 구현/검증하지 않았다.
+
+### [P05-T06] Play recovery single-flight
+- Task 시작: 이전 Android recovery는 동시 요청을 직렬화하지만 두 번째 요청도 재조회한다. 동시에 들어온 호출이 하나의 조회·검증 작업을 공유하도록 수정하며 caller 취소가 다른 호출자의 복구를 중단시키지 않도록 한다.
+- Android 복구 호출이 동일 계정의 진행 중 Deferred를 공유하도록 변경하고, 조회 전후 계정 binding을 재확인한다. 한 caller 취소는 공유 작업을 취소하지 않는다. fake 동시·계정 전환 경계를 확인한다.
+- 기존 `GooglePlayBillingProviderTest` 종료 0: 기본 검증 동시성·account binding·복구 집계 회귀 통과. 새 공유 복구 및 caller 취소/계정 전환은 별도 fake 시험을 추가한다.
+- `:sdk-android:testDebugUnitTest --tests GooglePlayBillingProviderTest` 재실행 종료 0: 동시 복구 요청은 조회 1회를 공유하고 한 caller 취소 후 다른 caller가 완료했으며, 도중 계정 변경은 공유와 결과를 CANCELED로 차단했다. 실제 Play는 미실행이다.
+- 커밋 전: Android Native recovery single-flight와 fake 시험만 포함한다. iOS의 중첩 복구는 현재 BUSY 처리이며 실제 플랫폼 검증은 대기다.

@@ -176,4 +176,37 @@ class GooglePlayBillingProviderTest {
         } finally { provider.close() }
     }
 
+    @Test fun `concurrent recovery shares one query and caller cancellation does not stop it`() = runBlocking {
+        val gateway = FakePlayGateway(); gateway.recoveredPurchases = listOf(proof(Purchase.PurchaseState.PURCHASED))
+        val entered = CompletableDeferred<Unit>(); val release = CompletableDeferred<Unit>()
+        val sink = PlayProofSink { _, _, raw ->
+            entered.complete(Unit); release.await()
+            ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray()))
+        }
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink)
+        try {
+            val first = async { provider.recoverDetailed() }; withTimeout(2000) { entered.await() }
+            val second = async(start = CoroutineStart.UNDISPATCHED) { provider.recoverDetailed() }
+            first.cancel(); release.complete(Unit)
+            assertEquals(1, withTimeout(2000) { second.await() }.recovered); assertEquals(1, gateway.recoveries)
+        } finally { provider.close() }
+    }
+    @Test fun `recovery flight is not shared with a different account`() = runBlocking {
+        val gateway = FakePlayGateway(); gateway.recoveredPurchases = listOf(proof(Purchase.PurchaseState.PURCHASED))
+        val current = java.util.concurrent.atomic.AtomicReference(account)
+        val entered = CompletableDeferred<Unit>(); val release = CompletableDeferred<Unit>()
+        val sink = PlayProofSink { _, _, raw ->
+            entered.complete(Unit); release.await()
+            ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray()))
+        }
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { current.get() }, sink)
+        try {
+            val first = async { runCatching { provider.recoverDetailed() }.exceptionOrNull() }
+            withTimeout(2000) { entered.await() }; current.set(BoundPlayAccount(UUID.randomUUID(), UUID.randomUUID().toString()))
+            assertEquals("CANCELED", assertFailsWith<SdkFailure> { provider.recoverDetailed() }.code)
+            release.complete(Unit); assertEquals("CANCELED", (withTimeout(2000) { first.await() } as SdkFailure).code)
+            assertEquals(1, gateway.recoveries)
+        } finally { provider.close() }
+    }
+
 }

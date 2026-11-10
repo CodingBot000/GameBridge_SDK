@@ -61,6 +61,8 @@ internal class GooglePlayBillingProvider(
     private val proofQueue = Channel<RawPlayPurchase>(capacity = 100)
     private val verificationGate = verificationConcurrency?.takeIf { it > 0 }?.let(::Semaphore)
     private val recoveryLock = Mutex()
+    private data class RecoveryFlight(val account: BoundPlayAccount, val task: Deferred<PlayRecoveryCounts>)
+    private var recoveryFlight: RecoveryFlight? = null
     val events: SharedFlow<PlayPurchaseEvent> = mutableEvents
     init {
         if (productIds.keys != setOf("coins_100", "premium_unlock") || productIds.values.any { it.isBlank() } || productIds.values.toSet().size != 2) throw SdkFailure("CONFIG_REQUIRED")
@@ -100,12 +102,29 @@ internal class GooglePlayBillingProvider(
         if (!uiGate.tryLock()) throw SdkFailure("BUSY")
         return try { gateway.launch(storeId, account) } finally { uiGate.unlock() }
     }
-    suspend fun recover() { gateway.recover().forEach(::enqueue) }
-    suspend fun recoverDetailed(): PlayRecoveryCounts = recoveryLock.withLock {
+    suspend fun recover() { recoverDetailed() }
+    suspend fun recoverDetailed(): PlayRecoveryCounts {
+        val expected = accountSource.current() ?: throw SdkFailure("SESSION_EXPIRED")
+        val flight = recoveryLock.withLock {
+            val active = recoveryFlight?.takeUnless { it.task.isCompleted }
+            if (active != null) {
+                if (active.account != expected) throw SdkFailure("CANCELED")
+                active
+            } else {
+                val task = scope.async(start = CoroutineStart.LAZY) { performRecovery(expected) }
+                RecoveryFlight(expected, task).also { recoveryFlight = it; task.start() }
+            }
+        }
+        return flight.task.await()
+    }
+    private suspend fun performRecovery(expected: BoundPlayAccount): PlayRecoveryCounts {
         val gate = verificationGate ?: throw SdkFailure("CONFIG_REQUIRED")
+        if (accountSource.current() != expected) throw SdkFailure("CANCELED")
         val purchases = gateway.recover()
+        if (accountSource.current() != expected) throw SdkFailure("CANCELED")
         var recovered = 0; var deferred = 0; var failed = 0
         for (raw in purchases) {
+            if (accountSource.current() != expected) throw SdkFailure("CANCELED")
             val result = try { gate.withPermit { process(raw) } }
             catch (cancel: CancellationException) { throw cancel }
             catch (failure: SdkFailure) {
@@ -120,7 +139,8 @@ internal class GooglePlayBillingProvider(
                 else -> failed++
             }
         }
-        PlayRecoveryCounts(purchases.size, recovered, deferred, failed)
+        if (accountSource.current() != expected) throw SdkFailure("CANCELED")
+        return PlayRecoveryCounts(purchases.size, recovered, deferred, failed)
     }
     fun close() { gateway.setObserver(null); proofQueue.close(); gateway.close(); scope.cancel() }
     private fun enqueue(raw: RawPlayPurchase) {

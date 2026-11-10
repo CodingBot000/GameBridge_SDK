@@ -28,7 +28,7 @@ Android PLATFORM_SANDBOX 인증 bridge는 Native GoogleAuthProvider와 Credentia
 
 iOS PLATFORM_SANDBOX 인증 bridge는 활성 key window를 Native AppleAuthProvider에 전달하고 Keychain을 별도 보관한다. fake 인증 경계와 simulator framework compile만 확인했으며 Apple 계정과 Unity iOS 실동작은 USER-AUTH-APPLE 준비 후 별도 확인해야 한다.
 
-Android Unity sandbox의 Google Play bridge는 host가 명시한 두 상품 ID로 Native Billing facade를 구성한다. 구매 UI의 성공 응답은 검증 대기로 표시하며, 서버 지급 확인 후 `PurchaseUpdated` 이벤트와 서버 entitlement 조회를 사용한다. fake provider·이벤트 session 격리 및 복구 집계만 확인했으며 실제 Play·Unity JNI 및 복구 중복 요청의 완전한 single-flight는 미검증 또는 미완료다.
+Android Unity sandbox의 Google Play bridge는 host가 명시한 두 상품 ID로 Native Billing facade를 구성한다. 구매 UI의 성공 응답은 검증 대기로 표시하며, 서버 지급 확인 후 `PurchaseUpdated` 이벤트와 서버 entitlement 조회를 사용한다. fake provider·이벤트 session 격리 및 복구 집계만 확인했으며 동시 복구 single-flight는 fake 시험으로 확인했고 실제 Play·Unity JNI는 미검증이다.
 
 iOS Unity sandbox는 Native StoreKit 상품·구매·서버 잔액을 연결하고 서버 확인 및 finish 후에만 완료 결과를 반환한다. 거래 업데이트와 미완료 복구의 검증된 결과는 session·계정 세대가 일치할 때 구매 이벤트로 전달한다. 이 경로는 fake 결과와 simulator compile만 확인했으며 실제 StoreKit listener, 사용자 복원 및 Unity iOS는 미검증이다. 복구 사유 분기는 fake 시험으로 확인했다.
 

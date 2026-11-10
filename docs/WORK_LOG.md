@@ -1895,3 +1895,9 @@
 - 가변 필드 무시, 고정 필드 변경, 누락·불리언·잘못된 JWS 거부를 synthetic unit으로 검증한다.
 - Swift StoreKit 및 개발 client 9건 통과. 후보 함수는 StoreKit의 verified 결과에서만 사용하며 자체 서명 검증기는 아니다. 새/기존 거래 충돌 및 재시작 응답 유실을 다루는 durable attempt 연동 전까지 구매 차단 유지.
 - 커밋 준비: 후보 정규화와 실제 simulator 재조회·unit 시험만 저장한다. 완료나 실제 Apple 검증으로 표시하지 않는다.
+### [P05-T05] Xcode 개발 거래 durable attempt 시작
+- 후보 식별자만으로 유일성을 가정하지 않는다. 사용자 위임에 따라 테스트 전용 시도 UUID를 로컬에 보존하고 서버에서 거래 키와 원자적으로 연결해 다른 시도의 키 충돌을 거부한다. 완료 후 로컬 단서는 삭제한다. 서버 거래 기록은 개발 DB 수명 동안 유지하며 실 Apple/sandbox에는 적용하지 않는다. 전체 경로 검증 전 구매 차단 유지.
+### P05-T05 Xcode 시도 UUID 서버 검증 시작
+- 전용 DB에서 동일 시도 동시 재요청 1회 지급, 다른 시도의 동일 거래 키 충돌 및 같은 시도의 다른 키 충돌을 시험한다. 구매 차단은 유지한다.
+- 전용 DB `gamebridge_ci_a94a1d843b`에서 동일 시도 8건 중복 요청의 1회 지급, 다른 시도의 같은 키·같은 시도의 다른 키 거부, sandbox/production endpoint 부재 통과. Native는 아직 attempt ID를 보내지 않으므로 구매 차단 유지.
+- 커밋 준비: 서버의 개발 전용 원자적 attempt 결합 및 DB 회귀만 저장한다. Native journal과 StoreKit 복구는 다음 작업이다.

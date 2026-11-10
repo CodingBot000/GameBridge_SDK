@@ -15,7 +15,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.UUID
 
-internal data class XcodeGrantInput(@field:NotBlank val productId: String, @field:NotBlank val transactionId: String, val bindingId: UUID)
+internal data class XcodeGrantInput(@field:NotBlank val productId: String, @field:NotBlank val transactionId: String, val bindingId: UUID, val attemptId: UUID)
 internal data class XcodeGrantOutput(val userId: UUID, val bindingId: UUID, val productId: String, val transactionKey: String,
                                      val serverPurchaseId: UUID, val fulfillmentStatus: String)
 private data class XcodePurchase(val id: UUID, val userId: UUID, val productId: String)
@@ -58,6 +58,11 @@ internal class MockXcodeStoreKitController(private val db: JdbcTemplate, private
                 { rs, _ -> rs.getString(1) }, principal.sessionId, principal.userId).firstOrNull()
             if (active == null) throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
             ensureXcodeUser(user)
+            val bodyHash = MessageDigest.getInstance("SHA-256").digest((input.productId + "\u0000" + input.transactionId).toByteArray(Charsets.UTF_8))
+            db.update("INSERT INTO idempotency_records(user_id,operation,key,body_hash,state) VALUES (?, 'xcode.grant', ?, ?, 'STARTED') ON CONFLICT DO NOTHING", user, input.attemptId.toString(), bodyHash)
+            val existingAttempt = db.queryForObject("SELECT body_hash,purchase_id FROM idempotency_records WHERE user_id=? AND operation='xcode.grant' AND key=? FOR UPDATE",
+                { rs, _ -> Pair(rs.getBytes(1), rs.getObject(2, UUID::class.java)) }, user, input.attemptId.toString())!!
+            if (!MessageDigest.isEqual(existingAttempt.first, bodyHash)) throw PurchaseConflict("IDEMPOTENCY_CONFLICT")
             val proposed = UUID.randomUUID()
             val inserted = db.update("""INSERT INTO purchases(id,app_id,environment,platform,proof_key_hash,user_id,product_id,store_state,fulfillment_state,finalization_state)
                 VALUES (?, 'gamebridge-sample', 'xcode-storekit', 'XCODE', ?, ?, ?, 'PURCHASED', 'GRANTED', 'CLIENT_PENDING')
@@ -65,10 +70,12 @@ internal class MockXcodeStoreKitController(private val db: JdbcTemplate, private
             val purchase = db.queryForObject("SELECT id,user_id,product_id FROM purchases WHERE app_id='gamebridge-sample' AND environment='xcode-storekit' AND platform='XCODE' AND proof_key_hash=? FOR UPDATE",
                 { rs, _ -> XcodePurchase(rs.getObject(1, UUID::class.java), rs.getObject(2, UUID::class.java), rs.getString(3)) }, hash)!!
             if (purchase.userId != user || purchase.productId != input.productId) throw PurchaseConflict("PURCHASE_ACCOUNT_MISMATCH")
+            if (inserted == 0 && existingAttempt.second != purchase.id) throw PurchaseConflict("IDEMPOTENCY_CONFLICT")
             if (inserted == 1) {
                 if (input.productId == "coins_100") check(db.update("INSERT INTO wallet_ledger(id,purchase_id,user_id,delta,reason) SELECT ?,?,?,grant_amount,'XCODE_FAKE_PURCHASE' FROM products WHERE app_id='gamebridge-sample' AND platform='MOCK' AND logical_id=?", UUID.randomUUID(), purchase.id, user, input.productId) == 1)
                 else db.update("INSERT INTO entitlements(user_id,product_id,active,source_purchase_id) VALUES (?, ?, true, ?) ON CONFLICT(user_id,product_id) DO UPDATE SET active=true,source_purchase_id=excluded.source_purchase_id", user, input.productId, purchase.id)
             }
+            db.update("UPDATE idempotency_records SET purchase_id=?,state='COMPLETE' WHERE user_id=? AND operation='xcode.grant' AND key=?", purchase.id, user, input.attemptId.toString())
             XcodeGrantOutput(user, user, input.productId, input.transactionId, purchase.id, if (inserted == 1) "GRANTED" else "ALREADY_GRANTED")
         }!!
     }

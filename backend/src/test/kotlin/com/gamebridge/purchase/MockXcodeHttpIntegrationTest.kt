@@ -41,18 +41,21 @@ class MockXcodeHttpIntegrationTest {
         val aAccount = call(accountPath, a).body!!; val bAccount = call(accountPath, b).body!!
         val aId = aAccount["userId"] as String; val bId = bAccount["userId"] as String
         assertNotEquals(aId, bId); assertEquals(aId, aAccount["bindingId"])
-        val input = mapOf("productId" to "coins_100", "transactionId" to "123", "bindingId" to aId)
+        val input = mapOf("productId" to "coins_100", "transactionId" to "123", "bindingId" to aId, "attemptId" to UUID.randomUUID().toString())
         val first = call(grantPath, a, input); assertEquals(200, first.statusCode.value()); assertEquals("GRANTED", first.body!!["fulfillmentStatus"])
         val duplicate = call(grantPath, a, input); assertEquals("ALREADY_GRANTED", duplicate.body!!["fulfillmentStatus"]); assertEquals(first.body!!["serverPurchaseId"], duplicate.body!!["serverPurchaseId"])
         assertEquals(409, call(grantPath, b, input + ("bindingId" to bId)).statusCode.value())
         assertEquals(400, call(grantPath, a, input + ("transactionId" to "0")).statusCode.value())
         assertEquals("100", call(walletPath, a).body!!["coinBalance"]); assertEquals("0", call(walletPath, b).body!!["coinBalance"])
-        val concurrent = (1..8).map { java.util.concurrent.CompletableFuture.supplyAsync { call(grantPath, a, input + ("transactionId" to "124")) } }
+        assertEquals(409, call(grantPath, a, input + ("attemptId" to UUID.randomUUID().toString())).statusCode.value())
+        assertEquals(409, call(grantPath, a, input + ("transactionId" to "999")).statusCode.value())
+        val concurrentInput = input + ("transactionId" to "124") + ("attemptId" to UUID.randomUUID().toString())
+        val concurrent = (1..8).map { java.util.concurrent.CompletableFuture.supplyAsync { call(grantPath, a, concurrentInput) } }
             .map { it.get(10, java.util.concurrent.TimeUnit.SECONDS) }
         assertTrue(concurrent.all { it.statusCode.value() == 200 })
         assertEquals(1, concurrent.count { it.body!!["fulfillmentStatus"] == "GRANTED" })
         assertEquals("200", call(walletPath, a).body!!["coinBalance"])
-        val digest = "a".repeat(64); val hashInput = input + ("transactionId" to digest)
+        val digest = "a".repeat(64); val hashInput = input + ("transactionId" to digest) + ("attemptId" to UUID.randomUUID().toString())
         assertEquals("GRANTED", call(grantPath, a, hashInput).body!!["fulfillmentStatus"])
         assertEquals("ALREADY_GRANTED", call(grantPath, a, hashInput).body!!["fulfillmentStatus"])
         assertEquals(400, call(grantPath, a, hashInput + ("transactionId" to "G".repeat(64))).statusCode.value())

@@ -43,3 +43,7 @@
 ### Xcode StoreKit 로컬 지급 격리 (2026-11-11)
 
 사용자가 개발 결정의 권장안 선택을 위임했다. Xcode 거래는 StoreKit 클라이언트 검증 뒤 local-mock 전용 개발키로 fake 서버에 제출한다. 서버는 Xcode 서명 검증을 주장하지 않으며 Xcode 사용자·구매 namespace를 일반 Mock과 분리한다. sandbox/production에서는 개발 경로를 제공하지 않는다. 이는 실제 Apple sandbox 검증이 아니다.
+
+### Xcode 테스트 거래 충돌·보관 (2026-11-11)
+
+사용자가 후속 권장안 결정을 위임했다. Xcode 테스트 거래는 Native에 최소 시도 UUID와 후보 식별자만 보관하고 StoreKit 완료 확인 뒤 삭제한다. 개발 서버는 거래 키와 시도 UUID의 일대일 결합을 개발 DB 수명 동안 보존하며 다른 시도가 같은 키를 주장하면 충돌로 거부한다. 증빙 원문은 저장하지 않는다. 실 Apple sandbox/production 정책이 아니다.

@@ -1018,3 +1018,5 @@
 - synthetic rotation/logout DB 시험 통과. 추가 검토에서 요청자 logout 후 같은 사용자가 새 session에 token을 재등록하면 이전 retry가 전송될 수 있어, 요청자 session도 재검증하고 회귀시험한다.
 - 격리 DB fake dispatcher 재검증 통과: 오래된 invalid 응답이 회전 토큰을 비활성화하지 않고, logout 후 새 session이 재등록해도 이전 session의 대기 발송은 거부된다. 이미 네트워크 전송이 시작된 요청은 취소 보장하지 않는다.
 - 커밋 전: DB token 재조회·조건부 invalidation dispatcher와 fake 시험만 포함한다. sandbox endpoint/worker에는 아직 미연결이며 실제 push는 없다.
+- push worker 동시성 및 server config 기본 TTL의 사용자 선택 대기를 blocker 표에 등록했다. 이 값이 필요한 scheduler/default는 결정 전 활성화하지 않는다.
+- 커밋 전: 미결정 항목 문서화만 포함한다.

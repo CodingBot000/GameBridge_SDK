@@ -868,3 +868,8 @@
 - Google 공식 Publisher verifier를 앱별 package·상품·명시 service account 경로로만 lazy 구성하는 registry를 작성했다. 누락 시 ambient credential을 읽지 않고 실패하는지 확인한다.
 - Google registry 누락·잘못된 credential 경로 fail-closed 단위시험 1건 통과. 실제 service account/Publisher 네트워크는 사용하지 않았다.
 - 커밋 전: lazy configuration과 단위시험만 포함한다. 공개 verify endpoint·finalizer worker·실 Play와 완료 후 증빙 정책은 미완료다.
+- Google Native proof sink를 구현한다. 아직 server Google endpoint/worker가 없으므로 실제 구매 UI와 실 연결을 활성화하지 않고 fake HTTP 경계만 확인한다.
+- Google Native proof sink는 인증 session이 일치할 때만 configured Backend로 토큰을 보내고, GRANTED/ALREADY_GRANTED 및 fingerprint 형식을 검증한다. fake request 단위시험을 실행한다.
+- Android fake proof sink 및 core unit 통과. 서버 검증 실패 `VERIFICATION_FAILED`를 Android/iOS Native가 일반 INVALID_ARGUMENT로 뭉개지 않도록 HTTP 오류 mapping과 테스트를 보강한다.
+- Android core/sdk unit task 및 Swift BackendClient unit 통과. fake sink는 GRANTED만 허용하고 proof 원문을 응답 문자열에 노출하지 않음을 확인했다. 실제 Google endpoint/Play UI는 실행하지 않았다.
+- 커밋 전: Native proof 전송 경계와 오류 매핑만 포함한다. Google endpoint·durable worker·완료 후 증빙 정책이 준비되지 않아 실제 UI 조립을 활성화하지 않는다.

@@ -31,7 +31,7 @@ class BackendClient(private val config: GameBridgeConfig) {
         if (!path.startsWith("/v1/") || path.contains('?') || path.contains('#') || path.contains('\\') || path.contains("..") || path.contains("%")) throw SdkFailure("INVALID_ARGUMENT")
         if (method !in setOf("GET", "POST", "PUT", "DELETE")) throw SdkFailure("INVALID_ARGUMENT")
         if (developmentKey != null && (config.mode != ProviderMode.LOCAL_MOCK || path != "/v1/dev/auth")) throw SdkFailure("UNSUPPORTED_OPERATION")
-        if (idempotencyKey != null && (path != "/v1/purchases/verify" || runCatching { java.util.UUID.fromString(idempotencyKey).toString() == idempotencyKey }.getOrDefault(false).not())) throw SdkFailure("INVALID_ARGUMENT")
+        if (idempotencyKey != null && (path !in setOf("/v1/purchases/verify", "/v1/purchases/google/verify") || runCatching { java.util.UUID.fromString(idempotencyKey).toString() == idempotencyKey }.getOrDefault(false).not())) throw SdkFailure("INVALID_ARGUMENT")
         val base = URI(config.backendBaseUrl!!)
         val endpoint = base.resolve(path)
         if (endpoint.scheme != base.scheme || endpoint.authority != base.authority) throw SdkFailure("INVALID_ARGUMENT")
@@ -80,10 +80,10 @@ class BackendClient(private val config: GameBridgeConfig) {
             value?.takeIf { it.isString }?.content
         }.getOrNull()
         val allowed = when (status) {
-            400 -> setOf("INVALID_ARGUMENT")
+            400 -> setOf("INVALID_ARGUMENT", "VERIFICATION_FAILED")
             401 -> setOf("AUTH_FAILED", "SESSION_EXPIRED")
             403 -> setOf("PERMISSION_DENIED")
-            404 -> setOf("UNSUPPORTED_OPERATION")
+            404 -> setOf("UNSUPPORTED_OPERATION", "PRODUCT_NOT_FOUND")
             409 -> setOf("AUTH_REPLAY_DETECTED", "PURCHASE_ACCOUNT_MISMATCH", "IDEMPOTENCY_CONFLICT")
             429 -> setOf("BUSY")
             503 -> setOf("CONFIG_REQUIRED", "NETWORK_UNAVAILABLE")

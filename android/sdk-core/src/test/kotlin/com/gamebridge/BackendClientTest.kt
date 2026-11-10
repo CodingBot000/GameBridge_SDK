@@ -14,6 +14,7 @@ class BackendClientTest {
         server.createContext("/v1/conflict") { e -> val body = "{\"code\":\"PURCHASE_ACCOUNT_MISMATCH\",\"message\":\"secret-token\"}".toByteArray(); e.sendResponseHeaders(409, body.size.toLong()); e.responseBody.use { it.write(body) } }
         server.createContext("/v1/limited") { e -> val body = "{\"code\":\"secret-token\"}".toByteArray(); e.sendResponseHeaders(429, body.size.toLong()); e.responseBody.use { it.write(body) } }
         server.createContext("/v1/auth-failure") { e -> val body = "{\"code\":\"AUTH_FAILED\"}".toByteArray(); e.sendResponseHeaders(401, body.size.toLong()); e.responseBody.use { it.write(body) } }
+        server.createContext("/v1/verify-failed") { e -> val body = "{\"code\":\"VERIFICATION_FAILED\"}".toByteArray(); e.sendResponseHeaders(400, body.size.toLong()); e.responseBody.use { it.write(body) } }
         server.createContext("/v1/slow") { e -> Thread.sleep(200); e.close() }
         server.start()
         try {
@@ -28,6 +29,7 @@ class BackendClientTest {
             assertEquals("PURCHASE_ACCOUNT_MISMATCH", conflict.code); assertFalse(conflict.toString().contains("secret-token"))
             val limited = assertFailsWith<SdkFailure> { client.request("/v1/limited", "GET") }
             assertEquals("BUSY", limited.code); assertTrue(limited.retryable)
+            assertEquals("VERIFICATION_FAILED", assertFailsWith<SdkFailure> { client.request("/v1/verify-failed", "GET") }.code)
             assertEquals("AUTH_FAILED", assertFailsWith<SdkFailure> { client.request("/v1/auth-failure", "GET") }.code)
             val shortTimeout = BackendClient(GameBridgeConfig("demo", ProviderMode.LOCAL_MOCK, "http://127.0.0.1:${server.address.port}", requestTimeoutMs = 20))
             assertEquals("TIMEOUT", assertFailsWith<SdkFailure> { shortTimeout.request("/v1/slow", "GET") }.code)

@@ -29,6 +29,8 @@ final class BackendClientTests: XCTestCase {
         do { _ = try await client.request(path: "/v1/conflict", method: "GET"); XCTFail("conflict") } catch let error as SdkFailure { XCTAssertEqual(error.code, "PURCHASE_ACCOUNT_MISMATCH"); XCTAssertFalse(String(describing: error).contains("secret-token")) }
         StubProtocol.responseCode = 429; StubProtocol.data = Data("{\"code\":\"secret-token\"}".utf8)
         do { _ = try await client.request(path: "/v1/limited", method: "GET"); XCTFail("rate limit") } catch let error as SdkFailure { XCTAssertEqual(error.code, "BUSY"); XCTAssertTrue(error.retryable) }
+        StubProtocol.responseCode = 400; StubProtocol.data = Data("{\"code\":\"VERIFICATION_FAILED\"}".utf8)
+        do { _ = try await client.request(path: "/v1/verify-failed", method: "GET"); XCTFail("verification") } catch let error as SdkFailure { XCTAssertEqual(error.code, "VERIFICATION_FAILED") }
         StubProtocol.responseCode = 401; StubProtocol.data = Data("{\"code\":\"AUTH_FAILED\"}".utf8)
         do { _ = try await client.request(path: "/v1/auth-failure", method: "GET"); XCTFail("auth") } catch let error as SdkFailure { XCTAssertEqual(error.code, "AUTH_FAILED") }
         StubProtocol.responseCode = 200; StubProtocol.data = Data("bad".utf8)

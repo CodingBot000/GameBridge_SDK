@@ -1,6 +1,12 @@
 package com.gamebridge.android.auth
 
 import android.app.Activity
+import com.android.billingclient.api.Purchase
+import com.gamebridge.android.purchase.BoundPlayAccount
+import com.gamebridge.android.purchase.GoogleHttpProofSink
+import com.gamebridge.android.purchase.RawPlayPurchase
+import java.security.MessageDigest
+import java.util.UUID
 import com.gamebridge.GameBridgeConfig
 import com.gamebridge.BackendResponse
 import com.gamebridge.LocalMockClient
@@ -86,6 +92,22 @@ class GoogleAuthProviderTest {
         val store = MemoryStore()
         assertEquals("CANCELED", assertFailsWith<SdkFailure> { GoogleAuthProvider(config(), store, gateway, StubBackend()).signIn() }.code)
         assertNull(store.stored)
+    }
+    @Test fun `google proof sink sends only to injected backend and requires granted result`() = runBlocking {
+        val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend())
+        val user = provider.signIn(); val binding = UUID.randomUUID().toString(); val purchase = UUID.randomUUID()
+        val token = "synthetic-proof"; val hash = MessageDigest.getInstance("SHA-256").digest(token.toByteArray()).joinToString("") { "%02x".format(it) }
+        var status = "GRANTED"
+        val sink = GoogleHttpProofSink(provider) { body, access, attempt ->
+            assertTrue(body.contains(token)); assertEquals("test-access", access); assertNotNull(UUID.fromString(attempt))
+            """{"userId":"${user.userId}","accountId":"$binding","productId":"coins_100","serverPurchaseId":"$purchase","fulfillmentStatus":"$status","proofFingerprint":"$hash"}"""
+        }
+        val account = BoundPlayAccount(UUID.fromString(user.userId), binding)
+        val proof = RawPlayPurchase("coins.store", token, binding, 1, Purchase.PurchaseState.PURCHASED)
+        val result = sink.verify(account, "coins_100", proof)
+        assertEquals(purchase, result.serverPurchaseId); assertFalse(result.toString().contains(token))
+        status = "PENDING"
+        assertEquals("BRIDGE_PROTOCOL_MISMATCH", assertFailsWith<SdkFailure> { sink.verify(account, "coins_100", proof) }.code)
     }
     @Test fun `authenticated purchase request completes before logout clears session`() = runBlocking {
         val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend())

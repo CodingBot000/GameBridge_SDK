@@ -20,3 +20,6 @@ local.properties
 
 # Local generated test artifacts
 artifacts/
+
+# Generated from ios/Framework/project.yml
+ios/Framework/*.xcodeproj/

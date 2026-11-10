@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P03 / P03-T01
+- 현재 Phase / Task: P03 / P03-T02
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P02-T01 부분 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P03-T01 잔여 검증·오류 매핑 후 P03-T02 Swift LOCAL_MOCK 연결
+- 바로 다음 행동: P03-T02 세션 경합·오류 처리 보강과 P03-T03 Android bridge 구현
 - 불가피한 세션 종료 시 재개 행동: P02-T01 오류 처리와 P02-T02 인증 구현을 진행하고 P00·P01 미완료도 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 47 / IN_PROGRESS 16 / IMPLEMENTED 1 / BLOCKED 0
-- 로컬 검증: NOT_RUN 48 / PASS 1 / FAIL 0 / PARTIAL 15 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 46 / IN_PROGRESS 17 / IMPLEMENTED 1 / BLOCKED 0
+- 로컬 검증: NOT_RUN 47 / PASS 1 / FAIL 0 / PARTIAL 16 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -49,7 +49,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P02-T05 | device token·config·개발 푸시 API | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T05 | USER-PUSH-RETENTION |
 | P02-T06 | 로컬 Backend 통합 smoke 명령 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T06 | - |
 | P03-T01 | Kotlin SDK의 LOCAL_MOCK 수직 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T01 | - |
-| P03-T02 | Swift SDK의 LOCAL_MOCK 수직 연결 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P03-T02 | Swift SDK의 LOCAL_MOCK 수직 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T02 | - |
 | P03-T03 | Android JNI 왕복 transport | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P03-T04 | Swift C ABI 왕복 transport | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P03-T05 | Unity facade·dispatcher·request registry | NOT_STARTED | NOT_RUN | N/A | - | - |
@@ -104,6 +104,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | BUG-001 | BUG | P01-T05 | BackendClientTest 1건 실패 | 원인 확인 및 재실행 | HTTP 검증 통과 | RESOLVED |
 | USER-PUSH-RETENTION | USER | P02-T05 | 등록 해제·로그아웃 후 토큰 보관/삭제 정책 미결정 | 등록·회전과 다른 독립 작업 진행 | 사용자 선택을 문서·설정에 기록 후 해제 경로 구현 | OPEN |
 | USER-RETRY | USER | P02-T04 | 자동 완료 처리 동시성·재시도 백오프 정책 미결정 | 수동 Mock worker 및 다른 독립 작업 진행 | 사용자 선택을 문서·설정에 반영 | OPEN |
+| ENV-005 | ENV | P03-T02 | Simulator UI snapshot 대상 0개, 수동 대체 입력으로도 흐름 미확인 | XCTest 기반 독립 UI 검증 시도 | iOS local-mock UI smoke 실행 확인 | RESOLVED |
 | ENV-004 | ENV | P03-T01 | 전용 emulator 복원 시험에서 화면 준비 전 입력 실패 | UI 준비 후 재시도 | Keystore 복원 확인 | RESOLVED |
 | ENV-003 | ENV | P00-T03 | XcodeGen 명령 없음; iOS 프로젝트 명세 생성·앱 빌드 미검증 | 독립 작업 진행; XcodeGen 준비 또는 다른 재현 가능한 프로젝트 생성 | Xcode 프로젝트 생성 및 빌드 | OPEN |
 | ENV-002 | ENV | P00-T03 및 Unity 검증 | Unity Editor 생성 시 라이선스 확인 실패, 종료 198 | 프로젝트 생성 안내 스크립트 제공, 다른 플랫폼 계속 | 사용자 라이선스 및 Editor 재확인 | OPEN |
@@ -115,7 +116,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 | 기능 | Android 코드/빌드 | iOS 코드/빌드 | Unity Editor | Unity Android | Unity iOS | 실제 외부 서비스 |
 |---|---|---|---|---|---|---|
-| Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | N/A |
+| Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | N/A |
 | 인증 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
 | 결제 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
 | 푸시 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |

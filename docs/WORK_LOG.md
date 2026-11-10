@@ -305,3 +305,34 @@
 - 전용 DB container `stop` 종료 0. 전용 volume과 새 AVD는 보존했다. Android SDK 요청·local-mock server·DB 수직 경로는 확인했으나 실제 Store/Google, Unity, 릴리스 패키지 및 세션 예외 전체는 미검증이다.
 - `docs/evidence/p03-t01-android-local-mock.md`에 비식별 결과와 한계를 기록. `python3 scripts/verify-progress.py` 종료 0.
 - 커밋 전: Kotlin Native LOCAL_MOCK 경로와 Compose debug 소비자·제한적 emulator 네트워크 설정을 포함한다. Provider·실결제·Unity·전체 오류 처리와 선행 작업은 남아 P03-T01 PARTIAL 유지.
+
+### [P03-T02] 시작 — 2026-11-10 Asia/Seoul
+- Swift Core HTTP·Keychain 기반과 local-mock Backend를 연결하고 iOS 16 SwiftUI 샘플을 구성한다. XcodeGen 부재 및 Simulator 상태를 조사하며 iOS 빌드/실행을 macOS Swift 테스트와 구분한다.
+- XcodeBuildMCP simulator 목록 확인: iOS 26.5 iPhone simulator 1대가 이미 부팅 중. 기존 simulator를 지우거나 다른 앱 데이터는 변경하지 않는다.
+- `brew fetch --formula xcodegen` 종료 0: Homebrew 검증된 2.46.0 bottle을 다운로드. 시스템 전역 설치는 하지 않고 프로젝트 로컬 도구로 사용한다.
+- 프로젝트 로컬 경로에 bottle 압축을 해제하고 `xcodegen --version` 종료 0, 2.46.0 확인. Xcode 프로젝트 생성·빌드는 아직 미실행.
+- `swift test --package-path ios` 종료 0: Swift local-mock client 컴파일 및 기존 XCTest 11건 통과. 신규 client의 Backend 수직 검증은 아직 미실행. actor 재진입 검토에서 늦은 401이 회전된 이전 refresh를 다시 사용해 family를 폐기할 수 있어 보정한다.
+- 늦게 도착한 401은 이미 교체된 access token을 우선 사용하고 로그인/로그아웃 generation이 바뀌면 오래된 응답을 거부하도록 보정 후 `swift test --package-path ios` 종료 0, 기존 11건 통과. 동시 refresh와 실제 Backend 통합 시험은 아직 미실행.
+- Swift client 수직 검증을 위해 전용 local-mock DB 및 서버가 정상 기동됨. 구매 시험 데이터는 전용 volume에 남는다.
+- `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... swift test --package-path ios` 종료 0: XCTest 12건 중 신규 Swift SDK→local-mock Backend/DB 수직 시험 1건 실행·통과. Mock 로그인·상품·동일 거래 재검증·서버 잔액·메모리 저장소 복원·로그아웃 확인. macOS 테스트이며 iOS Simulator 실행이나 실제 플랫폼 검증은 아니다.
+- `xcodegen generate --spec ios/Framework/project.yml` 종료 0: iOS 샘플 Xcode 프로젝트 생성. 컴파일·시뮬레이터 실행은 아직 미검증. Debug에서만 loopback cleartext 예외를 명시했다.
+- XcodeBuildMCP session 기본값은 비어 있었음. 부팅된 Simulator에서 샘플 placeholder bundle의 기존 설치 여부 조회 종료 2(해당 앱 없음); 기존 앱을 덮어쓰지 않는다.
+- XcodeBuildMCP `build_run_sim` 성공: iOS 26.5 Simulator Debug 샘플 빌드·설치·launch 완료(경고/오류 0). 앱 화면 및 local-mock 연동은 아직 미확인. 기존 Simulator 삭제·초기화는 하지 않음.
+- Simulator `snapshot_ui`는 요소 1개·상호작용 대상 0개를 반환하여 화면 준비나 앱 활성 상태를 확인하지 못했다. 스크린샷과 런타임 로그로 원인을 확인한다.
+- XcodeBuildMCP screenshot에서 SwiftUI의 LOCAL_MOCK 샘플과 URL·개발키·Initialize 화면을 직접 확인. 화면 초기화 이후 접근성 snapshot을 다시 시도한다.
+- Simulator 화면은 확인됐지만 XcodeBuildMCP snapshot이 두 차례 접근성 대상 0개를 반환했고 컴퓨터 UI 입력·스크롤에서도 다음 화면을 검증하지 못했다. 실행 성공으로 기록하지 않는다. XCTest의 샘플 전용 UI smoke로 독립 확인을 시도한다.
+- XcodeGen UI smoke target을 추가하고 `xcodegen generate` 종료 0. 테스트 코드에는 로컬 서버와 맞춘 공개 테스트 전용 값만 사용하며 실제 자격증명은 없다. 테스트 실행 전이다.
+- XcodeBuildMCP `test_sim` 실패: UI test target의 Info.plist가 없어 코드 서명 단계에서 빌드 실패, 테스트 0건. 테스트 target에 Info.plist 자동 생성을 설정하고 재실행한다.
+- `test_sim` 첫 재실행: UI test 1건 실패, 0건 통과. 개발키 입력 후 키보드/스크롤 상태에서 `signIn` 버튼을 찾지 못함. local-mock UI 전체 성공으로 기록하지 않는다. 키보드 닫기와 세밀한 스크롤을 보정한다.
+- UI 키보드 닫기·세밀한 스크롤 보정 후 XcodeBuildMCP `test_sim` 성공: iOS 26.5 Simulator XCTest UI smoke 1건, 실패 0, skip 0. 샘플 Mock 로그인·상품 조회·coins 구매 후 `GRANTED / PENDING` 표시 확인. macOS Swift integration 1건은 별도이며 Apple 인증·StoreKit 결제는 아니다. ENV-005 대체 검증 성공.
+- Debug Simulator 앱 Info.plist를 `PlistBuddy`로 검사(종료 0): ATS cleartext 예외는 127.0.0.1 및 localhost에만 존재. Release 설정과 실제 기기 정책은 별도 검증 필요.
+- UI smoke를 앱 재시작·Keychain 복원·로그아웃까지 확장해 같은 Simulator에서 재검증한다.
+- 확장된 XcodeBuildMCP `test_sim` 성공: iOS 26.5 Simulator UI 시험 1건, 실패 0·skip 0. Mock 구매 후 앱 종료·재실행·Keychain 세션 복원(`Restored`) 확인, 로그아웃 버튼도 클릭. 로그아웃 완료 표시 확인은 추가한다.
+- XcodeBuildMCP `test_sim` 재실행 성공: iOS 26.5 UI 시험 1건, 실패 0, skip 0. Mock 로그인·상품·구매·앱 재시작 후 Keychain 세션 복원·로그아웃 완료 표시 확인. 실제 Apple 인증·App Store 거래·원격 푸시는 실행하지 않았다.
+- XcodeBuildMCP `build_sim` Release 구성 성공(경고/오류 0): 컴파일만 확인했으며 출시 가능성을 뜻하지 않는다. Debug 전용 ATS 예외가 Release plist에 없는지 확인한다.
+- Release Simulator app Info.plist 검사 종료 0: NSAppTransportSecurity 예외 없음. Release 앱 실행·실기기 검증은 하지 않았다.
+- XcodeBuildMCP `stop_app_sim`은 대상 앱 프로세스를 찾지 못해 실패(이미 실행 중이지 않음). Simulator 자체나 다른 앱은 종료하지 않았다.
+- local-mock 서버 Ctrl-C 종료 130. 전용 DB는 삭제하지 않고 정지한다.
+- 전용 DB `docker compose ... stop` 종료 0. Swift Mock 구매·세션 시험 기록은 전용 volume에 보존했다. 사용자 Simulator 자체는 그대로 둔다.
+- `bash scripts/generate-ios-project.sh` 종료 0: 로컬 XcodeGen 2.46.0으로 샘플 프로젝트 재생성. 산출 Xcode project와 빌드 산출물은 Git 제외하고 spec을 보존한다.
+- `docs/evidence/p03-t02-ios-local-mock.md`에 Simulator 결과·실패 이력·한계 기록. 커밋 전: Swift Native client와 SwiftUI 샘플, Debug/Release 보안 설정 및 UI smoke 포함. 실제 Apple Provider·StoreKit·Unity와 전체 세션 경합 검증이 남아 P03-T02는 PARTIAL 유지.

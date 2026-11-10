@@ -26,15 +26,22 @@ public final class BackendClient {
         self.config = config
         self.session = URLSession(configuration: sessionConfiguration, delegate: redirectGuard, delegateQueue: nil)
     }
-    public func request(path: String, method: String, body: Data? = nil, accessToken: String? = nil) async throws -> BackendResponse {
+    public func request(path: String, method: String, body: Data? = nil, accessToken: String? = nil,
+                        developmentKey: String? = nil, idempotencyKey: String? = nil) async throws -> BackendResponse {
         guard path.hasPrefix("/v1/"), !path.contains("?"), !path.contains("#"), !path.contains("\\"), !path.contains(".."), !path.contains("%"),
               ["GET", "POST", "PUT", "DELETE"].contains(method),
               let base = config.backendBaseURL, var components = URLComponents(string: base) else { throw SdkFailure("INVALID_ARGUMENT") }
+        if developmentKey != nil && (config.mode != .localMock || path != "/v1/dev/auth") { throw SdkFailure("UNSUPPORTED_OPERATION") }
+        if let idempotencyKey {
+            guard path == "/v1/purchases/verify", let uuid = UUID(uuidString: idempotencyKey), uuid.uuidString.lowercased() == idempotencyKey else { throw SdkFailure("INVALID_ARGUMENT") }
+        }
         components.path = path; components.query = nil; components.fragment = nil
         guard let url = components.url else { throw SdkFailure("INVALID_ARGUMENT") }
         var request = URLRequest(url: url, timeoutInterval: Double(config.requestTimeoutMs) / 1000)
         request.httpMethod = method; request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let accessToken { request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization") }
+        if let developmentKey { request.setValue(developmentKey, forHTTPHeaderField: "X-Development-Key") }
+        if let idempotencyKey { request.setValue(idempotencyKey, forHTTPHeaderField: "Idempotency-Key") }
         if let body { request.httpBody = body; request.setValue("application/json", forHTTPHeaderField: "Content-Type") }
         do {
             let (data, response) = try await session.data(for: request)

@@ -2,6 +2,9 @@ name: GameBridgeSample
 options:
   deploymentTarget:
     iOS: '16.0'
+configs:
+  Debug: debug
+  Release: release
 packages:
   GameBridge:
     path: ..
@@ -10,12 +13,37 @@ targets:
     type: application
     platform: iOS
     sources:
-      - ../SampleApp
+      - path: ../SampleApp
+        excludes: ['*.plist']
     dependencies:
       - package: GameBridge
         product: GameBridgeCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.gamebridge.sample
+        PRODUCT_BUNDLE_IDENTIFIER: com.gamebridge.sdk.sample.dev20261110
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: '5.0'
+      configs:
+        Debug:
+          INFOPLIST_FILE: ../SampleApp/Info-Debug.plist
+        Release:
+          INFOPLIST_FILE: ../SampleApp/Info-Release.plist
+  GameBridgeSampleUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - ../UITests
+    dependencies:
+      - target: GameBridgeSample
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  GameBridgeSample:
+    build:
+      targets:
+        GameBridgeSample: all
+        GameBridgeSampleUITests: [test]
+    test:
+      targets:
+        - GameBridgeSampleUITests

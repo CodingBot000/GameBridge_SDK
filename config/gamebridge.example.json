@@ -1,0 +1,7 @@
+{
+  "appId": "gamebridge-sample",
+  "providerMode": "LOCAL_MOCK",
+  "backendBaseUrl": "http://127.0.0.1:8080",
+  "requestTimeoutMs": 30000,
+  "diagnosticsEnabled": false
+}

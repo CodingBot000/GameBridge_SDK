@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "protocolVersion": {
+      "const": 1
+    },
+    "sdkSessionId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "kind": {
+      "enum": [
+        "request",
+        "response",
+        "event"
+      ]
+    },
+    "requestId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "operation": {
+      "enum": [
+        "sdk.initialize",
+        "sdk.status",
+        "sdk.capabilities",
+        "auth.signIn",
+        "auth.signOut",
+        "auth.restore",
+        "store.products",
+        "store.purchase",
+        "store.entitlements",
+        "store.sync",
+        "push.permission",
+        "push.register",
+        "push.unregister",
+        "config.get",
+        "diagnostics.get",
+        "sdk.shutdown",
+        "host.pushToken",
+        "host.pushReceived",
+        "host.pushOpened",
+        "host.lifecycle"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "result": {},
+    "error": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "sdkSessionId",
+    "kind"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "request"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "requestId",
+          "operation",
+          "payload"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "response"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "requestId",
+          "operation",
+          "ok",
+          "result",
+          "error"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "error": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "result": {
+                  "type": "null"
+                },
+                "error": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "event"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "eventId",
+          "payload"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": true
+}

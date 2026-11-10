@@ -1470,3 +1470,8 @@
 - `scripts/package-sdk.sh` 종료 0: `artifacts/upm-staging-20261111-a` 생성. SHA256 110개 검사 오류 0. `smoke-gradle-patcher.sh` 종료 0(Gradle patcher·stub hook), `smoke-ios-hook.sh` 종료 0(실제 PBX managed API 멱등성). Unity Editor import/export·IL2CPP 실행은 아니다.
 - staging package.json의 Offline/Native 두 sample 경로, Android bridge AAR 및 iOS XCFramework plist 존재를 확인했다. 이는 Unity import 성공을 의미하지 않는다.
 - 커밋 전: staging 검증 증거와 원장만 포함한다. artifacts는 Git에 넣지 않으며 Unity 라이선스 ENV-002 대기와 미구현 기능은 유지한다.
+
+### [P08-T05] 부분 기능 기준점
+- Task 시작: 최신 코드와 protocol snapshot을 저장하고 P00~P08 전 행 및 미완료 사항을 기록한다. Unity 설치 검증·StoreKit 실패·Mock push delivery 등으로 이 기준점은 완료가 아닌 PARTIAL이다.
+- snapshot 13개 SHA256과 현재 source 바이트 일치, 계획의 P00~P08 48개 Task와 기준점 표의 ID 집합·건수 일치를 확인했다. 기준점은 INCOMPLETE이며 기능 실행 검증이 아니다.
+- 커밋 전: API/protocol snapshot과 미완료 기준점 문서만 포함한다. P08-T05는 PARTIAL, 기존 내부 미구현과 환경 실패는 그대로 유지한다.

@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gamebridge.invalid/contracts/models.schema.json",
+  "$defs": {
+    "UserProfile": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "displayName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "provider": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "provider"
+      ],
+      "additionalProperties": true
+    },
+    "StoreProduct": {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "storeProductId": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "CONSUMABLE",
+            "NON_CONSUMABLE"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "localizedPrice": {
+          "type": "string"
+        },
+        "currencyCode": {
+          "type": "string"
+        },
+        "priceMicros": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "productId",
+        "storeProductId",
+        "type",
+        "title",
+        "localizedPrice",
+        "currencyCode",
+        "priceMicros"
+      ],
+      "additionalProperties": true
+    },
+    "SdkError": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nativeCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable",
+        "requestId",
+        "nativeCode",
+        "details"
+      ],
+      "additionalProperties": true
+    },
+    "EntitlementSnapshot": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "premiumEnabled": {
+          "type": "boolean"
+        },
+        "coinBalance": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)$"
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "premiumEnabled",
+        "coinBalance",
+        "revision",
+        "updatedAt"
+      ],
+      "additionalProperties": true
+    },
+    "PurchaseResult": {
+      "type": "object",
+      "properties": {
+        "attemptId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "productId": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "PURCHASED",
+            "PENDING",
+            "CANCELED",
+            "VERIFICATION_PENDING",
+            "FAILED"
+          ]
+        },
+        "serverPurchaseId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fulfillmentStatus": {
+          "enum": [
+            "NOT_GRANTED",
+            "GRANTED",
+            "ALREADY_GRANTED"
+          ]
+        },
+        "finalizationStatus": {
+          "enum": [
+            "NOT_REQUIRED",
+            "PENDING",
+            "FINALIZED"
+          ]
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SdkError"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "attemptId",
+        "productId",
+        "status",
+        "serverPurchaseId",
+        "fulfillmentStatus",
+        "finalizationStatus",
+        "error"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

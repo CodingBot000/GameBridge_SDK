@@ -1,0 +1,71 @@
+{
+  "sourceCommit": "66c5206b55357390ad6fd2a9e05d59635ad7a1c1",
+  "status": "INCOMPLETE",
+  "files": [
+    {
+      "source": "contracts/public-api.md",
+      "snapshot": "contracts/baseline/contracts/public-api.md",
+      "sha256": "a43deda083de25ba4f314dadba54e8025ad627a80ea4a11a35e4e22204c8eb9a"
+    },
+    {
+      "source": "contracts/bridge.schema.json",
+      "snapshot": "contracts/baseline/contracts/bridge.schema.json",
+      "sha256": "5df3632ceade099b273f04fa2ea6ebdfceffce7d2d019773ef3c8648c5b78eef"
+    },
+    {
+      "source": "contracts/models.schema.json",
+      "snapshot": "contracts/baseline/contracts/models.schema.json",
+      "sha256": "66c42177f337644f97b5969d400485e8fa2c61d04920bc973f2fdb5178438b35"
+    },
+    {
+      "source": "contracts/error-codes.json",
+      "snapshot": "contracts/baseline/contracts/error-codes.json",
+      "sha256": "4012467e21297ab7f3d4f3b299aa140481f6e08d0f0e26d63e64bf6c3f706843"
+    },
+    {
+      "source": "unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs",
+      "snapshot": "contracts/baseline/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs",
+      "sha256": "b427ad4b019fd98d69724f86c7f8eed4bb6307f11544b94096b1d534c771254f"
+    },
+    {
+      "source": "unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs",
+      "snapshot": "contracts/baseline/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs",
+      "sha256": "5c0c25b3f585f73b8c06ca093bc905a7d5e85f563a0446e0bc27aac0bc0f81db"
+    },
+    {
+      "source": "unity/Packages/com.gamebridge.sdk/Runtime/Models.cs",
+      "snapshot": "contracts/baseline/unity/Packages/com.gamebridge.sdk/Runtime/Models.cs",
+      "sha256": "da27ed5b94f256ccef039d8d2c41bd0c09bffa15d0ec06e7d9e728b99e8c30ac"
+    },
+    {
+      "source": "android/sdk-core/src/main/kotlin/com/gamebridge/Models.kt",
+      "snapshot": "contracts/baseline/android/sdk-core/src/main/kotlin/com/gamebridge/Models.kt",
+      "sha256": "156149c5dc05e1e0c937a193232bf52e806fffcc918deb0d73352ba1ddb5b083"
+    },
+    {
+      "source": "android/sdk-core/src/main/kotlin/com/gamebridge/Configuration.kt",
+      "snapshot": "contracts/baseline/android/sdk-core/src/main/kotlin/com/gamebridge/Configuration.kt",
+      "sha256": "b3c3c5b50241f7a0f0b3e3d1a9a96c169d087e1acf10aa198dda6f1811bdb995"
+    },
+    {
+      "source": "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GooglePlayStore.kt",
+      "snapshot": "contracts/baseline/android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GooglePlayStore.kt",
+      "sha256": "31c08a7f8708f1a203c60dfc0a1388de36702122ca3f215ae481e6fc439fdb70"
+    },
+    {
+      "source": "ios/Sources/GameBridgeCore/Models.swift",
+      "snapshot": "contracts/baseline/ios/Sources/GameBridgeCore/Models.swift",
+      "sha256": "b92c6793f4ffbf7269c2333092c13864a44eeca74c886a094972bc2b2d1c43d4"
+    },
+    {
+      "source": "ios/Sources/GameBridgeCore/Configuration.swift",
+      "snapshot": "contracts/baseline/ios/Sources/GameBridgeCore/Configuration.swift",
+      "sha256": "41fb442e664f5b3447c85121766cbdb76506cdb8741b42b904873c21fb667015"
+    },
+    {
+      "source": "ios/Sources/GameBridgeApple/AppleStore.swift",
+      "snapshot": "contracts/baseline/ios/Sources/GameBridgeApple/AppleStore.swift",
+      "sha256": "7c503fcc1699956f622d9987a5b7ee38851df26692e9b28f8004ce819338fb36"
+    }
+  ]
+}

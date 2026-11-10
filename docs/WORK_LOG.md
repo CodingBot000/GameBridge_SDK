@@ -685,3 +685,6 @@
 - 전용 UPM staging 생성 성공. SHA256 목록 일치, 재실행 overwrite 거부와 누락 입력 실패를 확인한다. Unity import 증거는 아니다.
 - staging checksum 93개 전체 일치, 기존 출력 overwrite와 누락 입력 각각 종료 2를 확인했다.
 - 커밋 전: staging script만 포함한다. Gradle/iOS build hook·Unity .meta/import·package 소비 실행은 미구현/미검증이므로 P08-T03 PARTIAL이며 배포 가능한 패키지로 취급하지 않는다.
+- 진행표 재집계 결과 local NOT_RUN 29 / PARTIAL 33 / PASS 2였으나 기존 수치가 각각 1건씩 달랐다. 실제 64행 기준으로 수정했다. Android --mock 진입점에 샘플 assemble이 누락되어 추가 검증한다.
+- 샘플 assemble을 포함한 `build-android.sh --mock` 재실행 및 소비 release 빌드 모두 종료 0. 실제 실행·실스토어 시험이 아니다.
+- 커밋 전: 진입점 누락 수정과 진행표 집계 보정만 포함한다.

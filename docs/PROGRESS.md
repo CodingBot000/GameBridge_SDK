@@ -10,14 +10,14 @@
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P05-T04 진행 중; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P05-T04 실제 스토어 서버 검증 구현; P08-T03 UPM staging; P05 로컬 StoreKit 시험 가격 결정 대기
+- 바로 다음 행동: P05-T04 실제 스토어 서버 검증 구현; P08-T03 Unity build hook 구현; P05 로컬 StoreKit 시험 가격 결정 대기
 - 불가피한 세션 종료 시 재개 행동: P04-T04/P04-T05부터 진행하고 P00~P03의 PARTIAL 항목을 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
 - 구현: NOT_STARTED 29 / IN_PROGRESS 33 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 30 / PASS 2 / FAIL 0 / PARTIAL 32 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 로컬 검증: NOT_RUN 29 / PASS 2 / FAIL 0 / PARTIAL 33 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.

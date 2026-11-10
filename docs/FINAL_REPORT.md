@@ -1,114 +1,45 @@
-> **개발 중 안내:** 아래 내용은 P11 최종 감사 전의 초기 양식으로 보존되어 있으며, 양식 안의 초기 상태·미실행 표기는 현재 진행 상태가 아니다. 현재 구현·실패·검증 범위는 [PROGRESS.md](PROGRESS.md)와 [WORK_LOG.md](WORK_LOG.md)를 확인한다. P11에서 실제 결과로 채워야 한다.
+# GameBridge SDK 개발 보고서
 
-# GameBridge SDK 최종 개발 보고서
+## 판정
 
-> **현재는 보고서 양식이다. 개발·빌드·테스트·커밋은 아직 수행되지 않았다.** 아래 빈칸은 Codex가 실제 실행 후 채운다. 초기 상태를 완료 보고서로 사용하지 않는다.
+**BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. 전체 제품, Unity 통합 및 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미구현도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
 
-## 1. 최종 판정
+P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 47개 PARTIAL, 3개 NOT_IMPLEMENTED로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
 
-- 상태: NOT_STARTED
-- 검토 기준: DEVELOPMENT_PLAN 16장
-- 코드 기준 commit / branch: 미실행
-- 실행·검증 기간: 미실행
-- 최종 대상 모드·플랫폼: 미검증
-- 판정 이유: 아직 계획 문서만 작성됨
+## 확인한 범위
 
-허용 결과: BLOCKED_INTERNAL / IMPLEMENTED_ENV_PENDING / LOCAL_READY_EXTERNAL_PENDING / SANDBOX_VERIFIED / INTERRUPTED. SANDBOX_VERIFIED도 상용 운영 준비 완료는 아니다.
+- Android Kotlin, iOS Swift 및 Unity C# 경계의 계약·fake 테스트와 일부 local-mock HTTP/PostgreSQL 시험을 실행했다. 인증, 구매 중복 지급 방지 및 응답 유실 복구, 푸시 토큰 등록·삭제의 제한된 경로를 확인했다. 실제 제공자 테스트와 구분한다.
+- Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성 복구를 확인했지만 실제 기기 프로세스 종료·Unity player 복구는 확인하지 않았다.
+- Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. Unity 신규 프로젝트 import 및 IL2CPP는 실행하지 않았다.
+- 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. push 전달 미구현과 미완성 시나리오 때문에 전체 검증은 통과하지 않았다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
+- 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
 
-## 2. 구현·검증 집계
+## 남은 내부 작업과 실패
 
-| 구분 | 전체 | 통과/구현 | 미완료/실패 | 대기 | 근거 |
-|---|---|---|---|---|---|
-| Task 구현 | PROGRESS에서 계산 | 0 | 미착수 | - | 초기 양식 |
-| 필수 로컬 검증 | manifest에서 계산 | 0 | 미실행 | - | 초기 양식 |
-| 외부 실연동 | USER_SETUP에서 계산 | 0 | 미실행 | 사용자 설정 | 초기 양식 |
-| 새 소비자 설치 | 플랫폼별 계산 | 0 | 미실행 | - | 초기 양식 |
+| 항목 | 상태 및 영향 |
+|---|---|
+| BUG-013 | XCODE_STOREKIT의 서버 지급 및 Unity 전체 경로 미구현. simulator StoreKit 시험도 Code 3으로 실패했다. |
+| BUG-014 | LOCAL_MOCK 개발 push 응답은 SIMULATED이나 Backend에서 client까지 전달하는 경로가 미구현이다. |
+| BUG-015 | Native 진단 ring의 전체 snapshot이 Unity 공개 경계에 연결되지 않았다. |
+| BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |
+| P09 | 3개 시나리오 미구현, 나머지 부분 검증; Unity lane 미구현. strict 전체 gate는 성공이 아니다. |
 
-분모에서 skip/환경 대기/사용자 대기를 제거해 100%를 만들지 않는다. 구체적인 실행 수와 테스트 report를 연결한다.
+## 환경 및 사용자 설정
 
-## 3. 구현 완료 및 확인된 동작
+Unity Editor 라이선스 오류(ENV-002)와 계획된 버전 확인(ENV-001)으로 Unity import/player 검증이 보류됐다. iOS 26.5 simulator의 StoreKit local 시험은 실패(ENV-STOREKIT-26)했다. 실제 Google/Apple 인증, 스토어, FCM/APNs의 계정·앱 등록·서명 및 기기 준비는 [USER_SETUP](USER_SETUP.md)에 정리했다. `bash scripts/verify-external.sh --check-config`는 설정 형태만 확인하며 실연동 테스트가 아니다.
 
-| Task/기능 | 구현 소스 | 실제 확인 범위 | 증거 | 제한 |
-|---|---|---|---|---|
-| 아직 없음 | - | - | - | - |
+## 로컬 산출물
 
-## 4. 코드 구현됨, 검증되지 않은 부분
+[산출물 manifest](evidence/p11-artifact-manifest.json)는 실제 파일별 SHA-256과 크기를 기록한다. 산출물은 Git에 포함되지 않는 로컬 개발 결과이며 공개 release가 아니다. P10 빌드는 `d02b8ed`와 당시 미커밋 P10-T04 변경을 사용했고 해당 변경은 `3bf8d0a`에 커밋됐다. 깨끗한 checkout에서 재현한 빌드라고 주장하지 않는다.
 
-| Task/기능 | 실행 못 한 검증 | 이유 | 재개 명령/조건 | 블로커 ID |
-|---|---|---|---|---|
-| 아직 조사하지 않음 | - | - | - | - |
+| 산출물 | 경로 | 확인 범위 |
+|---|---|---|
+| Android Maven | `artifacts/maven-p10-20261111-b` | 별도 소비자 R8 build |
+| iOS XCFramework | `artifacts/ios-package-p10-20261111-a/GameBridgeNative.xcframework` | simulator Swift link, device C ABI symbol |
+| Unity UPM staging | `artifacts/upm-staging-p10-20261111-a` | checksum 및 build hook 시험; Unity import 미실행 |
 
-## 5. 누락·실패·내부 블로커
+## 주요 이력과 재개
 
-| Task/BUG | 문제 | 사용자 영향 | 시도한 수정 | 남은 조치 | 완료를 막는가 |
-|---|---|---|---|---|---|
-| 아직 조사하지 않음 | - | - | - | - | - |
+P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912`, `a93cf52` 등에 기록됐다. P10 리팩토링·호환성은 `36db140`, `e689dd7`, `d02b8ed`, `3bf8d0a`, P11 감사·설정 점검은 `31b683c`, `35bf2bd`에 기록됐다. 이후 문서 커밋은 `git log`에서 확인한다.
 
-코드가 TODO인데 사용자 설정 대기로 옮기지 않는다. known failing test를 삭제해서 이 표를 비우지 않는다.
-
-## 6. 사용자 설정 대기
-
-USER_SETUP 각 항목에 연결한다. “키만 넣으면 완료”라고 일괄 표현하지 않는다. 실제로 필요한 가입·앱등록·상품상태·capability·서명·테스트 설치·권한·실행 절차를 명시한다.
-
-| 설정 ID | 코드 준비 여부 | 필요한 사용자 행동 | 설정 뒤 검증 |
-|---|---|---|---|
-| 아직 조사하지 않음 | - | - | - |
-
-## 7. 환경 대기
-
-Unity/Xcode/Docker/라이선스/target module/device 등 코드와 독립적인 제약을 기록한다. 도구가 실행됐지만 컴파일이 실패한 일을 단순 환경 대기로 분류하지 않는다.
-
-## 8. 테스트·부정 검증 결과
-
-| Suite/Scenario | 명령 | mode | 실행 수 | PASS | FAIL | SKIP | exit code | 증거 |
-|---|---|---|---|---|---|---|---|---|
-| 아직 미실행 | - | - | 0 | 0 | 0 | 0 | - | - |
-
-하네스가 고의 실패·필수 suite 누락·증거 누락을 실제로 잡았는지도 별도로 적는다. CI 파일 작성과 원격 CI 실행을 분리한다.
-
-## 9. 생성 artifact와 설치 검증
-
-| artifact | 실제 경로 | VERSION/source SHA | checksum | 생성 여부 | 새 소비자 검증 |
-|---|---|---|---|---|---|
-| Android Maven/AAR | 미생성 | - | - | NO | NOT_RUN |
-| Swift Package source | 미작성 | - | - | NO | NOT_RUN |
-| static XCFramework | 미생성 | - | - | NO | NOT_RUN |
-| Unity UPM staging | 미생성 | - | - | NO | NOT_RUN |
-| Demo app build | 미생성 | - | - | NO | NOT_RUN |
-
-경로가 존재하지 않으면 생성됐다고 쓰지 않는다. source-only package와 native binary 완결 package를 구분한다.
-
-## 10. 주요 Git 이력
-
-| Task ID | 실제 commit SHA | 내용 | 검증/문서 포함 |
-|---|---|---|---|
-| 미실행 | - | - | - |
-
-자기 자신을 담은 마지막 문서 commit SHA는 해당 commit 이후 git log에서 확인한다. 이전 Task commit은 실제 Git 이력에서 가져온다. 자동 push/공개 release를 수행하지 않았다는 사실을 확인한다.
-
-## 11. 리팩토링 전후 비교
-
-baseline source SHA, public API diff, 회귀 결과, 필요한 경우 실제 측정값을 기록한다. 측정하지 않은 시간 단축/성능 개선율은 쓰지 않는다. 기술적 trade-off와 남은 문제도 적는다.
-
-## 12. 보안·운영 한계와 범위 제외
-
-이번 범위에는 환불 서버 알림 운영, Google RTDN/Apple Server Notifications 운영 완성, 모든 OS/Unity 버전 지원, 상용 침투 테스트, 실사용 SLA, 스토어 심사 통과가 포함되지 않는다. 이 중 실제로 구현한 사항이 있더라도 증거 없는 운영 경험으로 확장하지 않는다.
-
-Windows/C++·Unreal/Godot·구독·게임 서버·관리자 웹·Kubernetes·상용 cloud 배포는 제외다. development-only fake/auth/purchase proof 경로가 sandbox에서 차단되는지를 확인한 결과를 반드시 기록한다.
-
-## 13. 다음 행동
-
-사용자가 처리할 첫 미완료 USER_SETUP 항목 또는 Codex가 재개할 구체적인 Task ID와 명령을 한 곳에 기록한다. 일반적인 “추가 테스트 필요”로 끝내지 않는다.
-
-## 14. 최종 체크리스트
-
-- [ ] 모든 계획 Task가 원장에 존재하고 실제 구현 상태와 일치한다.
-- [ ] 미실행/실패/인증 대기를 PASS라고 표시하지 않았다.
-- [ ] Mock·Xcode StoreKit·실제 Sandbox를 구분했다.
-- [ ] 코드·문서·로컬 커밋·검증 증거가 서로 연결된다.
-- [ ] 실제 생성한 패키지와 설치 가능한 소비 경로를 표시했다.
-- [ ] 비밀정보·사용자 원본 파일을 보호했다.
-- [ ] 하네스 추가 이후 리팩토링했다는 이력이 남는다.
-- [ ] 마지막 사용자 설정과 재개 절차가 구체적이다.
-- [ ] 최종 git status와 잔여 변경 이유를 기록했다.
-- [ ] 상용 운영 또는 모든 플랫폼 검증을 과장하지 않았다.
+다음 개발은 BUG-013, BUG-014, BUG-015와 P09 미완성 시나리오를 해결하고 각 범위의 검증을 추가하는 것이다. 사용자 설정이 준비되면 USER_SETUP의 해당 항목에서 실제 플랫폼 검증을 별도로 실행한다. 자동 push, 공개 배포와 스토어 업로드는 수행하지 않았다.

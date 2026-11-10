@@ -64,5 +64,17 @@ class ApplePurchaseHttpIntegrationTest {
         assertEquals(1, responses.map { it.body!!["serverPurchaseId"] }.toSet().size)
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger WHERE user_id=?", Int::class.java, principal.userId))
         assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
+        val readHeaders = HttpHeaders().apply { setBearerAuth(tokens.accessToken) }
+        val wallet = rest.exchange("/v1/entitlements", HttpMethod.GET, HttpEntity<Void>(readHeaders), Map::class.java)
+        assertEquals(200, wallet.statusCode.value()); assertEquals("100", wallet.body!!["coinBalance"])
+        val catalog = rest.exchange("/v1/catalog", HttpMethod.GET, HttpEntity<Void>(readHeaders), List::class.java)
+        assertEquals(200, catalog.statusCode.value()); assertEquals(1, catalog.body!!.size)
+        val id = responses.first().body!!["serverPurchaseId"] as String
+        val own = rest.exchange("/v1/purchases/$id", HttpMethod.GET, HttpEntity<Void>(readHeaders), Map::class.java)
+        assertEquals(200, own.statusCode.value()); assertEquals("PENDING", own.body!!["finalizationStatus"])
+        val other = sessions.createVerified(VerifiedIdentity(IdentityProvider.APPLE, "https://appleid.apple.com", UUID.randomUUID().toString(), "test"), app, null)
+        val otherHeaders = HttpHeaders().apply { setBearerAuth(other.accessToken) }
+        val foreign = rest.exchange("/v1/purchases/$id", HttpMethod.GET, HttpEntity<Void>(otherHeaders), Map::class.java)
+        assertEquals(404, foreign.statusCode.value()); assertFalse(foreign.body?.toString().orEmpty().contains(id))
     }
 }

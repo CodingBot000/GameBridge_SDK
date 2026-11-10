@@ -873,3 +873,11 @@
 - Android fake proof sink 및 core unit 통과. 서버 검증 실패 `VERIFICATION_FAILED`를 Android/iOS Native가 일반 INVALID_ARGUMENT로 뭉개지 않도록 HTTP 오류 mapping과 테스트를 보강한다.
 - Android core/sdk unit task 및 Swift BackendClient unit 통과. fake sink는 GRANTED만 허용하고 proof 원문을 응답 문자열에 노출하지 않음을 확인했다. 실제 Google endpoint/Play UI는 실행하지 않았다.
 - 커밋 전: Native proof 전송 경계와 오류 매핑만 포함한다. Google endpoint·durable worker·완료 후 증빙 정책이 준비되지 않아 실제 UI 조립을 활성화하지 않는다.
+
+### [P05-T07] 서버 상품·지급 상태 조회 — 2026-11-10 Asia/Seoul
+- Native에서 실제 store ID·서버 지급 상태를 다시 확인할 수 있도록 app scope와 소유권을 강제하는 sandbox/production 읽기 경로를 작성한다. 샘플/Unity UI와 실제 store 거래는 별도다.
+- authenticated catalog, app/environment 범위 entitlement 및 소유 purchase 조회 초안 작성. 가격과 증빙 원문을 반환하지 않는다. 컴파일 및 HTTP/DB fixture를 확인한다.
+- catalog/read controller Kotlin 컴파일 성공. synthetic Apple HTTP 통합 시험에서 지급 후 잔액/상태 조회와 다른 계정의 purchase 접근 거부를 확인한다.
+- synthetic HTTP/DB 시험 통과: 잔액·catalog·본인 구매 조회, 타 계정 404. 검토에서 내부 CLIENT_PENDING이 공통 공개 enum에 없음을 발견해 PENDING으로 정규화하고 재시험한다.
+- synthetic sandbox HTTP/DB 재시험 통과: 공개 finalization PENDING 정규화, 본인 잔액·catalog·구매 조회와 다른 사용자 404. 실제 store 구매는 아니다.
+- 커밋 전: 서버 읽기 경로 및 소유권 fixture만 포함한다. Native/Unity 상점 UI와 실제 store 연결은 미완료이므로 P05-T07 PARTIAL/WAITING_USER 유지.

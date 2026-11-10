@@ -18,7 +18,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 
 | 항목 | 상태 및 영향 |
 |---|---|
-| BUG-013 | XCODE_STOREKIT 격리 fake 서버 지급 및 Native/Unity bridge를 구현했다. iOS 18.6 상품 조회와 일회성 synthetic 지급·finish를 확인했으나, 추가 시험에서 동일 거래의 JWS가 변하고 다른 거래의 고정 필드는 같아 중복 지급 위험을 발견했다. 신규 구매 및 fake 지급은 차단했다. 실제 DB 복구와 Unity 실행은 미검증이고 iOS 26.5 StoreKit 시험은 Code 3으로 실패했다. |
+| BUG-013 | XCODE_STOREKIT 격리 fake 서버 지급 및 Native/Unity bridge를 구현했다. iOS 18.6 상품 조회와 일회성 synthetic 지급·finish를 확인했으나, 추가 시험에서 동일 미완료 거래의 JWS가 바뀌어 중복 지급 위험을 발견했다. 완료 후 연속 구매의 고정 필드는 한 시험에서 구분됐지만 재시작 복구의 유일성은 미확인이다. 신규 구매 및 fake 지급은 차단했다. 실제 DB 복구와 Unity 실행은 미검증이고 iOS 26.5 StoreKit 시험은 Code 3으로 실패했다. |
 | BUG-014 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과했다. Unity player와 실제 기기 lifecycle은 미검증이다. |
 | BUG-015 | Native 진단 ring의 Unity 비동기 조회를 구현하고 fake/managed compile을 확인했다. 실제 Unity player에서의 연결은 미검증이다. |
 | BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |

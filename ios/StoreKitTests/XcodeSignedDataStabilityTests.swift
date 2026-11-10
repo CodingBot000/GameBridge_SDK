@@ -16,6 +16,7 @@ final class XcodeSignedDataStabilityTests: XCTestCase {
         }
         let firstResult = try await product.purchase(options: [.appAccountToken(account)])
         guard case .success(let first) = firstResult, case .verified(let firstTransaction) = first else { XCTFail("expected local verified purchase"); return }
+        await firstTransaction.finish()
         let secondResult = try await product.purchase(options: [.appAccountToken(account)])
         guard case .success(let second) = secondResult, case .verified(let secondTransaction) = second else { await firstTransaction.finish(); XCTFail("expected second local verified purchase"); return }
         let lhs = payload(first.jwsRepresentation), rhs = payload(second.jwsRepresentation)
@@ -26,6 +27,6 @@ final class XcodeSignedDataStabilityTests: XCTestCase {
             return SHA256.hash(data: try JSONSerialization.data(withJSONObject: selected, options: [.sortedKeys]))
         }
         XCTAssertNotEqual(try digest(lhs), try digest(rhs), "distinct local purchases must have distinct stable identity")
-        await firstTransaction.finish(); await secondTransaction.finish()
+        await secondTransaction.finish()
     }
 }

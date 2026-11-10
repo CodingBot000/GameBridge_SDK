@@ -1882,3 +1882,7 @@
 - Mock push와 Xcode 지급 차단을 포함하는 최신 소스에서 Android Maven·iOS XCFramework·UPM staging을 새 경로에 생성한다. 이전 산출물과 사용자 파일은 보존한다. Unity 실제 import는 별도다.
 - source HEAD `10e2a3c`에서 Android Maven 45 task 강제 재실행 및 R8 소비자 빌드, iOS device/simulator XCFramework, simulator Swift 독립 link, device C ABI symbol 4개, UPM staging checksum 통과. Xcode 신규 구매는 안전 차단된 상태다. Unity import/export 및 실제 기기는 미검증이다. 산출물 경로와 SHA-256은 `docs/evidence/current-artifact-manifest.json`에 기록했다.
 - 커밋 준비: 현재 산출물 manifest와 범위만 기록한다. 이전 산출물 및 user `unity/Demo`는 보존한다.
+### P05-T03 Xcode 완료 후 별도 거래 식별 검증 시작
+- 앞선 두 purchase 호출은 첫 거래를 finish하기 전에 실행했으므로 StoreKit이 같은 미완료 거래를 반환했을 가능성을 배제하지 못한다. 첫 거래를 finish한 다음 두 번째를 생성해 고정 필드를 비교한다. SDK의 fail-closed 차단은 유지한다.
+- `artifacts/storekit-sequential-identity-1794333841.xcresult`: 첫 거래 finish 후 새 구매의 고정 필드 digest가 다른 것 1건 PASS. 앞서 finish 전 두 호출의 고정 필드가 같았다는 관찰은 동일 미완료 거래 재반환 가능성이 있어 별개 거래 충돌로 단정하지 않는다. 재서명·응답 유실·재시작에 걸친 원자적 중복 방지는 아직 검증되지 않아 fail-closed 유지.
+- 커밋 준비: 시험 순서와 과도했던 보고 표현을 바로잡는다. 신규 구매 차단은 해제하지 않는다.

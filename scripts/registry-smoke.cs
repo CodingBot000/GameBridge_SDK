@@ -116,6 +116,15 @@ internal static class Program
         await Expect("BUSY", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
         registry.Dispose();
         foreach (var task in waiting) await Expect("NOT_INITIALIZED", task);
+        var liveConfig = Environment.GetEnvironmentVariable("GAMEBRIDGE_TEST_CONFIG_JSON");
+        if (!string.IsNullOrEmpty(liveConfig))
+        {
+            using (var configReader = new Newtonsoft.Json.JsonTextReader(new System.IO.StringReader(liveConfig)) { DateParseHandling = Newtonsoft.Json.DateParseHandling.None })
+            {
+                var configValue = JObject.Load(configReader); configValue["source"] = "NETWORK";
+                Check(WireModels.Decode<GameBridge.ServiceConfig>(configValue).source == "NETWORK", "actual local config decoded");
+            }
+        }
         var fixture = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(Environment.GetEnvironmentVariable("GAMEBRIDGE_ROOT"), "contracts/fixtures/models/roundtrip.json")));
         Check(WireModels.Decode<GameBridge.UserProfile>(fixture["profile"]).displayName == "별빛 🎮", "Korean profile");
         Check(WireModels.Decode<GameBridge.StoreProduct>(fixture["product"]).priceMicros == "9223372036854775807", "64-bit string");

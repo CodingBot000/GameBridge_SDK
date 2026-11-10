@@ -1392,3 +1392,13 @@
 - `swift test --package-path ios --filter StoreKitBillingProviderTests` 종료 0, 4건: fake 공유 복구 1회, caller 취소 격리, 다른 사유 BUSY·다른 계정 CANCELED를 확인했다. 실제 AppStore.sync 및 StoreKit 거래는 실행하지 않았다. simulator framework compile을 확인한다.
 - `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. 무서명 simulator compile이며 실제 StoreKit 복원·Unity player는 아니다.
 - 커밋 전: iOS 동일 사유·계정 recovery single-flight 및 fake 시험만 포함한다. 실제 StoreKit 복원과 ENV-STOREKIT-26은 미검증/실패 유지한다.
+
+### [P06-T05] LOCAL_MOCK push 연결
+- Task 시작: 로컬 Backend의 token 등록·삭제 및 개발용 SIMULATED 발송 계약을 조사하고 Native/Unity Mock 경로를 연결한다. 실제 FCM/APNs 원격 발송과 구분한다.
+- 블로커 BUG-010 발견: `GET /v1/config`는 16진 hash revision을 반환하지만 Unity ServiceConfig decoder는 10진 64-bit 문자열만 허용한다. 실제 config 조회가 BRIDGE_PROTOCOL_MISMATCH가 되므로 서버를 63-bit 비음수 10진 문자열 계약으로 일치시키고 실제 경계를 확인한다. 기존 설정 내용이나 cache 보존값을 삭제하지 않는다.
+- 서버 config revision을 같은 설정에서 안정적인 비음수 signed 63-bit 10진 문자열로 변경했다. config 내용 변경 시 revision이 달라지는지 서버 unit과 실제 local HTTP→Unity decoder를 확인한다.
+- `backend/gradlew -p backend test --tests com.gamebridge.push.PublicServiceConfigControllerTest` 종료 0: 설정 누락 차단, TTL, 10진 revision 안정성·변경 반영 확인. 실제 local HTTP 응답을 Unity decoder에 전달한다.
+- 실제 local config→.NET smoke 첫 실행 종료 134(BRIDGE_PROTOCOL_MISMATCH). 조사 결과 테스트가 JObject.Parse의 기본 날짜 자동 변환을 사용해 expiresAt을 Date로 만들었으며 실제 RequestRegistry는 DateParseHandling.None을 사용한다. 실제 경로와 같은 reader 설정으로 재검증한다.
+- local `GET /v1/config` 응답을 DateParseHandling.None으로 읽어 Native가 사용하는 source NETWORK로 표기한 뒤 Unity ServiceConfig decoder에 전달한 .NET smoke 재실행 종료 0. 실제 Unity Player/JNI/C ABI 전체 왕복은 아니다.
+- 직접 기동한 local Backend만 종료하고 DB는 보존했다. revision 변경은 기존 실행 중 in-memory cache가 만료되기 전 과거 16진 값을 보유할 수 있으며, cache 만료 또는 재시작 후 새 형식을 사용한다.
+- 커밋 전: 서버 revision 계약 수정과 서버 unit/local HTTP→Unity decoder 증거만 포함한다. Unity Player 전체 config 왕복은 미검증이다.

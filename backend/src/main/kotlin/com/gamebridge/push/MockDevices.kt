@@ -86,7 +86,9 @@ class PublicServiceConfigController(
     @GetMapping("/v1/config") fun config(): Map<String, Any?> {
         if (enabled !in setOf("true", "false") || ttlSeconds <= 0) throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CONFIG_REQUIRED")
         val expires = try { java.time.Instant.now().plusSeconds(ttlSeconds).toString() } catch (_: Exception) { throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CONFIG_REQUIRED") }
-        val revision = MessageDigest.getInstance("SHA-256").digest((enabled + "\u0000" + message).toByteArray(StandardCharsets.UTF_8)).take(8).joinToString("") { "%02x".format(it) }
+        // A stable non-negative signed 64-bit decimal string matches every SDK decoder.
+        val digest = MessageDigest.getInstance("SHA-256").digest((enabled + "\u0000" + message).toByteArray(StandardCharsets.UTF_8))
+        val revision = (java.nio.ByteBuffer.wrap(digest, 0, 8).long and Long.MAX_VALUE).toString()
         return mapOf("revision" to revision, "maintenanceEnabled" to (enabled == "true"), "message" to message.takeIf { it.isNotBlank() }, "expiresAt" to expires, "source" to "REMOTE")
     }
 }

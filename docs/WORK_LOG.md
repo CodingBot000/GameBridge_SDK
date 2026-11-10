@@ -1877,3 +1877,8 @@
 - manifest·음성 검사, 실제 결과 XML parser의 skip/missing 거부를 재검증한다. Unity Editor 실제 통과로 표시하지 않는다.
 - manifest/누락 음성/원장 검사와 shell 구문 검증 통과. aggregate에서 Editor opt-in 시 XML 검증의 실제 실행 건수를 읽으며, 미실행은 NOT_RUN이다. 테스트 자체는 아직 Editor에서 실행되지 않았다.
 - 커밋 준비: 격리 Unity consumer runner·테스트 소스와 fail-closed XML 판정만 포함한다. 오래된 staging으로 수행한 실행은 결과가 없어 import PASS로 기록하지 않는다.
+
+### [P08-T01] [P08-T02] [P08-T03] 현재 소스 재패키징 시작 및 검증 준비
+- Mock push와 Xcode 지급 차단을 포함하는 최신 소스에서 Android Maven·iOS XCFramework·UPM staging을 새 경로에 생성한다. 이전 산출물과 사용자 파일은 보존한다. Unity 실제 import는 별도다.
+- source HEAD `10e2a3c`에서 Android Maven 45 task 강제 재실행 및 R8 소비자 빌드, iOS device/simulator XCFramework, simulator Swift 독립 link, device C ABI symbol 4개, UPM staging checksum 통과. Xcode 신규 구매는 안전 차단된 상태다. Unity import/export 및 실제 기기는 미검증이다. 산출물 경로와 SHA-256은 `docs/evidence/current-artifact-manifest.json`에 기록했다.
+- 커밋 준비: 현재 산출물 manifest와 범위만 기록한다. 이전 산출물 및 user `unity/Demo`는 보존한다.

@@ -18,6 +18,10 @@ final class BridgeProtocolTests: XCTestCase {
         }
         XCTAssertThrowsError(try BridgeProtocol.parse(fixture("pending"), expectedRequest: "other"))
         XCTAssertThrowsError(try BridgeProtocol.parse(Data([0xc3])))
+        XCTAssertThrowsError(try BridgeProtocol.parse(Data("{".utf8)))
+        var request = try XCTUnwrap(JSONSerialization.jsonObject(with: fixture("request")) as? [String: Any])
+        request.removeValue(forKey: "requestId")
+        XCTAssertThrowsError(try BridgeProtocol.parse(JSONSerialization.data(withJSONObject: request)))
         XCTAssertThrowsError(try BridgeProtocol.parse(Data(count: BridgeProtocol.maxBytes + 1)))
     }
 }

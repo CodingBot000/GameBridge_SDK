@@ -24,6 +24,11 @@ private actor CancellableProvider: SdkProvider {
     func waitForStart() async { while !started { await Task.yield() } }
 }
 final class SdkCoordinatorTests: XCTestCase {
+    func testRequireReadyBeforeInitializationFails() async throws {
+        let sdk = SdkCoordinator(provider: ControlledProvider())
+        do { try await sdk.requireReady(); XCTFail("uninitialized API") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "NOT_INITIALIZED") }
+    }
     func testShutdownDuringInitialization() async throws {
         let provider = CancellableProvider(); let sdk = SdkCoordinator(provider: provider)
         let pending = Task { try await sdk.initialize(GameBridgeConfig(appId: "demo", mode: .editorOffline, backendBaseURL: nil)) }

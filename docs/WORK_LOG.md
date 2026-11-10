@@ -2095,3 +2095,20 @@
 ### P09-T04 scenario mapping 검증 시작
 - strict aggregate에도 purchase verifier를 필수 lane으로 연결해 scenario IMPLEMENTED 표시만으로 실행을 생략할 수 없도록 했다.
 - 커밋 준비: R29/R30/R39 synthetic 거부와 무지급 증거 및 필수 실행 연결. 실제 서명/스토어는 WAITING_USER 유지.
+
+### [P09-T02] Core·Bridge scenario assertion 보강 시작
+- 초기화 전 호출, 동일·다른 config 동시 초기화, 중복 callback과 취소/종료 경쟁을 독립 Kotlin·Swift·C# fake에서 검증한다. 실제 Unity Editor/JNI는 별도로 유지한다.
+### P09-T02 Core race·parser 검증 시작
+- C# 100회 cancel/shutdown race의 각 Task 완료 1회·pending 0과 Kotlin/Swift coordinator를 실행하고 중복 guard 제거 mutation을 확인한다.
+- C# fake의 100회 cancel/shutdown 경쟁·중복 callback 정확히 1회 완료, 동일 config 두 호출의 단일 초기화·동일 READY 결과와 초기화 전 API 거부, Kotlin coordinator 3건, Swift coordinator 3건 통과. common contract runner에 coordinator 시험을 포함하고 duplicate guard mutation도 재실행한다.
+### P09-T02 공통 runner·mutation 검증 시작
+- 공통 runner는 Kotlin 7·Swift 7·C# fake 1 통과하고 duplicate guard 제거 mutation을 감지했다. R07 필수 필드 누락과 단순 malformed JSON을 양 Native parser에서 명시적으로 추가한다.
+### P09-T02 malformed·필수 필드 재검증 시작
+- `artifacts/contracts-p2sh2c22` Kotlin 7·Swift 7·C# fake 1 suite PASS, malformed/필수 필드 음성 fixture 및 원본 보존 확인. R01/R02/R03/R04/R06/R07/R10의 assertion을 로컬 fake 범위로 연결한다. Unity Editor/JNI는 포함하지 않는다.
+### P09-T02 scenario mapping 검증 시작
+- manifest 검증은 통과했으나 음성 검사에서 기존 첫 scenario가 이제 IMPLEMENTED여서 변조 대상이 더 이상 미완료 항목이 아닌 문제가 발견됐다. 원본을 건드리지 않는 격리 사본에서 첫 PARTIAL을 선택해 변조하도록 고친다. 수정 전 음성 검사는 FAIL로 기록한다.
+### P09-T02 manifest 음성 검사 재실행
+- 격리 manifest 음성 검사 수정 후 원장·manifest 통과, 필수 시나리오 28개 PARTIAL로 전체 gate는 계속 실패한다. 새로 연결한 각 Core scenario entry를 순차 재실행한다.
+### P09-T02 개별 scenario entry 검증 시작
+- `harness/run-scenario.py` R01/R02/R03/R04/R06/R07/R10 각각 종료 0. R04는 별도 guard mutation 감지도 통과했다. Kotlin/Swift unit 및 독립 C# fake 결과이며 Unity Editor/JNI 실행은 아니다.
+- 커밋 준비: 새 assertion, 공통 runner, 부분 scenario의 근거 있는 로컬 범위 승격 및 음성 검사 유지 보정만 포함한다.

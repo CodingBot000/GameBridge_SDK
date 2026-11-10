@@ -25,7 +25,9 @@ def main() -> int:
     if suite_result.returncode == 0 or 'unknown suite contracts' not in suite_result.stdout:
         print('Missing required suite was not detected'); return 1
     manifest = json.loads((ROOT / 'harness/regression-manifest.json').read_text(encoding='utf-8'))
-    manifest['scenarios'][0]['coverage'] = 'IMPLEMENTED'
+    candidate = manifest['scenarios'][0]
+    candidate['coverage'] = 'IMPLEMENTED'
+    candidate.pop('assertions', None)
     coverage_path = workspace / 'false-coverage.json'; coverage_path.write_text(json.dumps(manifest), encoding='utf-8')
     coverage_result = subprocess.run(['python3','harness/check-manifest.py','--manifest',str(coverage_path)], cwd=ROOT,
                                      text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)

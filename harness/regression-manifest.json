@@ -131,6 +131,14 @@
       ],
       "mode": "SYNTHETIC_AND_OFFICIAL_DECODER",
       "platform": "Backend"
+    },
+    "bridge-mutation": {
+      "command": [
+        "python3",
+        "harness/check-bridge-mutation.py"
+      ],
+      "mode": "ISOLATED_MUTATION",
+      "platform": "Standalone .NET"
     }
   },
   "scenarios": [
@@ -142,19 +150,34 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R01"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "contracts"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Native/managed fake and mutation checks; Unity Editor/player and real providers are separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/SdkCoordinatorTest.kt",
+          "testCase": "sdk.requireReady()"
+        },
+        {
+          "suite": "contracts",
+          "testFile": "ios/Tests/GameBridgeCoreTests/SdkCoordinatorTests.swift",
+          "testCase": "testRequireReadyBeforeInitializationFails"
+        },
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "facade.GetProductsAsync()"
+        }
+      ]
     },
     {
       "id": "R02",
@@ -164,19 +187,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R02"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "contracts"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Native/managed fake and mutation checks; Unity Editor/player and real providers are separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "same config identical ready results"
+        },
+        {
+          "suite": "contracts",
+          "testFile": "ios/Tests/GameBridgeCoreTests/SdkCoordinatorTests.swift",
+          "testCase": "testConcurrentInitializeAndShutdown"
+        }
+      ]
     },
     {
       "id": "R03",
@@ -186,19 +219,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R03"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "contracts"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Native/managed fake and mutation checks; Unity Editor/player and real providers are separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/SdkCoordinatorTest.kt",
+          "testCase": "rejects different config"
+        },
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "ALREADY_INITIALIZED_DIFFERENT_CONFIG"
+        }
+      ]
     },
     {
       "id": "R04",
@@ -208,7 +251,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -216,11 +259,22 @@
       ],
       "candidateSuites": [
         "contracts",
-        "android-unit",
-        "ios-unit"
+        "bridge-mutation"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Native/managed fake and mutation checks; Unity Editor/player and real providers are separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "duplicate response ignored exactly once"
+        },
+        {
+          "suite": "bridge-mutation",
+          "testFile": "harness/check-bridge-mutation.py",
+          "testCase": "Duplicate response guard mutation: detected"
+        }
+      ]
     },
     {
       "id": "R05",
@@ -252,19 +306,24 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R06"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "contracts"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Native/managed fake and mutation checks; Unity Editor/player and real providers are separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "stale event ignored"
+        }
+      ]
     },
     {
       "id": "R07",
@@ -274,19 +333,34 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R07"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "contracts"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Native/managed fake and mutation checks; Unity Editor/player and real providers are separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/BridgeProtocolTest.kt",
+          "testCase": "request - \"requestId\""
+        },
+        {
+          "suite": "contracts",
+          "testFile": "ios/Tests/GameBridgeCoreTests/BridgeProtocolTests.swift",
+          "testCase": "request.removeValue(forKey: \"requestId\")"
+        },
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "malformed JSON ignored safely"
+        }
+      ]
     },
     {
       "id": "R08",
@@ -340,19 +414,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R10"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "contracts"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Native/managed fake and mutation checks; Unity Editor/player and real providers are separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "cancel shutdown race completes once"
+        },
+        {
+          "suite": "contracts",
+          "testFile": "ios/Tests/GameBridgeCoreTests/SdkCoordinatorTests.swift",
+          "testCase": "testShutdownDuringInitialization"
+        }
+      ]
     },
     {
       "id": "R11",

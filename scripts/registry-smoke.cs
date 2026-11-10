@@ -66,6 +66,8 @@ internal static class Program
         string sent = null;
         var registry = new RequestRegistry(value => sent = value, Guid.NewGuid());
         var one = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5));
+        var completions = 0;
+        var completedOnce = one.ContinueWith(_ => Interlocked.Increment(ref completions), TaskContinuationOptions.ExecuteSynchronously);
         var request = JObject.Parse(sent);
         registry.HandleMessage(Response(request, session: Guid.NewGuid().ToString("D")));
         Check(!one.IsCompleted, "stale session must be ignored");
@@ -73,8 +75,12 @@ internal static class Program
         Check(!one.IsCompleted, "trailing JSON must be ignored");
         registry.HandleMessage(Response(request));
         Check((string)(await one)["state"] == "READY", "correlated response");
+        var beforeDuplicate = registry.IgnoredMessages;
         registry.HandleMessage(Response(request));
-        Check(registry.IgnoredMessages >= 2, "duplicate response ignored");
+        await completedOnce;
+        Check(registry.IgnoredMessages == beforeDuplicate + 1 && completions == 1, "duplicate response ignored exactly once");
+        registry.HandleMessage("{");
+        Check(registry.IgnoredMessages == beforeDuplicate + 2, "malformed JSON ignored safely");
         var mismatch = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5));
         request = JObject.Parse(sent); registry.HandleMessage(Response(request, operation: "auth.signIn"));
         await Expect("BRIDGE_PROTOCOL_MISMATCH", mismatch);
@@ -191,6 +197,7 @@ internal static class Program
         var config = new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.EditorOffline, null);
         var facade = new GameBridge.GameBridgeClient(new EditorOfflineTransport());
         Check(facade.GetStatus().Mode == null, "initial mode unknown");
+        await Expect("NOT_INITIALIZED", facade.GetProductsAsync());
         await facade.InitializeAsync(config);
         Check(facade.GetStatus().State == "READY", "facade initialized");
         Check(facade.GetCapabilities().Known && facade.GetCapabilities().Features["auth"].Supported, "capability snapshot");
@@ -249,6 +256,25 @@ internal static class Program
             ["payload"] = new JObject { ["messageId"] = "cold-id", ["route"] = "store", ["campaignId"] = JValue.CreateNull() } });
         Check(coldCount == 0, "cold push waits for ready"); coldTransport.Reply(coldRequest, InitResponse()); await coldInit;
         coldFacade.Pump(); Check(coldCount == 1, "cold push delivered after ready"); coldFacade.Dispose();
+        var joinedTransport = new HeldTransport(); var joinedFacade = new GameBridge.GameBridgeClient(joinedTransport);
+        var joinedFirst = joinedFacade.InitializeAsync(config); var joinedSecond = joinedFacade.InitializeAsync(config);
+        Check(joinedTransport.Requests.Count == 1, "same config sends one init");
+        joinedTransport.Reply(joinedTransport.Requests[0], InitResponse());
+        var joinedResults = await Task.WhenAll(joinedFirst, joinedSecond);
+        Check(joinedResults[0].Status.State == "READY" && joinedResults[1].Status.State == "READY", "same config identical ready results");
+        joinedFacade.Dispose();
+        for (var race = 0; race < 100; race++)
+        {
+            using var cancellation = new CancellationTokenSource();
+            var raceRegistry = new RequestRegistry(_ => { }, Guid.NewGuid());
+            var pendingRace = raceRegistry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5), cancellation.Token);
+            var raceCompletions = 0;
+            var observed = pendingRace.ContinueWith(_ => Interlocked.Increment(ref raceCompletions), TaskContinuationOptions.ExecuteSynchronously);
+            await Task.WhenAll(Task.Run(() => cancellation.Cancel()), Task.Run(() => raceRegistry.Dispose()));
+            try { await pendingRace; throw new Exception("race unexpectedly succeeded"); }
+            catch (SdkException error) { Check(error.Code == "CANCELED" || error.Code == "NOT_INITIALIZED", "race error"); }
+            await observed; Check(raceCompletions == 1 && raceRegistry.PendingCount == 0, "cancel shutdown race completes once");
+        }
         var held = new HeldTransport(); var concurrent = new GameBridge.GameBridgeClient(held);
         using (var callerCancellation = new CancellationTokenSource())
         {

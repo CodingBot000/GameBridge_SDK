@@ -32,10 +32,10 @@ def main() -> int:
     if not gradle.is_file(): results.append({'suite':'kotlin', 'status':'DEFERRED_ENV', 'exitCode':2, 'tests':0})
     else:
         started_ns = time.time_ns()
-        code, _ = run([str(gradle), '-p', 'android', ':sdk-core:test', '--rerun-tasks', '--tests', 'com.gamebridge.BridgeProtocolTest', '--tests', 'com.gamebridge.ModelFixtureTest'], output / 'kotlin.log', env)
+        code, _ = run([str(gradle), '-p', 'android', ':sdk-core:test', '--rerun-tasks', '--tests', 'com.gamebridge.BridgeProtocolTest', '--tests', 'com.gamebridge.ModelFixtureTest', '--tests', 'com.gamebridge.SdkCoordinatorTest'], output / 'kotlin.log', env)
         tests = failures = skipped = 0
         try:
-            for cls in ('BridgeProtocolTest', 'ModelFixtureTest'):
+            for cls in ('BridgeProtocolTest', 'ModelFixtureTest', 'SdkCoordinatorTest'):
                 report = ROOT / f'android/sdk-core/build/test-results/test/TEST-com.gamebridge.{cls}.xml'
                 if report.stat().st_mtime_ns < started_ns: raise ValueError('stale report')
                 root = ET.parse(report).getroot()
@@ -45,7 +45,7 @@ def main() -> int:
         results.append({'suite':'kotlin','status':status,'exitCode':code,'tests':tests,'failures':failures,'skipped':skipped})
     if not shutil.which('swift'): results.append({'suite':'swift','status':'DEFERRED_ENV','exitCode':2,'tests':0})
     else:
-        code, text = run(['swift','test','--package-path','ios','--filter','BridgeProtocolTests|ModelFixtureTests'], output / 'swift.log', env)
+        code, text = run(['swift','test','--package-path','ios','--filter','BridgeProtocolTests|ModelFixtureTests|SdkCoordinatorTests'], output / 'swift.log', env)
         counts = [(int(a), int(b)) for a,b in re.findall(r'Executed (\d+) tests?, with (\d+) failures?', text)]
         tests, failures = max(counts, default=(0,0), key=lambda item:item[0])
         skipped = max((int(v) for v in re.findall(r'with (\d+) tests? skipped', text)), default=0)

@@ -16,6 +16,10 @@ class BridgeProtocolTest {
             assertFailsWith<BridgeProtocol.ProtocolException> { BridgeProtocol.parse(fixture(name)) }
         assertFailsWith<BridgeProtocol.ProtocolException> { BridgeProtocol.parse(fixture("pending"), expectedRequest = "other") }
         assertFailsWith<BridgeProtocol.ProtocolException> { BridgeProtocol.parse(byteArrayOf(0xC3.toByte())) }
+        assertFailsWith<BridgeProtocol.ProtocolException> { BridgeProtocol.parse("{".toByteArray()) }
+        val request = kotlinx.serialization.json.Json.parseToJsonElement(fixture("request").decodeToString()) as kotlinx.serialization.json.JsonObject
+        val missing = kotlinx.serialization.json.JsonObject(request - "requestId").toString().toByteArray()
+        assertFailsWith<BridgeProtocol.ProtocolException> { BridgeProtocol.parse(missing) }
         assertEquals("PAYLOAD_TOO_LARGE", assertFailsWith<BridgeProtocol.ProtocolException> { BridgeProtocol.parse(ByteArray(BridgeProtocol.MAX_BYTES + 1)) }.code)
     }
 }

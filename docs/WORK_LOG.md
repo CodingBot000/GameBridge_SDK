@@ -802,3 +802,8 @@
 - Google finalizer 编译 성공. fake gateway로 grant 이전 호출 차단·계정 불일치·기완료 재조회·consume/ack 분기를 검증한다.
 - Google finalizer fake gateway 시험 2건 통과: grant 전 조회 차단, 계정 불일치 거부, 완료 상태 스토어 재조회, consume/ack 분리. 실제 Publisher 호출은 없다.
 - 커밋 전: Google 공식 client 단발 finalization과 fake 경계만 포함. durable grant check 실제 DB 구현, 증빙 보관·삭제 정책, job worker 연결 및 실제 Play 시험은 미완료다.
+
+### [P07-T04] 시작 — 2026-11-10 Asia/Seoul
+- 현재 public operation→Native/Server→sample 경로를 조사한다. `rg TODO/FIXME/NotImplementedException/fatalError` 결과가 비어 있어도 호출 경로가 없는 기능을 구현 완료로 간주하지 않는다. 최종 P11 audit은 별도다.
+- Unity facade operation, Editor fake switch, Native Bridge 제한, Native sample/Backend source를 대조해 FEATURE_MATRIX 초안을 작성했다. 실 StoreKit 실패와 미연결 endpoint·Unity 경로를 명시했다. 전체 API/설정 재검토와 수정 후 재감사는 남았다.
+- 커밋 전: 1차 traceability 초안만 포함하고 P07-T04 PARTIAL 유지한다. `TODO` 검색 결과만으로 기능 완료를 판정하지 않았다.

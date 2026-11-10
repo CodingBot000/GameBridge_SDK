@@ -1,0 +1,6 @@
+{
+  "profile": {"userId":"d2719c4e-d533-47ee-9efd-838791ea79c8","displayName":"별빛 🎮","provider":"MOCK"},
+  "product": {"productId":"coins_100","storeProductId":"coins_100","type":"CONSUMABLE","title":"코인 🎮","localizedPrice":"₩1,000","currencyCode":"KRW","priceMicros":"9223372036854775807"},
+  "purchase": {"attemptId":"b4351338-ed44-4881-baca-954d6524bc20","productId":"coins_100","status":"PENDING","serverPurchaseId":null,"fulfillmentStatus":"NOT_GRANTED","finalizationStatus":"NOT_REQUIRED","error":null},
+  "error": {"code":"NETWORK_UNAVAILABLE","message":"네트워크 연결을 확인하세요","retryable":true,"requestId":null,"nativeCode":null,"details":{}}
+}

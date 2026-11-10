@@ -113,3 +113,12 @@
 - 커밋 직전: 공통 계약의 부분 결과만 포함. P01-T01은 IN_PROGRESS/PARTIAL 유지.
 
 - 체크포인트: P00-T02~T05와 P01-T01 미완료. Unity 생성 실패로 남은 `unity/Demo/`와 검사기 실행으로 생긴 `scripts/__pycache__/`는 미추적이며 삭제하지 않았다. 다음: P01-T01 모델·DTO·fixture 및 P00 잔여 작업. 실제 Provider, Mock 경로, P02~P11과 최종 보고서는 미구현.
+
+### [P01-T01] 재개 — 2026-11-10 Asia/Seoul
+- `git status --short --branch` 종료 0: 이전에 기록한 Unity 미완성 프로젝트와 Python 캐시만 미추적. 기존 파일을 보존하고 공통 모델·fixture 및 Native 직렬화를 계속한다.
+- `./android/gradlew -p android :sdk-core:test` 종료 0: 공통 fixture의 한글·emoji·큰 정수·null 왕복과 필수 nullable 필드 누락 및 알 수 없는 enum 거부 확인. 전체 테스트 수는 XML에 기록된 결과를 확인한다.
+- `swift test --package-path ios` 종료 0: XCTest 5건 중 모델 fixture 2건 통과. 공통 fixture 왕복, nullable 필드 누락·unknown enum 거부를 macOS에서 확인. iOS 기기 실행 아님. Kotlin XML은 전체 4건(모델 2, 설정 2), 실패 0.
+- `python3 -c import jsonschema` 종료 1: 로컬 Python에 schema 검증 라이브러리가 없다. 임시 환경에서 설치해 검증을 시도하며 프로젝트 제품 의존성으로 추가하지 않는다.
+- 임시 venv에서 `jsonschema==4.25.1` 설치 종료 0. Draft 2020-12 schema 자체 검사와 fixture 4종 유효성 및 각 필수 필드 누락 거부 검사 종료 0. 이 확인은 전체 모델 완성이나 플랫폼 실행을 뜻하지 않는다.
+- Unity C# 모델 필드를 작성했지만 Newtonsoft 직렬화 adapter, 필수 필드 검증, Editor 컴파일·fixture 왕복은 미구현/미실행이다(ENV-002). 전체 모델과 외부 사용 API도 미완료.
+- 커밋 직전 `python3 scripts/verify-progress.py` 종료 0. Kotlin/Swift에서 테스트된 부분과 미검증 C# 모델을 포함하며 P01-T01을 IN_PROGRESS/PARTIAL로 유지한다.

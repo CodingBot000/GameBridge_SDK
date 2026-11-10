@@ -628,7 +628,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -637,8 +637,20 @@
       "candidateSuites": [
         "auth-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/auth-synthetic-scenarios.md",
+      "note": "Synthetic provider cancellation and concurrent authentication; Android serializes operations, iOS receives ten 401s. Real providers remain unverified.",
+      "assertions": [
+        {
+          "suite": "auth-regression",
+          "testFile": "android/sdk-android/src/test/kotlin/com/gamebridge/android/auth/GoogleAuthProviderTest.kt",
+          "testCase": "cancellation is explicit and stores no session"
+        },
+        {
+          "suite": "auth-regression",
+          "testFile": "ios/Tests/GameBridgeCoreTests/AppleAuthProviderTests.swift",
+          "testCase": "testCancellationAndMismatchedProfileDoNotSave"
+        }
+      ]
     },
     {
       "id": "R17",
@@ -680,7 +692,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -689,8 +701,20 @@
       "candidateSuites": [
         "auth-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/auth-synthetic-scenarios.md",
+      "note": "Synthetic provider cancellation and concurrent authentication; Android serializes operations, iOS receives ten 401s. Real providers remain unverified.",
+      "assertions": [
+        {
+          "suite": "auth-regression",
+          "testFile": "android/sdk-android/src/test/kotlin/com/gamebridge/android/auth/GoogleAuthProviderTest.kt",
+          "testCase": "ten authenticated operations share refresh after operation 401"
+        },
+        {
+          "suite": "auth-regression",
+          "testFile": "ios/Tests/GameBridgeCoreTests/AppleAuthProviderTests.swift",
+          "testCase": "testTenUnauthorizedOperationsShareSingleRefresh"
+        }
+      ]
     },
     {
       "id": "R19",

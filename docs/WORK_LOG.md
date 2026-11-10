@@ -2181,3 +2181,10 @@
 ### P04-T04 iOS guard 단순화 재검증 시작
 - iOS Apple Provider·StoreKit fake 25건 통과, simulator framework 재컴파일 종료 0(중복 availability 경고 제거). BUG-016 해결은 Native fake/compile 범위이며 실제 플랫폼·실 Backend 동시 401은 아직 미실행이다.
 - 커밋 준비: iOS 공유 refresh·요청 재시도·StoreKit proof idempotency 및 fake 시험을 저장한다. 외부 인증 대기는 유지한다.
+
+### [P09-T03] R16/R18 Provider fake 회귀 시작
+- Google/Apple 취소 시 세션 미저장, iOS 동시 10개 요청 401의 단일 refresh, Android 10개 호출의 직렬화와 단일 refresh를 전용 DB 포함 auth-regression으로 재실행한다. 실 Provider 계정은 사용하지 않는다.
+- `artifacts/auth-regression-qp1sjplw` 전용 DB `gamebridge_ci_064dab9080`의 backend 6+2·Android fake 17·Swift fake 22 PASS/skip 0. R16/R18을 synthetic Provider 범위로 연결한다. Android는 10개 호출을 직렬화해 실제 401은 1개이고, iOS는 10개 401이 1회 refresh를 공유한다. 실제 Provider는 미검증이다.
+### P09-T03 R16/R18 mapping 검증 시작
+- R16/R18 manifest·음성·원장 검사 통과. P04-T04의 실 Backend 동시 만료·실기기 검증은 별개로 PARTIAL이다.
+- 커밋 준비: Provider fake assertion과 evidence만 연결한다.

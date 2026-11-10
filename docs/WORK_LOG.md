@@ -1727,3 +1727,10 @@
 - core/bridge 단위 시험 및 compile을 강제 재실행한다.
 - Android core 전체 및 bridge unit·AAR compile 48개 task 강제 재실행 통과. fake HTTP에서 열린 연결 logout 지연 회귀 확인. 실 Backend/Unity player는 미검증이다.
 - 커밋 준비: Android 등록·session epoch 가드·종료 수명주기를 저장한다. iOS 및 실제 local E2E가 남아 BUG-014 OPEN 유지.
+### P06-T05 iOS 스트림 transport 시작
+- 승인된 연결 확인·재시도 정책을 iOS LOCAL_MOCK에도 적용한다. redirect 거부, bounded UTF-8 SSE 파싱과 token 비노출을 유지한다. 먼저 parser 및 transport를 구현한다.
+### P06-T05 iOS transport 검증 시작
+- Swift package compile 및 incremental SSE parser fake 시험을 실행한다. 실제 URLSession 스트림과 Native lifecycle은 아직 미검증이다.
+- Swift incremental parser 단위 시험 통과. URLSession 테스트 설정 주입을 추가해 합성 인증 응답의 실제 AsyncBytes 경계를 확인한다.
+- Swift SSE parser와 `URLProtocol` 합성 인증 응답을 사용한 실제 URLSession AsyncBytes 시험 통과. iOS simulator/device·서버 및 Unity 경계는 미검증이다.
+- 커밋 준비: 독립 iOS transport와 fake 시험만 저장한다. 등록 수명주기 및 E2E가 남아 BUG-014 OPEN이다.

@@ -601,3 +601,10 @@
 - Play adapter fake test/compile partial 결과를 보존하면서 사용자에게 기기별 증빙 검증 동시성을 문의한 상태다. 선택 없는 production 구성은 구매 UI를 시작하지 않는다.
 - Play adapter에서 client `consumeAsync`·`acknowledgePurchase` 호출이 없음을 소스 검사(종료 0). Billing 9.1 의존성을 포함한 `:sample-app:assembleDebug` 종료 0. 샘플은 아직 LOCAL_MOCK이며 실제 Play UI와 상품 조회를 실행하지 않았다.
 - 커밋 전: Play Billing 실제 gateway와 fake 경계 검증만 포함. 사용자 검증 동시성 결정, 실제 서버 verifier/sink·binding API·consumer 연결 및 실제 Play 테스트가 남아 P05-T02 PARTIAL/WAITING_USER 유지.
+
+### [P05-T03] 시작 — 2026-11-10 Asia/Seoul
+- 실제 StoreKit 2 경계를 작성한다. 서버 검증 연결 및 기기별 검증 동시성 결정 전 구매 UI를 차단하며, 실제 Apple 거래와 로컬 테스트를 구분한다.
+- StoreKit 실제 API 경계 초안을 작성했다. 컴파일 전이며, 서버 sink·검증 동시성 미설정 시 구매를 차단한다. 이제 Swift 빌드를 확인한다.
+- `swift test --package-path ios` 종료 0: 26건 중 23 통과, local Backend opt-in 3 skip. StoreKit API 컴파일 확인이며 거래 실행 증거가 아니다. grant/account/transaction 경계 단위시험을 추가해 재검증한다.
+- StoreKit grant 경계 단위시험 1건 통과: account 전환·transaction 불일치 거부와 JWS 문자열 정제 확인. StoreKit 실제 거래 시험이 아니다.
+- 커밋 전: StoreKit API 호출 및 grant 경계만 부분 구현. .storekit 구성·scheme·실거래·server sink·검증 동시성 정책은 미완료. 동시성 한도 초과 시 미완료 거래는 추후 복구가 필요하고 자동 재시도는 미구현이다. P05-T03 PARTIAL을 유지한다.

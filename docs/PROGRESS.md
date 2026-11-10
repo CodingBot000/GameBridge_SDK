@@ -16,7 +16,7 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 37 / IN_PROGRESS 25 / IMPLEMENTED 2 / BLOCKED 0
+- 구현: NOT_STARTED 36 / IN_PROGRESS 26 / IMPLEMENTED 2 / BLOCKED 0
 - 로컬 검증: NOT_RUN 38 / PASS 2 / FAIL 0 / PARTIAL 24 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
@@ -61,7 +61,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P04-T05 | 인증 Native·Unity 소비자 통합 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
 | P05-T01 | 구매 상태·account binding 계약 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P05-T01 | - |
 | P05-T02 | 실제 Google Play Billing adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T02 | USER-BILLING-GOOGLE, USER-VERIFY-CONCURRENCY |
-| P05-T03 | StoreKit 2·로컬 .storekit 시나리오 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-APPLE |
+| P05-T03 | StoreKit 2·로컬 .storekit 시나리오 | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T03 | USER-BILLING-APPLE, USER-VERIFY-CONCURRENCY |
 | P05-T04 | 실제 Google·Apple 구매 검증 서버 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
 | P05-T05 | 지급 원자성·동시성·서버 finalizer 연결 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P05-T06 | Native 복구·store finish·timeout 이후 처리 | NOT_STARTED | NOT_RUN | N/A | - | - |

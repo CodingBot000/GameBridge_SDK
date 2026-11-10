@@ -2188,3 +2188,14 @@
 ### P09-T03 R16/R18 mapping 검증 시작
 - R16/R18 manifest·음성·원장 검사 통과. P04-T04의 실 Backend 동시 만료·실기기 검증은 별개로 PARTIAL이다.
 - 커밋 준비: Provider fake assertion과 evidence만 연결한다.
+
+### [P09-T03] R19 refresh replay 검증 시작
+- 전용 local 서버에서 실제 HTTP로 refresh rotation 후 이전 token 재사용, 동일 family 폐기, 다른 family 보존 및 재로그인을 확인한다. 기존 default DB를 직접 수정하는 smoke 경로는 사용하지 않는다.
+### P09-T03 refresh replay HTTP 검증 시작
+- 새 local DB와 loopback 서버를 만들고 Native 실행 opt-in 환경에서만 자체 생성 세션을 시험한다. 기존 세션은 건드리지 않는다.
+- 전용 DB `gamebridge_ci_86c05d06d1` HTTP 시험에서 오래된 refresh 재사용 후 해당 family의 access/refresh가 거부되고, 다른 family와 재로그인은 유지됐다. Python 최적화 옵션이 assertion을 제거해 false PASS를 만들지 않도록 명시적 검증 함수로 보강한다.
+### P09-T03 refresh replay 최적화 모드 음성 검증 시작
+- 명시적 optimized-mode local HTTP 재시험(`gamebridge_ci_58132ab74a`)과 잘못된 응답을 주는 별도 synthetic 서버 음성 검증 모두 의도대로 통과했다. R19를 local mock HTTP 범위로 연결하고 strict에 필수 lane을 추가한다.
+### P09-T03 R19 mapping 검증 시작
+- R19 assertion·manifest 및 음성 검사 통과, 나머지 17 scenario는 PARTIAL이다. 실제 Apple/Google 계정 검증은 포함되지 않는다.
+- 커밋 준비: 격리 local HTTP replay test와 fail-closed aggregate 연결만 저장한다.

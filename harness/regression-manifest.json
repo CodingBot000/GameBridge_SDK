@@ -163,6 +163,14 @@
       ],
       "mode": "ISOLATED_ARTIFACT_MUTATION",
       "platform": "iOS packaging"
+    },
+    "session-replay": {
+      "command": [
+        "python3",
+        "harness/run-session-replay.py"
+      ],
+      "mode": "ISOLATED_LOCAL_MOCK_HTTP",
+      "platform": "Backend/PostgreSQL"
     }
   },
   "scenarios": [
@@ -724,17 +732,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R19"
       ],
       "candidateSuites": [
-        "auth-regression"
+        "session-replay"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/auth-synthetic-scenarios.md",
+      "note": "Fresh local-mock sessions and HTTP; no real provider account.",
+      "assertions": [
+        {
+          "suite": "session-replay",
+          "testFile": "harness/run-session-replay.py",
+          "testCase": "rotated['refreshToken']"
+        },
+        {
+          "suite": "session-replay",
+          "testFile": "harness/run-session-replay.py",
+          "testCase": "token=other['accessToken']"
+        }
+      ]
     },
     {
       "id": "R20",

@@ -5,3 +5,5 @@
 전용 sandbox DB `gamebridge_ci_f89c70feaa`에서 `AuthFlowDatabaseTest` 1건 및 `AuthHttpIntegrationTest` 1건이 통과했다. 잘못된 nonce 후 challenge가 소비되지 않고 정상 재시도가 가능하며 이후 재사용은 거부된다. 이름이 없는 Apple 최초 인증과 이름이 있는 후속 인증, 다시 이름 없는 인증은 동일 subject 계정을 유지했다. sandbox의 개발 인증 endpoint는 404이고 Mock identity 교환은 401이다. 테스트는 합성 서명키와 테스트 전용 DB를 사용하며 실제 Google/Apple 계정 검증이 아니다.
 
 `artifacts/auth-regression-qp1sjplw/result.json`: 전용 sandbox DB `gamebridge_ci_064dab9080`에서 backend synthetic 6+2건, Android fake 17건, Swift fake 22건 모두 PASS/skip 0. Google·Apple 취소는 `CANCELED`와 저장 세션 없음으로 처리됐다. iOS에서 인증된 작업 10건의 synthetic 401이 refresh 1회를 공유하고 1회 재시도했으며, Android는 동시 10개 작업을 session lock으로 직렬화해 최초 401 한 건 후 refresh 1회로 처리했다. 양 플랫폼 proof 요청은 재시도 시 동일 idempotency key를 사용했다. 실제 기기, Provider token 및 실 네트워크 401 동시성은 포함하지 않는다.
+
+R19는 전용 local DB `gamebridge_ci_58132ab74a`와 loopback HTTP에서 이전 refresh token 재사용이 해당 family의 회전된 access/refresh를 모두 폐기하고, 별도 family와 새 로그인이 유효함을 확인했다. `PYTHONOPTIMIZE=1`에서도 유효하지 않은 synthetic 서버 응답을 실패로 처리했으며 기존 사용자 DB는 직접 변경하지 않았다. 실제 Google/Apple 로그인이 아니다.

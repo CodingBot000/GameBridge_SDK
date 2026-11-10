@@ -2004,3 +2004,8 @@
 - Native 저장소 identity 변경 후 새 전용 DB에서 Android·Swift local Mock 발송→수신을 재실행한다. Unity player 및 FCM/APNs는 포함하지 않는다.
 - `artifacts/mock-push-e2e-1sbjzmqn/result.json`: 전용 DB `gamebridge_ci_8353e458cb`에서 Android 및 Swift Native 각 1건 PASS/skip 0. Unity player·원격 발송은 미검증이다.
 - 커밋 준비: 재검증 결과와 원장만 기록한다.
+
+### [P10-T04] 최신 소스 재패키징 시작 및 검증 준비
+- 저장소 alias 보호, Mock push, Xcode local recovery 및 Unity iOS hook을 포함한 현재 소스에서 Android·iOS·UPM을 새 경로로 재생성하고 별도 consumer/checksum을 확인한다. Unity import/player 및 실제 스토어는 포함하지 않는다.
+- source HEAD `6a3fea5`에서 Android Maven·별도 R8 consumer 45 task 강제 재실행, iOS device/simulator XCFramework archive·simulator Swift 별도 link·device C ABI symbol 4개, UPM staging 110개 무결성 통과. 전체 192개 산출물 SHA-256/크기 재계산 결과 `docs/evidence/final-artifact-manifest.json`. 제품 소스는 커밋된 상태, 진행 문서는 빌드 당시 수정 중이었다. Unity import/IL2CPP·실기기·실스토어는 미실행이다.
+- 커밋 준비: 새 산출물 manifest와 확인 범위만 기록한다. 산출물은 로컬에 보존하며 공개 배포하지 않는다.

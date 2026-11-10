@@ -129,3 +129,19 @@
 - `./android/gradlew -p android :sdk-core:test` 종료 0: Bridge parser 시험 2건을 포함한 테스트 통과. 정상 요청/보류 응답 및 잘못된 버전·operation·오류 응답·다른 요청 ID·잘못된 UTF-8·크기 초과를 확인. Swift/C# 파서와 Native transport는 미구현.
 - `swift test --package-path ios` 종료 0: XCTest 7건 중 Bridge 검사 2건 통과. 잘못된 UTF-8, 크기, 버전, operation, 실패 envelope 및 다른 request ID 거부 확인. macOS 결과이며 C ABI·iOS 기기 왕복은 미검증.
 - 커밋 직전: Bridge schema, fixture, Kotlin/Swift 파서와 로컬 테스트만 포함. C# 파서·이벤트 전체 계약·실제 transport 미구현이므로 P01-T02는 IN_PROGRESS/PARTIAL.
+
+### [P02-T01] 시작 — 2026-11-10 Asia/Seoul
+- P00-T03/P01-T01이 일부 미완료이나 독립적인 PostgreSQL·Flyway 기동 기반을 구현한다. 기존 개인 DB는 사용하지 않는다.
+- `./backend/gradlew -p backend test` 종료 0: 기존 profile 단위 시험 2건 통과, 신규 DB migration/HTTP 실행은 아직 미검증.
+- `lsof -nP -iTCP:54329 -sTCP:LISTEN` 종료 1: 기동 전 해당 포트 listener 없음. `docker compose -p gamebridge-sdk-local -f infra/compose.yaml up -d --wait` 종료 0: 전용 PostgreSQL 컨테이너 healthy. 전용 named volume은 보존하며 다른 서비스 데이터는 건드리지 않았다. 개발 전용 테스트 비밀번호를 해당 명령 환경에만 사용.
+- `SPRING_PROFILES_ACTIVE=local-mock ... ./backend/gradlew -p backend bootRun` 실행 중: 로그에서 PostgreSQL 17.6 연결과 Flyway V1 최초 적용 및 127.0.0.1:18080 서버 기동 관측. HTTP health와 재시작 확인은 이어서 실행한다.
+- `curl --fail --silent --show-error -i http://127.0.0.1:18080/health` 종료 0: HTTP 200, UP 및 X-Request-Id 확인. readiness/인증·구매 검증은 아님.
+- 테스트 서버를 Ctrl-C로 종료(130), 같은 전용 DB에서 재기동해 migration 멱등성을 확인한다.
+- 같은 전용 DB에서 `bootRun` 재실행: Flyway가 migration 1건 검증 후 schema version 1, 추가 적용 불필요로 보고하고 서버 기동. 현재 프로세스 실행 중; 종료 코드는 아직 없음.
+- 재기동 후 `curl --fail --silent --show-error http://127.0.0.1:18080/health` 종료 0, UP 확인. `scripts/run-demo-backend.sh`와 volume 보존 정책 작성; 스크립트 자체는 아직 실행 전.
+- 재기동 테스트 서버 Ctrl-C 종료 130. 표준 실행 스크립트에서 같은 DB를 사용해 재시작을 확인한다.
+- `GAMEBRIDGE_DB_PASSWORD=<local-test> bash scripts/run-demo-backend.sh` 실행: 전용 DB healthy 확인 후 local-mock 서버 기동 및 migration up-to-date 로그 관측. 스크립트는 서버 프로세스로 유지되므로 아직 종료 코드 없음.
+- 스크립트로 기동한 서버의 `curl --fail --silent --show-error http://127.0.0.1:18080/health` 종료 0: UP. 단순 health만 확인했다.
+- 스크립트 foreground 서버를 Ctrl-C로 종료(130). 전용 DB는 데이터 volume을 보존하고 컨테이너만 정지한다.
+- `docker compose -p gamebridge-sdk-local -f infra/compose.yaml stop` 종료 0. 전용 volume과 데이터는 삭제하지 않았다.
+- 커밋 전: local DB·migration·health만 검증. 요청 입력 검증과 오류 매핑 완성, 인증·구매·푸시 및 실제 Provider는 아직 미구현이므로 P02-T01은 PARTIAL 유지.

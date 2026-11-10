@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P01 / P01-T02
+- 현재 Phase / Task: P02 / P02-T01
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
-- 현재 작업 트리 상태: 추적 파일 커밋됨; Unity 생성 실패의 미검증 Demo와 Python 캐시가 미추적 상태
+- 현재 작업 트리 상태: P02-T01 부분 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P01-T02 C# 파서·이벤트 계약 및 transport 구현; P00 잔여 작업 병행
-- 불가피한 세션 종료 시 재개 행동: P01-T01 잔여 모델·DTO·fixture 및 P00-T03~T05 미완료를 확인하고 계속 개발
+- 바로 다음 행동: P02-T01 공통 입력 오류 처리 완성 후 P02-T02 인증·세션 구현
+- 불가피한 세션 종료 시 재개 행동: P02-T01 오류 처리와 P02-T02 인증 구현을 진행하고 P00·P01 미완료도 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 57 / IN_PROGRESS 6 / IMPLEMENTED 1 / BLOCKED 0
-- 로컬 검증: NOT_RUN 57 / PASS 1 / FAIL 0 / PARTIAL 6 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 56 / IN_PROGRESS 7 / IMPLEMENTED 1 / BLOCKED 0
+- 로컬 검증: NOT_RUN 56 / PASS 1 / FAIL 0 / PARTIAL 7 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -42,7 +42,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P01-T03 | SDK 상태기계·Provider interface | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P01-T04 | 결정적인 Fake Provider | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P01-T05 | Native HTTP·저장소·세션 소유권 기반 | NOT_STARTED | NOT_RUN | N/A | - | - |
-| P02-T01 | Backend·PostgreSQL·migration 기동 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P02-T01 | Backend·PostgreSQL·migration 기동 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T01 | - |
 | P02-T02 | Mock 사용자·opaque 세션·갱신 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P02-T03 | 상품·재화·구매 원장 서비스 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P02-T04 | purchase 재시도·finalization queue | NOT_STARTED | NOT_RUN | N/A | - | - |

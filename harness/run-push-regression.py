@@ -69,7 +69,20 @@ def main() -> int:
     else: results.append(common.item('upm-staging-integrity',2,(0,0,0)))
     code, text, _ = common.run(['python3','harness/check-package-negative.py'],env,output/'package-negative.log')
     results.append(common.item('package-negative-fixtures',code,(1 if 'Package negatives PASS:' in text else 0,0,0)))
-    results.append({'suite':'local-push-delivery-e2e','status':'NOT_IMPLEMENTED','exitCode':2,'tests':0,'failures':0,'skipped':0})
+    if env.get('GAMEBRIDGE_RUN_MOCK_PUSH_HARNESS') == 'true':
+        code, text, _ = common.run(['python3','harness/run-mock-push-e2e.py','--run-local'],env,output/'mock-e2e.log')
+        match = re.search(r'Evidence directory: (artifacts/mock-push-e2e-[A-Za-z0-9_.-]+)', text)
+        counts = (0,0,0)
+        if match:
+            try:
+                report_path = (ROOT/match.group(1)/'result.json').resolve()
+                if report_path.is_relative_to(artifacts.resolve()):
+                    data = json.loads(report_path.read_text(encoding='utf-8'))
+                    head = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+                    if data.get('sourceHead') == head and data.get('status') == 'PASS' and len(data.get('suites',[])) == 2 and all(x.get('status') == 'PASS' for x in data['suites']): counts = (2,0,0)
+            except (OSError,ValueError,subprocess.CalledProcessError): pass
+        results.append(common.item('local-push-native-db-e2e',code,counts))
+    else: results.append(common.item('local-push-native-db-e2e',2,(0,0,0)))
     results.append({'suite':'unity-player-notifications','status':'DEFERRED_ENV','exitCode':2,'tests':0,'failures':0,'skipped':0})
     head = subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()
     report = {'scope':'push-and-package-partial','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',

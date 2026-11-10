@@ -1755,3 +1755,13 @@
 - `harness/run-mock-push-e2e.py --run-local`은 새 DB·role을 만들고 기존 데이터는 삭제하지 않는다. 생성된 synthetic key는 출력하지 않으며 local Backend→Android 및 Swift Native receiver를 시험한다. Unity 및 실제 원격 발송은 포함하지 않는다.
 - `python3 harness/run-mock-push-e2e.py --run-local` 종료 0, `artifacts/mock-push-e2e-imlgc2et/result.json`: 전용 DB `gamebridge_ci_003a23e777`, Android·Swift Native 각 1건 PASS. synthetic key, local-mock만 사용했고 Unity player·실기기·원격 푸시는 미검증이다. 테스트용 DB와 role은 보존한다.
 - 커밋 준비: opt-in E2E harness, 양 Native 시험 및 실제 확인 범위 문서만 저장한다. BUG-014는 Unity lifecycle 검증까지 OPEN이다.
+
+### [P09-T05] Mock 푸시 Native E2E 하네스 재개
+- 새 전용 DB E2E를 opt-in 회귀 lane으로 연결한다. 미실행은 DEFERRED_ENV, Unity player는 별도로 미실행으로 유지한다. 합성 메시지와 실제 원격 푸시를 구분한다.
+### P09-T05 회귀 집계 검증 시작
+- opt-in이 없으면 Native DB E2E가 DEFERRED_ENV이고 Unity lane이 별도로 남는지 확인한다. DB를 자동 생성하지 않는다.
+- opt-in 없는 `harness/run-push-regression.py` 종료 2, `artifacts/push-regression-bgnyz5k6`: Native DB E2E와 Unity lane DEFERRED_ENV, fake 시험은 PASS. DB 자동 생성은 없었다.
+### P09-T05 opt-in 집계 검증 시작
+- 명시 opt-in으로 전용 DB E2E를 다시 실행하고 두 Native 시험의 비skip·source head 일치가 집계에 반영되는지 확인한다. Unity lane은 미실행으로 둔다.
+- opt-in 집계 `artifacts/push-regression-zbx_69dj/result.json`: Native local DB E2E 2건 PASS, 기존 fake·UPM checksum PASS, sandbox DB·iOS host·Unity player는 DEFERRED_ENV, 전체 종료 2. 이전 UPM staging은 최신 Mock push binary를 포함하지 않아 체크섬 자체만 확인했다.
+- 커밋 준비: fail-closed 조건으로 Native E2E lane을 연결하고 Unity lane 미실행을 유지한다.

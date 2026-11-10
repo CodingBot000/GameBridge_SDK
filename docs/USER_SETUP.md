@@ -118,7 +118,7 @@ Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, se
 
 논리 상품: `coins_100`(consumable), `premium_unlock`(non-consumable). 실제 store product ID가 다르면 config mapping을 수정한다. 가격은 store product details에서 읽으며 client hard-coded price를 구매 검증에 쓰지 않는다.
 
-서버 자격증명: 필요한 범위의 Google Play Developer API 접근 권한과 credential 파일 경로. 보류 중인 Google 구매 증빙 암호화에는 별도의 Base64 32바이트 `SERVER_PURCHASE_ENCRYPTION_KEY`가 필요하며 운영 비밀 저장소에서 안정적으로 관리한다. 계획 변수는 `GOOGLE_APPLICATION_CREDENTIALS` 또는 기능별 별도 credential path, `GOOGLE_PLAY_PACKAGE_ALLOWLIST`, product mapping이다. FCM 권한이 있다고 Play API 권한도 있다고 가정하지 않는다. 최소 권한 원칙으로 필요한 앱 접근을 설정한다.
+서버 자격증명: 필요한 범위의 Google Play Developer API 접근 권한과 credential 파일 경로. 보류 중인 Google 구매 증빙 암호화에는 별도의 Base64 32바이트 `SERVER_PURCHASE_ENCRYPTION_KEY`가 필요하며 운영 비밀 저장소에서 안정적으로 관리한다. 현재 verifier 설정은 `GAMEBRIDGE_GOOGLE_PURCHASE_CONFIG_JSON`에 앱 ID별 `packageName`, `productIds`, `credentialPath`를 명시한다. credential은 해당 앱 권한을 가진 서비스 계정 파일이어야 하며, 파일 내용을 채팅이나 Git에 넣지 않는다. 설정이 없으면 ambient credential을 자동으로 사용하지 않고 CONFIG_REQUIRED가 된다. FCM 권한이 있다고 Play API 권한도 있다고 가정하지 않는다. 최소 권한 원칙으로 필요한 앱 접근을 설정한다.
 
 현재 준비: Android Play Billing 9.1 실제 연결·상품 조회·구매 UI·callback·복구 gateway와 fake 경계 시험이 있다. 공식 Google 서버 조회 verifier 경계는 있으나 신규 인증 세션의 app scope 기반 binding 조회가 추가됐지만 Native 연결·proof sink·원장 연결과 샘플/Unity 통합이 미완료라 코드 준비는 BLOCKED이며, 이 상태에서는 실제 구매 UI를 시작하지 않는다.
 

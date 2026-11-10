@@ -865,3 +865,6 @@
 - fake Publisher→Google grant 경쟁 시험 통과. unknown product를 grant 없이 거부하는 경계도 재확인한다.
 - fake Publisher→Google grant 격리 DB 시험 재실행 통과: 동일 거래 10건 중 지급 1건, unknown product 거부. 실제 Play 서버 또는 worker는 호출하지 않았다.
 - 커밋 전: 내부 검증/지급 조립과 fake DB 시험만 포함한다. 서버 credential 설정·HTTP·완료 후 증빙 정책·worker는 미완료다.
+- Google 공식 Publisher verifier를 앱별 package·상품·명시 service account 경로로만 lazy 구성하는 registry를 작성했다. 누락 시 ambient credential을 읽지 않고 실패하는지 확인한다.
+- Google registry 누락·잘못된 credential 경로 fail-closed 단위시험 1건 통과. 실제 service account/Publisher 네트워크는 사용하지 않았다.
+- 커밋 전: lazy configuration과 단위시험만 포함한다. 공개 verify endpoint·finalizer worker·실 Play와 완료 후 증빙 정책은 미완료다.

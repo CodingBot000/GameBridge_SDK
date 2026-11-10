@@ -1803,3 +1803,7 @@
 - 개발 모드 설정·초기화·Native account 매핑을 합성 transport로 확인하고 개발키 누락과 플랫폼 조건을 검사한다.
 - Swift 합성 Xcode bridge/account 시험 2건 및 독립 C# fake mode/개발키 전달 시험 통과. simulator framework compile과 4개 managed compile은 성공했으나 StoreKit 실제 거래·Unity player는 미실행이다.
 - 커밋 준비: Xcode 모드 Unity 설정·iOS bridge 및 fake 경계만 저장한다. 실제 로컬 거래 실패/환경 대기는 그대로 둔다.
+### P05-T03 iOS 18.6 격리 simulator StoreKit 재시험 시작
+- 이전 iOS 26.5 SKTestSession Code 3 실패를 유지한 채 새로 생성한 전용 iOS 18.6 simulator에서 기존 상품 조회 시험을 재실행한다. 사용자 기존 simulator 데이터와 거래는 수정·삭제하지 않는다. 이 시험은 구매/서버 지급 검증이 아니다.
+- 새 iOS 18.6 전용 simulator `D7C33BEE-66F5-4C37-A896-8649CE20A9F7`에서 `GameBridgeStoreKit` 상품 조회 시험 1건 PASS, skip 0: 두 상품 및 사용자 승인 시험 가격 확인. 결과 `artifacts/storekit-p05-18-1794332423.xcresult`. iOS 26.5의 기존 실패는 별도 OPEN으로 유지하며 구매·취소·대기·서버 지급은 이 시험에 포함되지 않는다. 전용 simulator는 보존한다.
+- 커밋 준비: 대체 simulator의 제한된 상품 조회 증거와 현재 구현 상태를 기록한다. P05-T03 전체 FAIL과 BUG-013 OPEN은 유지한다.

@@ -1140,3 +1140,7 @@
 - Android bridge dispatcher에 검증된 요청만 받는 provider 연결점, 배열 결과 및 정제된 SDK 오류 전달을 추가했다. 실제 handler는 아직 연결 전이며 단위 검증을 시작한다.
 - 검증: `android/gradlew -p android :sdk-core:test --tests com.gamebridge.BridgeDispatcherTest` 종료 0. 배열 결과, 요청 상관관계, 오류 재시도 표시, 잘못된 요청 미전달 및 예외 메시지 비노출 확인. 실제 provider 연결과 Unity 실행은 아직 미검증이다.
 - 커밋 전: Android bridge handler 경계와 해당 단위 시험만 포함하며 P03-T03은 PARTIAL로 유지한다.
+- 다음 하위 작업 시작: Android JNI에서 로컬 mock client를 실제 Backend에 연결한다. 인증 정보는 Native 저장소에 남기고, 개발키는 명시적 LOCAL_MOCK 설정으로만 전달한다. 실제 Google 및 iOS 연결은 이 작업의 검증으로 간주하지 않는다.
+- 사용자 요청으로 안전한 지점에서 일시 중단. 직전 로컬 커밋 0b3502b는 Android bridge의 검증된 handler 경계와 단위 시험만 포함한다. 다음 LOCAL_MOCK handler 및 Unity 설정 전달은 코드 착수 전이며, 기존 BridgeFacade에는 handler가 아직 연결되지 않아 Unity Native 초기화는 여전히 미지원이다.
+- 재개 시 AGENTS.md, START_HERE.md, DEVELOPMENT_PLAN.md, 진행 원장과 git 상태를 다시 확인한다. 미추적 unity/Demo 및 scripts/__pycache__와 기존 artifacts/DB 데이터는 보존한다. 실제 플랫폼 인증·StoreKit 환경 대기와 P09~P11 미완료 상태는 그대로다. 자동 push/배포는 하지 않았다.
+- 커밋 전: 일시 중단 및 재개 지점 기록만 포함한다.

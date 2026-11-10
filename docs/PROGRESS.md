@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P03 / P03-T03, P03-T04
+- 현재 Phase / Task: 일시 중단 / P03-T03 다음 하위 작업
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
-- 현재 작업 트리 상태: 코드 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적
+- 현재 작업 트리 상태: bridge 연결점 코드 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 검증된 Android bridge 연결점 커밋 후 Native LOCAL_MOCK handler 연결
-- 불가피한 세션 종료 시 재개 행동: 미완료 P05~P08 구현 및 P09~P11 진행, 실제 플랫폼과 mock 증거 분리
+- 바로 다음 행동: Android LOCAL_MOCK bridge handler와 Unity 설정 전달 구현 (아직 코드 미착수)
+- 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 확인 후 Android LOCAL_MOCK bridge handler 구현부터 재개하고, iOS/실 Provider 연결 및 미완료 P00~P08, P09~P11을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 

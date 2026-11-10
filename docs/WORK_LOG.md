@@ -1646,3 +1646,10 @@
 - 세션 격리 추가 시험의 첫 실행은 실패했다. 테스트 fake가 shutdown에서도 예외를 발생시켜 종료 상태가 되지 않은 원인을 확인했으며, fake의 정상 shutdown을 명시한 뒤 재실행한다. Swift 시험은 앞선 명령 실패로 이번 조합에서 미실행이다.
 - fake 수정 후 Android dispatcher 3건과 Swift C bridge 3건 통과. 두 플랫폼에서 종료 후 조회 차단 및 새 세션 ring 초기화를 확인했다. 실제 Unity는 미실행.
 - 커밋 준비: iOS 연결과 Android/iOS 세션 격리만 포함하며 Unity 공개 API가 남아 BUG-015는 OPEN이다.
+### P07-T01 BUG-015 Unity 경계 시작
+- 기존 동기 진단 API를 유지하면서 Native typed events의 별도 비동기 조회를 추가한다. 허용 enum·UUID·시각만 수용하고 범위를 벗어난 응답은 오류 처리한다.
+### P07-T01 BUG-015 Unity 검증 시작
+- 네 조건부 managed compile과 독립 .NET fake 경계를 실행한다. Unity Editor 및 실제 Native 연동은 라이선스 문제로 별도 미실행이다.
+- 네 조건부 compile은 통과했으나 Editor fake에서 사용하지 않는 필드 경고가 1건 발생했다. fake 응답의 기존 상태 필드를 보존하고 숫자 문자열 enum도 거부하도록 보강한 뒤 재검증한다.
+- Native typed event 조회, 200개 상한, UUID·enum 검증, offline 빈 목록 및 숫자 enum 거부를 독립 .NET fake로 확인했다. 네 조건부 managed compile과 API baseline 비교 통과. Unity player 실제 Native 경계는 ENV-002로 미실행이므로 BUG-015 OPEN 유지.
+- 커밋 준비: Unity 공개 비동기 조회와 fake 시험. 기존 P10 패키지는 이 변경 이전이므로 재패키징 필요.

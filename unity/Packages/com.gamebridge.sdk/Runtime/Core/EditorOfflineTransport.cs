@@ -76,7 +76,7 @@ namespace GameBridge.Core
                         break;
                     case "push.unregister": pushRegistered = false; result = new JObject { ["registered"] = false }; break;
                     case "config.get": result = new JObject { ["revision"] = "0", ["maintenanceEnabled"] = false, ["message"] = JValue.CreateNull(), ["expiresAt"] = JValue.CreateNull(), ["source"] = "DEFAULT" }; break;
-                    case "diagnostics.get": result = new JObject { ["mode"] = "EDITOR_OFFLINE", ["provider"] = "FAKE", ["pushRegistered"] = pushRegistered }; break;
+                    case "diagnostics.get": result = new JObject { ["events"] = new JArray(), ["pushRegistered"] = pushRegistered }; break;
                     default: error = "UNSUPPORTED_OPERATION"; break;
                 }
                 var response = new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = request["sdkSessionId"], ["kind"] = "response", ["requestId"] = request["requestId"], ["operation"] = operation,

@@ -35,6 +35,17 @@ namespace GameBridge
         internal DiagnosticsSnapshot(ProviderMode? mode, int pending, int ignored, DateTimeOffset snapshotAt)
         { Mode = mode; PendingCount = pending; IgnoredMessages = ignored; SnapshotAt = snapshotAt; }
     }
+    public enum DiagnosticKind { INITIALIZE, AUTH, PURCHASE, PUSH, SHUTDOWN }
+    public enum DiagnosticOutcome { STARTED, SUCCEEDED, FAILED, PENDING }
+    public sealed class NativeDiagnosticEvent
+    {
+        public DiagnosticKind Kind { get; }
+        public DiagnosticOutcome Outcome { get; }
+        public DateTimeOffset Timestamp { get; }
+        public Guid? RequestId { get; }
+        internal NativeDiagnosticEvent(DiagnosticKind kind, DiagnosticOutcome outcome, DateTimeOffset timestamp, Guid? requestId)
+        { Kind = kind; Outcome = outcome; Timestamp = timestamp; RequestId = requestId; }
+    }
     public sealed class SdkStatus
     {
         public string State { get; }
@@ -124,6 +135,29 @@ namespace GameBridge
         private SdkStatus Snapshot() => new SdkStatus(state, lastMode, initializedAt, snapshotAt, capabilities);
         public SdkCapabilities GetCapabilities() { lock (gate) return capabilities; }
         public DiagnosticsSnapshot GetDiagnostics() { lock (gate) return new DiagnosticsSnapshot(lastMode, registry?.PendingCount ?? 0, (registry?.IgnoredMessages ?? 0) + droppedPushEvents, DateTimeOffset.UtcNow); }
+        public async Task<IReadOnlyList<NativeDiagnosticEvent>> GetNativeDiagnosticsAsync(CancellationToken cancellation = default)
+        {
+            var result = await Invoke("diagnostics.get", new JObject(), false, cancellation);
+            if (!(result is JObject obj) || !(obj["events"] is JArray events) || events.Count > 200)
+                throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
+            var parsed = new List<NativeDiagnosticEvent>(events.Count);
+            foreach (var item in events)
+            {
+                if (!(item is JObject value) || value["kind"]?.Type != JTokenType.String || value["outcome"]?.Type != JTokenType.String ||
+                    value["timestamp"]?.Type != JTokenType.String ||
+                    !Enum.TryParse((string)value["kind"], out DiagnosticKind kind) || !Enum.IsDefined(typeof(DiagnosticKind), kind) || kind.ToString() != (string)value["kind"] ||
+                    !Enum.TryParse((string)value["outcome"], out DiagnosticOutcome outcome) || !Enum.IsDefined(typeof(DiagnosticOutcome), outcome) || outcome.ToString() != (string)value["outcome"] ||
+                    !DateTimeOffset.TryParse((string)value["timestamp"], System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind, out var timestamp))
+                    throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
+                Guid? requestId = null;
+                if (value["requestId"] == null || (value["requestId"].Type != JTokenType.Null &&
+                    (value["requestId"].Type != JTokenType.String || !Guid.TryParseExact((string)value["requestId"], "D", out _))))
+                    throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
+                if (value["requestId"].Type == JTokenType.String) requestId = Guid.Parse((string)value["requestId"]);
+                parsed.Add(new NativeDiagnosticEvent(kind, outcome, timestamp, requestId));
+            }
+            return parsed.AsReadOnly();
+        }
         public Task<InitResult> InitializeAsync(GameBridgeConfig value, CancellationToken cancellation = default)
         {
             if (cancellation.IsCancellationRequested) throw new SdkException("CANCELED");

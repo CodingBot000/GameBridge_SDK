@@ -210,6 +210,7 @@ internal static class Program
         facade.DetachHostPushDriver(hostDriver);
         await facade.UnregisterPushAsync(); Check((await facade.GetServiceConfigAsync()).source == "DEFAULT", "fake config");
         Check(facade.GetDiagnostics().PendingCount == 0, "diagnostic snapshot");
+        Check((await facade.GetNativeDiagnosticsAsync()).Count == 0, "offline native diagnostics");
         await facade.SignOutAsync(); await facade.ShutdownAsync(); await facade.ShutdownAsync();
         Check(facade.GetStatus().State == "SHUTDOWN", "facade shutdown");
         await facade.InitializeAsync(config); facade.Dispose();
@@ -221,6 +222,14 @@ internal static class Program
         var hostTransport = new HeldTransport(); var hostFacade = new GameBridge.GameBridgeClient(hostTransport);
         var hostInit = hostFacade.InitializeAsync(new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.PlatformSandbox, "https://example.invalid"));
         hostTransport.Reply(hostTransport.Requests[0], InitResponse("PLATFORM_SANDBOX")); await hostInit;
+        var diagnosticsTask = hostFacade.GetNativeDiagnosticsAsync();
+        hostTransport.Reply(hostTransport.Requests[hostTransport.Requests.Count - 1], new JObject { ["events"] = new JArray(new JObject {
+            ["kind"] = "AUTH", ["outcome"] = "FAILED", ["timestamp"] = "2026-11-10T00:00:00Z", ["requestId"] = Guid.NewGuid().ToString("D") }) });
+        Check((await diagnosticsTask)[0].Kind == GameBridge.DiagnosticKind.AUTH, "typed native diagnostics");
+        var malformedDiagnostics = hostFacade.GetNativeDiagnosticsAsync();
+        hostTransport.Reply(hostTransport.Requests[hostTransport.Requests.Count - 1], new JObject { ["events"] = new JArray(new JObject {
+            ["kind"] = "1", ["outcome"] = "FAILED", ["timestamp"] = "2026-11-10T00:00:00Z", ["requestId"] = JValue.CreateNull() }) });
+        await Expect("BRIDGE_PROTOCOL_MISMATCH", malformedDiagnostics);
         hostFacade.AttachHostPushDriver(hostDriver);
         Check((await hostFacade.RequestPushPermissionAsync()).provider == "APNS", "sandbox host permission");
         Check((await hostFacade.RegisterPushAsync()).tokenFingerprint == "abcdef123456", "sandbox host registration");

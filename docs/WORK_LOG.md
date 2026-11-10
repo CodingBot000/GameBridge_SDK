@@ -641,3 +641,9 @@
 - 사용자 선택인 기본 동시 1건이 두 거래의 서버 검증에 실제 적용되는지 fake sink로 확인한다. 실제 Play 결제는 실행하지 않는다.
 - Android fake sink 시험 통과: 첫 거래의 서버 응답을 보류한 동안 두 번째 검증이 시작되지 않고 첫 검증이 끝나면 시작한다. 전체 Android unit task 종료 0. 실제 Play와 서버 검증은 아니다.
 - 커밋 전: 기본 동시 1건 회귀 시험만 포함하며 P05-T02 실제 스토어·서버 연결은 PARTIAL/WAITING_USER로 유지한다.
+
+### [P06-T02] 시작 — 2026-11-10 Asia/Seoul
+- StoreKit 로컬 시험 가격 선택을 기다리는 동안 독립적인 APNs host forwarding을 구현한다. 실 APNs token·원격 발송은 사용자 설정/실기기 없이 완료로 기록하지 않는다.
+- APNs host adapter 초안과 샘플 delegate forwarding을 작성했다. permission은 명시 호출시에만 요청하며 completion handler를 호출한다. iOS simulator 빌드를 확인한다. 서버 등록 연결은 아직 없다.
+- iOS Simulator SDK의 GameBridgeSample Debug unsigned build 성공. 실제 알림 권한 UI, payload 주입, APNs token 및 원격 수신은 실행하지 않았다.
+- 커밋 전: APNs host forwarding·권한 API와 샘플 delegate의 completion 호출만 포함. 사용자 action UI·서버 token 연결·payload 검증·실 APNs는 미완료이므로 P06-T02 PARTIAL/WAITING_USER 유지.

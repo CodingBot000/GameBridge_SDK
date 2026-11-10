@@ -1,8 +1,34 @@
 import SwiftUI
 import UIKit
 import GameBridgeCore
+import GameBridgeApple
+import UserNotifications
 
-final class SampleAppDelegate: NSObject, UIApplicationDelegate {}
+final class SampleAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    private let push = ApplePushHostAdapter()
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        push.didRegister(deviceToken: deviceToken)
+    }
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        push.didFailRegistration()
+    }
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        push.received(userInfo: userInfo, opened: false)
+        completionHandler(.noData)
+    }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        push.received(userInfo: notification.request.content.userInfo, opened: false)
+        completionHandler([])
+    }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        push.received(userInfo: response.notification.request.content.userInfo, opened: true)
+        completionHandler()
+    }
+}
 
 @main
 struct GameBridgeSampleApp: App {

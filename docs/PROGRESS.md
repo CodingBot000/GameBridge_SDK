@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05 / P05-T04
+- 현재 Phase / Task: P06 / P06-T02
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P05-T04 진행 중; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P05-T04 실제 스토어 서버 검증 구현; P05-T04 서버 verifier 서비스 연결 계속
+- 바로 다음 행동: P05-T04 실제 스토어 서버 검증 구현; P06-T02 APNs host 전달 구현; P05 로컬 StoreKit 시험 가격 결정 대기
 - 불가피한 세션 종료 시 재개 행동: P04-T04/P04-T05부터 진행하고 P00~P03의 PARTIAL 항목을 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 35 / IN_PROGRESS 27 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 36 / PASS 2 / FAIL 0 / PARTIAL 26 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 34 / IN_PROGRESS 28 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 35 / PASS 2 / FAIL 0 / PARTIAL 27 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -67,7 +67,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P05-T06 | Native 복구·store finish·timeout 이후 처리 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P05-T07 | Unity·Native 상점 완성 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
 | P06-T01 | 실제 FCM 등록·수신·권한 adapter | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-PUSH-GOOGLE |
-| P06-T02 | Swift APNs 등록·Host forwarding | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-PUSH-APPLE |
+| P06-T02 | Swift APNs 등록·Host forwarding | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T02 | USER-PUSH-APPLE |
 | P06-T03 | Unity iOS Push Host Adapter | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-PUSH-APPLE |
 | P06-T04 | Backend FCM·APNs 실제 sender | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-PUSH-GOOGLE, USER-PUSH-APPLE |
 | P06-T05 | 수명주기·콜드스타트·클릭 라우팅 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-PUSH-GOOGLE, USER-PUSH-APPLE |

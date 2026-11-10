@@ -1707,3 +1707,9 @@
 - 동일 테스트 클래스의 기존 속도 제한·소유권 시험과 신규 스트림 및 heartbeat를 함께 실행한다.
 - 전용 DB `gamebridge_ci_63c66d6f09`에서 기존 제한·소유권 및 신규 stream·heartbeat HTTP 시험 전체 통과. 테스트 DB는 보존한다. Native 연결 및 전체 E2E는 미구현이다.
 - 커밋 준비: 30초 기본 heartbeat, 설정, 연결 정리 및 회귀 시험만 포함한다. BUG-014는 OPEN이다.
+### P06-T05 Android 스트림 transport 시작
+- 위임된 권장안으로 LOCAL_MOCK 연결 재시도 5초부터 최대 60초 지수 백오프를 결정해 DECISIONS에 기록했다. 등록 해제·로그아웃·종료에서 스트림을 중단하며 서버 이벤트는 검증된 허용 필드만 전달한다. 먼저 독립 transport와 fake HTTP 시험을 구현한다.
+### P06-T05 Android transport 검증 시작
+- 합성 HTTP 서버에서 인증 header·installation 경계, heartbeat 무시 및 안전한 이벤트 변환을 확인한다. 실제 Backend·Unity와 등록 수명주기는 아직 연결하지 않았다.
+- `:sdk-core:test --tests com.gamebridge.MockPushStreamTest --rerun-tasks` 통과: synthetic HTTP에서 인증 header, installation query 및 heartbeat 무시·허용 payload 전달을 확인했다. 실제 Backend/등록·종료 수명주기는 미연결이다.
+- 커밋 준비: 독립 Android transport와 fake HTTP 시험 및 위임된 재시도 결정을 저장한다. BUG-014 OPEN 유지.

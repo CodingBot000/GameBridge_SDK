@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-plugins { kotlin("jvm"); kotlin("plugin.serialization") }
+plugins { kotlin("jvm"); kotlin("plugin.serialization"); `maven-publish` }
 kotlin {
     jvmToolchain(21)
     compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
@@ -13,3 +13,8 @@ dependencies {
 }
 tasks.test { useJUnitPlatform() }
 dependencies { testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.2") }
+
+publishing {
+    publications { create<MavenPublication>("release") { from(components["java"]) } }
+    repositories { maven { name = "staging"; url = uri(rootProject.layout.projectDirectory.dir("../artifacts/maven-repo")) } }
+}

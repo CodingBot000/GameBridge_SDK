@@ -660,3 +660,11 @@
 - Android·Swift parser unit 시험 각각 통과. host adapter에 parser를 연결해 raw URL/임의 필드가 callback으로 전달되지 않게 하고 Native 빌드를 재확인한다.
 - Android library 및 iOS Simulator sample build 통과. 단위시험은 home/store 외 URL과 빈 messageId를 거부하고 추가 필드를 전달하지 않음을 확인했다. 실제 OS 클릭·콜드스타트·중복 제거는 아직 검증하지 않았다.
 - 커밋 전: payload 정규화 및 host adapter 연결만 포함한다. queue·dedup·Unity routing·실제 원격 수신은 미완료로 P06-T05 PARTIAL 유지.
+
+### [P08-T01] 시작 — 2026-11-10 Asia/Seoul
+- 미완료 기능 감사를 완료한 것으로 간주하지 않고 독립적인 Android 로컬 Maven 패키징을 준비한다. 버전은 계획의 0.1.0-dev이며 외부 publish는 하지 않는다.
+- 세 모듈에 로컬 Maven publication 설정을 추가했다. 산출물 생성과 POM 전이 의존성을 확인한다.
+- 로컬 세 모듈 publication 성공, POM의 SDK 모듈 의존성을 확인했다. 별도 소비 프로젝트에서 repository coordinate만 사용하고 R8 release를 빌드한다.
+- 좌표만 사용하는 별도 소비 앱의 R8 release build 성공, BridgeFacade keep 규칙이 mapping에 유지됨. 미서명 로컬 build이며 실행/기능 검증은 아니다. 기존 스크립트의 --mock 명시 계약을 유지한 채 전체 명령을 확인한다.
+- `bash scripts/build-android.sh --mock` 종료 0: 세 모듈 로컬 Maven publish 및 별도 좌표 소비 R8 release build 성공. Firebase는 optional compileOnly이므로 FCM host가 별도로 의존성을 제공해야 한다. 해당 빌드에서 실제 Firebase 경로·앱 실행 및 전체 기능은 검증하지 않았다.
+- 커밋 전: 로컬 publication·독립 소비 앱·명시적 mock build script만 포함. 기능 감사 및 실제 provider 포함 소비 검증은 미완료로 P08-T01 PARTIAL 유지. 외부 publish 없음.

@@ -1,5 +1,6 @@
-plugins { id("com.android.library"); kotlin("android"); kotlin("plugin.serialization") }
+plugins { `maven-publish`; id("com.android.library"); kotlin("android"); kotlin("plugin.serialization") }
 android { namespace = "com.gamebridge.sdk"; compileSdk = 36
+    publishing { singleVariant("release") }
     defaultConfig { minSdk = 26 }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
@@ -17,3 +18,10 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
 }
 tasks.withType<Test>().configureEach { useJUnitPlatform() }
+
+afterEvaluate {
+    publishing {
+        publications { create<MavenPublication>("release") { from(components["release"]) } }
+        repositories { maven { name = "staging"; url = uri(rootProject.layout.projectDirectory.dir("../artifacts/maven-repo")) } }
+    }
+}

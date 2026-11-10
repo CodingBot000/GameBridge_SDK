@@ -105,3 +105,9 @@
 - P00-T05 계속: Unity 공통 설정에 명시 모드와 URL 검증을 추가한다. Editor 실행은 ENV-002 때문에 확인할 수 없다.
 - `command -v dotnet` 종료 1: .NET CLI 없음. Unity Editor도 ENV-002로 실행되지 않아 C# 설정 소스는 REVIEW_ONLY, 컴파일·동작 미검증이다.
 - 커밋 직전: Unity Runtime 설정과 asmdef만 stage. 자동 생성 .meta와 Unity import는 미실행.
+
+### [P01-T01] 시작 — 2026-11-10 Asia/Seoul
+- P00-T05가 미완료이나 계획에 확정된 공통 오류·모델 계약은 환경 격리 구현에 의존하지 않아 독립적으로 작성한다. 전체 Task 완료 판정은 선행 작업 및 언어 간 검증을 기다린다.
+- `python3 -m json.tool contracts/error-codes.json` 종료 0: 오류 registry JSON 구문 확인만 수행. 계약 완성 및 언어별 DTO 검증은 미실행.
+- `python3 -m json.tool contracts/models.schema.json` 종료 0: JSON 구문 확인. UserProfile, StoreProduct, SdkError, EntitlementSnapshot만 명세; 다른 모델·DTO·fixture 및 schema 검증 미구현.
+- 커밋 직전: 공통 계약의 부분 결과만 포함. P01-T01은 IN_PROGRESS/PARTIAL 유지.

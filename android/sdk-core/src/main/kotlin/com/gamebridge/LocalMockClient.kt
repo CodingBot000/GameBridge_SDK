@@ -36,6 +36,25 @@ class LocalMockClient @JvmOverloads constructor(private val config: GameBridgeCo
     private val serviceConfig = backendServiceConfiguration(backend)
     private val lock = Mutex()
     private var session: SecretSession? = null
+    private var pushStream: MockPushStream? = null
+    private val pushEpoch = java.util.concurrent.atomic.AtomicLong()
+    internal fun stopMockPush() {
+        pushEpoch.incrementAndGet()
+        pushStream?.stop(); pushStream = null
+    }
+    internal fun startMockPush(installationId: UUID, listener: (PushPayload) -> Unit) {
+        stopMockPush()
+        val epoch = pushEpoch.get()
+        val stream = MockPushStream(config.backendBaseUrl!!, installationId, {
+            lock.withLock {
+                if (session == null) null else {
+                    authenticated("/v1/me", "GET")
+                    session?.accessToken
+                }
+            }
+        }) { value -> if (epoch == pushEpoch.get()) listener(value) }
+        pushStream = stream; stream.start()
+    }
     init {
         if (config.mode != ProviderMode.LOCAL_MOCK) throw SdkFailure("UNSUPPORTED_PROVIDER")
         if (developmentKey.length < 32 || pendingStore === store) throw SdkFailure("CONFIG_REQUIRED")

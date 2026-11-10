@@ -1713,3 +1713,17 @@
 - 합성 HTTP 서버에서 인증 header·installation 경계, heartbeat 무시 및 안전한 이벤트 변환을 확인한다. 실제 Backend·Unity와 등록 수명주기는 아직 연결하지 않았다.
 - `:sdk-core:test --tests com.gamebridge.MockPushStreamTest --rerun-tasks` 통과: synthetic HTTP에서 인증 header, installation query 및 heartbeat 무시·허용 payload 전달을 확인했다. 실제 Backend/등록·종료 수명주기는 미연결이다.
 - 커밋 준비: 독립 Android transport와 fake HTTP 시험 및 위임된 재시도 결정을 저장한다. BUG-014 OPEN 유지.
+### P06-T05 Android Mock 수명주기 연결 시작
+- 등록 성공 후 스트림을 시작하고 토큰은 Native에만 유지한다. 로그아웃·등록 해제·재로그인·종료 시 스트림을 중단하며 Unity 전달은 기존 session/epoch 가드와 route 검증을 사용한다. 실 DB E2E 전까지 미완료다.
+### P06-T05 Android 연결 compile·회귀 검증 시작
+- Native core 및 Unity Android bridge를 빌드하고 기존 fake 회귀를 실행한다. 실제 local Backend→Unity 전달은 별도로 검증한다.
+- Android core 全 unit、Unity bridge unit 및 AAR compile 강제 재실행 통과. SDK XML 버전 경고는 있으나 빌드 성공. 실제 Backend/Unity player 검증은 아직 아니다.
+### P06-T05 Android 수명주기 fake 검증 시작
+- 등록 후 수신과 logout 시 중단을 합성 HTTP에서 검증한다.
+- 합성 HTTP에서 Native 등록→안전 이벤트→로그아웃 시험 통과. 다만 응답을 바로 닫는 서버였으므로 열린 연결에서 logout이 막히지 않는 별도 시험을 추가한다.
+- 열린 스트림에서 logout 완료가 2초 내 반환되지 않아 시험 실패했다. `HttpURLConnection.disconnect()`가 읽기 중인 연결에서 호출 스레드를 막는 것으로 확인되어 취소 경계를 분리하고 재시험한다. 미해결 동안 Android 경로는 완료로 기록하지 않는다.
+- disconnect를 별도 daemon에서 처리하고 취소 이후 새 연결을 만들지 않도록 검사해 열린 연결에서 logout이 2초 내 반환되는 fake 회귀가 통과했다. 읽기 연결의 비동기 정리 지연은 timeout으로 제한하며 실제 기기 수명주기 검증은 남았다.
+### P06-T05 Android 브리지 재검증 시작
+- core/bridge 단위 시험 및 compile을 강제 재실행한다.
+- Android core 전체 및 bridge unit·AAR compile 48개 task 강제 재실행 통과. fake HTTP에서 열린 연결 logout 지연 회귀 확인. 실 Backend/Unity player는 미검증이다.
+- 커밋 준비: Android 등록·session epoch 가드·종료 수명주기를 저장한다. iOS 및 실제 local E2E가 남아 BUG-014 OPEN 유지.

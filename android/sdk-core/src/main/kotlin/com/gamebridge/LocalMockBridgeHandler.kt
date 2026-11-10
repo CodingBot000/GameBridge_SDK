@@ -12,12 +12,14 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore, private v
     private var developmentKey: String? = null
     private var mockSubject: String? = null
     private var installationId: UUID? = null
+    private var pushSinkFactory: (() -> ((PushPayload) -> Unit))? = null
+    fun setMockPushSinkFactory(factory: (() -> ((PushPayload) -> Unit))?) { pushSinkFactory = factory }
 
     override fun invoke(operation: String, payload: JsonObject): JsonElement = runBlocking {
         when (operation) {
             "sdk.initialize" -> initialize(payload)
             "sdk.shutdown" -> {
-                client = null; config = null; developmentKey = null; mockSubject = null; installationId = null
+                client?.stopMockPush(); client = null; config = null; developmentKey = null; mockSubject = null; installationId = null
                 buildJsonObject { put("state", "SHUTDOWN") }
             }
             else -> {
@@ -25,6 +27,7 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore, private v
                 when (operation) {
                     "auth.signIn" -> {
                         if (payload.string("provider") != "MOCK") throw SdkFailure("UNSUPPORTED_PROVIDER")
+                        current.stopMockPush()
                         Json.encodeToJsonElement(UserProfile.serializer(), current.signIn(mockSubject!!))
                     }
                     "auth.restore" -> {
@@ -35,14 +38,16 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore, private v
                             put("expiresAt", JsonNull); put("sessionRestored", user != null)
                         }
                     }
-                    "auth.signOut" -> { current.signOut(); buildJsonObject {} }
+                    "auth.signOut" -> { current.stopMockPush(); current.signOut(); buildJsonObject {} }
                     "push.permission" -> buildJsonObject { put("provider", "MOCK"); put("permission", "GRANTED") }
                     "push.register" -> {
-                        val result = current.registerMockPush(installationId ?: throw SdkFailure("CONFIG_REQUIRED"))
+                        val id = installationId ?: throw SdkFailure("CONFIG_REQUIRED")
+                        val result = current.registerMockPush(id)
+                        pushSinkFactory?.invoke()?.let { current.startMockPush(id, it) }
                         buildJsonObject { put("provider", "MOCK"); put("permission", "GRANTED"); put("registered", true)
                             put("tokenFingerprint", result.tokenFingerprint); put("updatedAt", result.updatedAt) }
                     }
-                    "push.unregister" -> { current.unregisterMockPush(installationId ?: throw SdkFailure("CONFIG_REQUIRED")); buildJsonObject { put("registered", false) } }
+                    "push.unregister" -> { current.stopMockPush(); current.unregisterMockPush(installationId ?: throw SdkFailure("CONFIG_REQUIRED")); buildJsonObject { put("registered", false) } }
                     "config.get" -> {
                         val effective = current.serviceSettings()
                         buildJsonObject {

@@ -89,4 +89,42 @@ class LocalMockBridgeHandlerTest {
             assertTrue(fresh.getValue("ok").jsonPrimitive.boolean)
         } finally { server.stop(0) }
     }
+    @Test fun `registered local push starts native stream and shuts down on logout`() {
+        val user = UUID.randomUUID().toString(); val id = UUID.randomUUID(); val seen = java.util.concurrent.CountDownLatch(1)
+        val messages = java.util.concurrent.CopyOnWriteArrayList<PushPayload>()
+        val releaseStream = java.util.concurrent.CountDownLatch(1)
+        val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        server.executor = java.util.concurrent.Executors.newCachedThreadPool { r -> Thread(r).apply { isDaemon = true } }
+        fun reply(e: HttpExchange, body: String) { val bytes = body.toByteArray(); e.sendResponseHeaders(200, bytes.size.toLong()); e.responseBody.use { it.write(bytes) } }
+        server.createContext("/v1/dev/auth") { e -> reply(e, """{"accessToken":"test-access","refreshToken":"test-refresh","expiresAt":"2099-01-01T00:00:00Z","userId":"$user"}""") }
+        server.createContext("/v1/me") { e -> reply(e, """{"userId":"$user"}""") }
+        server.createContext("/v1/devices/") { e -> reply(e, """{"provider":"MOCK","registered":true,"tokenFingerprint":"abcdef123456"}""") }
+        server.createContext("/v1/auth/logout") { e -> reply(e, "{}") }
+        server.createContext("/v1/dev/push/stream") { e ->
+            assertEquals("Bearer test-access", e.requestHeaders.getFirst("Authorization"))
+            e.sendResponseHeaders(200, 0)
+            e.responseBody.use { output ->
+                output.write("event:push\ndata:{\"messageId\":\"stream-one\",\"route\":\"home\"}\n\n".toByteArray()); output.flush()
+                releaseStream.await(5, java.util.concurrent.TimeUnit.SECONDS)
+            }
+        }
+        server.start()
+        try {
+            var saved: String? = null
+            val store = object : TokenStore { override fun load() = saved; override fun save(value: String) { saved = value }; override fun clear() { saved = null } }
+            val handler = LocalMockBridgeHandler { store }
+            handler.setMockPushSinkFactory { { payload -> messages.add(payload); seen.countDown() } }
+            handler.invoke("sdk.initialize", buildJsonObject { put("appId", "gamebridge-sample"); put("providerMode", "LOCAL_MOCK");
+                put("backendBaseUrl", "http://127.0.0.1:${server.address.port}"); put("requestTimeoutMs", 30000); put("developmentKey", "test-only-development-key-0123456789"); put("mockSubject", "A"); put("installationId", id.toString()) })
+            handler.invoke("auth.signIn", buildJsonObject { put("provider", "MOCK") })
+            handler.invoke("push.register", buildJsonObject {})
+            assertTrue(seen.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            assertEquals(PushPayload("stream-one", "home", null), messages.single())
+            val logout = java.util.concurrent.CompletableFuture.runAsync { handler.invoke("auth.signOut", buildJsonObject {}) }
+            try { logout.get(2, java.util.concurrent.TimeUnit.SECONDS) } finally { releaseStream.countDown() }
+            assertNull(saved)
+            handler.invoke("sdk.shutdown", buildJsonObject {})
+        } finally { releaseStream.countDown(); server.stop(0) }
+    }
+
 }

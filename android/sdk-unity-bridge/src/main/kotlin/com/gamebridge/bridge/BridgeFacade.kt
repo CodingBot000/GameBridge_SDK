@@ -101,6 +101,7 @@ object BridgeFacade {
             override fun close() { dropStore(); scope.cancel(); provider.detachHost() }
         }
     }
+    init { localMock.setMockPushSinkFactory { mockPushEmitter() } }
     private val dispatcher = BridgeDispatcher(ModeBridgeHandler(localMock, google))
     private val callbackGeneration = AtomicLong()
     private val resetRequired = AtomicBoolean(false)
@@ -222,6 +223,13 @@ object BridgeFacade {
             })
         }.toString()
         try { callback?.onMessage(message) } catch (_: Exception) { /* host owns callback */ }
+    }
+    @Synchronized private fun mockPushEmitter(): (PushPayload) -> Unit {
+        val generation = callbackGeneration.get(); val epoch = accountEpoch; val session = eventSession
+        return { payload ->
+            if (session != null && isCurrentEventSession(generation, epoch, session))
+                forwardNotification(payload.messageId, payload.route, payload.campaignId, false)
+        }
     }
     @Synchronized private fun purchaseEmitter(): (GoogleStoreEvent) -> Unit {
         val generation = callbackGeneration.get(); val epoch = accountEpoch; val session = eventSession

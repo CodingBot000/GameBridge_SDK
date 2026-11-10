@@ -688,3 +688,8 @@
 - 진행표 재집계 결과 local NOT_RUN 29 / PARTIAL 33 / PASS 2였으나 기존 수치가 각각 1건씩 달랐다. 실제 64행 기준으로 수정했다. Android --mock 진입점에 샘플 assemble이 누락되어 추가 검증한다.
 - 샘플 assemble을 포함한 `build-android.sh --mock` 재실행 및 소비 release 빌드 모두 종료 0. 실제 실행·실스토어 시험이 아니다.
 - 커밋 전: 진입점 누락 수정과 진행표 집계 보정만 포함한다.
+- P08-T03 계속: Unity Android export의 기존 Gradle 설정을 보존하면서 마커 블록만 추가하는 독립 patcher를 작성한다. Android build module 부재는 실제 export 검증의 ENV-002로 남긴다.
+- Gradle patcher 초안을 순수 C#으로 작성했다. 기존 블록 보존, 두 번 적용 시 동일 결과, 불완전 마커 및 예상 밖 설정 거부를 Unity 내장 .NET에서 확인한다.
+- 순수 C# Gradle patcher smoke 통과: 기존 설정 보존, 2회 적용 불변, 부분 마커·예상 밖 layout 거부. 아직 Unity callback에 연결하지 않았으며 Unity Editor 검증은 아니다. 재실행 가능한 smoke로 저장한다.
+- 저장된 `scripts/smoke-gradle-patcher.sh` 재실행 종료 0. Unity callback 및 iOS build hook은 아직 없다.
+- 커밋 전: 순수 patcher와 smoke만 포함하고 실제 Editor/export는 미검증으로 P08-T03 PARTIAL 유지한다.

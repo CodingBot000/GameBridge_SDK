@@ -1517,3 +1517,15 @@
 - DB/local server opt-in을 제거한 구매 runner는 Native fake 22건만 실행하고 DB·응답 유실 lane 4개를 DEFERRED_ENV/0건으로 표시해 전체 exit 2를 반환했다 (`artifacts/purchase-regression-zm5t9s81`). 직접 기동한 Backend만 종료하고 DB·생성 schema는 보존했다.
 - `check-ledger-mutation.py`의 DB 설정 누락은 DEFERRED_ENV/exit 2로 확인했다. URL 내장 credentials는 사용하지 않으며 runner의 import로 생긴 이번 작업 전용 Python bytecode 1개만 제거했다(기존 `scripts/__pycache__` 보존).
 - 커밋 전: 격리 ledger invariant/mutation, 구매 fixture runner 및 증거만 포함한다. Testcontainers, 실제 Play/Apple, 모든 R23~R39 완전 coverage는 미완료로 P09-T04 PARTIAL 유지한다.
+
+### [P09-T05] Push·Lifecycle·패키징 회귀
+- Task 시작: token·route·점검 fake, iOS host callback, staging checksum과 필수 binary 누락 음성 시험을 분리 실행한다. 실제 원격 알림 및 Unity player는 대기로 유지한다.
+- push fake suite 실행: Backend 10건, Android core 3·Native 1·bridge 1건, Swift 8건 모두 종료 0/skip 0. 일부 Gradle build task는 up-to-date다. 실제 원격 전송은 아니며 iOS simulator host callback을 별도 확인한다.
+- iOS 26.5 전용 simulator `PushHostTests` 실행 종료 0, xcresult에서 1건 통과/skip 0 확인: synthetic host callback·completion 경계다. 실제 APNs와 Unity player는 아니다. 산출물 누락 음성 시험을 구현한다.
+- staging verifier에 checksum 전체 목록·경로·버전·sample·Maven·iOS slice 검사를 추가했다. 별도 fake 전용 디렉터리에서 Android/iOS binary 누락과 기존 출력 보존을 음성 시험한다. 실제 산출물은 삭제하지 않는다.
+- `harness/check-staging.py artifacts/upm-staging-20261111-a` 종료 0: 110개 checksum·version·samples·Maven·iOS slice 확인. `harness/check-package-negative.py` 종료 0: 새 fake fixture의 Android/iOS binary 누락과 기존 output 덮어쓰기 거부를 확인했다. Unity import/export는 아니다.
+- push/package runner는 fake·sandbox DB·iOS host simulator·staging을 분리하고 Mock delivery E2E 미구현과 Unity Player 미실행을 별도 비성공 상태로 항상 남긴다. 명시된 test 환경에서 실행한다.
+- 명시적 sandbox test DB·iOS simulator·staging 설정으로 `harness/run-push-regression.py` 실행: Backend fake 10, sandbox fake HTTP 1, Android fake 5, Swift fake 8, iOS synthetic simulator 1, staging 1, package negative 1 통과. LOCAL_MOCK delivery E2E는 NOT_IMPLEMENTED, Unity player는 DEFERRED_ENV로 전체 exit 1. 결과 `artifacts/push-regression-33t3bvsw/result.json`. 실제 FCM/APNs는 실행하지 않았다.
+- checksum inventory에서 root 이외의 같은 이름 파일까지 예외로 두지 않도록 좁혔다. staging 검사를 재확인한다.
+- 수정 후 `check-staging.py` 110개 checksum, `check-package-negative.py`, `check-manifest.py` 모두 종료 0. 원격 전달이나 Unity import를 뜻하지 않는다.
+- 커밋 전: push/package runner·staging 검증·격리 음성 fixture와 증거만 포함한다. 내부 Mock delivery 미구현 및 Unity/외부 대기는 유지한다.

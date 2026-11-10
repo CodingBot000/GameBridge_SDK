@@ -84,6 +84,14 @@
       ],
       "mode": "LOCAL_DB_AND_FAKE",
       "platform": "Backend/Android/iOS"
+    },
+    "push-regression": {
+      "command": [
+        "python3",
+        "harness/run-push-regression.py"
+      ],
+      "mode": "FAKE_AND_SIMULATOR",
+      "platform": "Backend/Android/iOS/Unity"
     }
   },
   "scenarios": [
@@ -902,8 +910,7 @@
         "R40"
       ],
       "candidateSuites": [
-        "android-unit",
-        "ios-unit"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -923,8 +930,7 @@
         "R41"
       ],
       "candidateSuites": [
-        "android-unit",
-        "ios-unit"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -944,8 +950,7 @@
         "R42"
       ],
       "candidateSuites": [
-        "android-unit",
-        "ios-unit"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -965,8 +970,7 @@
         "R43"
       ],
       "candidateSuites": [
-        "android-unit",
-        "ios-unit"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -986,8 +990,7 @@
         "R44"
       ],
       "candidateSuites": [
-        "android-unit",
-        "ios-unit"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -1007,8 +1010,7 @@
         "R45"
       ],
       "candidateSuites": [
-        "android-unit",
-        "ios-unit"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -1028,8 +1030,7 @@
         "R46"
       ],
       "candidateSuites": [
-        "android-unit",
-        "ios-unit"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -1049,7 +1050,7 @@
         "R47"
       ],
       "candidateSuites": [
-        "package"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -1069,7 +1070,7 @@
         "R48"
       ],
       "candidateSuites": [
-        "package"
+        "push-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."

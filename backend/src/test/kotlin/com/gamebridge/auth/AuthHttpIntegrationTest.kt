@@ -108,6 +108,9 @@ class AuthHttpIntegrationTest {
         assertFalse(encrypted.toString(Charsets.ISO_8859_1).contains("synthetic-fcm-token"))
         assertEquals("synthetic-fcm-token", tokenCipher.decrypt(encrypted, "test-app:sandbox:ANDROID:$installation"))
         assertFails { tokenCipher.decrypt(encrypted, "other-app:sandbox:ANDROID:$installation") }
+        val iosBody = mapOf("token" to "synthetic-apns-token", "provider" to "APNS", "platform" to "IOS")
+        assertEquals(200, rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT, HttpEntity(iosBody, headers), Map::class.java).statusCode.value())
+        assertEquals(2, db.queryForObject("SELECT COUNT(*) FROM device_tokens WHERE installation_id=?", Int::class.java, installation))
         val removed = rest.exchange("/v1/devices/$installation/push-token", HttpMethod.DELETE, HttpEntity<Void>(headers), Map::class.java)
         assertEquals(200, removed.statusCode.value())
         assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM device_tokens WHERE installation_id=?", Int::class.java, installation))

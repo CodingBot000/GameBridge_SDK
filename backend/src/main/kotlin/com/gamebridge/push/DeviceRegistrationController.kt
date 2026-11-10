@@ -55,7 +55,7 @@ internal class DeviceRegistrationController(private val db: JdbcTemplate, privat
                 { rs, _ -> rs.getString(1) }, principal.sessionId, principal.userId).firstOrNull() ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
             db.update("DELETE FROM device_tokens WHERE app_id=? AND environment=? AND installation_id=? AND user_id=?", app, mode(), installationId, principal.userId)
         } ?: 0
-        if (count != 1) throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        if (count < 1) throw ResponseStatusException(HttpStatus.FORBIDDEN)
         return mapOf("registered" to false)
     }
 }

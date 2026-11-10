@@ -901,3 +901,7 @@
 - sandbox HTTP 등록·logout 삭제 시험 통과. 등록 해제 즉시 삭제 및 AES-GCM AAD 검증도 추가해 재시험한다(합성 토큰만 사용).
 - sandbox 실제 HTTP/security/DB 시험 재통과(skip 0): synthetic FCM 등록 ciphertext와 AAD, 명시 해제 즉시 삭제, 재등록 후 logout 즉시 삭제, provider/platform 불일치 거부. 실제 FCM/APNs token이나 원격 발송은 아니다.
 - 커밋 전: 실제 profile 토큰 등록·삭제 경로와 synthetic 시험만 포함. Native 등록 연결, 발송 worker·retry/rate 정책 및 실제 플랫폼은 미완료로 P06-T04 PARTIAL 유지.
+- 등록 해제 구현 검토 중 동일 app/user/installation에 플랫폼별 행이 둘 이상일 때 DELETE 후 count>1을 오류로 응답하는 불일치를 발견했다. 해당 installation의 소유된 연결이 하나 이상 삭제되면 성공으로 수정한다.
+- 기존 sandbox 등록/삭제 회귀 통과. 동일 소유 installation의 두 platform 행을 해제할 때 둘 다 삭제되고 200 응답인지 synthetic 시험을 추가한다.
+- synthetic sandbox HTTP 시험에서 같은 installation의 FCM/APNs 두 행을 모두 삭제한 뒤 200, 재등록 후 logout 삭제 확인. 다른 사용자·app 행은 delete 조건에서 제외된다. 실제 push 서비스는 사용하지 않았다.
+- 커밋 전: 등록 해제 응답 불일치 수정과 회귀 시험만 포함한다.

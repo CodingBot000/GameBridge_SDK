@@ -17,3 +17,4 @@
 
 - 2026-11-10 사용자 결정 USER-SESSION-TTL: refresh 토큰의 기본 7일 만료는 최초 로그인부터 고정하며 refresh로 연장하지 않는다.
 - 2026-11-10 사용자 결정 USER-VERIFY-CONCURRENCY: 한 기기의 구매 증빙 서버 검증 기본 동시성은 1건이며 설정으로 변경할 수 있다.
+- 2026-11-10 사용자 결정 USER-STOREKIT-TEST-PRICE: Xcode 로컬 StoreKit 시험 표시 가격은 coins $0.99, premium $1.99이다. 실제 App Store 상품 가격 정책이 아니다.

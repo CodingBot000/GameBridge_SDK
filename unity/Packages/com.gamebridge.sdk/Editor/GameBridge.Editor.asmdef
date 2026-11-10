@@ -1,0 +1,6 @@
+{
+  "name": "GameBridge.Editor",
+  "rootNamespace": "GameBridge.Editor",
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

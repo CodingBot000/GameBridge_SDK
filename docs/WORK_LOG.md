@@ -693,3 +693,8 @@
 - 순수 C# Gradle patcher smoke 통과: 기존 설정 보존, 2회 적용 불변, 부분 마커·예상 밖 layout 거부. 아직 Unity callback에 연결하지 않았으며 Unity Editor 검증은 아니다. 재실행 가능한 smoke로 저장한다.
 - 저장된 `scripts/smoke-gradle-patcher.sh` 재실행 종료 0. Unity callback 및 iOS build hook은 아직 없다.
 - 커밋 전: 순수 patcher와 smoke만 포함하고 실제 Editor/export는 미검증으로 P08-T03 PARTIAL 유지한다.
+- 사용자 결정 수신: Xcode StoreKit 로컬 시험 표시 가격 coins $0.99 / premium $1.99. 실제 상품 가격과 별개이며 결정 문서와 USER_SETUP에 기록했다.
+- Unity 공식 callback은 export된 unityLibrary 경로를 전달함을 확인했다. Android callback 초안은 staged repo가 없거나 기존 export repo와 내용이 다르면 명시 실패하며 기존 repo를 덮어쓰지 않는다. Unity Editor는 여전히 실행 불가다.
+- callback을 stub Unity API와 임시 Gradle export fixture로 두 번 실행하고, 기존 repo 내용 변경 시 overwrite를 거부하는지 검증한다. 이는 실제 Unity Editor 시험이 아니다.
+- stubbed Unity API 기반 callback smoke 통과: 두 번 적용 결과 동일하고 기존 Maven repo 변경을 감지해 덮어쓰기를 거부한다. 실제 Unity Editor/Android export가 아니며 iOS hook은 미구현이다.
+- 커밋 전: 사용자 StoreKit 시험 가격 결정, Android callback과 stub smoke만 포함한다. P08-T03 PARTIAL/ENV-002 유지.

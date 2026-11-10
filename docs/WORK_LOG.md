@@ -616,3 +616,7 @@
 - 검증 중 Android Gradle 종료 1: 이 셸에 Android SDK 환경 변수가 없어 SDK 위치를 찾지 못했다. 기존 설치 위치를 확인해 환경 변수로 재실행한다. 제품 테스트 실패는 아니다.
 - Android SDK 환경 변수를 기존 설치 위치로 설정해 unit test 재실행 종료 0. Swift StoreKit 경계 unit test 1건 통과. 기본 동시성 1 반영 결과이며 실제 구매 검증은 아니다. 기존 refresh 구현은 갱신 시 최초 만료를 유지한다.
 - 커밋 전: 사용자 결정 문서와 Android/iOS 검증 동시성 기본값만 포함한다. 실제 서버 sink·스토어 연결은 미완료다.
+- Apple SignedDataVerifier를 이용하는 서버 경계 초안 작성. SANDBOX/PRODUCTION만 허용하며 실제 자격 증명 및 Apple root를 제공하지 않아 외부 검증은 미실행이다. Kotlin 컴파일을 확인한다.
+- Apple library와 Kotlin 컴파일 종료 0. fake decoder로 환경·상품·계정·취소·수량 거부 및 재시도 가능 오류 구분을 검증한다. 실제 서명된 Apple 거래는 아니다.
+- Apple fake decoder 경계 시험 2건 통과: app/environment/product/account/state 불일치와 위조 오류 거부, retryable 검증 오류 구분. 실제 인증서 chain·서명 검증은 미실행이다.
+- 커밋 전: Apple 공식 library 기반 verifier와 fake 경계 시험만 포함. credential 조립·Google verifier·지급 연결·실거래 검증은 미완료여서 P05-T04 PARTIAL 유지.

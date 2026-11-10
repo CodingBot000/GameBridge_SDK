@@ -1004,3 +1004,7 @@
 - nullable invalidation migration과 hash 조건부 비활성화/재등록 해제를 작성했다. sandbox synthetic rotation race를 HTTP/DB로 검증한다.
 - sandbox synthetic HTTP/DB 시험 통과(skip 0): 회전 전 hash의 늦은 invalidation은 새 토큰에 영향 없고, 현재 hash는 비활성화되며 재등록 시 해제된다. 실제 FCM/APNs invalid response는 아직 미실행이다.
 - 커밋 전: nullable migration·조건부 invalidation 및 회귀시험만 포함한다. sender 연결과 동시성 정책은 미완료다.
+- P06-T04 실제 sender의 앱별 FCM service account와 APNs .p8 설정을 lazy 로드하는 registry를 작성했다. 설정 누락 시 503이며 원격 발송 전에 단위시험한다.
+- lazy provider registry编译成功。synthetic P-256 key와 임시 test-only 파일로 APNs 구성/cache 분리 및 FCM/APNs 누락 설정 실패를 확인한다. 네트워크 요청은 없다.
+- synthetic APNs EC key 기반 lazy registry/cache 및 누락 FCM/APNs config, fake sender unit 총 5건 통과. 실제 .p8/service account/원격 전송은 사용하지 않았다.
+- 커밋 전: 실제 provider 구성·단발 sender의 lazy 조립만 포함한다. sandbox dev endpoint 연결·retry worker·실 인증정보 검증은 미완료다.

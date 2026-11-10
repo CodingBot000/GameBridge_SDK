@@ -142,7 +142,7 @@ Codex 준비물: StoreKit 2 provider, signed data 검증, appAccountToken 일치
 
 ## USER-PUSH-GOOGLE — FCM
 
-사용자 할 일: Firebase project에 실제 Android package를 등록하고 host 앱용 client configuration을 준비한다. `google-services.json`은 해당 sample/Unity host 설정 경로에 제공한다. 서버 Firebase Admin 자격증명과 메시지 발송 권한을 준비한다.
+사용자 할 일: Firebase project에 실제 Android package를 등록하고 host 앱용 client configuration을 준비한다. `google-services.json`은 해당 sample/Unity host 설정 경로에 제공한다. 서버 Firebase Admin 자격증명과 메시지 발송 권한을 준비한다. `GAMEBRIDGE_FCM_CONFIG_JSON`에 app ID별 `projectId`, `credentialPath`를 설정한다.
 
 설정: `FIREBASE_PROJECT_ID`, 적절한 server credential path, 실제 host config file. FCM 설정 때문에 Google identity 로그인이나 Play Billing 설정이 자동 완료되지는 않는다. 프로젝트와 앱 매핑을 각각 확인한다.
 
@@ -214,7 +214,7 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 
 ### APNs 서버 전송 준비 상태
 
-서버의 ES256 provider JWT·HTTP/2 단발 전송 경계는 fake transport와 test key로 검증했다. 실제 .p8·team/key ID·bundle topic·APNs 환경, 토큰 저장소 연결 및 재시도 worker는 아직 연결하지 않았고 실제 APNs 발송은 미실행이다.
+서버의 ES256 provider JWT·HTTP/2 단발 전송 경계는 fake transport와 test key로 검증했다. `GAMEBRIDGE_APNS_CONFIG_JSON`에 app ID별 `privateKeyPath`, `topic`, `teamId`, `keyId`를 설정한다. 실제 .p8·team/key ID·bundle topic·APNs 환경, 토큰 저장소 연결 및 재시도 worker는 아직 연결하지 않았고 실제 APNs 발송은 미실행이다.
 
 기존 app scope 없는 세션은 구매 binding을 조회할 수 없으며 재인증이 필요하다. 기존 세션을 자동 추정·삭제·이관하지 않는다.
 

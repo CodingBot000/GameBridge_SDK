@@ -72,7 +72,7 @@ internal class ApnsPushSender(
     companion object {
         fun configured(topic: String, environment: ApnsEnvironment, teamId: String, keyId: String, key: ECPrivateKey, mapper: ObjectMapper): ApnsPushSender {
             require(teamId.isNotBlank() && keyId.isNotBlank())
-            val client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build()
+            val client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).connectTimeout(Duration.ofSeconds(10)).build()
             val cachedToken = CachedApnsProviderToken { apnsProviderToken(teamId, keyId, key) }
             return ApnsPushSender(topic, environment, { cachedToken.get() }, mapper,
                 ApnsTransport {

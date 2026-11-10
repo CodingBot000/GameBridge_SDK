@@ -2,6 +2,7 @@ package com.gamebridge.android.auth
 
 import android.app.Activity
 import com.android.billingclient.api.Purchase
+import com.gamebridge.android.push.GooglePushRegistration
 import com.gamebridge.android.purchase.BoundPlayAccount
 import com.gamebridge.android.purchase.GoogleHttpProofSink
 import com.gamebridge.android.purchase.RawPlayPurchase
@@ -92,6 +93,19 @@ class GoogleAuthProviderTest {
         val store = MemoryStore()
         assertEquals("CANCELED", assertFailsWith<SdkFailure> { GoogleAuthProvider(config(), store, gateway, StubBackend()).signIn() }.code)
         assertNull(store.stored)
+    }
+    @Test fun `push registration uses current session and only returns fingerprint`() = runBlocking {
+        val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend()); provider.signIn()
+        val installation = UUID.randomUUID(); val calls = mutableListOf<String>()
+        val push = GooglePushRegistration(provider, installation) { path, method, body, token ->
+            calls.add(method); assertEquals("/v1/devices/$installation/push-token", path); assertEquals("test-access", token)
+            if (method == "PUT") { assertTrue(body!!.contains("synthetic-token")); """{"provider":"FCM","registered":true,"tokenFingerprint":"abcdef123456"}""" }
+            else """{"registered":false}"""
+        }
+        assertEquals("abcdef123456", push.register("synthetic-token")); push.unregister()
+        assertEquals(listOf("PUT", "DELETE"), calls)
+        provider.signOut()
+        assertEquals("SESSION_EXPIRED", assertFailsWith<SdkFailure> { push.register("synthetic-token") }.code)
     }
     @Test fun `google proof sink sends only to injected backend and requires granted result`() = runBlocking {
         val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend())

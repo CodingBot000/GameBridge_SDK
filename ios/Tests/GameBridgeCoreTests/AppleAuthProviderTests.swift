@@ -94,6 +94,27 @@ final class AppleAuthProviderTests: XCTestCase {
         do { _ = try await provider.checkCredentialState(); XCTFail("revoke error") } catch let error as SdkFailure { XCTAssertEqual(error.code, "NETWORK_UNAVAILABLE"); XCTAssertEqual(error.nativeCode, "REVOCATION_UNCONFIRMED") }
         XCTAssertNil(store.value); XCTAssertTrue(backend.revoked)
     }
+    @MainActor func testPushRegistrationUsesSessionAndReturnsFingerprint() async throws {
+        let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
+        let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
+        _ = try await auth.signIn()
+        let id = UUID(); var calls: [String] = []
+        let push = ApplePushRegistration(auth: auth, installationId: id) { path, method, body, access in
+            calls.append(method); XCTAssertEqual(path, "/v1/devices/\(id.uuidString.lowercased())/push-token"); XCTAssertEqual(access, "test-access")
+            if method == "PUT" {
+                let value = try JSONSerialization.jsonObject(with: body!) as! [String: String]
+                XCTAssertEqual(value["token"], "010203"); XCTAssertEqual(value["provider"], "APNS")
+                return Data("{\"provider\":\"APNS\",\"registered\":true,\"tokenFingerprint\":\"abcdef123456\"}".utf8)
+            }
+            return Data("{\"registered\":false}".utf8)
+        }
+        let fingerprint = try await push.register(deviceToken: Data([1, 2, 3]))
+        XCTAssertEqual(fingerprint, "abcdef123456")
+        try await push.unregister(); XCTAssertEqual(calls, ["PUT", "DELETE"])
+        try await auth.signOut()
+        do { _ = try await push.register(deviceToken: Data([1])); XCTFail("signed out") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "SESSION_EXPIRED") }
+    }
     @MainActor func testAppleStoreRuntimeRejectsIncompleteProductMapping() throws {
         let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
         let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())

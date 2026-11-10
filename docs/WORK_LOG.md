@@ -905,3 +905,9 @@
 - 기존 sandbox 등록/삭제 회귀 통과. 동일 소유 installation의 두 platform 행을 해제할 때 둘 다 삭제되고 200 응답인지 synthetic 시험을 추가한다.
 - synthetic sandbox HTTP 시험에서 같은 installation의 FCM/APNs 두 행을 모두 삭제한 뒤 200, 재등록 후 logout 삭제 확인. 다른 사용자·app 행은 delete 조건에서 제외된다. 실제 push 서비스는 사용하지 않았다.
 - 커밋 전: 등록 해제 응답 불일치 수정과 회귀 시험만 포함한다.
+- Android Native 내부 등록/해제 client 초안을 작성했다. installation UUID는 Host가 제공하고 session 보호와 fingerprint만 반환한다. fake request 시험을 실행한다.
+- Android token 등록/해제 fake 단위시험 통과. iOS도 Host 제공 installation UUID와 현재 session을 사용하고 APNs bytes는 Backend에만 전송하도록 작성해 fake 시험한다.
+- iOS push test 컴파일 실패: XCTest autoclosure 안에 async 호출을 직접 넣었다. 제품 코드 오류는 아니며 await 결과를 먼저 받아 재시험한다.
+- Swift auth/push fake 단위 11건 통과: APNs bytes→hex, session header, fingerprint, 해제, logout 후 거부. 실제 APNs token이나 network는 아니다. 새 소스의 iOS target compile을 확인한다.
+- iOS simulator static framework compile 성공. Android/iOS Native 등록 client는 fake Backend만 사용했으며 호스트 callback에 자동 조립하지 않는다.
+- 커밋 전: Native-only token 등록/해제 client와 fake 시험만 포함한다. 실제 FCM/APNs·공개 facade·host 조립은 미완료다.

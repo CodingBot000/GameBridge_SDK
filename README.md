@@ -31,3 +31,7 @@ Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시
 `build-android.sh --mock`은 새 `artifacts/maven-build.*` 경로에 SDK를 발행하고 별도 소비 앱의 release 빌드를 검사합니다. `GAMEBRIDGE_MAVEN_REPO`에 존재하지 않는 절대 경로를 지정할 수도 있으며, 기존 출력은 덮어쓰지 않습니다. `generate-ios-project.sh`와 `build-ios.sh`는 기존 프로젝트를 덮어쓰지 않고 `artifacts/ios-project.*`에 격리 Xcode project를 생성합니다. `build-ios.sh --xcframework`는 별도 출력 디렉터리에 무서명 static XCFramework를 만듭니다. 기존 출력 경로는 덮어쓰지 않으며 `GAMEBRIDGE_IOS_OUTPUT_DIR`로 새 경로를 지정할 수 있습니다. `scripts/package-sdk.sh`는 두 산출물을 Unity 패키지 staging에 묶지만 Unity import와 실제 빌드는 아직 검증되지 않았습니다. 생성된 `artifacts/`는 로컬 전용이며 배포하지 않습니다.
 
 현재 API와 통합상의 제한은 [API](docs/API.md), [통합 안내](docs/INTEGRATION.md), [보안 경계](docs/SECURITY.md)를 참고하세요.
+
+## 로컬 회귀 집계
+
+`bash scripts/verify-all.sh --available` 또는 `--strict-local`은 실제 실행한 suite, 필수 미실행·미구현·기존 실패, 외부 설정 대기를 구분해 `artifacts/verify-all-*`에 기록합니다. 격리 DB와 local server가 필요한 lane은 명시적인 test 환경 설정이 없으면 건너뛰며, 전체 성공으로 처리하지 않습니다. 현재 Mock push 전달 E2E와 Unity runtime 검증은 미완료입니다.

@@ -1529,3 +1529,14 @@
 - checksum inventory에서 root 이외의 같은 이름 파일까지 예외로 두지 않도록 좁혔다. staging 검사를 재확인한다.
 - 수정 후 `check-staging.py` 110개 checksum, `check-package-negative.py`, `check-manifest.py` 모두 종료 0. 원격 전달이나 Unity import를 뜻하지 않는다.
 - 커밋 전: push/package runner·staging 검증·격리 음성 fixture와 증거만 포함한다. 내부 Mock delivery 미구현 및 Unity/외부 대기는 유지한다.
+
+### [P09-T06] fail-closed 전체 검증 집계
+- Task 시작: 각 suite의 exit·실행 수·skip·환경 대기와 외부 대기를 분리하는 aggregate를 구현한다. P08 미완료, 기존 StoreKit 실패, 미구현 push E2E와 Unity 미실행을 성공으로 승격하지 않는다.
+- `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p test_aggregation.py -v` 종료 0, 8건: pass/failure/required skip/external 대기/0건/미구현/중복 lane 분리 확인. required lane 자체가 없는 경우도 실패시키도록 보강한다.
+- 전체 runner 초안은 실제 suite별 결과 JSON과 실행 수를 수집하고, 미구현 scenario·Unity NOT_RUN·원장에 남은 실패를 별도 required lane으로 유지한다. 외부 WAITING_USER는 local PASS와 분리한다. 우선 unit 및 CLI 검증 후 실제 available 실행을 확인한다.
+- 집계 분류 unit 9건 통과 및 CLI usage 확인. nested runner가 비정상 종료했는데 내부 보고서가 우연히 PASS인 경우도 실패로 처리하도록 보강한 뒤 실제 `--available`을 실행한다. DB opt-in은 제공하지 않아 해당 lane은 대기로 남아야 한다.
+- 실제 `scripts/verify-all.sh --available` 종료 1, 결과 `artifacts/verify-all-02yt04zk`: Mock delivery NOT_IMPLEMENTED, Unity NOT_RUN, 기존 StoreKit 실패를 유지했고 DB opt-in 누락 lane은 DEFERRED_ENV, 외부 13개는 WAITING_USER로 분리했다. 집계 self-test의 실제 9건을 1개 check로 기록한 점과 nested report 불일치 검사를 보강한다.
+- 집계 unit 재실행 종료 0, 11건: PASS/exit·failure 불일치, abnormal nested exit, 필수 lane 0건도 실패로 감지한다. 수정된 strict-local 실제 실행을 확인한다.
+- aggregate 음성 검사 추가 수정 스크립트가 Python 문자열 구문 오류로 실행 전 실패했다. 이어 실행된 unit 11건은 수정 전 상태 검증이므로 새 기능 통과로 기록하지 않는다. 수정 스크립트를 단순화해 다시 적용한다.
+- 음성 검사 포함 최종 `scripts/verify-all.sh --strict-local` 종료 1, `artifacts/verify-all-nxzojdaf/result.json`: manifest/contract negative 통과, DB 미설정 및 ledger mutation은 DEFERRED_ENV, Mock delivery NOT_IMPLEMENTED·Unity NOT_RUN·기록된 StoreKit FAIL과 외부 WAITING_USER 13개를 분리했다. aggregation self-test 실제 11건을 기록했다.
+- 커밋 전: fail-closed aggregate와 unit/실제 실행 증거만 포함한다. 모든 required lane이 실행된 것은 아니므로 P09-T06은 PARTIAL 유지한다.

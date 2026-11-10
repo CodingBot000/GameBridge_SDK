@@ -15,7 +15,11 @@ import AuthenticationServices
     func products() async throws -> [StoreProduct]
     func purchase(_ productId: String) async throws -> AppleBridgePurchase
     func entitlements() async throws -> EntitlementSnapshot
+    func recover(userInitiated: Bool) async throws -> AppleBridgeRecoveryCounts
     func close()
+}
+struct AppleBridgeRecoveryCounts {
+    let examined: Int, recovered: Int, deferred: Int, failed: Int
 }
 struct AppleBridgePurchase {
     let status: PurchaseStatus
@@ -27,6 +31,7 @@ extension AppleAuthBridgeApi {
     func products() async throws -> [StoreProduct] { throw SdkFailure("CONFIG_REQUIRED") }
     func purchase(_ productId: String) async throws -> AppleBridgePurchase { throw SdkFailure("CONFIG_REQUIRED") }
     func entitlements() async throws -> EntitlementSnapshot { throw SdkFailure("CONFIG_REQUIRED") }
+    func recover(userInitiated: Bool) async throws -> AppleBridgeRecoveryCounts { throw SdkFailure("CONFIG_REQUIRED") }
 }
 
 @MainActor final class AppleAuthBridgeHandler {
@@ -54,6 +59,13 @@ extension AppleAuthBridgeApi {
         case "store.entitlements":
             guard productIds != nil else { throw SdkFailure("CONFIG_REQUIRED") }
             return try object(try await provider.entitlements())
+        case "store.sync":
+            guard productIds != nil else { throw SdkFailure("CONFIG_REQUIRED") }
+            guard let reason = payload["reason"] as? String, ["APP_RESUME", "USER_RESTORE"].contains(reason) else { throw SdkFailure("INVALID_ARGUMENT") }
+            let counts = try await provider.recover(userInitiated: reason == "USER_RESTORE")
+            let wallet = try await provider.entitlements()
+            return ["examinedCount": counts.examined, "recoveredCount": counts.recovered, "deferredCount": counts.deferred,
+                    "failureCount": counts.failed, "entitlements": try object(wallet)] as [String: Any]
         case "store.purchase":
             guard productIds != nil else { throw SdkFailure("CONFIG_REQUIRED") }
             guard let productId = payload["productId"] as? String, !productId.isEmpty else { throw SdkFailure("INVALID_ARGUMENT") }
@@ -129,6 +141,11 @@ extension AppleAuthBridgeApi {
     func signOut() async throws { dropStore(); try await provider.signOut() }
     func products() async throws -> [StoreProduct] { try await activeStore().products() }
     func entitlements() async throws -> EntitlementSnapshot { try await activeStore().entitlements() }
+    func recover(userInitiated: Bool) async throws -> AppleBridgeRecoveryCounts {
+        let counts = try await activeStore().recoverDetailed(userInitiated: userInitiated)
+        return AppleBridgeRecoveryCounts(examined: counts.examinedCount, recovered: counts.recoveredCount,
+                                         deferred: counts.deferredCount, failed: counts.failureCount)
+    }
     func purchase(_ productId: String) async throws -> AppleBridgePurchase {
         let result = try await activeStore().purchase(productId: productId)
         switch result.status {

@@ -1262,3 +1262,10 @@
 - `swift test --package-path ios --filter StoreKitBillingProviderTests` 종료 0, 3건: 순수 집계에서 transaction 중복 제거, 서버 완료·네트워크 대기·계정 불일치 실패 분리와 취소 전파를 확인했다. StoreKit transaction sequence 자체는 미실행이다.
 - `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. 무서명 static simulator compile이며 실제 사용자 복원·StoreKit sequence 실행은 아니다.
 - 커밋 전: iOS Native recovery 집계와 순수 fake 경계만 포함한다. Unity sync bridge와 실제 StoreKit 복원, BUG-009는 미완료다.
+
+### [P05-T07] iOS Unity 구매 복구
+- Task 시작: StoreKit의 실제 회복 집계와 서버 entitlement를 Unity에 전달한다. USER_RESTORE에만 AppStore.sync를 호출하는 기존 Native 경계를 유지한다.
+- iOS bridge에 회복 결과·서버 잔액과 APP_RESUME/USER_RESTORE 명시 분기를 연결했다. fake provider로 요청 분기와 결과 계약을 확인한다.
+- `swift test --package-path ios --filter AppleAuthBridgeTests` 종료 0, 2건: fake에서 APP_RESUME은 false, USER_RESTORE는 true로 전달되고 회복 집계·잔액이 반환되며 잘못된 사유가 거부됐다. 실제 AppStore.sync는 호출하지 않았다.
+- `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0: iOS sync bridge를 포함한 무서명 simulator compile. 실제 StoreKit 복원 및 Unity iOS는 미검증이다.
+- 커밋 전: iOS sync bridge와 fake 요청 분기만 포함하며 실제 StoreKit local 실패·Apple 계정·Unity 검증 및 BUG-009는 미완료다.

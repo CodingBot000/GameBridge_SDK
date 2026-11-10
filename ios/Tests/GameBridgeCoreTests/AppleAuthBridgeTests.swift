@@ -6,11 +6,18 @@ import GameBridgeCore
 @MainActor private final class FakeAppleBridgeApi: AppleAuthBridgeApi {
     var signIns = 0
     var closed = false
+    var restoreRequests: [Bool] = []
     var purchaseResult = AppleBridgePurchase(status: .verificationPending, serverPurchaseId: nil, fulfillmentStatus: .notGranted, finalizationStatus: .pending)
     func signIn() async throws -> UserProfile { signIns += 1; return UserProfile(userId: "d2719c4e-d533-47ee-9efd-838791ea79c8", displayName: nil, provider: "APPLE") }
     func restore() async throws -> UserProfile? { nil }
     func signOut() async throws {}
     func purchase(_ productId: String) async throws -> AppleBridgePurchase { purchaseResult }
+    func recover(userInitiated: Bool) async throws -> AppleBridgeRecoveryCounts {
+        restoreRequests.append(userInitiated); return AppleBridgeRecoveryCounts(examined: 3, recovered: 1, deferred: 1, failed: 1)
+    }
+    func entitlements() async throws -> EntitlementSnapshot {
+        try JSONDecoder().decode(EntitlementSnapshot.self, from: Data(#"{"userId":"d2719c4e-d533-47ee-9efd-838791ea79c8","premiumEnabled":false,"coinBalance":"100","revision":"1","updatedAt":"2026-01-01T00:00:00Z"}"#.utf8))
+    }
     func close() { closed = true }
 }
 final class AppleAuthBridgeTests: XCTestCase {
@@ -39,6 +46,13 @@ final class AppleAuthBridgeTests: XCTestCase {
         XCTAssertEqual(pending?["status"] as? String, "VERIFICATION_PENDING")
         XCTAssertEqual(pending?["fulfillmentStatus"] as? String, "NOT_GRANTED")
         XCTAssertTrue(pending?["serverPurchaseId"] is NSNull)
+        let resume = try await handler.invoke("store.sync", payload: ["reason": "APP_RESUME"]) as? [String: Any]
+        XCTAssertEqual(resume?["examinedCount"] as? Int, 3)
+        XCTAssertEqual((resume?["entitlements"] as? [String: Any])?["coinBalance"] as? String, "100")
+        _ = try await handler.invoke("store.sync", payload: ["reason": "USER_RESTORE"])
+        XCTAssertEqual(fake.restoreRequests, [false, true])
+        do { _ = try await handler.invoke("store.sync", payload: ["reason": "OTHER"]); XCTFail("invalid reason") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "INVALID_ARGUMENT") }
         let id = UUID()
         fake.purchaseResult = AppleBridgePurchase(status: .purchased, serverPurchaseId: id, fulfillmentStatus: .alreadyGranted, finalizationStatus: .finalized)
         let verified = try await handler.invoke("store.purchase", payload: ["productId": "coins_100"]) as? [String: Any]

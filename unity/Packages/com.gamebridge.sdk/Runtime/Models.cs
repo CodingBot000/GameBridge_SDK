@@ -60,3 +60,37 @@ namespace GameBridge
         [JsonProperty(Required = Required.Always)] public bool sessionRestored;
     }
 }
+
+namespace GameBridge
+{
+    public enum SyncReason { APP_RESUME, USER_RESTORE }
+    [Serializable] public sealed class PurchaseSyncResult
+    {
+        [JsonProperty(Required = Required.Always)] public int examinedCount;
+        [JsonProperty(Required = Required.Always)] public int recoveredCount;
+        [JsonProperty(Required = Required.Always)] public int deferredCount;
+        [JsonProperty(Required = Required.Always)] public int failureCount;
+        [JsonProperty(Required = Required.Always)] public EntitlementSnapshot entitlements;
+    }
+    [Serializable] public sealed class PushPermission
+    {
+        [JsonProperty(Required = Required.Always)] public string permission;
+        [JsonProperty(Required = Required.Always)] public string provider;
+    }
+    [Serializable] public sealed class PushRegistration
+    {
+        [JsonProperty(Required = Required.Always)] public string provider;
+        [JsonProperty(Required = Required.Always)] public bool registered;
+        [JsonProperty(Required = Required.Always)] public string permission;
+        [JsonProperty(Required = Required.AllowNull)] public string tokenFingerprint;
+        [JsonProperty(Required = Required.Always)] public string updatedAt;
+    }
+    [Serializable] public sealed class ServiceConfig
+    {
+        [JsonProperty(Required = Required.Always)] public string revision;
+        [JsonProperty(Required = Required.Always)] public bool maintenanceEnabled;
+        [JsonProperty(Required = Required.AllowNull)] public string message;
+        [JsonProperty(Required = Required.AllowNull)] public string expiresAt;
+        [JsonProperty(Required = Required.Always)] public string source;
+    }
+}

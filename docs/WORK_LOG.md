@@ -429,3 +429,8 @@
 - domain reload 정적 초기화에서 이전 driver를 분리·파괴하도록 보정하고 Android/iOS/Editor/미지원 플랫폼 네 C# 분기 독립 컴파일 종료 0, 경고 0. 실제 Unity domain reload/scene 전환은 ENV-002로 검증하지 않았다.
 - 최종 `smoke-csharp-registry.sh` 종료 0: C# facade·Editor Fake 경로와 request registry 동작 재확인. 이는 .NET 독립 테스트이며 Unity Editor 실행·Native operation 연동이 아니다.
 - 커밋 전: C# client facade 및 단일 main-thread driver 기반만 포함. capabilities·push·sync·이벤트 공용 facade 일부와 Native init/auth/purchase 연결, Unity scene/domain reload·IL2CPP 검증은 미완료이므로 P03-T05 PARTIAL 유지.
+- P03-T05 계속: 공용 동기 snapshot·push/config/sync API의 실제 Fake 경로와 strict 모델 변환을 보완한다. Native에서 구현되지 않은 요청은 UNSUPPORTED_OPERATION을 그대로 전달한다.
+- C# facade에 capability/diagnostics 캐시와 sync·push permission/register/unregister·service config API를 추가하고 `smoke-csharp-registry.sh` 종료 0. 확인한 경로는 Editor-only Fake이며 Native 구현·Unity Editor 실행은 아니다.
+- `check-csharp-compile.sh` 종료 0: 추가된 facade 및 DTO를 포함해 Android/iOS/Editor/미지원 네 분기 독립 컴파일, 경고 0. Unity runtime 실행은 미검증.
+- C# facade에 sync·push·config 및 capability/diagnostic snapshot을 추가하고, 오류 원문·token-sized fingerprint 노출 거부를 포함한 독립 .NET smoke 종료 0. 이 결과는 Unity Editor나 실제 Native Provider 실행이 아니다.
+- 커밋 전: 추가 facade와 strict wire 모델만 포함. Native 초기화/인증/결제 연결, 공통 이벤트 및 Unity Editor 검증은 미완료로 P03-T05 PARTIAL 유지.

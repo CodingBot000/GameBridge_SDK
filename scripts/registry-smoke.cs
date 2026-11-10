@@ -33,6 +33,12 @@ internal static class Program
         ["result"] = ok ? (JToken)new JObject { ["state"] = "READY" } : JValue.CreateNull(),
         ["error"] = ok ? JValue.CreateNull() : (JToken)new JObject { ["code"] = "BUSY", ["retryable"] = true }
     }.ToString(Newtonsoft.Json.Formatting.None);
+    private static JObject InitResponse()
+    {
+        var caps = new JObject();
+        foreach (var name in new[] { "auth", "store", "push", "config" }) caps[name] = new JObject { ["supported"] = true, ["configured"] = true, ["mode"] = "EDITOR_OFFLINE", ["reason"] = JValue.CreateNull() };
+        return new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE", ["capabilities"] = caps };
+    }
     private static async Task Main()
     {
         string sent = null;
@@ -76,6 +82,14 @@ internal static class Program
         var numericPrice = (JObject)fixture["product"].DeepClone(); numericPrice["priceMicros"] = 123;
         try { WireModels.Decode<GameBridge.StoreProduct>(numericPrice); throw new Exception("numeric price accepted"); }
         catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "strict numeric string"); }
+        var secretError = (JObject)fixture["purchase"].DeepClone();
+        secretError["error"] = new JObject { ["code"] = "AUTH_FAILED", ["message"] = "sensitive-token", ["retryable"] = false,
+            ["requestId"] = JValue.CreateNull(), ["nativeCode"] = "sensitive-token", ["details"] = new JObject { ["token"] = "sensitive-token" } };
+        var safeError = WireModels.Decode<GameBridge.PurchaseResult>(secretError).error;
+        Check(safeError.message == "Operation failed" && safeError.nativeCode == null && safeError.details.Count == 0, "public error redaction");
+        var badPush = new JObject { ["provider"] = "MOCK", ["registered"] = true, ["permission"] = "GRANTED", ["tokenFingerprint"] = new string('a', 64), ["updatedAt"] = "2026-01-01T00:00:00Z" };
+        try { WireModels.Decode<GameBridge.PushRegistration>(badPush); throw new Exception("raw token-sized fingerprint accepted"); }
+        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "fingerprint redaction"); }
         var missingProfile = (JObject)fixture["profile"].DeepClone(); missingProfile.Remove("displayName");
         try { WireModels.Decode<GameBridge.UserProfile>(missingProfile); throw new Exception("missing nullable field accepted"); }
         catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable"); }
@@ -112,11 +126,17 @@ internal static class Program
         Check(facade.GetStatus().Mode == null, "initial mode unknown");
         await facade.InitializeAsync(config);
         Check(facade.GetStatus().State == "READY", "facade initialized");
+        Check(facade.GetCapabilities().Known && facade.GetCapabilities().Features["auth"].Supported, "capability snapshot");
         var profile = await facade.SignInAsync(GameBridge.AuthProvider.MOCK); Check(profile.provider == "MOCK", "facade sign-in");
         Check((await facade.GetProductsAsync()).Count == 2, "facade products");
         var purchase = await facade.PurchaseAsync("coins_100"); Check(purchase.fulfillmentStatus == GameBridge.FulfillmentStatus.GRANTED, "facade fake purchase");
         Check((await facade.GetEntitlementsAsync()).coinBalance == "100", "facade wallet");
         Check((await facade.RestoreSessionAsync()).signedIn, "facade restore");
+        Check((await facade.SyncPurchasesAsync(GameBridge.SyncReason.USER_RESTORE)).entitlements.coinBalance == "100", "facade sync");
+        Check((await facade.RequestPushPermissionAsync()).permission == "GRANTED", "fake permission");
+        Check((await facade.RegisterPushAsync()).tokenFingerprint == "mock-fingerprint", "fake registration");
+        await facade.UnregisterPushAsync(); Check((await facade.GetServiceConfigAsync()).source == "DEFAULT", "fake config");
+        Check(facade.GetDiagnostics().PendingCount == 0, "diagnostic snapshot");
         await facade.SignOutAsync(); await facade.ShutdownAsync(); await facade.ShutdownAsync();
         Check(facade.GetStatus().State == "SHUTDOWN", "facade shutdown");
         await facade.InitializeAsync(config); facade.Dispose();
@@ -129,14 +149,14 @@ internal static class Program
             try { _ = concurrent.InitializeAsync(new GameBridge.GameBridgeConfig("other", GameBridge.ProviderMode.EditorOffline, null)); throw new Exception("different config accepted"); }
             catch (SdkException error) { Check(error.Code == "ALREADY_INITIALIZED_DIFFERENT_CONFIG", "different config"); }
             callerCancellation.Cancel(); await Expect("CANCELED", firstInit);
-            held.Reply(held.Requests[0], new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE" });
+            held.Reply(held.Requests[0], InitResponse());
             await secondInit;
             var oldSession = (string)held.Requests[0]["sdkSessionId"];
             var shutdown = concurrent.ShutdownAsync();
             held.Reply(held.Requests[1], new JObject { ["state"] = "SHUTDOWN" }); await shutdown;
             var reinit = concurrent.InitializeAsync(config);
             Check((string)held.Requests[2]["sdkSessionId"] != oldSession, "new session after shutdown");
-            held.Reply(held.Requests[2], new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE" }); await reinit;
+            held.Reply(held.Requests[2], InitResponse()); await reinit;
         }
         concurrent.Dispose();
         Console.WriteLine("Registry, facade and offline fake smoke passed; no Unity runtime or real provider tested");

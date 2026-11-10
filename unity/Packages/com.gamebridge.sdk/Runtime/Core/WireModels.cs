@@ -51,6 +51,23 @@ namespace GameBridge.Core
                 {
                     Uuid(wallet.userId); Decimal64(wallet.coinBalance); Decimal64(wallet.revision); Timestamp(wallet.updatedAt);
                 }
+                if (value is PurchaseSyncResult sync)
+                {
+                    if (sync.examinedCount < 0 || sync.recoveredCount < 0 || sync.deferredCount < 0 || sync.failureCount < 0) throw new JsonSerializationException("Invalid counts");
+                    Uuid(sync.entitlements.userId); Decimal64(sync.entitlements.coinBalance); Decimal64(sync.entitlements.revision); Timestamp(sync.entitlements.updatedAt);
+                }
+                if (value is PushPermission permission && (string.IsNullOrWhiteSpace(permission.permission) || string.IsNullOrWhiteSpace(permission.provider))) throw new JsonSerializationException("Invalid permission");
+                if (value is PushRegistration push)
+                {
+                    if (string.IsNullOrWhiteSpace(push.provider) || string.IsNullOrWhiteSpace(push.permission)) throw new JsonSerializationException("Invalid push registration");
+                    if (push.tokenFingerprint != null && !Regex.IsMatch(push.tokenFingerprint, @"^([0-9a-f]{12}|mock-fingerprint)$")) throw new JsonSerializationException("Invalid fingerprint");
+                    Timestamp(push.updatedAt);
+                }
+                if (value is ServiceConfig service)
+                {
+                    Decimal64(service.revision); if (service.expiresAt != null) Timestamp(service.expiresAt);
+                    if (service.source != "NETWORK" && service.source != "CACHE" && service.source != "DEFAULT") throw new JsonSerializationException("Invalid config source");
+                }
                 if (value is SessionSnapshot session)
                 {
                     if (session.user != null) Validate(session.user);
@@ -87,6 +104,22 @@ namespace GameBridge.Core
             {
                 foreach (var name in new[] { "userId", "coinBalance", "revision", "updatedAt" }) Field(obj, name, JTokenType.String);
                 Field(obj, "premiumEnabled", JTokenType.Boolean);
+            }
+            else if (typeof(T) == typeof(PurchaseSyncResult))
+            {
+                foreach (var name in new[] { "examinedCount", "recoveredCount", "deferredCount", "failureCount" }) Field(obj, name, JTokenType.Integer);
+                Field(obj, "entitlements", JTokenType.Object); ValidateShape<EntitlementSnapshot>(obj["entitlements"]);
+            }
+            else if (typeof(T) == typeof(PushPermission)) { Field(obj, "permission", JTokenType.String); Field(obj, "provider", JTokenType.String); }
+            else if (typeof(T) == typeof(PushRegistration))
+            {
+                Field(obj, "provider", JTokenType.String); Field(obj, "registered", JTokenType.Boolean); Field(obj, "permission", JTokenType.String);
+                Field(obj, "tokenFingerprint", JTokenType.String, true); Field(obj, "updatedAt", JTokenType.String);
+            }
+            else if (typeof(T) == typeof(ServiceConfig))
+            {
+                Field(obj, "revision", JTokenType.String); Field(obj, "maintenanceEnabled", JTokenType.Boolean); Field(obj, "message", JTokenType.String, true);
+                Field(obj, "expiresAt", JTokenType.String, true); Field(obj, "source", JTokenType.String);
             }
             else if (typeof(T) == typeof(SessionSnapshot))
             {

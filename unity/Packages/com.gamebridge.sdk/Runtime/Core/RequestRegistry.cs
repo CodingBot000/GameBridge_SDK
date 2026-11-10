@@ -45,6 +45,7 @@ namespace GameBridge.Core
         private bool disposed;
         private int ignored;
         internal int IgnoredMessages => Volatile.Read(ref ignored);
+        internal int PendingCount { get { lock (gate) return pending.Count; } }
         internal RequestRegistry(Action<string> dispatch, Guid sessionId)
         {
             this.dispatch = dispatch ?? throw new ArgumentNullException(nameof(dispatch));

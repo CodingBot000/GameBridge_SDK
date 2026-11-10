@@ -35,7 +35,7 @@ namespace GameBridge.Core
                 {
                     if ((string)payload["providerMode"] != "EDITOR_OFFLINE") error = "UNSUPPORTED_PROVIDER";
                     else if (initialized && !JToken.DeepEquals(initialization, payload)) error = "ALREADY_INITIALIZED_DIFFERENT_CONFIG";
-                    else { initialized = true; wasShutdown = false; initialization = (JObject)payload.DeepClone(); result = new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE", ["provider"] = "FAKE" }; }
+                    else { initialized = true; wasShutdown = false; initialization = (JObject)payload.DeepClone(); result = new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE", ["provider"] = "FAKE", ["capabilities"] = Capabilities() }; }
                 }
                 else if (operation == "sdk.status") result = new JObject { ["state"] = initialized ? "READY" : wasShutdown ? "SHUTDOWN" : "UNINITIALIZED", ["sdkVersion"] = "0.1.0-dev", ["mode"] = "EDITOR_OFFLINE" };
                 else if (operation == "sdk.shutdown") { initialized = false; signedIn = false; pushRegistered = false; wasShutdown = true; initialization = null; result = new JObject { ["state"] = "SHUTDOWN" }; }
@@ -83,6 +83,13 @@ namespace GameBridge.Core
                     ["ok"] = error == null, ["result"] = result ?? JValue.CreateNull(), ["error"] = error == null ? JValue.CreateNull() : (JToken)new JObject { ["code"] = error, ["retryable"] = error == "NETWORK_UNAVAILABLE" } };
                 Message?.Invoke(response.ToString(Formatting.None));
             }
+        }
+        private static JObject Capabilities()
+        {
+            var result = new JObject();
+            foreach (var name in new[] { "auth", "store", "push", "config" })
+                result[name] = new JObject { ["supported"] = true, ["configured"] = true, ["mode"] = "EDITOR_OFFLINE", ["reason"] = "Editor fake" };
+            return result;
         }
         private static JObject Profile() => new JObject { ["userId"] = UserId, ["displayName"] = "Mock User", ["provider"] = "MOCK" };
         private static JObject Product(string id, string type) => new JObject { ["productId"] = id, ["storeProductId"] = id, ["type"] = type, ["title"] = "Mock " + id, ["localizedPrice"] = "Mock price", ["currencyCode"] = "XXX", ["priceMicros"] = JValue.CreateNull() };

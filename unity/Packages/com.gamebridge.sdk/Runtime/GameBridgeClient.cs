@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using GameBridge.Core;
@@ -8,6 +9,32 @@ using Newtonsoft.Json.Linq;
 namespace GameBridge
 {
     public enum AuthProvider { MOCK, GOOGLE, APPLE }
+    public sealed class CapabilityStatus
+    {
+        public bool Supported { get; }
+        public bool Configured { get; }
+        public ProviderMode Mode { get; }
+        public string Reason { get; }
+        internal CapabilityStatus(bool supported, bool configured, ProviderMode mode, string reason)
+        { Supported = supported; Configured = configured; Mode = mode; Reason = reason; }
+    }
+    public sealed class SdkCapabilities
+    {
+        public bool Known { get; }
+        public IReadOnlyDictionary<string, CapabilityStatus> Features { get; }
+        public DateTimeOffset SnapshotAt { get; }
+        internal SdkCapabilities(bool known, IDictionary<string, CapabilityStatus> features, DateTimeOffset snapshotAt)
+        { Known = known; Features = new ReadOnlyDictionary<string, CapabilityStatus>(new Dictionary<string, CapabilityStatus>(features)); SnapshotAt = snapshotAt; }
+    }
+    public sealed class DiagnosticsSnapshot
+    {
+        public ProviderMode? Mode { get; }
+        public int PendingCount { get; }
+        public int IgnoredMessages { get; }
+        public DateTimeOffset SnapshotAt { get; }
+        internal DiagnosticsSnapshot(ProviderMode? mode, int pending, int ignored, DateTimeOffset snapshotAt)
+        { Mode = mode; PendingCount = pending; IgnoredMessages = ignored; SnapshotAt = snapshotAt; }
+    }
     public sealed class SdkStatus
     {
         public string State { get; }
@@ -16,8 +43,9 @@ namespace GameBridge
         public ProviderMode? Mode { get; }
         public DateTimeOffset? InitializedAt { get; }
         public DateTimeOffset SnapshotAt { get; }
-        internal SdkStatus(string state, ProviderMode? mode, DateTimeOffset? initialized, DateTimeOffset snapshot)
-        { State = state; Mode = mode; InitializedAt = initialized; SnapshotAt = snapshot; SdkVersion = "0.1.0-dev"; Platform = "Unity"; }
+        public SdkCapabilities Capabilities { get; }
+        internal SdkStatus(string state, ProviderMode? mode, DateTimeOffset? initialized, DateTimeOffset snapshot, SdkCapabilities capabilities)
+        { State = state; Mode = mode; InitializedAt = initialized; SnapshotAt = snapshot; Capabilities = capabilities; SdkVersion = "0.1.0-dev"; Platform = "Unity"; }
     }
     public sealed class InitResult { public SdkStatus Status { get; } internal InitResult(SdkStatus status) { Status = status; } }
 
@@ -34,6 +62,7 @@ namespace GameBridge
         private DateTimeOffset? initializedAt;
         private ProviderMode? lastMode;
         private DateTimeOffset snapshotAt = DateTimeOffset.UtcNow;
+        private SdkCapabilities capabilities = new SdkCapabilities(false, new Dictionary<string, CapabilityStatus>(), DateTimeOffset.UtcNow);
         private int generation;
         private bool disposed;
         internal event Action<GameBridgeClient> Disposed;
@@ -46,7 +75,9 @@ namespace GameBridge
         private void OnMessage(string json) { RequestRegistry current; lock (gate) current = registry; current?.HandleMessage(json); }
         internal void Pump() { transport.Pump(); }
         public SdkStatus GetStatus() { lock (gate) return Snapshot(); }
-        private SdkStatus Snapshot() => new SdkStatus(state, lastMode, initializedAt, snapshotAt);
+        private SdkStatus Snapshot() => new SdkStatus(state, lastMode, initializedAt, snapshotAt, capabilities);
+        public SdkCapabilities GetCapabilities() { lock (gate) return capabilities; }
+        public DiagnosticsSnapshot GetDiagnostics() { lock (gate) return new DiagnosticsSnapshot(lastMode, registry?.PendingCount ?? 0, registry?.IgnoredMessages ?? 0, DateTimeOffset.UtcNow); }
         public Task<InitResult> InitializeAsync(GameBridgeConfig value, CancellationToken cancellation = default)
         {
             if (cancellation.IsCancellationRequested) throw new SdkException("CANCELED");
@@ -83,11 +114,12 @@ namespace GameBridge
                 var payload = new JObject { ["appId"] = value.AppId, ["providerMode"] = ModeString(value.Mode), ["backendBaseUrl"] = value.BackendBaseUrl == null ? JValue.CreateNull() : (JToken)value.BackendBaseUrl, ["requestTimeoutMs"] = value.RequestTimeoutMs };
                 var result = await request.RequestAsync("sdk.initialize", payload, TimeSpan.FromMilliseconds(value.RequestTimeoutMs)).ConfigureAwait(false);
                 if (!(result is JObject obj) || obj["state"]?.Type != JTokenType.String || (string)obj["state"] != "READY" || obj["mode"]?.Type != JTokenType.String || (string)obj["mode"] != ModeString(value.Mode)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
+                var nextCapabilities = ReadCapabilities(obj["capabilities"], value.Mode);
                 InitResult snapshot;
                 lock (gate)
                 {
                     if (disposed || generation != epoch || state != "INITIALIZING") throw new SdkException("CANCELED");
-                    state = "READY"; initializedAt = snapshotAt = DateTimeOffset.UtcNow; initializing = null; snapshot = new InitResult(Snapshot());
+                    state = "READY"; initializedAt = snapshotAt = DateTimeOffset.UtcNow; capabilities = nextCapabilities; initializing = null; snapshot = new InitResult(Snapshot());
                 }
                 completion.TrySetResult(snapshot);
             }
@@ -120,6 +152,18 @@ namespace GameBridge
         }
         public async Task<EntitlementSnapshot> GetEntitlementsAsync(CancellationToken cancellation = default)
         { return WireModels.Decode<EntitlementSnapshot>(await Invoke("store.entitlements", new JObject(), false, cancellation)); }
+        public async Task<PurchaseSyncResult> SyncPurchasesAsync(SyncReason reason, CancellationToken cancellation = default)
+        {
+            if (!Enum.IsDefined(typeof(SyncReason), reason)) throw new SdkException("INVALID_ARGUMENT");
+            return WireModels.Decode<PurchaseSyncResult>(await Invoke("store.sync", new JObject { ["reason"] = reason.ToString() }, false, cancellation));
+        }
+        public async Task<PushPermission> RequestPushPermissionAsync(CancellationToken cancellation = default)
+        { return WireModels.Decode<PushPermission>(await Invoke("push.permission", new JObject(), true, cancellation)); }
+        public async Task<PushRegistration> RegisterPushAsync(CancellationToken cancellation = default)
+        { return WireModels.Decode<PushRegistration>(await Invoke("push.register", new JObject(), false, cancellation)); }
+        public async Task UnregisterPushAsync(CancellationToken cancellation = default) { await Invoke("push.unregister", new JObject(), false, cancellation); }
+        public async Task<ServiceConfig> GetServiceConfigAsync(CancellationToken cancellation = default)
+        { return WireModels.Decode<ServiceConfig>(await Invoke("config.get", new JObject(), false, cancellation)); }
         private async Task<JToken> Invoke(string operation, JObject payload, bool interactive, CancellationToken cancellation)
         {
             RequestRegistry request; int epoch; TimeSpan timeout;
@@ -169,6 +213,20 @@ namespace GameBridge
             RequestRegistry request;
             lock (gate) { if (disposed) return; disposed = true; generation++; state = "SHUTDOWN"; snapshotAt = DateTimeOffset.UtcNow; request = registry; registry = null; }
             request?.Dispose(); transport.Message -= OnMessage; transport.Dispose(); Disposed?.Invoke(this);
+        }
+        private static SdkCapabilities ReadCapabilities(JToken token, ProviderMode mode)
+        {
+            if (!(token is JObject root)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
+            var result = new Dictionary<string, CapabilityStatus>();
+            foreach (var name in new[] { "auth", "store", "push", "config" })
+            {
+                if (!(root[name] is JObject feature) || feature["supported"]?.Type != JTokenType.Boolean || feature["configured"]?.Type != JTokenType.Boolean ||
+                    feature["mode"]?.Type != JTokenType.String || (string)feature["mode"] != ModeString(mode) || !feature.ContainsKey("reason") ||
+                    (feature["reason"].Type != JTokenType.String && feature["reason"].Type != JTokenType.Null)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
+                result[name] = new CapabilityStatus((bool)feature["supported"], (bool)feature["configured"], mode,
+                    feature["reason"].Type == JTokenType.Null ? null : (string)feature["reason"]);
+            }
+            return new SdkCapabilities(true, result, DateTimeOffset.UtcNow);
         }
         private static bool SameConfig(GameBridgeConfig a, GameBridgeConfig b) => a != null && a.AppId == b.AppId && a.Mode == b.Mode && a.BackendBaseUrl == b.BackendBaseUrl && a.RequestTimeoutMs == b.RequestTimeoutMs;
         private static string ModeString(ProviderMode mode)

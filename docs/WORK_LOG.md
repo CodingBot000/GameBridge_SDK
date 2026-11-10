@@ -2355,3 +2355,5 @@
 - SDK 경로 설정 후 Android R20 단일 테스트 Gradle 종료 0. Swift 대응 테스트를 실행한다.
 - R20 타깃 재시험: Android XML 1 test/0 failure/0 skip, Swift XCTest 1 test/0 failure/0 skip. 첫 Android 호출의 SDK 경로 오류는 환경 지정 후 해결했다.
 - 커밋 준비: R20 단일 테스트 결과·초기 환경 오류 기록만 포함한다.
+- R09 Android 점검: `adb devices` 연결 기기 0. 기존 사용자 AVD는 사용·수정하지 않았다. 실제 Unity AndroidJavaProxy/JNI 경계는 실행되지 않아 PARTIAL 유지한다.
+- P11 진행 원장·manifest 및 누락 음성 검사 PASS. 커밋 준비: R09 연결 기기 부재 및 재개 체크포인트를 기록하며 검증 미실행을 완료로 바꾸지 않는다.

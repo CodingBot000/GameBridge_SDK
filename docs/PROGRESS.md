@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / P09-T03 회귀 시나리오 감사
+- 현재 Phase / Task: P09 / 미완료 회귀 및 환경 검증
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: e9b64fb (격리 strict aggregate 전체 FAIL; Unity·외부 서비스는 미검증)
-- 현재 작업 트리 상태: 진행 문서·회귀 매핑 변경 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
+- 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 수정된 소스로 패키지를 재생성하고 strict-local 및 남은 시나리오를 계속 검증
+- 바로 다음 행동: Unity Editor 라이선스·호환 버전과 Android/iOS 기기 환경 확보 후 R09/R11/R22/R40/R43/R49 및 iOS 26.5 실패를 재검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -243,3 +243,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - R20 Android 단일 synthetic 테스트 PASS. Swift 단일 회귀 검증을 시작한다.
 - R20 Android·Swift 타깃 synthetic 회귀 각각 1건 PASS, skip 0. 실제 네트워크·Unity 검증은 아니다.
 - P09-T03 커밋 준비: R20 타깃 테스트와 최초 환경 오류를 증거에 기록한다.
+- P09-T02 R09 환경 조사: 연결된 Android 기기가 없고 사용자의 기존 AVD만 확인됐다. Unity AndroidJavaProxy 경계를 실제 검증할 별도 환경과 라이선스는 미준비이므로 JNI 실행 PASS로 기록하지 않는다.
+- P11 원장·manifest·음성 검사 PASS. 커밋 준비: 남은 환경 제한과 다음 검증 경로를 기록한다.

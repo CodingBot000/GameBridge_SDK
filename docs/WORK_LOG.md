@@ -832,3 +832,6 @@
 - Apple endpoint의 실제 Spring Security 필터와 DB 세션 연결을 별도 sandbox 시험 DB에서 확인한다. test-only identity 서명을 사용하며 Apple root가 없는 상태에서 구매 지급 없이 503이어야 한다.
 - 별도 sandbox PostgreSQL의 실제 Spring HTTP 통합 시험 1건 통과(skip 0): 익명 binding 401, synthetic 로그인 세션의 binding 200, Apple root 미설정 verify 503 CONFIG_REQUIRED 및 원장 변화 없음. V6 migration은 전용 시험 DB에만 적용했다. 실제 Apple/Google 계정과 서명은 미사용이다.
 - 커밋 전: 인증 필터·설정 누락 fail-closed 회귀 시험만 포함한다. 실제 Apple signed transaction grant 및 StoreKit finish는 여전히 미검증이다.
+- Apple HTTP 경로의 synthetic decoder→실제 인증 filter→격리 sandbox DB grant를 10개 동시 요청으로 연결하는 통합 시험을 작성한다. 사용자 계정·Apple 서명은 사용하지 않는다.
+- synthetic decoder를 주입한 실제 sandbox HTTP·보안 filter·PostgreSQL 통합 시험 1건 통과(skip 0): 10개 동시 verify 모두 200, GRANTED 1건·동일 purchase ID·ledger 1건/100. 실제 Apple signature/StoreKit 거래가 아닌 fixture이다. 시험 DB 기록은 보존했다.
+- 커밋 전: synthetic HTTP/DB 회귀만 포함. 실제 Apple root·Sandbox 및 Native finish는 여전히 미검증이다.

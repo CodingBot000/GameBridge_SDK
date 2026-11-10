@@ -8,9 +8,10 @@ public protocol TokenStore {
     func save(_ value: String) throws
     func clear() throws
 }
-public struct BackendResponse {
+public struct BackendResponse: CustomStringConvertible {
     public let requestId: String?
     public let json: Data
+    public var description: String { "BackendResponse([redacted])" }
 }
 private final class RejectRedirect: NSObject, URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,

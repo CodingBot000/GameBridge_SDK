@@ -16,7 +16,9 @@ interface TokenStore {
     fun save(value: String)
     fun clear()
 }
-data class BackendResponse(val requestId: String?, val json: String)
+class BackendResponse(val requestId: String?, val json: String) {
+    override fun toString() = "BackendResponse([redacted])"
+}
 
 /** Never follows redirects with credentials and never exposes raw response bodies on failure. */
 class BackendClient(private val config: GameBridgeConfig) {

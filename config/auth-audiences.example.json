@@ -1,0 +1,10 @@
+{
+  "gamebridge-sample": {
+    "GOOGLE": ["replace-with-public-web-client-id.apps.googleusercontent.com"],
+    "APPLE": ["replace.with.native.bundle.id"]
+  },
+  "gamebridge-unity-sample": {
+    "GOOGLE": ["replace-with-public-web-client-id.apps.googleusercontent.com"],
+    "APPLE": ["replace.with.unity.bundle.id"]
+  }
+}

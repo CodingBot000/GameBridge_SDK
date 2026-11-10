@@ -16,7 +16,9 @@ import java.util.UUID
 private fun digest(value: String): ByteArray = MessageDigest.getInstance("SHA-256").digest(value.toByteArray(Charsets.UTF_8))
 private fun reject(status: HttpStatus): Nothing = throw ResponseStatusException(status, "Request rejected")
 class PurchaseConflict(val errorCode: String) : RuntimeException()
-data class MockPurchaseInput(@field:NotBlank val productId: String, @field:NotBlank val proof: String, val quantity: Int)
+data class MockPurchaseInput(@field:NotBlank val productId: String, @field:NotBlank val proof: String, val quantity: Int) {
+    override fun toString() = "MockPurchaseInput([redacted])"
+}
 data class WalletSnapshot(val userId: String, val premiumEnabled: Boolean, val coinBalance: String, val revision: String, val updatedAt: String)
 data class MockPurchaseOutput(val serverPurchaseId: String, val fulfillmentStatus: String, val finalizationStatus: String, val entitlements: WalletSnapshot)
 private data class ExistingPurchase(val id: UUID, val owner: UUID, val product: String)

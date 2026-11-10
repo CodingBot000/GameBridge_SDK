@@ -21,8 +21,10 @@ class IdentityVerificationException(val code: String) : IllegalArgumentException
 
 /** The nonce input is a SHA-256 hash stored with the single-use server challenge. */
 class IdentityVerifier(private val decoders: Map<IdentityProvider, JwtDecoder>, private val clock: Clock = Clock.systemUTC()) {
-    fun verify(provider: IdentityProvider, token: String, audience: String, expectedNonceHash: ByteArray): VerifiedIdentity {
-        if (token.isBlank() || audience.isBlank() || expectedNonceHash.size != 32) throw IdentityVerificationException("AUTH_FAILED")
+    fun verify(provider: IdentityProvider, token: String, audience: String, expectedNonceHash: ByteArray): VerifiedIdentity =
+        verify(provider, token, setOf(audience), expectedNonceHash)
+    fun verify(provider: IdentityProvider, token: String, allowedAudiences: Set<String>, expectedNonceHash: ByteArray): VerifiedIdentity {
+        if (token.isBlank() || allowedAudiences.isEmpty() || allowedAudiences.any { it.isBlank() } || expectedNonceHash.size != 32) throw IdentityVerificationException("AUTH_FAILED")
         val decoder = decoders[provider] ?: throw IdentityVerificationException("CONFIG_REQUIRED")
         val jwt = try { decoder.decode(token) } catch (error: JwtException) {
             val network = generateSequence<Throwable>(error) { it.cause }.take(16).any { it is IOException }
@@ -36,9 +38,11 @@ class IdentityVerifier(private val decoders: Map<IdentityProvider, JwtDecoder>, 
         val subject = jwt.subject?.takeIf { it.isNotBlank() } ?: throw IdentityVerificationException("AUTH_FAILED")
         val nonce = jwt.claims["nonce"] as? String ?: throw IdentityVerificationException("AUTH_FAILED")
         val nonceHash = MessageDigest.getInstance("SHA-256").digest(nonce.toByteArray(Charsets.UTF_8))
+        val tokenAudiences = jwt.audience ?: emptyList()
+        val matching = tokenAudiences.filter { it in allowedAudiences }
+        val audience = if (tokenAudiences.size > 1) (jwt.claims["azp"] as? String)?.takeIf { it in matching } else matching.singleOrNull()
         if (jwt.headers["alg"] != "RS256" || issuer !in validIssuers || jwt.expiresAt?.isAfter(clock.instant()) != true ||
-            audience !in jwt.audience || (jwt.audience.size > 1 && jwt.claims["azp"] != audience) ||
-            !MessageDigest.isEqual(nonceHash, expectedNonceHash)) throw IdentityVerificationException("AUTH_FAILED")
+            audience == null || !MessageDigest.isEqual(nonceHash, expectedNonceHash)) throw IdentityVerificationException("AUTH_FAILED")
         val canonicalIssuer = if (provider == IdentityProvider.GOOGLE) "https://accounts.google.com" else issuer
         return VerifiedIdentity(provider, canonicalIssuer, subject, audience)
     }

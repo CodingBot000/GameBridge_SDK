@@ -8,16 +8,16 @@
 - 현재 Phase / Task: P04 / P04-T03
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
-- 현재 작업 트리 상태: P02-T01 부분 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
+- 현재 작업 트리 상태: P04-T03 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P04-T03 단일 사용 challenge·app별 audience 설정 및 인증 endpoint 연결
-- 불가피한 세션 종료 시 재개 행동: P02-T01 오류 처리와 P02-T02 인증 구현을 진행하고 P00·P01 미완료도 재검증
+- 바로 다음 행동: P04-T04 Native session refresh·logout 동시성 및 P04-T05 소비자 연결
+- 불가피한 세션 종료 시 재개 행동: P04-T04/P04-T05부터 진행하고 P00~P03의 PARTIAL 항목을 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 40 / IN_PROGRESS 23 / IMPLEMENTED 1 / BLOCKED 0
-- 로컬 검증: NOT_RUN 43 / PASS 1 / FAIL 0 / PARTIAL 20 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 40 / IN_PROGRESS 22 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 40 / PASS 2 / FAIL 0 / PARTIAL 22 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -56,7 +56,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P03-T06 | Unity 최소 Demo·Native 경로 분기 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P04-T01 | 실제 Android Google 로그인 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P04-T01 | USER-AUTH-GOOGLE |
 | P04-T02 | 실제 iOS Apple 로그인 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P04-T02 | USER-AUTH-APPLE |
-| P04-T03 | 서버 실제 identity 검증·nonce 재사용 방어 | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P04-T03 | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
+| P04-T03 | 서버 실제 identity 검증·nonce 재사용 방어 | IMPLEMENTED | PASS | WAITING_USER | docs/evidence/p04-t03-identity-verifier.md | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
 | P04-T04 | 세션 복원·single-flight 갱신·로그아웃 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P04-T05 | 인증 Native·Unity 소비자 통합 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
 | P05-T01 | 구매 상태·account binding 계약 | NOT_STARTED | NOT_RUN | N/A | - | - |

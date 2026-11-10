@@ -15,7 +15,9 @@ class BackendClientTest {
         server.start()
         try {
             val client = BackendClient(GameBridgeConfig("demo", ProviderMode.LOCAL_MOCK, "http://127.0.0.1:${server.address.port}"))
-            assertEquals("request-test", client.request("/v1/ok", "GET").requestId)
+            val response = client.request("/v1/ok", "GET")
+            assertEquals("request-test", response.requestId)
+            assertFalse(response.toString().contains("ok"))
             assertEquals("SESSION_EXPIRED", assertFailsWith<SdkFailure> { client.request("/v1/unauthorized", "GET") }.code)
             assertEquals("BRIDGE_PROTOCOL_MISMATCH", assertFailsWith<SdkFailure> { client.request("/v1/bad", "GET") }.code)
             assertEquals("INVALID_ARGUMENT", assertFailsWith<SdkFailure> { client.request("/v1/../evil", "GET") }.code)

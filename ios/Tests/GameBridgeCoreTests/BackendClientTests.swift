@@ -22,7 +22,7 @@ final class BackendClientTests: XCTestCase {
         let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [StubProtocol.self]
         let client = try BackendClient(config: GameBridgeConfig(appId: "demo", mode: .localMock, backendBaseURL: "http://127.0.0.1:8080"), sessionConfiguration: configuration)
         StubProtocol.responseCode = 200; StubProtocol.data = Data("{\"ok\":true}".utf8); StubProtocol.failWithTimeout = false
-        let value = try await client.request(path: "/v1/ok", method: "GET"); XCTAssertEqual(value.requestId, "request-test")
+        let value = try await client.request(path: "/v1/ok", method: "GET"); XCTAssertEqual(value.requestId, "request-test"); XCTAssertFalse(String(describing: value).contains("ok"))
         StubProtocol.responseCode = 401
         do { _ = try await client.request(path: "/v1/me", method: "GET"); XCTFail("401") } catch let error as SdkFailure { XCTAssertEqual(error.code, "SESSION_EXPIRED") }
         StubProtocol.responseCode = 200; StubProtocol.data = Data("bad".utf8)

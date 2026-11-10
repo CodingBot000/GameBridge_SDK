@@ -36,7 +36,9 @@ class TokenCipher(@Value("\${SERVER_TOKEN_ENCRYPTION_KEY:}") private val configu
         return nonce + cipher.doFinal(value.toByteArray(StandardCharsets.UTF_8))
     }
 }
-data class MockDeviceInput(@field:NotBlank val token: String, val provider: String, val platform: String, val appId: String)
+data class MockDeviceInput(@field:NotBlank val token: String, val provider: String, val platform: String, val appId: String) {
+    override fun toString() = "MockDeviceInput([redacted])"
+}
 @RestController
 @Profile("local-mock")
 class MockDevicesController(private val db: JdbcTemplate, private val cipher: TokenCipher, private val tx: TransactionTemplate) {

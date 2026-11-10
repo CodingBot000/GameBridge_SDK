@@ -70,6 +70,7 @@ GAMEBRIDGE_PROFILE=local-mock 또는 sandbox
 DATABASE_URL=사용자 로컬 연결
 DATABASE_USERNAME=로컬 전용
 DATABASE_PASSWORD=비밀값
+GAMEBRIDGE_AUTH_AUDIENCES_JSON=앱별_공개_대상_설정_JSON
 SERVER_TOKEN_ENCRYPTION_KEY=비밀값
 DEVELOPMENT_ADMIN_KEY=개발용 비밀값
 GAMEBRIDGE_BACKEND_BASE_URL=기기에서 접근 가능한 주소
@@ -85,9 +86,9 @@ local-mock 기본 host port는 loopback이다. 실기기 접근을 위해 LAN으
 
 사용자 할 일: Google Cloud/OAuth 설정에서 실제 앱 package와 signing certificate fingerprint를 등록하고 서버용 client ID 및 필요한 동의 화면/테스트 사용자 설정을 준비한다. Native sample과 Unity 앱의 ID·서명이 다르면 각각 대응한다. Credential Manager에서 사용하는 ID의 종류와 Backend가 기대하는 audience를 일치시킨다.
 
-클라이언트 공개 설정: `GOOGLE_SERVER_CLIENT_ID`. 서버 설정: `GOOGLE_ALLOWED_AUDIENCES` 및 app allowlist. client ID는 공개 식별자지만 client secret은 앱에 넣지 않는다. Native ID token 검증에 불필요한 서비스 계정 비밀키를 억지로 요구하지 않는다.
+클라이언트 공개 설정: `GOOGLE_SERVER_CLIENT_ID`. 서버 설정: `GAMEBRIDGE_AUTH_AUDIENCES_JSON`의 해당 appId/GOOGLE 목록. `config/auth-audiences.example.json`은 공개 식별자 자리표시자이며 실제 값은 사용자 로컬 환경에서 공급한다. client ID는 공개 식별자지만 client secret은 앱에 넣지 않는다. Native ID token 검증에 불필요한 서비스 계정 비밀키를 억지로 요구하지 않는다.
 
-현재 준비: Android Credential Manager 실제 호출과 Native nonce 전달·서버 교환 adapter 및 stub 시험은 작성됐다. 서버의 실제 challenge/exchange·Google 서명 검증과 샘플 실 Provider UI는 아직 없어 코드 준비는 BLOCKED다. 실제 Google 계정 로그인은 실행하지 않았다.
+현재 준비: Android Credential Manager 실제 호출과 Native nonce 전달·서버 교환 adapter 및 stub 시험은 작성됐다. 서버 challenge/exchange와 Google 서명 검증은 구현하고 자체 서명 fixture로 시험했다. 샘플 실 Provider UI와 실제 Google 발급 토큰 검증은 아직 없어 코드 준비는 BLOCKED다. 실제 Google 계정 로그인은 실행하지 않았다.
 
 Codex 준비물: GoogleAuthProvider, nonce challenge, server verifier, error mapping, UI, config 검사. TODO 또는 “여기에 OAuth 구현”만 남아 있으면 코드 준비 IMPLEMENTED가 아니다.
 
@@ -101,9 +102,9 @@ Codex 준비물: GoogleAuthProvider, nonce challenge, server verifier, error map
 
 사용자 할 일: 실제 Apple 개발자 팀과 App ID의 Sign in with Apple capability, signing/provisioning, 테스트할 Apple 계정을 준비한다. Native sample·Unity 앱의 bundle ID가 다르면 audience/앱 설정을 각각 확인한다.
 
-설정: `APPLE_ALLOWED_AUDIENCES`, 각 bundle ID, Team ID. 네이티브 identityToken 공개키 검증과 authorization-code exchange/client-secret이 필요한 서버 기능을 구분한다. 구현이 후자를 사용하는 경우에만 해당 private key/key ID/team ID를 서버에 추가한다. 사용하지 않는 비밀키를 필수 요구하지 않는다.
+설정: `GAMEBRIDGE_AUTH_AUDIENCES_JSON`의 해당 appId/APPLE 목록, 각 bundle ID, Team ID. 네이티브 identityToken 공개키 검증과 authorization-code exchange/client-secret이 필요한 서버 기능을 구분한다. 구현이 후자를 사용하는 경우에만 해당 private key/key ID/team ID를 서버에 추가한다. 사용하지 않는 비밀키를 필수 요구하지 않는다.
 
-현재 준비: AuthenticationServices controller/delegate/anchor, 서버 nonce 전달, Native Keychain session 및 credential-state 처리 코드와 fake callback 시험, Simulator 컴파일이 준비됐다. `ios/SampleApp/SignInWithApple.entitlements.example`은 서명되지 않은 예제다. 서버 실제 challenge/exchange·Apple 서명 검증과 샘플/Unity 실 Provider 연결은 미구현이므로 코드 준비는 BLOCKED다.
+현재 준비: AuthenticationServices controller/delegate/anchor, 서버 nonce 전달, Native Keychain session 및 credential-state 처리 코드와 fake callback 시험, Simulator 컴파일이 준비됐다. `ios/SampleApp/SignInWithApple.entitlements.example`은 서명되지 않은 예제다. 서버 challenge/exchange와 Apple 서명 검증은 구현하고 자체 서명 fixture로 시험했다. 샘플/Unity 실 Provider 연결과 실제 Apple 발급 토큰 검증은 미완료이므로 코드 준비는 BLOCKED다.
 
 Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, server verifier, credential state 처리, Unity snapshot 변환. Apple 이름/email이 한 번만 올 수 있는 경우에 대비해야 한다.
 
@@ -193,4 +194,4 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 
 ## USER-AUTH-RATE — 인증 요청 제한
 
-사용자가 선택한 단일 서버 IP별 challenge 분당 30회·token 교환 분당 10회를 rolling 1분 제한으로 구현하고 단위 검증했다. `GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE`, `GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE`로 조정한다. IP는 메모리에서 hash로만 보유하며 process 재시작 시 초기화된다. reverse proxy 전달 header는 신뢰하지 않으므로 proxy 뒤에서는 모든 요청이 proxy IP로 집계될 수 있다. 실제 인증 route 및 HTTP 통합 검증은 진행 중이며, 다중 서버 전역 제한은 구현하지 않았다.
+사용자가 선택한 단일 서버 IP별 challenge 분당 30회·token 교환 분당 10회를 rolling 1분 제한으로 구현하고 단위 검증했다. `GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE`, `GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE`로 조정한다. IP는 메모리에서 hash로만 보유하며 process 재시작 시 초기화된다. reverse proxy 전달 header는 신뢰하지 않으므로 proxy 뒤에서는 모든 요청이 proxy IP로 집계될 수 있다. sandbox 인증 route와 HTTP 제한을 synthetic 데이터로 검증했다. 다중 서버 전역 제한은 구현하지 않았다.

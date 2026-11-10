@@ -47,6 +47,37 @@ class IdentityVerifierTest {
             assertEquals("AUTH_FAILED", error.code); assertFalse(error.toString().contains(value))
         }
     }
+    @Test fun `multiple audiences require matching authorized party`() {
+        fun make(azp: String?): String {
+            val builder = JWTClaimsSet.Builder().issuer("https://accounts.google.com").subject("subject-123")
+                .audience(listOf("client-a", "client-b")).expirationTime(Date.from(Instant.now().plusSeconds(600))).claim("nonce", "server-nonce")
+            if (azp != null) builder.claim("azp", azp)
+            return SignedJWT(JWSHeader.Builder(JWSAlgorithm.RS256).keyID("test-only").build(), builder.build())
+                .apply { sign(RSASSASigner(key.toPrivateKey())) }.serialize()
+        }
+        val verifier = verifier()
+        assertEquals("client-b", verifier.verify(IdentityProvider.GOOGLE, make("client-b"), setOf("client-a", "client-b"), digest("server-nonce")).audience)
+        assertFailsWith<IdentityVerificationException> { verifier.verify(IdentityProvider.GOOGLE, make(null), setOf("client-a", "client-b"), digest("server-nonce")) }
+        assertFailsWith<IdentityVerificationException> { verifier.verify(IdentityProvider.GOOGLE, make("client-a"), setOf("client-b"), digest("server-nonce")) }
+    }
+    @Test fun `missing audience fails closed`() {
+        val claims = JWTClaimsSet.Builder().issuer("https://accounts.google.com").subject("subject-123")
+            .expirationTime(Date.from(Instant.now().plusSeconds(600))).claim("nonce", "server-nonce").build()
+        val value = SignedJWT(JWSHeader.Builder(JWSAlgorithm.RS256).keyID("test-only").build(), claims)
+            .apply { sign(RSASSASigner(key.toPrivateKey())) }.serialize()
+        assertEquals("AUTH_FAILED", assertFailsWith<IdentityVerificationException> { verifier().verify(IdentityProvider.GOOGLE, value, "client-a", digest("server-nonce")) }.code)
+    }
+    @Test fun `missing required identity claims fail closed`() {
+        for (missing in listOf("exp", "nonce", "sub")) {
+            val claims = JWTClaimsSet.Builder().issuer("https://accounts.google.com").audience("client-a")
+            if (missing != "sub") claims.subject("subject-123")
+            if (missing != "exp") claims.expirationTime(Date.from(Instant.now().plusSeconds(600)))
+            if (missing != "nonce") claims.claim("nonce", "server-nonce")
+            val value = SignedJWT(JWSHeader.Builder(JWSAlgorithm.RS256).keyID("test-only").build(), claims.build())
+                .apply { sign(RSASSASigner(key.toPrivateKey())) }.serialize()
+            assertEquals("AUTH_FAILED", assertFailsWith<IdentityVerificationException> { verifier().verify(IdentityProvider.GOOGLE, value, "client-a", digest("server-nonce")) }.code)
+        }
+    }
     @Test fun `jwks network failure is not treated as authentication success`() {
         val verifier = IdentityVerifier(mapOf(IdentityProvider.GOOGLE to org.springframework.security.oauth2.jwt.JwtDecoder { throw JwtException("temporary", IOException()) }))
         assertEquals("NETWORK_UNAVAILABLE", assertFailsWith<IdentityVerificationException> { verifier.verify(IdentityProvider.GOOGLE, "a.b.c", "client-a", digest("server-nonce")) }.code)

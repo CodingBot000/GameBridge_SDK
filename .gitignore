@@ -23,3 +23,6 @@ artifacts/
 
 # Generated from ios/Framework/project.yml
 ios/Framework/*.xcodeproj/
+
+# Local app/provider configuration
+config/*.local.*

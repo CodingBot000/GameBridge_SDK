@@ -474,3 +474,22 @@
 - Google issuer 표기를 동일한 canonical issuer로 정규화 후 Backend test 종료 0. 사용자 승인 rate limit은 단일 서버 메모리에서 IP별 rolling 1분으로 구현하며 reverse proxy header는 신뢰하지 않는다.
 - 사용자 승인 rate limit과 rolling-minute 구현 후 `./backend/gradlew -p backend test` 종료 0: Identity verifier 3건 및 rate limiter 1건 XML에서 실행·통과 확인. IP별·operation별 분리와 1분 만료를 단위 검증했다. HTTP route 연동과 다중 서버 전역 제한은 아직 검증하지 않았다.
 - 커밋 전: 실제 고정 JWKS endpoint verifier와 로컬 서명 fixture, 사용자 결정 rate limiter만 포함. challenge 발급·원자적 소비·실제 HTTP 인증 연결과 외부 실연동은 미완료이므로 P04-T03 PARTIAL/WAITING_USER 유지.
+- P04-T03 계속: app별 복수 audience 허용 설정과 DB 단일 사용 challenge, 검증 후 identity/session 생성의 원자적 경로를 구현한다. 실제 client ID와 bundle ID는 사용자 설정 전까지 요구만 하고 기본값을 넣지 않는다.
+- app별 복수 audience를 단일 signature 검증 후 대조하도록 보정하고 Backend test 종료 0. 단일 사용 challenge·identity/session transaction 및 HTTP 연결은 다음 구현이다.
+- 単一使用 challenge・app別 audience・signature 検証後の identity/session transaction と HTTP route を追加し `./backend/gradlew -p backend test` 종료 0。既存 unit test のみで新しい DB challenge race・HTTP route は未検証。
+- `./backend/gradlew -p backend test` 종료 0: app/provider별 audience 설정과 복수 audience의 authorized-party 검사를 포함해 AudiencePolicy 1건·IdentityVerifier 4건 실제 실행·통과. DB 단일 사용 경합 및 HTTP 통합은 아직 미실행.
+- 전용 PostgreSQL container `up -d --wait` 종료 0. 신규 app별 audience·서명 fixture·동시 challenge 재사용 시험은 격리된 sandbox DB에서 실행할 예정이다.
+- `gamebridge_auth_verify_20261110` DB가 없음을 확인하고 별도 생성(조회·생성 각 종료 0). 기존 DB는 지우거나 수정하지 않는다.
+- 127.0.0.1:18082 포트가 비어 있음을 확인한 후 synthetic audience 설정과 별도 DB로 sandbox profile 서버 기동. `/health` HTTP 200(폴링 종료 0). 실제 Provider 토큰이나 사용자 계정은 사용하지 않았다.
+- `GAMEBRIDGE_RUN_AUTH_DB_TESTS=true ... ./backend/gradlew -p backend test --rerun-tasks` 종료 0. JUnit XML DB 시험 1건·실패0·skip0: challenge nonce hash 저장, 동시 재사용 1건만 성공, subject 재로그인 동일 user, 잘못된 audience 실패 시 challenge 미소비 확인. 자체 서명 시험이며 실제 Provider는 아니다.
+- `GAMEBRIDGE_TEST_BASE_URL=http://127.0.0.1:18082 python3 scripts/smoke-auth-rate-local.py` 종료 0: sandbox 시험 서버에서 challenge 30회·잘못된 교환 10회 허용 후 각각 429, X-Forwarded-For 위장 무시, requestId 일치와 오류의 token 미노출 확인. 실제 Provider token은 사용하지 않았다.
+- profile 응답에 서버 저장 displayName을 추가하고 Google issuer 두 표기가 동일 사용자로 연결되는 DB 검증을 재실행해 종료 0. 잘못된/누락 audience 처리와 민감 DTO 문자열 정제를 이어서 확인한다.
+- 누락 audience 실패 처리와 민감 session/refresh/proof/token DTO의 toString 정제를 추가한 뒤 opt-in DB 포함 Backend test 종료 0. 실제 Google/Apple token은 사용하지 않았다.
+- Backend 민감 DTO 문자열 정제 시험 1건 실행·통과(XML 확인), Gradle test 종료 0. Native response 정제 시험과 실제 HTTP 교환 통합은 이어서 수행한다.
+- Native response 문자열 정제 후 `:sdk-core:test` 및 `swift test --package-path ios` 각각 종료 0. Swift XCTest 15 통과·local Backend 1 skip; Android core도 opt-in local Backend 시험은 미실행. 실제 Provider 검증 아님.
+- opt-in `./backend/gradlew -p backend test --rerun-tasks` 종료 0: sandbox Spring HTTP 통합 시험 1건, DB 경합 시험 1건 및 identity fixture 시험이 실제 실행되어 통과. 시험 전용 메모리 RSA decoder로 Google/Apple 교환·/me displayName·replay 409·잘못된 audience 후 올바른 재시도를 확인. 실제 Provider 서명 검증 PASS는 아니다.
+- opt-in `./backend/gradlew -p backend test bootJar --rerun-tasks` 종료 0: 격리 sandbox DB와 테스트 전용 RSA decoder를 사용한 HTTP 성공/거부·DB replay 경합 검증, sandbox 개발 auth 404 확인. JUnit XML에서 대상 시험 실행·0 실패·0 skip을 확인했고 배포 jar에 test 전용 verifier/key fixture가 없는 것을 검사했다. 실제 Google/Apple token 검증은 미실행이다.
+- 필수 exp·nonce·subject 누락 거부 시험을 추가한 opt-in `test bootJar --rerun-tasks` 종료 0. IdentityVerifier 6건, HTTP 통합 1건, DB 경합 1건, rate 1건이 XML상 모두 실행·통과. 별도 finalization DB 시험 2건은 이번 실행에서 skip이다. 자체 서명 fixture만 사용했다.
+- sandbox HTTP 시험 서버 Ctrl-C 종료 130. 전용 DB volume을 보존하고 container만 정지한다.
+- sandbox 시험 DB container 정지 종료 0, 데이터와 전용 volume은 보존했다. 진행 원장 집계가 실제 Task 행과 달라진 것을 발견해 행 기준으로 재계산한다.
+- 커밋 전: HTTP/DB 실험과 자체 서명 fixture 결과를 증거에 기록하고 실제 Task 행 기준 집계를 재계산했다. P04-T03의 구현·필수 로컬 검증은 완료로 표시하되 실제 Google/Apple 토큰 및 실기기는 WAITING_USER로 유지한다.

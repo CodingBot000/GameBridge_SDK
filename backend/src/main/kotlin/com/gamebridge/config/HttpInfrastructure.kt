@@ -1,6 +1,7 @@
 package com.gamebridge.config
 
 import com.gamebridge.purchase.PurchaseConflict
+import com.gamebridge.auth.AuthFlowException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -36,6 +37,12 @@ class HealthController {
 }
 @RestControllerAdvice
 class ApiErrors {
+    @ExceptionHandler(AuthFlowException::class)
+    fun authFailure(ex: AuthFlowException, request: HttpServletRequest): ResponseEntity<Map<String, Any>> {
+        val status = when (ex.code) { "AUTH_REPLAY_DETECTED" -> HttpStatus.CONFLICT; "CONFIG_REQUIRED", "NETWORK_UNAVAILABLE" -> HttpStatus.SERVICE_UNAVAILABLE; else -> HttpStatus.UNAUTHORIZED }
+        val code = if (ex.code in setOf("AUTH_REPLAY_DETECTED", "CONFIG_REQUIRED", "NETWORK_UNAVAILABLE")) ex.code else "AUTH_FAILED"
+        return ResponseEntity.status(status).body(mapOf("code" to code, "message" to "Authentication failed", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to (code == "NETWORK_UNAVAILABLE")))
+    }
     @ExceptionHandler(PurchaseConflict::class)
     fun purchaseConflict(ex: PurchaseConflict, request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.CONFLICT)
         .body(mapOf("code" to ex.errorCode, "message" to "Purchase conflict", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))

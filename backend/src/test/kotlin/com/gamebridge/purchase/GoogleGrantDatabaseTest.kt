@@ -55,6 +55,12 @@ class GoogleGrantDatabaseTest {
         assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
         assertFailsWith<GoogleProofRejected> { pipeline.verifyAndGrant(principal, StoreEnvironment.SANDBOX, "unknown", token, UUID.randomUUID()) }
         val id = results.first().serverPurchaseId
+        val guard = DatabaseGoogleGrantCheck(db) { if (it == app) "test.package" else null }
+        val finish = GoogleFinalizationInput(id, "test.package", "coins.play", binding, token, GoogleFinalizationAction.CONSUME)
+        assertTrue(guard.isGranted(finish, hash))
+        assertFalse(guard.isGranted(finish, ByteArray(32)))
+        assertFalse(guard.isGranted(GoogleFinalizationInput(id, "wrong.package", "coins.play", binding, token, GoogleFinalizationAction.CONSUME), hash))
+        assertFalse(guard.isGranted(GoogleFinalizationInput(id, "test.package", "coins.play", binding, token, GoogleFinalizationAction.ACKNOWLEDGE), hash))
         val encrypted = db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, id)!!
         assertFalse(encrypted.toString(Charsets.ISO_8859_1).contains(token))
         assertEquals(token, cipher.decrypt(encrypted, "$app:SANDBOX:GOOGLE:$id"))

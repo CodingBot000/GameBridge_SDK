@@ -911,3 +911,7 @@
 - Swift auth/push fake 단위 11건 통과: APNs bytes→hex, session header, fingerprint, 해제, logout 후 거부. 실제 APNs token이나 network는 아니다. 새 소스의 iOS target compile을 확인한다.
 - iOS simulator static framework compile 성공. Android/iOS Native 등록 client는 fake Backend만 사용했으며 호스트 callback에 자동 조립하지 않는다.
 - 커밋 전: Native-only token 등록/해제 client와 fake 시험만 포함한다. 실제 FCM/APNs·공개 facade·host 조립은 미완료다.
+- P05-T05 계속: Google finalizer 호출 전에 DB의 지급·proof hash·계정·catalog/action과 app별 package 설정을 일치시키는 read-only guard를 구현한다. 완료 후 증빙 보존 정책은 여전히 사용자 결정 대기이며 worker는 연결하지 않는다.
+- Google DB grant guard 초안과 synthetic DB mismatch 시험을 작성했다. 테스트에서는 실제 Publisher에 호출하지 않는다.
+- synthetic 격리 DB 시험 통과: durable grant가 있을 때만 확인하고 잘못된 proof hash/package/action을 거부했다. 실제 Google 조회와 job 실행은 없다.
+- 커밋 전: DB read-only guard 및 test만 포함한다. 암호화 증빙 완료 후 정책과 worker/실 API는 여전히 미완료다.

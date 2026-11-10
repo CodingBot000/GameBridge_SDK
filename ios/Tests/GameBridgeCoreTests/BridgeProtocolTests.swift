@@ -5,7 +5,8 @@ import XCTest
 final class BridgeProtocolTests: XCTestCase {
     func fixture(_ name: String) throws -> Data {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        return try Data(contentsOf: root.appendingPathComponent("contracts/fixtures/bridge/\(name).json"))
+        let contracts = ProcessInfo.processInfo.environment["GAMEBRIDGE_CONTRACT_ROOT"].map { URL(fileURLWithPath: $0) } ?? root.appendingPathComponent("contracts")
+        return try Data(contentsOf: contracts.appendingPathComponent("fixtures/bridge/\(name).json"))
     }
     func testValidEnvelopes() throws {
         _ = try BridgeProtocol.parse(fixture("request"))

@@ -1475,3 +1475,14 @@
 - Task 시작: 최신 코드와 protocol snapshot을 저장하고 P00~P08 전 행 및 미완료 사항을 기록한다. Unity 설치 검증·StoreKit 실패·Mock push delivery 등으로 이 기준점은 완료가 아닌 PARTIAL이다.
 - snapshot 13개 SHA256과 현재 source 바이트 일치, 계획의 P00~P08 48개 Task와 기준점 표의 ID 집합·건수 일치를 확인했다. 기준점은 INCOMPLETE이며 기능 실행 검증이 아니다.
 - 커밋 전: API/protocol snapshot과 미완료 기준점 문서만 포함한다. P08-T05는 PARTIAL, 기존 내부 미구현과 환경 실패는 그대로 유지한다.
+
+### [P09-T01] regression manifest·공통 계약
+- Task 시작: 미완료 P08 기준점을 유지한 채 독립적으로 가능한 하네스 작업을 시작한다. 계획의 R01~R50을 모두 등록하고 현재 시험으로 부분 검증되는 것과 미구현을 분리한다. required scenario 미구현·누락은 성공으로 처리하지 않는다.
+- 계획 R01~R50을 모두 manifest에 등록하고 candidate suite와 coverage를 PARTIAL/NOT_IMPLEMENTED로 명시했다. scenario runner는 부분·미구현 또는 환경 미실행을 exit 2로 남기며 전체 통과로 승격하지 않는다. 공통 contract runner를 작성한다.
+- 공통 contract runner는 Kotlin/Swift/C# fixture 시험을 실제 실행하고 Kotlin XML·Swift 실행 수·C# smoke marker가 없거나 0이면 성공을 거부한다. 로그는 새 artifacts 디렉터리에만 남긴다. manifest와 실제 runner를 검증한다.
+- `python3 harness/check-manifest.py` 종료 0: 계획 R01~R50 50개 목록·실행 entry 구조 일치(시나리오 실행 아님). `harness/run-contracts.py` 종료 0: Kotlin 4, Swift 4, C# 독립 smoke 1 실행; Unity Editor/실기기 검증은 포함하지 않는다. 잘못된 공통 fixture가 실제로 실패하는지 격리 사본으로 확인한다.
+- `harness/check-contract-negative.py` 종료 0: 새 격리 fixture 사본의 유효 request protocolVersion을 99로 바꿨을 때 Kotlin과 Swift contract runner가 각각 실패함을 확인했다. 원본 fixture는 변경하지 않았다.
+- `harness/check-manifest-negative.py` 종료 0: 새 manifest 사본에서 R49 제거 시 검사기가 nonzero를 반환했다. `harness/run-scenario.py R49`는 NOT_IMPLEMENTED와 exit 2를 반환했다. 음성 fixture 테스트 이후 원본으로 공통 계약 시험을 다시 실행한다.
+- 음성 fixture 시험 후 원본 `harness/run-contracts.py` 재실행 종료 0: Kotlin 4·Swift 4·C# smoke 1. Gradle이 test 전 실패한 경우 오래된 XML을 실행 수로 재사용하지 않도록 report 수정 시각 확인을 추가하고 재검증한다.
+- report 신선도 검사 추가 후 `harness/run-contracts.py` 종료 0: Kotlin 4, Swift 4, C# 독립 smoke 1. 결과는 `artifacts/contracts-_t6il2fe/result.json`에 있으며 작업 트리는 HEAD+미커밋 변경이다. Unity Editor/IL2CPP와 50개 시나리오 전체 PASS가 아니다.
+- 커밋 전: P09 manifest·부분 coverage의 fail-closed runner·공통 계약 및 격리 음성 시험만 포함한다. 50개 개별 assertion 대응과 required platform lane은 아직 미완료로 P09-T01 PARTIAL 유지한다.

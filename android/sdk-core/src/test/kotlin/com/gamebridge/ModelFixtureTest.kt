@@ -12,7 +12,7 @@ import kotlin.test.assertFails
 @Serializable private data class Fixture(val profile: UserProfile, val product: StoreProduct, val purchase: PurchaseResult, val error: SdkError)
 class ModelFixtureTest {
     private val json = Json { ignoreUnknownKeys = true }
-    private fun fixture() = File("../../contracts/fixtures/models/roundtrip.json").readText()
+    private fun fixture() = File(System.getenv("GAMEBRIDGE_CONTRACT_ROOT") ?: "../../contracts", "fixtures/models/roundtrip.json").readText()
     @Test fun `shared fixture round trips without loss`() {
         val original = json.decodeFromString<Fixture>(fixture())
         val roundTrip = json.decodeFromString<Fixture>(json.encodeToString(original))

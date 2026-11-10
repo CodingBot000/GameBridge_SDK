@@ -1,0 +1,1156 @@
+{
+  "version": 1,
+  "baselineStatus": "INCOMPLETE",
+  "suites": {
+    "contracts": {
+      "command": [
+        "python3",
+        "harness/run-contracts.py"
+      ],
+      "mode": "FAKE",
+      "platform": "Kotlin/Swift/C#"
+    },
+    "android-unit": {
+      "command": [
+        "android/gradlew",
+        "-p",
+        "android",
+        ":sdk-core:test",
+        ":sdk-android:testDebugUnitTest",
+        ":sdk-unity-bridge:testDebugUnitTest"
+      ],
+      "mode": "FAKE",
+      "platform": "Android"
+    },
+    "ios-unit": {
+      "command": [
+        "swift",
+        "test",
+        "--package-path",
+        "ios"
+      ],
+      "mode": "FAKE",
+      "platform": "iOS/macOS"
+    },
+    "backend-unit": {
+      "command": [
+        "backend/gradlew",
+        "-p",
+        "backend",
+        "test"
+      ],
+      "mode": "FAKE",
+      "platform": "Backend"
+    },
+    "unity-editor": {
+      "command": [
+        "python3",
+        "harness/unavailable.py",
+        "Unity Editor runtime verification is not yet implemented"
+      ],
+      "mode": "EDITOR",
+      "platform": "Unity"
+    },
+    "package": {
+      "command": [
+        "python3",
+        "harness/unavailable.py",
+        "fresh package and consumer verification is not yet automated"
+      ],
+      "mode": "LOCAL",
+      "platform": "Packaging"
+    },
+    "harness-self": {
+      "command": [
+        "python3",
+        "harness/unavailable.py",
+        "harness fail-closed self-test is not yet implemented"
+      ],
+      "mode": "LOCAL",
+      "platform": "Harness"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "R01",
+      "description": "초기화 전 API 호출",
+      "expected": "NOT_INITIALIZED, crash 없음",
+      "platform": "3언어 Core",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R01"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R02",
+      "description": "같은 config 동시 init",
+      "expected": "단일 초기화/일관된 결과",
+      "platform": "Core",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R02"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R03",
+      "description": "다른 config 재초기화",
+      "expected": "명시 오류, 기존 상태 보존",
+      "platform": "Core",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R03"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R04",
+      "description": "callback 중복",
+      "expected": "Task 완료 1회",
+      "platform": "Unity registry",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R04"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R05",
+      "description": "timeout 후 callback",
+      "expected": "Task 재완료 없음, 거래 이벤트는 보존",
+      "platform": "Bridge/Store",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R05"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R06",
+      "description": "다른 sdkSessionId event",
+      "expected": "현재 세션에 전달하지 않음",
+      "platform": "Bridge",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R06"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R07",
+      "description": "malformed JSON/필수값 누락",
+      "expected": "명시 오류, 앱 생존",
+      "platform": "공통 parser",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R07"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R08",
+      "description": "과대 payload/음수 길이",
+      "expected": "길이 검증으로 거부",
+      "platform": "Native Bridge",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R08"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R09",
+      "description": "한글/emoji/UTF-8 복사",
+      "expected": "문자열 동일, 해제 메모리 참조 없음",
+      "platform": "C ABI/JNI",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R09"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R10",
+      "description": "cancellation/shutdown race",
+      "expected": "pending task 누락/중복 완료 없음",
+      "platform": "Core",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R10"
+      ],
+      "candidateSuites": [
+        "contracts",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R11",
+      "description": "scene 전환/Domain Reload",
+      "expected": "dispatcher 1개, 구독 누수 없음",
+      "platform": "Unity",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "NOT_IMPLEMENTED",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R11"
+      ],
+      "candidateSuites": [
+        "unity-editor"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R12",
+      "description": "100회 init/shutdown 반복",
+      "expected": "registry/queue가 정리되고 무한 증가 없음",
+      "platform": "Local stress",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "NOT_IMPLEMENTED",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R12"
+      ],
+      "candidateSuites": [
+        "unity-editor"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R13",
+      "description": "잘못된 token signature/algorithm",
+      "expected": "인증 거부",
+      "platform": "Backend",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R13"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R14",
+      "description": "wrong issuer/audience/expired",
+      "expected": "인증 거부",
+      "platform": "Backend",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R14"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R15",
+      "description": "nonce mismatch/재사용",
+      "expected": "인증 거부, challenge 처리 일관",
+      "platform": "Backend",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R15"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R16",
+      "description": "Google/Apple 사용자 취소",
+      "expected": "정상 취소 모델, 로그인되지 않음",
+      "platform": "Provider fake",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R16"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R17",
+      "description": "최초 로그인 profile 일부 누락",
+      "expected": "subject로 계정 유지",
+      "platform": "Auth",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R17"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R18",
+      "description": "10개 동시 401",
+      "expected": "Native refresh single-flight",
+      "platform": "Session",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R18"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R19",
+      "description": "이전 refresh token 재사용",
+      "expected": "family revoke/재로그인",
+      "platform": "Backend",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R19"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R20",
+      "description": "offline logout",
+      "expected": "로컬 토큰 제거, 서버 pending 명시",
+      "platform": "Native",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R20"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R21",
+      "description": "sandbox에서 mock identity",
+      "expected": "거부, dev endpoint 비활성",
+      "platform": "Backend profile",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R21"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R22",
+      "description": "로그/Unity result 민감정보",
+      "expected": "원문 token/secret 없음",
+      "platform": "Redaction",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R22"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R23",
+      "description": "같은 거래 동시 10회 verify",
+      "expected": "원장 1개·코인 100",
+      "platform": "PostgreSQL",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R23"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R24",
+      "description": "다른 idempotency key·같은 거래",
+      "expected": "지급 1회",
+      "platform": "PostgreSQL",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R24"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R25",
+      "description": "같은 key·다른 body",
+      "expected": "409, 추가 지급 없음",
+      "platform": "Backend",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R25"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R26",
+      "description": "다른 user가 proof 재사용",
+      "expected": "account mismatch, 지급 없음",
+      "platform": "Backend",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R26"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R27",
+      "description": "PENDING 거래",
+      "expected": "grant/consume/finish 없음",
+      "platform": "Store/Backend",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R27"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R28",
+      "description": "PENDING→PURCHASED",
+      "expected": "검증 후 1회 지급",
+      "platform": "Store",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R28"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R29",
+      "description": "위조 proof/wrong app·product",
+      "expected": "검증 실패, 지급 없음",
+      "platform": "Verifier",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R29"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R30",
+      "description": "store environment 불일치",
+      "expected": "거부",
+      "platform": "Verifier",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R30"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R31",
+      "description": "DB transaction 중간 실패",
+      "expected": "purchase/원장 상태 원자성",
+      "platform": "PostgreSQL",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R31"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R32",
+      "description": "지급 commit 후 응답 유실",
+      "expected": "재요청에 기존 결과, 재지급 없음",
+      "platform": "Backend+client",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R32"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R33",
+      "description": "Google consume/ack 실패",
+      "expected": "durable retry, 원장 불변",
+      "platform": "Worker",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R33"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R34",
+      "description": "Apple finish 전 앱 종료",
+      "expected": "재실행 후 기존 지급 확인·finish",
+      "platform": "StoreKit/Fake",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R34"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R35",
+      "description": "서버 검증 실패/timeout",
+      "expected": "finish/consume 금지, retry 상태",
+      "platform": "Native/Server",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R35"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R36",
+      "description": "비소모성 복원",
+      "expected": "entitlement 복구, 중복 생성 없음",
+      "platform": "Store",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R36"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R37",
+      "description": "소모성 과거 잔액 복원",
+      "expected": "서버 원장 기준, 구매 기록 재지급 없음",
+      "platform": "Backend/client",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R37"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R38",
+      "description": "구매 중 로그인 계정 변경",
+      "expected": "구매 당시 binding 보호",
+      "platform": "Coordinator",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R38"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R39",
+      "description": "revoked/multi-quantity 관측",
+      "expected": "정책대로 거부/지원 제외, 임의 지급 없음",
+      "platform": "Verifier",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R39"
+      ],
+      "candidateSuites": [
+        "backend-unit",
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R40",
+      "description": "push 권한 거부",
+      "expected": "등록/표시 상태 명시, crash 없음",
+      "platform": "Native",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R40"
+      ],
+      "candidateSuites": [
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R41",
+      "description": "token rotate",
+      "expected": "새 token 등록·오래된 association 정리",
+      "platform": "Push/Server",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R41"
+      ],
+      "candidateSuites": [
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R42",
+      "description": "logout·다른 user login",
+      "expected": "token 소유 연결 정확히 이동",
+      "platform": "Push/Server",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R42"
+      ],
+      "candidateSuites": [
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R43",
+      "description": "APNs host delegate 연동",
+      "expected": "기존 delegate 보존·completion 호출",
+      "platform": "Swift/Unity host",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R43"
+      ],
+      "candidateSuites": [
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R44",
+      "description": "초기화 전 push click",
+      "expected": "READY 후 1회 전달",
+      "platform": "Router",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R44"
+      ],
+      "candidateSuites": [
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R45",
+      "description": "중복 messageId/잘못된 route",
+      "expected": "중복 제거/allowlist 차단",
+      "platform": "Router",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R45"
+      ],
+      "candidateSuites": [
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R46",
+      "description": "점검 모드에서 거래 복구",
+      "expected": "신규 구매 차단, 기존 처리 허용",
+      "platform": "Config/Store",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R46"
+      ],
+      "candidateSuites": [
+        "android-unit",
+        "ios-unit"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R47",
+      "description": "Android dependency 누락",
+      "expected": "소비 build 실패 감지",
+      "platform": "Packaging",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R47"
+      ],
+      "candidateSuites": [
+        "package"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R48",
+      "description": "iOS C symbol/slice 누락",
+      "expected": "링크 전 검사 또는 build 실패 감지",
+      "platform": "Packaging",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "PARTIAL",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R48"
+      ],
+      "candidateSuites": [
+        "package"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R49",
+      "description": "신규 Unity consumer 설치",
+      "expected": "Demo 소스 직접 참조 없이 import/build",
+      "platform": "Packaging",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "NOT_IMPLEMENTED",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R49"
+      ],
+      "candidateSuites": [
+        "package"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    },
+    {
+      "id": "R50",
+      "description": "필수 suite 미실행/증거 누락",
+      "expected": "전체 완료 판정 금지",
+      "platform": "Harness self-test",
+      "level": "REGRESSION",
+      "mode": "LOCAL_OR_FAKE",
+      "required": true,
+      "coverage": "NOT_IMPLEMENTED",
+      "entry": [
+        "python3",
+        "harness/run-scenario.py",
+        "R50"
+      ],
+      "candidateSuites": [
+        "harness-self"
+      ],
+      "evidence": "docs/WORK_LOG.md",
+      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+    }
+  ]
+}

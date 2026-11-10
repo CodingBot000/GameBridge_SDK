@@ -11,7 +11,8 @@ private struct Fixture: Codable, Equatable {
 final class ModelFixtureTests: XCTestCase {
     private func source() throws -> Data {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        return try Data(contentsOf: root.appendingPathComponent("contracts/fixtures/models/roundtrip.json"))
+        let contracts = ProcessInfo.processInfo.environment["GAMEBRIDGE_CONTRACT_ROOT"].map { URL(fileURLWithPath: $0) } ?? root.appendingPathComponent("contracts")
+        return try Data(contentsOf: contracts.appendingPathComponent("fixtures/models/roundtrip.json"))
     }
     func testSharedFixtureRoundTrip() throws {
         let value = try JSONDecoder().decode(Fixture.self, from: source())

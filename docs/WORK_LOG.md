@@ -1324,3 +1324,11 @@
 - C# 네 조건부 compile 및 iOS simulator static framework build 종료 0. 추가 검토에서 RequestRegistry allowlist가 internal `host.push*` 요청을 차단해 Unity host adapter가 Native까지 도달하지 못하는 기존 결함을 발견했다. 내부 host operation만 allowlist에 추가하고 회귀 확인한다.
 - `scripts/smoke-csharp-registry.sh` 재실행 종료 0: internal host.pushOpened 요청이 registry allowlist를 통과하고 응답에 상관되는 것을 확인했다. 실제 Unity notification package/원격 APNs는 미실행이다.
 - 커밋 전: Unity public push 이벤트 수신 및 iOS host 알림 route·중복 제거 synthetic 경로만 포함한다. APNs token 등록·실제 원격 전달과 Unity player 검증은 미완료다.
+
+### [P06-T03] Unity iOS APNs token 등록
+- Task 시작: host가 제공하는 installation UUID와 APNs token을 Native의 인증된 Backend 등록 경계에 연결한다. token 원문은 공개 결과·로그에 넣지 않고 등록 해제·로그아웃 삭제 정책을 유지한다. 실제 원격 APNs는 사용자 설정 대기다.
+- Unity 설정에 host-provided installation UUID를 추가하고 ApplePushClient의 인증된 등록·해제 경로를 `host.pushToken` 및 `push.unregister`에 연결했다. Unity Mobile Notifications 2.5.0의 token 문자열이 hex임을 package source로 확인했으며 공개 응답에는 fingerprint만 둔다.
+- `swift test --package-path ios --filter AppleAuthBridgeTests` 종료 0, 2건 및 `--filter AppleAuthProviderTests.testPushRegistrationUsesSessionAndReturnsFingerprint` 종료 0, 1건. 기존 인증·Native fake PUT/DELETE 경계만 확인했으며 새 bridge token 검증·UIKit 분기는 별도 확인한다.
+- Swift fake `AppleAuthBridgeTests` 종료 0, 3건 및 Native push registration 시험 종료 0, 1건: 잘못된 token 거부, fingerprint만 반환, unregister, 인증/Backend 설정 불일치 차단을 확인했다. 실제 APNs·Backend 실계정은 아니다. C# 및 UIKit simulator compile을 실행한다.
+- `scripts/check-csharp-compile.sh` 4개 조건부 및 `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 모두 종료 0. 실제 Unity Player·원격 APNs·실계정 Backend 등록은 미검증이다.
+- 커밋 전: iOS host token의 Native Backend 등록·해제와 installation ID 설정, fake 검증만 포함한다. Unity public permission/register facade 연결과 실제 원격 APNs는 미완료다.

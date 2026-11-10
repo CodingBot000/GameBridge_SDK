@@ -28,6 +28,7 @@ namespace GameBridge
         public string GoogleServerClientId { get; }
         public string CoinsStoreProductId { get; }
         public string PremiumStoreProductId { get; }
+        public string InstallationId { get; }
 
         public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs = 30000)
             : this(appId, mode, backendBaseUrl, requestTimeoutMs, null, "A") { }
@@ -39,6 +40,9 @@ namespace GameBridge
             : this(appId, mode, backendBaseUrl, requestTimeoutMs, developmentKey, mockSubject, googleServerClientId, null, null) { }
 
         public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject, string googleServerClientId, string coinsStoreProductId, string premiumStoreProductId)
+            : this(appId, mode, backendBaseUrl, requestTimeoutMs, developmentKey, mockSubject, googleServerClientId, coinsStoreProductId, premiumStoreProductId, null) { }
+
+        public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject, string googleServerClientId, string coinsStoreProductId, string premiumStoreProductId, string installationId)
         {
             AppId = appId;
             Mode = mode;
@@ -49,6 +53,7 @@ namespace GameBridge
             GoogleServerClientId = googleServerClientId;
             CoinsStoreProductId = coinsStoreProductId;
             PremiumStoreProductId = premiumStoreProductId;
+            InstallationId = installationId;
         }
 
         public void Validate()
@@ -63,6 +68,7 @@ namespace GameBridge
                 if (MockSubject != "A" && MockSubject != "B") errors.Add("mockSubject");
             }
             else if (!string.IsNullOrEmpty(DevelopmentKey)) errors.Add("developmentKey");
+            if (InstallationId != null && (Mode != ProviderMode.PlatformSandbox || !Guid.TryParseExact(InstallationId, "D", out _))) errors.Add("installationId");
             if (CoinsStoreProductId != null || PremiumStoreProductId != null)
             {
                 if (Mode != ProviderMode.PlatformSandbox || string.IsNullOrWhiteSpace(CoinsStoreProductId) ||

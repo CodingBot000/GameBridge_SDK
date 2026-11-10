@@ -7,6 +7,8 @@ import GameBridgeCore
     var signIns = 0
     var closed = false
     var restoreRequests: [Bool] = []
+    var receivedToken: String?
+    var pushUnregistered = false
     var purchaseResult = AppleBridgePurchase(status: .verificationPending, serverPurchaseId: nil, fulfillmentStatus: .notGranted, finalizationStatus: .pending)
     func signIn() async throws -> UserProfile { signIns += 1; return UserProfile(userId: "d2719c4e-d533-47ee-9efd-838791ea79c8", displayName: nil, provider: "APPLE") }
     func restore() async throws -> UserProfile? { nil }
@@ -18,12 +20,14 @@ import GameBridgeCore
     func entitlements() async throws -> EntitlementSnapshot {
         try JSONDecoder().decode(EntitlementSnapshot.self, from: Data(#"{"userId":"d2719c4e-d533-47ee-9efd-838791ea79c8","premiumEnabled":false,"coinBalance":"100","revision":"1","updatedAt":"2026-01-01T00:00:00Z"}"#.utf8))
     }
+    func registerPush(tokenHex: String) async throws -> String { receivedToken = tokenHex; return "abcdef123456" }
+    func unregisterPush() async throws { pushUnregistered = true }
     func close() { closed = true }
 }
 final class AppleAuthBridgeTests: XCTestCase {
     @MainActor func testSandboxUsesAppleAndRejectsMock() async throws {
         let fake = FakeAppleBridgeApi()
-        let handler = AppleAuthBridgeHandler { _, _ in fake }
+        let handler = AppleAuthBridgeHandler { _, _, _ in fake }
         let initResult = try await handler.invoke("sdk.initialize", payload: ["providerMode": "PLATFORM_SANDBOX", "appId": "demo",
             "backendBaseUrl": "https://example.invalid", "requestTimeoutMs": 30000]) as? [String: Any]
         XCTAssertEqual(initResult?["mode"] as? String, "PLATFORM_SANDBOX")
@@ -36,7 +40,7 @@ final class AppleAuthBridgeTests: XCTestCase {
         _ = try await handler.invoke("sdk.shutdown", payload: [:]); XCTAssertTrue(fake.closed)
     }
     @MainActor func testPurchaseStatesDoNotGrantBeforeVerification() async throws {
-        let fake = FakeAppleBridgeApi(); let handler = AppleAuthBridgeHandler { _, _ in fake }
+        let fake = FakeAppleBridgeApi(); let handler = AppleAuthBridgeHandler { _, _, _ in fake }
         let initialized = try await handler.invoke("sdk.initialize", payload: ["providerMode": "PLATFORM_SANDBOX", "appId": "demo",
             "backendBaseUrl": "https://example.invalid", "requestTimeoutMs": 30000,
             "storeProductIds": ["coins_100": "test_coins", "premium_unlock": "test_premium"]]) as? [String: Any]
@@ -61,6 +65,20 @@ final class AppleAuthBridgeTests: XCTestCase {
         fake.purchaseResult = AppleBridgePurchase(status: .purchased, serverPurchaseId: nil, fulfillmentStatus: .granted, finalizationStatus: .finalized)
         do { _ = try await handler.invoke("store.purchase", payload: ["productId": "coins_100"]); XCTFail("missing grant ID") }
         catch let error as SdkFailure { XCTAssertEqual(error.code, "BRIDGE_PROTOCOL_MISMATCH") }
+    }
+
+    @MainActor func testPushTokenRegistrationIsScopedAndRedacted() async throws {
+        let fake = FakeAppleBridgeApi(); let id = UUID(); var factoryId: UUID?
+        let handler = AppleAuthBridgeHandler { _, _, installation in factoryId = installation; return fake }
+        _ = try await handler.invoke("sdk.initialize", payload: ["providerMode": "PLATFORM_SANDBOX", "appId": "demo",
+            "backendBaseUrl": "https://example.invalid", "requestTimeoutMs": 30000, "installationId": id.uuidString.lowercased()])
+        XCTAssertEqual(factoryId, id)
+        do { _ = try await handler.invoke("host.pushToken", payload: ["provider": "APNS", "token": "not-hex"]); XCTFail("invalid token") }
+        catch let failure as SdkFailure { XCTAssertEqual(failure.code, "INVALID_ARGUMENT") }
+        let result = try await handler.invoke("host.pushToken", payload: ["provider": "APNS", "token": "010203"]) as? [String: Any]
+        XCTAssertEqual(fake.receivedToken, "010203"); XCTAssertEqual(result?["tokenFingerprint"] as? String, "abcdef123456")
+        XCTAssertFalse(String(describing: result).contains("010203"))
+        _ = try await handler.invoke("push.unregister", payload: [:]); XCTAssertTrue(fake.pushUnregistered)
     }
 
 }

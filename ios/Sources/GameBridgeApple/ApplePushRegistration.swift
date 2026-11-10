@@ -42,3 +42,14 @@ final class ApplePushRegistration {
         guard done == true else { throw SdkFailure("SESSION_EXPIRED") }
     }
 }
+
+/// Host-managed APNs registration; credentials stay inside the Native client.
+@MainActor public final class ApplePushClient {
+    private let registration: ApplePushRegistration
+    public init(auth: AppleAuthProvider, config: GameBridgeConfig, installationId: UUID) throws {
+        guard config.mode == .platformSandbox, auth.usesConfiguration(config) else { throw SdkFailure("CONFIG_REQUIRED") }
+        registration = ApplePushRegistration(auth: auth, installationId: installationId, client: try BackendClient(config: config))
+    }
+    public func register(deviceToken: Data) async throws -> String { try await registration.register(deviceToken: deviceToken) }
+    public func unregister() async throws { try await registration.unregister() }
+}

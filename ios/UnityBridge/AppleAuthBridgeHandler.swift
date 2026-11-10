@@ -16,6 +16,8 @@ import AuthenticationServices
     func purchase(_ productId: String) async throws -> AppleBridgePurchase
     func entitlements() async throws -> EntitlementSnapshot
     func recover(userInitiated: Bool) async throws -> AppleBridgeRecoveryCounts
+    func registerPush(tokenHex: String) async throws -> String
+    func unregisterPush() async throws
     func close()
 }
 struct AppleBridgeRecoveryCounts {
@@ -32,17 +34,20 @@ extension AppleAuthBridgeApi {
     func purchase(_ productId: String) async throws -> AppleBridgePurchase { throw SdkFailure("CONFIG_REQUIRED") }
     func entitlements() async throws -> EntitlementSnapshot { throw SdkFailure("CONFIG_REQUIRED") }
     func recover(userInitiated: Bool) async throws -> AppleBridgeRecoveryCounts { throw SdkFailure("CONFIG_REQUIRED") }
+    func registerPush(tokenHex: String) async throws -> String { throw SdkFailure("CONFIG_REQUIRED") }
+    func unregisterPush() async throws { throw SdkFailure("CONFIG_REQUIRED") }
 }
 
 @MainActor final class AppleAuthBridgeHandler {
-    private let factory: (GameBridgeConfig, [String: String]?) throws -> AppleAuthBridgeApi
+    private let factory: (GameBridgeConfig, [String: String]?, UUID?) throws -> AppleAuthBridgeApi
     private var provider: AppleAuthBridgeApi?
     private var config: GameBridgeConfig?
     private var productIds: [String: String]?
-    init(factory: @escaping (GameBridgeConfig, [String: String]?) throws -> AppleAuthBridgeApi) { self.factory = factory }
+    private var installationId: UUID?
+    init(factory: @escaping (GameBridgeConfig, [String: String]?, UUID?) throws -> AppleAuthBridgeApi) { self.factory = factory }
     func invoke(_ operation: String, payload: [String: Any]) async throws -> Any {
         if operation == "sdk.initialize" { return try initialize(payload) }
-        if operation == "sdk.shutdown" { provider?.close(); provider = nil; config = nil; productIds = nil; return [String: Any]() }
+        if operation == "sdk.shutdown" { provider?.close(); provider = nil; config = nil; productIds = nil; installationId = nil; return [String: Any]() }
         guard let provider else { throw SdkFailure("NOT_INITIALIZED") }
         switch operation {
         case "auth.signIn":
@@ -53,6 +58,16 @@ extension AppleAuthBridgeApi {
             return ["signedIn": user != nil, "user": try user.map { try object($0) } ?? NSNull(),
                     "expiresAt": NSNull(), "sessionRestored": user != nil] as [String: Any]
         case "auth.signOut": try await provider.signOut(); return [String: Any]()
+        case "host.pushToken":
+            guard installationId != nil else { throw SdkFailure("CONFIG_REQUIRED") }
+            guard payload["provider"] as? String == "APNS", let token = payload["token"] as? String, !token.isEmpty,
+                  token.count.isMultiple(of: 2), token.range(of: "^[0-9a-fA-F]+$", options: .regularExpression) != nil else { throw SdkFailure("INVALID_ARGUMENT") }
+            let fingerprint = try await provider.registerPush(tokenHex: token)
+            guard fingerprint.range(of: "^[0-9a-f]{12}$", options: .regularExpression) != nil else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+            return ["registered": true, "tokenFingerprint": fingerprint] as [String: Any]
+        case "push.unregister":
+            guard installationId != nil else { throw SdkFailure("CONFIG_REQUIRED") }
+            try await provider.unregisterPush(); return ["registered": false]
         case "store.products":
             guard productIds != nil else { throw SdkFailure("CONFIG_REQUIRED") }
             return try object(try await provider.products())
@@ -93,14 +108,19 @@ extension AppleAuthBridgeApi {
                   !premium.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, coins != premium else { throw SdkFailure("CONFIG_REQUIRED") }
             mapping = value
         } else { mapping = nil }
-        if provider != nil && (config != next || productIds != mapping) { throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG") }
-        if provider == nil { provider = try factory(next, mapping); config = next; productIds = mapping }
+        let installation: UUID?
+        if let raw = payload["installationId"] {
+            guard let text = raw as? String, let parsed = UUID(uuidString: text), parsed.uuidString.lowercased() == text.lowercased() else { throw SdkFailure("CONFIG_REQUIRED") }
+            installation = parsed
+        } else { installation = nil }
+        if provider != nil && (config != next || productIds != mapping || installationId != installation) { throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG") }
+        if provider == nil { provider = try factory(next, mapping, installation); config = next; productIds = mapping; installationId = installation }
         var capabilities: [String: Any] = [:]
         for name in ["auth", "store", "push", "config"] {
-            let supported = name == "auth" || name == "store"
-            let configured = name == "auth" || (name == "store" && mapping != nil)
+            let supported = name == "auth" || name == "store" || name == "push"
+            let configured = name == "auth" || (name == "store" && mapping != nil) || (name == "push" && installation != nil)
             capabilities[name] = ["supported": supported, "configured": configured, "mode": "PLATFORM_SANDBOX",
-                                  "reason": configured ? NSNull() as Any : (supported ? "Store product IDs required" : "Bridge operation is not connected")]
+                                  "reason": configured ? NSNull() as Any : (name == "store" ? "Store product IDs required" : name == "push" ? "Installation ID required" : "Bridge operation is not connected")]
         }
         return ["state": "READY", "mode": "PLATFORM_SANDBOX", "provider": "APPLE", "capabilities": capabilities]
     }
@@ -113,11 +133,14 @@ extension AppleAuthBridgeApi {
     private let config: GameBridgeConfig
     private let productIds: [String: String]?
     private var store: AppleStore?
+    private let push: ApplePushClient?
     private let makeEmitter: () -> (AppleStorePurchaseResult) -> Void
-    init(config: GameBridgeConfig, productIds: [String: String]?, makeEmitter: @escaping () -> (AppleStorePurchaseResult) -> Void) throws {
+    init(config: GameBridgeConfig, productIds: [String: String]?, installationId: UUID?, makeEmitter: @escaping () -> (AppleStorePurchaseResult) -> Void) throws {
         self.config = config; self.productIds = productIds; self.makeEmitter = makeEmitter
         guard let window = Self.window() else { throw SdkFailure("CONFIG_REQUIRED", nativeCode: "HOST_WINDOW") }
-        provider = try AppleAuthProvider.create(config: config, store: KeychainTokenStore(service: "com.gamebridge.sdk.unity.apple"), window: window)
+        let provider = try AppleAuthProvider.create(config: config, store: KeychainTokenStore(service: "com.gamebridge.sdk.unity.apple"), window: window)
+        self.provider = provider
+        self.push = try installationId.map { try ApplePushClient(auth: provider, config: config, installationId: $0) }
     }
     private static func window() -> UIWindow? {
         UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
@@ -158,9 +181,20 @@ extension AppleAuthBridgeApi {
         case .cancelled: return AppleBridgePurchase(status: .canceled, serverPurchaseId: nil, fulfillmentStatus: .notGranted, finalizationStatus: .notRequired)
         }
     }
+    func registerPush(tokenHex: String) async throws -> String {
+        guard let push else { throw SdkFailure("CONFIG_REQUIRED") }
+        var bytes = Data(); var index = tokenHex.startIndex
+        while index < tokenHex.endIndex {
+            let end = tokenHex.index(index, offsetBy: 2)
+            guard let byte = UInt8(tokenHex[index..<end], radix: 16) else { throw SdkFailure("INVALID_ARGUMENT") }
+            bytes.append(byte); index = end
+        }
+        return try await push.register(deviceToken: bytes)
+    }
+    func unregisterPush() async throws { guard let push else { throw SdkFailure("CONFIG_REQUIRED") }; try await push.unregister() }
     func close() { dropStore(); provider.detachHost() }
 }
 @MainActor func makeAppleAuthBridgeHandler(makeEmitter: @escaping () -> (AppleStorePurchaseResult) -> Void) -> AppleAuthBridgeHandler {
-    AppleAuthBridgeHandler { try AppleSystemAuthBridgeApi(config: $0, productIds: $1, makeEmitter: makeEmitter) }
+    AppleAuthBridgeHandler { try AppleSystemAuthBridgeApi(config: $0, productIds: $1, installationId: $2, makeEmitter: makeEmitter) }
 }
 #endif

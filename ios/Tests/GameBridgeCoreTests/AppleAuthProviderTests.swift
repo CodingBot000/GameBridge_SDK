@@ -99,6 +99,8 @@ final class AppleAuthProviderTests: XCTestCase {
         let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
         _ = try await auth.signIn()
         let id = UUID(); var calls: [String] = []
+        let other = GameBridgeConfig(appId: "other", mode: .platformSandbox, backendBaseURL: "https://example.com")
+        XCTAssertThrowsError(try ApplePushClient(auth: auth, config: other, installationId: id))
         let push = ApplePushRegistration(auth: auth, installationId: id) { path, method, body, access in
             calls.append(method); XCTAssertEqual(path, "/v1/devices/\(id.uuidString.lowercased())/push-token"); XCTAssertEqual(access, "test-access")
             if method == "PUT" {

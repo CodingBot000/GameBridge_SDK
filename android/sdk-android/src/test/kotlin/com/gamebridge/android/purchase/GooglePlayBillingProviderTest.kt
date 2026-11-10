@@ -48,7 +48,7 @@ class GooglePlayBillingProviderTest {
     @Test fun `unspecified verification concurrency blocks purchase`() = runBlocking {
         val gateway = FakePlayGateway()
         val sink = PlayProofSink { _, _, raw -> ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray())) }
-        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink)
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink, verificationConcurrency = null)
         assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> { provider.purchase("coins_100") }.code)
         assertEquals(0, gateway.launches); provider.close()
     }

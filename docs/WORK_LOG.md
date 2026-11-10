@@ -608,3 +608,11 @@
 - `swift test --package-path ios` 종료 0: 26건 중 23 통과, local Backend opt-in 3 skip. StoreKit API 컴파일 확인이며 거래 실행 증거가 아니다. grant/account/transaction 경계 단위시험을 추가해 재검증한다.
 - StoreKit grant 경계 단위시험 1건 통과: account 전환·transaction 불일치 거부와 JWS 문자열 정제 확인. StoreKit 실제 거래 시험이 아니다.
 - 커밋 전: StoreKit API 호출 및 grant 경계만 부분 구현. .storekit 구성·scheme·실거래·server sink·검증 동시성 정책은 미완료. 동시성 한도 초과 시 미완료 거래는 추후 복구가 필요하고 자동 재시도는 미구현이다. P05-T03 PARTIAL을 유지한다.
+
+### [P05-T04] 시작 — 2026-11-10 Asia/Seoul
+- 실제 스토어 서버 검증을 공식 라이브러리와 가짜 응답으로 구현한다. 외부 credential 없이 통과한 로컬 검증을 실제 스토어 검증으로 기록하지 않는다.
+- Apple 공식 Java server library 5.2.0과 Google 공식 구매 상태 문서를 확인했다. 먼저 의존성 해석과 공개 API를 확인한다.
+- 사용자 결정 수신: refresh 기본 만료는 최초 로그인부터 7일 고정, 기기별 구매 증빙 검증 기본 동시성은 1건(변경 가능). 문서에 기록하고 각 코드와 검증에 반영한다.
+- 검증 중 Android Gradle 종료 1: 이 셸에 Android SDK 환경 변수가 없어 SDK 위치를 찾지 못했다. 기존 설치 위치를 확인해 환경 변수로 재실행한다. 제품 테스트 실패는 아니다.
+- Android SDK 환경 변수를 기존 설치 위치로 설정해 unit test 재실행 종료 0. Swift StoreKit 경계 unit test 1건 통과. 기본 동시성 1 반영 결과이며 실제 구매 검증은 아니다. 기존 refresh 구현은 갱신 시 최초 만료를 유지한다.
+- 커밋 전: 사용자 결정 문서와 Android/iOS 검증 동시성 기본값만 포함한다. 실제 서버 sink·스토어 연결은 미완료다.

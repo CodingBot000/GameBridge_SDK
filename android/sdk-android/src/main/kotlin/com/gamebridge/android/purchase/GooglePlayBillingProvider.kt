@@ -46,7 +46,7 @@ internal class GooglePlayBillingProvider(
     private val productIds: Map<String, String>,
     private val accountSource: PlayAccountSource,
     private val proofSink: PlayProofSink?,
-    private val verificationConcurrency: Int? = null,
+    private val verificationConcurrency: Int? = 1,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutableEvents = MutableSharedFlow<PlayPurchaseEvent>(extraBufferCapacity = 100, onBufferOverflow = BufferOverflow.DROP_OLDEST)

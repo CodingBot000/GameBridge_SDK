@@ -14,3 +14,6 @@
 - P04-T03: 앱별 Google/Apple 공개 audience는 `GAMEBRIDGE_AUTH_AUDIENCES_JSON`으로 공급한다. 빈 설정은 Provider의 CONFIG_REQUIRED이며 샘플 값은 사용자의 실제 설정이 아니다. Google의 두 허용 issuer 표기는 검증 후 같은 canonical issuer로 정규화한다.
 
 - P05-T02: Google Maven의 안정 Play Billing 9.1.0을 사용한다. 이번 범위는 기본 일회성 상품이며 임의 promotional offer 선택은 하지 않는다. 실제 Play 검증은 사용자 설정 후 별도다.
+
+- 2026-11-10 사용자 결정 USER-SESSION-TTL: refresh 토큰의 기본 7일 만료는 최초 로그인부터 고정하며 refresh로 연장하지 않는다.
+- 2026-11-10 사용자 결정 USER-VERIFY-CONCURRENCY: 한 기기의 구매 증빙 서버 검증 기본 동시성은 1건이며 설정으로 변경할 수 있다.

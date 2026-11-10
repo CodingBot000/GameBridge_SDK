@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05 / P05-T02
+- 현재 Phase / Task: P05 / P05-T04
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
-- 현재 작업 트리 상태: P04-T03 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
+- 현재 작업 트리 상태: P04-T04 변경 미커밋; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P05-T03 StoreKit 2 실제 adapter 구현; USER-SESSION-TTL·USER-VERIFY-CONCURRENCY 결정 대기
+- 바로 다음 행동: P05-T04 실제 스토어 서버 검증 구현; P05-T04 스토어 서버 검증 구현 계속
 - 불가피한 세션 종료 시 재개 행동: P04-T04/P04-T05부터 진행하고 P00~P03의 PARTIAL 항목을 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 36 / IN_PROGRESS 26 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 38 / PASS 2 / FAIL 0 / PARTIAL 24 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 35 / IN_PROGRESS 27 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 37 / PASS 2 / FAIL 0 / PARTIAL 25 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -57,12 +57,12 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P04-T01 | 실제 Android Google 로그인 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P04-T01 | USER-AUTH-GOOGLE |
 | P04-T02 | 실제 iOS Apple 로그인 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P04-T02 | USER-AUTH-APPLE |
 | P04-T03 | 서버 실제 identity 검증·nonce 재사용 방어 | IMPLEMENTED | PASS | WAITING_USER | docs/evidence/p04-t03-identity-verifier.md | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
-| P04-T04 | 세션 복원·single-flight 갱신·로그아웃 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P04-T04 | USER-SESSION-TTL |
+| P04-T04 | 세션 복원·single-flight 갱신·로그아웃 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P04-T04 | - |
 | P04-T05 | 인증 Native·Unity 소비자 통합 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
 | P05-T01 | 구매 상태·account binding 계약 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P05-T01 | - |
-| P05-T02 | 실제 Google Play Billing adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T02 | USER-BILLING-GOOGLE, USER-VERIFY-CONCURRENCY |
-| P05-T03 | StoreKit 2·로컬 .storekit 시나리오 | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T03 | USER-BILLING-APPLE, USER-VERIFY-CONCURRENCY |
-| P05-T04 | 실제 Google·Apple 구매 검증 서버 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
+| P05-T02 | 실제 Google Play Billing adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T02 | USER-BILLING-GOOGLE |
+| P05-T03 | StoreKit 2·로컬 .storekit 시나리오 | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T03 | USER-BILLING-APPLE |
+| P05-T04 | 실제 Google·Apple 구매 검증 서버 | IN_PROGRESS | NOT_RUN | WAITING_USER | - | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
 | P05-T05 | 지급 원자성·동시성·서버 finalizer 연결 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P05-T06 | Native 복구·store finish·timeout 이후 처리 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P05-T07 | Unity·Native 상점 완성 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
@@ -104,8 +104,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | BUG-003 | BUG | P05-T02 | Play Billing nullable offerToken 컴파일 실패 | 안전한 null 처리 후 재빌드 | AAR 빌드 확인, fake boundary 검증 계속 | RESOLVED |
 | BUG-002 | BUG | P04-T01 | googleid 1.2.1 Kotlin metadata 2.4와 compiler 2.1 불일치 | 호환 stable 버전 확인 | 빌드 호환성 확인, adapter fake 검증 계속 | RESOLVED |
 | BUG-001 | BUG | P01-T05 | BackendClientTest 1건 실패 | 원인 확인 및 재실행 | HTTP 검증 통과 | RESOLVED |
-| USER-VERIFY-CONCURRENCY | USER | P05-T02 | 기기별 구매 증빙 검증 동시성 미결정 | 명시 값 없는 실제 UI/검증 비활성, 독립 작업 진행 | 사용자 선택을 설정·코드·검증에 반영 | OPEN |
-| USER-SESSION-TTL | USER | P04-T04 | refresh TTL 7일의 최초 로그인 기준/갱신 시 연장 정책 미결정 | 인증 UI·독립 검증 진행 | 사용자 결정 및 관련 코드·설정·검증 반영 | OPEN |
+| USER-VERIFY-CONCURRENCY | USER | P05-T02 | 기본 동시 1건 사용자 선택 | 코드·검증 반영 진행 | 서버 sink 연결 별도 필요 | RESOLVED |
+| USER-SESSION-TTL | USER | P04-T04 | 최초 로그인부터 7일 고정 사용자 선택 | 기존 코드와 대조·검증 진행 | 실제 인증 검증 별도 필요 | RESOLVED |
 | USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제; 코드 반영 대기 | 등록·회전과 다른 독립 작업 진행 | 결정된 삭제 및 소유권 경로 구현·검증 | RESOLVED |
 | USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프; 코드 반영 대기 | 수동 Mock worker 및 다른 독립 작업 진행 | 결정된 정책을 설정과 실행 코드에 반영 | RESOLVED |
 | ENV-008 | ENV | P04-T04 | 전용 PostgreSQL container 정상 종료 상태에서 opt-in DB 시험 실패 | 기존 volume 보존 후 재기동 | DB healthy 및 실패 시험 재실행 | RESOLVED |

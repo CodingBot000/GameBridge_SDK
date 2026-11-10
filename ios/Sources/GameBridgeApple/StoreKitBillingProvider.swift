@@ -41,7 +41,7 @@ final class StoreKitBillingProvider {
     private var listener: Task<Void, Never>?
     private var verifying = 0
 
-    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int?, currentAccount: @escaping () -> ApplePurchaseAccount?) {
+    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, currentAccount: @escaping () -> ApplePurchaseAccount?) {
         self.sink = sink
         self.verificationConcurrency = verificationConcurrency
         self.currentAccount = currentAccount

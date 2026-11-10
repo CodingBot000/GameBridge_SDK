@@ -34,3 +34,7 @@ tests/UnityIosHook/bin/
 tests/UnityIosHook/obj/
 tests/UnityOfflineDemo/bin/
 tests/UnityOfflineDemo/obj/
+tests/UnityIosHost/bin/
+tests/UnityIosHost/obj/
+tests/UnityIosHostQueue/bin/
+tests/UnityIosHostQueue/obj/

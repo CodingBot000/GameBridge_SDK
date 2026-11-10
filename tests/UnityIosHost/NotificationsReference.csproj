@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><AssemblyName>Unity.Notifications.iOS</AssemblyName><EnableDefaultCompileItems>false</EnableDefaultCompileItems><DefineConstants>UNITY_IOS</DefineConstants></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(UNITY_NOTIFICATIONS_SOURCE)/*.cs" />
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(UNITY_MANAGED)/UnityEngine.CoreModule.dll</HintPath></Reference>
+    <Reference Include="Unity.Scripting"><HintPath>$(UNITY_MANAGED)/Unity.Scripting.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

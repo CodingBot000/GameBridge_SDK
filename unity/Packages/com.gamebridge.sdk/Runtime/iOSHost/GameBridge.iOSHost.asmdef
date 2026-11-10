@@ -1,0 +1,7 @@
+{
+  "name": "GameBridge.iOSHost",
+  "rootNamespace": "GameBridge.iOSHost",
+  "references": ["GameBridge.Runtime", "Unity.Notifications.iOS"],
+  "includePlatforms": ["iOS"],
+  "autoReferenced": true
+}

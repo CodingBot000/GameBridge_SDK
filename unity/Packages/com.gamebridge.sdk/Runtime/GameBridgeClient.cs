@@ -164,6 +164,16 @@ namespace GameBridge
         public async Task UnregisterPushAsync(CancellationToken cancellation = default) { await Invoke("push.unregister", new JObject(), false, cancellation); }
         public async Task<ServiceConfig> GetServiceConfigAsync(CancellationToken cancellation = default)
         { return WireModels.Decode<ServiceConfig>(await Invoke("config.get", new JObject(), false, cancellation)); }
+        internal async Task ForwardHostPushTokenAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token)) throw new SdkException("INVALID_ARGUMENT");
+            await Invoke("host.pushToken", new JObject { ["provider"] = "APNS", ["token"] = token }, false, default);
+        }
+        internal async Task ForwardHostPushEventAsync(string messageId, string route, string campaignId, bool opened)
+        {
+            var payload = new JObject { ["messageId"] = messageId, ["route"] = route, ["campaignId"] = campaignId == null ? JValue.CreateNull() : (JToken)campaignId };
+            await Invoke(opened ? "host.pushOpened" : "host.pushReceived", payload, false, default);
+        }
         private async Task<JToken> Invoke(string operation, JObject payload, bool interactive, CancellationToken cancellation)
         {
             RequestRegistry request; int epoch; TimeSpan timeout;

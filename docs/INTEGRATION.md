@@ -15,3 +15,5 @@ Host가 Android Activity 및 Firebase 초기화, iOS window와 AppDelegate/notif
 Android Maven 소비 예시는 `android/consumer-check`에 있으며 소스 프로젝트 참조 없이 로컬 coordinate를 사용한다. Firebase Messaging은 optional `compileOnly`이므로 FCM을 사용하는 Host가 별도로 의존성을 넣어야 한다. iOS XCFramework는 device/simulator slice를 무서명으로 생성하고 별도 Swift consumer link를 확인했으나, 실기기 서명·Unity linkage는 미확인이다.
 
 Unity Android/iOS export hook과 staging script가 있으나 Unity Editor 라이선스 부재로 import 및 실제 export를 검증하지 못했다. 완성된 배포 패키지라고 가정하지 않는다. `scripts/package-sdk.sh`는 기존 output을 덮어쓰지 않으며 필요한 Native 산출물이 없으면 실패한다.
+
+Unity iOS의 Mobile Notifications 2.5.0 host adapter는 명시적으로 권한을 요청하고 foreground remote callback과 마지막 알림 열기를 정규화한다. 해당 Unity API 구독 시 foreground 시스템 알림의 기본 표시는 억제된다. 현재 Swift bridge host operation은 UNSUPPORTED로 남아 있어 토큰/이벤트의 전체 전달은 동작하지 않는다.

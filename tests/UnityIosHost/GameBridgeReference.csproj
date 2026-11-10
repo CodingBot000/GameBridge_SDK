@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><AssemblyName>GameBridge.Runtime</AssemblyName><EnableDefaultCompileItems>false</EnableDefaultCompileItems><DefineConstants>UNITY_IOS</DefineConstants></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../unity/Packages/com.gamebridge.sdk/Runtime/**/*.cs" Exclude="../../unity/Packages/com.gamebridge.sdk/Runtime/iOSHost/**/*.cs" />
+    <Reference Include="Newtonsoft.Json"><HintPath>$(GAMEBRIDGE_NEWTONSOFT_DLL)</HintPath></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(UNITY_MANAGED)/UnityEngine.CoreModule.dll</HintPath></Reference>
+    <Reference Include="Unity.Scripting"><HintPath>$(UNITY_MANAGED)/Unity.Scripting.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

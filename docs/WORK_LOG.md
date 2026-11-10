@@ -1058,3 +1058,15 @@
 - 커밋 전: Google verifier/readiness/HTTP·Native sink 조립 및 synthetic 통합만 포함한다. 실제 Play와 sample/Unity는 미완료로 P05-T04/T05/T07 PARTIAL·WAITING_USER 유지한다.
 - 1차 feature matrix와 통합 안내의 과거 “Google verify endpoint/worker 미연결” 문구를 현재 synthetic 연결 상태로 정정했다. 실제 외부 검증 미완료 표기는 유지한다.
 - 커밋 전: 추적 문서 정정만 포함한다.
+
+### [P06-T03] Unity iOS push host adapter
+- Unity 공식 registry의 com.unity.mobile.notifications 최신 2.5.0(Unity 6000.0+)을 선택했다. 사용자 프로젝트 manifest는 편집하지 않고 SDK package dependency로 명시한다. Editor import는 ENV-002로 미검증이다.
+- Unity Mobile Notifications 2.5.0 공식 source/API를 확인했다. iOS 전용 별도 assembly와 internal host operation을 작성한다. 현재 Swift bridge는 host operation 미구현이므로 응답은 명시적 UNSUPPORTED이며 완료로 기록하지 않는다.
+- iOS host adapter 초안은 명시적 permission 요청, foreground callback 및 last-opened, 100 queue/200 ID dedup, internal host operation 전송을 구현한다. foreground remote callback 구독은 Unity package 특성상 기본 표시를 막으며 실제 UI 표시 정책은 별도다.
+- host adapter 검토에서 local 알림을 remote open으로 오인하지 않도록 push trigger를 확인하고, token 완료 시 attach된 client가 바뀐 경우 이전 성공 상태를 노출하지 않도록 보강했다.
+- Unity Notifications 2.5.0 공식 source와 실제 Unity managed reference를 별도 .NET assembly로 컴파일해 adapter API 계약을 확인한다. Unity Editor/IL2CPP 실행은 아니다.
+- Unity package 2.5.0에서는 기존 GetLastRespondedNotification이 deprecated여서 비동기 Query API로 변경한다. queue 파서를 Unity 없이 시험할 수 있도록 분리한다.
+- Unity official source 기반 3개 assembly 컴파일 경고0/오류0. host attach 변경 중 지연 callback이 새 client 상태를 오염시키지 않도록 검사하고, 분리한 queue의 fake 입력 회귀를 추가한다.
+- Unity iOS host code/official source 3개 assembly compile 및 queue smoke 통과. NSNumber messageId의 암묵 변환 방지, authorization error와 거부 구분, coroutine 종료 시 gate 반환을 보강한다.
+- Unity Notifications 2.5.0 공식 source와 Unity managed reference의 iOSHost 별도 assembly compile 경고0/오류0, normalized queue fake smoke 통과. Editor/Android/iOS/unsupported C# 조건부 compile 각 통과. Unity Editor import/IL2CPP/실 remote 및 Swift host operation은 미실행·미구현이다.
+- 커밋 전: Unity iOS host adapter, 패키지 의존성, internal 전달 경계, 독립 compile/smoke만 포함. Swift host operation 미연결로 P06-T03 PARTIAL/WAITING_USER 유지.

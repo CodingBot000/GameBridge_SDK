@@ -1199,3 +1199,14 @@
 - `swift test --package-path ios --filter AppleAuthBridgeTests` 종료 0, 1건: fake Apple provider로 sandbox mode·Mock 거부·미연결 상점 오류·정리 확인. 실제 iOS 인증 UI는 아니다. UIKit 포함 simulator static framework를 독립 생성 프로젝트에서 확인한다.
 - 격리 프로젝트 `artifacts/ios-apple-bridge.JMOwJF`에서 UIKit·AuthenticationServices 포함 `GameBridgeNative` simulator static framework 무서명 build 종료 0. 실행·Apple 계정·Unity linkage는 확인하지 않았다.
 - 커밋 전: iOS Apple 인증 C ABI 연결과 fake 시험·컴파일만 포함한다. 실제 Apple 계정과 Unity 실동작은 WAITING_USER이며 상점/푸시는 미연결이다.
+
+### [P05-T07] Unity 실제 상점 bridge
+- Task 시작: 이미 구현된 Native Google Play/StoreKit facade의 상품 매핑, 결과, 복구, 비동기 이벤트와 구매 상태 계약을 확인한다. 실제 결제는 사용자 설정 전까지 실행하지 않는다.
+- Native 상점 조사 결과 Google Play는 구매 UI 후 결과를 별도 event flow로 제공하지만 현재 Unity RequestRegistry는 event를 모두 무시한다. 결제 결과를 성공으로 조작하지 않도록 상점 연결의 선행 작업으로 Unity event 수신 경계를 구현한다.
+
+### [P03-T05] Unity 구매 이벤트 수신
+- Task 시작: 현재 session의 유효한 PurchaseUpdated 이벤트만 검증·전달하고 응답 Task 완료와 분리한다. Native 실제 이벤트 발행 연결은 별도다.
+- Unity RequestRegistry에 현재 session의 PurchaseUpdated 이벤트를 추가했다. 이벤트 ID·시각·상품·상태·서버 구매 ID·오류를 검증하고 허용 필드만 공개하며, 구매 응답 Task와 별도 경로다. Native 발행은 아직 연결 전이다. C# compile 및 수신 경계를 확인한다.
+- `scripts/check-csharp-compile.sh` 종료 0: 네 조건부 compile 성공. 이벤트에 숫자형 enum 문자열을 허용하지 않도록 엄격 검사를 추가하고 현재 session·검증된 구매 ID·민감정보 필터 경계를 smoke로 확인한다.
+- `UNITY_EDITOR_PATH=... bash scripts/smoke-csharp-registry.sh` 종료 0: 현재 session의 서버 구매 ID가 있는 이벤트 수신, 다른 session·미확인 구매·숫자 enum 거부를 확인했다. Unity runtime과 Native 이벤트 발행은 미검증이다.
+- 커밋 전: Unity 구매 이벤트 수신·sanitized model과 독립 .NET smoke만 포함한다. Native 발행 및 실제 상점 연결은 다음 작업이다.

@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P04 / P04-T05 Unity 실제 인증 연결
+- 현재 Phase / Task: P03 / P03-T05 Unity 구매 이벤트
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
 - 현재 작업 트리 상태: Android LOCAL_MOCK bridge 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: Apple 인증 bridge 커밋 후 Native 상점 bridge 연결
+- 바로 다음 행동: Unity 구매 이벤트 수신 커밋 후 Android Google Play bridge 연결
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 확인 후 Android LOCAL_MOCK bridge handler 구현부터 재개하고, iOS/실 Provider 연결 및 미완료 P00~P08, P09~P11을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계

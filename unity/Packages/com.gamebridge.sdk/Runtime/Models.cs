@@ -44,6 +44,16 @@ namespace GameBridge
         [JsonProperty(Required = Required.Always)] public FinalizationStatus finalizationStatus;
         [JsonProperty(Required = Required.AllowNull)] public SdkError error;
     }
+    /// <summary>A Native store update; a purchased status reflects a confirmed server grant.</summary>
+    public sealed class PurchaseUpdate
+    {
+        public string EventId { get; internal set; }
+        public string ProductId { get; internal set; }
+        public PurchaseStatus Status { get; internal set; }
+        public string ServerPurchaseId { get; internal set; }
+        public string ErrorCode { get; internal set; }
+        public DateTimeOffset OccurredAt { get; internal set; }
+    }
     [Serializable] public sealed class EntitlementSnapshot
     {
         [JsonProperty(Required = Required.Always)] public string userId;

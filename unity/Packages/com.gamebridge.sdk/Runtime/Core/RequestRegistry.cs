@@ -44,6 +44,7 @@ namespace GameBridge.Core
         private readonly string sessionId;
         private bool disposed;
         private int ignored;
+        internal event Action<PurchaseUpdate> PurchaseUpdated;
         internal int IgnoredMessages => Volatile.Read(ref ignored);
         internal int PendingCount { get { lock (gate) return pending.Count; } }
         internal RequestRegistry(Action<string> dispatch, Guid sessionId)
@@ -94,6 +95,11 @@ namespace GameBridge.Core
                 }
             }
             catch (JsonException) { Interlocked.Increment(ref ignored); return; }
+            if (root["protocolVersion"]?.Type == JTokenType.Integer && (int)root["protocolVersion"] == 1 &&
+                root["kind"]?.Type == JTokenType.String && (string)root["kind"] == "event")
+            {
+                HandleEvent(root); return;
+            }
             if (root["protocolVersion"]?.Type != JTokenType.Integer || (int)root["protocolVersion"] != 1 ||
                 root["kind"]?.Type != JTokenType.String || (string)root["kind"] != "response" ||
                 root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
@@ -113,6 +119,24 @@ namespace GameBridge.Core
                 Finish(id, entry, null, new SdkException(Errors.Contains(code) ? code : "INTERNAL_ERROR", (bool)error["retryable"]));
             }
             else Finish(id, entry, null, new SdkException("BRIDGE_PROTOCOL_MISMATCH"));
+        }
+        private void HandleEvent(JObject root)
+        {
+            if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
+                root["eventId"]?.Type != JTokenType.String || !Guid.TryParseExact((string)root["eventId"], "D", out _) ||
+                root["type"]?.Type != JTokenType.String || (string)root["type"] != "PurchaseUpdated" ||
+                root["occurredAt"]?.Type != JTokenType.String || !DateTimeOffset.TryParse((string)root["occurredAt"], out var time) ||
+                !((string)root["occurredAt"]).EndsWith("Z", StringComparison.Ordinal) || !(root["payload"] is JObject payload) ||
+                payload["productId"]?.Type != JTokenType.String || string.IsNullOrWhiteSpace((string)payload["productId"]) || ((string)payload["productId"]).Length > 200 ||
+                payload["status"]?.Type != JTokenType.String || !Enum.IsDefined(typeof(PurchaseStatus), (string)payload["status"]) || !Enum.TryParse((string)payload["status"], false, out PurchaseStatus status) ||
+                !Enum.IsDefined(typeof(PurchaseStatus), status) || !payload.ContainsKey("serverPurchaseId") || !payload.ContainsKey("errorCode") ||
+                (payload["serverPurchaseId"].Type != JTokenType.Null && (payload["serverPurchaseId"].Type != JTokenType.String || !Guid.TryParseExact((string)payload["serverPurchaseId"], "D", out _))) ||
+                (status == PurchaseStatus.PURCHASED && payload["serverPurchaseId"].Type == JTokenType.Null) ||
+                (payload["errorCode"].Type != JTokenType.Null && (payload["errorCode"].Type != JTokenType.String || !IsKnownError((string)payload["errorCode"]))))
+            { Interlocked.Increment(ref ignored); return; }
+            lock (gate) { if (disposed) { Interlocked.Increment(ref ignored); return; } }
+            PurchaseUpdated?.Invoke(new PurchaseUpdate { EventId = (string)root["eventId"], ProductId = (string)payload["productId"],
+                Status = status, ServerPurchaseId = (string)payload["serverPurchaseId"], ErrorCode = (string)payload["errorCode"], OccurredAt = time });
         }
         private void Finish(string id, Pending entry, JToken result, SdkException error)
         {

@@ -68,6 +68,18 @@ internal static class Program
             var canceled = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5), cts.Token);
             cts.Cancel(); await Expect("CANCELED", canceled);
         }
+        var eventCount = 0;
+        registry.PurchaseUpdated += update => { eventCount++; Check(update.Status == GameBridge.PurchaseStatus.PURCHASED && update.ServerPurchaseId != null, "verified purchase event"); };
+        var updateEvent = new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = request["sdkSessionId"], ["kind"] = "event",
+            ["eventId"] = Guid.NewGuid().ToString("D"), ["type"] = "PurchaseUpdated", ["occurredAt"] = "2026-11-10T00:00:00Z",
+            ["payload"] = new JObject { ["productId"] = "coins_100", ["status"] = "PURCHASED", ["serverPurchaseId"] = Guid.NewGuid().ToString("D"), ["errorCode"] = JValue.CreateNull(), ["proof"] = "secret" } };
+        registry.HandleMessage(updateEvent.ToString()); Check(eventCount == 1, "purchase event accepted");
+        var staleEvent = (JObject)updateEvent.DeepClone(); staleEvent["sdkSessionId"] = Guid.NewGuid().ToString("D");
+        registry.HandleMessage(staleEvent.ToString()); Check(eventCount == 1, "stale event ignored");
+        var forgedEvent = (JObject)updateEvent.DeepClone(); forgedEvent["payload"]["serverPurchaseId"] = JValue.CreateNull();
+        registry.HandleMessage(forgedEvent.ToString()); Check(eventCount == 1, "unconfirmed purchase ignored");
+        var numericEvent = (JObject)updateEvent.DeepClone(); numericEvent["payload"]["status"] = "0";
+        registry.HandleMessage(numericEvent.ToString()); Check(eventCount == 1, "numeric enum ignored");
         var waiting = new List<Task>();
         for (var i = 0; i < 100; i++) waiting.Add(registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
         await Expect("BUSY", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));

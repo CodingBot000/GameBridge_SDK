@@ -66,11 +66,18 @@ namespace GameBridge
         private int generation;
         private bool disposed;
         internal event Action<GameBridgeClient> Disposed;
+        public event Action<PurchaseUpdate> PurchaseUpdated;
         internal GameBridgeClient(IWireTransport transport)
         {
             this.transport = transport ?? throw new ArgumentNullException(nameof(transport));
-            registry = new RequestRegistry(transport.Dispatch, Guid.NewGuid());
+            registry = CreateRegistry();
             transport.Message += OnMessage;
+        }
+        private RequestRegistry CreateRegistry()
+        {
+            var created = new RequestRegistry(transport.Dispatch, Guid.NewGuid());
+            created.PurchaseUpdated += update => { lock (gate) { if (disposed || state != "READY" || !ReferenceEquals(registry, created)) return; } PurchaseUpdated?.Invoke(update); };
+            return created;
         }
         private void OnMessage(string json) { RequestRegistry current; lock (gate) current = registry; current?.HandleMessage(json); }
         internal void Pump() { transport.Pump(); }
@@ -98,7 +105,7 @@ namespace GameBridge
                 }
                 else
                 {
-                    if (registry == null) registry = new RequestRegistry(transport.Dispatch, Guid.NewGuid());
+                    if (registry == null) registry = CreateRegistry();
                     request = registry; config = value; lastMode = value.Mode; state = "INITIALIZING"; snapshotAt = DateTimeOffset.UtcNow; epoch = ++generation;
                     starter = new TaskCompletionSource<InitResult>(TaskCreationOptions.RunContinuationsAsynchronously);
                     initializing = starter.Task; shared = initializing;

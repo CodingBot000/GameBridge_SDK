@@ -30,25 +30,44 @@ func xcodeStableIdentity(_ signedTransaction: String) -> String? {
 @available(iOS 16.0, macOS 13.0, *)
 func isXcodeStoreEnvironment(_ environment: AppStore.Environment) -> Bool { environment == .xcode }
 
+func validateXcodeIdentityMatches(_ count: Int) throws {
+    if count == 0 { throw SdkFailure("NETWORK_UNAVAILABLE", retryable: true) }
+    if count != 1 { throw SdkFailure("IDEMPOTENCY_CONFLICT") }
+}
+
 @MainActor private final class XcodeAccountReference { var value: ApplePurchaseAccount? }
 private final class XcodeFakeProofSink: ApplePurchaseProofSink {
     let client: LocalMockClient
     let account: XcodeMockAccount
     let journal: XcodeAttemptJournal
-    let enableTestGrant: Bool
-    init(client: LocalMockClient, account: XcodeMockAccount, journal: XcodeAttemptJournal, enableTestGrant: Bool) {
-        self.client = client; self.account = account; self.journal = journal; self.enableTestGrant = enableTestGrant
+    init(client: LocalMockClient, account: XcodeMockAccount, journal: XcodeAttemptJournal) {
+        self.client = client; self.account = account; self.journal = journal
     }
     func verify(_ proof: ApplePurchaseProof, userId: UUID) async throws -> ServerGrant {
         guard userId == account.userId, proof.binding == account.bindingId else { throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH") }
-        guard enableTestGrant else { throw SdkFailure("CONFIG_REQUIRED", nativeCode: "XCODE_TRANSACTION_IDENTITY_UNSTABLE") }
+        var matches = 0
+        for await result in Transaction.all {
+            let transaction: Transaction
+            switch result {
+            case .verified(let value): transaction = value
+            case .unverified(let value, _):
+                if value.appAccountToken == account.bindingId { throw SdkFailure("VERIFICATION_FAILED") }
+                continue
+            }
+            guard transaction.appAccountToken == account.bindingId else { continue }
+            if #available(iOS 18.0, macOS 15.0, *), transaction.environment == .xcode {
+                guard let key = xcodeStableIdentity(result.jwsRepresentation) else { throw SdkFailure("VERIFICATION_FAILED") }
+                if key == proof.transactionKey { matches += 1 }
+            }
+        }
+        try validateXcodeIdentityMatches(matches)
         let attempt = try await journal.begin(account: account.userId, key: proof.transactionKey)
         let result = try await client.xcodeGrant(productId: proof.productId, transactionKey: proof.transactionKey, attemptId: attempt, account: account)
         return ServerGrant(userId: result.userId, bindingId: result.bindingId, productId: result.productId,
             transactionKey: result.transactionKey, serverPurchaseId: result.serverPurchaseId, fulfillmentStatus: result.fulfillmentStatus)
     }
     func didFinish(_ proof: ApplePurchaseProof, userId: UUID) async throws {
-        guard enableTestGrant, userId == account.userId else { throw SdkFailure("INTERNAL_ERROR") }
+        guard userId == account.userId else { throw SdkFailure("INTERNAL_ERROR") }
         try await journal.finish(account: userId, key: proof.transactionKey)
     }
 }
@@ -59,20 +78,17 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
     private let accountRef: XcodeAccountReference
     private let provider: StoreKitBillingProvider
     private let journal: XcodeAttemptJournal
-    private let enableTestGrant: Bool
-    public convenience init(client: LocalMockClient, pendingStore: TokenStore, onVerified: @escaping (AppleStorePurchaseResult) -> Void = { _ in }) async throws {
-        try await self.init(client: client, pendingStore: pendingStore, enableTestGrant: false, onVerified: onVerified)
-    }
-    init(client: LocalMockClient, pendingStore: TokenStore, enableTestGrant: Bool, onVerified: @escaping (AppleStorePurchaseResult) -> Void = { _ in }) async throws {
+    public init(client: LocalMockClient, pendingStore: TokenStore, onVerified: @escaping (AppleStorePurchaseResult) -> Void = { _ in }) async throws {
         guard !(await client.sharesTokenStore(pendingStore)) else { throw SdkFailure("CONFIG_REQUIRED") }
-        if enableTestGrant && Bundle.main.object(forInfoDictionaryKey: "SKIncludeConsumableInAppPurchaseHistory") as? Bool != true {
+        guard #available(iOS 18.0, macOS 15.0, *) else { throw SdkFailure("UNSUPPORTED_PLATFORM", nativeCode: "XCODE_CONSUMABLE_HISTORY_REQUIRED") }
+        guard Bundle.main.object(forInfoDictionaryKey: "SKIncludeConsumableInAppPurchaseHistory") as? Bool == true else {
             throw SdkFailure("CONFIG_REQUIRED", nativeCode: "XCODE_CONSUMABLE_HISTORY_REQUIRED")
         }
-        self.client = client; self.enableTestGrant = enableTestGrant
+        self.client = client
         let journal = XcodeAttemptJournal(store: pendingStore); self.journal = journal
         let account = try await client.xcodeAccount(); self.account = account
         let ref = XcodeAccountReference(); ref.value = ApplePurchaseAccount(userId: account.userId, binding: account.bindingId); self.accountRef = ref
-        let sink = XcodeFakeProofSink(client: client, account: account, journal: journal, enableTestGrant: enableTestGrant)
+        let sink = XcodeFakeProofSink(client: client, account: account, journal: journal)
         provider = StoreKitBillingProvider(sink: sink, onVerified: { grant in
             onVerified(AppleStorePurchaseResult(productId: grant.productId, status: .purchased, serverPurchaseId: grant.serverPurchaseId, fulfillmentStatus: grant.fulfillmentStatus))
         }, acceptsTransaction: { transaction in
@@ -84,7 +100,6 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
     }
     public var userId: UUID { account.userId }
     public func start() async throws {
-        guard enableTestGrant else { provider.start(); _ = try await provider.recoverUnfinished(); return }
         var unfinished = Set<String>(); var history: [String: Int] = [:]
         for await result in Transaction.unfinished {
             guard case .verified(let value) = result, value.appAccountToken == account.bindingId else { continue }
@@ -112,11 +127,8 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
                 title: value.displayName, localizedPrice: value.displayPrice, currencyCode: value.priceFormatStyle.currencyCode, priceMicros: nil)
         }
     }
-    private var transactionIdentityReady: Bool { enableTestGrant }
     public func purchase(_ id: String) async throws -> AppleStorePurchaseResult {
         guard ["coins_100", "premium_unlock"].contains(id) else { throw SdkFailure("PRODUCT_NOT_FOUND") }
-        // Xcode's local transaction identity was observed to collide across separate purchases.
-        guard transactionIdentityReady else { throw SdkFailure("CONFIG_REQUIRED", nativeCode: "XCODE_TRANSACTION_IDENTITY_UNSTABLE") }
         try await journal.ensureEmpty(account: account.userId)
         for await result in Transaction.unfinished {
             if case .verified(let value) = result, value.appAccountToken == account.bindingId {

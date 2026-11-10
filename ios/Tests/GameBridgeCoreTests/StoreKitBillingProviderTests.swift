@@ -93,4 +93,10 @@ final class StoreKitBillingProviderTests: XCTestCase {
         XCTAssertNil(xcodeStableIdentity("bad"))
     }
 
+    func testXcodeIdentityRequiresExactlyOneMatch() throws {
+        XCTAssertNoThrow(try validateXcodeIdentityMatches(1))
+        XCTAssertThrowsError(try validateXcodeIdentityMatches(0)) { XCTAssertEqual(($0 as? SdkFailure)?.code, "NETWORK_UNAVAILABLE") }
+        XCTAssertThrowsError(try validateXcodeIdentityMatches(2)) { XCTAssertEqual(($0 as? SdkFailure)?.code, "IDEMPOTENCY_CONFLICT") }
+    }
+
 }

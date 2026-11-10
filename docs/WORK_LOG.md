@@ -1961,3 +1961,17 @@
 - 선택적 identity interface로 분리한 후 Android alias·복구 및 AAR compile, Swift 6건 통과. simulator Keychain의 서로 다른 객체·같은 service 거부 및 local DB 응답 유실 시험을 다시 확인한다.
 - `artifacts/xcode-storekit-e2e-43y9hasx/result.json` PASS/skip 0, 전용 DB `gamebridge_ci_2ca15a4099`: 서로 다른 Keychain 객체의 동일 service 거부와 실제 local DB commit 후 응답 유실·단서 삭제 실패 복구 재확인. Android alias는 synthetic unit과 native compile 범위다.
 - 커밋 준비: 선택적 저장소 identity와 양 플랫폼 alias 보호. Xcode 공개 구매 차단·Unity 실제 검증 대기는 유지한다.
+
+### [P00-T02] Unity 라이선스 상태 재확인
+- `unity license status --json`은 로그인 상태이나 활성 라이선스 0개, 종료 4를 반환했다. 자동 라이선스 발급이나 계정 변경은 하지 않았다. ENV-002 OPEN 및 Unity Editor/player 검증 미실행을 유지한다.
+### [P05-T03] Xcode 구매 차단 해제 조건 보강 시작
+- local DB commit 유실·finish 후 journal 정리 E2E가 통과했지만 후보 key 충돌을 안전하게 다뤄야 한다. 개발 경로에서 iOS 18+ 및 완료 소모품 이력 opt-in을 필수로 하고, 지급 직전 StoreKit 검증된 전체 이력에서 같은 후보 key가 정확히 1건인지 검사한다. 0건은 재시도 대기, 2건 이상은 충돌로 거부한다. 실제 Apple sandbox 경로는 변경하지 않는다.
+### P05-T03 충돌 guard 및 공개 경계 검증 시작
+- 테스트에서 0·1·2건 판정과 host 설정 부재 차단을 확인한 뒤 공개 initializer로 실제 local DB 응답 유실 복구를 재시험한다. Unity player·실 Apple 검증과는 별개다.
+- Swift 13건 통과: identity 0/1/2 판정, host 이력 설정 부재 차단 및 journal 회귀. 실제 StoreKit 이력과 공개 initializer를 사용하는 local DB E2E는 지금 실행한다.
+- `artifacts/xcode-storekit-e2e-dwma413h/result.json` 1건 PASS/skip 0: 공개 Native initializer에서 검증된 전체 이력의 단일 식별자 검사, 실제 local DB commit 응답 유실, Keychain 단서 재생성, finish 직후 삭제 실패 및 완료 이력 복구를 확인했다. Unity 및 실제 Apple sandbox는 미검증이다.
+- 실제 경로와 시험 경로의 불필요한 내부 enable flag를 제거하고, 동일 설정 검사를 항상 적용한다. host Info.plist와 OS 조건은 명시한다.
+### P05-T03 공개 Xcode Native 경로 재검증 시작
+- 불필요한 내부 enable flag 제거 후 단위 시험과 실제 local DB/StoreKit 응답 유실 복구를 다시 실행한다. host 이력 설정이 없거나 iOS 18 미만이면 차단한다.
+- 단순화한 공개 경로의 `artifacts/xcode-storekit-e2e-v0xdbk5f/result.json` PASS/skip 0: iOS 18.6, 전용 DB `gamebridge_ci_d831d20ff8`, 실제 StoreKit local·서버 commit 후 응답 유실·Keychain 재생성·finish 후 삭제 실패 복구. 실제 프로세스 kill·Unity player·Apple sandbox는 미검증이다.
+- 커밋 준비: host 설정·OS guard, verified StoreKit 이력 단일성 검사 및 공개 경로를 저장한다. iOS 26.5 실패와 BUG-013은 OPEN으로 유지한다.

@@ -64,12 +64,12 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         stage = "sign in and session Keychain save"
         _ = try await client.signIn(subject:"A")
         do {
-            _ = try await XcodeStoreKitSession(client:client, pendingStore:KeychainTokenStore(service:sessionService), enableTestGrant:true)
+            _ = try await XcodeStoreKitSession(client:client, pendingStore:KeychainTokenStore(service:sessionService))
             XCTFail("separate Keychain objects with same service must be rejected")
         } catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED") }
         DropCommittedGrantProtocol.setDrop(true)
         stage = "initial Xcode account"
-        let first = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore, enableTestGrant:true)
+        let first = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore)
         stage = "first StoreKit start"
         try await first.start()
         stage = "purchase and dropped grant response"
@@ -87,7 +87,7 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         let restoredUser = try await restored.restore(); XCTAssertNotNil(restoredUser)
         let recreatedPending = KeychainTokenStore(service:pendingService)
         stage = "recreate StoreKit and journal"
-        let recovered = try await XcodeStoreKitSession(client:restored, pendingStore:FailOnceClearStore(recreatedPending), enableTestGrant:true)
+        let recovered = try await XcodeStoreKitSession(client:restored, pendingStore:FailOnceClearStore(recreatedPending))
         stage = "recover and finish with injected journal clear failure"
         try await recovered.start()
         let wallet = try await recovered.wallet()
@@ -96,7 +96,7 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         recovered.stop()
         stage = "reconcile finished consumable after second recreation"
         let finalStore = KeychainTokenStore(service:pendingService)
-        let final = try await XcodeStoreKitSession(client:restored, pendingStore:finalStore, enableTestGrant:true)
+        let final = try await XcodeStoreKitSession(client:restored, pendingStore:finalStore)
         try await final.start()
         XCTAssertNil(try finalStore.load(), "verified completed transaction must clear stale journal")
         let finalWallet = try await final.wallet(); XCTAssertEqual(finalWallet.coinBalance, "100")

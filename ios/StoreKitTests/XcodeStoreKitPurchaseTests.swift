@@ -62,7 +62,7 @@ final class XcodeStoreKitPurchaseTests: XCTestCase {
                                          store: StoreKitTestMemoryStore(), developmentKey:String(repeating:"x", count:32), sessionConfiguration:config)
         _ = try await client.signIn(subject:"A")
         let pendingStore = StoreKitTestMemoryStore()
-        let store = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore, enableTestGrant:true); defer { store.stop() }
+        let store = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore); defer { store.stop() }
         try await store.start()
         let purchase = try await store.purchase("coins_100")
         var unfinished: [String] = []

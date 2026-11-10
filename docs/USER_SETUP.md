@@ -134,7 +134,7 @@ Codex 준비 상태: Play Billing provider, server verifier, purchase binding, �
 
 서버 검증 설정: app ID별 `bundleId`, 허용 `productIds`, Apple 공개 `rootCertificatePaths`, production의 양수 `appAppleId`를 서버 비밀 설정 `GAMEBRIDGE_APPLE_PURCHASE_CONFIG_JSON`에 지정한다. sandbox/production 환경은 서버 profile로 구분한다. 값이 없거나 root를 읽지 못하면 실제 verifier는 CONFIG_REQUIRED로 실패한다. App Store Server API 호출 경로에 필요한 경우 `APPLE_STORE_KEY_ID`, `APPLE_STORE_ISSUER_ID`, `APPLE_STORE_PRIVATE_KEY_PATH`를 서버에 둔다. 서명된 transaction JWS 검증과 서버 API 자격증명을 혼동하지 않는다. production용 appAppleId 요구 여부는 선택 라이브러리/환경에 맞춰 확인한다.
 
-Codex 준비물: StoreKit 2 provider, signed data 검증, appAccountToken 일치 확인, 지급 후 finish, unfinished 복구, restore. 현재 StoreKit API, Native proof sink, Apple 공식 서명 verifier 및 sandbox/production 전용 검증 endpoint와 원자 지급 경계가 부분 구현되어 있다. 앱별 실제 상품 catalog 데이터와 provider 조립·실 서명 검증은 아직 필요하다. Xcode 로컬 시험과 실제 Sandbox 시험은 아직 실행되지 않았다.
+Codex 준비물: StoreKit 2 provider, signed data 검증, appAccountToken 일치 확인, 지급 후 finish, unfinished 복구, restore. 현재 StoreKit API, Native proof sink, Apple 공식 서명 verifier 및 sandbox/production 전용 검증 endpoint와 원자 지급 경계가 부분 구현되어 있다. 앱별 실제 상품 catalog 데이터와 provider 조립·실 서명 검증은 아직 필요하다. iOS 18.6에서 Xcode 로컬 StoreKit과 local fake DB 지급·응답 유실 복구를 확인했으며 실제 Sandbox 시험은 실행되지 않았다.
 
 실제 시나리오: Sandbox 상품 조회 → 소모성 구매 → 서버 검증/원장/finish → 반복 구매 → 비소모성 구매/복원 → 결제 중 종료 후 복구 → duplicate verify → 계정 mismatch 거부. 실제 사용자 금전 결제를 수행하지 않는다.
 
@@ -266,6 +266,10 @@ UPM의 `Native Mock and Sandbox Demo`는 Android/iOS player용이다. Unity UI p
 
 ## 실연동 준비 상태 확인
 
-서버를 실행할 동일한 로컬 환경에서 `bash scripts/verify-external.sh --check-config`를 실행한다. 이 명령은 설정 항목과 credential 파일의 존재·기본 형태만 확인하고 값과 경로를 출력하지 않으며, 네트워크 요청이나 실제 로그인·구매·발송을 수행하지 않는다. 누락 또는 형식 오류가 있으면 종료 코드 2다. `PRESENT_SHAPE_ONLY`는 자격 증명 유효성이나 실연동 성공을 뜻하지 않는다. Android/iOS host의 앱 ID·서명·기기·Unity 라이선스 및 각 항목의 실제 검증은 위 절의 안내를 따로 수행해야 한다. 로컬 StoreKit 전체 지급은 내부 미구현이고 Mock push의 Unity 실행 검증은 남아 있으므로 사용자 설정만으로 완료되지 않는다.
+서버를 실행할 동일한 로컬 환경에서 `bash scripts/verify-external.sh --check-config`를 실행한다. 이 명령은 설정 항목과 credential 파일의 존재·기본 형태만 확인하고 값과 경로를 출력하지 않으며, 네트워크 요청이나 실제 로그인·구매·발송을 수행하지 않는다. 누락 또는 형식 오류가 있으면 종료 코드 2다. `PRESENT_SHAPE_ONLY`는 자격 증명 유효성이나 실연동 성공을 뜻하지 않는다. Android/iOS host의 앱 ID·서명·기기·Unity 라이선스 및 각 항목의 실제 검증은 위 절의 안내를 따로 수행해야 한다. Xcode StoreKit과 Mock push의 Unity 실행 검증은 남아 있으므로 사용자 설정만으로 완료되지 않는다.
 
 LOCAL_MOCK simulated push 전달 정책은 앱이 연결 중일 때만 전달하고 연결이 없으면 즉시 버리는 것으로 사용자가 선택했다. 서버 스트림과 Native 수신은 전용 로컬 DB E2E를 통과했고 Unity E2E는 미검증이며 실제 FCM/APNs 전달과 별개다. 연결 확인 기본 간격은 30초이며 `GAMEBRIDGE_MOCK_PUSH_HEARTBEAT_SECONDS`로 변경할 수 있다.
+
+## XCODE_STOREKIT 개발 전용 구성
+
+Xcode local `.storekit` 환경에서만 사용한다. iOS 18 이상과 host Info.plist의 `SKIncludeConsumableInAppPurchaseHistory = true`가 필요하며, 미설정 또는 구버전이면 구매 전에 CONFIG_REQUIRED 또는 UNSUPPORTED_PLATFORM으로 차단된다. 별도 local-mock Backend와 개발키, `GameBridgeConfig`의 `XcodeStoreKit` 모드 및 Mock A/B 계정을 명시하고 Xcode scheme에 `ios/StoreKit/GameBridge.storekit`을 지정한다. 거래는 StoreKit 클라이언트에서 검증되고 서버 지급은 개발용 fake 경로에서 이뤄진다. 서버가 Xcode JWS를 Apple 서버 서명으로 검증하는 것은 아니다. 같은 거래 후보 키에 둘 이상의 거래가 있거나 다른 시도가 동일 키를 쓰면 지급을 거부한다. Xcode 데이터는 일반 Mock 사용자·지갑과 분리된다. 실제 Unity player·프로세스 강제 종료 및 Apple sandbox는 별도 미검증이다.

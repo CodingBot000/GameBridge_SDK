@@ -57,16 +57,14 @@ final class XcodeMockClientTests: XCTestCase {
         _ = try await handler.invoke("sdk.shutdown", payload: [:])
     }
 
-    @MainActor func testXcodePurchaseFailsClosedWhenIdentityIsAmbiguous() async throws {
+    @MainActor func testXcodeRequiresConsumableHistoryConfiguration() async throws {
         let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [XcodeProtocol.self]
         let config = GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:"http://127.0.0.1:18080")
         let client = try LocalMockClient(config:config, store:XcodeStore(), developmentKey:String(repeating:"x",count:32), sessionConfiguration:configuration)
         _ = try await client.signIn(subject:"A")
-        let store = try await XcodeStoreKitSession(client:client, pendingStore:XcodeStore()); defer { store.stop() }
-        do { _ = try await store.purchase("coins_100"); XCTFail("ambiguous identity must not open purchase") }
-        catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED"); XCTAssertEqual(error.nativeCode, "XCODE_TRANSACTION_IDENTITY_UNSTABLE") }
+        do { _ = try await XcodeStoreKitSession(client:client, pendingStore:XcodeStore()); XCTFail("missing host history opt-in") }
+        catch let error as SdkFailure { XCTAssertEqual(error.nativeCode, "XCODE_CONSUMABLE_HISTORY_REQUIRED") }
     }
-
     @MainActor func testXcodePendingStoreCannotShareSessionStore() async throws {
         let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [XcodeProtocol.self]
         let shared = XcodeStore(); let config = GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:"http://127.0.0.1:18080")

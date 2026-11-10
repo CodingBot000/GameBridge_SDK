@@ -85,7 +85,7 @@ def main():
     report={'status':status,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
             'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),
             'database':name,'simulator':simulator,'testExitCode':test_code,'passed':summary.get('passedTests',0),'skipped':summary.get('skippedTests',0),
-            'limitations':['Xcode local StoreKit and synthetic development DB only','test-only grant enablement','not Unity player or Apple sandbox']}
+            'limitations':['Xcode local StoreKit and synthetic development DB only','public native Xcode-local grant path','not Unity player or Apple sandbox']}
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n')
     print('Result:',status,'Evidence directory:',output.relative_to(ROOT)); return 0 if status=='PASS' else 1
 

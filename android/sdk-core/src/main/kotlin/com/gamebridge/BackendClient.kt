@@ -5,12 +5,15 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonPrimitive
+import java.io.InputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URI
 
+/** Implementations must atomically replace the complete value and keep it encrypted at rest. */
 interface TokenStore {
     fun load(): String?
     fun save(value: String)
@@ -48,24 +51,49 @@ class BackendClient(private val config: GameBridgeConfig) {
                 connection.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
             }
             val code = connection.responseCode
-            if (code == 401) throw SdkFailure("SESSION_EXPIRED")
-            if (code !in 200..299) throw SdkFailure(if (code in 500..599) "NETWORK_UNAVAILABLE" else "INTERNAL_ERROR")
-            val data = connection.inputStream.use { input ->
-                val output = ByteArrayOutputStream(); val buffer = ByteArray(8192)
-                while (true) {
-                    val count = input.read(buffer); if (count < 0) break
-                    if (output.size() + count > 256 * 1024) throw SdkFailure("PAYLOAD_TOO_LARGE")
-                    output.write(buffer, 0, count)
-                }
-                output.toByteArray()
+            if (code !in 200..299) {
+                val data = connection.errorStream?.use { readBounded(it) } ?: ByteArray(0)
+                throw failure(code, data)
             }
+            val data = connection.inputStream.use { readBounded(it) }
             val content = try { Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(data)).toString() }
                 catch (_: java.nio.charset.CharacterCodingException) { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
             try { val parsed = Json.parseToJsonElement(content); if (parsed !is JsonObject && parsed !is JsonArray) throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
             catch (_: Exception) { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
             BackendResponse(connection.getHeaderField("X-Request-Id"), content)
-        } catch (_: SocketTimeoutException) { throw SdkFailure("TIMEOUT") }
-        catch (_: IOException) { throw SdkFailure("NETWORK_UNAVAILABLE") }
+        } catch (_: SocketTimeoutException) { throw SdkFailure("TIMEOUT", retryable = true) }
+        catch (_: IOException) { throw SdkFailure("NETWORK_UNAVAILABLE", retryable = true) }
         finally { connection?.disconnect() }
+    }
+    private fun readBounded(input: InputStream): ByteArray {
+        val output = ByteArrayOutputStream(); val buffer = ByteArray(8192)
+        while (true) {
+            val count = input.read(buffer); if (count < 0) break
+            if (output.size() + count > 256 * 1024) throw SdkFailure("PAYLOAD_TOO_LARGE")
+            output.write(buffer, 0, count)
+        }
+        return output.toByteArray()
+    }
+    private fun failure(status: Int, data: ByteArray): SdkFailure {
+        val serverCode = runCatching {
+            val value = (Json.parseToJsonElement(data.toString(Charsets.UTF_8)) as? JsonObject)?.get("code") as? JsonPrimitive
+            value?.takeIf { it.isString }?.content
+        }.getOrNull()
+        val allowed = when (status) {
+            400 -> setOf("INVALID_ARGUMENT")
+            401 -> setOf("AUTH_FAILED", "SESSION_EXPIRED")
+            403 -> setOf("PERMISSION_DENIED")
+            404 -> setOf("UNSUPPORTED_OPERATION")
+            409 -> setOf("AUTH_REPLAY_DETECTED", "PURCHASE_ACCOUNT_MISMATCH", "IDEMPOTENCY_CONFLICT")
+            429 -> setOf("BUSY")
+            503 -> setOf("CONFIG_REQUIRED", "NETWORK_UNAVAILABLE")
+            else -> emptySet()
+        }
+        val fallback = when (status) {
+            400 -> "INVALID_ARGUMENT"; 401 -> "SESSION_EXPIRED"; 403 -> "PERMISSION_DENIED"; 404 -> "UNSUPPORTED_OPERATION"
+            429 -> "BUSY"; in 500..599 -> "NETWORK_UNAVAILABLE"; else -> "INTERNAL_ERROR"
+        }
+        val code = serverCode?.takeIf { it in allowed } ?: fallback
+        return SdkFailure(code, retryable = code == "BUSY" || code == "NETWORK_UNAVAILABLE")
     }
 }

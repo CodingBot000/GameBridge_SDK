@@ -1,7 +1,16 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
-private struct SecretSession: Codable {
+private struct WireSession: Codable, CustomStringConvertible {
     let accessToken, refreshToken, expiresAt, userId: String
+    var description: String { "WireSession([redacted])" }
+}
+private struct SecretSession: Codable, CustomStringConvertible {
+    let accessToken, refreshToken, expiresAt, userId: String
+    let appId, providerMode, backendBaseURL: String
+    var description: String { "SecretSession([redacted])" }
 }
 private struct Me: Codable { let userId: String }
 public struct LocalWallet: Codable {
@@ -20,32 +29,41 @@ public struct LocalPurchase: Codable {
 /// Native-owned tokens; this client only connects to the explicitly configured local mock backend.
 public actor LocalMockClient {
     private let backend: BackendClient
+    private let config: GameBridgeConfig
     private let store: TokenStore
     private let developmentKey: String
     private var session: SecretSession?
-    private var refreshTask: Task<SecretSession, Error>?
+    private var refreshFlight: (id: UUID, task: Task<SecretSession, Error>)?
     private var generation = 0
-    public init(config: GameBridgeConfig, store: TokenStore, developmentKey: String) throws {
+    private var signingIn = false
+    public init(config: GameBridgeConfig, store: TokenStore, developmentKey: String, sessionConfiguration: URLSessionConfiguration = .default) throws {
         guard config.mode == .localMock else { throw SdkFailure("UNSUPPORTED_PROVIDER") }
         guard developmentKey.count >= 32 else { throw SdkFailure("CONFIG_REQUIRED") }
-        backend = try BackendClient(config: config); self.store = store; self.developmentKey = developmentKey
+        backend = try BackendClient(config: config, sessionConfiguration: sessionConfiguration); self.config = config; self.store = store; self.developmentKey = developmentKey
     }
     public func signIn(subject: String) async throws -> UserProfile {
         guard ["A", "B"].contains(subject) else { throw SdkFailure("INVALID_ARGUMENT") }
-        generation += 1; refreshTask?.cancel(); refreshTask = nil; let started = generation
+        guard !signingIn else { throw SdkFailure("BUSY") }
+        signingIn = true; defer { signingIn = false }
+        generation += 1
+        if refreshFlight != nil { session = nil }
+        refreshFlight?.task.cancel(); refreshFlight = nil; let started = generation
         let response = try await backend.request(path: "/v1/dev/auth", method: "POST", body: encode(["subject": subject]), developmentKey: developmentKey)
-        let next: SecretSession = try decode(response.json)
+        let next = try wrap(decode(response.json) as WireSession)
         guard generation == started else { throw SdkFailure("CANCELED") }
         try store.save(String(decoding: JSONEncoder().encode(next), as: UTF8.self)); session = next
         return UserProfile(userId: next.userId, displayName: nil, provider: "MOCK")
     }
     public func restore() async throws -> UserProfile? {
-        guard let saved = try store.load() else { return nil }
-        let loaded: SecretSession
-        do { loaded = try decode(Data(saved.utf8)) } catch { try store.clear(); session = nil; throw SdkFailure("SESSION_EXPIRED") }
-        generation += 1; refreshTask?.cancel(); refreshTask = nil; let started = generation; session = loaded
+        guard !signingIn else { throw SdkFailure("BUSY") }
+        if session == nil {
+            guard let loaded = try loadBoundStored() else { return nil }
+            generation += 1; session = loaded
+        }
+        let started = generation
         let me: Me = try decode(try await authenticated(path: "/v1/me", method: "GET").json)
-        guard generation == started, me.userId == session?.userId else { throw SdkFailure("AUTH_FAILED") }
+        guard generation == started else { throw SdkFailure("CANCELED") }
+        guard me.userId == session?.userId else { throw SdkFailure("AUTH_FAILED") }
         return UserProfile(userId: me.userId, displayName: nil, provider: "MOCK")
     }
     public func products() async throws -> [LocalProduct] { try decode(try await authenticated(path: "/v1/catalog", method: "GET").json) }
@@ -58,10 +76,33 @@ public actor LocalMockClient {
         return try decode(try await authenticated(path: "/v1/purchases/verify", method: "POST", body: body, idempotencyKey: attemptId.uuidString.lowercased()).json)
     }
     public func signOut() async throws {
-        generation += 1; let current = session; session = nil; refreshTask?.cancel(); refreshTask = nil; try store.clear()
-        if let current { _ = try await backend.request(path: "/v1/auth/logout", method: "POST", accessToken: current.accessToken) }
+        let raw = try store.load()
+        let pending = raw == "{\"state\":\"refresh_pending\"}"
+        let stored = pending ? nil : try loadBoundStored()
+        let old = session ?? stored
+        generation += 1; session = nil; refreshFlight?.task.cancel(); refreshFlight = nil
+        try store.clear()
+        if let old {
+            do {
+                do { _ = try await backend.request(path: "/v1/auth/logout", method: "POST", accessToken: old.accessToken) }
+                catch let error as SdkFailure where error.code == "SESSION_EXPIRED" {
+                    _ = try await backend.request(path: "/v1/auth/logout", method: "POST", body: encode(["refreshToken": old.refreshToken]))
+                }
+            } catch let error as SdkFailure { throw SdkFailure(error.code, nativeCode: "REVOCATION_UNCONFIRMED", retryable: error.retryable) }
+            catch { throw SdkFailure("INTERNAL_ERROR", nativeCode: "REVOCATION_UNCONFIRMED") }
+        } else if pending { throw SdkFailure("SESSION_EXPIRED", nativeCode: "REVOCATION_UNCONFIRMED") }
+    }
+    private func loadBoundStored() throws -> SecretSession? {
+        guard let saved = try store.load() else { return nil }
+        let loaded: SecretSession
+        do { loaded = try decode(Data(saved.utf8)) } catch { throw SdkFailure("SESSION_EXPIRED") }
+        guard loaded.appId == config.appId, loaded.providerMode == config.mode.rawValue, loaded.backendBaseURL == config.backendBaseURL,
+              !loaded.accessToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !loaded.refreshToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              UUID(uuidString: loaded.userId) != nil, Self.isUTCInstant(loaded.expiresAt) else { throw SdkFailure("SESSION_EXPIRED") }
+        return loaded
     }
     private func authenticated(path: String, method: String, body: Data? = nil, idempotencyKey: String? = nil) async throws -> BackendResponse {
+        guard !signingIn else { throw SdkFailure("BUSY") }
         guard let current = session else { throw SdkFailure("SESSION_EXPIRED") }
         let started = generation
         do {
@@ -75,29 +116,55 @@ public actor LocalMockClient {
                 guard generation == started else { throw SdkFailure("CANCELED") }
                 return response
             }
-            let task: Task<SecretSession, Error>
-            if let existing = refreshTask { task = existing }
+            let flight: (id: UUID, task: Task<SecretSession, Error>)
+            if let existing = refreshFlight { flight = existing }
             else {
-                let backend = self.backend
-                task = Task {
+                // A durable tombstone prevents replay if the rotation response is lost or the app exits.
+                try store.save("{\"state\":\"refresh_pending\"}")
+                let backend = self.backend; let config = self.config
+                let task = Task {
                     let body = try JSONSerialization.data(withJSONObject: ["refreshToken": current.refreshToken])
                     let response = try await backend.request(path: "/v1/auth/refresh", method: "POST", body: body)
-                    return try JSONDecoder().decode(SecretSession.self, from: response.json)
+                    let wire: WireSession
+                    do { wire = try JSONDecoder().decode(WireSession.self, from: response.json) }
+                    catch { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+                    return try Self.wrap(wire, config: config)
                 }
-                refreshTask = task
+                flight = (UUID(), task); refreshFlight = flight
             }
             let refreshed: SecretSession
-            do { refreshed = try await task.value }
+            do { refreshed = try await flight.task.value }
             catch {
-                if generation == started { refreshTask = nil; if (error as? SdkFailure)?.code == "SESSION_EXPIRED" { session = nil; try store.clear() } }
+                if generation == started && refreshFlight?.id == flight.id { refreshFlight = nil; session = nil }
                 throw error
             }
-            guard generation == started, refreshed.userId == current.userId else { throw SdkFailure("AUTH_FAILED") }
-            try store.save(String(decoding: JSONEncoder().encode(refreshed), as: UTF8.self)); session = refreshed; refreshTask = nil
-            let response = try await backend.request(path: path, method: method, body: body, accessToken: refreshed.accessToken, idempotencyKey: idempotencyKey)
+            guard generation == started else { throw SdkFailure("CANCELED") }
+            if refreshed.userId != current.userId {
+                if refreshFlight?.id == flight.id { session = nil; refreshFlight = nil }
+                throw SdkFailure("AUTH_FAILED")
+            }
+            if refreshFlight?.id == flight.id {
+                do { try store.save(String(decoding: JSONEncoder().encode(refreshed), as: UTF8.self)) }
+                catch { session = nil; refreshFlight = nil; throw SdkFailure("INTERNAL_ERROR") }
+                session = refreshed; refreshFlight = nil
+            }
+            guard let usable = session else { throw SdkFailure("SESSION_EXPIRED") }
+            let response = try await backend.request(path: path, method: method, body: body, accessToken: usable.accessToken, idempotencyKey: idempotencyKey)
             guard generation == started else { throw SdkFailure("CANCELED") }
             return response
         }
+    }
+    private func wrap(_ value: WireSession) throws -> SecretSession { try Self.wrap(value, config: config) }
+    private static func wrap(_ value: WireSession, config: GameBridgeConfig) throws -> SecretSession {
+        guard !value.accessToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !value.refreshToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, UUID(uuidString: value.userId) != nil,
+              let url = config.backendBaseURL, isUTCInstant(value.expiresAt) else { throw SdkFailure("AUTH_FAILED") }
+        return SecretSession(accessToken: value.accessToken, refreshToken: value.refreshToken, expiresAt: value.expiresAt,
+                             userId: value.userId, appId: config.appId, providerMode: config.mode.rawValue, backendBaseURL: url)
+    }
+    private static func isUTCInstant(_ value: String) -> Bool {
+        guard value.hasSuffix("Z") else { return false }
+        let fractional = ISO8601DateFormatter(); fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return fractional.date(from: value) != nil || ISO8601DateFormatter().date(from: value) != nil
     }
     private func encode(_ value: [String: Any]) throws -> Data { try JSONSerialization.data(withJSONObject: value) }
     private func decode<T: Decodable>(_ data: Data) throws -> T {

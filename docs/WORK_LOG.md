@@ -620,3 +620,6 @@
 - Apple library와 Kotlin 컴파일 종료 0. fake decoder로 환경·상품·계정·취소·수량 거부 및 재시도 가능 오류 구분을 검증한다. 실제 서명된 Apple 거래는 아니다.
 - Apple fake decoder 경계 시험 2건 통과: app/environment/product/account/state 불일치와 위조 오류 거부, retryable 검증 오류 구분. 실제 인증서 chain·서명 검증은 미실행이다.
 - 커밋 전: Apple 공식 library 기반 verifier와 fake 경계 시험만 포함. credential 조립·Google verifier·지급 연결·실거래 검증은 미완료여서 P05-T04 PARTIAL 유지.
+
+### [P04-T04] 커밋 전 — 2026-11-10 Asia/Seoul
+- 사용자가 최초 로그인 기준 7일 고정을 승인했으며 DB refresh UPDATE는 원래 만료를 변경하지 않는다. 앞서 local Backend Kotlin/Swift single-flight·응답 유실·logout 및 mock HTTP 시험을 통과했다. 실제 Provider와 revoke 실패의 재시작 후 재시도는 미검증/미구현으로 PARTIAL 유지한다.

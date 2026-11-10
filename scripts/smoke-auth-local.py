@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Exercise only the explicit local-mock A/B identities; never print credentials."""
+import hashlib
+import subprocess
 import json
 import os
 import sys
@@ -42,6 +44,14 @@ def main():
     status, _ = call('POST', '/v1/auth/logout', headers=auth); check(status == 200, 'logout')
     status, _ = call('POST', '/v1/auth/logout', headers=auth); check(status == 200, 'repeated logout')
     status, _ = call('GET', '/v1/me', headers=auth); check(status == 401, 'revoked access')
+    status, fresh = call('POST', '/v1/dev/auth', {'subject': 'A'}, {'X-Development-Key': KEY}); check(status == 200, 'refresh logout login')
+    digest = hashlib.sha256(fresh['refreshToken'].encode()).hexdigest()
+    sql = "UPDATE sessions SET expires_at=now()-interval '1 second' WHERE refresh_hash=decode('" + digest + "','hex');"
+    process = subprocess.run(['docker', 'exec', '-i', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', 'gamebridge_local', '-v', 'ON_ERROR_STOP=1', '-tA'], input=sql, capture_output=True, text=True, check=True)
+    check(process.stdout.strip() == 'UPDATE 1', 'expire owned test session')
+    status, _ = call('POST', '/v1/auth/logout', {'refreshToken': fresh['refreshToken']}); check(status == 200, 'refresh logout')
+    status, _ = call('POST', '/v1/auth/logout', {'refreshToken': fresh['refreshToken']}); check(status == 200, 'refresh logout idempotent')
+    status, _ = call('POST', '/v1/auth/refresh', {'refreshToken': fresh['refreshToken']}); check(status == 401, 'refresh revoked')
     print(f'LOCAL_MOCK session checks passed: {count}; actual platform providers not tested')
 
 if __name__ == '__main__':

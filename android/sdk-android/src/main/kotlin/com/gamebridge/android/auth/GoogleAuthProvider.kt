@@ -22,6 +22,7 @@ import com.gamebridge.UserProfile
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -39,6 +40,9 @@ internal class GoogleIdToken(val value: String) { override fun toString() = "Goo
 @Serializable internal class NativeSession(val accessToken: String, val refreshToken: String, val expiresAt: String, val userId: String) {
     override fun toString() = "NativeSession([redacted])"
 }
+@Serializable internal class StoredGoogleSession(val appId: String, val providerMode: String, val backendBaseUrl: String, val provider: String, val session: NativeSession) {
+    override fun toString() = "StoredGoogleSession([redacted])"
+}
 internal interface GoogleCredentialGateway {
     fun attach(activity: Activity)
     fun detach()
@@ -48,6 +52,8 @@ internal interface GoogleAuthBackend {
     suspend fun challenge(appId: String): AuthChallenge
     suspend fun exchange(challengeId: String, credential: GoogleIdToken): NativeSession
     suspend fun profile(session: NativeSession): UserProfile
+    suspend fun refresh(session: NativeSession): NativeSession
+    suspend fun revoke(session: NativeSession)
 }
 
 /** Real Google credential path; raw tokens are sent only to Backend and encrypted Native storage. */
@@ -58,6 +64,8 @@ class GoogleAuthProvider internal constructor(
     private val backend: GoogleAuthBackend,
 ) {
     private val uiGate = Mutex()
+    private val sessionLock = Mutex()
+    private val storageJson = Json { ignoreUnknownKeys = true }
     companion object {
         @JvmStatic fun create(context: Context, config: GameBridgeConfig, store: TokenStore): GoogleAuthProvider {
             if (config.mode != ProviderMode.PLATFORM_SANDBOX) throw SdkFailure("UNSUPPORTED_PROVIDER")
@@ -71,21 +79,58 @@ class GoogleAuthProvider internal constructor(
         if (config.mode != ProviderMode.PLATFORM_SANDBOX) throw SdkFailure("UNSUPPORTED_PROVIDER")
         val clientId = config.googleServerClientId?.takeIf { it.isNotBlank() } ?: throw SdkFailure("CONFIG_REQUIRED")
         if (!uiGate.tryLock()) throw SdkFailure("BUSY")
-        try {
+        try { return sessionLock.withLock {
             val challenge = backend.challenge(config.appId)
             if (runCatching { UUID.fromString(challenge.challengeId).toString() == challenge.challengeId }.getOrDefault(false).not() ||
                 challenge.nonce.isBlank() || runCatching { java.time.Instant.parse(challenge.expiresAt) }.isFailure) throw SdkFailure("AUTH_FAILED")
             val credential = gateway.get(clientId, challenge.nonce)
             val session = backend.exchange(challenge.challengeId, credential)
-            val validUser = runCatching { UUID.fromString(session.userId).toString() == session.userId }.getOrDefault(false)
-            val validExpiry = runCatching { java.time.Instant.parse(session.expiresAt) }.isSuccess
-            if (!validUser || !validExpiry || session.accessToken.isBlank() || session.refreshToken.isBlank()) throw SdkFailure("AUTH_FAILED")
+            validate(session)
             val profile = backend.profile(session)
             if (profile.userId != session.userId || profile.provider != "GOOGLE") throw SdkFailure("AUTH_FAILED")
-            store.save(Json.encodeToString(session))
-            return profile
-        } catch (_: CancellationException) { throw SdkFailure("CANCELED") }
+            val saved = StoredGoogleSession(config.appId, config.mode.name, config.backendBaseUrl!!, "GOOGLE", session)
+            store.save(storageJson.encodeToString(saved))
+            profile
+        } } catch (_: CancellationException) { throw SdkFailure("CANCELED") }
         finally { uiGate.unlock() }
+    }
+    suspend fun restore(): UserProfile? = try { sessionLock.withLock {
+        val saved = loadBound() ?: return@withLock null
+        var session = saved.session
+        val profile = try { backend.profile(session) } catch (failure: SdkFailure) {
+            if (failure.code != "SESSION_EXPIRED") throw failure
+            // Keep a durable tombstone before rotation so an ambiguous response is never replayed.
+            store.save("{\"state\":\"refresh_pending\"}")
+            val refreshed = backend.refresh(session)
+            validate(refreshed)
+            if (refreshed.userId != session.userId) throw SdkFailure("AUTH_FAILED")
+            session = refreshed
+            store.save(storageJson.encodeToString(StoredGoogleSession(config.appId, config.mode.name, config.backendBaseUrl!!, "GOOGLE", session)))
+            backend.profile(session)
+        }
+        if (profile.userId != session.userId || profile.provider != "GOOGLE") { store.clear(); throw SdkFailure("AUTH_FAILED") }
+        profile
+    } } catch (_: CancellationException) { throw SdkFailure("CANCELED") }
+    suspend fun signOut() = sessionLock.withLock {
+        if (store.load() == "{\"state\":\"refresh_pending\"}") { store.clear(); throw SdkFailure("SESSION_EXPIRED", "REVOCATION_UNCONFIRMED") }
+        val saved = loadBound()
+        store.clear()
+        if (saved != null) try { backend.revoke(saved.session) }
+        catch (failure: SdkFailure) { throw SdkFailure(failure.code, "REVOCATION_UNCONFIRMED", failure.retryable) }
+        catch (_: CancellationException) { throw SdkFailure("CANCELED", "REVOCATION_UNCONFIRMED") }
+        catch (_: Exception) { throw SdkFailure("INTERNAL_ERROR", "REVOCATION_UNCONFIRMED") }
+    }
+    private fun loadBound(): StoredGoogleSession? {
+        val raw = store.load() ?: return null
+        val saved = try { storageJson.decodeFromString<StoredGoogleSession>(raw) } catch (_: Exception) { throw SdkFailure("SESSION_EXPIRED") }
+        if (saved.appId != config.appId || saved.providerMode != config.mode.name || saved.backendBaseUrl != config.backendBaseUrl || saved.provider != "GOOGLE") throw SdkFailure("SESSION_EXPIRED")
+        validate(saved.session)
+        return saved
+    }
+    private fun validate(session: NativeSession) {
+        val validUser = runCatching { UUID.fromString(session.userId).toString() == session.userId }.getOrDefault(false)
+        val validExpiry = runCatching { java.time.Instant.parse(session.expiresAt) }.isSuccess
+        if (!validUser || !validExpiry || session.accessToken.isBlank() || session.refreshToken.isBlank()) throw SdkFailure("AUTH_FAILED")
     }
 }
 
@@ -116,14 +161,26 @@ internal class AndroidGoogleGateway(context: Context) : GoogleCredentialGateway 
     }
 }
 
-internal class HttpGoogleBackend(config: GameBridgeConfig) : GoogleAuthBackend {
-    private val client = BackendClient(config)
+private fun googleTransport(config: GameBridgeConfig): suspend (String, String, String?, String?) -> com.gamebridge.BackendResponse {
+    val client = BackendClient(config)
+    return { path, method, body, token -> client.request(path, method, body, token) }
+}
+internal class HttpGoogleBackend(private val request: suspend (String, String, String?, String?) -> com.gamebridge.BackendResponse) : GoogleAuthBackend {
+    constructor(config: GameBridgeConfig) : this(googleTransport(config))
     private val json = Json { ignoreUnknownKeys = true }
-    override suspend fun challenge(appId: String): AuthChallenge = parse(client.request("/v1/auth/challenges", "POST", buildJsonObject { put("provider", "GOOGLE"); put("appId", appId) }.toString()).json)
-    override suspend fun exchange(challengeId: String, credential: GoogleIdToken): NativeSession = parse(client.request("/v1/auth/exchange", "POST", buildJsonObject { put("challengeId", challengeId); put("provider", "GOOGLE"); put("idToken", credential.value) }.toString()).json)
+    override suspend fun challenge(appId: String): AuthChallenge = parse(request("/v1/auth/challenges", "POST", buildJsonObject { put("provider", "GOOGLE"); put("appId", appId) }.toString(), null).json)
+    override suspend fun exchange(challengeId: String, credential: GoogleIdToken): NativeSession = parse(request("/v1/auth/exchange", "POST", buildJsonObject { put("challengeId", challengeId); put("provider", "GOOGLE"); put("idToken", credential.value) }.toString(), null).json)
+    override suspend fun refresh(session: NativeSession): NativeSession = parse(request("/v1/auth/refresh", "POST", buildJsonObject { put("refreshToken", session.refreshToken) }.toString(), null).json)
+    override suspend fun revoke(session: NativeSession) {
+        try { request("/v1/auth/logout", "POST", null, session.accessToken) }
+        catch (failure: SdkFailure) {
+            if (failure.code != "SESSION_EXPIRED") throw failure
+            request("/v1/auth/logout", "POST", buildJsonObject { put("refreshToken", session.refreshToken) }.toString(), null)
+        }
+    }
     override suspend fun profile(session: NativeSession): UserProfile {
         @Serializable data class Me(val userId: String, val displayName: String? = null)
-        val me: Me = parse(client.request("/v1/me", "GET", accessToken = session.accessToken).json)
+        val me: Me = parse(request("/v1/me", "GET", null, session.accessToken).json)
         return UserProfile(me.userId, me.displayName, "GOOGLE")
     }
     private inline fun <reified T> parse(value: String): T = try { json.decodeFromString(value) } catch (_: Exception) { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }

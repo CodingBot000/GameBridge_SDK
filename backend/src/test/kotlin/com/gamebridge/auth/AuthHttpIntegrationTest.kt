@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.jdbc.core.JdbcTemplate
+import java.security.MessageDigest
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
@@ -47,11 +49,14 @@ class TestIdentityConfiguration {
 @EnabledIfEnvironmentVariable(named = "GAMEBRIDGE_RUN_AUTH_DB_TESTS", matches = "true")
 class AuthHttpIntegrationTest {
     @Autowired lateinit var rest: TestRestTemplate
+    @Autowired lateinit var db: JdbcTemplate
     companion object {
         @JvmStatic @DynamicPropertySource fun properties(registry: DynamicPropertyRegistry) {
             registry.add("DATABASE_URL") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_URL")) }
             registry.add("DATABASE_USERNAME") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_USER")) }
             registry.add("DATABASE_PASSWORD") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_PASSWORD")) }
+            registry.add("gamebridge.session.access-ttl-seconds") { 120L }
+            registry.add("gamebridge.session.refresh-ttl-seconds") { 600L }
             registry.add("GAMEBRIDGE_AUTH_AUDIENCES_JSON") { """{"test-app":{"GOOGLE":["test-google"],"APPLE":["test.apple.bundle"]}}""" }
         }
     }
@@ -76,9 +81,18 @@ class AuthHttpIntegrationTest {
         val google = exchange(googleChallenge, "GOOGLE", googleToken, "테스트 이름")
         assertEquals(200, google.statusCode.value())
         val session = google.body!!; assertFalse(session.toString().contains(googleToken))
+        val remaining = Duration.between(Instant.now(), Instant.parse(session["expiresAt"] as String)).seconds
+        assertTrue(remaining in 100..120)
         val headers = HttpHeaders().apply { setBearerAuth(session["accessToken"] as String) }
         val me = rest.exchange("/v1/me", HttpMethod.GET, HttpEntity<Void>(headers), Map::class.java)
         assertEquals(200, me.statusCode.value()); assertEquals("테스트 이름", me.body!!["displayName"])
+        val refresh = session["refreshToken"] as String
+        val digest = MessageDigest.getInstance("SHA-256").digest(refresh.toByteArray())
+        assertEquals(1, db.update("UPDATE sessions SET expires_at=now()-interval '1 second' WHERE refresh_hash=?", digest))
+        val logout = rest.postForEntity("/v1/auth/logout", mapOf("refreshToken" to refresh), Map::class.java)
+        assertEquals(200, logout.statusCode.value())
+        assertEquals(200, rest.postForEntity("/v1/auth/logout", mapOf("refreshToken" to refresh), Map::class.java).statusCode.value())
+        assertEquals(401, rest.postForEntity("/v1/auth/refresh", mapOf("refreshToken" to refresh), Map::class.java).statusCode.value())
         val replay = exchange(googleChallenge, "GOOGLE", googleToken)
         assertEquals(409, replay.statusCode.value()); assertEquals("AUTH_REPLAY_DETECTED", replay.body!!["code"])
         val appleChallenge = challenge("APPLE")

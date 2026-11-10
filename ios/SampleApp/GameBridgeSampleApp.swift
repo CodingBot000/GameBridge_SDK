@@ -37,13 +37,17 @@ final class SampleModel: ObservableObject {
         let result = try await client.purchase(productId: product.productId, transactionId: UUID(), attemptId: UUID())
         self.wallet = result.entitlements; self.message = "\(result.fulfillmentStatus) / \(result.finalizationStatus)"
     } }
-    func signOut() { perform { guard let client = self.client else { return }; try await client.signOut(); self.products = []; self.wallet = nil; self.message = "Signed out" } }
+    func signOut() { perform {
+        guard let client = self.client else { return }
+        defer { self.products = []; self.wallet = nil }
+        try await client.signOut(); self.message = "Signed out"
+    } }
     private func perform(_ action: @escaping @MainActor () async throws -> Void) {
         guard !busy else { return }; busy = true
         Task {
             defer { busy = false }
             do { try await action() }
-            catch let error as SdkFailure { message = error.code }
+            catch let error as SdkFailure { message = error.nativeCode == "REVOCATION_UNCONFIRMED" ? "\(error.code) — local session cleared; server revoke unconfirmed" : error.code }
             catch { message = "INTERNAL_ERROR" }
         }
     }

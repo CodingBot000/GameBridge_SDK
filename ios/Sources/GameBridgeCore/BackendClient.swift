@@ -47,15 +47,32 @@ public final class BackendClient {
         do {
             let (data, response) = try await session.data(for: request)
             guard let response = response as? HTTPURLResponse else { throw SdkFailure("NETWORK_UNAVAILABLE") }
-            if response.statusCode == 401 { throw SdkFailure("SESSION_EXPIRED") }
-            guard (200...299).contains(response.statusCode) else { throw SdkFailure(response.statusCode >= 500 ? "NETWORK_UNAVAILABLE" : "INTERNAL_ERROR") }
             guard data.count <= 256 * 1024 else { throw SdkFailure("PAYLOAD_TOO_LARGE") }
+            guard (200...299).contains(response.statusCode) else { throw Self.failure(status: response.statusCode, data: data) }
             guard let value = try? JSONSerialization.jsonObject(with: data), (value is [String: Any] || value is [Any]) else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
             return BackendResponse(requestId: response.value(forHTTPHeaderField: "X-Request-Id"), json: data)
         } catch let error as SdkFailure { throw error }
-        catch let error as URLError where error.code == .timedOut { throw SdkFailure("TIMEOUT") }
+        catch let error as URLError where error.code == .timedOut { throw SdkFailure("TIMEOUT", retryable: true) }
         catch let error as URLError where error.code == .cancelled { throw SdkFailure("CANCELED") }
         catch is CancellationError { throw SdkFailure("CANCELED") }
-        catch { throw SdkFailure("NETWORK_UNAVAILABLE") }
+        catch { throw SdkFailure("NETWORK_UNAVAILABLE", retryable: true) }
+    }
+    private static func failure(status: Int, data: Data) -> SdkFailure {
+        let candidate = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["code"] as? String
+        let allowed: Set<String>
+        let fallback: String
+        switch status {
+        case 400: allowed = ["INVALID_ARGUMENT"]; fallback = "INVALID_ARGUMENT"
+        case 401: allowed = ["AUTH_FAILED", "SESSION_EXPIRED"]; fallback = "SESSION_EXPIRED"
+        case 403: allowed = ["PERMISSION_DENIED"]; fallback = "PERMISSION_DENIED"
+        case 404: allowed = ["UNSUPPORTED_OPERATION"]; fallback = "UNSUPPORTED_OPERATION"
+        case 409: allowed = ["AUTH_REPLAY_DETECTED", "PURCHASE_ACCOUNT_MISMATCH", "IDEMPOTENCY_CONFLICT"]; fallback = "INTERNAL_ERROR"
+        case 429: allowed = ["BUSY"]; fallback = "BUSY"
+        case 503: allowed = ["CONFIG_REQUIRED", "NETWORK_UNAVAILABLE"]; fallback = "NETWORK_UNAVAILABLE"
+        case 500...599: allowed = []; fallback = "NETWORK_UNAVAILABLE"
+        default: allowed = []; fallback = "INTERNAL_ERROR"
+        }
+        let code = candidate.flatMap { allowed.contains($0) ? $0 : nil } ?? fallback
+        return SdkFailure(code, retryable: code == "BUSY" || code == "NETWORK_UNAVAILABLE")
     }
 }

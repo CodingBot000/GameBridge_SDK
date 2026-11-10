@@ -16,7 +16,9 @@ public struct InitSnapshot: Equatable {
 }
 public struct SdkFailure: Error, Equatable {
     public let code: String
-    public init(_ code: String) { self.code = code }
+    public let nativeCode: String?
+    public let retryable: Bool
+    public init(_ code: String, nativeCode: String? = nil, retryable: Bool = false) { self.code = code; self.nativeCode = nativeCode; self.retryable = retryable }
 }
 public protocol SdkProvider {
     func initialize(_ config: GameBridgeConfig) async throws -> InitSnapshot

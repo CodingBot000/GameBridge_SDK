@@ -11,7 +11,11 @@ import kotlinx.serialization.json.put
 import java.util.UUID
 
 private val wireJson = Json { ignoreUnknownKeys = true }
-@Serializable private class SecretSession(val accessToken: String, val refreshToken: String, val expiresAt: String, val userId: String) {
+@Serializable private class WireSession(val accessToken: String, val refreshToken: String, val expiresAt: String, val userId: String) {
+    override fun toString() = "WireSession([redacted])"
+}
+@Serializable private class SecretSession(val accessToken: String, val refreshToken: String, val expiresAt: String, val userId: String,
+                                          val appId: String, val providerMode: String, val backendBaseUrl: String) {
     override fun toString() = "SecretSession([redacted])"
 }
 @Serializable private data class Me(val userId: String)
@@ -20,7 +24,7 @@ private val wireJson = Json { ignoreUnknownKeys = true }
 @Serializable data class LocalPurchase(val serverPurchaseId: String, val fulfillmentStatus: String, val finalizationStatus: String, val entitlements: LocalWallet)
 
 /** Native-only local development path. Tokens remain in Native memory/storage. */
-class LocalMockClient(config: GameBridgeConfig, private val store: TokenStore, private val developmentKey: String) {
+class LocalMockClient(private val config: GameBridgeConfig, private val store: TokenStore, private val developmentKey: String) {
     private val backend = BackendClient(config)
     private val lock = Mutex()
     private var session: SecretSession? = null
@@ -32,13 +36,12 @@ class LocalMockClient(config: GameBridgeConfig, private val store: TokenStore, p
         if (subject !in setOf("A", "B")) throw SdkFailure("INVALID_ARGUMENT")
         val body = buildJsonObject { put("subject", subject) }.toString()
         val result = backend.request("/v1/dev/auth", "POST", body, developmentKey = developmentKey)
-        val next = decode<SecretSession>(result.json)
+        val next = wrap(decode<WireSession>(result.json))
         store.save(wireJson.encodeToString(next)); session = next
         UserProfile(next.userId, null, "MOCK")
     }
     suspend fun restore(): UserProfile? = lock.withLock {
-        val stored = store.load() ?: return@withLock null
-        val loaded = try { decode<SecretSession>(stored) } catch (_: Exception) { store.clear(); session = null; throw SdkFailure("SESSION_EXPIRED") }
+        val loaded = loadBound() ?: return@withLock null
         session = loaded
         val me = decode<Me>(authenticated("/v1/me", "GET").json)
         if (me.userId != session?.userId) { store.clear(); session = null; throw SdkFailure("AUTH_FAILED") }
@@ -54,10 +57,22 @@ class LocalMockClient(config: GameBridgeConfig, private val store: TokenStore, p
         decode(authenticated("/v1/purchases/verify", "POST", body, attemptId.toString()).json)
     }
     suspend fun signOut() = lock.withLock {
-        val current = session
+        if (store.load() == "{\"state\":\"refresh_pending\"}") {
+            session = null; store.clear(); throw SdkFailure("SESSION_EXPIRED", "REVOCATION_UNCONFIRMED")
+        }
+        val saved = loadBound()
+        val current = session ?: saved
         session = null
         store.clear()
-        if (current != null) backend.request("/v1/auth/logout", "POST", accessToken = current.accessToken)
+        if (current != null) try {
+            try { backend.request("/v1/auth/logout", "POST", accessToken = current.accessToken) }
+            catch (failure: SdkFailure) {
+                if (failure.code != "SESSION_EXPIRED") throw failure
+                backend.request("/v1/auth/logout", "POST", buildJsonObject { put("refreshToken", current.refreshToken) }.toString())
+            }
+        } catch (failure: SdkFailure) { throw SdkFailure(failure.code, "REVOCATION_UNCONFIRMED", failure.retryable) }
+        catch (_: kotlinx.coroutines.CancellationException) { throw SdkFailure("CANCELED", "REVOCATION_UNCONFIRMED") }
+        catch (_: Exception) { throw SdkFailure("INTERNAL_ERROR", "REVOCATION_UNCONFIRMED") }
         Unit
     }
     private suspend fun authenticated(path: String, method: String, body: String? = null, idempotencyKey: String? = null): BackendResponse {
@@ -65,11 +80,26 @@ class LocalMockClient(config: GameBridgeConfig, private val store: TokenStore, p
         try { return backend.request(path, method, body, current.accessToken, idempotencyKey = idempotencyKey) }
         catch (failure: SdkFailure) { if (failure.code != "SESSION_EXPIRED") throw failure }
         val refreshBody = buildJsonObject { put("refreshToken", current.refreshToken) }.toString()
-        val refreshed = try { decode<SecretSession>(backend.request("/v1/auth/refresh", "POST", refreshBody).json) }
-            catch (failure: SdkFailure) { if (failure.code == "SESSION_EXPIRED") { session = null; store.clear() }; throw failure }
-        if (refreshed.userId != current.userId) { session = null; store.clear(); throw SdkFailure("AUTH_FAILED") }
+        // Persist a tombstone before rotation; after a lost response the old refresh token must never be reused.
+        store.save("{\"state\":\"refresh_pending\"}")
+        session = null
+        val refreshed = wrap(decode<WireSession>(backend.request("/v1/auth/refresh", "POST", refreshBody).json))
+        if (refreshed.userId != current.userId) throw SdkFailure("AUTH_FAILED")
         store.save(wireJson.encodeToString(refreshed)); session = refreshed; current = refreshed
         return backend.request(path, method, body, current.accessToken, idempotencyKey = idempotencyKey)
+    }
+    private fun loadBound(): SecretSession? {
+        val stored = store.load() ?: return null
+        val loaded = try { decode<SecretSession>(stored) } catch (_: Exception) { session = null; throw SdkFailure("SESSION_EXPIRED") }
+        if (loaded.appId != config.appId || loaded.providerMode != config.mode.name || loaded.backendBaseUrl != config.backendBaseUrl) throw SdkFailure("SESSION_EXPIRED")
+        if (loaded.accessToken.isBlank() || loaded.refreshToken.isBlank() || runCatching { UUID.fromString(loaded.userId).toString() == loaded.userId }.getOrDefault(false).not() ||
+            runCatching { java.time.Instant.parse(loaded.expiresAt) }.isFailure) throw SdkFailure("SESSION_EXPIRED")
+        return loaded
+    }
+    private fun wrap(value: WireSession): SecretSession {
+        if (value.accessToken.isBlank() || value.refreshToken.isBlank() || runCatching { UUID.fromString(value.userId).toString() == value.userId }.getOrDefault(false).not() ||
+            runCatching { java.time.Instant.parse(value.expiresAt) }.isFailure) throw SdkFailure("AUTH_FAILED")
+        return SecretSession(value.accessToken, value.refreshToken, value.expiresAt, value.userId, config.appId, config.mode.name, config.backendBaseUrl!!)
     }
     private inline fun <reified T> decode(json: String): T = try { wireJson.decodeFromString(json) } catch (_: Exception) { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
 }

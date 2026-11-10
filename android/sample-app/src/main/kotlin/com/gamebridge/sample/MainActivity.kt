@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     busy = true
                     scope.launch {
                         try { action() }
-                        catch (e: SdkFailure) { message = e.code }
+                        catch (e: SdkFailure) { message = if (e.nativeCode == "REVOCATION_UNCONFIRMED") "${e.code} — local session cleared; server revoke unconfirmed" else e.code }
                         catch (_: Exception) { message = "INTERNAL_ERROR" }
                         finally { busy = false }
                     }
@@ -64,7 +64,10 @@ class MainActivity : ComponentActivity() {
                             wallet = result.entitlements; message = "${result.fulfillmentStatus} / ${result.finalizationStatus}"
                         } }) { Text("Mock purchase ${product.productId}") }
                     }
-                    Button(enabled = !busy && client != null, onClick = { run { client!!.signOut(); products = emptyList(); wallet = null; message = "Signed out" } }) { Text("Sign out") }
+                    Button(enabled = !busy && client != null, onClick = { run {
+                        try { client!!.signOut(); message = "Signed out" }
+                        finally { products = emptyList(); wallet = null }
+                    } }) { Text("Sign out") }
                     Text("Coins: ${wallet?.coinBalance ?: "—"}; premium: ${wallet?.premiumEnabled ?: false}")
                     Text(message)
                 }

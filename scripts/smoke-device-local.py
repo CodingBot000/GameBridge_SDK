@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise local mock token registration; test rows remain in the dedicated DB."""
 import concurrent.futures
+import hashlib
 import json
 import subprocess
 import os
@@ -61,6 +62,15 @@ def main():
         logout = pool.submit(call, 'POST', '/v1/auth/logout', None, auth_a3)
         put_status, _ = put.result(); logout_status, _ = logout.result()
     check(put_status in (200, 401) and logout_status == 200 and row_count(raced) == 0, 'register/logout race leaves no token')
+    status, a4 = call('POST', '/v1/dev/auth', {'subject': 'A'}, {'X-Development-Key': KEY}); check(status == 200, 'refresh logout session')
+    auth_a4 = {'Authorization': 'Bearer ' + a4['accessToken']}
+    refresh_device = str(uuid.uuid4()); refresh_path = '/v1/devices/' + refresh_device + '/push-token'
+    status, _ = call('PUT', refresh_path, payload, auth_a4); check(status == 200, 'refresh logout device')
+    digest = hashlib.sha256(a4['refreshToken'].encode()).hexdigest()
+    sql = "UPDATE sessions SET expires_at=now()-interval '1 second' WHERE refresh_hash=decode('" + digest + "','hex');"
+    process = subprocess.run(['docker', 'exec', '-i', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', 'gamebridge_local', '-v', 'ON_ERROR_STOP=1', '-tA'], input=sql, capture_output=True, text=True, check=True)
+    check(process.stdout.strip() == 'UPDATE 1', 'expire owned test session')
+    status, _ = call('POST', '/v1/auth/logout', {'refreshToken': a4['refreshToken']}); check(status == 200 and row_count(refresh_device) == 0, 'refresh logout deletes device token')
     print(f'LOCAL_MOCK device checks passed: {count}; no remote push tested')
 
 if __name__ == '__main__':

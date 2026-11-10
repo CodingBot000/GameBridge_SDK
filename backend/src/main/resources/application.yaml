@@ -13,6 +13,9 @@ server:
   error:
     include-message: never
 gamebridge:
+  session:
+    access-ttl-seconds: ${GAMEBRIDGE_SESSION_ACCESS_TTL_SECONDS:900}
+    refresh-ttl-seconds: ${GAMEBRIDGE_SESSION_REFRESH_TTL_SECONDS:604800}
   auth-rate:
     challenge-per-minute: ${GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE:30}
     exchange-per-minute: ${GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE:10}

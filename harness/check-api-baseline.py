@@ -2,6 +2,7 @@
 """Compare P08 source snapshots; this is not a binary/Unity compatibility test."""
 import hashlib
 import json
+from collections import Counter
 import re
 import sys
 from pathlib import Path
@@ -28,7 +29,7 @@ def check(current_root: Path = ROOT) -> list[str]:
                 errors.append(f'baseline hash mismatch: {source}'); continue
             if source.suffix == '.cs':
                 old, new = declarations(before), declarations(after)
-                if not old or old != new: errors.append(f'C# public declaration changed: {source}')
+                if not old or Counter(old) - Counter(new): errors.append(f'C# public declaration changed: {source}')
             elif before != after: errors.append(f'non-C# snapshot changed: {source}')
     except (OSError, UnicodeError, ValueError, KeyError, TypeError) as exc:
         errors.append(f'baseline read failed: {exc}')

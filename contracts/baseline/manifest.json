@@ -66,6 +66,11 @@
       "source": "ios/Sources/GameBridgeApple/AppleStore.swift",
       "snapshot": "contracts/baseline/ios/Sources/GameBridgeApple/AppleStore.swift",
       "sha256": "7c503fcc1699956f622d9987a5b7ee38851df26692e9b28f8004ce819338fb36"
+    },
+    {
+      "source": "unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs",
+      "snapshot": "contracts/baseline/unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs",
+      "sha256": "2566dd1ef2194de2377b562e38d245f9ad730b259441fc89150c70dc7e7b3dbf"
     }
   ]
 }

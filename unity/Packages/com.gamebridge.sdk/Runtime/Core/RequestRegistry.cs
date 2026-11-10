@@ -13,7 +13,9 @@ namespace GameBridge.Core
     {
         public string Code { get; }
         public bool Retryable { get; }
+        public string NativeCode { get; }
         public SdkException(string code, bool retryable = false) : base(code) { Code = code; Retryable = retryable; }
+        public SdkException(string code, bool retryable, string nativeCode) : base(code) { Code = code; Retryable = retryable; NativeCode = nativeCode == "REVOCATION_UNCONFIRMED" ? nativeCode : null; }
     }
 
     /// <summary>Internal wire registry. Public consumers receive typed, sanitized results only.</summary>
@@ -118,7 +120,8 @@ namespace GameBridge.Core
             else if (!ok && root["result"].Type == JTokenType.Null && root["error"] is JObject error && error["code"]?.Type == JTokenType.String && error["retryable"]?.Type == JTokenType.Boolean)
             {
                 var code = (string)error["code"];
-                Finish(id, entry, null, new SdkException(Errors.Contains(code) ? code : "INTERNAL_ERROR", (bool)error["retryable"]));
+                var nativeCode = entry.Operation == "auth.signOut" && error["nativeCode"]?.Type == JTokenType.String && (string)error["nativeCode"] == "REVOCATION_UNCONFIRMED" ? "REVOCATION_UNCONFIRMED" : null;
+                Finish(id, entry, null, new SdkException(Errors.Contains(code) ? code : "INTERNAL_ERROR", (bool)error["retryable"], nativeCode));
             }
             else Finish(id, entry, null, new SdkException("BRIDGE_PROTOCOL_MISMATCH"));
         }

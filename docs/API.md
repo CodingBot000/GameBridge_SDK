@@ -9,3 +9,5 @@
 - Push host adapter는 사용자가 명시적으로 권한과 등록을 요청하는 호스트 경계다. 메시지는 `messageId`, `route`, `campaignId`만 소비하고 route는 `home` 또는 `store`만 허용한다. 서버 token 등록과 실제 원격 알림은 미완료다.
 
 서버가 반환하는 `requestId`로 오류를 추적한다. SDK 오류에는 `CONFIG_REQUIRED`, `SESSION_EXPIRED`, `NETWORK_UNAVAILABLE`, `TIMEOUT`, `CANCELED`, `BUSY`, `UNSUPPORTED_OPERATION` 등이 있다. 실제 구현되지 않은 작업은 성공으로 대체하지 않는다. 로그아웃에서 로컬 삭제는 끝났으나 서버 revoke 확인에 실패한 경우 Native 오류에 `REVOCATION_UNCONFIRMED`가 표시된다. 현재 이 경고의 재시작 후 영속 표시와 자동 재시도는 없다.
+
+Unity `SdkException.NativeCode`는 현재 `auth.signOut`의 `REVOCATION_UNCONFIRMED`만 보존한다. 이는 로컬 세션은 삭제했지만 서버 revoke가 확인되지 않았다는 뜻이다. 기타 Native 원문은 공개 오류에 전달하지 않는다. 실제 기기 오프라인 logout은 별도 검증이 필요하다.

@@ -84,6 +84,16 @@ internal static class Program
         var busy = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5));
         request = JObject.Parse(sent); registry.HandleMessage(Response(request, ok: false));
         await Expect("BUSY", busy);
+        var logout = registry.RequestAsync("auth.signOut", new JObject(), TimeSpan.FromSeconds(5));
+        request = JObject.Parse(sent); var logoutFailure = JObject.Parse(Response(request, ok: false));
+        logoutFailure["error"]["nativeCode"] = "REVOCATION_UNCONFIRMED"; registry.HandleMessage(logoutFailure.ToString());
+        try { await logout; throw new Exception("expected logout failure"); }
+        catch (SdkException error) { Check(error.NativeCode == "REVOCATION_UNCONFIRMED", "logout revoke uncertainty retained"); }
+        var secretFailure = registry.RequestAsync("auth.signOut", new JObject(), TimeSpan.FromSeconds(5));
+        request = JObject.Parse(sent); var secretResponse = JObject.Parse(Response(request, ok: false));
+        secretResponse["error"]["nativeCode"] = "sensitive-token"; registry.HandleMessage(secretResponse.ToString());
+        try { await secretFailure; throw new Exception("expected failure"); }
+        catch (SdkException error) { Check(error.NativeCode == null && !error.ToString().Contains("sensitive-token"), "untrusted native code redacted"); }
         await Expect("TIMEOUT", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromMilliseconds(30)));
         using (var cts = new CancellationTokenSource())
         {

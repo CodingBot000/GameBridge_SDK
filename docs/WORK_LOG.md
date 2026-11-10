@@ -1573,3 +1573,11 @@
 - private push queue 분리 후 `check-api-baseline.py` 및 C# registry smoke 종료 0. 초기화 중 알림 queue와 session 분기 회귀를 독립 .NET에서 확인했다. 공개 선언 변경 음성 시험과 Unity 참조 compile을 실행한다.
 - `harness/check-api-baseline-negative.py` 종료 0: 새 소스 사본의 public event 이름 변경을 검출했다. `scripts/check-csharp-compile.sh` 4조건부 및 `scripts/check-unity-ios-host.sh` 공식 참조 compile 종료 0/경고 0. Unity 실행·binary ABI 검증은 아니다.
 - aggregate에 API snapshot 양·음성 검사를 추가했다. 커밋 전: Unity private queue 정리와 source 호환성/fake 검증만 포함하며 전체 P09 gate·Unity ABI·runtime은 미완료다.
+
+### [P10-T02] Unity 로그아웃 오류 경계
+- Task 시작: Native는 오프라인 logout에서 local token 삭제 후 `REVOCATION_UNCONFIRMED`를 반환하지만 Unity registry가 nativeCode를 모두 버려 이 상태가 사라진다. 비밀정보를 노출하지 않는 allowlist 값만 보존하고 기존 공개 생성자를 유지한다.
+- BUG-012: Unity가 Native 오류의 revoke 미확인 정보를 버리고 있어 로컬 logout 이후 서버 상태를 구분할 수 없다. auth.signOut에 한해 `REVOCATION_UNCONFIRMED`만 허용하고 다른 native 문자열은 계속 제거한다. P08 snapshot에 누락된 public SdkException 선언을 원래 기준 commit에서 보충한다.
+- 기존 SdkException 생성자를 유지하고 logout의 허용된 revoke 미확인 코드만 추가 공개했다. 원본 P08 commit의 누락된 exception 선언 snapshot을 보충했으며 additive C# 선언을 허용하되 기존 선언 제거·변경은 감지한다. fake logout/redaction과 API 호환성을 검증한다.
+- `check-api-baseline.py`·isolated public API mutation 검사 및 C# registry smoke 종료 0: logout의 REVOCATION_UNCONFIRMED는 보존하고 임의 token 문자열은 제거했다. 실제 오프라인 Unity 기기 logout은 아니다. Native fake와 sample compile을 재검증한다.
+- Android Native auth fake 13건, Swift auth/session fake 17건, `scripts/check-unity-sample.sh` Editor/iOS 조건부 compile 모두 종료 0. 실제 오프라인 Unity 기기 logout은 미검증이다.
+- 커밋 전: 기존 SdkException 생성자를 보존하는 additive 필드, logout 한정 allowlist 및 sample 표시만 포함한다. arbitrary native 문자열은 계속 비노출이며 전체 P10/security 검증은 미완료다.

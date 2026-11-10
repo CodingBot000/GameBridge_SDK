@@ -30,7 +30,7 @@ public sealed class NativeDemo : MonoBehaviour
         if (busy) return;
         busy = true; SetActions(false);
         try { await action(); }
-        catch (SdkException error) { if (!destroyed && status != null) status.text = error.Code; }
+        catch (SdkException error) { if (!destroyed && status != null) status.text = error.NativeCode == "REVOCATION_UNCONFIRMED" ? error.Code + " — local session cleared; server revoke unconfirmed" : error.Code; }
         catch (Exception) { if (!destroyed && status != null) status.text = "INTERNAL_ERROR"; }
         finally
         {

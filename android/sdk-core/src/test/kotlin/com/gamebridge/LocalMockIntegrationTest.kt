@@ -98,4 +98,27 @@ class LocalMockIntegrationTest {
         send("auth.signOut"); assertNull(store.load()); send("sdk.shutdown")
     }
 
+    @Test fun `persisted mock transaction recovers after committed response is lost`() = runBlocking {
+        val key = requireNotNull(System.getenv("GAMEBRIDGE_DEV_AUTH_KEY"))
+        val config = GameBridgeConfig("gamebridge-sample", ProviderMode.LOCAL_MOCK, "http://127.0.0.1:18080")
+        val sessions = MemoryTokenStore(); val pending = MemoryTokenStore()
+        val client = LocalMockClient(config, sessions, key, pending); val user = client.signIn("B")
+        val before = client.wallet().coinBalance.toLong(); val transaction = UUID.randomUUID().toString(); val attempt = UUID.randomUUID().toString()
+        val token = Json.parseToJsonElement(sessions.value!!).jsonObject.getValue("accessToken").jsonPrimitive.content
+        val item = kotlinx.serialization.json.buildJsonArray { add(kotlinx.serialization.json.buildJsonObject {
+            put("appId", kotlinx.serialization.json.JsonPrimitive(config.appId)); put("backendBaseUrl", kotlinx.serialization.json.JsonPrimitive(config.backendBaseUrl!!))
+            put("userId", kotlinx.serialization.json.JsonPrimitive(user.userId)); put("productId", kotlinx.serialization.json.JsonPrimitive("coins_100"))
+            put("transactionId", kotlinx.serialization.json.JsonPrimitive(transaction)); put("attemptId", kotlinx.serialization.json.JsonPrimitive(attempt))
+        }) }
+        pending.save(item.toString())
+        val body = kotlinx.serialization.json.buildJsonObject {
+            put("productId", kotlinx.serialization.json.JsonPrimitive("coins_100")); put("quantity", kotlinx.serialization.json.JsonPrimitive(1))
+            put("proof", kotlinx.serialization.json.JsonPrimitive("mock:${user.userId}:coins_100:$transaction"))
+        }.toString()
+        BackendClient(config).request("/v1/purchases/verify", "POST", body, accessToken = token, idempotencyKey = attempt)
+        val restarted = LocalMockClient(config, sessions, key, pending); assertNotNull(restarted.restore())
+        assertEquals(LocalRecoveryCounts(1, 1, 0, 0), restarted.recoverPending()); assertNull(pending.load())
+        assertEquals(before + 100, restarted.wallet().coinBalance.toLong()); restarted.signOut()
+    }
+
 }

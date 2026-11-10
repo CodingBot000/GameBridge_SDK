@@ -94,4 +94,28 @@ final class LocalMockIntegrationTests: XCTestCase {
         _ = try await handler.invoke("sdk.shutdown", payload: [:])
     }
 
+    func testPersistedMockTransactionRecoversAfterCommittedResponseIsLost() async throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST"] == "true", "Explicit local mock backend test only")
+        let key = try XCTUnwrap(ProcessInfo.processInfo.environment["GAMEBRIDGE_DEV_AUTH_KEY"])
+        let config = GameBridgeConfig(appId: "gamebridge-sample", mode: .localMock, backendBaseURL: "http://127.0.0.1:18080")
+        let sessions = TestTokenStore(), pending = TestTokenStore()
+        let client = try LocalMockClient(config: config, store: sessions, developmentKey: key, pendingStore: pending)
+        let user = try await client.signIn(subject: "B"); let before = try await client.wallet()
+        let transaction = UUID().uuidString.lowercased(), attempt = UUID().uuidString.lowercased()
+        let secret = try XCTUnwrap(sessions.value); let stored = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(secret.utf8)) as? [String: Any])
+        let token = try XCTUnwrap(stored["accessToken"] as? String)
+        let item: [[String: Any]] = [["appId": config.appId, "backendBaseURL": config.backendBaseURL!, "userId": user.userId,
+            "productId": "coins_100", "transactionId": transaction, "attemptId": attempt]]
+        try pending.save(String(decoding: JSONSerialization.data(withJSONObject: item), as: UTF8.self))
+        let body = try JSONSerialization.data(withJSONObject: ["productId": "coins_100", "quantity": 1, "proof": "mock:\(user.userId):coins_100:\(transaction)"])
+        let backend = try BackendClient(config: config)
+        _ = try await backend.request(path: "/v1/purchases/verify", method: "POST", body: body, accessToken: token, idempotencyKey: attempt)
+        let restarted = try LocalMockClient(config: config, store: sessions, developmentKey: key, pendingStore: pending)
+        let restored = try await restarted.restore(); XCTAssertNotNil(restored)
+        let counts = try await restarted.recoverPending(); XCTAssertEqual(counts.examinedCount, 1); XCTAssertEqual(counts.recoveredCount, 1)
+        XCTAssertNil(pending.value)
+        let wallet = try await restarted.wallet(); XCTAssertEqual(Int64(wallet.coinBalance), try XCTUnwrap(Int64(before.coinBalance)) + 100)
+        try await restarted.signOut()
+    }
+
 }

@@ -52,12 +52,12 @@ final class SampleModel: ObservableObject {
     func initialize() {
         perform {
             let config = GameBridgeConfig(appId: "gamebridge-sample", mode: .localMock, backendBaseURL: self.url)
-            self.client = try LocalMockClient(config: config, store: KeychainTokenStore(service: "com.gamebridge.sdk.sample.local.session"), developmentKey: self.developmentKey)
+            self.client = try LocalMockClient(config: config, store: KeychainTokenStore(service: "com.gamebridge.sdk.sample.local.session"), developmentKey: self.developmentKey, pendingStore: KeychainTokenStore(service: "com.gamebridge.sdk.sample.local.purchases"))
             self.initialized = true; self.message = "Initialized LOCAL_MOCK"
         }
     }
     func signIn() { perform { guard let client = self.client else { return }; let user = try await client.signIn(subject: "A"); self.message = "Signed in: \(user.userId)" } }
-    func restore() { perform { guard let client = self.client else { return }; let user = try await client.restore(); self.message = user.map { "Restored: \($0.userId)" } ?? "No session" } }
+    func restore() { perform { guard let client = self.client else { return }; let user = try await client.restore(); if let user { let counts = try await client.recoverPending(); self.wallet = try await client.wallet(); self.message = "Restored: \(user.userId); recovered \(counts.recoveredCount), deferred \(counts.deferredCount), failed \(counts.failureCount)" } else { self.message = "No session" } } }
     func load() { perform { guard let client = self.client else { return }; self.products = try await client.products(); self.wallet = try await client.wallet(); self.message = "Server state loaded" } }
     func purchase(_ product: LocalProduct) { perform {
         guard let client = self.client else { return }

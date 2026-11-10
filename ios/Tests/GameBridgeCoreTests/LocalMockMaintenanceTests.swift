@@ -70,4 +70,21 @@ final class LocalMockMaintenanceTests: XCTestCase {
         XCTAssertEqual(cache?["maintenanceEnabled"] as? Bool, true)
     }
 
+    func testBridgeSyncReportsActualEmptyPendingAndWallet() async throws {
+        MaintenanceProtocol.reset()
+        let network = URLSessionConfiguration.ephemeral; network.protocolClasses = [MaintenanceProtocol.self]
+        let sessions = MaintenanceStore(), pending = MaintenanceStore()
+        let handler = LocalMockBridgeHandler(tokenStore: { sessions }, sessionConfiguration: network, pendingStore: { pending })
+        _ = try await handler.invoke("sdk.initialize", payload: ["appId": "demo", "providerMode": "LOCAL_MOCK",
+            "backendBaseUrl": "http://127.0.0.1:8080", "requestTimeoutMs": 30000,
+            "developmentKey": String(repeating: "x", count: 32), "mockSubject": "A"])
+        _ = try await handler.invoke("auth.signIn", payload: ["provider": "MOCK"])
+        let result = try await handler.invoke("store.sync", payload: ["reason": "APP_RESUME"]) as? [String: Any]
+        XCTAssertEqual(result?["examinedCount"] as? Int, 0)
+        XCTAssertEqual((result?["entitlements"] as? [String: Any])?["coinBalance"] as? String, "0")
+        do { _ = try await handler.invoke("store.sync", payload: ["reason": "OTHER"]); XCTFail("invalid reason") }
+        catch let failure as SdkFailure { XCTAssertEqual(failure.code, "INVALID_ARGUMENT") }
+        _ = try await handler.invoke("auth.signOut", payload: [:])
+    }
+
 }

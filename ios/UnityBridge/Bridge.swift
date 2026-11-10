@@ -11,7 +11,8 @@ private final class BridgeState {
     private let lock = NSRecursiveLock()
     private let queue = DispatchQueue(label: "com.gamebridge.bridge")
     #if canImport(Security)
-    private let handler = LocalMockBridgeHandler { KeychainTokenStore(service: "com.gamebridge.sdk.unity.local-mock") }
+    private let handler = LocalMockBridgeHandler(tokenStore: { KeychainTokenStore(service: "com.gamebridge.sdk.unity.local-mock") },
+        pendingStore: { KeychainTokenStore(service: "com.gamebridge.sdk.unity.mock-purchases") })
     #endif
     private var callback: GBCallback?
     private var generation: UInt64 = 0

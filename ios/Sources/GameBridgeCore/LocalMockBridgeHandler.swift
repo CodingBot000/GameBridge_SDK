@@ -7,13 +7,14 @@ import FoundationNetworking
 public actor LocalMockBridgeHandler {
     private let tokenStore: () -> TokenStore
     private let sessionConfiguration: URLSessionConfiguration
+    private let pendingStore: (() -> TokenStore)?
     private var client: LocalMockClient?
     private var config: GameBridgeConfig?
     private var developmentKey: String?
     private var subject: String?
 
-    public init(tokenStore: @escaping () -> TokenStore, sessionConfiguration: URLSessionConfiguration = .default) {
-        self.tokenStore = tokenStore; self.sessionConfiguration = sessionConfiguration
+    public init(tokenStore: @escaping () -> TokenStore, sessionConfiguration: URLSessionConfiguration = .default, pendingStore: (() -> TokenStore)? = nil) {
+        self.tokenStore = tokenStore; self.sessionConfiguration = sessionConfiguration; self.pendingStore = pendingStore
     }
 
     public func invoke(_ operation: String, payload: [String: Any]) async throws -> Any {
@@ -44,6 +45,11 @@ public actor LocalMockBridgeHandler {
                  "title": "Mock \(product.productId)", "localizedPrice": "Mock price", "currencyCode": "XXX", "priceMicros": NSNull()] as [String: Any]
             }
         case "store.entitlements": return try object(try await client.wallet())
+        case "store.sync":
+            guard let reason = payload["reason"] as? String, ["APP_RESUME", "USER_RESTORE"].contains(reason) else { throw SdkFailure("INVALID_ARGUMENT") }
+            let counts = try await client.recoverPending(); let wallet = try await client.wallet()
+            return ["examinedCount": counts.examinedCount, "recoveredCount": counts.recoveredCount,
+                    "deferredCount": counts.deferredCount, "failureCount": counts.failureCount, "entitlements": try object(wallet)] as [String: Any]
         case "store.purchase":
             guard let productId = payload["productId"] as? String, !productId.isEmpty else { throw SdkFailure("INVALID_ARGUMENT") }
             let attempt = UUID()
@@ -63,14 +69,14 @@ public actor LocalMockBridgeHandler {
         do { try next.validate() } catch { throw SdkFailure("CONFIG_REQUIRED") }
         if client != nil && (config != next || developmentKey != key || self.subject != subject) { throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG") }
         if client == nil {
-            client = try LocalMockClient(config: next, store: tokenStore(), developmentKey: key, sessionConfiguration: sessionConfiguration)
+            client = try LocalMockClient(config: next, store: tokenStore(), developmentKey: key, sessionConfiguration: sessionConfiguration, pendingStore: pendingStore?())
             config = next; developmentKey = key; self.subject = subject
         }
         var capabilities: [String: Any] = [:]
         for name in ["auth", "store", "push", "config"] {
             let available = name == "auth" || name == "store" || name == "config"
             let reason: Any
-            if name == "store" { reason = "Purchase sync is not connected" }
+            if name == "store" && pendingStore == nil { reason = "Purchase recovery storage is not configured" }
             else if available { reason = NSNull() }
             else { reason = "Bridge operation is not connected" }
             capabilities[name] = ["supported": available, "configured": available, "mode": "LOCAL_MOCK", "reason": reason]

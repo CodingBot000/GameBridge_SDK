@@ -1282,3 +1282,21 @@
 - 같은 TokenStore 인스턴스를 session과 pending에 동시에 전달하면 서로 덮어쓸 수 있어 초기화 시 거부하도록 보강하고 회귀를 실행한다.
 - `:sdk-core:test --tests com.gamebridge.LocalMockRecoveryTest` 종료 0: 동일 session/pending 저장소 인스턴스 차단과 synthetic 응답 유실 복구 재검증. BUG-009는 iOS 및 실제 DB 응답 유실/기기 복구 검증이 남아 OPEN이다.
 - 커밋 전: Android Mock pending 보존·recovery 및 sample/Unity 연결만 포함한다. 실결제·Unity JNI·iOS 복구는 미검증 또는 미완료다.
+
+### [P05-T06] BUG-009 iOS Mock 응답 유실 복구
+- Task 시작: Swift LOCAL_MOCK의 구매 단서를 별도 Keychain 저장소에 보존하고, 재시작 후 같은 사용자·Backend에서 동일 transaction/멱등키로 확인한다. 다른 사용자의 보류 기록은 보존한다.
+- Swift Mock client에 별도 pending 저장소, 사용자·서버 범위 확인, 검증 후 삭제 및 actor 재진입 중 구매/복구 동시성 차단을 작성했다. 기존 세션 저장소와 같은 인스턴스는 거부한다. Swift 컴파일과 synthetic 재시작 시험을 진행한다.
+- `swift test --package-path ios --filter LocalMockMaintenanceTests` 종료 0, 2건: 기존 점검 차단 및 cache 시험 통과. 새 응답 유실 복구는 별도 synthetic 시험 전이다.
+- 새 Swift recovery 시험 첫 컴파일 종료 1: multiline 문자열 시작 뒤 공백으로 Swift 구문 오류가 발생했다. 공백을 제거해 재실행한다.
+- Swift recovery synthetic 시험은 사용자 B가 A의 pending을 처리하는 것처럼 보여 실패했다. URLProtocol의 auth 요청 body가 비어 테스트 서버가 기본 A로 응답한 가능성을 확인 중이며, 사용자 분리 성공으로 기록하지 않는다.
+- Swift fake 인증 서버가 요청 body를 읽지 못하면 A로 기본 처리하던 문제를 수정하고 명시적으로 B user ID를 검증했다. `swift test --package-path ios --filter LocalMockRecoveryTests` 종료 0, 1건: 다른 user는 보류 단서를 처리하지 않고 원래 user 재시작 시 복구했다. HTTP body의 proof 캡처가 실제인지 추가 확인한다.
+- proof 캡처 nonempty 검증을 추가하자 Swift URLProtocol synthetic 시험이 실패했다. 기존 proof 비교는 빈 문자열 간 비교였으므로 증거로 취급하지 않는다. request body stream도 읽어 실제 증빙이 캡처되는지 확인한다.
+- URLProtocol의 HTTP body stream을 읽도록 수정한 뒤 `swift test --package-path ios --filter LocalMockRecoveryTests` 종료 0, 1건: nonempty proof·멱등키가 재시도에서 동일하고, 다른 user의 pending은 보존되며 확인 후에만 삭제됨을 synthetic 시험으로 확인했다. 실제 DB commit 유실/Keychain 재시작은 아직 미검증이다.
+- iOS Unity Mock bridge에 별도 Keychain pending 저장소와 store.sync를 연결하고 Native sample 복원에서도 recovery 및 서버 잔액을 조회하도록 변경했다. 전체 Swift 시험과 simulator build를 확인한다.
+- `swift test --package-path ios` 종료 0: 총 49건 중 opt-in local Backend 4건 skip, 나머지 실패 0. Swift package 시험은 실제 iOS Keychain·Unity 또는 StoreKit 거래가 아니다. Native framework와 sample의 simulator compile을 확인한다.
+- `xcodebuild ... GameBridgeNative` 및 `GameBridgeSample` generic iOS Simulator 무서명 build 종료 0. 실제 Keychain 복구와 Unity iOS 실행은 확인하지 않았다. 두 플랫폼의 실제 local PostgreSQL에서 지급 commit 뒤 응답 유실을 모사하고 동일 거래가 재지급되지 않는지 확인한다.
+- Android opt-in `LocalMockIntegrationTest.persisted mock transaction recovers after committed response is lost` 종료 0: 격리 PostgreSQL에서 지급 commit의 응답을 버린 뒤 별도 client가 저장된 동일 transaction/멱등키로 복구했고 코인 증가는 100 한 번뿐이었다. 테스트 전용 Mock user B에 지급 1건을 남겼다. 기기 Keystore 시험은 아니다.
+- Swift opt-in `LocalMockIntegrationTests.testPersistedMockTransactionRecoversAfterCommittedResponseIsLost` 종료 0, 1건: 격리 PostgreSQL 지급 commit 뒤 응답을 버리고 새 client에서 같은 단서로 복구해 코인이 100 한 번만 증가했다. 테스트 전용 Mock user B에 지급 1건을 남겼으며 실제 iOS Keychain/Unity 실행은 아니다.
+- Swift Mock bridge의 store.sync가 실제 pending 저장소와 서버 잔액을 사용하는지 synthetic URLProtocol 경계를 추가 확인한다.
+- `swift test --package-path ios --filter LocalMockMaintenanceTests` 종료 0, 3건: Mock sync의 실제 빈 pending 집계·서버 wallet 및 잘못된 reason 거부를 synthetic 시험으로 확인했다.
+- 커밋 전: iOS Mock Keychain pending·recovery·sample/bridge 및 양 플랫폼 격리 DB 응답 유실 시험만 포함한다. Android/iOS 실제 기기 보안 저장소 및 Unity player 복구가 남아 BUG-009는 OPEN 유지한다. 직접 기동한 Backend만 종료하고 DB·volume은 보존했다.

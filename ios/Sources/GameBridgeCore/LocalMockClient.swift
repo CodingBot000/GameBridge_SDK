@@ -26,6 +26,12 @@ public struct LocalPurchase: Codable {
     public let serverPurchaseId, fulfillmentStatus, finalizationStatus: String
     public let entitlements: LocalWallet
 }
+private struct PendingMockPurchase: Codable, Equatable {
+    let appId, backendBaseURL, userId, productId, transactionId, attemptId: String
+}
+public struct LocalRecoveryCounts {
+    public let examinedCount, recoveredCount, deferredCount, failureCount: Int
+}
 /// Native-owned tokens; this client only connects to the explicitly configured local mock backend.
 public actor LocalMockClient {
     private let backend: BackendClient
@@ -33,16 +39,19 @@ public actor LocalMockClient {
     private let config: GameBridgeConfig
     private let store: TokenStore
     private let developmentKey: String
+    private let pendingStore: TokenStore?
     private var session: SecretSession?
     private var refreshFlight: (id: UUID, task: Task<SecretSession, Error>)?
     private var generation = 0
     private var signingIn = false
-    public init(config: GameBridgeConfig, store: TokenStore, developmentKey: String, sessionConfiguration: URLSessionConfiguration = .default) throws {
+    private var purchaseBusy = false
+    public init(config: GameBridgeConfig, store: TokenStore, developmentKey: String, sessionConfiguration: URLSessionConfiguration = .default, pendingStore: TokenStore? = nil) throws {
         guard config.mode == .localMock else { throw SdkFailure("UNSUPPORTED_PROVIDER") }
         guard developmentKey.count >= 32 else { throw SdkFailure("CONFIG_REQUIRED") }
+        if let pendingStore, (store as AnyObject) === (pendingStore as AnyObject) { throw SdkFailure("CONFIG_REQUIRED") }
         let backendClient = try BackendClient(config: config, sessionConfiguration: sessionConfiguration)
         backend = backendClient; serviceConfig = backendServiceConfiguration(backendClient)
-        self.config = config; self.store = store; self.developmentKey = developmentKey
+        self.config = config; self.store = store; self.developmentKey = developmentKey; self.pendingStore = pendingStore
     }
     public func signIn(subject: String) async throws -> UserProfile {
         guard ["A", "B"].contains(subject) else { throw SdkFailure("INVALID_ARGUMENT") }
@@ -76,6 +85,8 @@ public actor LocalMockClient {
     public func products() async throws -> [LocalProduct] { try decode(try await authenticated(path: "/v1/catalog", method: "GET").json) }
     public func wallet() async throws -> LocalWallet { try decode(try await authenticated(path: "/v1/entitlements", method: "GET").json) }
     public func purchase(productId: String, transactionId: UUID, attemptId: UUID) async throws -> LocalPurchase {
+        guard !purchaseBusy else { throw SdkFailure("BUSY") }
+        purchaseBusy = true; defer { purchaseBusy = false }
         guard ["coins_100", "premium_unlock"].contains(productId) else { throw SdkFailure("PRODUCT_NOT_FOUND") }
         guard let user = session?.userId else { throw SdkFailure("SESSION_EXPIRED") }
         let started = generation
@@ -85,9 +96,66 @@ public actor LocalMockClient {
         catch { maintenance = nil }
         guard generation == started, session?.userId == user else { throw SdkFailure("CANCELED") }
         guard MaintenanceGate.permits(maintenanceEnabled: maintenance, operation: .startPurchase) else { throw SdkFailure(maintenance == true ? "MAINTENANCE" : "CONFIG_REQUIRED") }
-        let proof = "mock:\(user):\(productId):\(transactionId.uuidString.lowercased())"
-        let body = try encode(["productId": productId, "proof": proof, "quantity": 1])
-        return try decode(try await authenticated(path: "/v1/purchases/verify", method: "POST", body: body, idempotencyKey: attemptId.uuidString.lowercased()).json)
+        guard let base = config.backendBaseURL else { throw SdkFailure("CONFIG_REQUIRED") }
+        let item = PendingMockPurchase(appId: config.appId, backendBaseURL: base, userId: user, productId: productId,
+                                       transactionId: transactionId.uuidString.lowercased(), attemptId: attemptId.uuidString.lowercased())
+        let saved = try loadPending()
+        if let existing = saved.first(where: { sameScope($0, user: user) }), existing != item { throw SdkFailure("BUSY") }
+        if pendingStore != nil && !saved.contains(item) { try savePending(saved + [item]) }
+        let result = try await verifyPending(item)
+        guard generation == started, session?.userId == user else { throw SdkFailure("CANCELED") }
+        if pendingStore != nil { try savePending(try loadPending().filter { $0 != item }) }
+        return result
+    }
+    public func recoverPending() async throws -> LocalRecoveryCounts {
+        guard !purchaseBusy else { throw SdkFailure("BUSY") }
+        purchaseBusy = true; defer { purchaseBusy = false }
+        guard pendingStore != nil else { throw SdkFailure("CONFIG_REQUIRED") }
+        guard let user = session?.userId else { throw SdkFailure("SESSION_EXPIRED") }
+        let started = generation; let pending = try loadPending().filter { sameScope($0, user: user) }
+        var recovered = 0, deferred = 0, failed = 0
+        for item in pending {
+            do {
+                _ = try await verifyPending(item)
+                guard generation == started, session?.userId == user else { throw SdkFailure("CANCELED") }
+                try savePending(try loadPending().filter { $0 != item }); recovered += 1
+            } catch is CancellationError { throw SdkFailure("CANCELED") }
+            catch let failure as SdkFailure {
+                if ["SESSION_EXPIRED", "CANCELED"].contains(failure.code) { throw failure }
+                if ["NETWORK_UNAVAILABLE", "TIMEOUT", "BUSY"].contains(failure.code) { deferred += 1 } else { failed += 1 }
+            }
+        }
+        return LocalRecoveryCounts(examinedCount: pending.count, recoveredCount: recovered, deferredCount: deferred, failureCount: failed)
+    }
+    private func sameScope(_ item: PendingMockPurchase, user: String) -> Bool {
+        item.appId == config.appId && item.backendBaseURL == config.backendBaseURL && item.userId == user
+    }
+    private func loadPending() throws -> [PendingMockPurchase] {
+        guard let raw = try pendingStore?.load() else { return [] }
+        let items: [PendingMockPurchase]
+        do { items = try JSONDecoder().decode([PendingMockPurchase].self, from: Data(raw.utf8)) }
+        catch { throw SdkFailure("INTERNAL_ERROR") }
+        guard items.allSatisfy({ item in
+            !item.appId.isEmpty && !item.backendBaseURL.isEmpty && ["coins_100", "premium_unlock"].contains(item.productId) &&
+            [item.userId, item.transactionId, item.attemptId].allSatisfy { UUID(uuidString: $0)?.uuidString.lowercased() == $0 }
+        }) else { throw SdkFailure("INTERNAL_ERROR") }
+        return items
+    }
+    private func savePending(_ items: [PendingMockPurchase]) throws {
+        guard let pendingStore else { throw SdkFailure("CONFIG_REQUIRED") }
+        if items.isEmpty { try pendingStore.clear() }
+        else { try pendingStore.save(String(decoding: JSONEncoder().encode(items), as: UTF8.self)) }
+    }
+    private func verifyPending(_ item: PendingMockPurchase) async throws -> LocalPurchase {
+        guard let user = session?.userId else { throw SdkFailure("SESSION_EXPIRED") }
+        guard sameScope(item, user: user) else { throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH") }
+        let proof = "mock:\(user):\(item.productId):\(item.transactionId)"
+        let body = try encode(["productId": item.productId, "proof": proof, "quantity": 1])
+        let result: LocalPurchase = try decode(try await authenticated(path: "/v1/purchases/verify", method: "POST", body: body, idempotencyKey: item.attemptId).json)
+        guard result.entitlements.userId == user, ["GRANTED", "ALREADY_GRANTED"].contains(result.fulfillmentStatus),
+              ["PENDING", "FINALIZED", "NOT_REQUIRED"].contains(result.finalizationStatus),
+              UUID(uuidString: result.serverPurchaseId)?.uuidString.lowercased() == result.serverPurchaseId else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+        return result
     }
     public func signOut() async throws {
         let raw = try store.load()

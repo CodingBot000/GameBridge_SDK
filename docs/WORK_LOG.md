@@ -829,3 +829,6 @@
 - Swift fake URLProtocol 시험 포함 9건 통과: 서버 GRANTED만 Native ServerGrant로 수락한다. Backend HTTP slice에서 위조와 retryable 서명 검증 실패의 응답 구분도 확인한다.
 - Backend HTTP slice에서 fake pipeline의 정상 grant, 잘못된 idempotency key, 위조 증빙 400, retryable 검증 오류 503을 확인했다. security filter는 slice에서 꺼져 있으므로 실제 HTTP 인증 검증을 대체하지 않는다.
 - 커밋 전: sandbox/production Apple 검증 endpoint, Native proof sink와 fake HTTP/unit만 포함. 실제 Apple 서명·StoreKit finish, 제품 catalog 설정, 보안 필터 통합 및 Android Google sink는 미완료여서 P05-T04/T05 PARTIAL 유지.
+- Apple endpoint의 실제 Spring Security 필터와 DB 세션 연결을 별도 sandbox 시험 DB에서 확인한다. test-only identity 서명을 사용하며 Apple root가 없는 상태에서 구매 지급 없이 503이어야 한다.
+- 별도 sandbox PostgreSQL의 실제 Spring HTTP 통합 시험 1건 통과(skip 0): 익명 binding 401, synthetic 로그인 세션의 binding 200, Apple root 미설정 verify 503 CONFIG_REQUIRED 및 원장 변화 없음. V6 migration은 전용 시험 DB에만 적용했다. 실제 Apple/Google 계정과 서명은 미사용이다.
+- 커밋 전: 인증 필터·설정 누락 fail-closed 회귀 시험만 포함한다. 실제 Apple signed transaction grant 및 StoreKit finish는 여전히 미검증이다.

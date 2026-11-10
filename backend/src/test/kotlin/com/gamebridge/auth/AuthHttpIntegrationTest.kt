@@ -86,6 +86,16 @@ class AuthHttpIntegrationTest {
         val headers = HttpHeaders().apply { setBearerAuth(session["accessToken"] as String) }
         val me = rest.exchange("/v1/me", HttpMethod.GET, HttpEntity<Void>(headers), Map::class.java)
         assertEquals(200, me.statusCode.value()); assertEquals("테스트 이름", me.body!!["displayName"])
+        val unauthenticatedBinding = rest.getForEntity("/v1/purchases/bindings", Map::class.java)
+        assertEquals(401, unauthenticatedBinding.statusCode.value())
+        val binding = rest.exchange("/v1/purchases/bindings", HttpMethod.GET, HttpEntity<Void>(headers), Map::class.java)
+        assertEquals(200, binding.statusCode.value()); assertNotNull(binding.body!!["appleAccountToken"])
+        val walletBefore = db.queryForObject("SELECT COUNT(*) FROM wallet_ledger WHERE user_id=?", Int::class.java, UUID.fromString(session["userId"] as String))
+        val purchaseHeaders = HttpHeaders().apply { setBearerAuth(session["accessToken"] as String); set("Idempotency-Key", UUID.randomUUID().toString()) }
+        val purchase = rest.exchange("/v1/purchases/apple/verify", HttpMethod.POST,
+            HttpEntity(mapOf("storeProductId" to "coins.apple", "signedTransaction" to "synthetic-jws"), purchaseHeaders), Map::class.java)
+        assertEquals(503, purchase.statusCode.value()); assertEquals("CONFIG_REQUIRED", purchase.body!!["code"])
+        assertEquals(walletBefore, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger WHERE user_id=?", Int::class.java, UUID.fromString(session["userId"] as String)))
         val refresh = session["refreshToken"] as String
         val digest = MessageDigest.getInstance("SHA-256").digest(refresh.toByteArray())
         assertEquals(1, db.update("UPDATE sessions SET expires_at=now()-interval '1 second' WHERE refresh_hash=?", digest))

@@ -93,6 +93,7 @@ private final class BridgeState {
                 switch mode {
                 case "LOCAL_MOCK":
                     #if canImport(Security)
+                    await handler.setMockPushSinkFactory { [weak self] in self?.mockPushEmitter() ?? { _ in } }
                     result = try await handler.invoke(operation, payload: payload)
                     #else
                     throw SdkFailure("UNSUPPORTED_OPERATION")
@@ -160,6 +161,23 @@ private final class BridgeState {
             if operation == "sdk.shutdown" { return [String: Any]() }
             throw SdkFailure("NOT_INITIALIZED")
         }
+    }
+    private func mockPushEmitter() -> (PushPayload) -> Void {
+        lock.lock(); let expectedGeneration = generation; let expectedEpoch = accountEpoch; let session = eventSession; lock.unlock()
+        return { [weak self] value in
+            guard let self, let session else { return }
+            Task {
+                guard self.isCurrentMockSession(expectedGeneration, expectedEpoch, session) else { return }
+                let decision = await self.pushRouter.submit(PushRouteEvent(payload: value, kind: .received))
+                if decision == .deliver && self.isCurrentMockSession(expectedGeneration, expectedEpoch, session) {
+                    self.emitPush(value, opened: false, session: session)
+                }
+            }
+        }
+    }
+    private func isCurrentMockSession(_ expectedGeneration: UInt64, _ expectedEpoch: UInt64, _ session: String) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        return generation == expectedGeneration && accountEpoch == expectedEpoch && eventSession == session && callback != nil
     }
     private func emitPush(_ push: PushPayload, opened: Bool, session: String) {
         lock.lock(); defer { lock.unlock() }

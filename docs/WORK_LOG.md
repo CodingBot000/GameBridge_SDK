@@ -1734,3 +1734,13 @@
 - Swift incremental parser 단위 시험 통과. URLSession 테스트 설정 주입을 추가해 합성 인증 응답의 실제 AsyncBytes 경계를 확인한다.
 - Swift SSE parser와 `URLProtocol` 합성 인증 응답을 사용한 실제 URLSession AsyncBytes 시험 통과. iOS simulator/device·서버 및 Unity 경계는 미검증이다.
 - 커밋 준비: 독립 iOS transport와 fake 시험만 저장한다. 등록 수명주기 및 E2E가 남아 BUG-014 OPEN이다.
+### P06-T05 iOS Mock 수명주기 연결 시작
+- 등록 성공 후 Native 소유 토큰으로 스트림을 시작하고 계정 epoch 및 Unity session 가드 아래서만 이벤트를 전달한다. 로그아웃·등록 해제·종료 시 중단한다.
+### P06-T05 iOS 연결 compile·회귀 검증 시작
+- Swift core 및 C bridge 단위 시험을 실행한다. 실제 simulator 및 Unity player는 별도다.
+- Swift C bridge 기존 3건 통과. 등록→Native 스트림→로그아웃의 합성 URLProtocol 시험을 추가해 새 수명주기를 직접 확인한다.
+- Swift 합성 URLProtocol에서 등록→AsyncBytes 이벤트→로그아웃 및 토큰 삭제 시험 통과. 실제 Backend·iOS simulator·Unity는 별도다.
+### P06-T05 iOS simulator compile 검증 시작
+- 격리된 Xcode project에서 Native framework simulator compile을 수행한다. 스토어와 Unity 실행 검증으로 간주하지 않는다.
+- 격리 project `artifacts/ios-project.TTcc9k`의 iOS simulator Native framework compile 종료 0. Xcode 다중 destination 경고만 표시됐고 실제 simulator 실행은 아니다.
+- 커밋 준비: iOS 등록·세션 가드·종료 연결과 synthetic lifecycle 시험을 저장한다. 실제 DB 및 Unity E2E가 남아 BUG-014 OPEN이다.

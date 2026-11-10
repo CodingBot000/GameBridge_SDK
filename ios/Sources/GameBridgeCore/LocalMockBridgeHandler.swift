@@ -13,6 +13,8 @@ public actor LocalMockBridgeHandler {
     private var developmentKey: String?
     private var subject: String?
     private var installationId: UUID?
+    private var pushSinkFactory: (() -> ((PushPayload) -> Void))?
+    public func setMockPushSinkFactory(_ factory: (() -> ((PushPayload) -> Void))?) { pushSinkFactory = factory }
 
     public init(tokenStore: @escaping () -> TokenStore, sessionConfiguration: URLSessionConfiguration = .default, pendingStore: (() -> TokenStore)? = nil) {
         self.tokenStore = tokenStore; self.sessionConfiguration = sessionConfiguration; self.pendingStore = pendingStore
@@ -21,28 +23,30 @@ public actor LocalMockBridgeHandler {
     public func invoke(_ operation: String, payload: [String: Any]) async throws -> Any {
         if operation == "sdk.initialize" { return try initialize(payload) }
         if operation == "sdk.shutdown" {
-            client = nil; config = nil; developmentKey = nil; subject = nil; installationId = nil
+            await client?.stopMockPush(); client = nil; config = nil; developmentKey = nil; subject = nil; installationId = nil
             return ["state": "SHUTDOWN"]
         }
         guard let client else { throw SdkFailure("NOT_INITIALIZED") }
         switch operation {
         case "auth.signIn":
             guard payload["provider"] as? String == "MOCK" else { throw SdkFailure("UNSUPPORTED_PROVIDER") }
+            await client.stopMockPush()
             return try object(try await client.signIn(subject: subject!))
         case "auth.restore":
             let user = try await client.restore()
             return ["signedIn": user != nil, "user": try user.map { try object($0) } ?? NSNull(),
                     "expiresAt": NSNull(), "sessionRestored": user != nil] as [String: Any]
-        case "auth.signOut": try await client.signOut(); return [String: Any]()
+        case "auth.signOut": await client.stopMockPush(); try await client.signOut(); return [String: Any]()
         case "push.permission": return ["provider": "MOCK", "permission": "GRANTED"]
         case "push.register":
             guard let installationId else { throw SdkFailure("CONFIG_REQUIRED") }
             let result = try await client.registerMockPush(installationId: installationId)
+            if let listener = pushSinkFactory?() { await client.startMockPush(installationId: installationId, listener: listener) }
             return ["provider": "MOCK", "permission": "GRANTED", "registered": true,
                     "tokenFingerprint": result.tokenFingerprint, "updatedAt": result.updatedAt] as [String: Any]
         case "push.unregister":
             guard let installationId else { throw SdkFailure("CONFIG_REQUIRED") }
-            try await client.unregisterMockPush(installationId: installationId); return ["registered": false]
+            await client.stopMockPush(); try await client.unregisterMockPush(installationId: installationId); return ["registered": false]
         case "config.get":
             let effective = try await client.serviceSettings()
             let formatter = ISO8601DateFormatter(); formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]

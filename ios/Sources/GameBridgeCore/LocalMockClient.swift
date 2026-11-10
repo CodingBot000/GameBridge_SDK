@@ -43,6 +43,28 @@ public actor LocalMockClient {
     private let store: TokenStore
     private let developmentKey: String
     private let pendingStore: TokenStore?
+    private let streamConfiguration: URLSessionConfiguration
+    private var pushStream: MockPushStream?
+    private var pushEpoch = 0
+    func stopMockPush() { pushEpoch += 1; pushStream?.stop(); pushStream = nil }
+    func startMockPush(installationId: UUID, listener: @escaping (PushPayload) -> Void) {
+        stopMockPush()
+        let epoch = pushEpoch
+        guard let url = URL(string: config.backendBaseURL ?? "") else { return }
+        let stream = MockPushStream(baseURL: url, installationId: installationId, configuration: streamConfiguration,
+            token: { [weak self] in try await self?.streamToken(epoch: epoch) },
+            onPush: { [weak self] value in Task { await self?.forwardMockPush(value, epoch: epoch, listener: listener) } })
+        pushStream = stream; stream.start()
+    }
+    private func streamToken(epoch: Int) async throws -> String? {
+        guard epoch == pushEpoch, session != nil else { return nil }
+        _ = try await authenticated(path: "/v1/me", method: "GET")
+        guard epoch == pushEpoch else { return nil }
+        return session?.accessToken
+    }
+    private func forwardMockPush(_ value: PushPayload, epoch: Int, listener: (PushPayload) -> Void) {
+        if epoch == pushEpoch { listener(value) }
+    }
     private var session: SecretSession?
     private var refreshFlight: (id: UUID, task: Task<SecretSession, Error>)?
     private var generation = 0
@@ -54,7 +76,7 @@ public actor LocalMockClient {
         if let pendingStore, (store as AnyObject) === (pendingStore as AnyObject) { throw SdkFailure("CONFIG_REQUIRED") }
         let backendClient = try BackendClient(config: config, sessionConfiguration: sessionConfiguration)
         backend = backendClient; serviceConfig = backendServiceConfiguration(backendClient)
-        self.config = config; self.store = store; self.developmentKey = developmentKey; self.pendingStore = pendingStore
+        self.config = config; self.store = store; self.developmentKey = developmentKey; self.pendingStore = pendingStore; self.streamConfiguration = sessionConfiguration
     }
     public func signIn(subject: String) async throws -> UserProfile {
         guard ["A", "B"].contains(subject) else { throw SdkFailure("INVALID_ARGUMENT") }

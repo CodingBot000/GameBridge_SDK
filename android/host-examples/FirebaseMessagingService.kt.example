@@ -1,0 +1,10 @@
+// Copy into the host app; do not register a second FirebaseMessagingService.
+// Implement HostPush.adapter using the host's existing dependency container.
+class HostMessagingService : com.google.firebase.messaging.FirebaseMessagingService() {
+    override fun onNewToken(token: String) {
+        HostPush.adapter.onNewToken(token)
+    }
+    override fun onMessageReceived(message: com.google.firebase.messaging.RemoteMessage) {
+        HostPush.adapter.onMessageReceived(message)
+    }
+}

@@ -647,3 +647,9 @@
 - APNs host adapter 초안과 샘플 delegate forwarding을 작성했다. permission은 명시 호출시에만 요청하며 completion handler를 호출한다. iOS simulator 빌드를 확인한다. 서버 등록 연결은 아직 없다.
 - iOS Simulator SDK의 GameBridgeSample Debug unsigned build 성공. 실제 알림 권한 UI, payload 주입, APNs token 및 원격 수신은 실행하지 않았다.
 - 커밋 전: APNs host forwarding·권한 API와 샘플 delegate의 completion 호출만 포함. 사용자 action UI·서버 token 연결·payload 검증·실 APNs는 미완료이므로 P06-T02 PARTIAL/WAITING_USER 유지.
+
+### [P06-T01] 시작 — 2026-11-10 Asia/Seoul
+- FCM adapter를 host-owned Firebase 초기화 및 별도 service forwarding 방식으로 작성한다. Firebase 공식 문서의 26.0.1 API와 Android permission 가이드를 확인했다. Mock 빌드에는 설정 파일을 요구하지 않는다.
+- FCM host adapter 초안 작성: 명시적 token 요청·권한 요청·channel·host service callback 전달. Firebase SDK 의존성은 compileOnly이며 실제 host가 설정한다. 컴파일 및 Mock 샘플 빌드를 확인한다.
+- Android unit task 및 Firebase 설정 없는 Mock 샘플 assembleDebug 종료 0. FCM adapter 자체의 token rotation·권한 거부·메시지 unit 및 실제 FCM 발급/수신은 아직 미실행이다. host service/manifest 예시를 추가했다.
+- 커밋 전: host adapter·compileOnly Firebase·통합 예시만 포함한다. Backend 등록 및 실제 OS/스토어 검증은 미완료이므로 P06-T01 PARTIAL/WAITING_USER 유지.

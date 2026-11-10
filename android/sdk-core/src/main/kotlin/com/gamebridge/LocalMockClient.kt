@@ -48,6 +48,7 @@ class LocalMockClient(private val config: GameBridgeConfig, private val store: T
         if (me.userId != session?.userId) { store.clear(); session = null; throw SdkFailure("AUTH_FAILED") }
         UserProfile(me.userId, null, "MOCK")
     }
+    suspend fun serviceSettings(): EffectiveServiceSettings = serviceConfig.current() ?: throw SdkFailure("CONFIG_REQUIRED")
     suspend fun products(): List<LocalProduct> = lock.withLock { decode(authenticated("/v1/catalog", "GET").json) }
     suspend fun wallet(): LocalWallet = lock.withLock { decode(authenticated("/v1/entitlements", "GET").json) }
     suspend fun purchase(productId: String, transactionId: UUID, attemptId: UUID): LocalPurchase = lock.withLock {

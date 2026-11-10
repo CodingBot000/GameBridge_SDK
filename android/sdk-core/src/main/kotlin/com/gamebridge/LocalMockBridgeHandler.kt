@@ -34,6 +34,15 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore) : BridgeO
                         }
                     }
                     "auth.signOut" -> { current.signOut(); buildJsonObject {} }
+                    "config.get" -> {
+                        val effective = current.serviceSettings()
+                        buildJsonObject {
+                            put("revision", effective.settings.revision); put("maintenanceEnabled", effective.settings.maintenanceEnabled)
+                            put("message", effective.settings.message?.let(::JsonPrimitive) ?: JsonNull)
+                            put("expiresAt", effective.settings.expiresAt.toString())
+                            put("source", if (effective.source == ConfigurationSource.REMOTE) "NETWORK" else "CACHE")
+                        }
+                    }
                     "store.products" -> JsonArray(current.products().map { product ->
                         buildJsonObject {
                             put("productId", product.productId); put("storeProductId", product.storeProductId)
@@ -79,12 +88,12 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore) : BridgeO
             put("state", "READY"); put("mode", "LOCAL_MOCK"); put("provider", "MOCK")
             put("capabilities", buildJsonObject {
                 for (name in listOf("auth", "store", "push", "config")) {
-                    val available = name == "auth" || name == "store"
+                    val available = name == "auth" || name == "store" || name == "config"
                     put(name, buildJsonObject {
                         put("supported", available); put("configured", available); put("mode", "LOCAL_MOCK")
                         put("reason", when (name) {
                             "store" -> JsonPrimitive("Purchase sync is not connected")
-                            "push", "config" -> JsonPrimitive("Bridge operation is not connected")
+                            "push" -> JsonPrimitive("Bridge operation is not connected")
                             else -> JsonNull
                         })
                     })

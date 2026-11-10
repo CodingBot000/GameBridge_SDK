@@ -1178,3 +1178,10 @@
 - 격리된 `artifacts/ios-bridge-layout.VrB66L`에서 XcodeGen 재생성 및 `xcodebuild ... -scheme GameBridgeNative -destination generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. 무서명 simulator static framework 컴파일이며 Unity linkage/실기기 실행은 아니다. 생성된 기존 Xcode project는 덮어쓰지 않았다.
 - `swift test --package-path ios` 종료 0: 총 44건, 4건은 opt-in local Backend 시험으로 skip, 나머지 실패 0. 앞서 별도 실행한 handler opt-in 1건은 성공했지만 skip된 나머지 3건을 이번 전체 실행의 통과로 간주하지 않는다.
 - 커밋 전: Swift LOCAL_MOCK handler·C ABI 연결과 별도 단위/로컬 Backend 증거만 포함한다. Unity 실행과 실제 Apple·구매 sync·push·config는 미완료로 남긴다. 직접 기동한 Backend만 종료하고 기존 DB와 artifacts를 보존했다.
+
+### [P07-T01] LOCAL_MOCK config bridge
+- Task 시작: Android/iOS가 이미 보유한 점검 설정 fetch·TTL cache 경로를 Unity config.get에 연결한다. 설정 부재는 CONFIG_REQUIRED로 반환하며 만료 캐시로 신규 구매를 허용하지 않는다.
+- 양쪽 Native Mock client의 기존 유효기간 cache를 config.get에 연결했다. source는 공개 계약의 NETWORK/CACHE를 사용하며 설정·cache 부재는 CONFIG_REQUIRED다. 컴파일 및 차단·cache 검증을 진행한다.
+- Android `:sdk-core:test --tests LocalMockBridgeHandlerTest :sdk-unity-bridge:assembleDebug` 종료 0: 설정 부재 CONFIG_REQUIRED, 정상 NETWORK, 일시 실패시 유효 CACHE 및 기존 Mock 구매를 synthetic HTTP로 확인했다. 실제 Unity JNI는 아니다. Swift 동일 경계를 확인한다.
+- `swift test --package-path ios --filter LocalMockMaintenanceTests` 종료 0, 2건: synthetic URLProtocol에서 config 없음·NETWORK·유효 CACHE 및 점검 중 구매 차단/로그아웃을 확인했다. 실제 Unity/iOS 실행은 미검증이다.
+- 커밋 전: LOCAL_MOCK config bridge와 양 플랫폼 synthetic 시험만 포함한다. 실 Provider config bridge, 구매 sync와 push는 계속 미완료다.

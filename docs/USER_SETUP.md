@@ -232,4 +232,4 @@ Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상�
 
 ### Unity Android 개발 전용 LOCAL_MOCK
 
-개발 서버의 `GAMEBRIDGE_DEV_AUTH_KEY`는 로컬 환경에서만 제공하고 채팅·Git·Unity 에셋에 넣지 않는다. Android의 `GameBridgeConfig` 6인자 생성자에 같은 개발 전용 키와 Mock subject `A` 또는 `B`를 명시적으로 전달한다. 에뮬레이터에서는 Backend 주소에 `10.0.2.2`를 사용하고 host의 개발 전용 네트워크 보안 설정을 준비한다. 이 연결은 실제 Google 로그인이 아니며 현재 Unity 라이선스 대기로 JNI 실동작 미검증이고 push·config·구매 sync도 아직 연결되지 않았다. iOS의 같은 생성자도 LOCAL_MOCK을 Swift C ABI로 전달한다. Swift handler와 local Backend/DB는 검증했으나 C ABI→Keychain→Backend 전체 흐름과 Unity iOS 실행은 미검증이다.
+개발 서버의 `GAMEBRIDGE_DEV_AUTH_KEY`는 로컬 환경에서만 제공하고 채팅·Git·Unity 에셋에 넣지 않는다. Android의 `GameBridgeConfig` 6인자 생성자에 같은 개발 전용 키와 Mock subject `A` 또는 `B`를 명시적으로 전달한다. 에뮬레이터에서는 Backend 주소에 `10.0.2.2`를 사용하고 host의 개발 전용 네트워크 보안 설정을 준비한다. 이 연결은 실제 Google 로그인이 아니며 현재 Unity 라이선스 대기로 JNI 실동작 미검증이고 push·구매 sync도 아직 연결되지 않았다. config 조회의 NETWORK/CACHE 경로는 synthetic 시험으로 확인했다. iOS의 같은 생성자도 LOCAL_MOCK을 Swift C ABI로 전달한다. Swift handler와 local Backend/DB는 검증했으나 C ABI→Keychain→Backend 전체 흐름과 Unity iOS 실행은 미검증이다.

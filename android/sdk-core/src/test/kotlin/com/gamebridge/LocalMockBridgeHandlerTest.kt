@@ -13,6 +13,7 @@ class LocalMockBridgeHandlerTest {
         val key = "test-only-development-key-0123456789"
         val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
         var purchases = 0
+        val configured = java.util.concurrent.atomic.AtomicBoolean(false)
         val wallet = """{"userId":"$user","premiumEnabled":false,"coinBalance":"100","revision":"1","updatedAt":"2026-01-01T00:00:00Z"}"""
         fun reply(exchange: HttpExchange, body: String) {
             val bytes = body.toByteArray(); exchange.sendResponseHeaders(200, bytes.size.toLong())
@@ -22,7 +23,10 @@ class LocalMockBridgeHandlerTest {
             assertEquals(key, e.requestHeaders.getFirst("X-Development-Key"))
             reply(e, """{"accessToken":"test-access","refreshToken":"test-refresh","expiresAt":"2099-01-01T00:00:00Z","userId":"$user"}""")
         }
-        server.createContext("/v1/config") { e -> reply(e, """{"revision":"1","maintenanceEnabled":false,"message":null,"expiresAt":"2099-01-01T00:00:00Z"}""") }
+        server.createContext("/v1/config") { e ->
+            if (configured.get()) reply(e, """{"revision":"1","maintenanceEnabled":false,"message":null,"expiresAt":"2099-01-01T00:00:00Z"}""")
+            else { val bytes = """{"code":"CONFIG_REQUIRED"}""".toByteArray(); e.sendResponseHeaders(503, bytes.size.toLong()); e.responseBody.use { it.write(bytes) } }
+        }
         server.createContext("/v1/purchases/verify") { e ->
             assertEquals("Bearer test-access", e.requestHeaders.getFirst("Authorization"))
             assertNotNull(e.requestHeaders.getFirst("Idempotency-Key")); purchases++
@@ -54,6 +58,12 @@ class LocalMockBridgeHandlerTest {
                 put("requestTimeoutMs", 30000); put("developmentKey", key); put("mockSubject", "A")
             })
             assertTrue(init.getValue("ok").jsonPrimitive.boolean)
+            assertEquals("CONFIG_REQUIRED", request("config.get").getValue("error").jsonObject.getValue("code").jsonPrimitive.content)
+            configured.set(true)
+            assertEquals("NETWORK", request("config.get").getValue("result").jsonObject.getValue("source").jsonPrimitive.content)
+            configured.set(false)
+            assertEquals("CACHE", request("config.get").getValue("result").jsonObject.getValue("source").jsonPrimitive.content)
+            configured.set(true)
             assertTrue(request("auth.signIn", buildJsonObject { put("provider", "MOCK") }).getValue("ok").jsonPrimitive.boolean)
             val result = request("store.purchase", buildJsonObject { put("productId", "coins_100") })
             assertEquals("GRANTED", result.getValue("result").jsonObject.getValue("fulfillmentStatus").jsonPrimitive.content)

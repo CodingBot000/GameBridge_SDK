@@ -1,14 +1,20 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Development-only bridge. Authentication tokens and purchase proofs remain Native-owned.
 public actor LocalMockBridgeHandler {
     private let tokenStore: () -> TokenStore
+    private let sessionConfiguration: URLSessionConfiguration
     private var client: LocalMockClient?
     private var config: GameBridgeConfig?
     private var developmentKey: String?
     private var subject: String?
 
-    public init(tokenStore: @escaping () -> TokenStore) { self.tokenStore = tokenStore }
+    public init(tokenStore: @escaping () -> TokenStore, sessionConfiguration: URLSessionConfiguration = .default) {
+        self.tokenStore = tokenStore; self.sessionConfiguration = sessionConfiguration
+    }
 
     public func invoke(_ operation: String, payload: [String: Any]) async throws -> Any {
         if operation == "sdk.initialize" { return try initialize(payload) }
@@ -26,6 +32,12 @@ public actor LocalMockBridgeHandler {
             return ["signedIn": user != nil, "user": try user.map { try object($0) } ?? NSNull(),
                     "expiresAt": NSNull(), "sessionRestored": user != nil] as [String: Any]
         case "auth.signOut": try await client.signOut(); return [String: Any]()
+        case "config.get":
+            let effective = try await client.serviceSettings()
+            let formatter = ISO8601DateFormatter(); formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            return ["revision": effective.settings.revision, "maintenanceEnabled": effective.settings.maintenanceEnabled,
+                    "message": effective.settings.message as Any? ?? NSNull(), "expiresAt": formatter.string(from: effective.settings.expiresAt),
+                    "source": effective.source == .remote ? "NETWORK" : "CACHE"] as [String: Any]
         case "store.products":
             return try await client.products().map { product in
                 ["productId": product.productId, "storeProductId": product.storeProductId, "type": product.type,
@@ -51,12 +63,12 @@ public actor LocalMockBridgeHandler {
         do { try next.validate() } catch { throw SdkFailure("CONFIG_REQUIRED") }
         if client != nil && (config != next || developmentKey != key || self.subject != subject) { throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG") }
         if client == nil {
-            client = try LocalMockClient(config: next, store: tokenStore(), developmentKey: key)
+            client = try LocalMockClient(config: next, store: tokenStore(), developmentKey: key, sessionConfiguration: sessionConfiguration)
             config = next; developmentKey = key; self.subject = subject
         }
         var capabilities: [String: Any] = [:]
         for name in ["auth", "store", "push", "config"] {
-            let available = name == "auth" || name == "store"
+            let available = name == "auth" || name == "store" || name == "config"
             let reason: Any
             if name == "store" { reason = "Purchase sync is not connected" }
             else if available { reason = NSNull() }

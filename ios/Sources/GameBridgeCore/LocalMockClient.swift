@@ -69,6 +69,10 @@ public actor LocalMockClient {
         guard me.userId == session?.userId else { throw SdkFailure("AUTH_FAILED") }
         return UserProfile(userId: me.userId, displayName: nil, provider: "MOCK")
     }
+    public func serviceSettings() async throws -> EffectiveServiceSettings {
+        guard let settings = try await serviceConfig.current() else { throw SdkFailure("CONFIG_REQUIRED") }
+        return settings
+    }
     public func products() async throws -> [LocalProduct] { try decode(try await authenticated(path: "/v1/catalog", method: "GET").json) }
     public func wallet() async throws -> LocalWallet { try decode(try await authenticated(path: "/v1/entitlements", method: "GET").json) }
     public func purchase(productId: String, transactionId: UUID, attemptId: UUID) async throws -> LocalPurchase {

@@ -51,4 +51,23 @@ final class LocalMockMaintenanceTests: XCTestCase {
         let wallet = try await client.wallet(); XCTAssertEqual(wallet.coinBalance, "0")
         try await client.signOut(); XCTAssertEqual(MaintenanceProtocol.count(), 0)
     }
+    func testBridgeConfigFailsClosedAndReportsCache() async throws {
+        MaintenanceProtocol.reset()
+        let network = URLSessionConfiguration.ephemeral; network.protocolClasses = [MaintenanceProtocol.self]
+        let handler = LocalMockBridgeHandler(tokenStore: { MaintenanceStore() }, sessionConfiguration: network)
+        _ = try await handler.invoke("sdk.initialize", payload: ["appId": "demo", "providerMode": "LOCAL_MOCK",
+            "backendBaseUrl": "http://127.0.0.1:8080", "requestTimeoutMs": 30000,
+            "developmentKey": String(repeating: "x", count: 32), "mockSubject": "A"])
+        do { _ = try await handler.invoke("config.get", payload: [:]); XCTFail("missing config") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED") }
+        MaintenanceProtocol.setConfigured(true)
+        let remote = try await handler.invoke("config.get", payload: [:]) as? [String: Any]
+        XCTAssertEqual(remote?["source"] as? String, "NETWORK")
+        XCTAssertEqual(remote?["maintenanceEnabled"] as? Bool, true)
+        MaintenanceProtocol.setConfigured(false)
+        let cache = try await handler.invoke("config.get", payload: [:]) as? [String: Any]
+        XCTAssertEqual(cache?["source"] as? String, "CACHE")
+        XCTAssertEqual(cache?["maintenanceEnabled"] as? Bool, true)
+    }
+
 }

@@ -44,11 +44,11 @@
     },
     "unity-editor": {
       "command": [
-        "python3",
-        "harness/unavailable.py",
-        "Unity Editor runtime verification is not yet implemented"
+        "bash",
+        "scripts/build-unity.sh",
+        "--editor-smoke"
       ],
-      "mode": "EDITOR",
+      "mode": "ISOLATED_CONSUMER_EDITOR",
       "platform": "Unity"
     },
     "package": {
@@ -330,7 +330,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "NOT_IMPLEMENTED",
+      "coverage": "PARTIAL",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -340,7 +340,7 @@
         "unity-editor"
       ],
       "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "note": "Isolated consumer Editor runner and test sources exist; Unity Editor execution and fresh player build remain unverified."
     },
     {
       "id": "R12",
@@ -1102,17 +1102,18 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "NOT_IMPLEMENTED",
+      "coverage": "PARTIAL",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R49"
       ],
       "candidateSuites": [
+        "unity-editor",
         "package"
       ],
       "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "note": "Isolated consumer Editor runner and test sources exist; Unity Editor execution and fresh player build remain unverified."
     },
     {
       "id": "R50",

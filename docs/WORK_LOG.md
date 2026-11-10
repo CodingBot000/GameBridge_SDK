@@ -1861,3 +1861,19 @@
 - manifest 검증과 명시적 로컬 실행을 수행한다. 다른 49개 시나리오의 상태는 변경하지 않는다.
 - `harness/run-scenario.py R12` 명시 실행 종료 0, 새 evidence `artifacts/lifecycle-stress.A8iyaJ`에서 100회 queue/pending 정리 및 client/transport weak reference 0 확인. manifest 음성 검사와 원장 검사도 통과. Unity 및 무한 시간 누수 부재를 주장하지 않는다.
 - 커밋 준비: R12 독립 .NET fake 범위만 IMPLEMENTED로 반영하고 다른 시나리오·Unity 검증은 그대로 둔다.
+
+### [P08-T04] 독립 Unity consumer 검증 경로 재개
+- Unity CLI 지침과 Unity Test Framework 공식 설명을 확인했다. staging package를 복사한 새 격리 프로젝트에서 Editor lifecycle test를 실행하는 명령을 작성한다. 기존 사용자 unity/Demo는 건드리지 않으며 라이선스 실패는 통과로 기록하지 않는다.
+### P08-T04 consumer runner 검증 시작
+- 결과 XML이 누락·실패·skip인 경우 통과하지 않음을 synthetic fixture로 검사한 뒤 Unity 라이선스 환경에서 실제 명령을 실행한다. staging은 새 소비 프로젝트에 복사하며 사용자 Demo는 보존한다.
+- 실제 CLI 재시험은 Editor test 결과 없이 CLI 초기 단계에서 50초 이상 대기해 중단했다(`artifacts/unity-consumer.uXtPNZ`); 테스트는 NOT_RUN이다. CLI exit 6은 컴파일 오류와 환경 오류를 모두 포함하므로 환경 대기로 단정하면 안 되는 점을 발견했다. 외부 timeout과 결과·컴파일 오류 분류를 보강한다.
+### P08-T04 수정된 runner 재검증 시작
+- CLI 전체 호출에 시간 제한과 자식 프로세스 정리를 적용하고 compile 실패와 결과 없는 미완료를 구분한다. 여전히 Unity 라이선스 없이 PASS를 만들지 않는다.
+- Unity CLI가 아직 결과를 내지 않아 별도로 Unity 설치본의 managed reference를 사용해 consumer test 소스의 C# compile을 확인한다. 이는 Editor 테스트 실행을 대체하지 않는다.
+- 수정 runner의 실제 호출은 `artifacts/unity-consumer.uQc96O/unity-cli.log`에 기록된 외부 65초 timeout으로 종료 2, XML 없음; Editor 시험은 NOT_RUN이다. `unity` 및 자식 프로세스는 정리됐다. consumer test 소스는 설치된 Unity managed reference에 대해 독립 C# compile 경고 0·오류 0이며 실제 Unity 실행은 아니다.
+### P09-T05 Unity Editor lane 연결 시작
+- 새 runner를 manifest와 aggregate에 opt-in으로 연결한다. 실제 실행하지 않거나 결과가 없으면 통과가 아니다.
+### P09-T05 Unity lane 검증 시작
+- manifest·음성 검사, 실제 결과 XML parser의 skip/missing 거부를 재검증한다. Unity Editor 실제 통과로 표시하지 않는다.
+- manifest/누락 음성/원장 검사와 shell 구문 검증 통과. aggregate에서 Editor opt-in 시 XML 검증의 실제 실행 건수를 읽으며, 미실행은 NOT_RUN이다. 테스트 자체는 아직 Editor에서 실행되지 않았다.
+- 커밋 준비: 격리 Unity consumer runner·테스트 소스와 fail-closed XML 판정만 포함한다. 오래된 staging으로 수행한 실행은 결과가 없어 import PASS로 기록하지 않는다.

@@ -39,6 +39,8 @@ def main() -> int:
         count = 1 if marker in text else 0
         if name == 'aggregation-self':
             match = re.search(r'Ran (\d+) tests?', text); count = int(match.group(1)) if match else 0
+        if name == 'unity-editor-runtime':
+            match = re.search(r'Unity consumer tests PASS: (\d+) executed', text); count = int(match.group(1)) if match else 0
         passed = code == 0 and marker in text and count > 0
         status = 'PASS' if passed else ('DEFERRED_ENV' if code == 2 else 'FAIL')
         lanes.append({'name':name,'status':status,'required':True,'tests':count if passed else 0,'skipped':0,'exitCode':code,'command':command,'evidence':log})
@@ -83,8 +85,11 @@ def main() -> int:
     lanes.append({'name':'scenario-coverage','status':'NOT_IMPLEMENTED' if incomplete else 'PASS','required':True,
                   'tests':0 if incomplete else len(manifest['scenarios']),'skipped':0,'exitCode':2 if incomplete else 0,
                   'command':['python3','harness/check-manifest.py'],'evidence':'harness/regression-manifest.json','incompleteCount':len(incomplete)})
-    lanes.append({'name':'unity-editor-runtime','status':'NOT_RUN','required':True,'tests':0,'skipped':0,'exitCode':2,
-                  'command':[],'evidence':'docs/PROGRESS.md','reason':'Unity runtime lane is not automated; ENV-002 is separately recorded'})
+    if env.get('GAMEBRIDGE_RUN_UNITY_EDITOR') == 'true':
+        simple('unity-editor-runtime',['bash','scripts/build-unity.sh','--editor-smoke'],'Unity consumer tests PASS:')
+    else:
+        lanes.append({'name':'unity-editor-runtime','status':'NOT_RUN','required':True,'tests':0,'skipped':0,'exitCode':2,
+                      'command':['bash','scripts/build-unity.sh','--editor-smoke'],'evidence':'docs/PROGRESS.md','reason':'Editor runner not opted in; ENV-002 is separately recorded'})
     progress = (ROOT/'docs/PROGRESS.md').read_text(encoding='utf-8')
     failed_rows = []
     for line in progress.splitlines():

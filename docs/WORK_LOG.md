@@ -2055,3 +2055,17 @@
 - evidence/assertion mapping과 scenario entry의 실제 실행을 다시 확인한다.
 - `harness/run-scenario.py R50` 및 manifest·누락 음성·원장 검사 모두 통과. strict aggregate에도 R50 자체를 필수 lane으로 추가했다. Unity 및 다른 미완료 시나리오는 그대로다.
 - 커밋 준비: R50 하네스 범위의 검증 및 증거 mapping만 IMPLEMENTED로 기록한다.
+
+### [P09-T03] 인증 scenario assertion 보강 시작
+- R13/R14의 잘못된 서명·알고리즘·발급자·audience·만료를 Google/Apple synthetic test key 모두에서 검사하고, R15 nonce 불일치 뒤 challenge 미소비·정상 재시도 및 재사용 거부를 전용 sandbox DB에서 검증한다. 실제 외부 계정은 사용하지 않는다.
+### P09-T03 인증 assertion 검증 시작
+- 양 Provider synthetic 서명 unit과 전용 sandbox DB nonce·replay 회귀를 실행한다.
+- `IdentityVerifierTest` 6건 통과: synthetic Google·Apple 양쪽의 wrong signature/algorithm, issuer/audience/expiry/nonce를 거부했다. 전용 sandbox DB 시험을 이어간다.
+- sandbox DB nonce mismatch 후 미소비·정상 재시도·replay 거부와 HTTP dev endpoint 차단을 통과했다(`gamebridge_ci_35dd5c15ed`). Apple 최초 profile 누락·후속 이름·재누락 시 동일 subject 유지 assertion을 추가한다.
+### P09-T03 Apple profile 누락 DB 검증 시작
+- 전용 sandbox DB `gamebridge_ci_f89c70feaa`에서 Google/Apple synthetic verifier 6건, nonce/replay DB 1건, Apple profile·sandbox mock 차단 HTTP 1건 모두 PASS/skip 0. R13/R14/R15/R17/R21의 정확한 assertion과 evidence를 연결한다. 실제 Google/Apple 서비스 검증은 아니다.
+### P09-T03 scenario entry 및 manifest 검증 시작
+- R13/R14 독립 entry와 manifest·음성 검사 통과. R15/R17/R21이 사용하는 전체 auth-regression entry를 새 전용 sandbox DB로 재실행해 후보 suite 연결도 확인한다.
+### P09-T03 auth-regression entry 검증 시작
+- 전체 auth-regression `artifacts/auth-regression-ow4xd7hv/result.json` 종료 0: 전용 sandbox DB `gamebridge_ci_e092ef4315`, JWT 6·DB HTTP 2·Android fake 13·Swift fake 17 PASS/skip 0. 실 Provider 계정이나 네트워크 토큰은 사용하지 않았다.
+- 커밋 준비: R13/R14/R15/R17/R21의 실제 assertion·suite·증거를 연결한다. 나머지 부분 scenario 및 외부 실연동 대기는 유지한다.

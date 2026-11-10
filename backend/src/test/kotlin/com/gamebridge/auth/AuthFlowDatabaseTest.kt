@@ -67,5 +67,11 @@ class AuthFlowDatabaseTest {
         val rejected = flow.challenge(app, IdentityProvider.GOOGLE)
         assertEquals("AUTH_FAILED", assertFailsWith<AuthFlowException> { flow.exchange(UUID.fromString(rejected.challengeId), IdentityProvider.GOOGLE, signed(rejected.nonce, "wrong"), null) }.code)
         assertEquals(false, db.queryForObject("SELECT used_at IS NOT NULL FROM auth_challenges WHERE id=?", Boolean::class.java, UUID.fromString(rejected.challengeId)))
+        val wrongNonce = flow.challenge(app, IdentityProvider.GOOGLE); val wrongNonceId = UUID.fromString(wrongNonce.challengeId)
+        assertEquals("AUTH_FAILED", assertFailsWith<AuthFlowException> { flow.exchange(wrongNonceId, IdentityProvider.GOOGLE, signed("wrong-nonce"), null) }.code)
+        assertEquals(false, db.queryForObject("SELECT used_at IS NOT NULL FROM auth_challenges WHERE id=?", Boolean::class.java, wrongNonceId))
+        val corrected = signed(wrongNonce.nonce)
+        assertEquals(firstUser, flow.exchange(wrongNonceId, IdentityProvider.GOOGLE, corrected, null).userId)
+        assertEquals("AUTH_REPLAY_DETECTED", assertFailsWith<AuthFlowException> { flow.exchange(wrongNonceId, IdentityProvider.GOOGLE, corrected, null) }.code)
     }
 }

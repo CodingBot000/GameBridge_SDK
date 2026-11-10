@@ -107,6 +107,14 @@
       ],
       "mode": "ISOLATED_NEGATIVE",
       "platform": "Harness"
+    },
+    "auth-verifier": {
+      "command": [
+        "python3",
+        "harness/run-auth-verifier.py"
+      ],
+      "mode": "SYNTHETIC_TEST_KEY",
+      "platform": "Backend"
     }
   },
   "scenarios": [
@@ -390,17 +398,24 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R13"
       ],
       "candidateSuites": [
-        "auth-regression"
+        "auth-verifier"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/auth-synthetic-scenarios.md",
+      "note": "Synthetic test-key verification for Google and Apple; real provider tokens are separate.",
+      "assertions": [
+        {
+          "suite": "auth-verifier",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/auth/IdentityVerifierTest.kt",
+          "testCase": "wrong audience issuer nonce expiry algorithm and signature fail closed"
+        }
+      ]
     },
     {
       "id": "R14",
@@ -410,17 +425,24 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R14"
       ],
       "candidateSuites": [
-        "auth-regression"
+        "auth-verifier"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/auth-synthetic-scenarios.md",
+      "note": "Synthetic test-key verification for Google and Apple; real provider tokens are separate.",
+      "assertions": [
+        {
+          "suite": "auth-verifier",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/auth/IdentityVerifierTest.kt",
+          "testCase": "wrong audience issuer nonce expiry algorithm and signature fail closed"
+        }
+      ]
     },
     {
       "id": "R15",
@@ -430,7 +452,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -439,8 +461,20 @@
       "candidateSuites": [
         "auth-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/auth-synthetic-scenarios.md",
+      "note": "Sandbox fixture DB and synthetic signing keys; no real provider tokens.",
+      "assertions": [
+        {
+          "suite": "auth-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/auth/AuthFlowDatabaseTest.kt",
+          "testCase": "wrong-nonce"
+        },
+        {
+          "suite": "auth-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/auth/AuthFlowDatabaseTest.kt",
+          "testCase": "AUTH_REPLAY_DETECTED"
+        }
+      ]
     },
     {
       "id": "R16",
@@ -470,7 +504,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -479,8 +513,20 @@
       "candidateSuites": [
         "auth-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/auth-synthetic-scenarios.md",
+      "note": "Sandbox fixture DB and synthetic signing keys; no real provider tokens.",
+      "assertions": [
+        {
+          "suite": "auth-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/auth/AuthHttpIntegrationTest.kt",
+          "testCase": "appleMissingChallenge"
+        },
+        {
+          "suite": "auth-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/auth/AuthHttpIntegrationTest.kt",
+          "testCase": "Apple First Name"
+        }
+      ]
     },
     {
       "id": "R18",
@@ -550,7 +596,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -559,8 +605,20 @@
       "candidateSuites": [
         "auth-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/auth-synthetic-scenarios.md",
+      "note": "Sandbox fixture DB and synthetic signing keys; no real provider tokens.",
+      "assertions": [
+        {
+          "suite": "auth-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/auth/AuthHttpIntegrationTest.kt",
+          "testCase": "mock:identity:synthetic"
+        },
+        {
+          "suite": "auth-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/auth/AuthHttpIntegrationTest.kt",
+          "testCase": "/v1/dev/auth"
+        }
+      ]
     },
     {
       "id": "R22",

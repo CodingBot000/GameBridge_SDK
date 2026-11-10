@@ -38,13 +38,15 @@ class IdentityVerifierTest {
         assertEquals(IdentityProvider.APPLE, apple.provider)
     }
     @Test fun `wrong audience issuer nonce expiry algorithm and signature fail closed`() {
-        val tests = listOf(
-            token(audience = "other"), token(issuer = "https://evil.example"), token(nonce = "wrong"),
-            token(exp = Instant.now().minusSeconds(1)), token(signer = wrongKey), token(alg = JWSAlgorithm.RS512),
-        )
-        tests.forEach { value ->
-            val error = assertFailsWith<IdentityVerificationException> { verifier().verify(IdentityProvider.GOOGLE, value, "client-a", digest("server-nonce")) }
-            assertEquals("AUTH_FAILED", error.code); assertFalse(error.toString().contains(value))
+        for ((provider, issuer) in listOf(IdentityProvider.GOOGLE to "https://accounts.google.com", IdentityProvider.APPLE to "https://appleid.apple.com")) {
+            val tests = listOf(
+                token(issuer = issuer, audience = "other"), token(issuer = "https://evil.example"), token(issuer = issuer, nonce = "wrong"),
+                token(issuer = issuer, exp = Instant.now().minusSeconds(1)), token(issuer = issuer, signer = wrongKey), token(issuer = issuer, alg = JWSAlgorithm.RS512),
+            )
+            tests.forEach { value ->
+                val error = assertFailsWith<IdentityVerificationException> { verifier().verify(provider, value, "client-a", digest("server-nonce")) }
+                assertEquals("AUTH_FAILED", error.code); assertFalse(error.toString().contains(value))
+            }
         }
     }
     @Test fun `multiple audiences require matching authorized party`() {

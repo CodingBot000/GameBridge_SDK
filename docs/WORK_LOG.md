@@ -1653,3 +1653,9 @@
 - 네 조건부 compile은 통과했으나 Editor fake에서 사용하지 않는 필드 경고가 1건 발생했다. fake 응답의 기존 상태 필드를 보존하고 숫자 문자열 enum도 거부하도록 보강한 뒤 재검증한다.
 - Native typed event 조회, 200개 상한, UUID·enum 검증, offline 빈 목록 및 숫자 enum 거부를 독립 .NET fake로 확인했다. 네 조건부 managed compile과 API baseline 비교 통과. Unity player 실제 Native 경계는 ENV-002로 미실행이므로 BUG-015 OPEN 유지.
 - 커밋 준비: Unity 공개 비동기 조회와 fake 시험. 기존 P10 패키지는 이 변경 이전이므로 재패키징 필요.
+
+### [P08-T01] [P08-T02] [P08-T03] 진단 변경 후 재패키징 시작 및 검증 준비
+- 52f60f7 소스 기준 새 Android Maven/R8 consumer와 iOS XCFramework, UPM staging을 생성한다. 이전 산출물은 보존하며 Unity import는 미실행으로 유지한다.
+- 사용자가 LOCAL_MOCK push는 앱 연결 중에만 전달하고 미연결 시 버리도록 결정했다. 실제 FCM/APNs에는 적용하지 않는다. 구현은 아직 시작 전이며 `docs/DECISIONS.md`에 기록했다.
+- Android Maven 강제 재빌드 및 별도 R8 consumer 45개 task 실행 성공, iOS device/simulator XCFramework archive 성공, 새 UPM staging checksum 전체 통과. Unity import 및 새 iOS 독립 consumer 실행은 미검증이다.
+- 커밋 준비: 산출물 SHA-256 manifest, 사용자 푸시 정책 및 검증 증거만 기록한다. 기존 산출물과 미추적 사용자 파일은 보존한다.

@@ -38,6 +38,8 @@ Unity Editor 라이선스 오류(ENV-002)와 계획된 버전 확인(ENV-001)으
 | iOS XCFramework | `artifacts/ios-package-p10-20261111-a/GameBridgeNative.xcframework` | simulator Swift link, device C ABI symbol |
 | Unity UPM staging | `artifacts/upm-staging-p10-20261111-a` | checksum 및 build hook 시험; Unity import 미실행 |
 
+진단 연결 이후 `52f60f7` 소스 기준 새 산출물은 `artifacts/maven-diag-20261111`, `artifacts/ios-diag-20261111/GameBridgeNative.xcframework`, `artifacts/upm-diag-20261111`에 생성했다. Android R8 consumer 빌드와 UPM checksum은 통과했고 Unity import는 실행하지 않았다. 파일별 해시는 [새 manifest](evidence/diagnostics-artifact-manifest.json)에 있다.
+
 ## 주요 이력과 재개
 
 P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912`, `a93cf52` 등에 기록됐다. P10 리팩토링·호환성은 `36db140`, `e689dd7`, `d02b8ed`, `3bf8d0a`, P11 감사·설정 점검은 `31b683c`, `35bf2bd`에 기록됐다. 이후 문서 커밋은 `git log`에서 확인한다.

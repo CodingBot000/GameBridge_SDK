@@ -1975,3 +1975,11 @@
 - 불필요한 내부 enable flag 제거 후 단위 시험과 실제 local DB/StoreKit 응답 유실 복구를 다시 실행한다. host 이력 설정이 없거나 iOS 18 미만이면 차단한다.
 - 단순화한 공개 경로의 `artifacts/xcode-storekit-e2e-v0xdbk5f/result.json` PASS/skip 0: iOS 18.6, 전용 DB `gamebridge_ci_d831d20ff8`, 실제 StoreKit local·서버 commit 후 응답 유실·Keychain 재생성·finish 후 삭제 실패 복구. 실제 프로세스 kill·Unity player·Apple sandbox는 미검증이다.
 - 커밋 준비: host 설정·OS guard, verified StoreKit 이력 단일성 검사 및 공개 경로를 저장한다. iOS 26.5 실패와 BUG-013은 OPEN으로 유지한다.
+### [P08-T03] Xcode StoreKit 개발 build 설정 자동화 시작
+- host가 `GAMEBRIDGE_XCODE_STOREKIT` scripting define을 명시한 iOS Development Build에 한해 Info.plist 소모품 이력 옵션을 설정한다. 일반/Release 빌드 설정은 수정하지 않고, 명시 define과 non-development 조합은 실패시킨다. Unity export 실제 실행은 라이선스 대기다.
+### P08-T03 plist hook 검증 시작
+- Unity 설치본의 Xcode managed API를 사용해 기존 plist 보존·두 번 적용 멱등성을 검사한다. Unity Editor export는 아직 미실행이다.
+- Unity Xcode managed API로 plist 기존 값 보존·2회 적용 멱등성 및 define 활성 조건부 compile 경고 0·오류 0 확인. non-development 조합 실패 검사는 파일 변경보다 먼저 수행하도록 정리한다. 실제 Unity export는 NOT_RUN이다.
+### P08-T03 최종 hook 회귀 실행
+- 재실행: PBX 파일 추가·plist 설정 멱등성 PASS, `UNITY_IOS;GAMEBRIDGE_XCODE_STOREKIT` 활성 managed compile 경고 0·오류 0. Unity Editor export와 .storekit scheme 연결 실행은 미검증이다.
+- 커밋 준비: 명시적 iOS 개발 build 전용 plist hook과 synthetic managed 시험을 저장한다.

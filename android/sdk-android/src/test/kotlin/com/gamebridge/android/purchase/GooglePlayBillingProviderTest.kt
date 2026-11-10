@@ -3,6 +3,7 @@ package com.gamebridge.android.purchase
 import android.app.Activity
 import com.android.billingclient.api.Purchase
 import com.gamebridge.SdkFailure
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -51,6 +52,28 @@ class GooglePlayBillingProviderTest {
         val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink, verificationConcurrency = null)
         assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> { provider.purchase("coins_100") }.code)
         assertEquals(0, gateway.launches); provider.close()
+    }
+    @Test fun `default verification concurrency serializes transactions`() = runBlocking {
+        val gateway = FakePlayGateway()
+        val firstEntered = CompletableDeferred<Unit>()
+        val releaseFirst = CompletableDeferred<Unit>()
+        val secondEntered = CompletableDeferred<Unit>()
+        val calls = java.util.concurrent.atomic.AtomicInteger()
+        val sink = PlayProofSink { _, _, raw ->
+            if (calls.incrementAndGet() == 1) { firstEntered.complete(Unit); releaseFirst.await() }
+            else secondEntered.complete(Unit)
+            ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray()))
+        }
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink)
+        try {
+            gateway.listener!!.invoke(proof(Purchase.PurchaseState.PURCHASED))
+            withTimeout(2000) { firstEntered.await() }
+            gateway.listener!!.invoke(proof(Purchase.PurchaseState.PURCHASED))
+            assertNull(withTimeoutOrNull(150) { secondEntered.await() })
+            releaseFirst.complete(Unit)
+            withTimeout(2000) { secondEntered.await() }
+            assertEquals(2, calls.get())
+        } finally { provider.close() }
     }
     @Test fun `account switch suppresses stale verified event`() = runBlocking {
         val gateway = FakePlayGateway(); var current: BoundPlayAccount? = account

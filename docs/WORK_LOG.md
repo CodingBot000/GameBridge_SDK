@@ -636,3 +636,8 @@
 - P05-T04 계속: Google credentials는 Host가 명시 제공한 경우에만 scoped Publisher client를 생성하도록 조립 경로를 추가한다. local-mock은 자격 증명을 읽지 않는다.
 - Google/Apple verifier fake unit 시험 각 2건 통과. 명시 credentials 기반 client 구성은 컴파일됐지만 실제 권한·네트워크 호출은 미실행이다. USER_SETUP에 현재 미연결 상태를 갱신했다.
 - 커밋 전: Google host credential client 조립과 사용자 설정 안내만 추가. 서비스 런타임의 provider 조립·지급 연결 및 실제 스토어는 여전히 미완료다.
+
+### [P05-T02] 승인된 동시성 추가 검증 — 2026-11-10 Asia/Seoul
+- 사용자 선택인 기본 동시 1건이 두 거래의 서버 검증에 실제 적용되는지 fake sink로 확인한다. 실제 Play 결제는 실행하지 않는다.
+- Android fake sink 시험 통과: 첫 거래의 서버 응답을 보류한 동안 두 번째 검증이 시작되지 않고 첫 검증이 끝나면 시작한다. 전체 Android unit task 종료 0. 실제 Play와 서버 검증은 아니다.
+- 커밋 전: 기본 동시 1건 회귀 시험만 포함하며 P05-T02 실제 스토어·서버 연결은 PARTIAL/WAITING_USER로 유지한다.

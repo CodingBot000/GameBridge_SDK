@@ -753,3 +753,8 @@
 - 서버 Kotlin 컴파일 종료 0. 별도 schema에서 신규 세션 app별 binding 분리와 legacy null scope 거부·보존을 DB 시험한다.
 - 전용 PostgreSQL 격리 schema의 binding 시험 2건 통과(skip 0): 10개 동시 생성의 안정성, 신규 app scope 분리, legacy null scope 거부 및 기존 값 보존. 실제 Apple/Google 서버 증빙·지급/Native 전달은 아니다. 테스트 schema는 삭제하지 않았다.
 - 커밋 전: nullable migration, 신규 세션 scope 및 인증 binding 조회 경로만 포함. Native sink·실 결제 및 기존 세션 마이그레이션은 미완료이므로 P05-T01 PARTIAL 유지.
+- 새 session scope 변경 후 Backend 전체 일반 unit suite를 실행한다. 별도 opt-in DB와 실제 provider 시험은 일반 suite 결과에 합산하지 않는다.
+- 블로커: Backend 일반 suite 32건 중 1 실패·7 skip. HttpInfrastructureTest의 sanitized 400 JSON path가 없음. 원인을 분리하고 수정 후 재실행하기 전 전체 PASS로 기록하지 않는다.
+- 실패 원인 확인: Firebase 의존성 추가로 XML converter가 추가되어 Accept 미지정 요청의 오류 응답이 XML로 직렬화됐다. SDK 계약은 JSON이므로 모든 ApiErrors 응답 content type을 명시한다.
+- 오류 응답 JSON content type 명시 후 Backend 일반 suite 종료 0: 32건 중 25 통과·7 opt-in skip, 실패0. 실패했던 HTTP sanitized 오류와 request ID 시험이 통과했다. DB opt-in·실 provider 시험은 이 결과에 포함하지 않는다.
+- 커밋 전: XML 오류 응답 회귀 수정 및 실패/재검증 증거만 포함한다.

@@ -2253,3 +2253,21 @@
 - 사용자 기존 simulator가 아닌 새로운 전용 iOS 18.6 simulator에서 synthetic host callback을 시험한다.
 - 전용 iOS 18.6 simulator `193C8CC2-18B0-46A4-827C-4AAFAC245D47`, `artifacts/push-delegate-1794340271.xcresult` 1건 PASS/skip 0: 기존 UNUserNotificationCenter delegate가 adapter 생성·전달 뒤 유지되고 sample remote callback completion이 호출됐다. 실제 APNs 및 Unity host 동작은 미검증이므로 R43은 PARTIAL 유지한다.
 - 커밋 준비: 실제 iOS simulator synthetic host assertion만 기록한다.
+
+### [P09-T04] R34 Xcode 앱 프로세스 복구 시작
+- 별도 simulator 전용 테스트 앱에서 local 서버 commit 후 응답 유실·unfinished 보존을 확인하고 앱 프로세스를 실제 종료한 뒤 새 프로세스의 Keychain 복구·finish·잔액 불변을 검증한다. 기존 사용자 앱·simulator는 건드리지 않으며 실 Apple sandbox/Unity와 구분한다.
+### P09-T04 프로세스 테스트 앱 compile 검증 시작
+- 전용 iOS simulator 테스트 app을 ad-hoc 서명으로 build한다. 실제 실행·종료와 local DB는 다음 단계다.
+
+- P09-T04 R34 빌드 FAIL: 일반 앱 타깃에 StoreKitTest framework 검색 경로가 없어 모듈을 찾지 못했다. simulator SDK Developer/Library/Frameworks 경로를 확인했으며 테스트 타깃에만 적용한다. 실행 검증은 아직 미실행이다.
+- P09-T04 R34 테스트 앱 재빌드 PASS. 다음으로 별도 DB·simulator와 두 프로세스를 사용하는 실행 하네스를 작성한다.
+### P09-T04 R34 실제 프로세스 종료 검증 시작
+- opt-in runner는 별도 simulator 및 DB를 생성해 보존하며 합성 인증과 Xcode 로컬 StoreKit만 사용한다.
+- 첫 R34 실행 `artifacts/xcode-process-recovery-i569kmy7` FAIL: 프로젝트 생성 진단이 경로에 혼입됐다. 전용 DB·simulator는 보존했고 앱 종료·복구는 미실행이다.
+- P09-T04 R34 생성 결과의 마지막 줄을 프로젝트 경로로 사용해 새 전용 환경에서 재실행한다.
+- R34 `artifacts/xcode-process-recovery-ajl4a6cr` FAIL: 테스트 앱 빌드·설치는 통과했으나 prepare 단계에서 INTERNAL_ERROR. 어떤 세부 단계인지 확인되지 않아 결론을 보류한다.
+- R34 테스트 전용 실패 상태에 단계·오류 형식만 포함해 원인을 좁힌다. 토큰·거래 증빙은 기록하지 않는다.
+- `artifacts/xcode-process-recovery-qrz8pvrt`에서 첫 프로세스 pending 및 종료 확인. 새 프로세스 재시작 이후 INTERNAL_ERROR가 발생했으며 wallet·recover·assertion 단계도 분리해 조사한다.
+- R34 재시작 후 잔액·추가 복구 건수·journal 존재 여부를 비밀값 없이 각각 확인한다.
+- R34 재시작 시 잔액 100·미완료 거래 0·pending journal 존재로 검증 FAIL (`artifacts/xcode-process-recovery-b49vwcfs`). 거래가 새 Xcode StoreKit 테스트 세션에서 노출되지 않는 원인은 미확정이며 임의 journal 삭제는 안전하지 않다. 재현 하네스와 실패 증거를 저장한다.
+- 커밋 준비: 테스트 전용 앱·격리 runner 및 실패 기록. 실제 플랫폼 검증과 R34 완료로 표시하지 않는다.

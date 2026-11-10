@@ -15,7 +15,7 @@ fi
 mkdir -p "$root/artifacts"
 workspace="$(mktemp -d "$root/artifacts/ios-project.XXXXXX")"
 mkdir -p "$workspace/ios/Framework"
-for item in Package.swift Sources UnityBridge SampleApp StoreKit StoreKitTests PushTests UITests Tests; do
+for item in Package.swift Sources UnityBridge SampleApp RecoveryHarness StoreKit StoreKitTests PushTests UITests Tests; do
   ln -s "$root/ios/$item" "$workspace/ios/$item"
 done
 ln -s "$root/ios/Framework/include" "$workspace/ios/Framework/include"

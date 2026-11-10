@@ -30,6 +30,28 @@ targets:
           INFOPLIST_FILE: ../SampleApp/Info-Debug.plist
         Release:
           INFOPLIST_FILE: ../SampleApp/Info-Release.plist
+  GameBridgeRecoveryHarness:
+    type: application
+    platform: iOS
+    sources:
+      - ../RecoveryHarness
+      - path: ../StoreKit/GameBridge.storekit
+        buildPhase: resources
+    dependencies:
+      - package: GameBridge
+        product: GameBridgeCore
+      - package: GameBridge
+        product: GameBridgeApple
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.gamebridge.sdk.recovery.harness
+        FRAMEWORK_SEARCH_PATHS: "$(inherited) $(SDKROOT)/Developer/Library/Frameworks"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks $(PLATFORM_DIR)/Developer/Library/Frameworks"
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: '5.0'
+      configs:
+        Debug:
+          INFOPLIST_FILE: ../SampleApp/Info-Debug.plist
   GameBridgeNative:
     type: framework.static
     platform: iOS
@@ -91,6 +113,13 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: YES
 schemes:
+  GameBridgeRecoveryHarness:
+    build:
+      targets:
+        GameBridgeRecoveryHarness: all
+    run:
+      config: Debug
+      storeKitConfiguration: ../StoreKit/GameBridge.storekit
   GameBridgeNative:
     build:
       targets:

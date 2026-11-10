@@ -17,6 +17,7 @@ public final class AppleStore {
     private let runtime: AppleStoreRuntime
     public convenience init(auth: AppleAuthProvider, config: GameBridgeConfig, productIds: [String: String]) throws {
         guard config.mode == .platformSandbox else { throw SdkFailure("UNSUPPORTED_PROVIDER") }
+        guard auth.usesConfiguration(config) else { throw SdkFailure("CONFIG_REQUIRED") }
         try self.init(auth: auth, client: BackendClient(config: config), productIds: productIds)
     }
     internal init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String]) throws {

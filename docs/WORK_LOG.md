@@ -1078,3 +1078,7 @@
 - Apple auth/store fake 단위 15건 통과: 현재 session 외 entitlement 거부 포함. simulator static framework compile을 실행한다.
 - AppleStore 포함 iOS simulator static framework compile 성공. 실제 StoreKit 구매/finish 및 샘플 UI 연결은 미실행이며 이전 XCFramework staging은 갱신 전이다.
 - 커밋 전: 공개 Native facade 및 fake entitlement 검증만 포함한다. P05-T07 PARTIAL/실 Apple WAITING_USER 유지.
+- 보안 검토에서 공개 AppleStore가 인증 provider와 다른 Backend 설정을 받을 수 있음을 발견했다. 이 경우 세션 token이 잘못된 서버로 전송될 수 있으므로 구성 일치 검사를 추가하고 회귀시험한다.
+- Swift fake 13건 통과. public AppleStore가 다른 서버 설정을 CONFIG_REQUIRED로 거부함을 명시 검증하고, Android 공개 facade에 사용할 동일 config 비교 경계도 추가한다.
+- Swift auth fake 13건 및 Android sdk unit task 통과: AppleStore가 다른 Backend config를 CONFIG_REQUIRED로 거부하며, Android auth의 설정 비교도 확인했다. 실제 네트워크에 토큰을 보내지 않았다.
+- 커밋 전: Apple 공개 생성자의 구성 일치 강제와 Android 내부 비교 경계만 포함한다. 실제 계정·스토어 검증은 별도다.

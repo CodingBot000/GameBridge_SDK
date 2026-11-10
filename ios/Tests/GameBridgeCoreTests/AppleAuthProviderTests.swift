@@ -150,6 +150,9 @@ final class AppleAuthProviderTests: XCTestCase {
         let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
         let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
         let client = try BackendClient(config: config)
+        let foreign = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://other.example")
+        do { _ = try AppleStore(auth: auth, config: foreign, productIds: ["coins_100": "coins", "premium_unlock": "premium"]); XCTFail("foreign backend") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED") }
         XCTAssertThrowsError(try AppleStoreRuntime(auth: auth, client: client, productIds: ["coins_100": "same"]))
         XCTAssertThrowsError(try AppleStoreRuntime(auth: auth, client: client, productIds: ["coins_100": "same", "premium_unlock": "same"]))
         XCTAssertNoThrow(try AppleStoreRuntime(auth: auth, client: client, productIds: ["coins_100": "coins", "premium_unlock": "premium"]))

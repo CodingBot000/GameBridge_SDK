@@ -129,6 +129,7 @@ protocol AppleAuthBackend {
             return try validateProfile(profile, session: usable)
         }
     }
+    internal func usesConfiguration(_ candidate: GameBridgeConfig) -> Bool { config == candidate }
     internal var sessionGeneration: Int { generation }
     internal func withAuthenticatedSession<T>(_ action: (AppleSession) async throws -> T) async throws -> T? {
         guard let profile = try await restore(), let session = try loadBound(), profile.userId == session.userId else { return nil }

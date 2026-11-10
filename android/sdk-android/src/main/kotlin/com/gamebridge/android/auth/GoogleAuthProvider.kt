@@ -73,6 +73,7 @@ class GoogleAuthProvider internal constructor(
             return GoogleAuthProvider(config, store, AndroidGoogleGateway(context.applicationContext), HttpGoogleBackend(config))
         }
     }
+    internal fun usesConfiguration(candidate: GameBridgeConfig): Boolean = config == candidate
     fun attachHost(activity: Activity) = gateway.attach(activity)
     fun detachHost() = gateway.detach()
     suspend fun signIn(): UserProfile {

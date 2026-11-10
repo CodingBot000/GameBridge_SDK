@@ -65,7 +65,10 @@ class GoogleAuthProviderTest {
     private fun config(clientId: String? = "test.apps.googleusercontent.com") = GameBridgeConfig("demo", ProviderMode.PLATFORM_SANDBOX, "https://example.com", clientId)
     @Test fun `server nonce is passed to gateway and session remains native`() = runBlocking {
         val store = MemoryStore(); val gateway = StubGateway(); val backend = StubBackend()
-        val user = GoogleAuthProvider(config(), store, gateway, backend).signIn()
+        val provider = GoogleAuthProvider(config(), store, gateway, backend)
+        assertTrue(provider.usesConfiguration(config()))
+        assertFalse(provider.usesConfiguration(config().copy(backendBaseUrl = "https://other.example")))
+        val user = provider.signIn()
         assertEquals("server-nonce", gateway.nonce); assertEquals("GOOGLE", user.provider)
         assertNotNull(store.stored); assertFalse(user.toString().contains("test-id-token"))
         val saved = store.stored

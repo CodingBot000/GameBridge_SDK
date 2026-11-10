@@ -120,7 +120,7 @@ Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, se
 
 서버 자격증명: 필요한 범위의 Google Play Developer API 접근 권한과 credential 파일 경로. 계획 변수는 `GOOGLE_APPLICATION_CREDENTIALS` 또는 기능별 별도 credential path, `GOOGLE_PLAY_PACKAGE_ALLOWLIST`, product mapping이다. FCM 권한이 있다고 Play API 권한도 있다고 가정하지 않는다. 최소 권한 원칙으로 필요한 앱 접근을 설정한다.
 
-현재 준비: Android Play Billing 9.1 실제 연결·상품 조회·구매 UI·callback·복구 gateway와 fake 경계 시험이 있다. 서버 발급 binding 연결·실제 Google proof verifier/sink·기기별 검증 동시성 결정·샘플/Unity 통합이 미완료라 코드 준비는 BLOCKED이며, 이 상태에서는 실제 구매 UI를 시작하지 않는다.
+현재 준비: Android Play Billing 9.1 실제 연결·상품 조회·구매 UI·callback·복구 gateway와 fake 경계 시험이 있다. 공식 Google 서버 조회 verifier 경계는 있으나 서버 발급 binding·proof sink·원장 연결과 샘플/Unity 통합이 미완료라 코드 준비는 BLOCKED이며, 이 상태에서는 실제 구매 UI를 시작하지 않는다.
 
 Codex 준비물: Play Billing provider, real server verifier, purchase binding, 원장 transaction, finalization worker, server consume/acknowledge. 앱에서 consume해서 서버 지급 확인을 건너뛰지 않는다.
 
@@ -134,7 +134,7 @@ Codex 준비물: Play Billing provider, real server verifier, purchase binding, 
 
 서버 검증 설정: `APPLE_BUNDLE_ID`, `APPLE_STORE_ENVIRONMENT=Sandbox`, Apple 공개 root certificate 경로. App Store Server API 호출 경로에 필요한 경우 `APPLE_STORE_KEY_ID`, `APPLE_STORE_ISSUER_ID`, `APPLE_STORE_PRIVATE_KEY_PATH`를 서버에 둔다. 서명된 transaction JWS 검증과 서버 API 자격증명을 혼동하지 않는다. production용 appAppleId 요구 여부는 선택 라이브러리/환경에 맞춰 확인한다.
 
-Codex 준비물: StoreKit 2 provider, signed data 검증, appAccountToken 일치 확인, 지급 후 finish, unfinished 복구, restore. 초기 Xcode 로컬 시험은 이미 구현되어 있어야 하나 실제 Sandbox 통과와는 별개다.
+Codex 준비물: StoreKit 2 provider, signed data 검증, appAccountToken 일치 확인, 지급 후 finish, unfinished 복구, restore. 현재 StoreKit API 및 Apple 공식 서명 verifier 경계만 부분 구현되어 있다. Xcode 로컬 시험과 실제 Sandbox 시험은 아직 실행되지 않았다.
 
 실제 시나리오: Sandbox 상품 조회 → 소모성 구매 → 서버 검증/원장/finish → 반복 구매 → 비소모성 구매/복원 → 결제 중 종료 후 복구 → duplicate verify → 계정 mismatch 거부. 실제 사용자 금전 결제를 수행하지 않는다.
 

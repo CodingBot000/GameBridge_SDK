@@ -633,3 +633,6 @@
 - 최초 로그인 후 refresh 회전 시 DB의 원래 7일 만료가 유지되는지 전용 local-mock DB에서 확인한다. 고유 시험 사용자만 추가하고 기존 데이터를 삭제하지 않는다.
 - local-mock PostgreSQL opt-in 시험 1건 통과(skip 0): 최초 발급 만료가 약 7일이며 refresh 회전 후 정확히 같은 시각으로 유지됨을 확인. 실제 Provider 시험은 아니다.
 - 커밋 전: 사용자 승인 만료 정책의 DB 회귀 시험만 추가한다. P04-T04 실제 기기·서버 revoke 재시도 등 미완료 항목은 PARTIAL 유지.
+- P05-T04 계속: Google credentials는 Host가 명시 제공한 경우에만 scoped Publisher client를 생성하도록 조립 경로를 추가한다. local-mock은 자격 증명을 읽지 않는다.
+- Google/Apple verifier fake unit 시험 각 2건 통과. 명시 credentials 기반 client 구성은 컴파일됐지만 실제 권한·네트워크 호출은 미실행이다. USER_SETUP에 현재 미연결 상태를 갱신했다.
+- 커밋 전: Google host credential client 조립과 사용자 설정 안내만 추가. 서비스 런타임의 provider 조립·지급 연결 및 실제 스토어는 여전히 미완료다.

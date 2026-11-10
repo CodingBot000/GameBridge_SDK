@@ -917,3 +917,12 @@
 - 커밋 전: DB read-only guard 및 test만 포함한다. 암호화 증빙 완료 후 정책과 worker/실 API는 여전히 미완료다.
 - 진행 문서 점검: 초기 FINAL_REPORT 양식의 “미실행” 문구가 현재 상황으로 오해되지 않도록 양식 보존 안내를 추가했다. StoreKit 실패는 블로커 표의 ENV-STOREKIT-26으로 이동했다. P11 최종 보고서는 아직 작성하지 않았다.
 - 커밋 전: 문서 상태 정확성 수정만 포함한다.
+
+### [P02-T01] 서버 요청 크기 경계 — 2026-11-10 Asia/Seoul
+- 계획의 입력 상한 256 KiB를 서버 JSON 요청에도 적용해 credential/proof endpoint가 과대 body를 처리하기 전에 거부한다. Content-Length가 없는 경우도 제한하며 기존 API 응답 형식·request ID를 유지한다.
+- 256 KiB 제한 filter 초안은 JSON API body를 최대 상한+1까지만 읽고 413 JSON으로 거부한다. 우선 일반·초과·길이 미지정 fixture를 검증한다.
+- server filter Kotlin 컴파일 성공. 정확히 256 KiB 허용과 Content-Length 유무에 관계없이 초과 차단·requestId를 단위시험한다.
+- filter unit 1건 통과: 256 KiB까지 전달하고 known/unknown length 초과는 413·PAYLOAD_TOO_LARGE와 일치 requestId를 반환한다. 실제 Spring security/DB HTTP 회귀도 재실행한다.
+- filter unit 및 sandbox auth/purchase HTTP 통합 3건 통과(skip 0). Native HTTP client가 413을 PAYLOAD_TOO_LARGE로 반환하도록 두 플랫폼 매핑도 보정하고 검증한다.
+- Android core unit 및 Swift BackendClient unit에서 413→PAYLOAD_TOO_LARGE를 확인했다. 실제 플랫폼/외부 서비스 검증은 아니다.
+- 커밋 전: 서버 body 상한 filter, Native 오류 mapping 및 단위/통합 시험을 포함한다. P02-T01 전체 완료 판정은 다른 미완료 항목 때문에 유지하지 않는다.

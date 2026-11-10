@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05 / P05-T05
+- 현재 Phase / Task: P02 / P02-T01
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
 - 현재 작업 트리 상태: 코드 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: Google worker 외 독립 작업 계속; 사용자 정책 답변 대기
+- 바로 다음 행동: Native push host 조립 및 구매 완료 worker 외 독립 작업
 - 불가피한 세션 종료 시 재개 행동: 미완료 P05~P08 구현 및 P09~P11 진행, 실제 플랫폼과 mock 증거 분리
 
 ## 집계

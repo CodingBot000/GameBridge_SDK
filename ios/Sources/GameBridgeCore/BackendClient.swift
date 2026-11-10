@@ -67,6 +67,7 @@ public final class BackendClient {
         case 403: allowed = ["PERMISSION_DENIED"]; fallback = "PERMISSION_DENIED"
         case 404: allowed = ["UNSUPPORTED_OPERATION", "PRODUCT_NOT_FOUND"]; fallback = "UNSUPPORTED_OPERATION"
         case 409: allowed = ["AUTH_REPLAY_DETECTED", "PURCHASE_ACCOUNT_MISMATCH", "IDEMPOTENCY_CONFLICT"]; fallback = "INTERNAL_ERROR"
+        case 413: allowed = ["PAYLOAD_TOO_LARGE"]; fallback = "PAYLOAD_TOO_LARGE"
         case 429: allowed = ["BUSY"]; fallback = "BUSY"
         case 503: allowed = ["CONFIG_REQUIRED", "NETWORK_UNAVAILABLE"]; fallback = "NETWORK_UNAVAILABLE"
         case 500...599: allowed = []; fallback = "NETWORK_UNAVAILABLE"

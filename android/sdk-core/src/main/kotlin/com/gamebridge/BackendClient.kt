@@ -85,13 +85,14 @@ class BackendClient(private val config: GameBridgeConfig) {
             403 -> setOf("PERMISSION_DENIED")
             404 -> setOf("UNSUPPORTED_OPERATION", "PRODUCT_NOT_FOUND")
             409 -> setOf("AUTH_REPLAY_DETECTED", "PURCHASE_ACCOUNT_MISMATCH", "IDEMPOTENCY_CONFLICT")
+            413 -> setOf("PAYLOAD_TOO_LARGE")
             429 -> setOf("BUSY")
             503 -> setOf("CONFIG_REQUIRED", "NETWORK_UNAVAILABLE")
             else -> emptySet()
         }
         val fallback = when (status) {
             400 -> "INVALID_ARGUMENT"; 401 -> "SESSION_EXPIRED"; 403 -> "PERMISSION_DENIED"; 404 -> "UNSUPPORTED_OPERATION"
-            429 -> "BUSY"; in 500..599 -> "NETWORK_UNAVAILABLE"; else -> "INTERNAL_ERROR"
+            413 -> "PAYLOAD_TOO_LARGE"; 429 -> "BUSY"; in 500..599 -> "NETWORK_UNAVAILABLE"; else -> "INTERNAL_ERROR"
         }
         val code = serverCode?.takeIf { it in allowed } ?: fallback
         return SdkFailure(code, retryable = code == "BUSY" || code == "NETWORK_UNAVAILABLE")

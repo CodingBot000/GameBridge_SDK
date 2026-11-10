@@ -10,7 +10,7 @@
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P02-T01 부분 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P03-T05 명시적 Editor Offline transport와 Unity facade 구현
+- 바로 다음 행동: P03-T05 Unity facade·main-thread dispatcher와 Native operation 연결
 - 불가피한 세션 종료 시 재개 행동: P02-T01 오류 처리와 P02-T02 인증 구현을 진행하고 P00·P01 미완료도 재검증
 
 ## 집계

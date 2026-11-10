@@ -410,3 +410,11 @@
 - `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-csharp-registry.sh` 종료 0: .NET 8 독립 프로세스에서 request/session 상관관계, 잘못된 operation, 중복, timeout·취소, 100개 상한, 종료 시 대기를 검증했다. Unity Editor/IL2CPP 실행이 아니다.
 - trailing JSON과 실패 응답에 error 누락된 경우를 추가한 뒤 독립 C# registry smoke 종료 0. Unity Editor·IL2CPP·native callback 실제 왕복은 미실행이다.
 - 커밋 전: registry·Unity Newtonsoft 의존성과 compiler-only smoke만 포함. 이벤트, Unity facade 및 Editor Fake는 아직 미구현으로 P03-T05 PARTIAL 유지.
+- P03-T05 계속: Unity Editor에서만 컴파일되는 별도 Offline Fake transport를 추가하고 실제 Native Provider에 대한 자동 fallback을 금지한다.
+- `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-csharp-registry.sh` 종료 0: 독립 .NET에서 Editor-only Fake 초기화·Mock 로그인·동일 거래 1회 지급·가짜 푸시 등록·종료 및 registry 확인. Unity Editor·FCM·실스토어 실행은 아님.
+- Sandbox 모드에서 Fake 사용 거부, pending/cancel 미지급을 추가한 독립 registry·Fake smoke 종료 0. Unity Editor 및 실제 Provider 검증이 아님.
+- Offline Fake의 동일 설정 재초기화·다른 설정 거부·종료 상태 표시를 보정하고 독립 smoke 종료 0. 실제 Unity Editor는 아직 미실행.
+- `check-csharp-compile.sh` 종료 0: Android/iOS/Editor 3개 분기 각각 독립 컴파일, 경고·오류 0. Unity Editor 실행 및 packaging은 여전히 ENV-002다. 다음으로 Native 응답을 공개 DTO에 안전하게 변환한다.
+- 공통 fixture를 C# DTO로 읽는 독립 smoke 종료 0: 한글·emoji, 64-bit 문자열, unknown enum 및 필수 nullable 누락 검사. 검토 중 JSON.NET이 숫자를 문자열로 암묵 변환할 수 있으므로 wire JSON 타입과 민감 오류 세부정보를 추가 검증한다.
+- C# wire model에 JSON 타입·필수 nullable·enum·UUID·64-bit 문자열 및 UTC 시각 검증과 공개 오류 정보 정제를 추가하고 독립 smoke 종료 0. 숫자형 priceMicros·unknown enum·누락 필드 거부 확인. Unity Editor/IL2CPP 검증은 아님.
+- 커밋 전: Editor-only 메모리 Fake, transport 공통 interface 및 C# 모델 검증을 포함. Unity facade·main-thread dispatcher·실제 native operation과 이벤트 처리 미완료로 P03-T05 PARTIAL 유지.

@@ -1,5 +1,6 @@
 #if UNITY_IOS && !UNITY_EDITOR
 using System;
+using GameBridge.Core;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -9,7 +10,7 @@ using AOT;
 namespace GameBridge.Platforms
 {
     /// <summary>Copies native callback bytes immediately and delivers them from Pump.</summary>
-    internal sealed class IosTransport : IDisposable
+    internal sealed class IosTransport : IWireTransport
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void NativeCallback(IntPtr bytes, int length);
@@ -39,7 +40,7 @@ namespace GameBridge.Platforms
                 catch { Volatile.Write(ref current, null); throw; }
             }
         }
-        internal void Dispatch(string json)
+        public void Dispatch(string json)
         {
             if (Volatile.Read(ref active) == 0) throw new ObjectDisposedException(nameof(IosTransport));
             var bytes = utf8.GetBytes(json ?? throw new ArgumentNullException(nameof(json)));
@@ -48,7 +49,7 @@ namespace GameBridge.Platforms
             try { GB_Dispatch(pin.AddrOfPinnedObject(), bytes.Length); }
             finally { pin.Free(); }
         }
-        internal void Pump()
+        public void Pump()
         {
             if (Volatile.Read(ref active) == 0) return;
             while (queue.TryDequeue(out var message)) { Interlocked.Decrement(ref queued); Message?.Invoke(message); }

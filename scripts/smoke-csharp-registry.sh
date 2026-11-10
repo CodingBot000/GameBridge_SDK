@@ -10,10 +10,14 @@ if [[ ! -x "$dotnet" || ! -f "$GAMEBRIDGE_NEWTONSOFT_DLL" ]]; then echo 'CONFIG_
 mkdir -p "$root/artifacts/registry-smoke" "$root/artifacts/dotnet-home"
 cat > "$root/artifacts/registry-smoke/RegistrySmoke.csproj" <<'PROJECT'
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems><DefineConstants>GAMEBRIDGE_TEST_OFFLINE</DefineConstants></PropertyGroup>
   <ItemGroup>
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/WireModels.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Models.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/scripts/registry-smoke.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/IWireTransport.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs" />
     <Reference Include="Newtonsoft.Json"><HintPath>$(GAMEBRIDGE_NEWTONSOFT_DLL)</HintPath></Reference>
   </ItemGroup>
 </Project>

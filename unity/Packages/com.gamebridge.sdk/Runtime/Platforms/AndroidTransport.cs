@@ -1,5 +1,6 @@
 #if UNITY_ANDROID && !UNITY_EDITOR
 using System;
+using GameBridge.Core;
 using System.Collections.Concurrent;
 using System.Threading;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine;
 namespace GameBridge.Platforms
 {
     /// <summary>Queues callbacks until Pump is called from Unity's main thread.</summary>
-    internal sealed class AndroidTransport : IDisposable
+    internal sealed class AndroidTransport : IWireTransport
     {
         private const string FacadeName = "com.gamebridge.bridge.BridgeFacade";
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
@@ -26,12 +27,12 @@ namespace GameBridge.Platforms
                 facade.CallStatic("attachHost", activity);
             facade.CallStatic("setCallback", callback);
         }
-        internal void Dispatch(string json)
+        public void Dispatch(string json)
         {
             if (disposed) throw new ObjectDisposedException(nameof(AndroidTransport));
             facade.CallStatic("dispatch", json);
         }
-        internal void Pump()
+        public void Pump()
         {
             if (disposed) return;
             while (queue.TryDequeue(out var message)) { callback.Removed(); Message?.Invoke(message); }

@@ -53,6 +53,46 @@ internal static class Program
         await Expect("BUSY", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
         registry.Dispose();
         foreach (var task in waiting) await Expect("NOT_INITIALIZED", task);
-        Console.WriteLine("Registry smoke passed: correlation, errors, timeout, cancellation, capacity, disposal");
+        var fixture = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(Environment.GetEnvironmentVariable("GAMEBRIDGE_ROOT"), "contracts/fixtures/models/roundtrip.json")));
+        Check(WireModels.Decode<GameBridge.UserProfile>(fixture["profile"]).displayName == "별빛 🎮", "Korean profile");
+        Check(WireModels.Decode<GameBridge.StoreProduct>(fixture["product"]).priceMicros == "9223372036854775807", "64-bit string");
+        var invalidProduct = (JObject)fixture["product"].DeepClone(); invalidProduct["type"] = "UNKNOWN";
+        try { WireModels.Decode<GameBridge.StoreProduct>(invalidProduct); throw new Exception("unknown enum accepted"); }
+        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "unknown enum"); }
+        var numericPrice = (JObject)fixture["product"].DeepClone(); numericPrice["priceMicros"] = 123;
+        try { WireModels.Decode<GameBridge.StoreProduct>(numericPrice); throw new Exception("numeric price accepted"); }
+        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "strict numeric string"); }
+        var missingProfile = (JObject)fixture["profile"].DeepClone(); missingProfile.Remove("displayName");
+        try { WireModels.Decode<GameBridge.UserProfile>(missingProfile); throw new Exception("missing nullable field accepted"); }
+        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable"); }
+        var fake = new EditorOfflineTransport();
+        var fakeRegistry = new RequestRegistry(fake.Dispatch, Guid.NewGuid());
+        fake.Message += fakeRegistry.HandleMessage;
+        await Expect("UNSUPPORTED_PROVIDER", fakeRegistry.RequestAsync("sdk.initialize", new JObject { ["providerMode"] = "PLATFORM_SANDBOX" }, TimeSpan.FromSeconds(2)));
+        await fakeRegistry.RequestAsync("sdk.initialize", new JObject { ["providerMode"] = "EDITOR_OFFLINE" }, TimeSpan.FromSeconds(2));
+        await fakeRegistry.RequestAsync("sdk.initialize", new JObject { ["providerMode"] = "EDITOR_OFFLINE" }, TimeSpan.FromSeconds(2));
+        await Expect("ALREADY_INITIALIZED_DIFFERENT_CONFIG", fakeRegistry.RequestAsync("sdk.initialize", new JObject { ["providerMode"] = "EDITOR_OFFLINE", ["appId"] = "other" }, TimeSpan.FromSeconds(2)));
+        await fakeRegistry.RequestAsync("auth.signIn", new JObject { ["provider"] = "MOCK" }, TimeSpan.FromSeconds(2));
+        var transaction = Guid.NewGuid().ToString("D");
+        var body = new JObject { ["productId"] = "coins_100", ["transactionId"] = transaction };
+        var pending = (JObject)body.DeepClone(); pending["scenario"] = "PENDING";
+        var before = await fakeRegistry.RequestAsync("store.purchase", pending, TimeSpan.FromSeconds(2));
+        Check((string)before["fulfillmentStatus"] == "NOT_GRANTED", "pending must not grant");
+        var cancel = (JObject)body.DeepClone(); cancel["scenario"] = "CANCELED";
+        var canceledPurchase = await fakeRegistry.RequestAsync("store.purchase", cancel, TimeSpan.FromSeconds(2));
+        Check((string)canceledPurchase["fulfillmentStatus"] == "NOT_GRANTED", "canceled must not grant");
+        await fakeRegistry.RequestAsync("store.purchase", body, TimeSpan.FromSeconds(2));
+        var duplicate = await fakeRegistry.RequestAsync("store.purchase", body, TimeSpan.FromSeconds(2));
+        Check((string)duplicate["fulfillmentStatus"] == "ALREADY_GRANTED", "fake duplicate");
+        var wallet = await fakeRegistry.RequestAsync("store.entitlements", new JObject(), TimeSpan.FromSeconds(2));
+        Check((string)wallet["coinBalance"] == "100", "fake wallet grants once");
+        await fakeRegistry.RequestAsync("push.permission", new JObject(), TimeSpan.FromSeconds(2));
+        var registration = await fakeRegistry.RequestAsync("push.register", new JObject(), TimeSpan.FromSeconds(2));
+        Check((string)registration["provider"] == "MOCK", "fake push");
+        await fakeRegistry.RequestAsync("sdk.shutdown", new JObject(), TimeSpan.FromSeconds(2));
+        var stopped = await fakeRegistry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(2));
+        Check((string)stopped["state"] == "SHUTDOWN", "shutdown status");
+        fakeRegistry.Dispose(); fake.Dispose();
+        Console.WriteLine("Registry and offline fake smoke passed; no Unity runtime or real provider tested");
     }
 }

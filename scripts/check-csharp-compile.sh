@@ -19,6 +19,10 @@ cat > "$root/artifacts/csharp-check/BridgeCheck.csproj" <<'PROJECT'
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Platforms/AndroidTransport.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Platforms/IosTransport.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/WireModels.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Models.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/IWireTransport.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs" />
     <Reference Include="Newtonsoft.Json"><HintPath>$(GAMEBRIDGE_NEWTONSOFT_DLL)</HintPath></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(GAMEBRIDGE_UNITY_MANAGED)/UnityEngine.CoreModule.dll</HintPath></Reference>
     <Reference Include="UnityEngine.AndroidJNIModule"><HintPath>$(GAMEBRIDGE_UNITY_MANAGED)/UnityEngine.AndroidJNIModule.dll</HintPath></Reference>
@@ -32,3 +36,4 @@ export GAMEBRIDGE_NEWTONSOFT_DLL="${NEWTONSOFT_DLL:-$root/artifacts/unity-newton
 if [[ ! -f "$GAMEBRIDGE_NEWTONSOFT_DLL" ]]; then echo 'CONFIG_REQUIRED: NEWTONSOFT_DLL (Unity package 3.2.2)' >&2; exit 2; fi
 "$dotnet" build "$root/artifacts/csharp-check/BridgeCheck.csproj" -p:DefineConstants=UNITY_ANDROID --nologo
 "$dotnet" build "$root/artifacts/csharp-check/BridgeCheck.csproj" -p:DefineConstants=UNITY_IOS --nologo
+"$dotnet" build "$root/artifacts/csharp-check/BridgeCheck.csproj" -p:DefineConstants=UNITY_EDITOR --nologo

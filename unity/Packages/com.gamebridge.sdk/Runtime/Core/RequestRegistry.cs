@@ -37,6 +37,7 @@ namespace GameBridge.Core
             "PURCHASE_ACCOUNT_MISMATCH", "IDEMPOTENCY_CONFLICT", "PERMISSION_DENIED", "MAINTENANCE", "BRIDGE_PROTOCOL_MISMATCH",
             "PAYLOAD_TOO_LARGE", "INTERNAL_ERROR"
         };
+        internal static bool IsKnownError(string code) => code != null && Errors.Contains(code);
         private readonly object gate = new object();
         private readonly Dictionary<string, Pending> pending = new Dictionary<string, Pending>();
         private readonly Action<string> dispatch;

@@ -25,11 +25,15 @@ namespace GameBridge
         // Development-only credential. Do not serialize this into assets or logs.
         public string DevelopmentKey { get; }
         public string MockSubject { get; }
+        public string GoogleServerClientId { get; }
 
         public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs = 30000)
             : this(appId, mode, backendBaseUrl, requestTimeoutMs, null, "A") { }
 
         public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject)
+            : this(appId, mode, backendBaseUrl, requestTimeoutMs, developmentKey, mockSubject, null) { }
+
+        public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject, string googleServerClientId)
         {
             AppId = appId;
             Mode = mode;
@@ -37,6 +41,7 @@ namespace GameBridge
             RequestTimeoutMs = requestTimeoutMs;
             DevelopmentKey = developmentKey;
             MockSubject = mockSubject;
+            GoogleServerClientId = googleServerClientId;
         }
 
         public void Validate()

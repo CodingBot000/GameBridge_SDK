@@ -233,3 +233,7 @@ Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상�
 ### Unity Android 개발 전용 LOCAL_MOCK
 
 개발 서버의 `GAMEBRIDGE_DEV_AUTH_KEY`는 로컬 환경에서만 제공하고 채팅·Git·Unity 에셋에 넣지 않는다. Android의 `GameBridgeConfig` 6인자 생성자에 같은 개발 전용 키와 Mock subject `A` 또는 `B`를 명시적으로 전달한다. 에뮬레이터에서는 Backend 주소에 `10.0.2.2`를 사용하고 host의 개발 전용 네트워크 보안 설정을 준비한다. 이 연결은 실제 Google 로그인이 아니며 현재 Unity 라이선스 대기로 JNI 실동작 미검증이고 push·구매 sync도 아직 연결되지 않았다. config 조회의 NETWORK/CACHE 경로는 synthetic 시험으로 확인했다. iOS의 같은 생성자도 LOCAL_MOCK을 Swift C ABI로 전달한다. Swift handler와 local Backend/DB는 검증했으나 C ABI→Keychain→Backend 전체 흐름과 Unity iOS 실행은 미검증이다.
+
+### Unity Android Google 인증 bridge
+
+`PLATFORM_SANDBOX` 구성의 `GameBridgeConfig` 7인자 overload에 Google OAuth 서버 client ID를 설정한다(개발키는 null). SDK는 선택한 sandbox 서버와 Android Credential Manager를 사용하며 Mock으로 자동 전환하지 않는다. Google 서버 client ID가 없으면 auth capability가 미설정으로 표시된다. 현재 fake provider와 컴파일만 확인했으며 Unity JNI·실제 Google 계정/콘솔 인증은 USER-AUTH-GOOGLE과 Unity 라이선스 준비 후 별도 실행해야 한다. 상점·푸시 bridge는 아직 미연결이다.

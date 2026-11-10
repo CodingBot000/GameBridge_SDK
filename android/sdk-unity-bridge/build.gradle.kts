@@ -5,7 +5,13 @@ android { namespace = "com.gamebridge.bridge"; compileSdk = 36
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
 }
-dependencies { implementation(project(":sdk-android")); implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1") }
+dependencies {
+    implementation(project(":sdk-android"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    testImplementation(kotlin("test"))
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
+}
+tasks.withType<Test>().configureEach { useJUnitPlatform() }
 
 afterEvaluate {
     publishing {

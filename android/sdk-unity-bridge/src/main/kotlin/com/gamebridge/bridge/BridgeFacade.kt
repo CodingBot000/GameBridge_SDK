@@ -4,6 +4,7 @@ import android.app.Activity
 import com.gamebridge.BridgeDispatcher
 import com.gamebridge.BridgeDispatchResult
 import com.gamebridge.LocalMockBridgeHandler
+import com.gamebridge.android.auth.GoogleAuthProvider
 import com.gamebridge.android.KeystoreTokenStore
 import java.lang.ref.WeakReference
 import java.util.concurrent.ArrayBlockingQueue
@@ -18,10 +19,25 @@ fun interface BridgeCallback { fun onMessage(json: String) }
 /** No Unity runtime linkage; a Unity AndroidJavaProxy may supply the callback. */
 object BridgeFacade {
     private val executor = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(100))
-    private val dispatcher = BridgeDispatcher(LocalMockBridgeHandler {
+    private val localMock = LocalMockBridgeHandler {
         val activity = host?.get() ?: throw com.gamebridge.SdkFailure("NOT_INITIALIZED")
         KeystoreTokenStore(activity.applicationContext, "unity_local_mock")
-    })
+    }
+    private val google = GoogleAuthBridgeHandler { config ->
+        val activity = host?.get() ?: throw com.gamebridge.SdkFailure("NOT_INITIALIZED")
+        val provider = GoogleAuthProvider.create(activity.applicationContext, config, KeystoreTokenStore(activity.applicationContext, "unity_google"))
+        object : GoogleAuthBridgeApi {
+            override suspend fun signIn(): com.gamebridge.UserProfile {
+                val current = host?.get() ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "HOST_ACTIVITY")
+                provider.attachHost(current)
+                return provider.signIn()
+            }
+            override suspend fun restore() = provider.restore()
+            override suspend fun signOut() = provider.signOut()
+            override fun close() = provider.detachHost()
+        }
+    }
+    private val dispatcher = BridgeDispatcher(ModeBridgeHandler(localMock, google))
     private val callbackGeneration = AtomicLong()
     private val resetRequired = AtomicBoolean(false)
     @Volatile private var host: WeakReference<Activity>? = null

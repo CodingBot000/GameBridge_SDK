@@ -1185,3 +1185,11 @@
 - Android `:sdk-core:test --tests LocalMockBridgeHandlerTest :sdk-unity-bridge:assembleDebug` 종료 0: 설정 부재 CONFIG_REQUIRED, 정상 NETWORK, 일시 실패시 유효 CACHE 및 기존 Mock 구매를 synthetic HTTP로 확인했다. 실제 Unity JNI는 아니다. Swift 동일 경계를 확인한다.
 - `swift test --package-path ios --filter LocalMockMaintenanceTests` 종료 0, 2건: synthetic URLProtocol에서 config 없음·NETWORK·유효 CACHE 및 점검 중 구매 차단/로그아웃을 확인했다. 실제 Unity/iOS 실행은 미검증이다.
 - 커밋 전: LOCAL_MOCK config bridge와 양 플랫폼 synthetic 시험만 포함한다. 실 Provider config bridge, 구매 sync와 push는 계속 미완료다.
+
+### [P04-T05] Unity 실제 인증 연결
+- Task 시작: 기존 Native Google/Apple 인증 facade를 Unity bridge에 연결할 수 있도록 host·구성·세션 수명주기와 공개 결과 계약을 조사한다. 실제 계정 인증은 사용자 설정 전까지 WAITING_USER로 유지한다.
+- Android에서 공개 GoogleAuthProvider를 실제 Credential Manager 경로로 조립하고 Unity에는 provider·사용자만 반환하도록 bridge를 작성한다. 개발키는 sandbox에 전달하지 않으며 Google OAuth server client ID는 공개 식별자 설정이다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-unity-bridge:assembleDebug` 종료 0: Google 인증 bridge가 컴파일됐다. Google 계정·Credential Manager UI·Unity JNI는 실행하지 않았고 fake provider 경계를 별도 검증한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-unity-bridge:testDebugUnitTest` 종료 0: fake Google provider로 sandbox mode 분기, Mock fallback 차단, 사용자 결과 및 미연결 상점 오류, 종료 cleanup을 확인했다. 실제 Google UI/계정 시험이 아니다. C# 소비 설정을 컴파일한다.
+- `UNITY_EDITOR_PATH=... bash scripts/check-csharp-compile.sh` 종료 0: 네 플랫폼 조건부 C# compile 경고·오류 0. 실제 Unity Editor와 Android JNI 실행은 아니다.
+- 커밋 전: Android Google 인증 bridge와 fake mode 격리 시험만 포함. Apple 인증 bridge·스토어/푸시 및 실제 Google 계정 검증은 미완료이며 WAITING_USER를 유지한다.

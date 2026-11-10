@@ -117,6 +117,7 @@ namespace GameBridge
                     payload["developmentKey"] = value.DevelopmentKey;
                     payload["mockSubject"] = value.MockSubject;
                 }
+                if (value.Mode == ProviderMode.PlatformSandbox && value.GoogleServerClientId != null) payload["googleServerClientId"] = value.GoogleServerClientId;
                 var result = await request.RequestAsync("sdk.initialize", payload, TimeSpan.FromMilliseconds(value.RequestTimeoutMs)).ConfigureAwait(false);
                 if (!(result is JObject obj) || obj["state"]?.Type != JTokenType.String || (string)obj["state"] != "READY" || obj["mode"]?.Type != JTokenType.String || (string)obj["mode"] != ModeString(value.Mode)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
                 var nextCapabilities = ReadCapabilities(obj["capabilities"], value.Mode);
@@ -243,7 +244,7 @@ namespace GameBridge
             }
             return new SdkCapabilities(true, result, DateTimeOffset.UtcNow);
         }
-        private static bool SameConfig(GameBridgeConfig a, GameBridgeConfig b) => a != null && a.AppId == b.AppId && a.Mode == b.Mode && a.BackendBaseUrl == b.BackendBaseUrl && a.RequestTimeoutMs == b.RequestTimeoutMs && a.DevelopmentKey == b.DevelopmentKey && a.MockSubject == b.MockSubject;
+        private static bool SameConfig(GameBridgeConfig a, GameBridgeConfig b) => a != null && a.AppId == b.AppId && a.Mode == b.Mode && a.BackendBaseUrl == b.BackendBaseUrl && a.RequestTimeoutMs == b.RequestTimeoutMs && a.DevelopmentKey == b.DevelopmentKey && a.MockSubject == b.MockSubject && a.GoogleServerClientId == b.GoogleServerClientId;
         private static string ModeString(ProviderMode mode)
         {
             switch (mode) { case ProviderMode.EditorOffline: return "EDITOR_OFFLINE"; case ProviderMode.LocalMock: return "LOCAL_MOCK"; case ProviderMode.XcodeStoreKit: return "XCODE_STOREKIT"; case ProviderMode.PlatformSandbox: return "PLATFORM_SANDBOX"; default: throw new SdkException("INVALID_ARGUMENT"); }

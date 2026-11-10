@@ -1983,3 +1983,12 @@
 ### P08-T03 최종 hook 회귀 실행
 - 재실행: PBX 파일 추가·plist 설정 멱등성 PASS, `UNITY_IOS;GAMEBRIDGE_XCODE_STOREKIT` 활성 managed compile 경고 0·오류 0. Unity Editor export와 .storekit scheme 연결 실행은 미검증이다.
 - 커밋 준비: 명시적 iOS 개발 build 전용 plist hook과 synthetic managed 시험을 저장한다.
+
+### [P09-T04] Xcode local DB 회귀 집계 시작
+- 실제 Xcode StoreKit simulator 및 local DB 응답 유실·finish 후 journal 복구 시험을 명시 opt-in 회귀 lane으로 연결한다. 미실행·0건·skip·stale source는 PASS가 아니다. Apple sandbox와 Unity는 별도다.
+### P09-T04 회귀 집계 검증 시작
+- opt-in 없이 Xcode local DB lane이 DEFERRED_ENV로 남고, Native fake suite의 추가 시험이 통과하는지 확인한다.
+- opt-in 없는 집계 `artifacts/purchase-regression-37l7snf5` 종료 2: Android fake 16, Swift fake 16 PASS, Xcode local DB lane과 미설정 DB는 DEFERRED_ENV. 이제 명시 opt-in에서 실제 증거를 재확인한다.
+### P09-T04 Xcode opt-in lane 검증 시작
+- opt-in 집계 `artifacts/purchase-regression-qqoq1op6/result.json`: Xcode local DB recovery 1건 PASS, Android/Swift fake 각 16건 PASS; 별도 DB·local response-loss 미설정 lane은 DEFERRED_ENV라 전체 종료 2. 실제 Apple sandbox/Unity는 아니다.
+- 커밋 준비: 명시 opt-in·source 일치·비skip 확인을 포함한 구매 회귀 lane만 저장한다.

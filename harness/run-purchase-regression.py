@@ -54,7 +54,7 @@ def main() -> int:
              ROOT/'android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.purchase.GooglePlayBillingProviderTest.xml']
     results.append(common.item('android-native-fake', code, common.junit_counts(paths, started)))
     if shutil.which('swift'):
-        code, text, _ = common.run(['swift','test','--package-path','ios','--filter','StoreKitBillingProviderTests|LocalMockRecoveryTests|PurchaseCoordinatorTests'], env, output/'swift.log')
+        code, text, _ = common.run(['swift','test','--package-path','ios','--filter','StoreKitBillingProviderTests|LocalMockRecoveryTests|PurchaseCoordinatorTests|XcodeAttemptJournalTests|XcodeMockClientTests'], env, output/'swift.log')
         results.append(common.item('swift-native-fake', code, swift_counts(text)))
     else: results.append(common.item('swift-native-fake', 2, (0,0,0)))
     if env.get('GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST') == 'true' and env.get('GAMEBRIDGE_DEV_AUTH_KEY'):
@@ -68,6 +68,21 @@ def main() -> int:
         else: results.append(common.item('swift-local-response-loss', 2, (0,0,0)))
     else:
         results.extend([common.item('android-local-response-loss', 2, (0,0,0)), common.item('swift-local-response-loss', 2, (0,0,0))])
+    if env.get('GAMEBRIDGE_RUN_XCODE_STOREKIT_HARNESS') == 'true':
+        code, text, _ = common.run(['python3','harness/run-xcode-storekit-e2e.py','--run-local'], env, output/'xcode-local-db.log')
+        match = re.search(r'Evidence directory: (artifacts/xcode-storekit-e2e-[A-Za-z0-9_.-]+)', text)
+        counts = (0,0,0)
+        if match:
+            try:
+                result_path = (ROOT/match.group(1)/'result.json').resolve()
+                if result_path.is_relative_to(artifacts.resolve()):
+                    result = json.loads(result_path.read_text(encoding='utf-8'))
+                    source = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+                    if result.get('sourceHead') == source and result.get('status') == 'PASS' and result.get('passed') == 1 and result.get('skipped') == 0:
+                        counts = (1,0,0)
+            except (OSError,ValueError,subprocess.CalledProcessError): pass
+        results.append(common.item('xcode-storekit-local-db-recovery',code,counts))
+    else: results.append(common.item('xcode-storekit-local-db-recovery',2,(0,0,0)))
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
     report = {'scope':'synthetic-purchase-regression-only','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'suites':results}

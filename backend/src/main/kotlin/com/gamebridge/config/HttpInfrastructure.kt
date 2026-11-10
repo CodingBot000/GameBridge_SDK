@@ -5,6 +5,9 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
@@ -28,6 +31,10 @@ class HealthController {
 }
 @RestControllerAdvice
 class ApiErrors {
+    @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class, MissingServletRequestParameterException::class)
+    fun invalid(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(mapOf("code" to "INVALID_ARGUMENT", "message" to "Invalid request", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
+
     @ExceptionHandler(Exception::class)
     fun internal(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(mapOf("code" to "INTERNAL_ERROR", "message" to "Request failed", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))

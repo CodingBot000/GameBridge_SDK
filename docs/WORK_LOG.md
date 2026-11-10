@@ -145,3 +145,6 @@
 - 스크립트 foreground 서버를 Ctrl-C로 종료(130). 전용 DB는 데이터 volume을 보존하고 컨테이너만 정지한다.
 - `docker compose -p gamebridge-sdk-local -f infra/compose.yaml stop` 종료 0. 전용 volume과 데이터는 삭제하지 않았다.
 - 커밋 전: local DB·migration·health만 검증. 요청 입력 검증과 오류 매핑 완성, 인증·구매·푸시 및 실제 Provider는 아직 미구현이므로 P02-T01은 PARTIAL 유지.
+- P02-T01 계속: 예측 가능한 입력 실패의 공통 오류 응답을 추가하고 requestId가 응답 본문에도 일치하는지 확인한다.
+- `./backend/gradlew -p backend test` 종료 0: 기존 profile 2건과 MockMvc 입력 오류·requestId 검사 1건 통과(유효성 실패 및 JSON 형식 오류 2개 입력). 공통 예외 처리에서 원문 요청을 반환하지 않음. 실 HTTP 인증·구매 endpoint는 아직 없음.
+- 커밋 전: HTTP 입력 오류 처리와 검증만 포함. DB schema의 전체 계약 및 추가 endpoint 검증은 후속 작업으로 남아 P02-T01 PARTIAL 유지.

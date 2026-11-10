@@ -978,3 +978,16 @@
 - Android core 및 Swift router unit 각각 통과. 두 플랫폼의 full queue에서 기존 ID recency 처리 차이를 맞추고 실제 LRU 갱신/퇴출을 추가 시험한다.
 - Android/Swift router unit 재통과: 100개 대기 한도, 실패한 overflow 재시도, 수신/열기 구분, 200 ID LRU 및 reset 확인. 실제 lifecycle·OS 알림 callback과는 아직 연결되지 않았다.
 - 커밋 전: 승인된 dedup/queue 순수 router와 단위시험만 포함한다. Native/Unity 연결·실원격 수신은 미완료다.
+
+### [P07-T01] config 부재 시 구매 안전 기본값
+- 사용 가능한 서버 설정/캐시가 없을 때 신규 구매를 차단하고 진행 중 거래 검증·복구·로그아웃을 허용하는 사용자 결정을 반영한다. 기본 cache TTL 숫자는 별도 사용자 결정 대기다.
+- Android/iOS pure gate에서 config 부재(nil)를 fail-closed로 처리하도록 수정했다. 단위시험 후 실제 구매 경로에 연결한다.
+- Native config repository는 서버 제공 expiry가 미래일 때만 cache를 사용하며, timeout/오프라인은 유효 cache로 fallback하고 없으면 nil을 반환한다. 숫자 TTL은 테스트 fixture일 뿐 정책이 아니다.
+- Android config cache unit 통과. Swift 컴파일 실패: async BackendClient.request 호출에 await를 빠뜨렸다. 수정 후 재실행한다.
+- Swift config actor의 동시 fetch가 서로 다른 응답을 덮어쓸 수 있어 하나의 in-flight 요청을 공유하도록 보강한다. 동시 요청 fake 시험으로 확인한다.
+- Swift 동시 config fetch 1회 공유 단위시험 통과. 늦게 재개한 이전 waiter가 더 최신 cache를 덮어쓰지 않게 flight 소유자만 cache 갱신하도록 보정한다.
+- Native config cache unit 통과. Android/iOS 실제 store runtime에서 구매 시작 전 알려진 정상 config만 허용하도록 연결하고, 검증·복구·logout 경로는 차단하지 않는다. fake gate 단위시험을 실행한다.
+- Android sdk unit 통과: config 없음/점검 시 Billing UI 미실행, 정상 config의 기존 fake flow 유지. Swift 내부 runtime의 동일 차단을 fake config로 검증한다.
+- Swift fake config·auth 15건 통과. Android에서 config 미상일 때 신규 구매 UI만 차단하고 store recovery는 계속 호출되는지 별도 확인한다.
+- Android fake store 시험에서 설정 미상 구매 UI 차단과 recovery 허용을 확인했다. 현재 서버 기본 config에는 expiry가 없어 실제 store runtime은 차단 상태이며 TTL 사용자 결정이 필요하다. local-mock sample gate는 미연결이다.
+- 커밋 전: 승인된 안전 기본값, 유효기간 기반 메모리 cache 및 Native store gate와 fake unit만 포함한다. server TTL·영속 cache·sample/Unity 연동은 미완료로 P07-T01 PARTIAL 유지한다.

@@ -11,12 +11,14 @@ final class AppleStoreRuntime {
     private let account: ApplePurchaseAccountSource
     private let provider: StoreKitBillingProvider
     private let sink: AppleHttpProofSink
+    private let serviceConfig: ServiceConfigurationRepository
 
-    init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String], verificationConcurrency: Int = 1) throws {
+    init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String], verificationConcurrency: Int = 1, serviceConfig: ServiceConfigurationRepository? = nil) throws {
         guard Set(productIds.keys) == Set(["coins_100", "premium_unlock"]),
               productIds.values.allSatisfy({ !$0.isEmpty }), Set(productIds.values).count == 2,
               verificationConcurrency > 0 else { throw SdkFailure("CONFIG_REQUIRED") }
         ids = productIds
+        self.serviceConfig = serviceConfig ?? backendServiceConfiguration(client)
         let account = ApplePurchaseAccountSource(auth: auth, client: client)
         self.account = account
         let sink = AppleHttpProofSink(auth: auth, client: client)
@@ -40,6 +42,7 @@ final class AppleStoreRuntime {
     }
     func purchase(_ logicalProductId: String) async throws -> ApplePurchaseOutcome {
         guard let storeId = ids[logicalProductId] else { throw SdkFailure("PRODUCT_NOT_FOUND") }
+        try await ensurePurchaseAllowed()
         guard try await account.refresh() != nil else { throw SdkFailure("SESSION_EXPIRED") }
         try await sink.ensureReady(storeProductId: storeId)
         guard account.current() != nil else { throw SdkFailure("CANCELED") }
@@ -53,6 +56,15 @@ final class AppleStoreRuntime {
         try await provider.userRestore()
     }
     func stop() { provider.stop() }
+    func ensurePurchaseAllowed() async throws {
+        let value: Bool?
+        do { value = try await serviceConfig.current()?.settings.maintenanceEnabled }
+        catch is CancellationError { throw SdkFailure("CANCELED") }
+        catch { value = nil }
+        guard MaintenanceGate.permits(maintenanceEnabled: value, operation: .startPurchase) else {
+            throw SdkFailure(value == true ? "MAINTENANCE" : "CONFIG_REQUIRED")
+        }
+    }
     private func validateType(_ product: Product, logical: String) throws {
         let expected: Product.ProductType = logical == "coins_100" ? .consumable : .nonConsumable
         guard product.type == expected else { throw SdkFailure("PRODUCT_NOT_FOUND") }

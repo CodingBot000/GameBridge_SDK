@@ -115,6 +115,19 @@ final class AppleAuthProviderTests: XCTestCase {
         do { _ = try await push.register(deviceToken: Data([1])); XCTFail("signed out") }
         catch let error as SdkFailure { XCTAssertEqual(error.code, "SESSION_EXPIRED") }
     }
+    @MainActor func testStoreBlocksUnknownAndMaintenanceConfiguration() async throws {
+        let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
+        let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
+        let client = try BackendClient(config: config), ids = ["coins_100": "coins", "premium_unlock": "premium"]
+        let unavailable = ServiceConfigurationRepository(fetch: { throw SdkFailure("NETWORK_UNAVAILABLE") })
+        let blocked = try AppleStoreRuntime(auth: auth, client: client, productIds: ids, serviceConfig: unavailable)
+        do { try await blocked.ensurePurchaseAllowed(); XCTFail("missing config") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED") }
+        let maintenance = ServiceConfigurationRepository(fetch: { ServiceSettings(revision: "test", maintenanceEnabled: true, message: nil, expiresAt: Date().addingTimeInterval(300)) })
+        let paused = try AppleStoreRuntime(auth: auth, client: client, productIds: ids, serviceConfig: maintenance)
+        do { try await paused.ensurePurchaseAllowed(); XCTFail("maintenance") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "MAINTENANCE") }
+    }
     @MainActor func testAppleStoreRuntimeRejectsIncompleteProductMapping() throws {
         let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
         let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())

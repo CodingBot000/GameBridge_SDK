@@ -3,6 +3,8 @@ package com.gamebridge.android.purchase
 import android.app.Activity
 import android.content.Context
 import com.android.billingclient.api.*
+import com.gamebridge.MaintenanceGate
+import com.gamebridge.ProtectedOperation
 import com.gamebridge.ProductType
 import com.gamebridge.SdkFailure
 import com.gamebridge.StoreProduct
@@ -48,6 +50,7 @@ internal class GooglePlayBillingProvider(
     private val proofSink: PlayProofSink?,
     private val verificationConcurrency: Int? = 1,
     private val uiGate: Mutex = Mutex(),
+    private val maintenanceState: suspend () -> Boolean? = { null },
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutableEvents = MutableSharedFlow<PlayPurchaseEvent>(extraBufferCapacity = 100, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -84,6 +87,8 @@ internal class GooglePlayBillingProvider(
         if (runCatching { UUID.fromString(account.obfuscatedAccountId).toString() == account.obfuscatedAccountId }.getOrDefault(false).not()) throw SdkFailure("CONFIG_REQUIRED")
         // Do not open a real store UI until a real backend verification path is configured.
         if (proofSink == null || verificationConcurrency == null) throw SdkFailure("CONFIG_REQUIRED")
+        val maintenance = try { maintenanceState() } catch (cancel: CancellationException) { throw cancel } catch (_: Exception) { null }
+        if (!MaintenanceGate.permits(maintenance, ProtectedOperation.START_PURCHASE)) throw SdkFailure(if (maintenance == true) "MAINTENANCE" else "CONFIG_REQUIRED")
         if (!uiGate.tryLock()) throw SdkFailure("BUSY")
         return try { gateway.launch(storeId, account) } finally { uiGate.unlock() }
     }

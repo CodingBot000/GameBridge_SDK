@@ -4,7 +4,7 @@
 
 **BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. 전체 제품, Unity 통합 및 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미구현도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
 
-P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 27개 IMPLEMENTED, 23개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
+P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 29개 IMPLEMENTED, 21개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
 
 ## 확인한 범위
 
@@ -22,7 +22,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 | BUG-014 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과했다. Unity player와 실제 기기 lifecycle은 미검증이다. |
 | BUG-015 | Native 진단 ring의 Unity 비동기 조회를 구현하고 fake/managed compile을 확인했다. 실제 Unity player에서의 연결은 미검증이다. |
 | BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |
-| P09 | 23개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor runner는 구현했으나 실행 결과가 없다. strict 전체 gate는 성공이 아니다. |
+| P09 | 21개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor runner는 구현했으나 실행 결과가 없다. strict 전체 gate는 성공이 아니다. |
 
 ## 환경 및 사용자 설정
 
@@ -43,6 +43,8 @@ Unity Editor 라이선스 오류(ENV-002)와 계획된 버전 확인(ENV-001)으
 현재 소스 `10e2a3c` 기준 재생성 산출물은 `artifacts/maven-current-20261111`, `artifacts/ios-current-20261111/GameBridgeNative.xcframework`, `artifacts/upm-current-20261111`이다. Android R8 consumer 빌드, iOS simulator Swift link·device symbol, UPM checksum을 확인했다. Unity import 및 실제 기기 실행은 미검증이다. [현재 산출물 해시](evidence/current-artifact-manifest.json)를 참조한다.
 
 최신 재생성 산출물은 `artifacts/maven-final-20261111`, `artifacts/ios-final-20261111/GameBridgeNative.xcframework`, `artifacts/upm-final-20261111`이며 source `6a3fea5`에서 빌드했다. Android R8 consumer, iOS simulator Swift link와 device symbol, UPM 체크섬을 확인했다. [최신 해시 목록](evidence/final-artifact-manifest.json)을 참조한다. Unity import·실기기 검증은 미실행이다.
+
+XCFramework arch·C ABI 선검사를 적용해 다시 staging한 최신 UPM은 `artifacts/upm-validated-20261111`이며 [파일별 해시](evidence/validated-upm-manifest.json)가 있다. Unity import는 미실행이다.
 
 ## 주요 이력과 재개
 

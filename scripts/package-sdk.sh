@@ -34,6 +34,7 @@ except (OSError, KeyError, ValueError, AssertionError, plistlib.InvalidFileExcep
 PYVERIFY
 then echo 'Missing XCFramework device/simulator slices; run scripts/build-ios.sh --xcframework first.' >&2; exit 2; fi
 if [[ -e "$output" ]]; then echo 'Output already exists; choose a new directory.' >&2; exit 2; fi
+python3 "$root/scripts/verify-xcframework.py" "$ios"
 mkdir -p "$(dirname "$output")"
 mkdir "$output"
 cp -R "$root/unity/Packages/com.gamebridge.sdk" "$output/com.gamebridge.sdk"

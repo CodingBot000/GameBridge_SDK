@@ -2132,3 +2132,15 @@
 ### P09-T05 scenario mapping 검증 시작
 - R44/R45/R46 manifest·부정 검사·원장 검사 통과, 나머지 23개는 PARTIAL로 유지한다. strict runner도 해당 synthetic lane 실행을 요구한다.
 - 커밋 준비: router 및 점검 중 pending 복구의 검증·evidence만 포함한다. 실제 Unity/OS 알림은 미검증이다.
+
+### [P09-T05] R47/R48 패키지 음성 검증 시작
+- Android의 새 소비 프로젝트에서 필수 전이 의존성을 제거했을 때 실제 build가 실패하는지 확인하고, iOS XCFramework의 slice·C ABI symbol을 package 전에 검사한다. 모든 손상은 새 격리 사본에만 적용하며 기존 산출물은 보존한다.
+### P09-T05 XCFramework 기본 검증 시작
+- 최신 iOS 실제 산출물의 architecture와 C ABI symbol을 각 architecture별로 확인한다. 실제 기기 실행은 포함하지 않는다.
+### P09-T05 패키지 누락 실제 음성 검증 시작
+- 새 Android 소비 프로젝트의 정상 R8 build 뒤 복사본에서 sdk-core JAR만 제거해 실제 Gradle 오류를 확인한다. iOS는 새 XCFramework 복사본에서 simulator slice와 device C symbol을 각각 제거해 검출한다. 원본 artifact는 수정하지 않는다.
+- Android 새 consumer baseline R8 성공 뒤 복사본 sdk-core JAR 제거로 예상된 Gradle dependency 오류 검출(`artifacts/android-dependency-negative-2v90vblk`). iOS 실제 framework 통과 후 격리 사본의 simulator binary 및 device C symbol 누락을 각각 검출(`artifacts/ios-xcframework-negative-os4u5n1z`). package script에 실제 arch/symbol 검증을 추가했다. 원본은 보존했다.
+### P09-T05 패키지 scenario mapping 검증 시작
+- 각 scenario entry를 실제 opt-in artifact로 실행하고 manifest 음성 검사를 확인한다.
+- R47/R48 개별 entry 재실행과 manifest 음성 검사 통과. 새 `artifacts/upm-validated-20261111` 생성 시 XCFramework arch/C ABI 선검사와 110개 staging checksum 통과. Unity import/export는 실행하지 않았다.
+- 커밋 준비: 패키지 선검사 및 격리 consumer/artifact 음성 시험과 새 UPM 해시를 기록한다.

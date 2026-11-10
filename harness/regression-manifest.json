@@ -147,6 +147,22 @@
       ],
       "mode": "NATIVE_AND_MANAGED_FAKE",
       "platform": "Android/Swift/Standalone .NET"
+    },
+    "android-dependency-negative": {
+      "command": [
+        "python3",
+        "harness/check-android-dependency-negative.py"
+      ],
+      "mode": "ISOLATED_CONSUMER_MUTATION",
+      "platform": "Android packaging"
+    },
+    "ios-xcframework-negative": {
+      "command": [
+        "python3",
+        "harness/check-ios-xcframework-negative.py"
+      ],
+      "mode": "ISOLATED_ARTIFACT_MUTATION",
+      "platform": "iOS packaging"
     }
   },
   "scenarios": [
@@ -1396,17 +1412,24 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R47"
       ],
       "candidateSuites": [
-        "push-regression"
+        "android-dependency-negative"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/package-negative-scenarios.md",
+      "note": "Real local consumer/artifact negative checks; Unity Editor and device execution remain separate.",
+      "assertions": [
+        {
+          "suite": "android-dependency-negative",
+          "testFile": "harness/check-android-dependency-negative.py",
+          "testCase": "sdk-core-0.1.0-dev.jar"
+        }
+      ]
     },
     {
       "id": "R48",
@@ -1416,17 +1439,24 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R48"
       ],
       "candidateSuites": [
-        "push-regression"
+        "ios-xcframework-negative"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/package-negative-scenarios.md",
+      "note": "Real local consumer/artifact negative checks; Unity Editor and device execution remain separate.",
+      "assertions": [
+        {
+          "suite": "ios-xcframework-negative",
+          "testFile": "harness/check-ios-xcframework-negative.py",
+          "testCase": "C ABI symbols missing"
+        }
+      ]
     },
     {
       "id": "R49",

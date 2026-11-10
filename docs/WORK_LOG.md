@@ -971,3 +971,10 @@
 - sandbox 설정 주입·HTTP 회귀 통과. retry 정책은 production에서도 필요하지만 dev limiter는 local/sandbox에만 존재하도록 profile 범위를 분리한다.
 - profile 조정 후 retry/rate unit 재통과. dev endpoint/worker에 정책을 아직 적용하지 않았으므로 실 요청 제한이나 retry가 동작한다고 기록하지 않는다.
 - 커밋 전: 사용자 승인된 pure 정책·설정·fake clock 시험만 포함, P06-T04 PARTIAL 유지.
+
+### [P06-T05] 사용자 승인 dedup 기준 반영
+- 각 앱 세션에서 최근 messageId 200개를 기억하고 초기화 전 최대 100개 이벤트를 대기한다. 수신과 열기는 다른 이벤트로 보존하되 같은 종류의 중복을 차단한다. 계정 변경/logout 시 전체 상태를 비우는 명시적 reset을 제공한다.
+- Android/iOS pure router 초안 작성. 세션 초기화 전 queue, 수신/열기 구분, 200 ID LRU와 reset을 fake unit으로 확인한다. 실제 OS callback 연결은 아직 없다.
+- Android core 및 Swift router unit 각각 통과. 두 플랫폼의 full queue에서 기존 ID recency 처리 차이를 맞추고 실제 LRU 갱신/퇴출을 추가 시험한다.
+- Android/Swift router unit 재통과: 100개 대기 한도, 실패한 overflow 재시도, 수신/열기 구분, 200 ID LRU 및 reset 확인. 실제 lifecycle·OS 알림 callback과는 아직 연결되지 않았다.
+- 커밋 전: 승인된 dedup/queue 순수 router와 단위시험만 포함한다. Native/Unity 연결·실원격 수신은 미완료다.

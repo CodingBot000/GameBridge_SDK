@@ -1688,3 +1688,12 @@
 - 재시험에서 구 세션 스트림은 새 메시지를 보내지 않고 닫혔지만 Java HTTP client가 정상 EOF 대신 연결 EOFException을 보고해 assertion이 실패했다. 연결 종료와 메시지 미전달을 별도로 확인하도록 시험을 보정한다. 전용 DB `gamebridge_ci_512a1dba1e` 보존.
 - 전용 DB `gamebridge_ci_faeb266f16` 재시험 통과: logout·동일 사용자 새 세션 재등록 뒤 기존 연결에는 새 메시지가 전달되지 않고 연결 종료됨을 확인했다. 서버 종료도 정상이다. heartbeat·Native 수신은 미완료다.
 - 커밋 준비: 세션 소유권 회귀 시험만 추가한다. BUG-014 OPEN 유지.
+### P06-T05 Native Mock 이벤트 입력 검증 시작
+- 연결 확인 주기 결정과 독립적으로 서버 이벤트를 Native의 허용된 messageId·route·campaignId로 변환하는 경계를 구현한다. 임의 payload와 URL route는 전달하지 않는다. 스트림 연결 및 Unity 이벤트 연결은 아직 없다.
+### P06-T05 Native decoder 검증 시작
+- Android에서 허용 필드·route, 크기, UTF-8 및 타입 오류 거부를 단위 시험한다. 실제 스트림 및 Unity player 검증은 포함하지 않는다.
+- 사용자가 LOCAL_MOCK 연결 확인 30초를 선택했고 이후 질문 없이 권장안을 선택해 진행하도록 명시했다. 결정을 `docs/DECISIONS.md`에 기록한다.
+### P06-T05 양 플랫폼 decoder 재검증 시작
+- 기존 bridge의 256 KiB 상한을 재사용하고 Android·Swift에서 같은 허용 필드와 오류 거부를 검증한다.
+- Android 및 Swift decoder 단위 시험 통과: 허용 route·필드만 반환하고 UTF-8/크기/타입 오류를 거부한다. 기존 256 KiB bridge 상한을 재사용한다. Native 스트림 연결은 미구현이다.
+- 커밋 준비: 사용자 승인 정책과 Native 입력 검증만 저장하고 30초 연결 확인 및 클라이언트 연결을 이어간다.

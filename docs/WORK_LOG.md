@@ -963,3 +963,11 @@
 - 개선 후 Google worker 격리 DB 시험 재통과. sandbox profile의 실제 Spring bean 조립과 기존 인증 HTTP 회귀를 별도 시험 DB에서 확인한다. 외부 credential은 제공하지 않는다.
 - sandbox Spring context와 인증/Apple synthetic HTTP 통합 2건 통과(skip 0). 실제 Google credential 없이 lazy executor가 서버 시작을 막지 않음을 확인했다. 실제 Google finalization은 실행하지 않았다.
 - 커밋 전: 사용자 결정 6건 기록 및 Google worker·fake DB 검증을 포함한다. push retry/rate, message dedup, config default는 승인된 기준으로 구현 진행 중이며 실제 Play·remote push는 미검증이다.
+
+### [P06-T04] 승인된 push retry·rate 정책 — 2026-11-10 Asia/Seoul
+- 초기 시도 후 최대 3회 재시도, 5초 지수 백오프와 APNs 5xx 최소 15분을 명시한다. 개발 API 관리 key별 rolling 1분 10회 제한을 구현한다. endpoint·실제 발송 연결은 별도다.
+- pure retry/rate 초안 및 fake monotonic clock 시험 작성. 관리자 key 원문은 rate map에 저장하지 않는다. 실제 endpoint는 미연결이다.
+- fake clock retry/rate unit 2건 통과: 초기 시도 뒤 3회 5/10/20초, APNs 5xx 각 최소 900초, key별 분당 10회. 선택한 값을 설정으로 노출하고 sandbox startup 회귀를 검증한다.
+- sandbox 설정 주입·HTTP 회귀 통과. retry 정책은 production에서도 필요하지만 dev limiter는 local/sandbox에만 존재하도록 profile 범위를 분리한다.
+- profile 조정 후 retry/rate unit 재통과. dev endpoint/worker에 정책을 아직 적용하지 않았으므로 실 요청 제한이나 retry가 동작한다고 기록하지 않는다.
+- 커밋 전: 사용자 승인된 pure 정책·설정·fake clock 시험만 포함, P06-T04 PARTIAL 유지.

@@ -19,3 +19,7 @@ gamebridge:
   auth-rate:
     challenge-per-minute: ${GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE:30}
     exchange-per-minute: ${GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE:10}
+  push:
+    max-retries: ${GAMEBRIDGE_PUSH_MAX_RETRIES:3}
+    initial-backoff-seconds: ${GAMEBRIDGE_PUSH_INITIAL_BACKOFF_SECONDS:5}
+    dev-per-minute: ${GAMEBRIDGE_DEV_PUSH_PER_MINUTE:10}

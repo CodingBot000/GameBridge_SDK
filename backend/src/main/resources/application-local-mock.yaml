@@ -1,3 +1,8 @@
 spring:
   flyway:
     locations: classpath:db/migration,classpath:db/mock-migration
+gamebridge:
+  finalization:
+    worker-concurrency: ${GAMEBRIDGE_FINALIZATION_CONCURRENCY:1}
+    initial-backoff-seconds: ${GAMEBRIDGE_FINALIZATION_INITIAL_BACKOFF_SECONDS:5}
+    poll-interval-ms: ${GAMEBRIDGE_FINALIZATION_POLL_INTERVAL_MS:5000}

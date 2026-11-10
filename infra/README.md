@@ -9,3 +9,5 @@ Local mock authentication additionally requires a locally supplied `GAMEBRIDGE_D
 `python3 scripts/smoke-purchase-local.py` exercises synthetic purchases against the running local-mock service. It intentionally persists test purchases and balance changes in this dedicated volume; it does not perform store purchases.
 
 Mock device registration requires `SERVER_TOKEN_ENCRYPTION_KEY` containing a Base64-encoded 32-byte key. `python3 scripts/smoke-device-local.py` creates a dedicated mock installation and retains encrypted test data. New local-mock registrations are tied to their session and deleted on unregister or logout; old test rows without session ownership are not automatically assigned or deleted. This is not remote push validation.
+
+Mock finalization runs automatically with one worker by default and an exponential retry starting at five seconds. Configuration variables are `GAMEBRIDGE_FINALIZATION_CONCURRENCY`, `GAMEBRIDGE_FINALIZATION_INITIAL_BACKOFF_SECONDS`, and `GAMEBRIDGE_FINALIZATION_POLL_INTERVAL_MS`; all processes sharing a DB must use the same concurrency value. This worker invokes only the synthetic local finalizer, not Play or App Store.

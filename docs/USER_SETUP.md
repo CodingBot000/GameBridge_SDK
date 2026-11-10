@@ -181,7 +181,7 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 
 ## USER-RETRY — 완료 처리 자동 재시도 정책
 
-사용자가 자동 worker 동시 1개, 5초 시작 지수 백오프를 선택했다. 설정·실행 코드 반영과 검증은 진행 중이다. 기존 Mock worker의 1초 간격과 30초 임대는 과거 수동 시험용이며 승인된 정책이 아니다.
+사용자가 선택한 자동 worker 기본 동시 1개와 5초 시작 지수 백오프를 local-mock에 적용하고 DB 재시작·중복 지급 방지를 검증했다. `GAMEBRIDGE_FINALIZATION_CONCURRENCY`, `GAMEBRIDGE_FINALIZATION_INITIAL_BACKOFF_SECONDS`, `GAMEBRIDGE_FINALIZATION_POLL_INTERVAL_MS`로 조정할 수 있다. 같은 DB를 공유하는 모든 worker의 concurrency 설정은 일치해야 한다. 실제 Google 완료 처리 코드는 미구현이다.
 
 ## USER-PUSH-RETENTION — 등록 해제 후 토큰 보존
 

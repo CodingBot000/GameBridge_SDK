@@ -376,3 +376,22 @@
 - `python3 scripts/smoke-device-local.py` 종료 0: local-mock HTTP/PostgreSQL assertion 15건 통과. 다른 사용자 삭제 거부, 같은 사용자의 다른 세션 토큰 보존, 해당 세션 로그아웃 시 행 삭제, 명시적 등록 해제 삭제 및 등록↔로그아웃 경합 후 토큰 미잔존을 확인. 실제 FCM/APNs는 아님.
 - `SELECT count(*) ... WHERE session_id IS NULL` 종료 0, 기존 Mock 시험 행 2개. 이전 schema의 행은 특정 session에 안전하게 귀속할 수 없어 임의 삭제하지 않았다. 신규 등록부터 즉시 삭제 정책 적용.
 - 커밋 전: 정책과 설정/문서, local-mock token 삭제·경합 검증을 함께 포함. 실제 FCM/APNs, legacy 행 처리 및 개발 push sender는 미구현이므로 P02-T05는 PARTIAL 유지.
+
+### [P02-T04] 사용자 결정 반영 — 2026-11-10 Asia/Seoul
+- 사용자가 선택한 기본 동시 1개·5초 시작 지수 백오프를 local-mock worker의 설정과 실행에 반영한다. 실제 Google finalizer는 여전히 미구현이다.
+- 사용자 선택에 따라 local-mock 기본 concurrency=1, initial backoff=5초, 지수 증가 및 설정 변수를 구현하고 `./backend/gradlew -p backend test` 종료 0. 자동 scheduler·PostgreSQL advisory slot·재시작 및 동시성은 아직 실제 DB 검증 전이다.
+- 전용 PostgreSQL 사용 opt-in `./backend/gradlew -p backend test` 종료 0: 5초 첫 backoff, worker 객체 재생성 후 처리, 원장 1회 유지, 두 worker가 동시에 외부 처리에 진입하지 않는 기본 동시 1개를 확인. 실제 process restart·자동 scheduler는 아직 검증 전이다.
+- 최종화 중 예외도 안전한 실패로 바꾸어 동일 지수 백오프를 적용하도록 보정 후 DB 포함 Gradle test 종료 0. 실제 scheduler 재기동 시험을 진행한다.
+- opt-in JUnit XML 총 10건, 실패·skip 0. 자동 scheduler 시험 전 별도 `gamebridge_finalization_verify_20261110` DB의 부재를 조회하고 생성(각 종료 0). 기존 DB와 사용자 데이터는 변경하지 않는다.
+- 별도 빈 finalization 시험 DB와 local-mock 서버(127.0.0.1:18081) 기동 및 migration 확인. 실제 scheduler 실패 후 서버 재시작과 복구를 검증한다.
+- 별도 테스트 DB에서 Mock 구매 후 자동 scheduler의 첫 시도가 실패하고 job이 `PENDING`, attempt 1로 남는 것을 Python/psql 검사 종료 0으로 확인. 원장·재시작 후 완료는 다음 단계에서 검증한다.
+- 첫 실패 관측 후 해당 시험 서버를 Ctrl-C 종료(130). job이 아직 대기 중인지 확인한 뒤 동일 DB로 재시작한다.
+- 첫 실패 후 수동 서버 종료 전 다음 시도가 이미 완료되어 DB 상태 확인 assertion 종료 1(`FINALIZED|2`). 자동 재시도는 관측됐지만 프로세스 재시작 복구 증거는 아니다. 테스트가 시작한 서버만 첫 실패 즉시 종료하는 방식으로 재시험한다.
+- 전용 테스트 서버를 동일 격리 DB의 18081 포트로 재기동했다. 다음 시험은 서버 로그에서 확인한 이번 테스트 프로세스만 식별해 첫 실패 직후 종료한다.
+- 식별된 전용 서버에 대해 첫 자동 실패를 DB에서 관측한 직후 해당 테스트 프로세스만 SIGTERM하는 Python 검사 종료 0. 종료 시 저장된 상태는 별도로 확인한다.
+- 서버 종료 후 별도 DB 조회 종료 0: job `PENDING|1` 영속 확인. SIGTERM된 Java process는 143, Gradle bootRun은 종료 1로 보고했으며 의도된 테스트 종료다. 같은 DB에서 재기동한다.
+- 동일 테스트 DB로 local-mock 서버 재기동 확인. 저장된 job의 자동 완료 및 ledger 불변식을 조회한다.
+- 동일 DB로 프로세스 재시작 후 DB 검사 종료 0: Mock job `FINALIZED`, attempt 2, purchase `GRANTED/FINALIZED`, ledger 1행·합계 100. 첫 실패 상태에서의 프로세스 재시작을 확인했으며 처리 도중 강제 중단이나 실제 Google finalizer 검증은 아니다.
+- 두 테스트 서버(기존 local-mock 및 별도 finalization DB)를 각각 Ctrl-C 종료 130. 전용 PostgreSQL container는 volume 보존 후 정지한다.
+- `docker compose ... stop` 종료 0. 별도 finalization 시험 DB 및 전용 volume은 삭제하지 않았다.
+- 커밋 전: 사용자 승인 Mock scheduler 정책, DB 전역 advisory slot, 지수 backoff, 사용자 선택 설정과 실 DB 검증을 포함한다. 실제 Google consume/ack, 비정상 처리 중 crash·다중 배포·운영 안전성은 미완료이므로 P02-T04 PARTIAL 유지.

@@ -349,3 +349,20 @@
 - `unzip -p .../sdk-unity-bridge-debug.aar proguard.txt` 종료 0: facade 및 callback keep 규칙이 AAR에 포함됨을 확인. R8 최종 앱 실행은 미검증.
 - Unity C# callback 대기열의 계획상 상한 100과 drop counter, 종료 후 수신 차단을 작성했다. `python3 scripts/verify-progress.py` 종료 0. Unity Editor 미기동으로 C# 컴파일·런타임 검증은 NOT_RUN이다.
 - 커밋 전: status/shutdown만 처리하고 나머지는 명시적 UNSUPPORTED_OPERATION. 잘못된 envelope는 callback 없이 거부되어 호출자 timeout 처리가 필요하며, 실제 Unity JNI 왕복·인증·lifecycle·R8 release는 미완료이므로 P03-T03 PARTIAL 유지.
+
+### [P03-T04] 시작 — 2026-11-10 Asia/Seoul
+- P03-T02는 Simulator local-mock을 부분 검증. Swift C ABI와 static framework의 독립적 기반을 구현하며 Unity iOS 링크·실기기 검증은 별도다.
+- `swift test --package-path ios` 종료 0: XCTest 13건 중 12건 통과, local Backend opt-in 시험 1건 skip. 신규 C ABI fixture 1건에서 한글·emoji 입력 buffer 복사와 callback 응답 requestId를 macOS 프로세스에서 확인. iOS static framework·Unity 호출은 아직 미검증.
+- Swift Bridge 대기열 상한 100과 BUSY 응답을 추가하고 `swift test --package-path ios` 종료 0: 12건 통과, local Backend opt-in 1건 skip. 포화·Unity callback 경합은 미검증이다.
+- XcodeBuildMCP `build_sim` GameBridgeNative Release 성공이나 `GameBridgeCore`의 library evolution 경고 발생. `canImport`가 외부 module을 참조하여 static framework의 자족성이 불확실하므로 target 전용 컴파일 조건으로 수정하고 재빌드한다.
+- target 전용 컴파일 조건을 적용한 뒤 XcodeBuildMCP `build_sim` Release 성공(경고 0). static 형식 및 C export는 별도 검사한다.
+- `file`/`nm -g` 종료 0: iOS Simulator Release framework binary가 arm64/x86_64 static ar archive이며 `_GB_ProtocolVersion`, `_GB_SetCallback`, `_GB_Dispatch`, `_GB_Shutdown` export 관측. XCFramework, device slice, Unity 링크는 아직 미검증.
+- Swift C ABI용 C# transport를 작성했으나 Unity 컴파일·iOS 링크는 ENV-002로 미검증. 코드 검토에서 dispose lock과 native callback lock의 역순 대기 가능성을 발견해 수정한다.
+- C# callback의 InstanceLock 취득을 제거해 lock 순서 역전을 피했다(소스 검토만, Unity 미실행). `swift test --package-path ios` 종료 0: 12건 통과, local Backend opt-in 1건 skip.
+- 사용자 정책 결정 수신: 자동 완료 처리 동시 1개·5초 시작 지수 백오프, 푸시 등록 해제/로그아웃 시 해당 토큰 즉시 삭제. DECISIONS에 기록. 아직 구현·검증 전이며 블로커는 코드 반영 전까지 열린 상태로 유지.
+- `xcodebuild archive` generic iOS, signing disabled 종료 0. Swift-only static framework에서 umbrella header/module map 경고가 발생했으며 바이너리 C symbol 검증은 별도로 한다. 실제 기기 서명·실행은 아님.
+- `xcodebuild archive` generic iOS Simulator, signing disabled 종료 0. 동일 umbrella header 경고가 발생했다. 두 archive에서 XCFramework 생성과 slice·symbol 검사를 수행한다.
+- `xcodebuild -create-xcframework` 종료 0: device·Simulator archive로 로컬 XCFramework 생성. 내용과 export는 아직 확인 전.
+- XCFramework Info.plist·`file`·`nm -g` 검사 종료 0: device arm64와 simulator arm64/x86_64 각각 static archive, 4개 C export 확인. 시뮬레이터/실기기 Unity 실행 및 링크 확인은 아직 안 됨. archive 시 Swift-only umbrella header 경고는 남아 있다.
+- `nm -u` device static archive 검사 종료 0: 외부 `GameBridgeCore` 참조 0건. Swift runtime 의존성과 UnityFramework 링크는 이 결과만으로 증명되지 않는다.
+- 커밋 전: Swift C ABI, C# iOS transport 소스, static framework target 및 심볼 검증만 포함. 실제 SDK 요청 연결·Unity 빌드·device 실행·archive 경고 해결은 미완료로 P03-T04 PARTIAL 유지.

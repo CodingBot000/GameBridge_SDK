@@ -28,6 +28,22 @@ targets:
           INFOPLIST_FILE: ../SampleApp/Info-Debug.plist
         Release:
           INFOPLIST_FILE: ../SampleApp/Info-Release.plist
+  GameBridgeNative:
+    type: framework.static
+    platform: iOS
+    sources:
+      - ../Sources/GameBridgeCore
+      - ../UnityBridge
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.gamebridge.sdk.native
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: '5.0'
+        DEFINES_MODULE: YES
+        SKIP_INSTALL: NO
+        BUILD_LIBRARY_FOR_DISTRIBUTION: YES
+        SWIFT_INSTALL_OBJC_HEADER: NO
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) GAMEBRIDGE_CORE_EMBEDDED
   GameBridgeSampleUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -39,6 +55,10 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: YES
 schemes:
+  GameBridgeNative:
+    build:
+      targets:
+        GameBridgeNative: all
   GameBridgeSample:
     build:
       targets:

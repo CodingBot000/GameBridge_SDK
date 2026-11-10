@@ -741,3 +741,8 @@
 - Android/iOS typed diagnostics 초안 작성. 두 플랫폼의 200개 제한 및 오래된 이벤트 제거 unit을 확인한다. 실제 SDK 각 작업에 아직 연결하지 않았다.
 - Android core unit task와 Swift diagnostics 단위시험 통과: 최신 200개 보유와 이전 이벤트 제거를 확인했다. enum/UUID만 입력하므로 원문 문자열·토큰을 받지 않지만 전체 SDK redaction/내보내기 연결은 미구현이다.
 - 커밋 전: 독립 typed buffer만 포함한다. 진단 이벤트 연결·export 상한·config cache/점검 동작은 미완료로 P07-T01 PARTIAL 유지.
+
+### [P06-T04] APNs 요청 경계 보강 — 2026-11-10 Asia/Seoul
+- Apple의 4KB 알림 한도 및 HTTP/2 요구에 맞춰 크기 초과를 전송 전 거부하고 HTTP/1 fallback을 성공으로 취급하지 않도록 보강한다. fake 시험을 재실행한다.
+- APNs fake transport unit 4건 재통과. 4KB 초과는 실제 전송 호출 전에 실패한다. HTTP/2 version 확인은 코드 검사/컴파일만 했으며 실제 네트워크 협상은 미실행이다.
+- 커밋 전: APNs protocol 경계 보강만 포함. 재시도 및 실제 발송은 여전히 미완료다.

@@ -30,6 +30,7 @@ class PushSendersTest {
             200
         })
         assertEquals(PushSendResult.FAILED, sender.send("not-a-device-token", content)); assertFalse(called)
+        assertEquals(PushSendResult.FAILED, sender.send("aa11", content.copy(body = "x".repeat(4097)))); assertFalse(called)
         assertEquals(PushSendResult.SENT, sender.send("aa11", content)); assertTrue(called)
         assertEquals(PushSendResult.INVALID_TOKEN, mapApnsStatus(410))
         assertEquals(PushSendResult.FAILED, mapApnsStatus(400))

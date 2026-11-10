@@ -58,12 +58,14 @@ internal class ApnsPushSender(
         if (deviceToken.length !in 2..512 || deviceToken.length % 2 != 0 || !deviceToken.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) return PushSendResult.FAILED
         val payload = mutableMapOf<String, Any>("aps" to mapOf("alert" to mapOf("title" to content.title, "body" to content.body)))
         payload.putAll(content.data())
+        val payloadBytes = mapper.writeValueAsBytes(payload)
+        if (payloadBytes.size > 4096) return PushSendResult.FAILED
         val request = HttpRequest.newBuilder(URI("https://${environment.host}/3/device/$deviceToken"))
             .version(HttpClient.Version.HTTP_2).timeout(Duration.ofSeconds(10))
             .header("authorization", "bearer ${tokenProvider()}")
             .header("apns-topic", topic).header("apns-push-type", "alert")
             .header("content-type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofByteArray(mapper.writeValueAsBytes(payload))).build()
+            .POST(HttpRequest.BodyPublishers.ofByteArray(payloadBytes)).build()
         return try { mapApnsStatus(transport.send(request)) } catch (_: IOException) { PushSendResult.RETRYABLE }
         catch (_: InterruptedException) { Thread.currentThread().interrupt(); PushSendResult.RETRYABLE }
     }
@@ -73,7 +75,11 @@ internal class ApnsPushSender(
             val client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build()
             val cachedToken = CachedApnsProviderToken { apnsProviderToken(teamId, keyId, key) }
             return ApnsPushSender(topic, environment, { cachedToken.get() }, mapper,
-                ApnsTransport { client.send(it, HttpResponse.BodyHandlers.discarding()).statusCode() })
+                ApnsTransport {
+                    val response = client.send(it, HttpResponse.BodyHandlers.discarding())
+                    if (response.version() != HttpClient.Version.HTTP_2) throw IOException("APNs requires HTTP/2")
+                    response.statusCode()
+                })
         }
     }
 }

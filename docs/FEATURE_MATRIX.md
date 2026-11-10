@@ -13,7 +13,7 @@
 | 점검 설정 | fake default | LOCAL_MOCK 및 sandbox 서버 조회·유효 cache와 구매 gate 연결 | server/fake 및 local HTTP→Unity decoder 확인. sandbox 공개 조회와 구매 gate는 같은 Native cache를 사용하며 실제 sandbox/Unity player는 미검증 |
 | 진단 | C# registry snapshot | Native 진단 ring과 Unity 공개 snapshot 전체 연결 미완료 | Native typed ring 단위 시험 일부 |
 | 샘플 | Editor Offline UGUI 소스 | Android/iOS Native sample과 별도 UPM Native Demo 소스 | Native Mock sample의 과거 simulator/emulator UI 일부, 최신 UPM sample은 managed compile만 확인. Unity scene 렌더링 및 Native player는 ENV-002 대기 |
-| 패키지 | UPM staging·export hooks | Android Maven/AAR, iOS static XCFramework script | 최신 Android Maven 독립 R8 consumer와 iOS device/simulator XCFramework·Swift consumer link 확인. 최신 UPM staging 재생성 및 Unity import/export 미완료 |
+| 패키지 | UPM staging·export hooks | Android Maven/AAR, iOS static XCFramework script | 최신 Android Maven 독립 R8 consumer와 iOS device/simulator XCFramework·Swift consumer link 확인. 최신 UPM staging 110개 체크섬 확인. Unity import/export는 미완료 |
 
 Backend의 Apple/Google synthetic verifier→인증 HTTP→DB grant 및 Google durable finalizer fake 시험은 실제 스토어 검증이 아니다. LOCAL_MOCK의 token 등록·삭제는 실제 local DB에서 확인했지만 개발 push send의 `SIMULATED` 응답은 client 원격 전달이 아니다. `scripts/smoke-local.sh`는 push delivery/routing E2E가 없어 의도적으로 실패 상태다.
 

@@ -1464,3 +1464,9 @@
 - `file`/`nm -g` 종료 0: device arm64 및 simulator arm64/x86_64 static archive와 GB_ProtocolVersion/SetCallback/Dispatch/Shutdown export 확인. `xcrun swiftc ... ios/consumer-check/main.swift` simulator 별도 source consumer link 종료 0. 실제 simulator 실행·서명된 device·Unity linkage는 아니다.
 - 동일 output 재실행 종료 2로 덮어쓰기를 거부했고, `scripts/smoke-ios-hook.sh`의 실제 Unity PBX managed API 중복 적용 확인 종료 0. 실제 Unity export는 아니다.
 - 커밋 전: 격리 XcodeGen/build/hook 경로와 문서만 포함한다. 기존 generated project·산출물과 사용자 파일은 보존했다.
+
+### [P08-T03] 최신 UPM staging
+- Task 시작: 새 Android Maven과 무서명 iOS XCFramework를 별도 UPM staging에 묶고 체크섬 및 export hook의 독립 idempotence 시험을 확인한다. Unity 라이선스 부재는 그대로 분리한다.
+- `scripts/package-sdk.sh` 종료 0: `artifacts/upm-staging-20261111-a` 생성. SHA256 110개 검사 오류 0. `smoke-gradle-patcher.sh` 종료 0(Gradle patcher·stub hook), `smoke-ios-hook.sh` 종료 0(실제 PBX managed API 멱등성). Unity Editor import/export·IL2CPP 실행은 아니다.
+- staging package.json의 Offline/Native 두 sample 경로, Android bridge AAR 및 iOS XCFramework plist 존재를 확인했다. 이는 Unity import 성공을 의미하지 않는다.
+- 커밋 전: staging 검증 증거와 원장만 포함한다. artifacts는 Git에 넣지 않으며 Unity 라이선스 ENV-002 대기와 미구현 기능은 유지한다.

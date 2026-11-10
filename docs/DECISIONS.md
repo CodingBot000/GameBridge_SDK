@@ -39,3 +39,7 @@
 ### LOCAL_MOCK 푸시 연결 재시도 (2026-11-11)
 
 사용자가 이후 결정의 권장안 선택을 위임했다. Native LOCAL_MOCK 스트림의 일시 연결 실패는 5초부터 지수 백오프하여 최대 60초 간격으로 재연결한다. 등록 해제·로그아웃·SDK 종료 시 즉시 중단한다. 이 설정은 실제 FCM/APNs에 적용하지 않는다.
+
+### Xcode StoreKit 로컬 지급 격리 (2026-11-11)
+
+사용자가 개발 결정의 권장안 선택을 위임했다. Xcode 거래는 StoreKit 클라이언트 검증 뒤 local-mock 전용 개발키로 fake 서버에 제출한다. 서버는 Xcode 서명 검증을 주장하지 않으며 Xcode 사용자·구매 namespace를 일반 Mock과 분리한다. sandbox/production에서는 개발 경로를 제공하지 않는다. 이는 실제 Apple sandbox 검증이 아니다.

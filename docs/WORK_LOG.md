@@ -1765,3 +1765,15 @@
 - 명시 opt-in으로 전용 DB E2E를 다시 실행하고 두 Native 시험의 비skip·source head 일치가 집계에 반영되는지 확인한다. Unity lane은 미실행으로 둔다.
 - opt-in 집계 `artifacts/push-regression-zbx_69dj/result.json`: Native local DB E2E 2건 PASS, 기존 fake·UPM checksum PASS, sandbox DB·iOS host·Unity player는 DEFERRED_ENV, 전체 종료 2. 이전 UPM staging은 최신 Mock push binary를 포함하지 않아 체크섬 자체만 확인했다.
 - 커밋 준비: fail-closed 조건으로 Native E2E lane을 연결하고 Unity lane 미실행을 유지한다.
+
+### [P05-T03] BUG-013 격리 개발 경로 재개
+- Xcode StoreKit 자체 검증 결과를 개발 전용 fake 서버 지급에 연결한다. 서버는 Apple 서명을 검증했다고 주장하지 않으며 local-mock profile·개발키·분리된 Xcode 사용자/구매 namespace를 강제한다. sandbox/production에서 경로를 노출하지 않는다.
+### P05-T03 서버 경계 검증 시작
+- local-mock 전용 Xcode fake account/grant/wallet의 컴파일과 기본 테스트를 실행한다. Apple 서명 서버 검증이 아니며 Native StoreKit 연결도 아직 없다.
+- grant transaction에서 세션 행을 잠가 logout과의 경합을 차단했다. local Xcode 사용자·구매 namespace가 일반 Mock 지갑에 섞이지 않도록 별도 계정을 사용한다.
+### P05-T03 개발 지급 DB 검증 시작
+- 전용 빈 DB에서 개발키, 사용자 소유권, 중복 지급 및 일반 Mock 잔액 격리를 확인한다. production에서 endpoint가 없는지도 별도로 시험한다.
+- 전용 DB `gamebridge_ci_f0c4a4cb59`에서 개발키·소유권·중복 지급·일반 Mock 잔액 분리 및 production endpoint 부재 통과. sandbox 차단과 동시 요청도 추가 확인한다.
+### P05-T03 동시 지급·sandbox 차단 검증 시작
+- 전용 DB `gamebridge_ci_de4a583e88`에서 동일 거래 8건 동시 요청 중 1회만 지급, Mock/Xcode 잔액 분리, 타 사용자 차단이 통과했다. sandbox·production 개발 endpoint 부재 시험도 통과했다. StoreKit client와 Unity는 아직 미연결이며 Apple 서버 서명 검증은 아니다.
+- 커밋 준비: local 전용 fake grant 및 DB/환경 격리 시험. BUG-013 OPEN 및 실제 StoreKit 실패 상태를 유지한다.

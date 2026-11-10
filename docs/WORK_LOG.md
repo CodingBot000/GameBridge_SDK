@@ -855,3 +855,8 @@
 - Android shared gate fake 시험 통과. 실제 Google gateway·account source·auth gate를 조립하는 Native-only factory를 추가한다. 실제 Backend sink가 반드시 주입되어야 하며 현재 sink 구현은 미완료다.
 - Android library assembleDebug 성공. shared gate unit은 fake gateway이며 실제 Credential Manager/Play UI 중첩 시험이 아니다.
 - 커밋 전: Android gate 공유·내부 factory 및 fake unit만 포함. Google proof sink·실 store 결제와 Unity 연결은 미완료다.
+- P05-T05 계속: Google 검증 결과를 durable grant에 기록하고 pending finalization에만 암호화 증빙을 보관하는 독립 경로를 작성한다. 완료 후 삭제/보관 정책은 사용자 답변 전 미정이며 worker에 연결하지 않는다.
+- Google grant 초안은 암호화 증빙·원장·미완료 job을 같은 DB transaction에 기록하고 account/proof hash를 재확인한다. 아직 worker/HTTP에 연결하지 않았으며 완료 후 증빙 정책도 미정이다. 컴파일한다.
+- Google grant 컴파일 성공. 전용 test-only AES 키와 synthetic 거래로 10개 동시 원장 1건, 증빙 암호문·AAD 변조 거부, pending job을 격리 DB에서 확인한다.
+- synthetic Google 거래 10건 동시 DB 시험 1건 통과(skip 0): grant 1건·원장 100·pending consume job, 암호문/AAD 검증. test-only key 사용, 실제 Google 조회/발송은 없다.
+- 커밋 전: 미완료 증빙 암호화와 내부 grant transaction만 포함. 완료 후 삭제 정책, 실제 verifier endpoint·worker·실 Play는 미완료로 P05-T05 PARTIAL 유지.

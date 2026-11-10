@@ -118,7 +118,7 @@ Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, se
 
 논리 상품: `coins_100`(consumable), `premium_unlock`(non-consumable). 실제 store product ID가 다르면 config mapping을 수정한다. 가격은 store product details에서 읽으며 client hard-coded price를 구매 검증에 쓰지 않는다.
 
-서버 자격증명: 필요한 범위의 Google Play Developer API 접근 권한과 credential 파일 경로. 계획 변수는 `GOOGLE_APPLICATION_CREDENTIALS` 또는 기능별 별도 credential path, `GOOGLE_PLAY_PACKAGE_ALLOWLIST`, product mapping이다. FCM 권한이 있다고 Play API 권한도 있다고 가정하지 않는다. 최소 권한 원칙으로 필요한 앱 접근을 설정한다.
+서버 자격증명: 필요한 범위의 Google Play Developer API 접근 권한과 credential 파일 경로. 보류 중인 Google 구매 증빙 암호화에는 별도의 Base64 32바이트 `SERVER_PURCHASE_ENCRYPTION_KEY`가 필요하며 운영 비밀 저장소에서 안정적으로 관리한다. 계획 변수는 `GOOGLE_APPLICATION_CREDENTIALS` 또는 기능별 별도 credential path, `GOOGLE_PLAY_PACKAGE_ALLOWLIST`, product mapping이다. FCM 권한이 있다고 Play API 권한도 있다고 가정하지 않는다. 최소 권한 원칙으로 필요한 앱 접근을 설정한다.
 
 현재 준비: Android Play Billing 9.1 실제 연결·상품 조회·구매 UI·callback·복구 gateway와 fake 경계 시험이 있다. 공식 Google 서버 조회 verifier 경계는 있으나 신규 인증 세션의 app scope 기반 binding 조회가 추가됐지만 Native 연결·proof sink·원장 연결과 샘플/Unity 통합이 미완료라 코드 준비는 BLOCKED이며, 이 상태에서는 실제 구매 UI를 시작하지 않는다.
 
@@ -217,3 +217,5 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 서버의 ES256 provider JWT·HTTP/2 단발 전송 경계는 fake transport와 test key로 검증했다. 실제 .p8·team/key ID·bundle topic·APNs 환경, 토큰 저장소 연결 및 재시도 worker는 아직 연결하지 않았고 실제 APNs 발송은 미실행이다.
 
 기존 app scope 없는 세션은 구매 binding을 조회할 수 없으며 재인증이 필요하다. 기존 세션을 자동 추정·삭제·이관하지 않는다.
+
+Google 완료 처리에 필요한 암호화 증빙의 완료 후 삭제·보관 기준은 사용자 선택 대기다. 실제 worker와 외부 발송은 이 결정을 적용하기 전 활성화하지 않는다.

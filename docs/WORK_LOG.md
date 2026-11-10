@@ -1144,3 +1144,20 @@
 - 사용자 요청으로 안전한 지점에서 일시 중단. 직전 로컬 커밋 0b3502b는 Android bridge의 검증된 handler 경계와 단위 시험만 포함한다. 다음 LOCAL_MOCK handler 및 Unity 설정 전달은 코드 착수 전이며, 기존 BridgeFacade에는 handler가 아직 연결되지 않아 Unity Native 초기화는 여전히 미지원이다.
 - 재개 시 AGENTS.md, START_HERE.md, DEVELOPMENT_PLAN.md, 진행 원장과 git 상태를 다시 확인한다. 미추적 unity/Demo 및 scripts/__pycache__와 기존 artifacts/DB 데이터는 보존한다. 실제 플랫폼 인증·StoreKit 환경 대기와 P09~P11 미완료 상태는 그대로다. 자동 push/배포는 하지 않았다.
 - 커밋 전: 일시 중단 및 재개 지점 기록만 포함한다.
+
+### [P03-T03] Android LOCAL_MOCK 연결 재개
+- Task 시작: 중단 기록과 Git 상태를 확인했다. 검증된 JNI dispatcher에 실제 Native LOCAL_MOCK client를 연결하고, 명시적인 개발 전용 설정을 통해 인증·상품·구매·잔액 경로를 구성한다. 기존 미추적 파일은 보존한다.
+- Android LOCAL_MOCK handler 초안은 Native 보안 저장소와 Backend client를 연결하며 사용자·상품·구매·잔액만 반환한다. Unity 설정은 명시적인 개발키와 Mock 계정을 Native에 전달한다. 구매 sync·push·config bridge와 실제 Provider는 아직 미연결이다. Kotlin 컴파일 및 계약을 검증한다.
+- `android/gradlew -p android :sdk-core:test :sdk-unity-bridge:assembleDebug` 종료 1: 현재 셸에 Android SDK 경로가 없어 Gradle이 SDK location not found로 중단했다. 기존 설치 경로를 확인해 명시적으로 재실행한다. 코드 컴파일 성공으로 기록하지 않는다.
+- Android SDK 경로 지정 후 빌드 종료 1: capability reason의 Kotlin 분기에서 String과 JsonNull이 Any로 추론되어 컴파일 오류가 발생했다. JSON 문자열로 명시 변환해 재검증한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-core:test :sdk-unity-bridge:assembleDebug` 종료 0: 기존 Kotlin 단위 테스트와 Android bridge AAR compile 통과. 새 연결 자체의 HTTP 경로·Unity C# compile은 아직 확인하지 않았다.
+- 새 bridge HTTP 시험 첫 컴파일 종료 1: JDK HttpServer 응답 길이에 Int를 전달했다. Long으로 변환 후 재실행한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-core:test --tests com.gamebridge.LocalMockBridgeHandlerTest` 종료 0: synthetic HTTP의 개발 인증→구매 검증→서버 잔액→로그아웃, 자격정보 비노출, 다른 bridge session 차단을 확인했다. 실제 Backend/Unity JNI/Google 검증은 아니다. C# 조건부 컴파일을 실행한다.
+- `UNITY_EDITOR_PATH=... bash scripts/check-csharp-compile.sh` 종료 0: Android/iOS/Editor/미지원 조건부 C# 각 compile, 경고·오류 0. Unity Editor 실행, JNI 또는 IL2CPP 검증은 아니다.
+- 실제 격리 local-mock Backend와 PostgreSQL을 통한 bridge 인증·구매·잔액·복원 시험을 추가한다. test subject B에 로컬 Mock 지급 1건만 기록하며 실제 스토어 호출은 없다.
+- 전용 local-mock Backend/PostgreSQL에서 `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... :sdk-core:test --tests com.gamebridge.LocalMockIntegrationTest.bridge…` 종료 0: bridge→Native→실제 로컬 HTTP/DB Mock 로그인·구매·서버 코인 100 증가·세션 복원·로그아웃을 확인했다. 실제 Play/Unity JNI는 실행하지 않았다. 이 시험은 test subject B에 Mock 구매 1건을 남긴다.
+- 설정 생성자의 기존 4인자 바이너리 서명을 보존하고 개발 전용 6인자 overload를 추가했다. 사용자 설정과 JNI 미검증 범위를 문서화했다. 직접 기동한 Backend만 종료했으며 DB와 volume은 보존했다. 변경 후 C# 컴파일과 원장 검사를 다시 실행한다.
+- 생성자 호환성 수정 후 `scripts/check-csharp-compile.sh` 종료 0: 네 가지 조건부 compile 모두 경고·오류 0. 코드 검토 중 Unity Dispose가 명시적 shutdown 없이 호출되면 Native dispatcher의 이전 session이 남는 문제를 발견해 재생성 경계를 보강한다.
+- dispose 시 callback 세대가 바뀌면 대기 중 이전 요청은 실행하지 않고, Native handler 메모리 상태를 executor에서 정리하도록 했다. 큐가 가득 찬 경우 다음 유효 요청 전에 정리한다. 저장된 세션은 복원 가능하도록 삭제하지 않는다. 회귀 컴파일·단위 시험을 진행한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-core:test :sdk-unity-bridge:assembleDebug` 종료 0: Native 단위 시험과 bridge AAR compile 통과. synthetic HTTP에서 reset 후 새 bridge session 초기화도 확인했으나 Unity lifecycle 실행은 미검증이다.
+- 커밋 전: Android LOCAL_MOCK bridge와 개발 전용 설정, 단위/로컬 DB 검증 및 사용자 안내만 포함한다. 실제 Google/Apple, iOS bridge, Unity JNI, push/config/sync는 미완료다.

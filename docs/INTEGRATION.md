@@ -17,3 +17,7 @@ Android Maven 소비 예시는 `android/consumer-check`에 있으며 소스 프�
 Unity Android/iOS export hook과 staging script가 있으나 Unity Editor 라이선스 부재로 import 및 실제 export를 검증하지 못했다. 완성된 배포 패키지라고 가정하지 않는다. `scripts/package-sdk.sh`는 기존 output을 덮어쓰지 않으며 필요한 Native 산출물이 없으면 실패한다.
 
 Unity iOS의 Mobile Notifications 2.5.0 host adapter는 명시적으로 권한을 요청하고 foreground remote callback과 마지막 알림 열기를 정규화한다. 해당 Unity API 구독 시 foreground 시스템 알림의 기본 표시는 억제된다. 현재 Swift bridge host operation은 UNSUPPORTED로 남아 있어 토큰/이벤트의 전체 전달은 동작하지 않는다.
+
+### Unity Android LOCAL_MOCK (부분 연결)
+
+개발 서버를 명시적으로 `local-mock` profile로 실행하고 Android host가 접근할 수 있는 개발 서버 주소를 설정한다. `new GameBridgeConfig(appId, ProviderMode.LocalMock, backendUrl, timeoutMs, developmentKey, mockSubject)`로 메모리에서만 개발키와 `A` 또는 `B`를 전달한다. 이 키는 로컬 개발 서버 전용이며 소스·Unity 에셋·로그에 저장하지 않는다. Android emulator의 host loopback은 `10.0.2.2`를 사용하고, 개발 전용 cleartext 허용은 host 앱에서 해당 주소에 한정해 설정한다. 토큰과 구매 증빙은 Native에 남는다. 인증·상품 조회·Mock 구매·서버 잔액 경로는 연결됐지만 구매 sync, push, config 브리지와 실제 Google/Apple Provider는 아직 미연결이다. 이 경로는 Native JVM→로컬 Backend/DB로만 검증했으며 Unity JNI 실행은 ENV-002로 미검증이다.

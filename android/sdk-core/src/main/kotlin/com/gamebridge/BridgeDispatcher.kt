@@ -15,14 +15,27 @@ fun interface BridgeOperationHandler {
 /** A narrow operation allowlist; unsupported functions never return fake success. */
 class BridgeDispatcher(private val handler: BridgeOperationHandler? = null) {
     private var state = "UNINITIALIZED"
+    private var ownerSession: String? = null
     @Synchronized
     fun dispatch(bytes: ByteArray): BridgeDispatchResult {
         val request = parseRequest(bytes) ?: return rejection(bytes)
         val operation = request.getValue("operation").jsonPrimitive.content
+        val session = request.getValue("sdkSessionId").jsonPrimitive.content
+        if (ownerSession != null && ownerSession != session) return response(request, null, "NOT_INITIALIZED")
         return try {
             val result = when (operation) {
                 "sdk.status" -> buildJsonObject { put("state", state); put("sdkVersion", GameBridgeVersion.CURRENT) }
-                "sdk.shutdown" -> { state = "SHUTDOWN"; buildJsonObject { put("state", state) } }
+                "sdk.shutdown" -> {
+                    handler?.invoke(operation, request.getValue("payload").jsonObject)
+                    state = "SHUTDOWN"; ownerSession = null
+                    buildJsonObject { put("state", state) }
+                }
+                "sdk.initialize" -> {
+                    val initialized = handler?.invoke(operation, request.getValue("payload").jsonObject)
+                        ?: return response(request, null, "UNSUPPORTED_OPERATION")
+                    state = "READY"; ownerSession = session
+                    initialized
+                }
                 else -> handler?.invoke(operation, request.getValue("payload").jsonObject)
                     ?: return response(request, null, "UNSUPPORTED_OPERATION")
             }
@@ -32,6 +45,12 @@ class BridgeDispatcher(private val handler: BridgeOperationHandler? = null) {
         } catch (_: Exception) {
             response(request, null, "INTERNAL_ERROR")
         }
+    }
+    /** Drop in-memory provider state after host disposal; persistent sessions remain restorable. */
+    @Synchronized
+    fun reset() {
+        try { handler?.invoke("sdk.shutdown", buildJsonObject {}) }
+        finally { ownerSession = null; state = "SHUTDOWN" }
     }
     fun busy(bytes: ByteArray): BridgeDispatchResult {
         val request = parseRequest(bytes) ?: return rejection(bytes)

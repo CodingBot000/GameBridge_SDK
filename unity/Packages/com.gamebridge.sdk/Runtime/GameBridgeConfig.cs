@@ -22,13 +22,21 @@ namespace GameBridge
         public ProviderMode Mode { get; }
         public string BackendBaseUrl { get; }
         public int RequestTimeoutMs { get; }
+        // Development-only credential. Do not serialize this into assets or logs.
+        public string DevelopmentKey { get; }
+        public string MockSubject { get; }
 
         public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs = 30000)
+            : this(appId, mode, backendBaseUrl, requestTimeoutMs, null, "A") { }
+
+        public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject)
         {
             AppId = appId;
             Mode = mode;
             BackendBaseUrl = backendBaseUrl;
             RequestTimeoutMs = requestTimeoutMs;
+            DevelopmentKey = developmentKey;
+            MockSubject = mockSubject;
         }
 
         public void Validate()
@@ -37,6 +45,12 @@ namespace GameBridge
             if (string.IsNullOrWhiteSpace(AppId)) errors.Add("appId");
             if (RequestTimeoutMs <= 0) errors.Add("requestTimeoutMs");
             if (!Enum.IsDefined(typeof(ProviderMode), Mode)) errors.Add("providerMode");
+            if (Mode == ProviderMode.LocalMock)
+            {
+                if (DevelopmentKey == null || DevelopmentKey.Length < 32) errors.Add("developmentKey");
+                if (MockSubject != "A" && MockSubject != "B") errors.Add("mockSubject");
+            }
+            else if (!string.IsNullOrEmpty(DevelopmentKey)) errors.Add("developmentKey");
             if (Mode != ProviderMode.EditorOffline)
             {
                 if (!Uri.TryCreate(BackendBaseUrl, UriKind.Absolute, out var uri) ||

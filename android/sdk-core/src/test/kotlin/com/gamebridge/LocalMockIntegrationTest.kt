@@ -67,4 +67,35 @@ class LocalMockIntegrationTest {
         assertEquals(before + 100, restored.wallet().coinBalance.toLong())
         restored.signOut(); assertNull(storage.load())
     }
+    @Test fun `bridge uses real local backend for mock purchase and restore`() {
+        val key = requireNotNull(System.getenv("GAMEBRIDGE_DEV_AUTH_KEY"))
+        val store = MemoryTokenStore()
+        val dispatcher = BridgeDispatcher(LocalMockBridgeHandler { store })
+        val session = UUID.randomUUID().toString()
+        fun send(operation: String, payload: kotlinx.serialization.json.JsonObject = kotlinx.serialization.json.buildJsonObject {}): kotlinx.serialization.json.JsonObject {
+            val request = kotlinx.serialization.json.buildJsonObject {
+                put("protocolVersion", kotlinx.serialization.json.JsonPrimitive(1)); put("sdkSessionId", kotlinx.serialization.json.JsonPrimitive(session))
+                put("kind", kotlinx.serialization.json.JsonPrimitive("request")); put("requestId", kotlinx.serialization.json.JsonPrimitive(UUID.randomUUID().toString()))
+                put("operation", kotlinx.serialization.json.JsonPrimitive(operation)); put("payload", payload)
+            }
+            val encoded = (dispatcher.dispatch(request.toString().toByteArray()) as BridgeDispatchResult.Message).json
+            assertFalse(encoded.contains(key)); assertFalse(encoded.contains("accessToken")); assertFalse(encoded.contains("refreshToken"))
+            val response = BridgeProtocol.parse(encoded.toByteArray())
+            assertEquals(kotlinx.serialization.json.JsonPrimitive(true), response["ok"], "operation $operation failed")
+            return response.getValue("result").jsonObject
+        }
+        send("sdk.initialize", kotlinx.serialization.json.buildJsonObject {
+            put("providerMode", kotlinx.serialization.json.JsonPrimitive("LOCAL_MOCK")); put("appId", kotlinx.serialization.json.JsonPrimitive("gamebridge-sample"))
+            put("backendBaseUrl", kotlinx.serialization.json.JsonPrimitive("http://127.0.0.1:18080")); put("requestTimeoutMs", kotlinx.serialization.json.JsonPrimitive(30000))
+            put("developmentKey", kotlinx.serialization.json.JsonPrimitive(key)); put("mockSubject", kotlinx.serialization.json.JsonPrimitive("B"))
+        })
+        send("auth.signIn", kotlinx.serialization.json.buildJsonObject { put("provider", kotlinx.serialization.json.JsonPrimitive("MOCK")) })
+        val before = send("store.entitlements").getValue("coinBalance").jsonPrimitive.content.toLong()
+        val purchase = send("store.purchase", kotlinx.serialization.json.buildJsonObject { put("productId", kotlinx.serialization.json.JsonPrimitive("coins_100")) })
+        assertEquals("GRANTED", purchase.getValue("fulfillmentStatus").jsonPrimitive.content)
+        assertEquals(before + 100, send("store.entitlements").getValue("coinBalance").jsonPrimitive.content.toLong())
+        assertEquals(kotlinx.serialization.json.JsonPrimitive(true), send("auth.restore").getValue("sessionRestored"))
+        send("auth.signOut"); assertNull(store.load()); send("sdk.shutdown")
+    }
+
 }

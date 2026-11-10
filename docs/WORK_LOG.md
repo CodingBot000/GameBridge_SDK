@@ -446,3 +446,21 @@
 - `:sdk-android:testDebugUnitTest :sample-app:assembleDebug` 종료 0. JUnit XML에서 Google adapter stub 시험 4건·실패0·skip0 확인(사용자 취소 전파 포함). Mock 샘플 빌드이며 Google 계정 UI와 서버 token 교환은 미실행이다.
 - challenge nonce 공백·잘못된 응답을 거부하고 credential/session/challenge 문자열 표현을 정제한 뒤 `:sdk-android:testDebugUnitTest :sdk-android:assembleDebug` 종료 0. JUnit XML 4건·실패0·skip0. 서버 실제 challenge/exchange, sample 실 Provider 선택, 공통 UI gate 및 실제 Google 인증은 미구현/미검증이다.
 - 커밋 전: Android 실제 호출 adapter와 stub 시험, 버전 근거 및 USER_SETUP 준비 상태를 포함. 선행 서버 인증/샘플 통합이 미완료이므로 P04-T01은 IN_PROGRESS/PARTIAL/WAITING_USER 유지.
+
+### [P04-T02] 시작 — 2026-11-10 Asia/Seoul
+- iOS Simulator local-mock은 확인했으나 실제 Apple 인증·서버 verifier는 미구현. AuthenticationServices UI/anchor/nonce와 Native 전용 token 처리 및 fake callback 검증을 별도 구현한다.
+- `swift test --package-path ios` 종료 0: 기존 XCTest 12건 통과·local Backend opt-in 1건 skip. macOS에서는 UIKit 조건부 AppleSystemGateway 본문이 컴파일되지 않았고 fake callback 시험도 아직 없다. iOS Simulator 빌드로 실제 API 컴파일을 확인한다.
+- `swift test --package-path ios` 종료 0: XCTest 15건 중 14 통과·local Backend opt-in 1 skip. Apple fake gateway/backend 시험 2건에서 raw nonce 전달, 취소, 사용자 불일치 거부, credential revoked 시 로컬 삭제 및 서버 revoke 실패 분리 확인. UIKit 실제 코드는 macOS 조건부 제외되어 아직 미컴파일.
+- Apple target을 sample에 연결한 뒤 XcodeBuildMCP `build_sim` Debug 성공(경고/오류 0). 빌드 로그에서 UIKit gateway 파일이 실제 컴파일됐는지 확인한다. Simulator 실제 Apple UI·서명·계정 검증은 미실행.
+- Xcode build log에서 `AppleSystemGateway.swift`가 iOS Simulator target으로 실제 컴파일된 것을 확인(검색 종료 0). 실제 Apple authorization UI·계정·server signature 검증은 아님.
+- 코드 검토에서 취소 callback이 늦게 도착해 새 요청을 취소하거나 anchor 해제 후 강제 unwrap할 가능성을 발견해 요청별 세대와 안전한 정리를 추가한다.
+- Swift 요청별 취소 세대·오래된 delegate 차단 보정 후 macOS `swift test` 종료 0, 14건 통과·1 skip. UIKit 조건부 부분 재빌드 전이며, 검토 중 서버 ISO 시각의 fractional seconds를 기본 formatter가 거부할 수 있어 수정한다.
+- Fractional UTC 시각 허용 및 동시 Apple authorization BUSY 시험을 추가한 `swift test --package-path ios` 종료 0: 총 16건 중 15 통과, local Backend opt-in 1 skip. Apple gateway 실제 iOS 컴파일을 재확인한다.
+- 보정 후 XcodeBuildMCP `build_sim` Debug 성공(경고/오류 0): UIKit AuthenticationServices gateway 포함 iOS Simulator 컴파일. Apple 계정 authorization, entitlement/서명 및 Backend 서명 검증은 미실행.
+- 검증 중 서명 entitlement 예제 파일이 샘플 app bundle에 복사된 것을 발견했다. 비밀값은 없지만 예제는 배포 리소스가 아니므로 XcodeGen source에서 제외하고 별도 새 DerivedData로 확인한다.
+- XcodeGen 예제 제외 설정과 문자열 정제 테스트를 반영한 `swift test --package-path ios` 종료 0: 15 통과·local Backend 1 skip. 실제 iOS gateway 재컴파일·clean bundle 점검은 이어서 수행한다.
+- 새 DerivedData에서 XcodeBuildMCP `build_sim` 성공(경고·오류 0). 수정된 UIKit gateway의 iOS Simulator 컴파일 완료. 예제 파일이 앱에 포함되지 않는지 별도 확인한다.
+- 새 Debug app bundle 검사 종료 0: `*.example` 파일 0개. 검토 중 credential-state 확인과 새 로그인 경합이 새 세션을 지울 가능성을 발견해 동일 provider gate로 직렬화한다.
+- Apple 로그인과 credential-state 확인에 공통 provider gate를 적용하고 취소 오류를 표준 CANCELED로 매핑한 뒤 `swift test --package-path ios` 종료 0: 15건 통과·1건 skip. Fake gateway의 동시 state 검사 BUSY 확인. iOS 실제 gateway 수정본 컴파일은 이어서 확인한다.
+- 최종 Apple gateway 수정본에 대한 XcodeBuildMCP `build_sim` Debug 성공(경고·오류 0). AuthenticationServices 실제 사용자 UI·서명·계정·서버 교환은 미실행.
+- 커밋 전: Swift Apple adapter, fake gateway 시험, iOS Simulator 컴파일 및 entitlement 예제를 포함. Backend verifier·실제 샘플/Unity 연결과 Apple 계정 검증은 남아 P04-T02 IN_PROGRESS/PARTIAL/WAITING_USER 유지.

@@ -14,10 +14,12 @@ targets:
     platform: iOS
     sources:
       - path: ../SampleApp
-        excludes: ['*.plist']
+        excludes: ['*.plist', '*.example']
     dependencies:
       - package: GameBridge
         product: GameBridgeCore
+      - package: GameBridge
+        product: GameBridgeApple
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.gamebridge.sdk.sample.dev20261110

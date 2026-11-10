@@ -6,11 +6,13 @@ let package = Package(
     platforms: [.iOS(.v16), .macOS(.v12)],
     products: [.library(name: "GameBridgeCore", targets: ["GameBridgeCore"]),
                .library(name: "GameBridgeTesting", targets: ["GameBridgeTesting"]),
+               .library(name: "GameBridgeApple", targets: ["GameBridgeApple"]),
                .library(name: "GameBridgeUnityBridge", type: .static, targets: ["GameBridgeUnityBridge"])],
     targets: [
         .target(name: "GameBridgeCore"),
         .target(name: "GameBridgeTesting", dependencies: ["GameBridgeCore"]),
+        .target(name: "GameBridgeApple", dependencies: ["GameBridgeCore"]),
         .target(name: "GameBridgeUnityBridge", dependencies: ["GameBridgeCore"], path: "UnityBridge"),
-        .testTarget(name: "GameBridgeCoreTests", dependencies: ["GameBridgeCore", "GameBridgeTesting", "GameBridgeUnityBridge"]),
+        .testTarget(name: "GameBridgeCoreTests", dependencies: ["GameBridgeCore", "GameBridgeTesting", "GameBridgeUnityBridge", "GameBridgeApple"]),
     ]
 )

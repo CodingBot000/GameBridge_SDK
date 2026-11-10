@@ -17,7 +17,7 @@ Codex는 실제 Provider 호출 코드, 설정 로더, 오류 처리, Mock, 빌�
 | USER-DEVICE | Xcode·Android 도구·실기기·서명 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-BACKEND | 로컬 서버·DB·개발/샌드박스 네트워크 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-AUTH-GOOGLE | Android Google 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
-| USER-AUTH-APPLE | iOS Apple 인증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
+| USER-AUTH-APPLE | iOS Apple 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
 | USER-BILLING-GOOGLE | Play 테스트 결제·검증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
 | USER-BILLING-APPLE | Apple Sandbox 결제·검증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
 | USER-PUSH-GOOGLE | Android FCM 원격 전송 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
@@ -102,6 +102,8 @@ Codex 준비물: GoogleAuthProvider, nonce challenge, server verifier, error map
 사용자 할 일: 실제 Apple 개발자 팀과 App ID의 Sign in with Apple capability, signing/provisioning, 테스트할 Apple 계정을 준비한다. Native sample·Unity 앱의 bundle ID가 다르면 audience/앱 설정을 각각 확인한다.
 
 설정: `APPLE_ALLOWED_AUDIENCES`, 각 bundle ID, Team ID. 네이티브 identityToken 공개키 검증과 authorization-code exchange/client-secret이 필요한 서버 기능을 구분한다. 구현이 후자를 사용하는 경우에만 해당 private key/key ID/team ID를 서버에 추가한다. 사용하지 않는 비밀키를 필수 요구하지 않는다.
+
+현재 준비: AuthenticationServices controller/delegate/anchor, 서버 nonce 전달, Native Keychain session 및 credential-state 처리 코드와 fake callback 시험, Simulator 컴파일이 준비됐다. `ios/SampleApp/SignInWithApple.entitlements.example`은 서명되지 않은 예제다. 서버 실제 challenge/exchange·Apple 서명 검증과 샘플/Unity 실 Provider 연결은 미구현이므로 코드 준비는 BLOCKED다.
 
 Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, server verifier, credential state 처리, Unity snapshot 변환. Apple 이름/email이 한 번만 올 수 있는 경우에 대비해야 한다.
 

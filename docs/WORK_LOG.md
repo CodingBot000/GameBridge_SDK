@@ -2112,3 +2112,12 @@
 ### P09-T02 개별 scenario entry 검증 시작
 - `harness/run-scenario.py` R01/R02/R03/R04/R06/R07/R10 각각 종료 0. R04는 별도 guard mutation 감지도 통과했다. Kotlin/Swift unit 및 독립 C# fake 결과이며 Unity Editor/JNI 실행은 아니다.
 - 커밋 준비: 새 assertion, 공통 runner, 부분 scenario의 근거 있는 로컬 범위 승격 및 음성 검사 유지 보정만 포함한다.
+
+### [P09-T02] R05/R08 늦은 응답·길이 경계 시작
+- timeout 이후 응답이 Task를 다시 완료하지 않더라도 검증된 별도 거래 이벤트는 전달되는지, Swift C ABI 음수·과대 길이에서 메모리를 읽지 않고 생존하는지 확인한다. 실제 Unity JNI는 별도다.
+### P09-T02 timeout·C ABI 검증 시작
+- Kotlin dispatcher·Swift C ABI 및 독립 C# registry를 공통 runner로 실행한다. 과대 pointer 길이는 실제 할당보다 큰 값으로 전달하되 guard가 읽기 전에 거부해야 한다.
+- `artifacts/contracts-aoe84z1m`: Kotlin 10·Swift 11·C# fake 1 suite PASS/skip 0. 늦은 callback 뒤 구매 이벤트 보존과 음수·과대 C ABI 길이 거부를 확인해 R05/R08 로컬 범위 assertion을 연결한다.
+### P09-T02 R05/R08 scenario 검증 시작
+- R05·R08 개별 entry, manifest 음성·원장 및 duplicate guard mutation 재실행 통과. 실제 JNI/Unity player는 별도다.
+- 커밋 준비: timeout 후 이벤트 및 Swift C ABI 입력 경계 시험과 로컬 scenario evidence만 저장한다.

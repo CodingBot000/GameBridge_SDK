@@ -100,7 +100,13 @@ internal static class Program
         secretResponse["error"]["nativeCode"] = "sensitive-token"; registry.HandleMessage(secretResponse.ToString());
         try { await secretFailure; throw new Exception("expected failure"); }
         catch (SdkException error) { Check(error.NativeCode == null && !error.ToString().Contains("sensitive-token"), "untrusted native code redacted"); }
-        await Expect("TIMEOUT", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromMilliseconds(30)));
+        var timed = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromMilliseconds(30));
+        var timedRequest = JObject.Parse(sent); var timedCompletions = 0;
+        var timedObserved = timed.ContinueWith(_ => Interlocked.Increment(ref timedCompletions), TaskContinuationOptions.ExecuteSynchronously);
+        await Expect("TIMEOUT", timed); await timedObserved;
+        var ignoredBeforeLate = registry.IgnoredMessages;
+        registry.HandleMessage(Response(timedRequest));
+        Check(timedCompletions == 1 && registry.IgnoredMessages == ignoredBeforeLate + 1 && registry.PendingCount == 0, "late timed-out response ignored");
         using (var cts = new CancellationTokenSource())
         {
             var canceled = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5), cts.Token);
@@ -111,7 +117,7 @@ internal static class Program
         var updateEvent = new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = request["sdkSessionId"], ["kind"] = "event",
             ["eventId"] = Guid.NewGuid().ToString("D"), ["type"] = "PurchaseUpdated", ["occurredAt"] = "2026-11-10T00:00:00Z",
             ["payload"] = new JObject { ["productId"] = "coins_100", ["status"] = "PURCHASED", ["serverPurchaseId"] = Guid.NewGuid().ToString("D"), ["errorCode"] = JValue.CreateNull(), ["proof"] = "secret" } };
-        registry.HandleMessage(updateEvent.ToString()); Check(eventCount == 1, "purchase event accepted");
+        registry.HandleMessage(updateEvent.ToString()); Check(eventCount == 1, "purchase event accepted after timeout");
         var staleEvent = (JObject)updateEvent.DeepClone(); staleEvent["sdkSessionId"] = Guid.NewGuid().ToString("D");
         registry.HandleMessage(staleEvent.ToString()); Check(eventCount == 1, "stale event ignored");
         var forgedEvent = (JObject)updateEvent.DeepClone(); forgedEvent["payload"]["serverPurchaseId"] = JValue.CreateNull();

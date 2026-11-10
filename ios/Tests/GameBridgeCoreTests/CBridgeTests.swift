@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 import GameBridgeUnityBridge
+import GameBridgeCore
 
 private let callbackLock = NSLock()
 private var callbackData: Data?
@@ -33,6 +34,26 @@ final class CBridgeTests: XCTestCase {
         callbackLock.lock(); let result = callbackData; callbackLock.unlock()
         let response = try XCTUnwrap(try JSONSerialization.jsonObject(with: XCTUnwrap(result)) as? [String: Any])
         XCTAssertEqual(response["requestId"] as? String, "2efc133b-3138-4c3e-aa72-0532cd19056e")
+        XCTAssertEqual(response["ok"] as? Bool, true)
+        GB_Shutdown()
+    }
+    func testInvalidLengthsAreRejectedWithoutReadingAndBridgeSurvives() throws {
+        GB_SetCallback(bridgeCallback)
+        var byte: UInt8 = 0
+        withUnsafePointer(to: &byte) { pointer in
+            GB_Dispatch(pointer, -1)
+            GB_Dispatch(pointer, Int32(BridgeProtocol.maxBytes + 1))
+            GB_Dispatch(nil, 1)
+        }
+        XCTAssertEqual(callbackSignal.wait(timeout: .now() + 0.1), .timedOut)
+        let request = """
+        {"protocolVersion":1,"sdkSessionId":"dc9a46f4-8e20-4880-bcbb-ac45033157ca","kind":"request","requestId":"2efc133b-3138-4c3e-aa72-0532cd19056e","operation":"sdk.status","payload":{}}
+        """
+        let bytes = Array(request.utf8)
+        bytes.withUnsafeBufferPointer { GB_Dispatch($0.baseAddress, Int32($0.count)) }
+        XCTAssertEqual(callbackSignal.wait(timeout: .now() + 3), .success)
+        callbackLock.lock(); let data = callbackData; callbackLock.unlock()
+        let response = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(data)) as? [String: Any])
         XCTAssertEqual(response["ok"] as? Bool, true)
         GB_Shutdown()
     }

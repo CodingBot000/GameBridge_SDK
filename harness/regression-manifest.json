@@ -284,19 +284,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R05"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "contracts"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Swift C ABI, Kotlin dispatcher, and managed fake; Unity JNI/player remain separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "late timed-out response ignored"
+        },
+        {
+          "suite": "contracts",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "purchase event accepted after timeout"
+        }
+      ]
     },
     {
       "id": "R06",
@@ -370,19 +380,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R08"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "contracts"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/core-bridge-scenarios.md",
+      "note": "Local Swift C ABI, Kotlin dispatcher, and managed fake; Unity JNI/player remain separate.",
+      "assertions": [
+        {
+          "suite": "contracts",
+          "testFile": "ios/Tests/GameBridgeCoreTests/CBridgeTests.swift",
+          "testCase": "testInvalidLengthsAreRejectedWithoutReadingAndBridgeSurvives"
+        },
+        {
+          "suite": "contracts",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/BridgeDispatcherTest.kt",
+          "testCase": "PAYLOAD_TOO_LARGE"
+        }
+      ]
     },
     {
       "id": "R09",

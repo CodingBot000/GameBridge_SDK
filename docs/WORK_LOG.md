@@ -234,3 +234,12 @@
 - local-mock 서버 Ctrl-C 종료 130, 전용 DB container를 데이터 보존 상태로 정지한다.
 - 전용 DB `docker compose ... stop` 종료 0. UUID test installation과 암호화된 Mock token은 전용 volume에 보존했다.
 - 커밋 직전: local-mock 등록·암호화·소유권 확인 및 기본 config만 포함. 등록 해제·로그아웃 연결 제거는 토큰 보존 정책 결정 대기, push sender·실연동은 미구현이므로 P02-T05 PARTIAL.
+
+### [P02-T06] 시작 — 2026-11-10 Asia/Seoul
+- P02-T04/T05는 일부 구현·정책 미결정. 이미 실행 가능한 local-mock smoke를 모으고 미구현 필수 항목은 성공 처리하지 않는다.
+- `bash scripts/smoke-local.sh` (개발키 미설정) 종료 2, CONFIG_REQUIRED를 확인. 하위 검사 집계와 미구현 표시 검증은 서버 기동 후 수행한다.
+- 전용 DB healthy 및 local-mock 서버 재기동 확인. 아래 통합 명령은 시험 데이터를 전용 volume에 추가한다.
+- `bash scripts/smoke-local.sh` (테스트 개발키 공급) 종료 1: 인증 11·구매 13·기기 등록 7 assertions 개별 통과, 자동 finalization 복구·등록 해제/로그아웃 연결 해제·보호된 push 전송이 미구현으로 전체 명령은 의도적으로 비성공 반환. 실제 플랫폼 검증 아님.
+- 테스트 서버 Ctrl-C 종료 130. 전용 DB는 volume 보존 후 정지한다.
+- 전용 Compose DB `stop` 종료 0; 테스트로 생성된 Mock 사용자·구매·설치 기록은 전용 volume에 보존.
+- 커밋 전: 세 개의 기존 smoke를 순서대로 실행하며 미구현 필수 기능이 있으면 비성공 처리. P02-T06은 IN_PROGRESS/PARTIAL로 남기고 완성 주장하지 않는다.

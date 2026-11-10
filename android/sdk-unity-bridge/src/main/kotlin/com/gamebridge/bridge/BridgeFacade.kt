@@ -13,6 +13,11 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import com.gamebridge.BridgeProtocol
 import com.gamebridge.PurchaseStatus
+import com.gamebridge.PushPayload
+import com.gamebridge.PushRouter
+import com.gamebridge.PushEventKind
+import com.gamebridge.PushRouteEvent
+import com.gamebridge.PushEnqueueResult
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.serialization.json.*
@@ -100,12 +105,13 @@ object BridgeFacade {
     @Volatile private var callback: BridgeCallback? = null
     private var eventSession: String? = null
     private var accountEpoch: Long = 0
+    private val pushRouter = PushRouter()
     @JvmStatic fun attachHost(activity: Activity) { host = WeakReference(activity) }
     @JvmStatic fun detachHost() { host?.clear(); host = null }
     @JvmStatic @Synchronized fun setCallback(value: BridgeCallback?) {
         callbackGeneration.incrementAndGet(); callback = value
         if (value == null) {
-            eventSession = null; accountEpoch++
+            eventSession = null; accountEpoch++; pushRouter.reset()
             resetRequired.set(true)
             try { executor.execute { resetIfRequired() } }
             catch (_: RejectedExecutionException) { /* next accepted request performs cleanup */ }
@@ -131,15 +137,88 @@ object BridgeFacade {
     @Synchronized private fun beforeDispatch(bytes: ByteArray, generation: Long) {
         val request = runCatching { BridgeProtocol.parse(bytes) }.getOrNull() ?: return
         if (generation == callbackGeneration.get() && request["sdkSessionId"]?.jsonPrimitive?.content == eventSession &&
-            request["operation"]?.jsonPrimitive?.content in setOf("auth.signIn", "auth.signOut", "sdk.shutdown")) accountEpoch++
+            request["operation"]?.jsonPrimitive?.content in setOf("auth.signIn", "auth.signOut", "sdk.shutdown")) {
+            accountEpoch++; pushRouter.reset()
+            if (request["operation"]?.jsonPrimitive?.content != "sdk.shutdown") pushRouter.setReady()
+        }
     }
     @Synchronized private fun afterDispatch(bytes: ByteArray, generation: Long, result: BridgeDispatchResult) {
         if (generation != callbackGeneration.get() || result !is BridgeDispatchResult.Message) return
         val request = runCatching { BridgeProtocol.parse(bytes) }.getOrNull() ?: return
         val response = runCatching { BridgeProtocol.parse(result.json.toByteArray()) }.getOrNull() ?: return
-        if (request["operation"] == JsonPrimitive("sdk.initialize") && response["ok"] == JsonPrimitive(true))
+        if (request["operation"] == JsonPrimitive("sdk.initialize") && response["ok"] == JsonPrimitive(true)) {
+            val first = eventSession == null
             eventSession = request["sdkSessionId"]?.jsonPrimitive?.content
+            if (first) pushRouter.setReady().forEach { emitPush(it) }
+        }
         if (request["operation"] == JsonPrimitive("sdk.shutdown") && response["ok"] == JsonPrimitive(true)) eventSession = null
+    }
+    /** Returns QUEUED/DELIVER/DUPLICATE/BUSY, or INVALID_ARGUMENT; no arbitrary URL is opened. */
+    @JvmStatic fun forwardNotification(messageId: String?, route: String?, campaignId: String?, opened: Boolean): String {
+        val fields = mutableMapOf<String, String>()
+        if (messageId != null) fields["messageId"] = messageId
+        if (route != null) fields["route"] = route
+        if (campaignId != null) fields["campaignId"] = campaignId
+        val payload = PushPayload.parse(fields) ?: return "INVALID_ARGUMENT"
+        val event = PushRouteEvent(payload, if (opened) PushEventKind.OPENED else PushEventKind.RECEIVED)
+        val result = pushRouter.submit(event)
+        if (result == PushEnqueueResult.DELIVER) emitPush(event)
+        return result.name
+    }
+    @Synchronized private fun emitPush(event: PushRouteEvent) {
+        val session = eventSession ?: return
+        val send = callback ?: return
+        val message = buildJsonObject {
+            put("protocolVersion", 1); put("sdkSessionId", session); put("kind", "event")
+            put("eventId", UUID.randomUUID().toString()); put("occurredAt", Instant.now().toString())
+            put("type", if (event.kind == PushEventKind.OPENED) "PushOpened" else "PushReceived")
+            put("payload", buildJsonObject {
+                put("messageId", event.payload.messageId); put("route", event.payload.route)
+                put("campaignId", event.payload.campaignId?.let(::JsonPrimitive) ?: JsonNull)
+            })
+        }.toString()
+        try { send.onMessage(message) } catch (_: Exception) { /* host owns callback */ }
+    }
+    /** A true result means queued, not that the Backend accepted the new token. */
+    @JvmStatic @Synchronized fun forwardFcmToken(token: String?): Boolean {
+        if (token.isNullOrBlank()) return false
+        val session = eventSession ?: return false
+        val generation = callbackGeneration.get(); val epoch = accountEpoch
+        val request = buildJsonObject {
+            put("protocolVersion", 1); put("sdkSessionId", session); put("kind", "request")
+            put("requestId", UUID.randomUUID().toString()); put("operation", "host.pushToken")
+            put("payload", buildJsonObject { put("provider", "FCM"); put("token", token) })
+        }.toString().toByteArray(Charsets.UTF_8)
+        if (request.size > BridgeProtocol.MAX_BYTES) return false
+        return try {
+            executor.execute {
+                if (isCurrentEventSession(generation, epoch, session)) {
+                    val result = dispatcher.dispatch(request)
+                    if (result is BridgeDispatchResult.Message) emitTokenResult(generation, epoch, session, result.json)
+                }
+            }; true
+        } catch (_: RejectedExecutionException) { false }
+    }
+    @Synchronized private fun isCurrentEventSession(generation: Long, epoch: Long, session: String): Boolean =
+        generation == callbackGeneration.get() && epoch == accountEpoch && session == eventSession && callback != null
+    @Synchronized private fun emitTokenResult(generation: Long, epoch: Long, session: String, response: String) {
+        if (!isCurrentEventSession(generation, epoch, session)) return
+        val parsed = runCatching { BridgeProtocol.parse(response.toByteArray()) }.getOrNull() ?: return
+        val ok = parsed["ok"] == JsonPrimitive(true)
+        val fingerprint = if (ok) (parsed["result"] as? JsonObject)?.get("tokenFingerprint")?.jsonPrimitive?.content else null
+        val allowed = setOf("NOT_INITIALIZED", "CONFIG_REQUIRED", "NETWORK_UNAVAILABLE", "TIMEOUT", "CANCELED", "BUSY", "SESSION_EXPIRED", "AUTH_FAILED", "PERMISSION_DENIED", "INTERNAL_ERROR", "BRIDGE_PROTOCOL_MISMATCH")
+        val rawCode = if (!ok) (parsed["error"] as? JsonObject)?.get("code")?.jsonPrimitive?.content else null
+        val success = ok && fingerprint?.matches(Regex("[0-9a-f]{12}")) == true
+        val code = if (success) null else rawCode?.takeIf { it in allowed } ?: "INTERNAL_ERROR"
+        val message = buildJsonObject {
+            put("protocolVersion", 1); put("sdkSessionId", session); put("kind", "event"); put("eventId", UUID.randomUUID().toString())
+            put("occurredAt", Instant.now().toString()); put("type", "PushTokenChanged")
+            put("payload", buildJsonObject {
+                put("registered", success); put("tokenFingerprint", if (success) JsonPrimitive(fingerprint!!) else JsonNull)
+                put("errorCode", code?.let(::JsonPrimitive) ?: JsonNull)
+            })
+        }.toString()
+        try { callback?.onMessage(message) } catch (_: Exception) { /* host owns callback */ }
     }
     @Synchronized private fun purchaseEmitter(): (GoogleStoreEvent) -> Unit {
         val generation = callbackGeneration.get(); val epoch = accountEpoch; val session = eventSession

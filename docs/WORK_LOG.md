@@ -1366,3 +1366,14 @@
 - C# 권한 snapshot도 Native 등록 검사와 동일하게 앱 전체 알림 허용 상태를 확인하도록 보정한다. 최종 조건부 compile을 확인한다.
 - 최종 `scripts/check-csharp-compile.sh` 종료 0, 4개 조건부 경고·오류 0. 실제 Android 13+ dialog·권한 설정 및 Unity Player 실행은 미검증이다.
 - 커밋 전: Android permission driver와 fake facade/compile만 포함한다. Firebase token rotation·수신 host forwarding 및 실제 원격 FCM은 미완료다.
+
+### [P06-T05] Android FCM host callback
+- Task 시작: host 소유 FirebaseMessagingService와 클릭 intent에서 token·허용 route를 Unity session으로 안전하게 전달한다. cold-start와 인증 전 token 처리 범위를 명시하고 실제 FCM 발송은 수행하지 않는다.
+- Android cold-start 알림은 SDK READY 전에 도착할 수 있다. 초기화 응답보다 먼저 전달된 안전한 이벤트를 Unity facade가 버리지 않도록 일시 큐에 보관한 뒤 메인 thread Pump에서 전달한다. token refresh는 session이 없으면 등록을 시도하지 않고 다음 명시적 등록으로 넘긴다.
+- `scripts/check-csharp-compile.sh` 종료 0, 4개 조건부 경고 0. 초기화 중 도착한 push를 READY 후 Pump에서 전달하도록 구현했으며, 초기화 실패·종료 시 큐가 남지 않도록 확인한다.
+- C# 4개 조건부 compile 통과. 초기화 중 queue는 실패·로그아웃·종료 시 비우고, token 이벤트의 등록 상태와 fingerprint/error 일관성을 엄격 검사한다. Android Native host callback 전달을 구현한다.
+- Android host notification callback을 기존 100 queue/200 ID router와 Unity 안전한 이벤트에 연결했다. FCM token rotation은 활성 session에서만 Native 인증 등록을 큐에 넣고 결과는 fingerprint 또는 오류 이벤트로 반환하며, 반환 Boolean은 등록 성공이 아닌 큐 접수다.
+- `:sdk-unity-bridge:testDebugUnitTest :sdk-unity-bridge:assembleDebug` 종료 0: 기존 fake suite 및 AAR compile 통과. 새 cold-start 이벤트와 token callback 실패 경계는 별도 시험한다.
+- `scripts/smoke-csharp-registry.sh` 종료 0: 초기화 전 이벤트는 READY/Pump까지 보관하고, token fingerprint 검증에서 raw token을 거부함을 독립 .NET fake로 확인했다. 실제 Unity Player는 아니다.
+- `:sdk-unity-bridge:testDebugUnitTest --tests HostPushDeliveryTest` 종료 0: 초기화 전 알림 queue·중복 및 위험 route 거부, session 없는 token 미접수와 fake 등록 실패 이벤트의 raw token 비노출 확인. 실제 Firebase 서비스/앱 cold-start는 아니다. 기존 host의 서비스·Activity에 호출을 삽입하는 예제를 추가했다.
+- 커밋 전: Android host callback API·cold-start 메모리 queue·Unity token/event 검증 및 fake 시험만 포함한다. host 앱 통합, 실제 Firebase 원격 발송·Unity Player 및 process 종료를 넘는 보관은 구현/검증하지 않았다.

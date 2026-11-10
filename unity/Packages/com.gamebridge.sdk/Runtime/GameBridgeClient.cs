@@ -64,6 +64,8 @@ namespace GameBridge
     {
         private readonly object gate = new object();
         private readonly IWireTransport transport;
+        private readonly Queue<Action> pendingPushEvents = new Queue<Action>();
+        private int droppedPushEvents;
         private RequestRegistry registry;
         private string state = "UNINITIALIZED";
         private GameBridgeConfig config;
@@ -81,6 +83,7 @@ namespace GameBridge
         public event Action<PurchaseUpdate> PurchaseUpdated;
         public event Action<PushUpdate> PushReceived;
         public event Action<PushUpdate> PushOpened;
+        public event Action<PushTokenUpdate> PushTokenChanged;
         internal GameBridgeClient(IWireTransport transport)
         {
             this.transport = transport ?? throw new ArgumentNullException(nameof(transport));
@@ -93,17 +96,42 @@ namespace GameBridge
             var created = new RequestRegistry(transport.Dispatch, Guid.NewGuid());
             created.PurchaseUpdated += update => { lock (gate) { if (disposed || state != "READY" || !ReferenceEquals(registry, created)) return; } PurchaseUpdated?.Invoke(update); };
             created.PushUpdated += (update, opened) => {
-                lock (gate) { if (disposed || state != "READY" || !ReferenceEquals(registry, created)) return; }
-                if (opened) PushOpened?.Invoke(update); else PushReceived?.Invoke(update);
+                Action deliver = () => { if (opened) PushOpened?.Invoke(update); else PushReceived?.Invoke(update); };
+                lock (gate)
+                {
+                    if (disposed || !ReferenceEquals(registry, created)) return;
+                    if (state == "INITIALIZING") { if (pendingPushEvents.Count < 100) pendingPushEvents.Enqueue(deliver); else droppedPushEvents++; return; }
+                    if (state != "READY") return;
+                }
+                deliver();
+            };
+            created.PushTokenUpdated += update => {
+                Action deliver = () => PushTokenChanged?.Invoke(update);
+                lock (gate)
+                {
+                    if (disposed || !ReferenceEquals(registry, created)) return;
+                    if (state == "INITIALIZING") { if (pendingPushEvents.Count < 100) pendingPushEvents.Enqueue(deliver); else droppedPushEvents++; return; }
+                    if (state != "READY") return;
+                }
+                deliver();
             };
             return created;
         }
         private void OnMessage(string json) { RequestRegistry current; lock (gate) current = registry; current?.HandleMessage(json); }
-        internal void Pump() { transport.Pump(); }
+        internal void Pump()
+        {
+            transport.Pump();
+            while (true)
+            {
+                Action deliver;
+                lock (gate) { if (disposed || state != "READY" || pendingPushEvents.Count == 0) return; deliver = pendingPushEvents.Dequeue(); }
+                deliver();
+            }
+        }
         public SdkStatus GetStatus() { lock (gate) return Snapshot(); }
         private SdkStatus Snapshot() => new SdkStatus(state, lastMode, initializedAt, snapshotAt, capabilities);
         public SdkCapabilities GetCapabilities() { lock (gate) return capabilities; }
-        public DiagnosticsSnapshot GetDiagnostics() { lock (gate) return new DiagnosticsSnapshot(lastMode, registry?.PendingCount ?? 0, registry?.IgnoredMessages ?? 0, DateTimeOffset.UtcNow); }
+        public DiagnosticsSnapshot GetDiagnostics() { lock (gate) return new DiagnosticsSnapshot(lastMode, registry?.PendingCount ?? 0, (registry?.IgnoredMessages ?? 0) + droppedPushEvents, DateTimeOffset.UtcNow); }
         public Task<InitResult> InitializeAsync(GameBridgeConfig value, CancellationToken cancellation = default)
         {
             if (cancellation.IsCancellationRequested) throw new SdkException("CANCELED");
@@ -160,7 +188,7 @@ namespace GameBridge
             }
             catch (Exception error)
             {
-                lock (gate) { if (!disposed && generation == epoch && state == "INITIALIZING") { state = "UNINITIALIZED"; config = null; initializing = null; snapshotAt = DateTimeOffset.UtcNow; } }
+                lock (gate) { if (!disposed && generation == epoch && state == "INITIALIZING") { state = "UNINITIALIZED"; config = null; initializing = null; pendingPushEvents.Clear(); snapshotAt = DateTimeOffset.UtcNow; } }
                 completion.TrySetException(error is SdkException ? error : new SdkException("INTERNAL_ERROR"));
             }
         }
@@ -169,7 +197,7 @@ namespace GameBridge
             if (!Enum.IsDefined(typeof(AuthProvider), provider)) throw new SdkException("INVALID_ARGUMENT");
             return WireModels.Decode<UserProfile>(await Invoke("auth.signIn", new JObject { ["provider"] = provider.ToString() }, false, cancellation));
         }
-        public async Task SignOutAsync(CancellationToken cancellation = default) { await Invoke("auth.signOut", new JObject(), false, cancellation); }
+        public async Task SignOutAsync(CancellationToken cancellation = default) { lock (gate) pendingPushEvents.Clear(); await Invoke("auth.signOut", new JObject(), false, cancellation); }
         public async Task<SessionSnapshot> RestoreSessionAsync(CancellationToken cancellation = default)
         { return WireModels.Decode<SessionSnapshot>(await Invoke("auth.restore", new JObject(), false, cancellation)); }
         public async Task<IReadOnlyList<StoreProduct>> GetProductsAsync(CancellationToken cancellation = default)
@@ -250,11 +278,11 @@ namespace GameBridge
                 if (state == "SHUTTING_DOWN") return shuttingDown;
                 if (state == "UNINITIALIZED")
                 {
-                    state = "SHUTDOWN"; snapshotAt = DateTimeOffset.UtcNow; generation++; request = registry; registry = null; immediate = true;
+                    state = "SHUTDOWN"; snapshotAt = DateTimeOffset.UtcNow; generation++; pendingPushEvents.Clear(); request = registry; registry = null; immediate = true;
                 }
                 else
                 {
-                    state = "SHUTTING_DOWN"; snapshotAt = DateTimeOffset.UtcNow; generation++; request = registry;
+                    state = "SHUTTING_DOWN"; snapshotAt = DateTimeOffset.UtcNow; generation++; pendingPushEvents.Clear(); request = registry;
                     starter = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously); shuttingDown = starter.Task; shared = shuttingDown;
                 }
             }
@@ -276,7 +304,7 @@ namespace GameBridge
         public void Dispose()
         {
             RequestRegistry request;
-            lock (gate) { if (disposed) return; disposed = true; generation++; state = "SHUTDOWN"; snapshotAt = DateTimeOffset.UtcNow; request = registry; registry = null; }
+            lock (gate) { if (disposed) return; disposed = true; generation++; pendingPushEvents.Clear(); state = "SHUTDOWN"; snapshotAt = DateTimeOffset.UtcNow; request = registry; registry = null; }
             request?.Dispose(); transport.Message -= OnMessage; transport.Dispose(); Disposed?.Invoke(this);
         }
         private static SdkCapabilities ReadCapabilities(JToken token, ProviderMode mode)

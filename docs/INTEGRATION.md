@@ -4,7 +4,7 @@
 
 Host가 Android Activity 및 Firebase 초기화, iOS window와 AppDelegate/notification delegate를 소유한다. SDK에 화면·delegate를 전달하며 SDK가 Host delegate를 교체하지 않는다. 인증 토큰, 스토어 증빙 및 push 토큰을 Unity 이벤트, 로그 또는 `PlayerPrefs`에 기록하지 않는다. 각 플랫폼의 실제 앱 등록, 인증키, 콘솔 설정은 `USER_SETUP.md`를 따른다.
 
-앱이 알림 권한과 등록을 명시적으로 요청해야 한다. Android의 `AndroidPushHostAdapter`를 쓰는 Host는 Firebase Messaging 의존성과 앱 설정을 별도로 제공하고 기존 `FirebaseMessagingService`에서 callback을 전달한다. `android/host-examples`는 예시이며 자동 활성화되지 않는다. iOS의 `ApplePushHostAdapter`에는 Host의 등록 성공/실패 및 수신/열기 callback을 전달한다. Android/iOS sandbox의 Native token 등록 client와 Unity bridge가 연결됐으며 fake 시험만 확인했다. Android host service의 rotation/수신 forwarding과 실제 원격 전달은 미완료다.
+앱이 알림 권한과 등록을 명시적으로 요청해야 한다. Android의 `AndroidPushHostAdapter`를 쓰는 Host는 Firebase Messaging 의존성과 앱 설정을 별도로 제공하고 기존 `FirebaseMessagingService`에서 callback을 전달한다. `android/host-examples`는 예시이며 자동 활성화되지 않는다. iOS의 `ApplePushHostAdapter`에는 Host의 등록 성공/실패 및 수신/열기 callback을 전달한다. Android/iOS sandbox의 Native token 등록 client와 Unity bridge가 연결됐으며 fake 시험만 확인했다. Android host service의 rotation/수신 forwarding API와 예제를 작성했으나 host 앱에 직접 통합해야 하며 실제 원격 전달은 미검증이다.
 
 ## 구매 및 계정
 

@@ -46,6 +46,7 @@ namespace GameBridge.Core
         private int ignored;
         internal event Action<PurchaseUpdate> PurchaseUpdated;
         internal event Action<PushUpdate, bool> PushUpdated;
+        internal event Action<PushTokenUpdate> PushTokenUpdated;
         internal int IgnoredMessages => Volatile.Read(ref ignored);
         internal int PendingCount { get { lock (gate) return pending.Count; } }
         internal RequestRegistry(Action<string> dispatch, Guid sessionId)
@@ -123,6 +124,7 @@ namespace GameBridge.Core
         }
         private void HandleEvent(JObject root)
         {
+            if (root["type"]?.Type == JTokenType.String && (string)root["type"] == "PushTokenChanged") { HandlePushTokenEvent(root); return; }
             if (root["type"]?.Type == JTokenType.String && ((string)root["type"] == "PushReceived" || (string)root["type"] == "PushOpened"))
             { HandlePushEvent(root); return; }
             if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
@@ -154,6 +156,24 @@ namespace GameBridge.Core
             lock (gate) { if (disposed) { Interlocked.Increment(ref ignored); return; } }
             PushUpdated?.Invoke(new PushUpdate { EventId = (string)root["eventId"], MessageId = (string)payload["messageId"],
                 Route = (string)payload["route"], CampaignId = (string)payload["campaignId"], OccurredAt = time }, (string)root["type"] == "PushOpened");
+        }
+        private void HandlePushTokenEvent(JObject root)
+        {
+            if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
+                root["eventId"]?.Type != JTokenType.String || !Guid.TryParseExact((string)root["eventId"], "D", out _) ||
+                root["occurredAt"]?.Type != JTokenType.String || !DateTimeOffset.TryParse((string)root["occurredAt"], out var time) ||
+                !((string)root["occurredAt"]).EndsWith("Z", StringComparison.Ordinal) || !(root["payload"] is JObject payload) ||
+                payload["registered"]?.Type != JTokenType.Boolean || !payload.ContainsKey("tokenFingerprint") || !payload.ContainsKey("errorCode") ||
+                (payload["tokenFingerprint"].Type != JTokenType.Null && (payload["tokenFingerprint"].Type != JTokenType.String ||
+                    !System.Text.RegularExpressions.Regex.IsMatch((string)payload["tokenFingerprint"], "^[0-9a-f]{12}$"))) ||
+                ((bool)payload["registered"] && payload["tokenFingerprint"].Type == JTokenType.Null) ||
+                (payload["errorCode"].Type != JTokenType.Null && (payload["errorCode"].Type != JTokenType.String || !IsKnownError((string)payload["errorCode"]))) ||
+                ((bool)payload["registered"] && payload["errorCode"].Type != JTokenType.Null) ||
+                (!(bool)payload["registered"] && (payload["errorCode"].Type == JTokenType.Null || payload["tokenFingerprint"].Type != JTokenType.Null)))
+            { Interlocked.Increment(ref ignored); return; }
+            lock (gate) { if (disposed) { Interlocked.Increment(ref ignored); return; } }
+            PushTokenUpdated?.Invoke(new PushTokenUpdate { EventId = (string)root["eventId"], Registered = (bool)payload["registered"],
+                TokenFingerprint = (string)payload["tokenFingerprint"], ErrorCode = (string)payload["errorCode"], OccurredAt = time });
         }
         private void Finish(string id, Pending entry, JToken result, SdkException error)
         {

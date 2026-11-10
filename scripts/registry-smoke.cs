@@ -14,6 +14,7 @@ internal static class Program
         public void Dispatch(string json) { Requests.Add(JObject.Parse(json)); }
         public void Pump() { }
         public void Dispose() { Message = null; }
+        internal void Emit(JObject message) { Message?.Invoke(message.ToString(Newtonsoft.Json.Formatting.None)); }
         internal void Reply(JObject request, JObject result)
         {
             Message?.Invoke(new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = request["sdkSessionId"], ["kind"] = "response",
@@ -105,6 +106,11 @@ internal static class Program
         var hostRequest = registry.RequestAsync("host.pushOpened", new JObject { ["messageId"] = "id-1", ["route"] = "store" }, TimeSpan.FromSeconds(5));
         var hostEnvelope = JObject.Parse(sent); Check((string)hostEnvelope["operation"] == "host.pushOpened", "internal host request dispatched");
         registry.HandleMessage(Response(hostEnvelope)); await hostRequest;
+        var tokenEvents = 0; registry.PushTokenUpdated += update => { tokenEvents++; Check(update.TokenFingerprint == "abcdef123456", "token event fingerprint"); };
+        var tokenEvent = new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = request["sdkSessionId"], ["kind"] = "event", ["eventId"] = Guid.NewGuid().ToString("D"),
+            ["type"] = "PushTokenChanged", ["occurredAt"] = "2026-11-10T00:00:00Z", ["payload"] = new JObject { ["registered"] = true, ["tokenFingerprint"] = "abcdef123456", ["errorCode"] = JValue.CreateNull() } };
+        registry.HandleMessage(tokenEvent.ToString()); Check(tokenEvents == 1, "token event accepted");
+        tokenEvent["payload"]["tokenFingerprint"] = "raw-token"; registry.HandleMessage(tokenEvent.ToString()); Check(tokenEvents == 1, "raw token rejected");
         var waiting = new List<Task>();
         for (var i = 0; i < 100; i++) waiting.Add(registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
         await Expect("BUSY", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
@@ -189,6 +195,14 @@ internal static class Program
         await permissionFacade.InitializeAsync(config); Check(permissionTransport.Requests == 0, "initialization must not prompt Android permission");
         Check((await permissionFacade.RequestPushPermissionAsync()).permission == "DENIED", "Android host denial");
         Check(permissionTransport.Requests == 1, "explicit Android permission request"); permissionFacade.Dispose();
+        var coldTransport = new HeldTransport(); var coldFacade = new GameBridge.GameBridgeClient(coldTransport); var coldCount = 0;
+        coldFacade.PushOpened += update => { if (update.MessageId == "cold-id") coldCount++; };
+        var coldInit = coldFacade.InitializeAsync(config); var coldRequest = coldTransport.Requests[0];
+        coldTransport.Emit(new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = coldRequest["sdkSessionId"], ["kind"] = "event",
+            ["eventId"] = Guid.NewGuid().ToString("D"), ["type"] = "PushOpened", ["occurredAt"] = "2026-11-10T00:00:00Z",
+            ["payload"] = new JObject { ["messageId"] = "cold-id", ["route"] = "store", ["campaignId"] = JValue.CreateNull() } });
+        Check(coldCount == 0, "cold push waits for ready"); coldTransport.Reply(coldRequest, InitResponse()); await coldInit;
+        coldFacade.Pump(); Check(coldCount == 1, "cold push delivered after ready"); coldFacade.Dispose();
         var held = new HeldTransport(); var concurrent = new GameBridge.GameBridgeClient(held);
         using (var callerCancellation = new CancellationTokenSource())
         {

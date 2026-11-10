@@ -1,0 +1,17 @@
+// Integrate these calls into the host's existing FirebaseMessagingService and Activity.
+// Do not install a second FirebaseMessagingService or open arbitrary URLs from payloads.
+object UnityPushForwarding {
+    fun onNewToken(token: String) {
+        // false means no active SDK session/queue capacity, not a successful registration.
+        // Once the user signs in, the app can explicitly call RegisterPushAsync() to fetch the current token.
+        com.gamebridge.bridge.BridgeFacade.forwardFcmToken(token)
+    }
+    fun onMessage(message: com.google.firebase.messaging.RemoteMessage) {
+        val data = message.data
+        com.gamebridge.bridge.BridgeFacade.forwardNotification(data["messageId"], data["route"], data["campaignId"], false)
+    }
+    fun onNotificationOpened(intent: android.content.Intent?) {
+        com.gamebridge.bridge.BridgeFacade.forwardNotification(intent?.getStringExtra("messageId"),
+            intent?.getStringExtra("route"), intent?.getStringExtra("campaignId"), true)
+    }
+}

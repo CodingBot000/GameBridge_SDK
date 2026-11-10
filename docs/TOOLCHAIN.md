@@ -19,3 +19,5 @@
 Android AGP 8.13.0 / Gradle 8.13 / Kotlin 2.1.20 / API 36 / JDK 21 최소 Compose 앱 빌드 성공 (2026-11-10); 기기 실행 및 Unity export 미검증. Backend Spring Boot 3.5.16 / Kotlin 2.1.20 / Gradle 8.13 / JDK 21 최소 빌드 성공.
 
 Unity 6000.5.8f1에 포함된 .NET SDK 8.0.318로 Unity managed assembly 대상 C# 독립 컴파일을 수행할 수 있다. 이는 Unity Editor import나 IL2CPP 검증이 아니다. 첫 실행 시 .NET이 개발용 HTTPS 인증서를 자동 설치했다고 출력했으며 신뢰 명령은 실행하지 않았다. 이후 검사에서 인증서 생성을 비활성화한다.
+
+Unity JSON 후보 `com.unity.nuget.newtonsoft-json` 3.2.2는 Unity 공식 registry metadata와 패키지 DLL로 독립 .NET 컴파일·smoke를 확인했다. Unity Editor import 및 IL2CPP 호환성은 미검증이다. 출처: https://packages.unity.com/com.unity.nuget.newtonsoft-json

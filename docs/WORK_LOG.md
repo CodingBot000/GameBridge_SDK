@@ -402,3 +402,11 @@
 - 동일 Unity managed assembly와 내장 .NET 8.0.318로 `UNITY_IOS` 분기 독립 컴파일 종료 0, 경고·오류 0. Unity IL2CPP·iOS C ABI 링크나 실행은 아니다. 이후 DOTNET_GENERATE_ASPNET_CERTIFICATE=false 사용.
 - `UNITY_EDITOR_PATH=<Unity 실행파일> bash scripts/check-csharp-compile.sh` 종료 0: UNITY_ANDROID 및 UNITY_IOS 두 분기 모두 실제 Unity managed reference 대상으로 .NET 8 컴파일, 경고·오류 0. Editor import·IL2CPP·양 플랫폼 링크/콜백 실행은 하지 않았다.
 - 커밋 전: 재현 가능한 컴파일 전용 script와 도구 증거를 포함한다. P03-T03/T04의 Unity 실연동은 ENV-002로 PARTIAL 유지.
+
+### [P03-T05] 시작 — 2026-11-10 Asia/Seoul
+- Native transport는 부분 구현, Unity Editor 라이선스는 ENV-002. C# 요청 registry를 독립 구현·컴파일하고, Editor import/IL2CPP 실행은 별도 대기한다. Unity 공식 registry에서 Newtonsoft package 3.2.2 metadata를 확인했다.
+- Unity 공식 registry의 `com.unity.nuget.newtonsoft-json` 3.2.2 패키지를 프로젝트 artifacts에 내려받고 압축 해제(명령 종료 0). Unity Editor import·IL2CPP 호환성은 아직 검증하지 않았다.
+- Unity 공식 Newtonsoft 3.2.2 의존성과 C# 요청 registry를 추가하고 `check-csharp-compile.sh` 종료 0: Android/iOS 조건부 분기 독립 컴파일, 경고 0. 실제 registry 동작·Unity Editor 실행은 아직 미검증.
+- `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-csharp-registry.sh` 종료 0: .NET 8 독립 프로세스에서 request/session 상관관계, 잘못된 operation, 중복, timeout·취소, 100개 상한, 종료 시 대기를 검증했다. Unity Editor/IL2CPP 실행이 아니다.
+- trailing JSON과 실패 응답에 error 누락된 경우를 추가한 뒤 독립 C# registry smoke 종료 0. Unity Editor·IL2CPP·native callback 실제 왕복은 미실행이다.
+- 커밋 전: registry·Unity Newtonsoft 의존성과 compiler-only smoke만 포함. 이벤트, Unity facade 및 Editor Fake는 아직 미구현으로 P03-T05 PARTIAL 유지.

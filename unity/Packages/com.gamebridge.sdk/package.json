@@ -3,5 +3,8 @@
   "version": "0.1.0-dev",
   "displayName": "GameBridge SDK",
   "description": "GameBridge SDK development package; implementation in progress.",
-  "unity": "6000.5"
+  "unity": "6000.5",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  }
 }

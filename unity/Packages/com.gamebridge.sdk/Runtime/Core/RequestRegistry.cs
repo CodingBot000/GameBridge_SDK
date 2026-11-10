@@ -28,7 +28,7 @@ namespace GameBridge.Core
         private static readonly HashSet<string> Allowed = new HashSet<string> {
             "sdk.initialize", "sdk.status", "sdk.capabilities", "auth.signIn", "auth.signOut", "auth.restore",
             "store.products", "store.purchase", "store.entitlements", "store.sync", "push.permission", "push.register",
-            "push.unregister", "config.get", "diagnostics.get", "sdk.shutdown"
+            "push.unregister", "config.get", "diagnostics.get", "sdk.shutdown", "host.pushToken", "host.pushReceived", "host.pushOpened", "host.lifecycle"
         };
         private static readonly HashSet<string> Errors = new HashSet<string> {
             "NOT_INITIALIZED", "ALREADY_INITIALIZED_DIFFERENT_CONFIG", "INVALID_ARGUMENT", "UNSUPPORTED_PLATFORM", "UNSUPPORTED_PROVIDER",
@@ -45,6 +45,7 @@ namespace GameBridge.Core
         private bool disposed;
         private int ignored;
         internal event Action<PurchaseUpdate> PurchaseUpdated;
+        internal event Action<PushUpdate, bool> PushUpdated;
         internal int IgnoredMessages => Volatile.Read(ref ignored);
         internal int PendingCount { get { lock (gate) return pending.Count; } }
         internal RequestRegistry(Action<string> dispatch, Guid sessionId)
@@ -122,6 +123,8 @@ namespace GameBridge.Core
         }
         private void HandleEvent(JObject root)
         {
+            if (root["type"]?.Type == JTokenType.String && ((string)root["type"] == "PushReceived" || (string)root["type"] == "PushOpened"))
+            { HandlePushEvent(root); return; }
             if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
                 root["eventId"]?.Type != JTokenType.String || !Guid.TryParseExact((string)root["eventId"], "D", out _) ||
                 root["type"]?.Type != JTokenType.String || (string)root["type"] != "PurchaseUpdated" ||
@@ -137,6 +140,20 @@ namespace GameBridge.Core
             lock (gate) { if (disposed) { Interlocked.Increment(ref ignored); return; } }
             PurchaseUpdated?.Invoke(new PurchaseUpdate { EventId = (string)root["eventId"], ProductId = (string)payload["productId"],
                 Status = status, ServerPurchaseId = (string)payload["serverPurchaseId"], ErrorCode = (string)payload["errorCode"], OccurredAt = time });
+        }
+        private void HandlePushEvent(JObject root)
+        {
+            if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
+                root["eventId"]?.Type != JTokenType.String || !Guid.TryParseExact((string)root["eventId"], "D", out _) ||
+                root["occurredAt"]?.Type != JTokenType.String || !DateTimeOffset.TryParse((string)root["occurredAt"], out var time) ||
+                !((string)root["occurredAt"]).EndsWith("Z", StringComparison.Ordinal) || !(root["payload"] is JObject payload) ||
+                payload["messageId"]?.Type != JTokenType.String || string.IsNullOrWhiteSpace((string)payload["messageId"]) ||
+                payload["route"]?.Type != JTokenType.String || ((string)payload["route"] != "home" && (string)payload["route"] != "store") ||
+                !payload.ContainsKey("campaignId") || (payload["campaignId"].Type != JTokenType.Null && payload["campaignId"].Type != JTokenType.String))
+            { Interlocked.Increment(ref ignored); return; }
+            lock (gate) { if (disposed) { Interlocked.Increment(ref ignored); return; } }
+            PushUpdated?.Invoke(new PushUpdate { EventId = (string)root["eventId"], MessageId = (string)payload["messageId"],
+                Route = (string)payload["route"], CampaignId = (string)payload["campaignId"], OccurredAt = time }, (string)root["type"] == "PushOpened");
         }
         private void Finish(string id, Pending entry, JToken result, SdkException error)
         {

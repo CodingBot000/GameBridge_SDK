@@ -54,6 +54,14 @@ namespace GameBridge
         public string ErrorCode { get; internal set; }
         public DateTimeOffset OccurredAt { get; internal set; }
     }
+    public sealed class PushUpdate
+    {
+        public string EventId { get; internal set; }
+        public string MessageId { get; internal set; }
+        public string Route { get; internal set; }
+        public string CampaignId { get; internal set; }
+        public DateTimeOffset OccurredAt { get; internal set; }
+    }
     [Serializable] public sealed class EntitlementSnapshot
     {
         [JsonProperty(Required = Required.Always)] public string userId;

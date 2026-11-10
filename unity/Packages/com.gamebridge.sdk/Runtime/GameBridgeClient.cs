@@ -67,6 +67,8 @@ namespace GameBridge
         private bool disposed;
         internal event Action<GameBridgeClient> Disposed;
         public event Action<PurchaseUpdate> PurchaseUpdated;
+        public event Action<PushUpdate> PushReceived;
+        public event Action<PushUpdate> PushOpened;
         internal GameBridgeClient(IWireTransport transport)
         {
             this.transport = transport ?? throw new ArgumentNullException(nameof(transport));
@@ -77,6 +79,10 @@ namespace GameBridge
         {
             var created = new RequestRegistry(transport.Dispatch, Guid.NewGuid());
             created.PurchaseUpdated += update => { lock (gate) { if (disposed || state != "READY" || !ReferenceEquals(registry, created)) return; } PurchaseUpdated?.Invoke(update); };
+            created.PushUpdated += (update, opened) => {
+                lock (gate) { if (disposed || state != "READY" || !ReferenceEquals(registry, created)) return; }
+                if (opened) PushOpened?.Invoke(update); else PushReceived?.Invoke(update);
+            };
             return created;
         }
         private void OnMessage(string json) { RequestRegistry current; lock (gate) current = registry; current?.HandleMessage(json); }

@@ -19,6 +19,7 @@ private final class BridgeState {
     private var pending = 0
     private var eventSession: String?
     private var accountEpoch: UInt64 = 0
+    private let pushRouter = PushRouter()
     // Accessed only by the serial bridge queue and the one task it waits for.
     private var state = "UNINITIALIZED"
     private var ownerSession: String?
@@ -63,6 +64,7 @@ private final class BridgeState {
             switch operation {
             case "sdk.status": result = ["state": state, "sdkVersion": GameBridgeVersion.current]
             case "sdk.shutdown":
+                await pushRouter.reset()
                 invalidatePurchaseEvents(clearSession: true)
                 _ = try await invokeActive(operation, payload: payload)
                 state = "SHUTDOWN"; ownerSession = nil; activeMode = nil; result = ["state": state]
@@ -85,10 +87,29 @@ private final class BridgeState {
                     #endif
                 default: throw SdkFailure("UNSUPPORTED_PROVIDER")
                 }
+                let newlyInitialized = ownerSession == nil
                 state = "READY"; ownerSession = session; activeMode = mode
                 bindEventSession(session)
+                if newlyInitialized { _ = await pushRouter.setReady() }
+            case "host.pushReceived", "host.pushOpened":
+                guard state == "READY" else { throw SdkFailure("NOT_INITIALIZED") }
+                var fields: [AnyHashable: Any] = ["messageId": payload["messageId"] as Any, "route": payload["route"] as Any]
+                if let campaign = payload["campaignId"], !(campaign is NSNull) { fields["campaignId"] = campaign }
+                guard let push = PushPayload(data: fields) else { throw SdkFailure("INVALID_ARGUMENT") }
+                let opened = operation == "host.pushOpened"
+                let decision = await pushRouter.submit(PushRouteEvent(payload: push, kind: opened ? .opened : .received))
+                switch decision {
+                case .deliver: emitPush(push, opened: opened, session: session)
+                case .duplicate: break
+                case .queued: throw SdkFailure("NOT_INITIALIZED")
+                case .busy: throw SdkFailure("BUSY", retryable: true)
+                }
+                result = ["accepted": true]
             default:
-                if operation == "auth.signIn" || operation == "auth.signOut" { invalidatePurchaseEvents(clearSession: false) }
+                if operation == "auth.signIn" || operation == "auth.signOut" {
+                    invalidatePurchaseEvents(clearSession: false)
+                    await pushRouter.reset(); _ = await pushRouter.setReady()
+                }
                 result = try await invokeActive(operation, payload: payload)
             }
             return envelope(data, result: result, failure: nil)
@@ -114,6 +135,15 @@ private final class BridgeState {
             if operation == "sdk.shutdown" { return [String: Any]() }
             throw SdkFailure("NOT_INITIALIZED")
         }
+    }
+    private func emitPush(_ push: PushPayload, opened: Bool, session: String) {
+        lock.lock(); defer { lock.unlock() }
+        guard session == eventSession, let send = callback else { return }
+        let payload: [String: Any] = ["messageId": push.messageId, "route": push.route, "campaignId": push.campaignId as Any? ?? NSNull()]
+        let envelope: [String: Any] = ["protocolVersion": 1, "sdkSessionId": session, "kind": "event", "eventId": UUID().uuidString.lowercased(),
+            "type": opened ? "PushOpened" : "PushReceived", "occurredAt": ISO8601DateFormatter().string(from: Date()), "payload": payload]
+        guard let encoded = try? JSONSerialization.data(withJSONObject: envelope), encoded.count <= Int(Int32.max) else { return }
+        encoded.withUnsafeBytes { raw in send(raw.bindMemory(to: UInt8.self).baseAddress, Int32(raw.count)) }
     }
     private func bindEventSession(_ session: String) {
         lock.lock(); defer { lock.unlock() }; eventSession = session
@@ -160,6 +190,7 @@ private final class BridgeState {
             let done = DispatchSemaphore(value: 0)
             Task {
                 _ = try? await self.invokeActive("sdk.shutdown", payload: [:])
+                await self.pushRouter.reset()
                 self.state = "SHUTDOWN"; self.ownerSession = nil; self.activeMode = nil; done.signal()
             }
             done.wait()

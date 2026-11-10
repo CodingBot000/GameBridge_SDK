@@ -228,7 +228,7 @@ local-mock 개발 push endpoint를 사용하려면 `GAMEBRIDGE_DEV_PUSH_ADMIN_KE
 
 서버 점검 상태가 명시되지 않으면 신규 구매를 차단하기로 사용자가 결정했다. 로컬 시험에서 구매를 허용하려면 `GAMEBRIDGE_MAINTENANCE_ENABLED=false`를 명시하며 실제 운영 상태는 운영자가 결정한다.
 
-Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상으로 작성했다. 알림 권한/등록은 host가 명시적으로 요청한다. Unity의 `OnRemoteNotificationReceived` 구독은 foreground 기본 알림 표시를 억제한다. 현재 Swift bridge의 `host.pushToken`/`host.pushReceived`/`host.pushOpened`는 UNSUPPORTED이므로 Unity APNs 등록·전달이 완성된 것은 아니다. Unity Editor/IL2CPP 및 실제 APNs는 미검증이다.
+Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상으로 작성했다. 알림 권한/등록은 host가 명시적으로 요청한다. Unity의 `OnRemoteNotificationReceived` 구독은 foreground 기본 알림 표시를 억제한다. Swift bridge의 `host.pushReceived`/`host.pushOpened`는 synthetic route·중복 제거 시험을 통과했으나 `host.pushToken` Backend 등록은 미연결이므로 Unity APNs 전체 경로는 완성되지 않았다. Unity Editor/IL2CPP 및 실제 APNs는 미검증이다.
 
 ### Unity Android 개발 전용 LOCAL_MOCK
 

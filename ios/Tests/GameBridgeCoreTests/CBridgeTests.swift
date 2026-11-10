@@ -11,6 +11,14 @@ private let bridgeCallback: GBCallback = { pointer, length in
     callbackLock.lock(); callbackData = copied; callbackLock.unlock()
     callbackSignal.signal()
 }
+private let pushCallbackLock = NSLock()
+private var pushCallbackMessages: [Data] = []
+private let pushCallbackSignal = DispatchSemaphore(value: 0)
+private let pushBridgeCallback: GBCallback = { pointer, length in
+    guard let pointer, length > 0 else { return }
+    pushCallbackLock.lock(); pushCallbackMessages.append(Data(bytes: pointer, count: Int(length))); pushCallbackLock.unlock()
+    pushCallbackSignal.signal()
+}
 final class CBridgeTests: XCTestCase {
     func testCopiedUTF8AndCorrelatedResponse() throws {
         XCTAssertEqual(GB_ProtocolVersion(), 1)
@@ -52,6 +60,38 @@ final class CBridgeTests: XCTestCase {
         let other = try call("auth.restore", [:], UUID().uuidString.lowercased())
         XCTAssertEqual((other["error"] as? [String: Any])?["code"] as? String, "NOT_INITIALIZED")
         XCTAssertEqual(try call("sdk.shutdown", [:], session)["ok"] as? Bool, true)
+        GB_Shutdown()
+    }
+
+    func testHostPushEventRoutingAndDedup() throws {
+        pushCallbackLock.lock(); pushCallbackMessages = []; pushCallbackLock.unlock()
+        GB_SetCallback(pushBridgeCallback)
+        let session = UUID().uuidString.lowercased()
+        func send(_ operation: String, _ payload: [String: Any]) throws {
+            let request: [String: Any] = ["protocolVersion": 1, "sdkSessionId": session, "kind": "request",
+                "requestId": UUID().uuidString.lowercased(), "operation": operation, "payload": payload]
+            let data = try JSONSerialization.data(withJSONObject: request)
+            data.withUnsafeBytes { bytes in GB_Dispatch(bytes.bindMemory(to: UInt8.self).baseAddress, Int32(bytes.count)) }
+        }
+        func receive() throws -> [String: Any] {
+            XCTAssertEqual(pushCallbackSignal.wait(timeout: .now() + 3), .success)
+            pushCallbackLock.lock(); let data = pushCallbackMessages.removeFirst(); pushCallbackLock.unlock()
+            return try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        }
+        try send("sdk.initialize", ["providerMode": "LOCAL_MOCK", "appId": "demo", "backendBaseUrl": "http://127.0.0.1:18080",
+            "requestTimeoutMs": 30000, "developmentKey": String(repeating: "x", count: 32), "mockSubject": "A"])
+        XCTAssertEqual(try receive()["ok"] as? Bool, true)
+        let payload: [String: Any] = ["messageId": "test-id", "route": "store", "campaignId": NSNull(), "url": "https://ignored.invalid"]
+        try send("host.pushOpened", payload)
+        let event = try receive(), response = try receive()
+        XCTAssertEqual(event["type"] as? String, "PushOpened")
+        XCTAssertEqual((event["payload"] as? [String: Any])?["route"] as? String, "store")
+        XCTAssertNil((event["payload"] as? [String: Any])?["url"])
+        XCTAssertEqual(response["ok"] as? Bool, true)
+        try send("host.pushOpened", payload); XCTAssertEqual(try receive()["ok"] as? Bool, true)
+        XCTAssertEqual(pushCallbackSignal.wait(timeout: .now() + 0.1), .timedOut)
+        try send("host.pushReceived", ["messageId": "bad", "route": "https://ignored.invalid"])
+        XCTAssertEqual((try receive()["error"] as? [String: Any])?["code"] as? String, "INVALID_ARGUMENT")
         GB_Shutdown()
     }
 

@@ -1313,3 +1313,14 @@
 - `xcrun xcresulttool get test-results summary/tests` 확인: iOS 26.5 전용 simulator에서 `MockRecoveryDeviceTests/testKeychainInstancesRecoverCommittedMockPurchaseOnce` 1건 실행·통과, skip 0. 임의 test Keychain service 재생성 후 격리 local DB 지급 재검증·100 한 번 증가를 확인했다. 실제 기기·프로세스 강제 종료·Unity player는 아니다. Mock user B에 지급 1건을 남겼다.
 - 직접 기동한 Android 전용 AVD와 local Backend만 종료했다. emulator 데이터·PostgreSQL volume·iOS simulator는 보존했다.
 - 커밋 전: 두 플랫폼의 보안 저장소 인스턴스 재생성 및 격리 DB Mock 복구 기기 시험과 정제된 결과만 포함한다. 실기기 프로세스 재시작·Unity player와 실제 스토어는 미검증이다.
+
+### [P06-T03] Unity iOS push host 연결
+- Task 시작: Unity host-managed APNs의 token·수신·열기 이벤트와 Native 인증·Backend 등록 경계를 확인한다. 실제 APNs 발송은 사용자 설정 전 실행하지 않는다.
+- iOS host adapter는 이미 정규화된 알림을 Swift host operation으로 전달하지만 현재 Unity 공개 이벤트와 Native operation이 연결되지 않았다. 우선 허용 route만 노출하는 이벤트 수신 경계를 추가한다.
+- `UNITY_EDITOR_PATH=... bash scripts/smoke-csharp-registry.sh` 종료 0: 같은 session의 PushOpened 허용 route만 공개하고 임의 URL route를 거부하는 독립 .NET 시험 통과. Native 발행·Unity 실행은 아직 미검증이다.
+- Swift C ABI에 host push 수신·열기를 연결해 route allowlist와 기존 200-ID 중복 제거기를 통과한 안전한 필드만 Unity 이벤트로 반환한다. 이 작업은 원격 APNs 수신이나 토큰 등록 성공을 뜻하지 않는다. C ABI synthetic 시험을 추가한다.
+- `swift test --package-path ios --filter CBridgeTests` 종료 0, 기존 2건. 새 host push 이벤트의 route·중복·민감 필드 제거는 별도 C ABI synthetic 시험으로 검증한다.
+- `swift test --package-path ios --filter CBridgeTests` 종료 0, 3건: synthetic host PushOpened 전달, 허용 외 URL 필드 제거·중복 억제·비허용 route 거부를 확인했다. 실제 원격 APNs 및 Unity player는 실행하지 않았다. C# 조건부 및 iOS simulator compile을 확인한다.
+- C# 네 조건부 compile 및 iOS simulator static framework build 종료 0. 추가 검토에서 RequestRegistry allowlist가 internal `host.push*` 요청을 차단해 Unity host adapter가 Native까지 도달하지 못하는 기존 결함을 발견했다. 내부 host operation만 allowlist에 추가하고 회귀 확인한다.
+- `scripts/smoke-csharp-registry.sh` 재실행 종료 0: internal host.pushOpened 요청이 registry allowlist를 통과하고 응답에 상관되는 것을 확인했다. 실제 Unity notification package/원격 APNs는 미실행이다.
+- 커밋 전: Unity public push 이벤트 수신 및 iOS host 알림 route·중복 제거 synthetic 경로만 포함한다. APNs token 등록·실제 원격 전달과 Unity player 검증은 미완료다.

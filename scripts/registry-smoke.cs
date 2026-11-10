@@ -80,6 +80,15 @@ internal static class Program
         registry.HandleMessage(forgedEvent.ToString()); Check(eventCount == 1, "unconfirmed purchase ignored");
         var numericEvent = (JObject)updateEvent.DeepClone(); numericEvent["payload"]["status"] = "0";
         registry.HandleMessage(numericEvent.ToString()); Check(eventCount == 1, "numeric enum ignored");
+        var pushCount = 0; registry.PushUpdated += (update, opened) => { pushCount++; Check(update.Route == "store" && opened, "safe push route"); };
+        var pushEvent = new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = request["sdkSessionId"], ["kind"] = "event",
+            ["eventId"] = Guid.NewGuid().ToString("D"), ["type"] = "PushOpened", ["occurredAt"] = "2026-11-10T00:00:00Z",
+            ["payload"] = new JObject { ["messageId"] = "id-1", ["route"] = "store", ["campaignId"] = JValue.CreateNull(), ["url"] = "https://ignored.invalid" } };
+        registry.HandleMessage(pushEvent.ToString()); Check(pushCount == 1, "push event accepted");
+        pushEvent["payload"]["route"] = "https://ignored.invalid"; registry.HandleMessage(pushEvent.ToString()); Check(pushCount == 1, "unsafe route ignored");
+        var hostRequest = registry.RequestAsync("host.pushOpened", new JObject { ["messageId"] = "id-1", ["route"] = "store" }, TimeSpan.FromSeconds(5));
+        var hostEnvelope = JObject.Parse(sent); Check((string)hostEnvelope["operation"] == "host.pushOpened", "internal host request dispatched");
+        registry.HandleMessage(Response(hostEnvelope)); await hostRequest;
         var waiting = new List<Task>();
         for (var i = 0; i < 100; i++) waiting.Add(registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
         await Expect("BUSY", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));

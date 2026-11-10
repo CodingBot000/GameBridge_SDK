@@ -261,3 +261,14 @@
 - Kotlin Offline Fake에 명시적 권한·등록·allowlist route·messageId 중복 제거 추가 후 `./android/gradlew -p android :sdk-testing:test` 종료 0. 이는 메모리 주입 이벤트이며 FCM 수신이 아니다.
 - Swift Offline Fake에도 권한·등록·route 허용 목록·중복 이벤트 제거를 추가하고 `swift test --package-path ios` 종료 0, XCTest 10건 통과. APNs 전송·수신 검증이 아니다.
 - 커밋 전: Kotlin/Swift의 독립 테스트용 메모리 Fake만 포함. Unity Editor Fake, late callback 시나리오, Native→Backend LOCAL_MOCK 통합은 미구현이므로 P01-T04 PARTIAL 유지.
+
+### [P01-T05] 시작 — 2026-11-10 Asia/Seoul
+- P01-T03은 부분 완료. Native HTTP와 보안 저장소를 별도 인터페이스로 작성하고 Unity에 토큰을 전달하지 않는다. 실제 플랫폼 저장소 검증은 가능한 환경에서 별도 수행한다.
+- `./android/gradlew -p android :sdk-core:test` 종료 1: 전체 10건 중 BackendClientTest 1건 실패. XML에서 실제 실패 원인을 확인한 뒤 수정한다.
+- XML 위치는 `BackendClientTest.kt:19`: JSON parser가 `bad`를 primitive로 수용해 오류가 발생하지 않았다. API 응답은 JSON object로 제한하고 Android 최소 API에서 사용 가능한 bounded stream 읽기로 교체한다.
+- JSON object 확인과 bounded stream 보정 후 `./android/gradlew -p android :sdk-core:test` 종료 0, 10건 통과. BUG-001 재현 오류 해소. HTTP 세부 오류 매핑·timeout·실기기 확인은 아직 미완료.
+- `ANDROID_HOME=<installed SDK> ./android/gradlew -p android :sdk-android:assembleDebug` 종료 0: Android Keystore AES-GCM 저장소 소스 AAR 컴파일. SDK XML 버전 경고 관측; 기기 저장·복원 및 백업 복원은 미검증.
+- `swift test --package-path ios` 종료 0: Swift HTTP·Keychain 소스 컴파일 및 기존 XCTest 10건 통과. 새 HTTP 동작·Keychain 저장은 이 실행에서 검증하지 않았다.
+- `swift test --package-path ios` 종료 0: XCTest 총 11건 중 URLProtocol mock을 이용한 HTTP 성공·401·잘못된 JSON·timeout·경로 거부 확인. 실제 네트워크·Keychain 기기 저장 검증은 아님.
+- `ANDROID_HOME=<installed SDK> ./android/gradlew -p android :sdk-core:test :sdk-android:assembleDebug` 종료 0: HTTP timeout을 포함한 core 시험 10건 및 Keystore 코드 AAR 빌드. 실제 기기 저장·복원 검증은 미실행.
+- 커밋 전: Native HTTP와 OS 보안 저장소 기반만 포함. 세션 갱신·오류 코드 세분화·취소·기기 Keychain/Keystore 실행·백업 정책 및 LOCAL_MOCK 수직 연결은 미완료. Swift 응답 크기는 수신 완료 후 검사한다. P01-T05는 PARTIAL 유지.

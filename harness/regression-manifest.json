@@ -68,6 +68,14 @@
       ],
       "mode": "LOCAL",
       "platform": "Harness"
+    },
+    "auth-regression": {
+      "command": [
+        "python3",
+        "harness/run-auth-regression.py"
+      ],
+      "mode": "TEST_KEY_AND_FAKE",
+      "platform": "Backend/Android/iOS"
     }
   },
   "scenarios": [
@@ -346,9 +354,7 @@
         "R13"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -368,9 +374,7 @@
         "R14"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -390,9 +394,7 @@
         "R15"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -412,9 +414,7 @@
         "R16"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -434,9 +434,7 @@
         "R17"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -456,9 +454,7 @@
         "R18"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -478,9 +474,7 @@
         "R19"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -500,9 +494,7 @@
         "R20"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -522,9 +514,7 @@
         "R21"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
@@ -544,9 +534,7 @@
         "R22"
       ],
       "candidateSuites": [
-        "backend-unit",
-        "android-unit",
-        "ios-unit"
+        "auth-regression"
       ],
       "evidence": "docs/WORK_LOG.md",
       "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."

@@ -153,6 +153,8 @@ class AuthHttpIntegrationTest {
         val apple = exchange(appleChallenge, "APPLE", appleToken)
         assertEquals(200, apple.statusCode.value()); assertNotEquals(session["userId"], apple.body!!["userId"])
         val retryChallenge = challenge("GOOGLE")
+        val fakeIdentity = exchange(retryChallenge, "GOOGLE", "mock:identity:synthetic")
+        assertEquals(401, fakeIdentity.statusCode.value())
         val bad = signed("https://accounts.google.com", "wrong", retryChallenge["nonce"] as String, subject)
         assertEquals(401, exchange(retryChallenge, "GOOGLE", bad).statusCode.value())
         val correct = signed("https://accounts.google.com", "test-google", retryChallenge["nonce"] as String, subject)

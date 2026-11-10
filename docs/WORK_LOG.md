@@ -1493,3 +1493,12 @@
 - `harness/check-bridge-mutation.py` 종료 0: 새 복제본의 중복 응답 guard 제거 시 registry smoke가 해당 runtime 경로 NullReferenceException으로 실패함을 확인했다. 원본 source는 변경하지 않았다. 원본 suite를 재실행한다.
 - 원본 재검증: `scripts/smoke-csharp-registry.sh` 종료 0(독립 .NET smoke 1), `swift test --filter CBridgeTests` 종료 0(3건), Android `:sdk-core:test --tests BridgeDispatcherTest :sdk-unity-bridge:testDebugUnitTest` 종료 0(core 2건·bridge 6건). 일부 Gradle task는 up-to-date이며 실제 Unity Editor/JNI는 아니다.
 - 커밋 전: disposable duplicate guard mutation 검사기와 정제 증거만 포함한다. R01~R12 전체·Unity scene/Domain Reload 및 stress 검증은 미완료로 P09-T02 PARTIAL 유지한다.
+
+### [P09-T03] 인증·세션·개발모드 회귀
+- Task 시작: server JWT/nonce·session rotation 및 sandbox dev endpoint 차단과 Native fake session 시험의 실제 실행 범위를 조사하고 분리 실행한다. 외부 Google/Apple 토큰 시험으로 취급하지 않는다.
+- 3개 독립 인증 suite 실행: Backend opt-in sandbox PostgreSQL/HTTP 및 JWT fixture 8건, Android session/provider fake 13건, Swift fake 17건 모두 실패 0. Backend는 테스트 전용 RSA 키와 sandbox DB이며 실제 Google/Apple token이 아니다. sandbox dev-auth는 HTTP 404로 확인했고 fake identity token 직접 제출을 추가 확인한다.
+- `GAMEBRIDGE_RUN_AUTH_DB_TESTS=true ... backend/gradlew -p backend test --tests AuthHttpIntegrationTest` 종료 0, sandbox test DB HTTP 1건: Mock identity 문자열 직접 제출 401, 개발 인증 route 404 및 동일 challenge의 정상 test-key 인증을 확인했다. 실제 외부 token은 아니다. 재현 가능한 분리 suite runner를 작성한다.
+- `harness/run-auth-regression.py`을 명시적 전용 sandbox DB 설정으로 실행해 종료 0: test-key JWT 6건, sandbox HTTP/DB 2건, Android fake 13건, Swift fake 17건, skip 0. 실제 Google/Apple 검증은 포함하지 않는다. 결과 `artifacts/auth-regression-igvg0n7w/result.json`.
+- DB URL에 credentials를 내장한 설정은 runner가 사용하지 않도록 했고, R13~R22의 후보 suite를 synthetic auth runner로 연결했다. DB 미설정 시 DEFERRED_ENV/exit 2를 확인한다.
+- DB 환경값을 제거하고 `harness/run-auth-regression.py` 실행 시 JWT 6·Android 13·Swift 17은 실행됐으나 sandbox DB suite는 DEFERRED_ENV/0건, 전체 exit 2를 확인했다. 결과 `artifacts/auth-regression-iu23pa2v/result.json`; 누락을 성공으로 처리하지 않는다.
+- 커밋 전: test-key sandbox HTTP fake-token 거부 assertion과 재현 가능한 인증 runner만 포함한다. 실 Google/Apple·모든 R13~R22 완전 coverage는 미검증으로 P09-T03 PARTIAL 유지한다.

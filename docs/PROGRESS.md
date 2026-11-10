@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05 / P05-T01
+- 현재 Phase / Task: P05 / P05-T05
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
 - 현재 작업 트리 상태: 코드 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 실 proof sink 및 지급 연결; push retry 사용자 결정 대기
+- 바로 다음 행동: 검증된 Apple 거래 원자 지급; push retry·증빙 보관 사용자 결정 대기
 - 불가피한 세션 종료 시 재개 행동: 미완료 P05~P08 구현 및 P09~P11 진행, 실제 플랫폼과 mock 증거 분리
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 27 / IN_PROGRESS 35 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 27 / PASS 2 / FAIL 1 / PARTIAL 34 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 26 / IN_PROGRESS 36 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 26 / PASS 2 / FAIL 1 / PARTIAL 35 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -63,7 +63,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P05-T02 | 실제 Google Play Billing adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T02 | USER-BILLING-GOOGLE |
 | P05-T03 | StoreKit 2·로컬 .storekit 시나리오 | IN_PROGRESS | FAIL | WAITING_USER | WORK_LOG P05-T03 | USER-BILLING-APPLE, ENV-STOREKIT-26 |
 | P05-T04 | 실제 Google·Apple 구매 검증 서버 | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T04 | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
-| P05-T05 | 지급 원자성·동시성·서버 finalizer 연결 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P05-T05 | 지급 원자성·동시성·서버 finalizer 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P05-T05 | - |
 | P05-T06 | Native 복구·store finish·timeout 이후 처리 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P05-T07 | Unity·Native 상점 완성 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
 | P06-T01 | 실제 FCM 등록·수신·권한 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T01 | USER-PUSH-GOOGLE |

@@ -779,3 +779,10 @@
 - Swift Apple auth fake 시험 8건 통과: logout 후 cache 무효화, 요청 지연 중 logout 시 응답 폐기 포함. simulator 타깃 컴파일을 확인한다.
 - 새 Apple binding source를 포함한 simulator static framework build 성공. 이전 XCFramework/staging은 이 커밋을 포함하지 않으므로 최신 산출물로 간주하지 않는다. 실제 StoreKit·Backend HTTP 연동은 미실행이다.
 - 커밋 전: Apple Native-only binding source와 generation 경합 unit만 포함한다. 양 플랫폼 provider 조립·실 proof sink·실거래는 미완료로 P05-T01 PARTIAL 유지.
+
+### [P05-T05] 시작 — 2026-11-10 Asia/Seoul
+- 검증된 Apple 거래의 DB 원자 지급과 중복/계정 충돌을 구현한다. Google finalizer의 암호화 증빙 삭제 시점은 사용자 결정 대기이며 해당 저장·삭제 동작은 정하지 않는다. 실 StoreKit/HTTP 연결은 별도다.
+- Apple 검증 결과만 받는 내부 grant service 초안 작성: session scope/binding/catalog 확인과 ledger transaction. 실제 verifier route와 StoreKit 연결은 아직 없다. 컴파일한다.
+- Apple grant service Kotlin 컴파일 성공. 검증 결과는 synthetic fixture로만 만들고 격리 schema에서 동시 10건, 1회 원장과 타 계정 거래 재사용 거부를 확인한다.
+- PostgreSQL 격리 schema 시험 1건 통과(skip 0): 같은 synthetic Apple 거래 10개 동시 요청에서 grant 1회·동일 purchase ID·원장 총 100, 다른 사용자의 거래 재사용 거부. 실제 Apple 서명/거래와 연결된 검증은 아니다. 시험 schema는 삭제하지 않았다.
+- 커밋 전: 내부 Apple grant transaction과 synthetic DB 시험만 포함. 실제 verifier endpoint, client finish 연결, Google 증빙 보관 및 서버 finalizer는 미완료이므로 P05-T05 PARTIAL 유지.

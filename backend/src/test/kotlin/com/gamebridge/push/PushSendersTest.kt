@@ -2,6 +2,7 @@ package com.gamebridge.push
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.firebase.messaging.MessagingErrorCode
+import com.google.firebase.ErrorCode
 import com.nimbusds.jose.crypto.ECDSAVerifier
 import com.nimbusds.jwt.SignedJWT
 import java.io.IOException
@@ -19,6 +20,8 @@ class PushSendersTest {
         assertEquals(PushSendResult.RETRYABLE, mapFcmError(MessagingErrorCode.QUOTA_EXCEEDED).result)
         assertEquals(PushSendResult.RETRYABLE, mapFcmError(MessagingErrorCode.UNAVAILABLE).result)
         assertEquals(PushSendResult.FAILED, mapFcmError(MessagingErrorCode.INVALID_ARGUMENT).result)
+        assertEquals(PushFailure.TIMEOUT, mapFcmError(null, ErrorCode.DEADLINE_EXCEEDED).failure)
+        assertEquals(PushFailure.SERVER_ERROR, mapFcmError(null, ErrorCode.UNAVAILABLE).failure)
     }
     @Test fun `apns request uses fixed host topic and maps results without leaking token`() {
         var called = false

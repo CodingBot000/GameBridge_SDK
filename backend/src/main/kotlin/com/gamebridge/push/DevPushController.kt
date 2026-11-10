@@ -28,8 +28,14 @@ internal fun interface DevPushSender { fun send(principal: SessionPrincipal, app
 @Profile("local-mock", "sandbox")
 internal class DevPushSenderConfiguration {
     @Bean @Profile("local-mock") fun mockDevPushSender(): DevPushSender = DevPushSender { _, _, _ -> "SIMULATED" }
-    @Bean @Profile("sandbox") fun unavailableSandboxDevPushSender(): DevPushSender = DevPushSender { _, _, _ ->
-        throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CONFIG_REQUIRED")
+    @Bean @Profile("sandbox") fun sandboxDevPushSender(runtime: SandboxPushRuntime): DevPushSender = DevPushSender { principal, app, input ->
+        val target = PushDispatchTarget(principal, app, "sandbox", input.installationId)
+        val content = PushContent(input.messageId, input.route, input.title, input.body, input.campaignId)
+        when (runtime.enqueue(target, content)) {
+            PushQueueResult.QUEUED -> "QUEUED"
+            PushQueueResult.NO_DEVICE -> throw ResponseStatusException(HttpStatus.FORBIDDEN)
+            PushQueueResult.BUSY -> throw ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS)
+        }
     }
 }
 @RestController

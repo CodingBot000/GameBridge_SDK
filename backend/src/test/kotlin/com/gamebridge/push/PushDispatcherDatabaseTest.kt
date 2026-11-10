@@ -42,14 +42,14 @@ class PushDispatcherDatabaseTest {
         val dispatcher = PushDispatcher(db, cipher, PushTokenInvalidator(db), provider)
         val target = PushDispatchTarget(principal, "gamebridge-sample", "sandbox", installation)
         val content = PushContent("test", "home", "title", "body")
-        assertEquals(PushSendResult.INVALID_TOKEN, dispatcher.send(target, content).result)
+        assertEquals(PushSendResult.INVALID_TOKEN, dispatcher.send(target, content).attempt.result)
         assertEquals(false, db.queryForObject("SELECT invalidated_at IS NOT NULL FROM device_tokens WHERE installation_id=?", Boolean::class.java, installation))
-        assertEquals(PushSendResult.SENT, dispatcher.send(target, content).result)
+        assertEquals(PushSendResult.SENT, dispatcher.send(target, content).attempt.result)
         val next = sessions.authenticate(sessions.createMock(subject).accessToken)!!
         sessions.logout(principal)
         val nextAuth = UsernamePasswordAuthenticationToken(next, null, emptyList())
         registrations.register(nextAuth, installation, DeviceRegistrationInput("synthetic-next", "FCM", "ANDROID"))
-        assertEquals(PushSendResult.FAILED, dispatcher.send(target, content).result)
+        assertEquals(PushSendResult.FAILED, dispatcher.send(target, content).attempt.result)
         assertEquals(2, calls)
     }
 }

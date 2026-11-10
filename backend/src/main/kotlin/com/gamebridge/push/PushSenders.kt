@@ -1,6 +1,7 @@
 package com.gamebridge.push
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.firebase.ErrorCode
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingException
 import com.google.firebase.messaging.Message
@@ -37,15 +38,20 @@ internal class FcmPushSender(private val messaging: FirebaseMessaging) {
             val message = Message.builder().setToken(token).putAllData(content.data())
                 .setNotification(Notification.builder().setTitle(content.title).setBody(content.body).build()).build()
             messaging.send(message); PushAttempt(PushSendResult.SENT)
-        } catch (e: FirebaseMessagingException) { mapFcmError(e.messagingErrorCode) }
+        } catch (e: FirebaseMessagingException) { mapFcmError(e.messagingErrorCode, e.errorCode) }
         catch (_: IllegalArgumentException) { PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT) }
     }
 }
-internal fun mapFcmError(code: MessagingErrorCode?): PushAttempt = when (code) {
+internal fun mapFcmError(code: MessagingErrorCode?, generic: ErrorCode? = null): PushAttempt = when (code) {
     MessagingErrorCode.UNREGISTERED -> PushAttempt(PushSendResult.INVALID_TOKEN, PushFailure.INVALID_TOKEN)
     MessagingErrorCode.QUOTA_EXCEEDED -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.RATE_LIMIT)
     MessagingErrorCode.UNAVAILABLE, MessagingErrorCode.INTERNAL -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.SERVER_ERROR)
-    else -> PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT)
+    else -> when (generic) {
+        ErrorCode.RESOURCE_EXHAUSTED -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.RATE_LIMIT)
+        ErrorCode.UNAVAILABLE, ErrorCode.INTERNAL -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.SERVER_ERROR)
+        ErrorCode.DEADLINE_EXCEEDED -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.TIMEOUT)
+        else -> PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT)
+    }
 }
 
 internal enum class ApnsEnvironment(val host: String) {

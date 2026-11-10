@@ -1036,3 +1036,13 @@
 - 交叉 검토에서 Android local-mock은 logout 후 config를 먼저 조회해 Swift와 다른 오류를 반환할 수 있음을 발견했다. 인증 상태를 먼저 확인하도록 맞추고 회귀시험한다.
 - Android core unit 통과: logout 뒤 구매는 SESSION_EXPIRED, config 미설정·점검의 신규 구매는 각각 CONFIG_REQUIRED/MAINTENANCE다.
 - 커밋 전: 오류 우선순위와 fake HTTP 회귀만 포함한다.
+- P06-T04 계속: 사용자 선택 동시 1건과 3회 retry를 sandbox 개발 발송에 연결한다. 재시도 대기에는 token 원문을 보관하지 않고 매회 DB 소유권을 재확인한다. 테스트는 fake provider로만 실행한다.
+- sandbox sender와 제한된 in-memory retry worker 초안을 연결했다. provider credentials는 최초 수동 요청 때 확인하며 queue에는 token 대신 installation/session만 저장한다. 아직 테스트 전이고 실제 remote push는 실행하지 않는다.
+- worker queue는 기존 100 상한을 지키고 queue full과 미등록 장치를 분리한다. 1초는 test-only 지연으로 사용해 동시 1건/일시 실패 retry를 단위시험한다.
+- 1초 test-only worker 시험에서 동시 1건과 재시도 실행을 확인했다. FCM이 messaging-specific code 없이 일반 UNAVAILABLE/DEADLINE_EXCEEDED를 내는 경우도 retry로 분류하도록 보강한다.
+- sandbox 실제 HTTP/security/DB 경로에 mock FCM provider를 주입해 수동 요청→QUEUED→일시 실패 retry를 확인한다. 1초는 시험 전용이며 실제 remote push는 호출하지 않는다.
+- sandbox synthetic HTTP→fake FCM 시험 통과: 승인된 route가 QUEUED 후 시험용 1초 retry로 성공, token은 응답에 없음. worker의 최초 시도+3회 제한과 queue 100 초과 거부도 fake 시험한다.
+- fake worker에서 최초+3회 종료, 동시 1개와 queue 100 제한 확인. DB 일시 연결 장애도 token 재조회 자체를 재시도하도록 구분해 시험한다.
+- worker fake 시험 4건 통과: 동시 1건, 100개 제한, 최초+3회 후 종료, DB 일시 오류 재시도. sandbox HTTP 및 local dev/production route 회귀를 다시 실행한다.
+- sandbox HTTP/security/DB→fake FCM QUEUED/retry 및 production 개발 route 미등록 시험 2건 통과(skip 0). 실제 서비스 자격증명·원격 발송은 사용하지 않았다. retry queue는 in-memory여서 서버 재시작 시 소실되고, 이미 시작된 원격 요청 취소는 보장하지 않는다.
+- 커밋 전: 사용자 선택 동시 1건/3회 retry, APNs 5xx 최소 15분, 제한 queue 및 sandbox 개발 sender 조립을 포함한다. production sender runtime, 실제 수신·token 발급·원격 발송과 재시작 복구는 미검증 또는 미구현이므로 P06-T04 PARTIAL/WAITING_USER 유지.

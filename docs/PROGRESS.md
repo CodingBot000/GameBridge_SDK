@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05 / P05-T05
+- 현재 Phase / Task: P07 / P07-T03
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
 - 현재 작업 트리 상태: 코드 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 실제 Apple verifier 구성·Native finish 연결; push retry·증빙 보관 사용자 결정 대기
+- 바로 다음 행동: 현재 동작과 누락을 반영한 연동 문서 작성; 사용자 정책 결정 대기
 - 불가피한 세션 종료 시 재개 행동: 미완료 P05~P08 구현 및 P09~P11 진행, 실제 플랫폼과 mock 증거 분리
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 26 / IN_PROGRESS 36 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 26 / PASS 2 / FAIL 1 / PARTIAL 35 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 25 / IN_PROGRESS 37 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 25 / PASS 2 / FAIL 1 / PARTIAL 36 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -73,7 +73,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P06-T05 | 수명주기·콜드스타트·클릭 라우팅 | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T05 | USER-PUSH-GOOGLE, USER-PUSH-APPLE |
 | P07-T01 | 진단·redaction·점검 설정 완성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T01 | - |
 | P07-T02 | 세 샘플 전체 사용자 흐름 연결 | NOT_STARTED | NOT_RUN | N/A | - | - |
-| P07-T03 | 연동 문서·오류·소유권 가이드 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P07-T03 | 연동 문서·오류·소유권 가이드 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T03 | - |
 | P07-T04 | 구현 누락 1차 점검 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P08-T01 | Android Maven 산출물·소비 build | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T01 | - |
 | P08-T02 | Swift Package·static XCFramework 산출물 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T02 | - |

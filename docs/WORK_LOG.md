@@ -791,3 +791,9 @@
 - Apple pipeline 경유 동시 10건 DB 시험 통과. 검증 단계의 다른 계정 거부도 추가 확인한다. 실제 서명 검증 경로는 fake decoder가 아닌 Apple library 구성·root가 필요하다.
 - 검증기(fake decoder)→grant pipeline의 동시성·타 계정 거부 DB 시험 통과. 실제 Apple root/서명·공개 endpoint·Native finish 연동은 미실행이다.
 - 커밋 전: 내부 pipeline 및 fake+격리 DB 시험만 포함하며 P05-T05 PARTIAL 유지한다.
+
+### [P07-T03] 시작 — 2026-11-10 Asia/Seoul
+- 현재 구현에 맞는 README/API/연동 안내 초안을 작성한다. 미연결 provider, 로컬 시험 실패와 Unity 제한을 완료처럼 쓰지 않고 이후 전체 기능 audit 시 다시 검토한다.
+- README/API/INTEGRATION 초안을 현재 공개 소스와 검증 상태에 맞춰 작성하고 USER_SETUP의 오래된 Mock 설명을 수정했다. 명령 경로·API 이름과 실패 표기를 검토한다.
+- 문서에 적힌 로컬 명령 파일 존재와 주요 공개 class/method 이름을 소스에서 대조했다. 기존 `smoke-local.sh`는 보호된 dev push 미구현으로 실패하는 사실을 명시했다. 문서 전체 flow 및 실 provider 예제 감사는 미완료다.
+- 커밋 전: 현재 상태의 문서 초안만 포함한다. 기능 완결 및 API 전체 교차 감사 전이므로 P07-T03 PARTIAL 유지.

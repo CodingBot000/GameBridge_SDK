@@ -1777,3 +1777,11 @@
 ### P05-T03 동시 지급·sandbox 차단 검증 시작
 - 전용 DB `gamebridge_ci_de4a583e88`에서 동일 거래 8건 동시 요청 중 1회만 지급, Mock/Xcode 잔액 분리, 타 사용자 차단이 통과했다. sandbox·production 개발 endpoint 부재 시험도 통과했다. StoreKit client와 Unity는 아직 미연결이며 Apple 서버 서명 검증은 아니다.
 - 커밋 준비: local 전용 fake grant 및 DB/환경 격리 시험. BUG-013 OPEN 및 실제 StoreKit 실패 상태를 유지한다.
+### P05-T03 Swift 개발 지급 client 시작
+- 명시적 local-mock 개발 경로에서만 Xcode account·grant·wallet 요청을 허용하고 Native 세션·개발키를 유지한다. 요청·응답 소유권과 거래 식별자를 검사한다. 실제 StoreKit 연결은 다음 단계다.
+### P05-T03 Swift 개발 client 검증 시작
+- Swift compile과 기존 인증·Backend request 회귀를 실행한다. 개발 grant 응답의 실제 서버 연결과 StoreKit은 별도다.
+- Swift 기존 인증·HTTP 시험 5건 통과. Xcode 개발 account/grant/wallet에서 개발키 및 session header 사용을 synthetic URLProtocol로 추가 검증한다.
+- 신규 Swift fake 시험의 첫 컴파일은 JSON 문자열 escaping과 XCTest async autoclosure 오류로 실패했다. 시험 코드를 수정하고 재실행한다.
+- Swift fake account/grant/wallet 시험 재실행 통과. 개발키와 Native access token 헤더를 확인했으며 실 서버/StoreKit과는 별도다.
+- 커밋 준비: local-mock에서만 명시된 Xcode 개발 endpoint 호출을 허용하는 Swift client와 fake 시험. BUG-013 OPEN 유지.

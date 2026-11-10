@@ -26,6 +26,16 @@ public struct LocalPurchase: Codable {
     public let serverPurchaseId, fulfillmentStatus, finalizationStatus: String
     public let entitlements: LocalWallet
 }
+public struct XcodeMockAccount: Decodable {
+    public let userId: UUID
+    public let bindingId: UUID
+}
+public struct XcodeMockGrant: Decodable {
+    public let userId, bindingId: UUID
+    public let productId, transactionKey: String
+    public let serverPurchaseId: UUID
+    public let fulfillmentStatus: String
+}
 public struct LocalPushRegistration {
     public let tokenFingerprint, updatedAt: String
 }
@@ -182,6 +192,24 @@ public actor LocalMockClient {
               UUID(uuidString: result.serverPurchaseId)?.uuidString.lowercased() == result.serverPurchaseId else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
         return result
     }
+    public func xcodeAccount() async throws -> XcodeMockAccount {
+        let value: XcodeMockAccount = try decode(try await authenticated(path: "/v1/dev/xcode-storekit/account", method: "POST", development: true).json)
+        guard value.userId == value.bindingId else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+        return value
+    }
+    public func xcodeGrant(productId: String, transactionId: UInt64, account: XcodeMockAccount) async throws -> XcodeMockGrant {
+        guard ["coins_100", "premium_unlock"].contains(productId), transactionId > 0 else { throw SdkFailure("INVALID_ARGUMENT") }
+        let body = try encode(["productId": productId, "transactionId": String(transactionId), "bindingId": account.bindingId.uuidString.lowercased()])
+        let value: XcodeMockGrant = try decode(try await authenticated(path: "/v1/dev/xcode-storekit/grant", method: "POST", body: body, development: true).json)
+        guard value.userId == account.userId, value.bindingId == account.bindingId, value.productId == productId,
+              value.transactionKey == String(transactionId), ["GRANTED", "ALREADY_GRANTED"].contains(value.fulfillmentStatus) else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+        return value
+    }
+    public func xcodeWallet(account: XcodeMockAccount) async throws -> LocalWallet {
+        let value: LocalWallet = try decode(try await authenticated(path: "/v1/dev/xcode-storekit/wallet", method: "POST", development: true).json)
+        guard value.userId == account.userId.uuidString.lowercased() else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+        return value
+    }
     public func registerMockPush(installationId: UUID) async throws -> LocalPushRegistration {
         struct Output: Decodable { let provider: String; let registered: Bool; let tokenFingerprint: String }
         let started = generation
@@ -225,18 +253,18 @@ public actor LocalMockClient {
               UUID(uuidString: loaded.userId) != nil, Self.isUTCInstant(loaded.expiresAt) else { throw SdkFailure("SESSION_EXPIRED") }
         return loaded
     }
-    private func authenticated(path: String, method: String, body: Data? = nil, idempotencyKey: String? = nil) async throws -> BackendResponse {
+    private func authenticated(path: String, method: String, body: Data? = nil, idempotencyKey: String? = nil, development: Bool = false) async throws -> BackendResponse {
         guard !signingIn else { throw SdkFailure("BUSY") }
         guard let current = session else { throw SdkFailure("SESSION_EXPIRED") }
         let started = generation
         do {
-            let response = try await backend.request(path: path, method: method, body: body, accessToken: current.accessToken, idempotencyKey: idempotencyKey)
+            let response = try await backend.request(path: path, method: method, body: body, accessToken: current.accessToken, developmentKey: development ? developmentKey : nil, idempotencyKey: idempotencyKey)
             guard generation == started else { throw SdkFailure("CANCELED") }
             return response
         } catch let error as SdkFailure where error.code == "SESSION_EXPIRED" {
             guard generation == started else { throw SdkFailure("CANCELED") }
             if let latest = session, latest.accessToken != current.accessToken {
-                let response = try await backend.request(path: path, method: method, body: body, accessToken: latest.accessToken, idempotencyKey: idempotencyKey)
+                let response = try await backend.request(path: path, method: method, body: body, accessToken: latest.accessToken, developmentKey: development ? developmentKey : nil, idempotencyKey: idempotencyKey)
                 guard generation == started else { throw SdkFailure("CANCELED") }
                 return response
             }
@@ -273,7 +301,7 @@ public actor LocalMockClient {
                 session = refreshed; refreshFlight = nil
             }
             guard let usable = session else { throw SdkFailure("SESSION_EXPIRED") }
-            let response = try await backend.request(path: path, method: method, body: body, accessToken: usable.accessToken, idempotencyKey: idempotencyKey)
+            let response = try await backend.request(path: path, method: method, body: body, accessToken: usable.accessToken, developmentKey: development ? developmentKey : nil, idempotencyKey: idempotencyKey)
             guard generation == started else { throw SdkFailure("CANCELED") }
             return response
         }

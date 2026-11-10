@@ -32,7 +32,7 @@ public final class BackendClient {
         guard path.hasPrefix("/v1/"), !path.contains("?"), !path.contains("#"), !path.contains("\\"), !path.contains(".."), !path.contains("%"),
               ["GET", "POST", "PUT", "DELETE"].contains(method),
               let base = config.backendBaseURL, var components = URLComponents(string: base) else { throw SdkFailure("INVALID_ARGUMENT") }
-        if developmentKey != nil && (config.mode != .localMock || path != "/v1/dev/auth") { throw SdkFailure("UNSUPPORTED_OPERATION") }
+        if developmentKey != nil && (config.mode != .localMock || !["/v1/dev/auth", "/v1/dev/xcode-storekit/account", "/v1/dev/xcode-storekit/grant", "/v1/dev/xcode-storekit/wallet"].contains(path)) { throw SdkFailure("UNSUPPORTED_OPERATION") }
         if let idempotencyKey {
             guard ["/v1/purchases/verify", "/v1/purchases/apple/verify"].contains(path), let uuid = UUID(uuidString: idempotencyKey), uuid.uuidString.lowercased() == idempotencyKey else { throw SdkFailure("INVALID_ARGUMENT") }
         }

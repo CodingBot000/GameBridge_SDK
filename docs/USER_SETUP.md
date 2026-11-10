@@ -268,4 +268,4 @@ UPM의 `Native Mock and Sandbox Demo`는 Android/iOS player용이다. Unity UI p
 
 서버를 실행할 동일한 로컬 환경에서 `bash scripts/verify-external.sh --check-config`를 실행한다. 이 명령은 설정 항목과 credential 파일의 존재·기본 형태만 확인하고 값과 경로를 출력하지 않으며, 네트워크 요청이나 실제 로그인·구매·발송을 수행하지 않는다. 누락 또는 형식 오류가 있으면 종료 코드 2다. `PRESENT_SHAPE_ONLY`는 자격 증명 유효성이나 실연동 성공을 뜻하지 않는다. Android/iOS host의 앱 ID·서명·기기·Unity 라이선스 및 각 항목의 실제 검증은 위 절의 안내를 따로 수행해야 한다. 로컬 StoreKit 전체 지급과 Mock push 전달은 내부 미구현이므로 사용자 설정만으로 완료되지 않는다.
 
-LOCAL_MOCK simulated push 전달 정책은 앱이 연결 중일 때만 전달하고 연결이 없으면 즉시 버리는 것으로 사용자가 선택했다. 서버 스트림·Native 수신·Unity E2E는 현재 구현 및 검증 중이며 실제 FCM/APNs 전달과 별개다.
+LOCAL_MOCK simulated push 전달 정책은 앱이 연결 중일 때만 전달하고 연결이 없으면 즉시 버리는 것으로 사용자가 선택했다. 서버 스트림은 구현 및 제한된 HTTP 검증을 마쳤고 Native 수신·Unity E2E는 현재 구현 및 검증 중이며 실제 FCM/APNs 전달과 별개다. 연결 확인 기본 간격은 30초이며 `GAMEBRIDGE_MOCK_PUSH_HEARTBEAT_SECONDS`로 변경할 수 있다.

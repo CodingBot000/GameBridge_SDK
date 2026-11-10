@@ -17,9 +17,11 @@ import kotlin.test.*
 /** Dedicated local DB and test-only keys; sends no remote messages. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("local-mock")
+@org.springframework.test.annotation.DirtiesContext(classMode = org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @EnabledIfEnvironmentVariable(named = "GAMEBRIDGE_RUN_DB_TESTS", matches = "true")
 class DevPushHttpIntegrationTest {
     @Autowired lateinit var rest: TestRestTemplate
+    @Autowired internal lateinit var broker: MockPushBroker
     @org.springframework.boot.test.web.server.LocalServerPort var port: Int = 0
     companion object {
         private val installation = UUID.randomUUID()
@@ -29,6 +31,7 @@ class DevPushHttpIntegrationTest {
             registry.add("DATABASE_URL") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_URL")) }
             registry.add("DATABASE_USERNAME") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_USER")) }
             registry.add("DATABASE_PASSWORD") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_PASSWORD")) }
+            registry.add("GAMEBRIDGE_MOCK_PUSH_HEARTBEAT_SECONDS") { 1 }
             registry.add("GAMEBRIDGE_DEV_AUTH_KEY") { authKey }
             registry.add("GAMEBRIDGE_DEV_PUSH_ADMIN_KEY") { adminKey }
             registry.add("GAMEBRIDGE_DEV_PUSH_ALLOWLIST") { installation.toString() }
@@ -90,6 +93,27 @@ class DevPushHttpIntegrationTest {
         val end = java.util.concurrent.CompletableFuture.supplyAsync { try { reader.readLine() } catch (_: java.io.IOException) { null } }
         assertNull(end.get(5, java.util.concurrent.TimeUnit.SECONDS), "old session must not receive new session's push")
         reader.close()
+    }
+
+    @Test fun `heartbeat removes disconnected stream`() {
+        val auth = HttpHeaders().apply { set("X-Development-Key", authKey) }
+        val token = rest.exchange("/v1/dev/auth", HttpMethod.POST, HttpEntity(mapOf("subject" to "A"), auth), Map::class.java).body!!["accessToken"] as String
+        val owner = HttpHeaders().apply { setBearerAuth(token) }
+        val register = mapOf("token" to "synthetic-heartbeat-token", "provider" to "MOCK", "platform" to "MOCK", "appId" to "gamebridge-sample")
+        assertEquals(200, rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT, HttpEntity(register, owner), Map::class.java).statusCode.value())
+        val http = java.net.http.HttpClient.newHttpClient()
+        val request = java.net.http.HttpRequest.newBuilder(java.net.URI("http://127.0.0.1:$port/v1/dev/push/stream?installationId=$installation"))
+            .header("Authorization", "Bearer $token").GET().build()
+        val response = http.send(request, java.net.http.HttpResponse.BodyHandlers.ofInputStream())
+        assertEquals(200, response.statusCode())
+        val reader = response.body().bufferedReader()
+        assertEquals("event:ready", reader.readLine()); reader.readLine(); reader.readLine()
+        assertEquals(1, broker.subscriberCount())
+        assertEquals(":heartbeat", reader.readLine()); reader.readLine()
+        reader.close()
+        val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(8)
+        while (broker.subscriberCount() != 0 && System.nanoTime() < deadline) Thread.sleep(50)
+        assertEquals(0, broker.subscriberCount())
     }
 
 }

@@ -21,6 +21,7 @@ internal class MockPushBroker {
         return id
     }
     fun unsubscribe(id: UUID) { subscribers.remove(id) }
+    internal fun subscriberCount(): Int = subscribers.size
     fun publish(app: String, userId: UUID, installationId: UUID, event: Event): Int {
         var delivered = 0
         subscribers.forEach { (id, subscriber) ->

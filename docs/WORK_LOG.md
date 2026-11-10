@@ -735,3 +735,9 @@
 - 커밋 전: 실제 SDK/HTTP 단발 sender와 fake 시험만 포함. 사용자가 선택할 재시도·개발 API 제한, DB lifecycle, 실 credential 조립/발송은 미완료이며 P06-T04 PARTIAL/WAITING_USER 유지한다.
 - 진행표의 오래된 체크포인트와 이미 해결된 XcodeGen·Mock 삭제/재시도 설명을 실제 검증 상태로 정정했다. 전체 프로젝트 완료를 뜻하지 않는다.
 - 커밋 전: 진행 문서 사실관계 수정만 포함한다.
+
+### [P07-T01] 시작 — 2026-11-10 Asia/Seoul
+- push retry 정책을 기다리는 동안 계획에 명시된 200개 진단 ring buffer를 독립 구현한다. 원문 payload·token을 받는 API를 제공하지 않으며 config cache/maintenance는 별도 미완료다.
+- Android/iOS typed diagnostics 초안 작성. 두 플랫폼의 200개 제한 및 오래된 이벤트 제거 unit을 확인한다. 실제 SDK 각 작업에 아직 연결하지 않았다.
+- Android core unit task와 Swift diagnostics 단위시험 통과: 최신 200개 보유와 이전 이벤트 제거를 확인했다. enum/UUID만 입력하므로 원문 문자열·토큰을 받지 않지만 전체 SDK redaction/내보내기 연결은 미구현이다.
+- 커밋 전: 독립 typed buffer만 포함한다. 진단 이벤트 연결·export 상한·config cache/점검 동작은 미완료로 P07-T01 PARTIAL 유지.

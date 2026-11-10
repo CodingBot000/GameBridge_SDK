@@ -216,3 +216,11 @@
 - 전용 DB container는 데이터 삭제 없이 정지한다.
 - 전용 DB `docker compose ... stop` 종료 0. 시험 전용 UUID 사용자·구매·원장·완료 처리 행은 volume에 보존했다.
 - 커밋 전: Mock worker 독립 DB 시험만 통과. 실제 구매와 job 생성 연결·자동 실행·프로세스 재시작 시험·실제 Play finalizer는 미구현이므로 P02-T04 PARTIAL 유지.
+- 자동 finalizer 동시성·재시도 간격은 사용자 결정 대기. 독립적으로 Mock 지급 commit과 job 생성을 같은 transaction에 연결한다. 기본값을 승인된 정책으로 간주하지 않는다.
+- `./backend/gradlew -p backend test` 종료 0: 구매·job 연결 코드 컴파일 및 사용 가능한 단위 시험 통과. DB 통합 테스트는 환경 미설정으로 이 실행에서 skip; HTTP job 생성 검증은 아직 미실행.
+- local-mock 서버가 전용 DB와 함께 기동됨. 구매 응답의 PENDING 및 DB의 job 동반 여부를 확인한다.
+- 연결된 서버에서 `python3 scripts/smoke-purchase-local.py` 종료 0: 13개 로컬 Mock assertion 및 신규 구매의 finalization PENDING 확인. DB job 누락 여부는 별도 확인한다.
+- 전용 PostgreSQL에서 PENDING 구매 중 job이 없는 행의 수 조회 종료 0, 결과 0. 이 값은 실제 외부 스토어 완료 처리 성공을 뜻하지 않는다.
+- 테스트 서버 Ctrl-C 종료 130. 전용 DB는 volume을 유지하고 컨테이너를 정지한다.
+- `docker compose ... stop` 종료 0. 자동 worker 동시성·백오프는 사용자 답변 대기. 현재 1초 Mock 재시도 간격과 30초 임대는 수동 시험용 내부값이며 승인된 운영 정책이 아니다. 자동 실행·실제 Provider 작업은 미구현이다.
+- 커밋 전: Mock 지급과 queue 동시 기록 및 PENDING 표시를 포함. P02-T04 IN_PROGRESS/PARTIAL 유지.

@@ -45,7 +45,7 @@ class MockPurchaseController(private val verifier: MockPurchaseVerifier, private
             if (!MessageDigest.isEqual(existingHash, bodyHash)) throw PurchaseConflict("IDEMPOTENCY_CONFLICT")
             val newId = UUID.randomUUID()
             val inserted = db.update("""INSERT INTO purchases(id,app_id,environment,platform,proof_key_hash,user_id,product_id,store_state,fulfillment_state,finalization_state)
-                VALUES (?, 'gamebridge-sample', 'local-mock', 'MOCK', ?, ?, ?, 'PURCHASED', 'GRANTED', 'NOT_REQUIRED') ON CONFLICT (app_id,environment,platform,proof_key_hash) DO NOTHING""", newId, proofHash, user, input.productId)
+                VALUES (?, 'gamebridge-sample', 'local-mock', 'MOCK', ?, ?, ?, 'PURCHASED', 'GRANTED', 'PENDING') ON CONFLICT (app_id,environment,platform,proof_key_hash) DO NOTHING""", newId, proofHash, user, input.productId)
             val purchase = db.queryForObject("SELECT id,user_id,product_id FROM purchases WHERE app_id='gamebridge-sample' AND environment='local-mock' AND platform='MOCK' AND proof_key_hash=? FOR UPDATE", { rs, _ -> ExistingPurchase(rs.getObject("id", UUID::class.java), rs.getObject("user_id", UUID::class.java), rs.getString("product_id")) }, proofHash)!!
             if (purchase.owner != user || purchase.product != input.productId) throw PurchaseConflict("PURCHASE_ACCOUNT_MISMATCH")
             if (inserted == 1) {
@@ -58,8 +58,12 @@ class MockPurchaseController(private val verifier: MockPurchaseVerifier, private
                     db.update("INSERT INTO entitlements(user_id,product_id,active,source_purchase_id) VALUES (?, ?, true, ?) ON CONFLICT (user_id,product_id) DO UPDATE SET active=true", user, input.productId, purchase.id)
                 }
             }
+            if (inserted == 1) {
+                db.update("INSERT INTO store_finalization_jobs(purchase_id,action,next_attempt_at,status) VALUES (?, 'MOCK', now(), 'PENDING')", purchase.id)
+            }
             db.update("UPDATE idempotency_records SET purchase_id=?,state='COMPLETE' WHERE user_id=? AND operation='purchase.verify' AND key=?", purchase.id, user, key)
-            MockPurchaseOutput(purchase.id.toString(), if (inserted == 1) "GRANTED" else "ALREADY_GRANTED", "NOT_REQUIRED", wallet(user))
+            val finalization = db.queryForObject("SELECT finalization_state FROM purchases WHERE id=?", String::class.java, purchase.id)!!
+            MockPurchaseOutput(purchase.id.toString(), if (inserted == 1) "GRANTED" else "ALREADY_GRANTED", finalization, wallet(user))
         }!!
     }
     private fun wallet(user: UUID): WalletSnapshot {

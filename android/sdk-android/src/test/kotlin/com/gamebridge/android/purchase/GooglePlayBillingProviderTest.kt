@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.jupiter.api.Test
@@ -73,6 +74,19 @@ class GooglePlayBillingProviderTest {
             releaseFirst.complete(Unit)
             withTimeout(2000) { secondEntered.await() }
             assertEquals(2, calls.get())
+        } finally { provider.close() }
+    }
+    @Test fun `shared ui gate blocks billing while another ui owns it`() = runBlocking {
+        val gateway = FakePlayGateway()
+        val sink = PlayProofSink { _, _, raw -> ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray())) }
+        val gate = Mutex(locked = true)
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink, uiGate = gate)
+        try {
+            assertEquals("BUSY", assertFailsWith<SdkFailure> { provider.purchase("coins_100") }.code)
+            assertEquals(0, gateway.launches)
+            gate.unlock()
+            assertEquals("VERIFICATION_PENDING", provider.purchase("coins_100"))
+            assertEquals(1, gateway.launches)
         } finally { provider.close() }
     }
     @Test fun `account switch suppresses stale verified event`() = runBlocking {

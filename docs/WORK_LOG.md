@@ -850,3 +850,8 @@
 - Swift fake concurrency/auth 단위 12건 통과: verification slot 직렬화·취소 후 반환 및 로그인 중 UI gate BUSY를 확인했다. 실제 StoreKit transaction listener/결제 UI는 실행하지 않았다. simulator framework compile을 재확인한다.
 - iOS simulator static framework compile 성공. Apple limiter/UI gate는 fake unit만 확인했고 실 StoreKit transaction과 Android 공통 UI gate는 미완료다.
 - 커밋 전: Apple verification 대기열·UI 상호 배제와 unit만 포함한다. 취소/복구의 실제 OS 동작과 Google 경로를 확인하지 않았으므로 P05-T06 PARTIAL 유지.
+- P05-T06 계속: Android Google 로그인과 Play 결제도 공통 UI gate를 사용할 수 있도록 연결한다. 서버 proof sink가 없을 때 구매 UI 차단은 유지한다.
+- Android billing에 공유 가능한 gate를 주입하고 gate 보유 중 UI를 시작하지 않는 fake 시험을 추가했다. 실제 Android UI와 runtime 조립은 아직 미검증이다.
+- Android shared gate fake 시험 통과. 실제 Google gateway·account source·auth gate를 조립하는 Native-only factory를 추가한다. 실제 Backend sink가 반드시 주입되어야 하며 현재 sink 구현은 미완료다.
+- Android library assembleDebug 성공. shared gate unit은 fake gateway이며 실제 Credential Manager/Play UI 중첩 시험이 아니다.
+- 커밋 전: Android gate 공유·내부 factory 및 fake unit만 포함. Google proof sink·실 store 결제와 Unity 연결은 미완료다.

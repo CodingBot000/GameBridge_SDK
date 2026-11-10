@@ -47,6 +47,7 @@ internal class GooglePlayBillingProvider(
     private val accountSource: PlayAccountSource,
     private val proofSink: PlayProofSink?,
     private val verificationConcurrency: Int? = 1,
+    private val uiGate: Mutex = Mutex(),
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutableEvents = MutableSharedFlow<PlayPurchaseEvent>(extraBufferCapacity = 100, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -83,7 +84,8 @@ internal class GooglePlayBillingProvider(
         if (runCatching { UUID.fromString(account.obfuscatedAccountId).toString() == account.obfuscatedAccountId }.getOrDefault(false).not()) throw SdkFailure("CONFIG_REQUIRED")
         // Do not open a real store UI until a real backend verification path is configured.
         if (proofSink == null || verificationConcurrency == null) throw SdkFailure("CONFIG_REQUIRED")
-        return gateway.launch(storeId, account)
+        if (!uiGate.tryLock()) throw SdkFailure("BUSY")
+        return try { gateway.launch(storeId, account) } finally { uiGate.unlock() }
     }
     suspend fun recover() { gateway.recover().forEach(::enqueue) }
     fun close() { gateway.setObserver(null); proofQueue.close(); gateway.close(); scope.cancel() }

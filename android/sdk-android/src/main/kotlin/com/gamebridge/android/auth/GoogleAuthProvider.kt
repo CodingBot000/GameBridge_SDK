@@ -63,7 +63,7 @@ class GoogleAuthProvider internal constructor(
     private val gateway: GoogleCredentialGateway,
     private val backend: GoogleAuthBackend,
 ) {
-    private val uiGate = Mutex()
+    internal val uiGate = Mutex()
     private val sessionLock = Mutex()
     private val storageJson = Json { ignoreUnknownKeys = true }
     companion object {

@@ -91,6 +91,14 @@
       ],
       "mode": "FAKE_AND_SIMULATOR",
       "platform": "Backend/Android/iOS/Unity"
+    },
+    "lifecycle-stress": {
+      "command": [
+        "bash",
+        "scripts/stress-csharp-lifecycle.sh"
+      ],
+      "mode": "EDITOR_OFFLINE_FAKE",
+      "platform": "Standalone .NET"
     }
   },
   "scenarios": [
@@ -342,17 +350,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "NOT_IMPLEMENTED",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R12"
       ],
       "candidateSuites": [
-        "unity-editor"
+        "lifecycle-stress"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r12-lifecycle-stress.md",
+      "note": "100-cycle standalone .NET fake; does not establish Unity Editor or long-duration memory behavior.",
+      "assertions": [
+        {
+          "suite": "lifecycle-stress",
+          "testFile": "tests/LifecycleStress/Program.cs",
+          "testCase": "registry or push queue cleanup failed"
+        },
+        {
+          "suite": "lifecycle-stress",
+          "testFile": "tests/LifecycleStress/Program.cs",
+          "testCase": "disposed objects retained"
+        }
+      ]
     },
     {
       "id": "R13",

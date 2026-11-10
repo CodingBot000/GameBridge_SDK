@@ -1850,3 +1850,14 @@
 - Swift 기존 fake 7건 통과. 구매 화면 호출 전에 `CONFIG_REQUIRED`를 반환하는 직접 unit 시험을 추가한다.
 - 직접 unit 시험 3건 통과: 모호한 식별자일 때 StoreKit 구매 화면 호출 전에 CONFIG_REQUIRED를 반환한다. 실패 재현 시험을 고정 후보 필드 충돌을 검출하는 명시적 회귀로 정리했다.
 - 커밋 준비: fail-closed 신규 구매 차단·재현 시험·보고 수정. 실제 복구 및 Unity 검증은 미완료다.
+
+### [P09-T02] R12 반복 수명주기 보강 시작
+- 독립 .NET EditorOffline fake 100회에서 초기화 중 푸시 queue와 pending registry의 종료 정리, 종료된 객체 보존 여부를 검사한다. Unity scene/실기기 검증으로 일반화하지 않는다.
+### P09-T02 100회 수명주기 검증 시작
+- 각 주기에서 초기화 중 fake push를 queue에 넣고 종료 후 비움·pending 0을 확인한다. 100회 종료 후 강제 GC에서 client/transport weak reference가 남지 않는지도 확인한다. Unity Editor 실행이나 장시간 memory profile은 아니다.
+- 첫 stress 컴파일은 결과 변수 이름이 후속 보고 변수와 충돌해 실패했다. 테스트 변수 이름을 바꾸고 재실행한다. 생성된 실패 evidence는 보존한다.
+- `artifacts/lifecycle-stress.B1S3dz/result.json`: 100회 모두 queued push 및 pending 0, 강제 GC 뒤 client·transport 각각 0개 보존. 독립 .NET fake이며 Unity player나 장시간 메모리 profile은 아니다. R12를 해당 로컬 stress 범위로 연결한다.
+### P09-T02 R12 하네스 검증 시작
+- manifest 검증과 명시적 로컬 실행을 수행한다. 다른 49개 시나리오의 상태는 변경하지 않는다.
+- `harness/run-scenario.py R12` 명시 실행 종료 0, 새 evidence `artifacts/lifecycle-stress.A8iyaJ`에서 100회 queue/pending 정리 및 client/transport weak reference 0 확인. manifest 음성 검사와 원장 검사도 통과. Unity 및 무한 시간 누수 부재를 주장하지 않는다.
+- 커밋 준비: R12 독립 .NET fake 범위만 IMPLEMENTED로 반영하고 다른 시나리오·Unity 검증은 그대로 둔다.

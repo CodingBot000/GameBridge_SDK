@@ -62,7 +62,7 @@ namespace GameBridge
             if (string.IsNullOrWhiteSpace(AppId)) errors.Add("appId");
             if (RequestTimeoutMs <= 0) errors.Add("requestTimeoutMs");
             if (!Enum.IsDefined(typeof(ProviderMode), Mode)) errors.Add("providerMode");
-            if (Mode == ProviderMode.LocalMock)
+            if (Mode == ProviderMode.LocalMock || Mode == ProviderMode.XcodeStoreKit)
             {
                 if (DevelopmentKey == null || DevelopmentKey.Length < 32) errors.Add("developmentKey");
                 if (MockSubject != "A" && MockSubject != "B") errors.Add("mockSubject");
@@ -79,7 +79,7 @@ namespace GameBridge
             {
                 if (!Uri.TryCreate(BackendBaseUrl, UriKind.Absolute, out var uri) ||
                     string.IsNullOrEmpty(uri.Host) || !string.IsNullOrEmpty(uri.UserInfo) ||
-                    !(uri.Scheme == Uri.UriSchemeHttps || (Mode == ProviderMode.LocalMock && uri.Scheme == Uri.UriSchemeHttp)))
+                    !(uri.Scheme == Uri.UriSchemeHttps || ((Mode == ProviderMode.LocalMock || Mode == ProviderMode.XcodeStoreKit) && uri.Scheme == Uri.UriSchemeHttp)))
                     errors.Add("backendBaseUrl");
             }
             if (errors.Count > 0) throw new ConfigurationException(errors);

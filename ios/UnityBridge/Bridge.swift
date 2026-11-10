@@ -25,6 +25,9 @@ private final class BridgeState {
     private var state = "UNINITIALIZED"
     private var ownerSession: String?
     private var activeMode: String?
+    #if canImport(StoreKit) && canImport(Security) && canImport(UIKit)
+    private var xcodeHandler: XcodeStoreKitBridgeHandler?
+    #endif
     #if canImport(UIKit) && canImport(AuthenticationServices)
     private var appleHandler: AppleAuthBridgeHandler?
     #endif
@@ -98,6 +101,17 @@ private final class BridgeState {
                     #else
                     throw SdkFailure("UNSUPPORTED_OPERATION")
                     #endif
+                case "XCODE_STOREKIT":
+                    #if canImport(StoreKit) && canImport(Security) && canImport(UIKit)
+                    if xcodeHandler == nil {
+                        xcodeHandler = await MainActor.run { XcodeStoreKitBridgeHandler(makeClient: { config, key in
+                            try LocalMockClient(config: config, store: KeychainTokenStore(service: "com.gamebridge.sdk.unity.xcode-storekit"), developmentKey: key)
+                        }, makeEmitter: { self.purchaseEmitter() }) }
+                    }
+                    result = try await xcodeHandler!.invoke(operation, payload: payload)
+                    #else
+                    throw SdkFailure("UNSUPPORTED_PLATFORM")
+                    #endif
                 case "PLATFORM_SANDBOX":
                     #if canImport(UIKit) && canImport(AuthenticationServices)
                     if appleHandler == nil { appleHandler = await makeAppleAuthBridgeHandler { self.purchaseEmitter() } }
@@ -149,6 +163,13 @@ private final class BridgeState {
             return try await handler.invoke(operation, payload: payload)
             #else
             throw SdkFailure("UNSUPPORTED_OPERATION")
+            #endif
+        case "XCODE_STOREKIT":
+            #if canImport(StoreKit) && canImport(Security) && canImport(UIKit)
+            guard let xcodeHandler else { throw SdkFailure("NOT_INITIALIZED") }
+            return try await xcodeHandler.invoke(operation, payload: payload)
+            #else
+            throw SdkFailure("UNSUPPORTED_PLATFORM")
             #endif
         case "PLATFORM_SANDBOX":
             #if canImport(UIKit) && canImport(AuthenticationServices)

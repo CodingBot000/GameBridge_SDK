@@ -192,7 +192,7 @@ namespace GameBridge
             try
             {
                 var payload = new JObject { ["appId"] = value.AppId, ["providerMode"] = ModeString(value.Mode), ["backendBaseUrl"] = value.BackendBaseUrl == null ? JValue.CreateNull() : (JToken)value.BackendBaseUrl, ["requestTimeoutMs"] = value.RequestTimeoutMs };
-                if (value.Mode == ProviderMode.LocalMock)
+                if (value.Mode == ProviderMode.LocalMock || value.Mode == ProviderMode.XcodeStoreKit)
                 {
                     payload["developmentKey"] = value.DevelopmentKey;
                     payload["mockSubject"] = value.MockSubject;

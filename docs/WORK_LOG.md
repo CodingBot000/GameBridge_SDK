@@ -1794,3 +1794,12 @@
 - Swift compile 오류 수정 후 기존 StoreKit fake 및 개발 client 5건 통과. Xcode 환경만 허용하는 분기와 sandbox/production 거부를 추가 단위 검증한다.
 - Swift StoreKit fake 5건 통과. Xcode 환경만 허용하고 sandbox/production을 거부하는 조건도 확인했다. 실제 transaction에 대한 guard 및 finish는 simulator 재시험이 필요하다.
 - 커밋 준비: Native Xcode session·verified environment gate만 저장한다. Unity bridge와 실제 거래가 남아 BUG-013 OPEN이다.
+### P05-T07 Xcode StoreKit Unity bridge 시작
+- iOS 전용 XCODE_STOREKIT 모드가 개발 인증·격리된 Xcode 사용자·StoreKit 제품/구매/복구 및 지갑으로 연결되도록 구현한다. Android·sandbox에서 개발 경로를 허용하지 않는다. 실제 Unity player 및 StoreKit 실행은 별도 검증한다.
+### P05-T07 Xcode bridge compile 검증 시작
+- Swift package 및 iOS simulator framework, Unity C# 네 조건부 compile을 실행한다. 실제 Xcode StoreKit 거래와 Unity player는 별도다.
+- Swift C bridge·StoreKit fake 8건, iOS simulator framework compile 및 Unity 네 조건부 managed compile 통과. 실제 Xcode 거래와 Unity player는 아직 미검증이다.
+### P05-T07 Xcode bridge fake 경계 검증 시작
+- 개발 모드 설정·초기화·Native account 매핑을 합성 transport로 확인하고 개발키 누락과 플랫폼 조건을 검사한다.
+- Swift 합성 Xcode bridge/account 시험 2건 및 독립 C# fake mode/개발키 전달 시험 통과. simulator framework compile과 4개 managed compile은 성공했으나 StoreKit 실제 거래·Unity player는 미실행이다.
+- 커밋 준비: Xcode 모드 Unity 설정·iOS bridge 및 fake 경계만 저장한다. 실제 로컬 거래 실패/환경 대기는 그대로 둔다.

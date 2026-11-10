@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 @testable import GameBridgeCore
+@testable import GameBridgeUnityBridge
 
 private final class XcodeStore: TokenStore {
     var value: String?
@@ -39,4 +40,20 @@ final class XcodeMockClientTests: XCTestCase {
         XCTAssertEqual(grant.transactionKey, "7"); XCTAssertEqual(grant.fulfillmentStatus, "GRANTED")
         let wallet = try await client.xcodeWallet(account: account); XCTAssertEqual(wallet.coinBalance, "100")
     }
+    @MainActor func testXcodeBridgeUsesIsolatedMockAccount() async throws {
+        let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [XcodeProtocol.self]
+        let handler = XcodeStoreKitBridgeHandler(makeClient: { config, key in
+            try LocalMockClient(config: config, store: XcodeStore(), developmentKey: key, sessionConfiguration: configuration)
+        }, makeEmitter: { { _ in } })
+        let key = String(repeating:"x", count:32)
+        let payload: [String: Any] = ["appId":"gamebridge-sample", "providerMode":"XCODE_STOREKIT", "backendBaseUrl":"http://127.0.0.1:18080",
+                                       "requestTimeoutMs":30000, "developmentKey":key, "mockSubject":"A"]
+        let initialized = try await handler.invoke("sdk.initialize", payload: payload) as? [String: Any]
+        XCTAssertEqual(initialized?["mode"] as? String, "XCODE_STOREKIT")
+        let profile = try await handler.invoke("auth.signIn", payload: ["provider":"MOCK"]) as? [String: Any]
+        XCTAssertEqual(profile?["userId"] as? String, "d2719c4e-d533-47ee-9efd-838791ea79c8")
+        XCTAssertFalse(String(describing: profile).contains(key))
+        _ = try await handler.invoke("sdk.shutdown", payload: [:])
+    }
+
 }

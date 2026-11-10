@@ -214,6 +214,13 @@ internal static class Program
         await facade.SignOutAsync(); await facade.ShutdownAsync(); await facade.ShutdownAsync();
         Check(facade.GetStatus().State == "SHUTDOWN", "facade shutdown");
         await facade.InitializeAsync(config); facade.Dispose();
+        var xcodeConfig = new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.XcodeStoreKit, "http://127.0.0.1:18080", 30000, new string('x', 32), "A");
+        xcodeConfig.Validate();
+        var xcodeTransport = new HeldTransport(); var xcodeFacade = new GameBridge.GameBridgeClient(xcodeTransport);
+        var xcodeInit = xcodeFacade.InitializeAsync(xcodeConfig);
+        Check((string)xcodeTransport.Requests[0]["payload"]["providerMode"] == "XCODE_STOREKIT", "xcode mode forwarded");
+        Check((string)xcodeTransport.Requests[0]["payload"]["developmentKey"] == new string('x', 32), "xcode development key forwarded");
+        xcodeTransport.Reply(xcodeTransport.Requests[0], InitResponse("XCODE_STOREKIT")); await xcodeInit; xcodeFacade.Dispose();
         var permissionTransport = new FakePermissionTransport();
         var permissionFacade = new GameBridge.GameBridgeClient(permissionTransport);
         await permissionFacade.InitializeAsync(new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.PlatformSandbox, "https://example.invalid")); Check(permissionTransport.Requests == 0, "initialization must not prompt Android permission");

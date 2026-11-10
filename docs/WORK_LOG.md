@@ -1596,3 +1596,12 @@
 - 새 iOS XCFramework의 device C ABI 네 symbol과 별도 simulator Swift consumer link 종료 0. 새 Android/iOS 산출물로 UPM staging 110개 checksum 및 baseline source 비교 종료 0. 기존 C# 공개 생성자·메서드 소비 fixture를 별도 assembly에 대해 컴파일한다.
 - `scripts/check-csharp-compat.sh` 종료 0: 별도로 빌드된 GameBridge.Runtime assembly을 참조하여 P08 기준 생성자·메서드 consumer source를 컴파일·실행했다. 이는 binary ABI 또는 Unity Editor 실행을 증명하지 않는다.
 - 커밋 전: Android 강제 재빌드 script, 과거 C# 소비자 fixture 및 P10 산출물 evidence만 포함한다. Unity clean consumer/IL2CPP·실기기와 전체 기능 gate는 미완료다.
+
+### [P11-T01] 전체 누락·실패 감사
+- Task 시작: 64개 원장 행, 구현·로컬·실연동 집계, source의 미지원·TODO와 evidence 경로를 대조한다. 미구현을 사용자 설정 대기로 바꾸지 않으며 발견 즉시 기록하고 독립 수정은 계속한다.
+- 감사에서 내부 누락 BUG-013(XCODE_STOREKIT 지급/Unity 경로), BUG-014(LOCAL_MOCK push Backend→client delivery), BUG-015(Native diagnostics 공개 연결)를 별도 OPEN으로 등록했다. 환경 문제나 사용자 credential 부족으로 바꾸지 않는다.
+
+### P11-T01 검증 및 커밋 준비
+- 전체 64개 계획 Task와 진행 원장 ID를 대조하고 추적 중인 소스의 미구현 표식을 검사했다. `python3 harness/audit-ledger.py` 통과, 결과 `artifacts/ledger-audit-enavuhuo/audit.json`: OPEN 7건, 소스 표식 0건. 텍스트 검색만으로 구현 완전성을 증명하지 않으며 미추적 사용자 파일은 검사하지 않았다.
+- 결제·푸시·Unity 등의 부분 검증과 내부 누락을 최종 요약에 반영했다. 전체 판정은 BLOCKED_INTERNAL이며 Task는 PARTIAL로 유지한다.
+- 커밋 예정: 감사 도구와 원장; 실제 플랫폼 및 Unity는 검증하지 않았다.

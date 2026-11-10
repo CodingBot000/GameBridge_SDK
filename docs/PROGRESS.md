@@ -5,19 +5,19 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P10 / P10-T04 최신 산출물 재생성
+- 현재 Phase / Task: P11 / P11-T01 전체 누락 감사
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
 - 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: P10 재패키징 증거 커밋 후 P11 전체 누락·실패 감사
+- 바로 다음 행동: 전체 원장·실제 코드·증거·미구현과 대기 항목 대조
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 P05-T07 Android Google Play bridge부터 재개하고 iOS 상점·푸시 등 미완료 P00~P08, P09~P11을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 4 / IN_PROGRESS 58 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 4 / PASS 2 / FAIL 1 / PARTIAL 56 / DEFERRED_ENV 1 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 3 / IN_PROGRESS 59 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 3 / PASS 2 / FAIL 1 / PARTIAL 57 / DEFERRED_ENV 1 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -92,7 +92,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T02 | - |
 | P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
 | P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | ENV-002 |
-| P11-T01 | 전체 Task·TODO·계약 누락 최종 감사 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P11-T01 | 전체 Task·TODO·계약 누락 최종 감사 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T01 | - |
 | P11-T02 | 사용자 설정·실연동 재개 runbook 완성 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P11-T03 | 최종 문서·release candidate 로컬 패키지 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P11-T04 | 마지막 검증·커밋·인계 | NOT_STARTED | NOT_RUN | N/A | - | - |
@@ -103,6 +103,9 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 |---|---|---|---|---|---|---|
 | USER-PUSH-CONCURRENCY | USER | P06-T04 | 기본 동시 1건 사용자 선택 | scheduler 설정·검증 진행 | 실제 원격 발송은 별도 | RESOLVED |
 | USER-CONFIG-TTL | USER | P07-T01 | 기본 유효기간 5분 사용자 선택 | 서버 설정·local-mock 통합 진행 | 실제 플랫폼 검증은 별도 | RESOLVED |
+| BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring이 Unity 공개 snapshot에 전체 연결되지 않음 | 기존 Native typed ring 및 C# registry 진단 유지 | Native 진단 경계·redaction·Unity 검증 | OPEN |
+| BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK 개발 push send의 Backend→client simulated delivery 미구현 | token 등록과 host route 독립 시험 유지 | 인증·소유권 유지한 simulated delivery E2E | OPEN |
+| BUG-013 | BUG | P05-T03, P05-T07 | XCODE_STOREKIT 모드의 서버 지급·Unity 전체 경로 미구현 | 실제 StoreKit sandbox와 mock 경로 독립 유지 | 명시적 격리 verifier·거래/복구 검증 | OPEN |
 | BUG-012 | BUG | P04-T04, P10-T02 | Unity가 Native logout의 REVOCATION_UNCONFIRMED를 버려 서버 revoke 불확실성 표시 불가 | 허용된 값만 오류에 보존 | Native/C# fake logout 및 redaction 확인 | RESOLVED |
 | BUG-011 | BUG | P08-T01 | Firebase optional dependency가 없는 독립 R8 consumer에서 missing class 실패 | 선택적 runtime 경계 및 consumer shrink 규칙 보강 | Firebase 없는 R8 build와 debug emulator CONFIG_REQUIRED 확인 | RESOLVED |
 | BUG-010 | BUG | P07-T01 | 서버 config revision은 16진 hash인데 Unity는 10진 정수 문자열을 요구해 조회 실패 | 서버 revision을 63-bit 10진 문자열로 일치 | 서버 unit 및 local HTTP→Unity decoder 확인 | RESOLVED |
@@ -134,22 +137,21 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | 기능 | Android 코드/빌드 | iOS 코드/빌드 | Unity Editor | Unity Android | Unity iOS | 실제 외부 서비스 |
 |---|---|---|---|---|---|---|
 | Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | N/A |
-| 인증 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 결제 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 푸시 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 세션·복구 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 배포·신규 소비 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | N/A |
+| 인증 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
+| 결제 | BUILD:PASS / MOCK:PARTIAL | BUILD:PASS / MOCK:PARTIAL / STOREKIT_LOCAL:FAIL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
+| 푸시 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
+| 세션·복구 | EMULATOR:PARTIAL | SIMULATOR:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
+| 배포·신규 소비 | MAVEN_CONSUMER:PASS | XCFRAMEWORK_CONSUMER:PASS | UPM_IMPORT:NOT_RUN | NOT_RUN | NOT_RUN | N/A |
 
 각 칸은 가능한 경우 `BUILD:PASS / RUN:WAITING_USER`처럼 분리한다. “Android 완료” 한마디로 Native standalone과 Unity Android를 합치지 않는다.
 
 ## 완료/미완료 요약
 
-- 구현 및 로컬 검증 완료: 없음
-- 코드 구현됨, 로컬 검증 미완료: 없음
-- 사용자 설정만 남은 항목: 아직 구현 전이므로 확정하지 않음
-- 내부 미구현/실패: 아직 조사 전
-- 환경 대기: 아직 조사 전
-- 범위 제외: Windows/C++·Unreal/Godot·구독·환불 자동화·RTDN/Server Notifications 운영·관리자 웹·Kubernetes·상용 배포
+- 일부 계약·빌드·가짜 Provider·로컬 DB 회귀 및 독립 패키지 소비 검증 통과. 개별 범위와 명령은 WORK_LOG 참조.
+- 인증·결제·푸시·복구의 실제 플랫폼 및 Unity 통합 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
+- 내부 미구현: Xcode StoreKit 전체 지급 경로, Mock 푸시 전달, Native 진단의 Unity 연결. BUG-009 실제 재시작 검증도 미완료.
+- 환경 대기: Unity 라이선스 및 호환 Editor, StoreKit local simulator 실패. P09 하네스에는 미구현·부분 시나리오가 남아 전체 검증은 실패 상태.
+- 범위 제외: Windows/C++·Unreal/Godot·구독·환불 자동화·RTDN/Server Notifications 운영·관리자 웹·Kubernetes·상용 배포.
 
 ## 최근 체크포인트 이력
 

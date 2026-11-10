@@ -7,19 +7,31 @@ sealed interface BridgeDispatchResult {
     data class Rejected(val code: String) : BridgeDispatchResult
 }
 
+/** Provider operations receive only a validated request and return a JSON result. */
+fun interface BridgeOperationHandler {
+    fun invoke(operation: String, payload: JsonObject): JsonElement
+}
+
 /** A narrow operation allowlist; unsupported functions never return fake success. */
-class BridgeDispatcher {
+class BridgeDispatcher(private val handler: BridgeOperationHandler? = null) {
     private var state = "UNINITIALIZED"
     @Synchronized
     fun dispatch(bytes: ByteArray): BridgeDispatchResult {
         val request = parseRequest(bytes) ?: return rejection(bytes)
         val operation = request.getValue("operation").jsonPrimitive.content
-        val result = if (operation == "sdk.status") buildJsonObject {
-            put("state", state); put("sdkVersion", GameBridgeVersion.CURRENT)
-        } else if (operation == "sdk.shutdown") {
-            state = "SHUTDOWN"; buildJsonObject { put("state", state) }
-        } else null
-        return response(request, result, if (result == null) "UNSUPPORTED_OPERATION" else null)
+        return try {
+            val result = when (operation) {
+                "sdk.status" -> buildJsonObject { put("state", state); put("sdkVersion", GameBridgeVersion.CURRENT) }
+                "sdk.shutdown" -> { state = "SHUTDOWN"; buildJsonObject { put("state", state) } }
+                else -> handler?.invoke(operation, request.getValue("payload").jsonObject)
+                    ?: return response(request, null, "UNSUPPORTED_OPERATION")
+            }
+            response(request, result, null)
+        } catch (failure: SdkFailure) {
+            response(request, null, failure.code, failure.retryable, failure.nativeCode)
+        } catch (_: Exception) {
+            response(request, null, "INTERNAL_ERROR")
+        }
     }
     fun busy(bytes: ByteArray): BridgeDispatchResult {
         val request = parseRequest(bytes) ?: return rejection(bytes)
@@ -31,7 +43,7 @@ class BridgeDispatcher {
     private fun rejection(bytes: ByteArray): BridgeDispatchResult = try {
         BridgeProtocol.parse(bytes); BridgeDispatchResult.Rejected("BRIDGE_PROTOCOL_MISMATCH")
     } catch (error: BridgeProtocol.ProtocolException) { BridgeDispatchResult.Rejected(error.code) }
-    private fun response(request: JsonObject, result: JsonObject?, errorCode: String?): BridgeDispatchResult.Message {
+    private fun response(request: JsonObject, result: JsonElement?, errorCode: String?, retryable: Boolean = false, nativeCode: String? = null): BridgeDispatchResult.Message {
         val operation = request.getValue("operation").jsonPrimitive.content
         return BridgeDispatchResult.Message(buildJsonObject {
             put("protocolVersion", 1); put("sdkSessionId", request.getValue("sdkSessionId")); put("kind", "response")
@@ -39,8 +51,8 @@ class BridgeDispatcher {
             put("result", result ?: JsonNull)
             put("error", if (errorCode == null) JsonNull else buildJsonObject {
                 put("code", errorCode); put("message", "Operation is not available")
-                put("retryable", errorCode == "BUSY"); put("requestId", request.getValue("requestId"))
-                put("nativeCode", JsonNull); put("details", buildJsonObject {})
+                put("retryable", retryable || errorCode == "BUSY"); put("requestId", request.getValue("requestId"))
+                put("nativeCode", nativeCode?.let(::JsonPrimitive) ?: JsonNull); put("details", buildJsonObject {})
             })
         }.toString())
     }

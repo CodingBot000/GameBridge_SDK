@@ -24,4 +24,27 @@ class BridgeDispatcherTest {
         assertEquals("SHUTDOWN", Json.parseToJsonElement(after.json).jsonObject.getValue("result").jsonObject.getValue("state").jsonPrimitive.content)
         assertEquals("PAYLOAD_TOO_LARGE", (dispatcher.dispatch(ByteArray(BridgeProtocol.MAX_BYTES + 1)) as BridgeDispatchResult.Rejected).code)
     }
+    @Test fun `provider results and sanitized failures retain request correlation`() {
+        val fixture = File("../../contracts/fixtures/bridge/request.json").readText()
+        var calls = 0
+        val dispatcher = BridgeDispatcher(BridgeOperationHandler { _, _ ->
+            calls++
+            if (calls == 1) JsonArray(listOf(JsonPrimitive("product")))
+            else throw SdkFailure("NETWORK_UNAVAILABLE", retryable = true)
+        })
+        val success = dispatcher.dispatch(fixture.toByteArray()) as BridgeDispatchResult.Message
+        val parsed = BridgeProtocol.parse(success.json.toByteArray())
+        assertEquals(JsonArray(listOf(JsonPrimitive("product"))), parsed["result"])
+        val failure = dispatcher.dispatch(fixture.toByteArray()) as BridgeDispatchResult.Message
+        val error = BridgeProtocol.parse(failure.json.toByteArray())["error"]!!.jsonObject
+        assertEquals("NETWORK_UNAVAILABLE", error["code"]!!.jsonPrimitive.content)
+        assertTrue(error["retryable"]!!.jsonPrimitive.boolean)
+        dispatcher.dispatch("invalid secret".toByteArray())
+        assertEquals(2, calls)
+        val unexpected = BridgeDispatcher(BridgeOperationHandler { _, _ -> throw IllegalStateException("secret") })
+        val redacted = unexpected.dispatch(fixture.toByteArray()) as BridgeDispatchResult.Message
+        assertFalse(redacted.json.contains("secret"))
+        assertEquals("INTERNAL_ERROR", BridgeProtocol.parse(redacted.json.toByteArray())["error"]!!.jsonObject["code"]!!.jsonPrimitive.content)
+    }
+
 }

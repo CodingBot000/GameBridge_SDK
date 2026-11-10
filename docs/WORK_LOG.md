@@ -1133,3 +1133,10 @@
 - 수정 후 전용 Android emulator에서 Google Sandbox 빈 설정 차단 재통과. 기존 local-mock UI 재실행도 통과했고 Google 계정/스토어는 사용하지 않았다. iOS 설정 필드 잠금 변경을 simulator build로 확인한다.
 - Android sample 수정 후 emulator의 sandbox 빈 설정 UI 통과, local-mock 로그인/재시작/restore/logout 재통과. iOS 설정 필드 잠금 변경도 simulator build 성공. 직접 기동한 Backend와 전용 AVD만 종료하고 데이터·volume은 보존했다.
 - 커밋 전: Google Sandbox sample 및 iOS 설정 표시 일치만 포함한다. 실제 Google/Apple 계정·스토어, Unity player 연결 및 전체 UI audit은 미완료다.
+
+### [P03-T03/P03-T04] Unity Native bridge 재개
+- Task 시작: 현재 bridge wire 계약과 Native LOCAL_MOCK 호출 경계를 확인하고 가능한 실제 연결부터 구현한다. Unity Editor 및 실 플랫폼 검증은 기존 환경·인증 대기를 유지한다.
+- 작업 디렉터리를 잘못 지정해 수정 스크립트가 FileNotFoundError로 실패했다. 이어 실행된 기존 테스트는 변경 검증이 아니며, 저장소 루트에서 수정 후 다시 실행한다.
+- Android bridge dispatcher에 검증된 요청만 받는 provider 연결점, 배열 결과 및 정제된 SDK 오류 전달을 추가했다. 실제 handler는 아직 연결 전이며 단위 검증을 시작한다.
+- 검증: `android/gradlew -p android :sdk-core:test --tests com.gamebridge.BridgeDispatcherTest` 종료 0. 배열 결과, 요청 상관관계, 오류 재시도 표시, 잘못된 요청 미전달 및 예외 메시지 비노출 확인. 실제 provider 연결과 Unity 실행은 아직 미검증이다.
+- 커밋 전: Android bridge handler 경계와 해당 단위 시험만 포함하며 P03-T03은 PARTIAL로 유지한다.

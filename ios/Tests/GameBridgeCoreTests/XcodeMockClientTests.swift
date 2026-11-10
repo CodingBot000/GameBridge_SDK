@@ -37,7 +37,7 @@ final class XcodeMockClientTests: XCTestCase {
         let client = try LocalMockClient(config: config, store: XcodeStore(), developmentKey: String(repeating:"x", count:32), sessionConfiguration: configuration)
         _ = try await client.signIn(subject: "A")
         let account = try await client.xcodeAccount()
-        let grant = try await client.xcodeGrant(productId: "coins_100", transactionId: 7, account: account)
+        let grant = try await client.xcodeGrant(productId: "coins_100", transactionId: 7, attemptId: UUID(), account: account)
         XCTAssertEqual(grant.transactionKey, "7"); XCTAssertEqual(grant.fulfillmentStatus, "GRANTED")
         let wallet = try await client.xcodeWallet(account: account); XCTAssertEqual(wallet.coinBalance, "100")
     }

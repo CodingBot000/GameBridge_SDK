@@ -1901,3 +1901,11 @@
 - 전용 DB에서 동일 시도 동시 재요청 1회 지급, 다른 시도의 동일 거래 키 충돌 및 같은 시도의 다른 키 충돌을 시험한다. 구매 차단은 유지한다.
 - 전용 DB `gamebridge_ci_a94a1d843b`에서 동일 시도 8건 중복 요청의 1회 지급, 다른 시도의 같은 키·같은 시도의 다른 키 거부, sandbox/production endpoint 부재 통과. Native는 아직 attempt ID를 보내지 않으므로 구매 차단 유지.
 - 커밋 준비: 서버의 개발 전용 원자적 attempt 결합 및 DB 회귀만 저장한다. Native journal과 StoreKit 복구는 다음 작업이다.
+### P05-T05 Xcode Native attempt journal 시작
+- 원문 JWS 대신 account·후보 key·시도 UUID만 Native 보안 저장소에 저장한다. 같은 거래 재시도는 UUID를 재사용하고 다른 거래·계정은 충돌로 차단하며 finish 확인 후 삭제한다. 아직 구매 차단은 유지한다.
+### P05-T05 Native journal 단위 검증 시작
+- 재생성 시 같은 attempt 재사용, 계정/거래 차단, finish 삭제, 기록 손상 fail-closed를 synthetic 저장소로 검증한다. Keychain·서버 연결 및 구매 차단 해제는 아직 아니다.
+- journal 첫 단위 시험 5건 통과. 추가 검토에서 StoreKit 조회가 비어 있는 것만으로 완료를 단정하면 복구 단서를 잃을 수 있어, 해당 transaction의 완료 이력이 확인될 때만 stale journal을 정리하도록 강화한다.
+### P05-T05 journal 보수적 정리 검증 시작
+- journal 재시험 2건 통과: 재시도 시도 ID 유지, 타 계정·다른 거래 차단, 정상 finish 삭제, 미확인 빈 조회에서는 보존, 완료 이력 확인 시 정리, 손상 기록 fail-closed. 아직 Keychain·StoreKit·서버 통합 전이다.
+- 커밋 준비: Native journal 및 필수 attempt ID client만 저장한다. 실제 구매 차단 유지.

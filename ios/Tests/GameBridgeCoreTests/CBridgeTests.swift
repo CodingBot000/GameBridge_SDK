@@ -28,4 +28,31 @@ final class CBridgeTests: XCTestCase {
         XCTAssertEqual(response["ok"] as? Bool, true)
         GB_Shutdown()
     }
+    func testMockInitializationAndSessionIsolation() throws {
+        GB_SetCallback(bridgeCallback)
+        let session = UUID().uuidString.lowercased()
+        let key = "development-test-key-0123456789abcdef"
+        func call(_ operation: String, _ payload: [String: Any], _ sessionId: String) throws -> [String: Any] {
+            let request: [String: Any] = ["protocolVersion": 1, "sdkSessionId": sessionId, "kind": "request",
+                "requestId": UUID().uuidString.lowercased(), "operation": operation, "payload": payload]
+            let data = try JSONSerialization.data(withJSONObject: request)
+            data.withUnsafeBytes { bytes in GB_Dispatch(bytes.bindMemory(to: UInt8.self).baseAddress, Int32(bytes.count)) }
+            XCTAssertEqual(callbackSignal.wait(timeout: .now() + 3), .success)
+            callbackLock.lock(); let response = callbackData; callbackLock.unlock()
+            let raw = try XCTUnwrap(response)
+            XCTAssertFalse(String(decoding: raw, as: UTF8.self).contains(key))
+            return try XCTUnwrap(JSONSerialization.jsonObject(with: raw) as? [String: Any])
+        }
+        let payload: [String: Any] = ["providerMode": "LOCAL_MOCK", "appId": "gamebridge-sample",
+            "backendBaseUrl": "http://127.0.0.1:18080", "requestTimeoutMs": 30000, "developmentKey": key, "mockSubject": "A"]
+        let initialized = try call("sdk.initialize", payload, session)
+        XCTAssertEqual(initialized["ok"] as? Bool, true)
+        let result = try XCTUnwrap(initialized["result"] as? [String: Any])
+        XCTAssertEqual(result["mode"] as? String, "LOCAL_MOCK")
+        let other = try call("auth.restore", [:], UUID().uuidString.lowercased())
+        XCTAssertEqual((other["error"] as? [String: Any])?["code"] as? String, "NOT_INITIALIZED")
+        XCTAssertEqual(try call("sdk.shutdown", [:], session)["ok"] as? Bool, true)
+        GB_Shutdown()
+    }
+
 }

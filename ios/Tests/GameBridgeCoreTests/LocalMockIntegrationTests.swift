@@ -68,4 +68,30 @@ final class LocalMockIntegrationTests: XCTestCase {
         let wallet = try await restored.wallet(); XCTAssertEqual(Int64(wallet.coinBalance), original + 100)
         try await restored.signOut(); XCTAssertNil(try storage.load())
     }
+    func testBridgeHandlerAgainstLocalBackend() async throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST"] == "true", "Explicit local mock backend test only")
+        let key = try XCTUnwrap(ProcessInfo.processInfo.environment["GAMEBRIDGE_DEV_AUTH_KEY"])
+        let storage = TestTokenStore(); let handler = LocalMockBridgeHandler { storage }
+        let initialization = try await handler.invoke("sdk.initialize", payload: ["appId": "gamebridge-sample", "providerMode": "LOCAL_MOCK",
+            "backendBaseUrl": "http://127.0.0.1:18080", "requestTimeoutMs": 30000, "developmentKey": key, "mockSubject": "B"])
+        XCTAssertEqual((initialization as? [String: Any])?["state"] as? String, "READY")
+        let profile = try await handler.invoke("auth.signIn", payload: ["provider": "MOCK"])
+        let encodedProfile = try JSONSerialization.data(withJSONObject: profile)
+        XCTAssertFalse(String(decoding: encodedProfile, as: UTF8.self).contains(key))
+        let beforeValue = try await handler.invoke("store.entitlements", payload: [:])
+        let before = try XCTUnwrap(beforeValue as? [String: Any])
+        let coins = try XCTUnwrap(Int64(try XCTUnwrap(before["coinBalance"] as? String)))
+        let purchaseValue = try await handler.invoke("store.purchase", payload: ["productId": "coins_100"])
+        let purchase = try XCTUnwrap(purchaseValue as? [String: Any])
+        XCTAssertEqual(purchase["fulfillmentStatus"] as? String, "GRANTED")
+        let walletValue = try await handler.invoke("store.entitlements", payload: [:])
+        let wallet = try XCTUnwrap(walletValue as? [String: Any])
+        XCTAssertEqual(Int64(try XCTUnwrap(wallet["coinBalance"] as? String)), coins + 100)
+        let restoredValue = try await handler.invoke("auth.restore", payload: [:])
+        let restored = try XCTUnwrap(restoredValue as? [String: Any])
+        XCTAssertEqual(restored["sessionRestored"] as? Bool, true)
+        _ = try await handler.invoke("auth.signOut", payload: [:]); XCTAssertNil(storage.value)
+        _ = try await handler.invoke("sdk.shutdown", payload: [:])
+    }
+
 }

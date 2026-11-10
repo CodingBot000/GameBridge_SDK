@@ -21,3 +21,5 @@ Unity iOS의 Mobile Notifications 2.5.0 host adapter는 명시적으로 권한�
 ### Unity Android LOCAL_MOCK (부분 연결)
 
 개발 서버를 명시적으로 `local-mock` profile로 실행하고 Android host가 접근할 수 있는 개발 서버 주소를 설정한다. `new GameBridgeConfig(appId, ProviderMode.LocalMock, backendUrl, timeoutMs, developmentKey, mockSubject)`로 메모리에서만 개발키와 `A` 또는 `B`를 전달한다. 이 키는 로컬 개발 서버 전용이며 소스·Unity 에셋·로그에 저장하지 않는다. Android emulator의 host loopback은 `10.0.2.2`를 사용하고, 개발 전용 cleartext 허용은 host 앱에서 해당 주소에 한정해 설정한다. 토큰과 구매 증빙은 Native에 남는다. 인증·상품 조회·Mock 구매·서버 잔액 경로는 연결됐지만 구매 sync, push, config 브리지와 실제 Google/Apple Provider는 아직 미연결이다. 이 경로는 Native JVM→로컬 Backend/DB로만 검증했으며 Unity JNI 실행은 ENV-002로 미검증이다.
+
+Unity iOS LOCAL_MOCK도 동일한 명시 설정을 Swift C ABI로 전달하며 Native Keychain 별도 항목을 사용한다. C ABI 초기화·session 분리와 Swift handler→로컬 서버/DB는 각각 검증했다. 둘을 합친 Unity iOS 실행, 실제 Apple 계정/StoreKit, 구매 sync·push·config 브리지는 미검증 또는 미연결이다. iOS simulator의 HTTP 개발 서버 허용은 host의 개발 전용 네트워크 보안 설정이 필요하다.

@@ -9,10 +9,15 @@ private final class BridgeState {
     static let shared = BridgeState()
     private let lock = NSRecursiveLock()
     private let queue = DispatchQueue(label: "com.gamebridge.bridge")
+    #if canImport(Security)
+    private let handler = LocalMockBridgeHandler { KeychainTokenStore(service: "com.gamebridge.sdk.unity.local-mock") }
+    #endif
     private var callback: GBCallback?
     private var generation: UInt64 = 0
     private var pending = 0
+    // Accessed only by the serial bridge queue and the one task it waits for.
     private var state = "UNINITIALIZED"
+    private var ownerSession: String?
     func setCallback(_ value: GBCallback?) {
         lock.lock(); defer { lock.unlock() }
         generation &+= 1; callback = value
@@ -22,31 +27,63 @@ private final class BridgeState {
         let current = generation
         if pending >= 100 {
             lock.unlock()
-            if let response = makeResponse(data, forcedError: "BUSY") { deliver(response, generation: current) }
+            if let response = envelope(data, result: nil, failure: SdkFailure("BUSY", retryable: true)) { deliver(response, generation: current) }
             return
         }
         pending += 1; lock.unlock()
         queue.async {
             defer { self.lock.lock(); self.pending -= 1; self.lock.unlock() }
-            if let response = self.makeResponse(data, forcedError: nil) { self.deliver(response, generation: current) }
+            self.lock.lock(); let valid = self.generation == current; self.lock.unlock()
+            guard valid else { return }
+            // The queue serializes actor calls without blocking Unity's main thread.
+            let done = DispatchSemaphore(value: 0)
+            Task {
+                defer { done.signal() }
+                if let response = await self.makeResponse(data) { self.deliver(response, generation: current) }
+            }
+            done.wait()
         }
     }
-    private func makeResponse(_ data: Data, forcedError: String?) -> Data? {
+    private func makeResponse(_ data: Data) async -> Data? {
+        guard let request = try? BridgeProtocol.parse(data), request["kind"] as? String == "request",
+              let operation = request["operation"] as? String, let session = request["sdkSessionId"] as? String,
+              let payload = request["payload"] as? [String: Any] else { return nil }
+        if let ownerSession, ownerSession != session { return envelope(data, result: nil, failure: SdkFailure("NOT_INITIALIZED")) }
+        do {
+            let result: Any
+            switch operation {
+            case "sdk.status": result = ["state": state, "sdkVersion": GameBridgeVersion.current]
+            case "sdk.shutdown":
+                #if canImport(Security)
+                _ = try await handler.invoke(operation, payload: payload)
+                #endif
+                state = "SHUTDOWN"; ownerSession = nil; result = ["state": state]
+            case "sdk.initialize":
+                #if canImport(Security)
+                result = try await handler.invoke(operation, payload: payload)
+                state = "READY"; ownerSession = session
+                #else
+                throw SdkFailure("UNSUPPORTED_OPERATION")
+                #endif
+            default:
+                #if canImport(Security)
+                result = try await handler.invoke(operation, payload: payload)
+                #else
+                throw SdkFailure("UNSUPPORTED_OPERATION")
+                #endif
+            }
+            return envelope(data, result: result, failure: nil)
+        } catch let failure as SdkFailure { return envelope(data, result: nil, failure: failure) }
+        catch { return envelope(data, result: nil, failure: SdkFailure("INTERNAL_ERROR")) }
+    }
+    private func envelope(_ data: Data, result: Any?, failure: SdkFailure?) -> Data? {
         guard let request = try? BridgeProtocol.parse(data), request["kind"] as? String == "request",
               let operation = request["operation"] as? String, let session = request["sdkSessionId"] as? String,
               let requestId = request["requestId"] as? String else { return nil }
-        var result: [String: Any]?
-        if forcedError == nil {
-            switch operation {
-            case "sdk.status": result = ["state": state, "sdkVersion": GameBridgeVersion.current]
-            case "sdk.shutdown": state = "SHUTDOWN"; result = ["state": state]
-            default: break
-            }
-        }
-        let errorCode = forcedError ?? (result == nil ? "UNSUPPORTED_OPERATION" : nil)
-        let error: Any = errorCode.map { ["code": $0, "message": "Operation is not available", "retryable": $0 == "BUSY", "requestId": requestId, "nativeCode": NSNull(), "details": [:]] as [String: Any] } ?? NSNull()
-        let envelope: [String: Any] = ["protocolVersion": 1, "sdkSessionId": session, "kind": "response", "requestId": requestId, "operation": operation, "ok": errorCode == nil, "result": result ?? NSNull(), "error": error]
-        return try? JSONSerialization.data(withJSONObject: envelope)
+        let error: Any = failure.map { ["code": $0.code, "message": "Operation is not available", "retryable": $0.retryable,
+            "requestId": requestId, "nativeCode": $0.nativeCode as Any? ?? NSNull(), "details": [:]] as [String: Any] } ?? NSNull()
+        return try? JSONSerialization.data(withJSONObject: ["protocolVersion": 1, "sdkSessionId": session, "kind": "response",
+            "requestId": requestId, "operation": operation, "ok": failure == nil, "result": result ?? NSNull(), "error": error])
     }
     private func deliver(_ encoded: Data, generation expected: UInt64) {
         guard encoded.count <= Int(Int32.max) else { return }
@@ -56,7 +93,16 @@ private final class BridgeState {
     }
     func shutdown() {
         setCallback(nil)
-        queue.async { self.state = "SHUTDOWN" }
+        queue.async {
+            let done = DispatchSemaphore(value: 0)
+            Task {
+                #if canImport(Security)
+                _ = try? await self.handler.invoke("sdk.shutdown", payload: [:])
+                #endif
+                self.state = "SHUTDOWN"; self.ownerSession = nil; done.signal()
+            }
+            done.wait()
+        }
     }
 }
 
@@ -67,7 +113,6 @@ public func GB_SetCallback(_ callback: GBCallback?) { BridgeState.shared.setCall
 @_cdecl("GB_Dispatch")
 public func GB_Dispatch(_ pointer: UnsafePointer<UInt8>?, _ length: Int32) {
     guard length > 0, length <= BridgeProtocol.maxBytes, let pointer else { return }
-    // Copy before returning: the caller retains ownership of the input pointer.
     BridgeState.shared.dispatch(Data(bytes: pointer, count: Int(length)))
 }
 @_cdecl("GB_Shutdown")

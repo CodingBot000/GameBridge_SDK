@@ -1161,3 +1161,20 @@
 - dispose 시 callback 세대가 바뀌면 대기 중 이전 요청은 실행하지 않고, Native handler 메모리 상태를 executor에서 정리하도록 했다. 큐가 가득 찬 경우 다음 유효 요청 전에 정리한다. 저장된 세션은 복원 가능하도록 삭제하지 않는다. 회귀 컴파일·단위 시험을 진행한다.
 - `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-core:test :sdk-unity-bridge:assembleDebug` 종료 0: Native 단위 시험과 bridge AAR compile 통과. synthetic HTTP에서 reset 후 새 bridge session 초기화도 확인했으나 Unity lifecycle 실행은 미검증이다.
 - 커밋 전: Android LOCAL_MOCK bridge와 개발 전용 설정, 단위/로컬 DB 검증 및 사용자 안내만 포함한다. 실제 Google/Apple, iOS bridge, Unity JNI, push/config/sync는 미완료다.
+
+### [P03-T04] iOS LOCAL_MOCK C ABI 연결
+- Task 시작: Swift C ABI 기존 수명주기와 Native actor·Keychain 저장소를 확인하고 명시적인 LOCAL_MOCK 요청을 연결한다. 실제 Apple Provider 및 Unity iOS 실행과는 구분한다.
+- Swift LOCAL_MOCK bridge handler 초안을 작성했다. Native actor와 분리된 Keychain 저장소 주입을 사용하며 인증·상품·구매·잔액을 반환한다. C ABI 연결 전 compile 확인을 진행한다.
+- `swift test --package-path ios --filter CBridgeTests` 종료 1: capability reason의 삼항식에서 NSNull/String 타입 추론이 실패했다. 명시적 Any 분기로 변경 후 재검증한다.
+- `swift test --package-path ios --filter CBridgeTests` 종료 0: 기존 C ABI 한글 callback 1건 및 새 handler compile 통과. 아직 handler를 C ABI에 연결한 검증은 아니다.
+- Swift C ABI에 LOCAL_MOCK handler와 session 소유권·종료 정리를 연결했다. 비동기 Native 요청은 전용 직렬 queue에서 순서를 유지하며 Unity main thread를 기다리지 않는다. Swift C ABI 및 simulator build를 검증한다.
+- `swift test --package-path ios --filter CBridgeTests` 종료 0: 변경 후 기존 C ABI callback 1건 통과. 신규 초기화·소유 session 경계와 로컬 Backend 경로는 별도 확인한다.
+- `swift test --package-path ios --filter CBridgeTests` 종료 0, 2건: C ABI UTF-8 복사/상관관계와 Mock 초기화·다른 session 거부·종료를 확인했다. Keychain 로그인·실제 Unity linkage는 이 시험에 포함되지 않는다.
+- Swift handler를 격리된 로컬 Backend/DB에 연결하는 opt-in 시험을 추가한다. subject B의 Mock 구매 1건이며 실제 스토어 호출은 없다.
+- `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... swift test --package-path ios --filter LocalMockIntegrationTests.testBridgeHandlerAgainstLocalBackend` 종료 0, 1건: Swift handler→실제 local-mock HTTP/DB 로그인·구매·코인 100 증가·복원·로그아웃. test subject B의 Mock 구매 1건을 기록했다. C ABI와 Keychain을 경유한 실행은 아니다.
+- `xcodebuild ... -scheme GameBridgeNative ... build -quiet` 종료 65: 기존 생성된 Xcode project가 새 Swift 파일을 포함하지 않아 LocalMockBridgeHandler를 찾지 못했다. project 생성 스크립트의 기존 파일 보호 정책을 확인한다.
+- 별도 임시 Xcode project 생성 시도는 패키지 상대 경로가 artifacts/Package.swift를 가리켜 종료 74 (의존성 해석 실패). 기존 project를 덮어쓰지 않도록 독립 디렉터리에 원본 구조를 symlink로 재현해 다시 생성한다.
+- 격리 Xcode project 생성이 UITests 경로 누락으로 실패했다(후속 xcodebuild도 project 없음). 누락된 테스트 경로를 포함해 마지막으로 재시도한다.
+- 격리된 `artifacts/ios-bridge-layout.VrB66L`에서 XcodeGen 재생성 및 `xcodebuild ... -scheme GameBridgeNative -destination generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. 무서명 simulator static framework 컴파일이며 Unity linkage/실기기 실행은 아니다. 생성된 기존 Xcode project는 덮어쓰지 않았다.
+- `swift test --package-path ios` 종료 0: 총 44건, 4건은 opt-in local Backend 시험으로 skip, 나머지 실패 0. 앞서 별도 실행한 handler opt-in 1건은 성공했지만 skip된 나머지 3건을 이번 전체 실행의 통과로 간주하지 않는다.
+- 커밋 전: Swift LOCAL_MOCK handler·C ABI 연결과 별도 단위/로컬 Backend 증거만 포함한다. Unity 실행과 실제 Apple·구매 sync·push·config는 미완료로 남긴다. 직접 기동한 Backend만 종료하고 기존 DB와 artifacts를 보존했다.

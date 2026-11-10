@@ -76,4 +76,21 @@ final class StoreKitBillingProviderTests: XCTestCase {
         }
     }
 
+    func testXcodeCandidateIgnoresOnlyTransientFieldsAndRejectsMalformed() throws {
+        func jws(_ payload: [String: Any]) throws -> String {
+            let data = try JSONSerialization.data(withJSONObject: payload)
+            let encoded = data.base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+            return "header." + encoded + ".signature"
+        }
+        let base: [String: Any] = ["transactionId":"0", "originalTransactionId":"0", "productId":"coins_100", "purchaseDate":1,
+            "originalPurchaseDate":1, "appAccountToken":"synthetic-account", "bundleId":"test.bundle", "appTransactionId":"app"]
+        var dynamic = base; dynamic["signedDate"] = 123; dynamic["deviceVerificationNonce"] = "changed"
+        XCTAssertEqual(xcodeStableIdentity(try jws(base)), xcodeStableIdentity(try jws(dynamic)))
+        dynamic["purchaseDate"] = 2
+        XCTAssertNotEqual(xcodeStableIdentity(try jws(base)), xcodeStableIdentity(try jws(dynamic)))
+        dynamic.removeValue(forKey: "appAccountToken"); XCTAssertNil(xcodeStableIdentity(try jws(dynamic)))
+        dynamic = base; dynamic["purchaseDate"] = true; XCTAssertNil(xcodeStableIdentity(try jws(dynamic)))
+        XCTAssertNil(xcodeStableIdentity("bad"))
+    }
+
 }

@@ -2,9 +2,30 @@
 import Foundation
 import StoreKit
 import CryptoKit
+import CoreFoundation
 #if !GAMEBRIDGE_CORE_EMBEDDED
 import GameBridgeCore
 #endif
+
+/// This only normalizes data already verified by StoreKit; it does not verify a JWS.
+func xcodeStableIdentity(_ signedTransaction: String) -> String? {
+    guard signedTransaction.utf8.count <= BridgeProtocol.maxBytes else { return nil }
+    let parts = signedTransaction.split(separator: ".", omittingEmptySubsequences: false)
+    guard parts.count == 3, !parts[1].isEmpty else { return nil }
+    let raw = String(parts[1]).replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+    let padded = raw + String(repeating: "=", count: (4 - raw.count % 4) % 4)
+    guard let data = Data(base64Encoded: padded), let payload = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else { return nil }
+    let keys = ["transactionId", "originalTransactionId", "productId", "purchaseDate", "originalPurchaseDate", "appAccountToken", "bundleId", "appTransactionId"]
+    var selected: [String: Any] = [:]
+    for key in keys {
+        guard let value = payload[key] else { return nil }
+        if let text = value as? String { guard !text.isEmpty else { return nil }; selected[key] = text }
+        else if let number = value as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(), number.doubleValue.isFinite { selected[key] = number }
+        else { return nil }
+    }
+    guard let canonical = try? JSONSerialization.data(withJSONObject: selected, options: [.sortedKeys]) else { return nil }
+    return SHA256.hash(data: canonical).map { String(format: "%02x", $0) }.joined()
+}
 
 @available(iOS 16.0, macOS 13.0, *)
 func isXcodeStoreEnvironment(_ environment: AppStore.Environment) -> Bool { environment == .xcode }
@@ -38,7 +59,7 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
             if #available(iOS 16.0, macOS 13.0, *) { return isXcodeStoreEnvironment(transaction.environment) }
             return false
         }, transactionIdentity: { _, jws in
-            SHA256.hash(data: Data(jws.utf8)).map { String(format: "%02x", $0) }.joined()
+            xcodeStableIdentity(jws) ?? ""
         }) { [weak ref] in ref?.value }
     }
     public var userId: UUID { account.userId }

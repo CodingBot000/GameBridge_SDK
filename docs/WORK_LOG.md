@@ -1886,3 +1886,12 @@
 - 앞선 두 purchase 호출은 첫 거래를 finish하기 전에 실행했으므로 StoreKit이 같은 미완료 거래를 반환했을 가능성을 배제하지 못한다. 첫 거래를 finish한 다음 두 번째를 생성해 고정 필드를 비교한다. SDK의 fail-closed 차단은 유지한다.
 - `artifacts/storekit-sequential-identity-1794333841.xcresult`: 첫 거래 finish 후 새 구매의 고정 필드 digest가 다른 것 1건 PASS. 앞서 finish 전 두 호출의 고정 필드가 같았다는 관찰은 동일 미완료 거래 재반환 가능성이 있어 별개 거래 충돌로 단정하지 않는다. 재서명·응답 유실·재시작에 걸친 원자적 중복 방지는 아직 검증되지 않아 fail-closed 유지.
 - 커밋 준비: 시험 순서와 과도했던 보고 표현을 바로잡는다. 신규 구매 차단은 해제하지 않는다.
+### P05-T03 안정 식별자 연구 재개
+- 확인된 고정 필드만 canonicalize한 Xcode 전용 후보 식별자를 구현하고 동일 미완료 거래 재조회 및 완료 후 다른 구매와 비교한다. 이것만으로 충돌·응답 유실 후 정확히 한 번 지급이 보장되지는 않으므로 구매·fake grant 차단은 유지한다.
+### P05-T03 후보 식별자 simulator 검증 시작
+- 고정 필드 canonicalization이 동일 미완료 거래에서는 일치하고 완료 후 연속 구매에서는 다른지 재시험한다. 실패·충돌 가능성에 대비해 실제 지급 차단은 유지한다.
+- `artifacts/storekit-candidate-identity-1794333968.xcresult` 1건 PASS: 같은 미완료 거래 재조회 후보 digest 일치, finish 후 연속 구매 digest 구분. 이는 제한된 iOS 18.6 사례이며 충돌 불가능을 증명하지 않는다. 개발 지급과 신규 구매 차단을 유지한다.
+### P05-T03 후보 식별자 입력 검증 시작
+- 가변 필드 무시, 고정 필드 변경, 누락·불리언·잘못된 JWS 거부를 synthetic unit으로 검증한다.
+- Swift StoreKit 및 개발 client 9건 통과. 후보 함수는 StoreKit의 verified 결과에서만 사용하며 자체 서명 검증기는 아니다. 새/기존 거래 충돌 및 재시작 응답 유실을 다루는 durable attempt 연동 전까지 구매 차단 유지.
+- 커밋 준비: 후보 정규화와 실제 simulator 재조회·unit 시험만 저장한다. 완료나 실제 Apple 검증으로 표시하지 않는다.

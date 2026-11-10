@@ -81,10 +81,14 @@ def main() -> int:
     simple('ledger-mutation',['python3','harness/check-ledger-mutation.py'],'Ledger mutation detected',ledger_env)
     nested('push',['python3','harness/run-push-regression.py'])
     manifest = json.loads((ROOT/'harness/regression-manifest.json').read_text(encoding='utf-8'))
-    incomplete = [entry['id'] for entry in manifest['scenarios'] if entry.get('required') and entry.get('coverage') != 'IMPLEMENTED']
-    lanes.append({'name':'scenario-coverage','status':'NOT_IMPLEMENTED' if incomplete else 'PASS','required':True,
-                  'tests':0 if incomplete else len(manifest['scenarios']),'skipped':0,'exitCode':2 if incomplete else 0,
-                  'command':['python3','harness/check-manifest.py'],'evidence':'harness/regression-manifest.json','incompleteCount':len(incomplete)})
+    partial = [entry['id'] for entry in manifest['scenarios'] if entry.get('required') and entry.get('coverage') == 'PARTIAL']
+    unimplemented = [entry['id'] for entry in manifest['scenarios'] if entry.get('required') and entry.get('coverage') == 'NOT_IMPLEMENTED']
+    incomplete = partial + unimplemented
+    coverage_status = 'NOT_IMPLEMENTED' if unimplemented else 'PARTIAL' if partial else 'PASS'
+    lanes.append({'name':'scenario-coverage','status':coverage_status,'required':True,
+                  'tests':0 if incomplete else len(manifest['scenarios']),'skipped':0,'exitCode':1 if incomplete else 0,
+                  'command':['python3','harness/check-manifest.py'],'evidence':'harness/regression-manifest.json',
+                  'partialCount':len(partial),'unimplementedCount':len(unimplemented)})
     if env.get('GAMEBRIDGE_RUN_UNITY_EDITOR') == 'true':
         simple('unity-editor-runtime',['bash','scripts/build-unity.sh','--editor-smoke'],'Unity consumer tests PASS:')
     else:

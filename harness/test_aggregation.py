@@ -9,6 +9,7 @@ class AggregationTests(unittest.TestCase):
         lanes = [{'name':'local','status':'PASS','required':True,'tests':1},{'name':'external','status':'WAITING_USER','required':False,'tests':0}]
         self.assertEqual(summarize(lanes)['exitCode'],0); self.assertEqual(lanes[1]['status'],'WAITING_USER')
     def test_zero_tests_is_not_pass(self): self.assertEqual(summarize([{'name':'local','status':'PASS','required':True,'tests':0}])['exitCode'],1)
+    def test_partial_is_not_pass(self): self.assertEqual(summarize([{'name':'local','status':'PARTIAL','required':True,'tests':0}])['exitCode'],1)
     def test_unimplemented_is_not_pass(self): self.assertEqual(summarize([{'name':'local','status':'NOT_IMPLEMENTED','required':True,'tests':0}])['exitCode'],1)
     def test_missing_required_is_not_pass(self): self.assertEqual(summarize([{'name':'local','status':'DEFERRED_ENV','required':True,'tests':0}])['exitCode'],2)
     def test_no_required_lane_is_not_pass(self): self.assertEqual(summarize([{'name':'external','status':'WAITING_USER','required':False,'tests':0}])['exitCode'],1)
@@ -19,6 +20,7 @@ class AggregationTests(unittest.TestCase):
         self.assertTrue(runner_inconsistent(1, ['DEFERRED_ENV']))
         self.assertTrue(runner_inconsistent(-9, ['PASS']))
         self.assertFalse(runner_inconsistent(1, ['NOT_IMPLEMENTED']))
+        self.assertFalse(runner_inconsistent(1, ['PARTIAL']))
         self.assertFalse(runner_inconsistent(2, ['DEFERRED_ENV']))
     def test_duplicate_lane_is_not_pass(self): self.assertEqual(summarize([{'name':'x','status':'PASS','required':True,'tests':1}]*2)['exitCode'],1)
 

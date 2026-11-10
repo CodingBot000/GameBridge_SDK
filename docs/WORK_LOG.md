@@ -2009,3 +2009,14 @@
 - 저장소 alias 보호, Mock push, Xcode local recovery 및 Unity iOS hook을 포함한 현재 소스에서 Android·iOS·UPM을 새 경로로 재생성하고 별도 consumer/checksum을 확인한다. Unity import/player 및 실제 스토어는 포함하지 않는다.
 - source HEAD `6a3fea5`에서 Android Maven·별도 R8 consumer 45 task 강제 재실행, iOS device/simulator XCFramework archive·simulator Swift 별도 link·device C ABI symbol 4개, UPM staging 110개 무결성 통과. 전체 192개 산출물 SHA-256/크기 재계산 결과 `docs/evidence/final-artifact-manifest.json`. 제품 소스는 커밋된 상태, 진행 문서는 빌드 당시 수정 중이었다. Unity import/IL2CPP·실기기·실스토어는 미실행이다.
 - 커밋 준비: 새 산출물 manifest와 확인 범위만 기록한다. 산출물은 로컬에 보존하며 공개 배포하지 않는다.
+
+### [P11-T04] 격리 strict local 재검증 시작
+- 새 local/sandbox DB 및 synthetic 테스트 서버를 사용해 DB·Native fake·Xcode local recovery와 package 검증을 집계한다. Unity Editor와 실제 외부 서비스는 대기로 유지하고 기존 DB·사용자 파일은 삭제하지 않는다.
+### P11-T04 strict local 실행
+- 전용 DB·role을 새로 만들고 실제 원격 제공자 대신 synthetic key 및 local/sandbox fixture만 사용한다. 결과와 미실행 lane을 그대로 기록하며 DB·simulator는 보존한다.
+- `artifacts/verify-all-f7dtxw81/summary.md` strict 종료 1: 전용 local/sandbox DB의 인증·구매·원장 mutation·푸시 synthetic 시험과 Xcode local DB recovery, Android/Swift Native mock push E2E, C#·계약·패키지 검증 PASS. Unity Editor NOT_RUN, Unity notification 및 iOS host opt-in 미제공, 49개 시나리오 PARTIAL, 기존 P05-T03 iOS 26.5 실패로 전체 FAIL; 외부 13개 WAITING_USER. 전용 DB `gamebridge_ci_d0ef0b748d_local`, `_sandbox` 보존.
+- 집계의 `scenario-coverage: NOT_IMPLEMENTED`는 실제로 49개 PARTIAL을 포함해 구분이 부족했다. 사용자 요구에 맞게 PARTIAL과 NOT_IMPLEMENTED를 별도 상태로 집계하되 둘 다 전체 통과를 차단한다.
+### [P09-T06] 부분 시나리오 상태 분리 시작 및 검증 준비
+- 결과 분류 unit과 음성 검사를 실행하고 미검증을 PASS로 바꾸지 않는다.
+- 집계 unit 12건, manifest 음성 및 원장 검사 통과. `check-required-coverage`는 `49 PARTIAL, 0 NOT_IMPLEMENTED`를 출력하고 종료 1로 전체 통과를 막는다. 이전 strict 결과는 수정 전 source의 증거로 보존한다.
+- 커밋 준비: 격리 strict runner와 부분/미구현 구분만 저장한다. 실제 Unity·외부 서비스는 미실행이다.

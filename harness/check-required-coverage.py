@@ -16,7 +16,9 @@ try:
     if len(scenarios) != 50 or {item['id'] for item in scenarios} != {f'R{i:02d}' for i in range(1,51)}: raise ValueError('incomplete inventory')
     missing = [item['id'] for item in scenarios if item.get('required') is not True or item.get('coverage') != 'IMPLEMENTED']
     if missing:
-        print(f'NOT_IMPLEMENTED: {len(missing)} required scenarios lack complete assertion coverage', file=sys.stderr)
+        partial = sum(item.get('coverage') == 'PARTIAL' for item in scenarios if item.get('required'))
+        unimplemented = sum(item.get('coverage') == 'NOT_IMPLEMENTED' for item in scenarios if item.get('required'))
+        print(f'INCOMPLETE: {partial} PARTIAL, {unimplemented} NOT_IMPLEMENTED required scenarios', file=sys.stderr)
         raise SystemExit(1)
 except (OSError, ValueError, KeyError, TypeError) as error:
     print(f'Coverage manifest invalid: {error}', file=sys.stderr); raise SystemExit(1)

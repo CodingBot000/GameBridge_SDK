@@ -1540,3 +1540,16 @@
 - aggregate 음성 검사 추가 수정 스크립트가 Python 문자열 구문 오류로 실행 전 실패했다. 이어 실행된 unit 11건은 수정 전 상태 검증이므로 새 기능 통과로 기록하지 않는다. 수정 스크립트를 단순화해 다시 적용한다.
 - 음성 검사 포함 최종 `scripts/verify-all.sh --strict-local` 종료 1, `artifacts/verify-all-nxzojdaf/result.json`: manifest/contract negative 통과, DB 미설정 및 ledger mutation은 DEFERRED_ENV, Mock delivery NOT_IMPLEMENTED·Unity NOT_RUN·기록된 StoreKit FAIL과 외부 WAITING_USER 13개를 분리했다. aggregation self-test 실제 11건을 기록했다.
 - 커밋 전: fail-closed aggregate와 unit/실제 실행 증거만 포함한다. 모든 required lane이 실행된 것은 아니므로 P09-T06은 PARTIAL 유지한다.
+
+### [P09-T07] CI 플랫폼 lane
+- Task 시작: PR에서 외부 인증·secret 없이 Linux Backend/Android, macOS Swift, 별도 Unity 대기를 구분하는 workflow를 작성한다. GitHub push/실행은 하지 않으며 로컬 정적 검증만 기록한다.
+- CI 준비용 DB script는 loopback·명시적 disposable 접두사·빈 public schema를 요구하고 migration만 적용하며 기존 DB를 삭제하지 않는다. required scenario coverage 미완료는 별도 gate에서 실패시킨다.
+- 전용 새 DB `gamebridge_ci_060e9d3bdae7`에서 CI 준비 script 종료 0, ledger/finalization DB 시험 3건 종료 0. 같은 DB 재실행은 비어 있지 않음을 감지해 exit 2로 거부했다. DB와 새 schema는 보존한다.
+- 공식 GitHub Actions 문서·runner image 및 고정 checkout/setup-java commit, XcodeGen 2.46.0 release SHA256을 확인했다. Linux Backend/Android, macOS simulator, 명시적 미구현 Unity lane과 fail-closed gate workflow를 작성했다. 원격 workflow는 실행하지 않는다.
+- actionlint 1.7.12 공식 release 다운로드 첫 시도는 connection reset으로 실패했다. 뒤따른 checksum/추출 명령도 파일 부재로 실패했으며 workflow static 검증은 아직 미실행이다. 새 경로에서 다운로드 재시도한다.
+- actionlint 1.7.12은 첫 download connection reset 후 새 로컬 경로에 재시도해 공식 SHA256 일치·workflow static 검증 종료 0. GitHub Actions는 실행하지 않았다. Swift test의 0건 및 필수 class 누락을 CI에서 놓치지 않도록 추가 검사를 작성한다.
+- actionlint 재실행 종료 0. CI DB 보호 검사를 table뿐 아니라 view/sequence/function까지 확장했고 기존 test DB 재실행은 exit 2로 거부했다. Swift 및 JUnit 실행 수 검사기의 양·음성 경계를 확인한다.
+- CI Swift 선택 suite 12건/필수 class 5개를 실제 실행·검사했고, 존재하지 않는 class 및 없는 JUnit XML은 각 exit 1로 거부했다. XcodeGen 공식 archive SHA256 검증 후 로컬 실행 버전 2.46.0을 확인했다. GitHub 원격 실행은 하지 않았다.
+- 강화된 빈 DB 확인은 새 `gamebridge_ci_d67cc2b8fd70`에서 migration 적용에 성공했다. 그러나 이어진 Gradle test가 DB URL 변경을 입력으로 인식하지 못해 UP-TO-DATE였으므로 그 DB에서 시험 통과라고 기록하지 않는다. CI test 명령에 --rerun-tasks를 추가하고 같은 DB에서 실제 실행한다.
+- `--rerun-tasks`로 새 CI test DB에서 ledger/finalization 3건을 실제 재실행하고 JUnit 3건·skip 0을 확인했다. 변경 후 actionlint 1.7.12 재검증 종료 0. 기존 DB·새 test DB는 보존했다. GitHub 원격 workflow는 실행하지 않았다.
+- 커밋 전: CI workflow·disposable DB 준비·0건/skip 방지 검사와 로컬 정적/대응 검증만 포함한다. Unity lane은 명시적 NOT_IMPLEMENTED로 실패하며 remote Actions 결과는 NOT_RUN이다.

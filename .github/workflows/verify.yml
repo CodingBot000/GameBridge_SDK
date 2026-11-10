@@ -1,0 +1,128 @@
+name: Local verification lanes
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gamebridge-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-backend-android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17.6-alpine3.22
+        env:
+          POSTGRES_DB: gamebridge_ci_local
+          POSTGRES_USER: gamebridge_ci
+          POSTGRES_PASSWORD: ci-only-postgres-password
+        ports:
+          - 54329:5432
+        options: >-
+          --health-cmd "pg_isready -U gamebridge_ci -d gamebridge_ci_local"
+          --health-interval 5s --health-timeout 3s --health-retries 12
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Check progress and scenario inventory
+        run: |
+          python3 scripts/verify-progress.py
+          python3 harness/check-manifest.py
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_aggregation.py' -v
+      - name: Prepare empty local test database
+        env:
+          GAMEBRIDGE_CI_DISPOSABLE_DB: 'true'
+          PGHOST: 127.0.0.1
+          PGPORT: '54329'
+          PGDATABASE: gamebridge_ci_local
+          PGUSER: gamebridge_ci
+          PGPASSWORD: ci-only-postgres-password
+        run: bash scripts/ci-prepare-local-db.sh
+      - name: Backend test-key and isolated PostgreSQL fixtures
+        env:
+          GAMEBRIDGE_RUN_DB_TESTS: 'true'
+          GAMEBRIDGE_TEST_DB_URL: jdbc:postgresql://127.0.0.1:54329/gamebridge_ci_local
+          GAMEBRIDGE_TEST_DB_USER: gamebridge_ci
+          GAMEBRIDGE_TEST_DB_PASSWORD: ci-only-postgres-password
+        run: |
+          backend/gradlew -p backend test --rerun-tasks --tests com.gamebridge.auth.IdentityVerifierTest --tests com.gamebridge.purchase.LedgerInvariantDatabaseTest --tests com.gamebridge.purchase.GoogleGrantDatabaseTest --tests com.gamebridge.purchase.AppleGrantDatabaseTest --tests com.gamebridge.purchase.FinalizationDatabaseTest --tests com.gamebridge.purchase.PurchaseBindingsDatabaseTest
+          python3 harness/check-junit.py backend/build/test-results/test/TEST-com.gamebridge.auth.IdentityVerifierTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.LedgerInvariantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.GoogleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.AppleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.FinalizationDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.PurchaseBindingsDatabaseTest.xml
+      - name: Android contract and provider fake tests
+        run: |
+          android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BridgeProtocolTest --tests com.gamebridge.ModelFixtureTest --tests com.gamebridge.LocalMockRecoveryTest --tests com.gamebridge.PushRouterTest :sdk-android:testDebugUnitTest --tests com.gamebridge.android.auth.GoogleAuthProviderTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest :sdk-unity-bridge:testDebugUnitTest --tests com.gamebridge.bridge.GoogleAuthBridgeHandlerTest --tests com.gamebridge.bridge.HostPushDeliveryTest
+          python3 harness/check-junit.py android/sdk-core/build/test-results/test/TEST-com.gamebridge.BridgeProtocolTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.ModelFixtureTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockRecoveryTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.PushRouterTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.auth.GoogleAuthProviderTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.purchase.GooglePlayBillingProviderTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.GoogleAuthBridgeHandlerTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.HostPushDeliveryTest.xml
+      - name: Android local Maven and separate R8 consumer
+        env:
+          GAMEBRIDGE_MAVEN_REPO: ${{ runner.temp }}/gamebridge-maven
+        run: bash scripts/build-android.sh --mock
+
+  ios-simulator:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Swift package contract and fake tests
+        run: |
+          set -o pipefail
+          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|StoreKitBillingProviderTests|PushRouterTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
+          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests StoreKitBillingProviderTests PushRouterTests
+      - name: Install pinned XcodeGen locally
+        run: |
+          mkdir -p "$RUNNER_TEMP/gamebridge-tools"
+          curl --fail --location --silent --show-error https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip -o "$RUNNER_TEMP/gamebridge-tools/xcodegen.zip"
+          echo "4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806  $RUNNER_TEMP/gamebridge-tools/xcodegen.zip" | shasum -a 256 -c -
+          unzip -q "$RUNNER_TEMP/gamebridge-tools/xcodegen.zip" -d "$RUNNER_TEMP/gamebridge-tools"
+      - name: Build and run synthetic iOS simulator host test
+        env:
+          XCODEGEN_BIN: ${{ runner.temp }}/gamebridge-tools/xcodegen/bin/xcodegen
+        run: |
+          project="$(bash scripts/generate-ios-project.sh)"
+          simulator="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); ids=[x["udid"] for values in d["devices"].values() for x in values if x.get("isAvailable") and x.get("name", "").startswith("iPhone")]; print(ids[0] if ids else "")')"
+          if [[ -z "$simulator" ]]; then echo 'DEFERRED_ENV: iPhone simulator unavailable' >&2; exit 2; fi
+          result="$RUNNER_TEMP/gamebridge-push.xcresult"
+          xcodebuild -project "$project" -scheme GameBridgePushTests -destination "platform=iOS Simulator,id=$simulator" -resultBundlePath "$result" CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=YES -only-testing:GameBridgePushTests/PushHostTests test -quiet
+          xcrun xcresulttool get test-results summary --path "$result" --format json | python3 -c 'import json,sys; x=json.load(sys.stdin); assert x.get("totalTestCount",0)>0 and x.get("failedTests",0)==0 and x.get("skippedTests",0)==0'
+
+  unity-runtime-required:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Report missing Unity runtime lane
+        run: |
+          echo 'NOT_IMPLEMENTED: Unity Editor/player lane requires an approved license and implemented test execution.' >&2
+          exit 2
+
+  local-gate:
+    if: ${{ always() && !cancelled() }}
+    needs: [linux-backend-android, ios-simulator, unity-runtime-required]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Require actual lane execution and coverage
+        env:
+          LINUX_RESULT: ${{ needs.linux-backend-android.result }}
+          IOS_RESULT: ${{ needs.ios-simulator.result }}
+          UNITY_RESULT: ${{ needs.unity-runtime-required.result }}
+        run: |
+          if [[ "$LINUX_RESULT" != success || "$IOS_RESULT" != success || "$UNITY_RESULT" != success ]]; then
+            echo "Required lane incomplete: Linux=$LINUX_RESULT iOS=$IOS_RESULT Unity=$UNITY_RESULT" >&2
+            exit 1
+          fi
+          python3 harness/check-required-coverage.py

@@ -1456,3 +1456,11 @@
 - 전용 Android 36 emulator에서 `FirebaseOptionalBridgeTest` 1건 통과: FirebaseMessaging class 부재, sandbox bridge 초기화 후 push.register가 네트워크 호출 없이 CONFIG_REQUIRED를 반환했다. debug instrumented runtime이며 R8 release 실행 자체는 아니다.
 - 동일 `GAMEBRIDGE_MAVEN_REPO=.../maven-p08-20261111-b`로 재실행 시 종료 2 및 “output exists”를 확인해 기존 Maven output을 덮어쓰지 않았다. 직접 기동한 전용 AVD만 종료했다.
 - 커밋 전: 선택적 Firebase consumer 규칙·runtime fail-closed 시험과 새 Maven output 경로만 포함한다. R8 release 실제 실행, Unity import/export 및 원격 FCM은 미검증이다.
+
+### [P08-T02] 최신 iOS XCFramework
+- Task 시작: 최근 StoreKit·푸시·Mock 변경을 포함해 device/simulator static XCFramework를 새 output에 생성하고 별도 소비 link를 확인한다. 기존 generated project와 artifacts를 덮어쓰지 않는다.
+- XcodeGen project를 새 artifacts 격리 layout에 생성하도록 바꾸고 build/hook이 해당 경로를 사용하게 했다. 기존 `ios/Framework/GameBridgeSample.xcodeproj`를 덮어쓰지 않는다. 새 device/simulator archive와 XCFramework를 검증한다.
+- `GAMEBRIDGE_IOS_OUTPUT_DIR=.../ios-package-20261111-a bash scripts/build-ios.sh --xcframework` 종료 0: 격리 XcodeGen project에서 iOS device 및 simulator 무서명 archive와 static XCFramework 생성. Xcode output은 기존 산출물을 덮어쓰지 않았다. symbol·독립 consumer link 확인은 별도다.
+- `file`/`nm -g` 종료 0: device arm64 및 simulator arm64/x86_64 static archive와 GB_ProtocolVersion/SetCallback/Dispatch/Shutdown export 확인. `xcrun swiftc ... ios/consumer-check/main.swift` simulator 별도 source consumer link 종료 0. 실제 simulator 실행·서명된 device·Unity linkage는 아니다.
+- 동일 output 재실행 종료 2로 덮어쓰기를 거부했고, `scripts/smoke-ios-hook.sh`의 실제 Unity PBX managed API 중복 적용 확인 종료 0. 실제 Unity export는 아니다.
+- 커밋 전: 격리 XcodeGen/build/hook 경로와 문서만 포함한다. 기존 generated project·산출물과 사용자 파일은 보존했다.

@@ -108,7 +108,7 @@ Codex 준비물: GoogleAuthProvider, nonce challenge, server verifier, error map
 
 Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, server verifier, credential state 처리, Unity snapshot 변환. Apple 이름/email이 한 번만 올 수 있는 경우에 대비해야 한다.
 
-현재 iOS Debug 샘플에는 LOCAL_MOCK 화면과 별도의 Apple Sandbox 설정/로그인/상점 화면이 있다. Sandbox 화면은 구성과 각 동작을 사용자가 명시적으로 시작하며 실제 Apple 계정·스토어 검증은 아직 실행하지 않았다. `bash scripts/generate-ios-project.sh`로 XcodeGen 2.46.0 프로젝트를 만든 뒤 Simulator에서 로컬 Backend URL과 별도로 설정한 개발키를 입력한다. Debug의 loopback HTTP 예외는 Release에 포함되지 않는다.
+현재 iOS Debug 샘플에는 LOCAL_MOCK 화면과 별도의 Apple Sandbox 설정/로그인/상점 화면이 있다. Sandbox 화면은 구성과 각 동작을 사용자가 명시적으로 시작하며 실제 Apple 계정·스토어 검증은 아직 실행하지 않았다. `bash scripts/generate-ios-project.sh`가 출력하는 `artifacts/ios-project.*`의 격리 XcodeGen 2.46.0 프로젝트를 연 뒤 Simulator에서 로컬 Backend URL과 별도로 설정한 개발키를 입력한다. Debug의 loopback HTTP 예외는 Release에 포함되지 않는다.
 
 실제 검증: Native Swift sample 로그인→서버 user 생성/재로그인 동일 계정→취소/복원/로그아웃. 이어 Unity iOS에서 확인한다. Apple token 원문을 출력하지 않는다. capability 부족과 서버 audience mismatch를 구분해 기록한다.
 

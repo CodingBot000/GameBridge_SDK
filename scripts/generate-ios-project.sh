@@ -11,4 +11,14 @@ else
   echo 'XcodeGen 2.46.0 is required; set XCODEGEN_BIN or install it from its official source.' >&2
   exit 2
 fi
-"$generator" generate --spec "$root/ios/Framework/project.yml"
+# Generate a self-contained project layout under a new directory; never rewrite a user's Xcode project.
+mkdir -p "$root/artifacts"
+workspace="$(mktemp -d "$root/artifacts/ios-project.XXXXXX")"
+mkdir -p "$workspace/ios/Framework"
+for item in Package.swift Sources UnityBridge SampleApp StoreKit StoreKitTests PushTests UITests Tests; do
+  ln -s "$root/ios/$item" "$workspace/ios/$item"
+done
+ln -s "$root/ios/Framework/include" "$workspace/ios/Framework/include"
+cp "$root/ios/Framework/project.yml" "$workspace/ios/Framework/project.yml"
+"$generator" generate --spec "$workspace/ios/Framework/project.yml" >&2
+printf '%s\n' "$workspace/ios/Framework/GameBridgeSample.xcodeproj"

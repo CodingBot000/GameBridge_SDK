@@ -2,6 +2,7 @@
 import SwiftUI
 import Foundation
 import StoreKitTest
+import StoreKit
 import GameBridgeCore
 import GameBridgeApple
 
@@ -28,6 +29,15 @@ private final class RecoveryFaultProtocol: URLProtocol {
     override func stopLoading() {}
 }
 
+private final class CountingStore: TokenStore {
+    private let backing: TokenStore
+    var saves = 0; var clears = 0; var clearErrors = 0
+    init(_ backing: TokenStore) { self.backing = backing }
+    func load() throws -> String? { try backing.load() }
+    func save(_ value: String) throws { saves += 1; try backing.save(value) }
+    func clear() throws { clears += 1; do { try backing.clear() } catch { clearErrors += 1; throw error } }
+}
+
 @main struct GameBridgeRecoveryHarnessApp: App {
     var body: some Scene { WindowGroup { Text("GameBridge local recovery test").task { await run() } } }
     @MainActor private func run() async {
@@ -36,6 +46,9 @@ private final class RecoveryFaultProtocol: URLProtocol {
         let statusURL = FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0].appendingPathComponent("gamebridge-recovery-status.json")
         func report(_ values: [String: Any]) { if let data = try? JSONSerialization.data(withJSONObject:values) { try? data.write(to:statusURL,options:.atomic) } }
         var stage = "configuration"
+        var historyBefore = 0
+        var unfinishedBefore = 0
+        let pendingStore = CountingStore(KeychainTokenStore(service:"com.gamebridge.process-test.pending"))
         do {
             guard ["prepare", "recover"].contains(phase), let base = env["GAMEBRIDGE_PROCESS_TEST_BASE_URL"], base.hasPrefix("http://127.0.0.1:"),
                   let key = env["GAMEBRIDGE_PROCESS_TEST_AUTH_KEY"], key.count >= 32 else { throw SdkFailure("CONFIG_REQUIRED") }
@@ -44,7 +57,6 @@ private final class RecoveryFaultProtocol: URLProtocol {
             let network = URLSessionConfiguration.ephemeral
             if phase == "prepare" { network.protocolClasses = [RecoveryFaultProtocol.self] }
             let sessionStore = KeychainTokenStore(service:"com.gamebridge.process-test.session")
-            let pendingStore = KeychainTokenStore(service:"com.gamebridge.process-test.pending")
             stage = "client"
             let client = try LocalMockClient(config:GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:base, requestTimeoutMs:5000),
                                              store:sessionStore, developmentKey:key, sessionConfiguration:network)
@@ -53,6 +65,9 @@ private final class RecoveryFaultProtocol: URLProtocol {
             else { guard try await client.restore() != nil else { throw SdkFailure("SESSION_EXPIRED") } }
             stage = "store-init"
             let store = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore)
+            stage = "store-history"
+            for await _ in Transaction.all { historyBefore += 1 }
+            for await _ in Transaction.unfinished { unfinishedBefore += 1 }
             stage = "store-start"
             try await store.start()
             if phase == "prepare" {
@@ -70,13 +85,20 @@ private final class RecoveryFaultProtocol: URLProtocol {
                 let wallet = try await store.wallet()
                 stage = "recover-again"
                 let remaining = try await store.recover(userInitiated:false)
-                stage = "recovery-assertion-\(wallet.coinBalance)-\(remaining.examinedCount)-\(try pendingStore.load() == nil)"
-                guard wallet.coinBalance == "100", try pendingStore.load() == nil, remaining.examinedCount == 0 else { throw SdkFailure("INTERNAL_ERROR") }
+                stage = "await-journal-cleanup"
+                for _ in 0..<100 {
+                    if try pendingStore.load() == nil { break }
+                    try await Task.sleep(nanoseconds:100_000_000)
+                }
+                // Give any already queued duplicate StoreKit delivery time to run.
+                try await Task.sleep(nanoseconds:1_000_000_000)
+                stage = "recovery-assertion-\(wallet.coinBalance)-\(remaining.examinedCount)-\(try pendingStore.load() == nil)-\(pendingStore.saves)"
+                guard wallet.coinBalance == "100", try pendingStore.load() == nil, remaining.examinedCount == 0, pendingStore.saves == 0 else { throw SdkFailure("INTERNAL_ERROR") }
                 report(["phase":"recovered", "balance":wallet.coinBalance, "pid":ProcessInfo.processInfo.processIdentifier])
                 store.stop(); try await client.signOut()
             }
-        } catch let failure as SdkFailure { report(["phase":"failed", "code":failure.code, "stage":stage]) }
-        catch { report(["phase":"failed", "code":"INTERNAL_ERROR", "stage":stage, "errorType":String(reflecting:type(of:error))]) }
+        } catch let failure as SdkFailure { report(["phase":"failed", "code":failure.code, "stage":stage, "historyBefore":historyBefore, "unfinishedBefore":unfinishedBefore, "saves":pendingStore.saves, "clears":pendingStore.clears, "clearErrors":pendingStore.clearErrors]) }
+        catch { report(["phase":"failed", "code":"INTERNAL_ERROR", "stage":stage, "errorType":String(reflecting:type(of:error)), "historyBefore":historyBefore, "unfinishedBefore":unfinishedBefore, "saves":pendingStore.saves, "clears":pendingStore.clears, "clearErrors":pendingStore.clearErrors]) }
     }
 }
 #endif

@@ -27,7 +27,7 @@ def main():
     if sim.returncode: print('Simulator unavailable:',out); return 2
     device=sim.stdout.strip(); print('Retained simulator:',device,flush=True)
     log=(out/'backend.log').open('w'); server=subprocess.Popen(['java','-jar',str(ROOT/'backend/build/libs/gamebridge-backend.jar')],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT)
-    report={'status':'FAIL','database':name,'simulator':device,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'sourceDirty':True,'limitations':['Xcode local StoreKit and synthetic local database only','not Unity or Apple sandbox']}
+    report={'status':'FAIL','database':name,'simulator':device,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'limitations':['Xcode local StoreKit and synthetic local database only','not Unity or Apple sandbox']}
     try:
         deadline=time.monotonic()+60
         while time.monotonic()<deadline:

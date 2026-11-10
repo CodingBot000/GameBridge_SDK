@@ -1,0 +1,965 @@
+{
+  "source": "2bc9d77",
+  "files": [
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar",
+      "sha256": "c7190cc584de5d35dbfd79d4b533ceb085b0f9beaa2ac1299939db3160338073",
+      "size": 207576
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar.md5",
+      "sha256": "8dd9d33c319a0cedc6be0b9158dd5ab474b9a522f5c1238f0c47764647ae7076",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar.sha1",
+      "sha256": "b098df522088ef78cb3dd264fd5fd35842532b7ce7bda9755b7321d81b306dc0",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar.sha256",
+      "sha256": "0f41b0810d68ffdb50f456feef09f38799cec94ff50adb5124dec0271ee152d3",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar.sha512",
+      "sha256": "a6fcfe23c76c4cb93db89de86f525fdc4658259f67377e1cc61e8352a2ef2a09",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module",
+      "sha256": "bd3215efda2394f2e4fe98fd99ecfda2ba32dfa434d85e0dbdf0f93150028c25",
+      "size": 3867
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module.md5",
+      "sha256": "6d9f5f3c92d35f9bc5ac85a3ab26bd088708f3562efcdb466d2dc8e8ee293c6c",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module.sha1",
+      "sha256": "b3c97a2a0ffd9713bd6c5ffa1820957f4027b021c3ef7a16b4b2f3ddd726e3e4",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module.sha256",
+      "sha256": "ebc0bcc972f26746ff0cb4fc11677182c3191f0c9354b4aeff40d3129ed903e2",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module.sha512",
+      "sha256": "d8a58ff030b10fa942531c8ee045e9b5d25780881091b45f77e475819024052a",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom",
+      "sha256": "f51d6c852ee91086a48c370cb3359d03948ebf1fed3d071eafb4415a694e264a",
+      "size": 2370
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom.md5",
+      "sha256": "5142023dd3ad2a2143d88552f0927da463c98e2a0af955eb5434aecf9bfcbdab",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom.sha1",
+      "sha256": "84ed39f120606820245a1519160ce889fd838cff32088047e090c00a19647658",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom.sha256",
+      "sha256": "e545e5045ebda87db618afa5c2885d523eba87f6b89c1206f478377808078cbc",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom.sha512",
+      "sha256": "a50ac833bd355a698b584f9f796bdd997df13e4ec8a3303962e2baa0130bf3e4",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/maven-metadata.xml",
+      "sha256": "f9d9bd60b51c1757c9dac6fbefda79a22ecc8d56058180172c33055f3c390fec",
+      "size": 344
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/maven-metadata.xml.md5",
+      "sha256": "5a0196d02f41139dd0720d088811bf0db340dc49f147e3f60b33de6cd8079793",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/maven-metadata.xml.sha1",
+      "sha256": "e49cc5710cac127699e165959ca714073f6d4eff52eca8c552aca4f3d1921f1d",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/maven-metadata.xml.sha256",
+      "sha256": "aad682a87c952dab8daffa2e4e1c159b2ca0686c7090f77ef3fc47ac860fbf5c",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-android/maven-metadata.xml.sha512",
+      "sha256": "ba808001b02ffd0f180ed49465e00bed5dadd9979a9fd09f1dbd01775213c9da",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar",
+      "sha256": "5750020917570d1ad8f448a369daa10a78f312ffa77116844dc2e6a5d94023bf",
+      "size": 230086
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar.md5",
+      "sha256": "963643af2aac01cdf1a9901e608ce5eb96472ada003e8de47b7f70406afc7be8",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar.sha1",
+      "sha256": "8dcbbabee8795aeaf4fcff133dbcad88e29cad954db51384aa3623727b3c456c",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar.sha256",
+      "sha256": "acf4e278ac2949a915aa6aae788822a1c6b388b55aefc63c2c75e8d07a14c3ea",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar.sha512",
+      "sha256": "0b3a86f9443efec6af005a2268836867bc70af865c4edf6fb73d7050698b69dd",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module",
+      "sha256": "fd36ea7d292ed26ae438414132421a8bba6400f0c3cea5df57f621d7961e9b32",
+      "size": 2879
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module.md5",
+      "sha256": "563b726d6f44033c953c039929932bb2d2c71679d5ce89a34cf899a199d7dd16",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module.sha1",
+      "sha256": "efa4d6e3126d96130a8afd114acc699d6648110e185328b1c5ab448198ef24ed",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module.sha256",
+      "sha256": "b4bbf54fb63454b8c94f70525aa21d20896203d06bc2ae1663db464fe69eff5b",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module.sha512",
+      "sha256": "932ae4404a6d8e6b8385175c653a63e9ead3d01370a3500ce3bda00a230cca22",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom",
+      "sha256": "44abe812453841eb6765d568bf795b293e85a9bfba7cd744eea2fbe65fd425d4",
+      "size": 1381
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom.md5",
+      "sha256": "95aa4816865182c9e5ccc716998c6fd304a68ebb9a5379145bae9633c0b702de",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom.sha1",
+      "sha256": "1d6e63083118a4058b9e2e32bd13e4685e83d28396243f18f8fdf4a2330a2925",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom.sha256",
+      "sha256": "f2d15f99f977e855204bd4dbbe1b6c930925acee57988f9548e0093b8389e2a4",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom.sha512",
+      "sha256": "c71ab90ae8e1dd213cea4dbc71caf5b870d3bca20c6b5f490021154c4307691d",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/maven-metadata.xml",
+      "sha256": "0b78c9817b6ba1cfebfb40b959b16f4248e8ea8866694725988e9095265b5615",
+      "size": 341
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/maven-metadata.xml.md5",
+      "sha256": "4e7e290f07ea3438d673e040562989aa44def8005f3d780320f731ae82195b09",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/maven-metadata.xml.sha1",
+      "sha256": "7d2428f63eaa761df98d694790e172f68dcbab70ff805ce72caa8ff3650080e5",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/maven-metadata.xml.sha256",
+      "sha256": "413c5f3d56dcb0c7a4977335a48cb432262aedfe0595413d24df29bd329c4f61",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-core/maven-metadata.xml.sha512",
+      "sha256": "aee3225d0b9f0170fb0927e281f726416fbc1279ef4094ca3f2d4a3a3fbe2204",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar",
+      "sha256": "2e913bc11bc6a34395c5d242565f241761383d6663a2362fa87e379b9744bda8",
+      "size": 44128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar.md5",
+      "sha256": "57a36ad24d4161e2ee3cdaf4336b2ec8f3a6310be0e233268adc898bda7e7a12",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar.sha1",
+      "sha256": "789b000c8087ccfe7b3b6799f884e4acd15f9e6904f8b09c4b87b165ecb4078d",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar.sha256",
+      "sha256": "0b9e322257b2d38b34fe62d137679a68600995a3b1b216a29ff6988b3625ae47",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar.sha512",
+      "sha256": "77238c9734d1f9544684661e11f82dacaf24fec7ca336e59105d027b981be302",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module",
+      "sha256": "8a51cd313a682d4325fb084f1873152a22af76381e42575c07d0eb3a594efdac",
+      "size": 2659
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module.md5",
+      "sha256": "1c531a819ed7770e979ec9505a8c52c953d1f489e6cd8d8dc22df0380c32f737",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module.sha1",
+      "sha256": "2e862536a4abd2ab0d40998e555de81f611e3ace8de41edc1600c9b4299a31ee",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module.sha256",
+      "sha256": "a3b27b8a1786af2f1d8e63fff7a5a64f31023bf01c5c88b7b9a87fa364c03f22",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module.sha512",
+      "sha256": "8657f91f2487dab598f07a7b5c1dbd6f375f42ceed4f57c970ec05469b6f74ac",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom",
+      "sha256": "cd544275b81ce9b5e29a2b34065dd6c8484cf10bf38596099a586932d463c142",
+      "size": 1398
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom.md5",
+      "sha256": "96e5ec7d091a8609f8c19a9ecd4d1b821899d43d7253840f22d84477d5ccbdeb",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom.sha1",
+      "sha256": "64d72e24cff155727a82c9a4fbaf1d056678d88fe0c8f4588290aee86294a118",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom.sha256",
+      "sha256": "768164c2d407898c051124480679db3b04f75e6c5e065fadc544cee8e3ca8588",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom.sha512",
+      "sha256": "50a5a426f1ce4df311125d6cbd58df260ec0e422d7e3e8f162e9462f54dfa93e",
+      "size": 128
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/maven-metadata.xml",
+      "sha256": "728318e07a7338e9a48d0b45faa2058154d4702265c5e41a285115a03abfa5af",
+      "size": 349
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/maven-metadata.xml.md5",
+      "sha256": "ef69334ee11f2cc6e692e150ec1eb00f7b95676c55ceedf3df7103bbde6456f5",
+      "size": 32
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/maven-metadata.xml.sha1",
+      "sha256": "7f8e51a4e2dcfd8607a45fe8c7ed5f30786141ad51d3598bf7155919e5c933f4",
+      "size": 40
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/maven-metadata.xml.sha256",
+      "sha256": "68e2903d35d15a2b2b6f269cb42f10567cc616aee8a1f47f37dc5fbbf4e5bb2d",
+      "size": 64
+    },
+    {
+      "path": "artifacts/maven-2bc9d77/com/gamebridge/sdk-unity-bridge/maven-metadata.xml.sha512",
+      "sha256": "0d62e72d2a4bff710128118e3a294d30026de7fa773fe630579c32a86a47d825",
+      "size": 128
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/Info.plist",
+      "sha256": "e7746c6f645af426032f735bc140e478fe5b0d251a29cfa708d0d08ce032e4bf",
+      "size": 1238
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/GameBridgeNative",
+      "sha256": "d44067d00227adeb91d63d92983b36e345ce5ffee4a68dff6c28becb2ee2d63e",
+      "size": 3355760
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Headers/GameBridgeNative.h",
+      "sha256": "dec321c6568cd1e96e80bbe2ef053b75267ff34ca4734266797e4142a214b2cf",
+      "size": 507
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Info.plist",
+      "sha256": "df6dcc291890c4fa7eef75a86111af2402cea2d16f96592dc15fa7b78c85be31",
+      "size": 727
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios.abi.json",
+      "sha256": "c6ab939339557e54e3f17409b65062690718ebfad67cde49f2d660142bd8056b",
+      "size": 602069
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios.private.swiftinterface",
+      "sha256": "d00eda2d594b39dbf3dd2280af9a9837e078e5ad61521dcb365a850053643828",
+      "size": 27979
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios.swiftdoc",
+      "sha256": "3dc7d4d2a663326a2bb9a38b9d9e8e45d7c911d4f7e839bffaf94192dac37750",
+      "size": 4408
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios.swiftinterface",
+      "sha256": "d00eda2d594b39dbf3dd2280af9a9837e078e5ad61521dcb365a850053643828",
+      "size": 27979
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/module.modulemap",
+      "sha256": "6505cbfc6051b7c0797213aead5db5302836cf73988a859b7ed9a567425df649",
+      "size": 113
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/GameBridgeNative",
+      "sha256": "79f6d4202cff6fadbca74c2356f53923c35e1ae761ce3b9848ffa6fb10703c6c",
+      "size": 6579496
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Headers/GameBridgeNative.h",
+      "sha256": "dec321c6568cd1e96e80bbe2ef053b75267ff34ca4734266797e4142a214b2cf",
+      "size": 507
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Info.plist",
+      "sha256": "e134faaeab2c1f33b3dd1e7c6e28447a263826c79819683f303cf856925fa8ac",
+      "size": 707
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios-simulator.abi.json",
+      "sha256": "c6ab939339557e54e3f17409b65062690718ebfad67cde49f2d660142bd8056b",
+      "size": 602069
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface",
+      "sha256": "ae5d8cbff4c9f98f39deb02cf9dc3356610198eabd77d710815416cd04cef083",
+      "size": 27989
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios-simulator.swiftdoc",
+      "sha256": "572b7aadcc7e80acdb12e557150e440cdcd8a52cf48b183aa24e1183a0743d50",
+      "size": 4420
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios-simulator.swiftinterface",
+      "sha256": "ae5d8cbff4c9f98f39deb02cf9dc3356610198eabd77d710815416cd04cef083",
+      "size": 27989
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/x86_64-apple-ios-simulator.abi.json",
+      "sha256": "c6ab939339557e54e3f17409b65062690718ebfad67cde49f2d660142bd8056b",
+      "size": 602069
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface",
+      "sha256": "9d3c8f5f8f5e24673b5790dc58ce6c57e380df9dd4fe5692af5db910a13ca3bd",
+      "size": 27990
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/x86_64-apple-ios-simulator.swiftdoc",
+      "sha256": "618b2fc29c0b3fa4c989b98badfd7fad3e4a247af1e7829fccc7576826ebc697",
+      "size": 4420
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/x86_64-apple-ios-simulator.swiftinterface",
+      "sha256": "9d3c8f5f8f5e24673b5790dc58ce6c57e380df9dd4fe5692af5db910a13ca3bd",
+      "size": 27990
+    },
+    {
+      "path": "artifacts/ios-2bc9d77/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/module.modulemap",
+      "sha256": "6505cbfc6051b7c0797213aead5db5302836cf73988a859b7ed9a567425df649",
+      "size": 113
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/SHA256SUMS",
+      "sha256": "fa68bf0309251398271ef06bcea878282a8093ce7ea87b1faeac44a7dbd3fc2c",
+      "size": 20335
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/AndroidGradleBuildHook.cs",
+      "sha256": "efc7c3d360d9a0aba421b2a0394c6cfd95dc4ddf3cd6d5d7354d4cef2143c95b",
+      "size": 2114
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/ArtifactCopy.cs",
+      "sha256": "186adc209703afcdd230f5e7b689c551a15a917a1b08f81a9f5bda05f2ad790f",
+      "size": 1747
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridge.Editor.asmdef",
+      "sha256": "7c33d998a17223b51839970bb50e8164b905f6e263b522f823c188db671d0dd9",
+      "size": 134
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar",
+      "sha256": "c7190cc584de5d35dbfd79d4b533ceb085b0f9beaa2ac1299939db3160338073",
+      "size": 207576
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar.md5",
+      "sha256": "8dd9d33c319a0cedc6be0b9158dd5ab474b9a522f5c1238f0c47764647ae7076",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar.sha1",
+      "sha256": "b098df522088ef78cb3dd264fd5fd35842532b7ce7bda9755b7321d81b306dc0",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar.sha256",
+      "sha256": "0f41b0810d68ffdb50f456feef09f38799cec94ff50adb5124dec0271ee152d3",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.aar.sha512",
+      "sha256": "a6fcfe23c76c4cb93db89de86f525fdc4658259f67377e1cc61e8352a2ef2a09",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module",
+      "sha256": "bd3215efda2394f2e4fe98fd99ecfda2ba32dfa434d85e0dbdf0f93150028c25",
+      "size": 3867
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module.md5",
+      "sha256": "6d9f5f3c92d35f9bc5ac85a3ab26bd088708f3562efcdb466d2dc8e8ee293c6c",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module.sha1",
+      "sha256": "b3c97a2a0ffd9713bd6c5ffa1820957f4027b021c3ef7a16b4b2f3ddd726e3e4",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module.sha256",
+      "sha256": "ebc0bcc972f26746ff0cb4fc11677182c3191f0c9354b4aeff40d3129ed903e2",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.module.sha512",
+      "sha256": "d8a58ff030b10fa942531c8ee045e9b5d25780881091b45f77e475819024052a",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom",
+      "sha256": "f51d6c852ee91086a48c370cb3359d03948ebf1fed3d071eafb4415a694e264a",
+      "size": 2370
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom.md5",
+      "sha256": "5142023dd3ad2a2143d88552f0927da463c98e2a0af955eb5434aecf9bfcbdab",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom.sha1",
+      "sha256": "84ed39f120606820245a1519160ce889fd838cff32088047e090c00a19647658",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom.sha256",
+      "sha256": "e545e5045ebda87db618afa5c2885d523eba87f6b89c1206f478377808078cbc",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/0.1.0-dev/sdk-android-0.1.0-dev.pom.sha512",
+      "sha256": "a50ac833bd355a698b584f9f796bdd997df13e4ec8a3303962e2baa0130bf3e4",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/maven-metadata.xml",
+      "sha256": "f9d9bd60b51c1757c9dac6fbefda79a22ecc8d56058180172c33055f3c390fec",
+      "size": 344
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/maven-metadata.xml.md5",
+      "sha256": "5a0196d02f41139dd0720d088811bf0db340dc49f147e3f60b33de6cd8079793",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/maven-metadata.xml.sha1",
+      "sha256": "e49cc5710cac127699e165959ca714073f6d4eff52eca8c552aca4f3d1921f1d",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/maven-metadata.xml.sha256",
+      "sha256": "aad682a87c952dab8daffa2e4e1c159b2ca0686c7090f77ef3fc47ac860fbf5c",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-android/maven-metadata.xml.sha512",
+      "sha256": "ba808001b02ffd0f180ed49465e00bed5dadd9979a9fd09f1dbd01775213c9da",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar",
+      "sha256": "5750020917570d1ad8f448a369daa10a78f312ffa77116844dc2e6a5d94023bf",
+      "size": 230086
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar.md5",
+      "sha256": "963643af2aac01cdf1a9901e608ce5eb96472ada003e8de47b7f70406afc7be8",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar.sha1",
+      "sha256": "8dcbbabee8795aeaf4fcff133dbcad88e29cad954db51384aa3623727b3c456c",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar.sha256",
+      "sha256": "acf4e278ac2949a915aa6aae788822a1c6b388b55aefc63c2c75e8d07a14c3ea",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.jar.sha512",
+      "sha256": "0b3a86f9443efec6af005a2268836867bc70af865c4edf6fb73d7050698b69dd",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module",
+      "sha256": "fd36ea7d292ed26ae438414132421a8bba6400f0c3cea5df57f621d7961e9b32",
+      "size": 2879
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module.md5",
+      "sha256": "563b726d6f44033c953c039929932bb2d2c71679d5ce89a34cf899a199d7dd16",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module.sha1",
+      "sha256": "efa4d6e3126d96130a8afd114acc699d6648110e185328b1c5ab448198ef24ed",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module.sha256",
+      "sha256": "b4bbf54fb63454b8c94f70525aa21d20896203d06bc2ae1663db464fe69eff5b",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.module.sha512",
+      "sha256": "932ae4404a6d8e6b8385175c653a63e9ead3d01370a3500ce3bda00a230cca22",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom",
+      "sha256": "44abe812453841eb6765d568bf795b293e85a9bfba7cd744eea2fbe65fd425d4",
+      "size": 1381
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom.md5",
+      "sha256": "95aa4816865182c9e5ccc716998c6fd304a68ebb9a5379145bae9633c0b702de",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom.sha1",
+      "sha256": "1d6e63083118a4058b9e2e32bd13e4685e83d28396243f18f8fdf4a2330a2925",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom.sha256",
+      "sha256": "f2d15f99f977e855204bd4dbbe1b6c930925acee57988f9548e0093b8389e2a4",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/0.1.0-dev/sdk-core-0.1.0-dev.pom.sha512",
+      "sha256": "c71ab90ae8e1dd213cea4dbc71caf5b870d3bca20c6b5f490021154c4307691d",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/maven-metadata.xml",
+      "sha256": "0b78c9817b6ba1cfebfb40b959b16f4248e8ea8866694725988e9095265b5615",
+      "size": 341
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/maven-metadata.xml.md5",
+      "sha256": "4e7e290f07ea3438d673e040562989aa44def8005f3d780320f731ae82195b09",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/maven-metadata.xml.sha1",
+      "sha256": "7d2428f63eaa761df98d694790e172f68dcbab70ff805ce72caa8ff3650080e5",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/maven-metadata.xml.sha256",
+      "sha256": "413c5f3d56dcb0c7a4977335a48cb432262aedfe0595413d24df29bd329c4f61",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-core/maven-metadata.xml.sha512",
+      "sha256": "aee3225d0b9f0170fb0927e281f726416fbc1279ef4094ca3f2d4a3a3fbe2204",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar",
+      "sha256": "2e913bc11bc6a34395c5d242565f241761383d6663a2362fa87e379b9744bda8",
+      "size": 44128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar.md5",
+      "sha256": "57a36ad24d4161e2ee3cdaf4336b2ec8f3a6310be0e233268adc898bda7e7a12",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar.sha1",
+      "sha256": "789b000c8087ccfe7b3b6799f884e4acd15f9e6904f8b09c4b87b165ecb4078d",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar.sha256",
+      "sha256": "0b9e322257b2d38b34fe62d137679a68600995a3b1b216a29ff6988b3625ae47",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.aar.sha512",
+      "sha256": "77238c9734d1f9544684661e11f82dacaf24fec7ca336e59105d027b981be302",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module",
+      "sha256": "8a51cd313a682d4325fb084f1873152a22af76381e42575c07d0eb3a594efdac",
+      "size": 2659
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module.md5",
+      "sha256": "1c531a819ed7770e979ec9505a8c52c953d1f489e6cd8d8dc22df0380c32f737",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module.sha1",
+      "sha256": "2e862536a4abd2ab0d40998e555de81f611e3ace8de41edc1600c9b4299a31ee",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module.sha256",
+      "sha256": "a3b27b8a1786af2f1d8e63fff7a5a64f31023bf01c5c88b7b9a87fa364c03f22",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.module.sha512",
+      "sha256": "8657f91f2487dab598f07a7b5c1dbd6f375f42ceed4f57c970ec05469b6f74ac",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom",
+      "sha256": "cd544275b81ce9b5e29a2b34065dd6c8484cf10bf38596099a586932d463c142",
+      "size": 1398
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom.md5",
+      "sha256": "96e5ec7d091a8609f8c19a9ecd4d1b821899d43d7253840f22d84477d5ccbdeb",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom.sha1",
+      "sha256": "64d72e24cff155727a82c9a4fbaf1d056678d88fe0c8f4588290aee86294a118",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom.sha256",
+      "sha256": "768164c2d407898c051124480679db3b04f75e6c5e065fadc544cee8e3ca8588",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom.sha512",
+      "sha256": "50a5a426f1ce4df311125d6cbd58df260ec0e422d7e3e8f162e9462f54dfa93e",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/maven-metadata.xml",
+      "sha256": "728318e07a7338e9a48d0b45faa2058154d4702265c5e41a285115a03abfa5af",
+      "size": 349
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/maven-metadata.xml.md5",
+      "sha256": "ef69334ee11f2cc6e692e150ec1eb00f7b95676c55ceedf3df7103bbde6456f5",
+      "size": 32
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/maven-metadata.xml.sha1",
+      "sha256": "7f8e51a4e2dcfd8607a45fe8c7ed5f30786141ad51d3598bf7155919e5c933f4",
+      "size": 40
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/maven-metadata.xml.sha256",
+      "sha256": "68e2903d35d15a2b2b6f269cb42f10567cc616aee8a1f47f37dc5fbbf4e5bb2d",
+      "size": 64
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge/sdk-unity-bridge/maven-metadata.xml.sha512",
+      "sha256": "0d62e72d2a4bff710128118e3a294d30026de7fa773fe630579c32a86a47d825",
+      "size": 128
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/Info.plist",
+      "sha256": "e7746c6f645af426032f735bc140e478fe5b0d251a29cfa708d0d08ce032e4bf",
+      "size": 1238
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/GameBridgeNative",
+      "sha256": "d44067d00227adeb91d63d92983b36e345ce5ffee4a68dff6c28becb2ee2d63e",
+      "size": 3355760
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Headers/GameBridgeNative.h",
+      "sha256": "dec321c6568cd1e96e80bbe2ef053b75267ff34ca4734266797e4142a214b2cf",
+      "size": 507
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Info.plist",
+      "sha256": "df6dcc291890c4fa7eef75a86111af2402cea2d16f96592dc15fa7b78c85be31",
+      "size": 727
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios.abi.json",
+      "sha256": "c6ab939339557e54e3f17409b65062690718ebfad67cde49f2d660142bd8056b",
+      "size": 602069
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios.private.swiftinterface",
+      "sha256": "d00eda2d594b39dbf3dd2280af9a9837e078e5ad61521dcb365a850053643828",
+      "size": 27979
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios.swiftdoc",
+      "sha256": "3dc7d4d2a663326a2bb9a38b9d9e8e45d7c911d4f7e839bffaf94192dac37750",
+      "size": 4408
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios.swiftinterface",
+      "sha256": "d00eda2d594b39dbf3dd2280af9a9837e078e5ad61521dcb365a850053643828",
+      "size": 27979
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64/GameBridgeNative.framework/Modules/module.modulemap",
+      "sha256": "6505cbfc6051b7c0797213aead5db5302836cf73988a859b7ed9a567425df649",
+      "size": 113
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/GameBridgeNative",
+      "sha256": "79f6d4202cff6fadbca74c2356f53923c35e1ae761ce3b9848ffa6fb10703c6c",
+      "size": 6579496
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Headers/GameBridgeNative.h",
+      "sha256": "dec321c6568cd1e96e80bbe2ef053b75267ff34ca4734266797e4142a214b2cf",
+      "size": 507
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Info.plist",
+      "sha256": "e134faaeab2c1f33b3dd1e7c6e28447a263826c79819683f303cf856925fa8ac",
+      "size": 707
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios-simulator.abi.json",
+      "sha256": "c6ab939339557e54e3f17409b65062690718ebfad67cde49f2d660142bd8056b",
+      "size": 602069
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface",
+      "sha256": "ae5d8cbff4c9f98f39deb02cf9dc3356610198eabd77d710815416cd04cef083",
+      "size": 27989
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios-simulator.swiftdoc",
+      "sha256": "572b7aadcc7e80acdb12e557150e440cdcd8a52cf48b183aa24e1183a0743d50",
+      "size": 4420
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/arm64-apple-ios-simulator.swiftinterface",
+      "sha256": "ae5d8cbff4c9f98f39deb02cf9dc3356610198eabd77d710815416cd04cef083",
+      "size": 27989
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/x86_64-apple-ios-simulator.abi.json",
+      "sha256": "c6ab939339557e54e3f17409b65062690718ebfad67cde49f2d660142bd8056b",
+      "size": 602069
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface",
+      "sha256": "9d3c8f5f8f5e24673b5790dc58ce6c57e380df9dd4fe5692af5db910a13ca3bd",
+      "size": 27990
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/x86_64-apple-ios-simulator.swiftdoc",
+      "sha256": "618b2fc29c0b3fa4c989b98badfd7fad3e4a247af1e7829fccc7576826ebc697",
+      "size": 4420
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/GameBridgeNative.swiftmodule/x86_64-apple-ios-simulator.swiftinterface",
+      "sha256": "9d3c8f5f8f5e24673b5790dc58ce6c57e380df9dd4fe5692af5db910a13ca3bd",
+      "size": 27990
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework/ios-arm64_x86_64-simulator/GameBridgeNative.framework/Modules/module.modulemap",
+      "sha256": "6505cbfc6051b7c0797213aead5db5302836cf73988a859b7ed9a567425df649",
+      "size": 113
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/GradlePatcher.cs",
+      "sha256": "cc6b3b7715ec385a1a855d0107625f96851314418633853e95a6b92823ca93d1",
+      "size": 4996
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Editor/IosXcodeBuildHook.cs",
+      "sha256": "26590ea2a228b73143fdf96550e3c1750aa9e25ec7cb212463eafdbb7d2a3868",
+      "size": 2549
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/AssemblyInfo.cs",
+      "sha256": "3820526aa5a36ffac61798d85f38bea49a898f2d148595b18e4167edd3988326",
+      "size": 92
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs",
+      "sha256": "c8bcaa0803d338c83cbe1ae7cd91cdcc780c91d8de953dd18d538ff70799fee5",
+      "size": 8192
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/Core/IWireTransport.cs",
+      "sha256": "bab4c043cfa8e1d236f23bd432c2c364c060db300421acf681863f1a1d0d6ae5",
+      "size": 204
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs",
+      "sha256": "89729467a4c230d17951a988fc11a98822b8f7a08cde9d1548e7632d4c3d6f7a",
+      "size": 14844
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/Core/WireModels.cs",
+      "sha256": "c337847cf222fbdc401f88b63b11d3cc885268576d5955570a71e1364a4583b3",
+      "size": 9849
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/GameBridge.Runtime.asmdef",
+      "sha256": "dca5aba8c8e67d9007e2a727da9b32b8643630ef27d2950fde398d4acc3449f8",
+      "size": 114
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/GameBridgeClient.cs",
+      "sha256": "b544c11b30844d2fe13acd51e208fe73cbe8aa5d3e3eaaab2732530d5dc082da",
+      "size": 25268
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs",
+      "sha256": "3c1bafd294e717b461be011d058033217ab3c31022c777f9115911fd60d62c30",
+      "size": 4876
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/GameBridgeSdk.cs",
+      "sha256": "af869b09ca73387448be21f0fb6e678a64688134e3e9e6d3cedc177b67298389",
+      "size": 3346
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/Models.cs",
+      "sha256": "da27ed5b94f256ccef039d8d2c41bd0c09bffa15d0ec06e7d9e728b99e8c30ac",
+      "size": 6166
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/Platforms/AndroidTransport.cs",
+      "sha256": "7664a26076602cafa1278c5bc4bf1f0278c963be9795aa3f051a037df71baa0d",
+      "size": 6588
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/Platforms/IosTransport.cs",
+      "sha256": "b9bce0171d1b79a2a579dc53b61db55945994e4153a55dc83791c007e2aba26c",
+      "size": 4230
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/iOSHost/GameBridge.iOSHost.asmdef",
+      "sha256": "1addf2ffdb3d5787f294cd6b371d709ba49be9063d3dadaf84d90dfd4abe2d45",
+      "size": 200
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/iOSHost/HostPushQueue.cs",
+      "sha256": "f4d62f870f022521121d81408e8fee9b8b138d7b9004590c89d39c9d327464ba",
+      "size": 2719
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Runtime/iOSHost/IosPushHostAdapter.cs",
+      "sha256": "dad9f6788d4d50c66c6e93d56c3d903fb5106f62f97d7afa438f9985ab9e0869",
+      "size": 8028
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Samples~/Native Demo/GameBridge.NativeDemo.asmdef",
+      "sha256": "9d65a4401328e897aeb49c190ad9625875c5682a886627975a3a5f71d54eef66",
+      "size": 122
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Samples~/Native Demo/NativeDemo.cs",
+      "sha256": "847e669bea0308385d3b988c22b65891c182e1597c670939da2239e3d671ee09",
+      "size": 12592
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Samples~/Native Demo/README.md",
+      "sha256": "ef06dec709b99c6c18ea31250da2955a9850007a4b74eb17a0e93cc4633a3572",
+      "size": 1814
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Samples~/Native Demo/iOS/GameBridge.NativeDemo.iOS.asmdef",
+      "sha256": "1e95c29cfb3e1fc0ee66a29fa333daceb1f03d97ecd0a87d587150ffd280c975",
+      "size": 164
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Samples~/Native Demo/iOS/NativeDemoIosPush.cs",
+      "sha256": "e3297983b06c2d4b173fea3bef92c1f9dab6fd35573c2e71bfd6ba763ea8b3ef",
+      "size": 869
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Samples~/Offline Demo/GameBridge.OfflineDemo.asmdef",
+      "sha256": "714adb8179a4ab368245768331744d4d12725712dfe8ab38f03695d55b48e934",
+      "size": 123
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Samples~/Offline Demo/OfflineDemo.cs",
+      "sha256": "637b0aed6dcc5f2beba8c57153f3ec3adffdabb805ce119ce6ae5998ee82a646",
+      "size": 7298
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/Samples~/Offline Demo/README.md",
+      "sha256": "9198f43cf1d3d5e1172cfe47a680098a14eaddb4758214f2bb714c168b91d906",
+      "size": 829
+    },
+    {
+      "path": "artifacts/upm-2bc9d77/com.gamebridge.sdk/package.json",
+      "sha256": "7fe6f618416012a0f6dc6dd01d79ad21ea660b43c6635c38080be6eeabadb9b1",
+      "size": 698
+    }
+  ]
+}

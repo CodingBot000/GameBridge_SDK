@@ -27,7 +27,7 @@ def wait_health(base, process):
 def main():
     if sys.argv[1:] != ['--run-local']:
         print('Usage: python3 harness/run-strict-local-isolated.py --run-local (retains dedicated test DBs and roles)'); return 2
-    staging = ROOT/'artifacts/upm-validated-20261111'
+    staging = Path(os.environ.get('GAMEBRIDGE_UPM_STAGING', ROOT/'artifacts/upm-validated-20261111'))
     if not staging.is_dir(): print('CONFIG_REQUIRED: latest local UPM staging missing'); return 2
     artifacts=ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)
     output=Path(tempfile.mkdtemp(prefix='strict-isolated-',dir=artifacts))
@@ -68,8 +68,8 @@ def main():
             GAMEBRIDGE_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_LOCAL_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{local}',
             GAMEBRIDGE_SANDBOX_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_TEST_DB_USER=role,GAMEBRIDGE_TEST_DB_PASSWORD=password,
             GAMEBRIDGE_RUN_MOCK_PUSH_HARNESS='true',GAMEBRIDGE_RUN_XCODE_STOREKIT_HARNESS='true',GAMEBRIDGE_UPM_STAGING=str(staging),
-            GAMEBRIDGE_MAVEN_REPO=str(ROOT/'artifacts/maven-final-20261111'),
-            GAMEBRIDGE_IOS_XCFRAMEWORK=str(ROOT/'artifacts/ios-final-20261111/GameBridgeNative.xcframework'),
+            GAMEBRIDGE_MAVEN_REPO=os.environ.get('GAMEBRIDGE_MAVEN_REPO', str(ROOT/'artifacts/maven-final-20261111')),
+            GAMEBRIDGE_IOS_XCFRAMEWORK=os.environ.get('GAMEBRIDGE_IOS_XCFRAMEWORK', str(ROOT/'artifacts/ios-final-20261111/GameBridgeNative.xcframework')),
             UNITY_EDITOR_PATH=str(editor),NEWTONSOFT_DLL=str(managed),GAMEBRIDGE_NEWTONSOFT_DLL=str(managed))
         generated=subprocess.run(['bash','scripts/generate-ios-project.sh'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         (output/'ios-project.log').write_text(generated.stderr)

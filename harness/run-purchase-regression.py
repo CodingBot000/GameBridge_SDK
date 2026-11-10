@@ -84,6 +84,25 @@ def main() -> int:
             except (OSError,ValueError,subprocess.CalledProcessError): pass
         results.append(common.item('xcode-storekit-local-db-recovery',code,counts))
     else: results.append(common.item('xcode-storekit-local-db-recovery',2,(0,0,0)))
+    if env.get('GAMEBRIDGE_RUN_XCODE_STOREKIT_HARNESS') == 'true':
+        code, text, _ = common.run(['python3','harness/run-xcode-process-recovery.py','--run-local'], env, output/'xcode-process-recovery.log')
+        match = re.search(r'Evidence: (artifacts/xcode-process-recovery-[A-Za-z0-9_.-]+)', text)
+        counts = (0,0,0)
+        if match:
+            try:
+                result_path = (ROOT/match.group(1)/'result.json').resolve()
+                if result_path.is_relative_to(artifacts.resolve()):
+                    result = json.loads(result_path.read_text(encoding='utf-8'))
+                    source = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+                    first, second = result.get('prepare',{}), result.get('recover',{})
+                    if (result.get('sourceHead') == source and result.get('status') == 'PASS'
+                        and first.get('phase') == 'pending' and second.get('phase') == 'recovered'
+                        and first.get('balance') == second.get('balance') == '100'
+                        and first.get('pid') and second.get('pid') and first['pid'] != second['pid']):
+                        counts = (1,0,0)
+            except (OSError,ValueError,subprocess.CalledProcessError): pass
+        results.append(common.item('xcode-storekit-process-recovery',code,counts))
+    else: results.append(common.item('xcode-storekit-process-recovery',2,(0,0,0)))
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
     report = {'scope':'synthetic-purchase-regression-only','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'suites':results}

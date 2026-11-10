@@ -1217,7 +1217,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -1226,8 +1226,20 @@
       "candidateSuites": [
         "purchase-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/xcode-process-recovery.md",
+      "note": "Xcode local simulator and isolated fake DB; Unity, real device and Apple sandbox remain separate.",
+      "assertions": [
+        {
+          "suite": "purchase-regression",
+          "testFile": "ios/RecoveryHarness/GameBridgeRecoveryHarnessApp.swift",
+          "testCase": "pendingStore.saves == 0"
+        },
+        {
+          "suite": "purchase-regression",
+          "testFile": "harness/run-xcode-process-recovery.py",
+          "testCase": "first process termination failed"
+        }
+      ]
     },
     {
       "id": "R35",

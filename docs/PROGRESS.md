@@ -10,7 +10,7 @@
 - 마지막 검증된 소스 커밋: c22336c (격리 strict aggregate; Unity·외부 서비스는 미검증)
 - 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 전용 simulator 테스트 앱의 finish 전 프로세스 종료·재실행 복구 검증
+- 바로 다음 행동: 수정된 소스로 패키지를 재생성하고 strict-local 및 남은 시나리오를 계속 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -106,7 +106,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | BUG-016 | BUG | P04-T04, P09-T03 | Native 실제 Provider의 profile 확인 이후 요청 401에서 refresh 누락 | Android/iOS 단일 refresh·1회 재시도 및 proof idempotency 유지 구현 | fake 동시 요청·계정 변경·반복 401·증빙 멱등키 검증 | RESOLVED |
 | BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring의 Unity 공개 조회 구현 및 fake 확인; 실제 Unity player 미검증 | Native typed snapshot과 C# 제한 검사 유지 | 실제 Unity player에서 Native 진단 경계·redaction 확인 | OPEN |
 | BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과; Unity player·재연결 실제 수명주기 미검증 | 인증·소유권·heartbeat 회귀 유지 | Unity player 전달 및 lifecycle 검증 | OPEN |
-| BUG-013 | BUG | P05-T03, P05-T07 | XCODE_STOREKIT iOS 18+에서 이력 단일성·durable attempt로 local DB 응답 유실 복구 확인; Unity·실기기 미검증 | 전용 DB fake 지급과 분리 검증 유지 | 실제 프로세스 종료·Unity player 및 iOS 26.5 실패 재검증 | OPEN |
+| BUG-013 | BUG | P05-T03, P05-T07 | XCODE_STOREKIT iOS 18.6 local DB 및 프로세스 재시작 복구 PASS; Unity·실기기 미검증 | 전용 DB fake 지급과 분리 검증 유지 | Unity player·실기기 및 iOS 26.5 실패 재검증 | OPEN |
 | BUG-012 | BUG | P04-T04, P10-T02 | Unity가 Native logout의 REVOCATION_UNCONFIRMED를 버려 서버 revoke 불확실성 표시 불가 | 허용된 값만 오류에 보존 | Native/C# fake logout 및 redaction 확인 | RESOLVED |
 | BUG-011 | BUG | P08-T01 | Firebase optional dependency가 없는 독립 R8 consumer에서 missing class 실패 | 선택적 runtime 경계 및 consumer shrink 규칙 보강 | Firebase 없는 R8 build와 debug emulator CONFIG_REQUIRED 확인 | RESOLVED |
 | BUG-010 | BUG | P07-T01 | 서버 config revision은 16진 hash인데 Unity는 10진 정수 문자열을 요구해 조회 실패 | 서버 revision을 63-bit 10진 문자열로 일치 | 서버 unit 및 local HTTP→Unity decoder 확인 | RESOLVED |
@@ -150,7 +150,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 - 일부 계약·빌드·가짜 Provider·로컬 DB 회귀 및 독립 패키지 소비 검증 통과. 개별 범위와 명령은 WORK_LOG 참조.
 - 인증·결제·푸시·복구의 실제 플랫폼 및 Unity 통합 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
-- 내부 미구현: Xcode StoreKit 전체 지급 경로, Mock 푸시의 실제 Unity 전달 검증, Native 진단의 실제 Unity 검증. BUG-009 실제 재시작 검증도 미완료.
+- 내부 미완료: Xcode StoreKit 실제 기기 및 Unity 복구 검증, Mock 푸시의 실제 Unity 전달 검증, Native 진단의 실제 Unity 검증. BUG-009 실제 기기 재시작 검증도 미완료.
 - 환경 대기: Unity 라이선스 및 호환 Editor, StoreKit local simulator 실패. P09 하네스에는 미구현·부분 시나리오가 남아 전체 검증은 실패 상태.
 - 범위 제외: Windows/C++·Unreal/Godot·구독·환불 자동화·RTDN/Server Notifications 운영·관리자 웹·Kubernetes·상용 배포.
 
@@ -172,3 +172,36 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - P09-T04 R34 복구 단계 세분화 후 재검증 시작.
 - P09-T04 R34 실제 프로세스 재시작 FAIL (`artifacts/xcode-process-recovery-b49vwcfs`): 재시작 후 서버 잔액 100, unfinished 0이지만 Keychain journal이 남았다. Xcode 테스트 세션의 프로세스 간 거래 이력 유지 여부와 복구 조건을 추가 조사해야 하며 완료 처리하지 않는다.
 - P09-T04 R34 커밋 준비: 재현 하네스와 실패 기록을 로컬 저장한다. R34는 PARTIAL 유지.
+- P11 누락 감사 시작: 계획의 최종 산출물과 현재 구현·검증 기록을 대조하고 누락된 변경 이력을 작성한다. 실제 플랫폼 및 실패 항목은 별도로 유지한다.
+- P08-T01/T02/T03 재패키징 시작: 최근 인증 수정이 기존 산출물에 반영되지 않아 새 경로에서 Android·iOS·UPM을 다시 빌드한다. 기존 결과는 보존한다.
+- P08 Android 최신 소스 로컬 Maven 및 독립 R8 consumer 재빌드 PASS (45 tasks). 실제 스토어와 Unity 실행은 미검증이다. iOS XCFramework 빌드 검증을 시작한다.
+- P08 최신 iOS device/simulator XCFramework 및 arch별 C ABI 4개 검사 PASS, 새 UPM staging checksum PASS. Unity import·실기기는 미실행. P09 strict runner가 최신 산출물을 선택하도록 수정한다.
+- P09 strict-local 재검증 시작: 최신 Maven·XCFramework·UPM 경로를 명시하고 전용 DB·simulator를 사용한다. 기존 실패 및 미실행은 성공으로 승격하지 않는다.
+- P11 문서 감사: 누락된 CHANGELOG를 추가하고 R34 실제 재시작 실패와 최신 패키지 범위를 FINAL_REPORT에 반영했다. strict 실행은 진행 중이다.
+- P11 진행 요약의 오래된 Xcode 지급 미구현 문구를 실제 구현·재시작 실패 상태로 정정했다. runner Python 문법 검사 PASS.
+- P09-T04 R34 원인 조사 재개: 재시작 전후 StoreKit 이력·unfinished 노출 건수만 기록해 세션 이력 소실과 SDK 처리 실패를 구분한다. 증빙 원문과 식별자는 기록하지 않는다.
+- P09-T04 R34 이력 노출 계측 추가. 재현 검증은 strict suite 종료 후 실행한다.
+- P09-T04 재현 runner의 sourceDirty 보고를 실제 git 상태로 기록하도록 보완했다.
+- P09-T04 R34 이력 노출 계측 재검증 시작: 새 전용 simulator 및 DB를 사용한다.
+- P09 최신 strict-local 전체 FAIL (`artifacts/verify-all-2cnr0y99`, source 2bc9d77 + 작업 트리 변경): 실행된 contract·auth·purchase·Native mock push·패키지 검사는 PASS이나 시나리오 PARTIAL, Unity Editor NOT_RUN, Unity push DEFERRED_ENV 및 기존 실패가 남았다. 외부 13개 WAITING_USER.
+- P09-T04 R34 재검증 FAIL (`artifacts/xcode-process-recovery-b7metfgc`): 새 프로세스 시작 시 StoreKit history 1·unfinished 1이 확인됐고 이후 잔액 100·unfinished 0·journal 잔존. 이력 미노출 가설은 반박됐으며 중복 처리 경합을 조사한다.
+- P09-T04 조사: listener가 거래 finish 후 journal 정리를 비동기로 마치는 동안 테스트가 즉시 검사했을 가능성이 있어, 안전한 유한 대기로 실제 최종 상태를 확인한다.
+- P09-T04 R34 유한 대기 후 최종 journal 상태 재검증 시작.
+- P09-T04 R34 유한 대기 재검증도 FAIL (`artifacts/xcode-process-recovery-7j8jui66`): 10초 후에도 journal이 남아 단순 검사 시점 문제로 설명되지 않는다.
+- P09-T04 원인 조사: 테스트 Keychain 저장·삭제 호출 횟수와 실패 여부만 계측해 journal 정리 미호출과 저장소 오류를 구분한다.
+- P09-T04 Keychain 호출 계측 재검증 시작.
+- P09-T04 계측 재검증 FAIL (`artifacts/xcode-process-recovery-oz3ycsw7`): 복구 프로세스에서 clear 성공 1회 뒤 save 1회가 추가로 발생해 중복 transaction 처리로 journal이 다시 생성됨을 확인했다. finish된 거래는 새 attempt를 만들지 않도록 보강한다.
+- P05-T05/P09-T04 검증 시작: Xcode local 중복 처리에서 이미 finish된 거래의 새 journal 생성 차단과 기존 local DB 회귀를 확인한다.
+- P09-T04 R34 Xcode local 별도 프로세스 종료·재시작 재시험 PASS (`artifacts/xcode-process-recovery-vm_w1hpt`): 서버 잔액 100 유지, unfinished 및 journal 정리 확인. 실기기·Unity·Apple sandbox는 미검증. 기존 회귀를 추가 실행한다.
+- R34 검증 강화: 이미 대기 중인 중복 전달까지 확인하도록 정리 후 1초 관찰 및 새 journal 저장 0회 assertion을 추가했다. 추가 실행 전에는 이 강화된 조건을 통과로 기록하지 않는다.
+- P05-T05 iOS Swift unit 회귀 검증 시작. Xcode local DB 회귀는 별도로 진행 중이다.
+- iOS Swift package regression PASS: 77 tests, 7 skip, 0 failure (macOS host; 실제 StoreKit simulator 대체 아님).
+- P09-T04 강화된 R34 재검증 시작: 정리 후 추가 관찰과 journal 재생성 0회를 확인한다.
+- P05-T05 기존 Xcode local DB 응답 유실·journal 복구 회귀 PASS (`artifacts/xcode-storekit-e2e-lk2ae3ys`, 1 test). 강화된 프로세스 시험은 진행 중.
+- 강화된 R34 시험 PASS (`artifacts/xcode-process-recovery-f_w2fsya`): 재시작 후 journal 제거 뒤 1초 관찰 및 새 journal 저장 0회 포함. strict 및 R34 manifest에 이 실제 로컬 시나리오를 연결한다.
+- P09 R34 시나리오·strict 필수 lane 연결 검증 시작: 누락 시 PASS로 집계하지 않는다.
+- P09 manifest 검증 명령 경로 오류로 미실행(exit 2). 실제 runner 경로를 확인해 재실행한다.
+- P09 manifest 실제 검사 및 누락 음성 검증 시작.
+- 집계 unit 검증은 실행됐으나 진행 원장 검증에 잘못된 파일 경로를 사용해 해당 검사는 미실행이다. 올바른 명령을 확인한다.
+- P09/P11 진행 원장 실제 검사 시작.
+- P09/P11 manifest·음성·집계 13건·진행 원장 검사 PASS. R34 local 시나리오는 IMPLEMENTED이며 실제 기기·Unity는 미검증. 커밋 후 수정 제품 소스로 패키지를 다시 생성한다.

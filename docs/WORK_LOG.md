@@ -2271,3 +2271,40 @@
 - R34 재시작 후 잔액·추가 복구 건수·journal 존재 여부를 비밀값 없이 각각 확인한다.
 - R34 재시작 시 잔액 100·미완료 거래 0·pending journal 존재로 검증 FAIL (`artifacts/xcode-process-recovery-b49vwcfs`). 거래가 새 Xcode StoreKit 테스트 세션에서 노출되지 않는 원인은 미확정이며 임의 journal 삭제는 안전하지 않다. 재현 하네스와 실패 증거를 저장한다.
 - 커밋 준비: 테스트 전용 앱·격리 runner 및 실패 기록. 실제 플랫폼 검증과 R34 완료로 표시하지 않는다.
+### P11 최종 산출물 및 변경 이력 감사 시작
+- 계획에서 요구한 문서 존재 여부와 현재 구현·검증 근거를 확인한다. 진행 중인 R34 실패와 외부·Unity 대기를 완료로 기록하지 않는다.
+### P08 최신 제품 소스 재패키징 검증 시작
+- 이전 산출물은 최근 인증 변경 이전 소스이므로 현재 커밋 기준 새 경로에서 Android 독립 consumer와 iOS XCFramework 및 UPM checksum을 검증한다.
+- P08 Android `artifacts/maven-2bc9d77`: mock sample·로컬 Maven 및 독립 R8 release consumer PASS (45개 실행). iOS device/simulator archive를 새 경로에 생성한다.
+- P08 `artifacts/ios-2bc9d77/GameBridgeNative.xcframework` 생성·arch/symbol 검사 PASS, `artifacts/upm-2bc9d77` 체크섬 PASS. 이전 산출물을 보존했다. strict runner가 특정 오래된 경로를 고정하고 있어 환경변수 override를 추가한다.
+### P09 최신 산출물 strict-local 검증 시작
+- strict runner에 산출물 경로 override를 추가하고 2bc9d77 제품 소스의 새 패키지 및 격리 DB·simulator로 실행한다.
+- P11 `docs/CHANGELOG.md` 신규 작성. FINAL_REPORT에 R34 재시작 FAIL과 2bc9d77 재패키징·무결성 결과를 기록했으며 Unity import는 미실행으로 유지한다.
+- P11 감사에서 PROGRESS 상단 BUG-013 및 요약이 실제 구현보다 오래된 것을 발견해 재시작 FAIL과 Unity 미검증으로 정정했다. strict runner와 재현 runner의 Python 컴파일은 통과했다.
+### P09-T04 R34 이력 노출 원인 조사 시작
+- 테스트 앱에 StoreKit transaction 건수만 추가해 재시작 직후 노출 상태를 확인한다. strict 검증과 별개이며 실제 기기 결론은 내리지 않는다.
+- 재시작 직후 transaction history 및 unfinished 건수 계측을 추가했다. 원격 스토어·거래 원문은 수집하지 않는다.
+- R34 runner가 sourceDirty를 무조건 true로 기록하는 부정확한 표현을 실제 작업 트리 확인으로 교체했다.
+- R34 재시작 직후 이력과 미완료 건수 계측을 별도 simulator·DB에서 실행한다. 다른 strict suite와 데이터는 분리한다.
+- strict `artifacts/verify-all-2cnr0y99/summary.md` 종료 1: 실행된 Native synthetic·local DB·하네스/패키지 음성 검사는 PASS, Unity Editor NOT_RUN·Unity push DEFERRED_ENV·시나리오 PARTIAL 및 기존 unresolved FAIL로 전체 FAIL. Xcode local DB 복구 PASS는 프로세스 종료 복구 실패와 별개다. 외부 13개는 WAITING_USER.
+- R34 이력 계측 재실행 FAIL: 새 프로세스의 historyBefore=1, unfinishedBefore=1, 복구 후 잔액 100·unfinished 0·journal 잔존 (`artifacts/xcode-process-recovery-b7metfgc`). 이력 유실로 단정하지 않고 listener와 복구 경로의 중복 처리를 조사한다.
+- R34에서 unfinished 0은 listener의 journal 정리가 끝났다는 보장이 아니다. 테스트에 최대 10초 유한 대기를 추가해 최종 journal 상태를 확인하고 미완료라면 계속 FAIL로 둔다.
+- 별도 프로세스 복구에서 비동기 journal 정리 완료를 최대 10초 기다리는 시험을 실행한다.
+- R34 이력 1·unfinished 1에서 재시작 후 10초간 기다려도 잔액 100·unfinished 0·journal 잔존. 단순 비동기 지연 가설은 현재 결과로 기각한다.
+- R34 테스트 전용 TokenStore wrapper에 save/clear 호출 및 오류 횟수를 기록한다. 값이나 식별자는 기록하지 않는다.
+- 새 격리 simulator에서 Keychain 호출 횟수와 비동기 완료 대기를 함께 시험한다.
+- R34 clear 1회 성공·save 1회, 잔액 100·unfinished 0·journal 잔존 확인. listener와 recovery가 같은 거래를 순차 처리해 완료 후 attempt가 재생성되는 경로로 좁혔다. Xcode local 검증 직전에 해당 거래가 여전히 unfinished인지 검증하는 방안을 적용한다.
+- Xcode local sink가 history 단일성에 더해 현재 unfinished 일치를 검사한 후에만 attempt를 생성하도록 변경했다. 실 Apple sandbox 경로는 해당하지 않는다. 우선 프로세스 재시작 시험을 실행한다.
+- R34 수정 후 전용 iOS 18.6 simulator·DB에서 첫 프로세스 종료와 두 번째 프로세스 복구 PASS (`artifacts/xcode-process-recovery-vm_w1hpt`): 중복 지급 없이 잔액 100, unfinished 0, journal 없음. Xcode local fake 범위이며 실제 플랫폼이 아니다. 기존 local DB/Swift 회귀를 재실행한다.
+- R34 통과가 정리 직후 일시 상태일 가능성을 막기 위해 1초 관찰 및 recover 프로세스의 새 journal save 0회 검증을 추가했다. 강화된 시험은 재실행 예정이다.
+- Xcode local sink 변경에 대한 Swift package unit tests를 실행한다. StoreKit simulator E2E와 범위를 구분한다.
+- `swift test --package-path ios` 종료 0: XCTest 77건, 실패 0, skip 7; 추가 Swift Testing suite 0건. macOS host unit 범위다.
+- 강화된 R34 프로세스 시험을 전용 DB·simulator에서 재실행한다.
+- 기존 Xcode local StoreKit + DB 응답 유실·Keychain journal 복구 재시험 PASS (`artifacts/xcode-storekit-e2e-lk2ae3ys`, 1 pass, skip 0). 실제 Apple sandbox는 미실행.
+- 강화 R34 `artifacts/xcode-process-recovery-f_w2fsya` PASS: 서로 다른 두 PID, 잔액 100, unfinished 0, journal 제거 및 재생성 없음 확인. Xcode simulator local fake만 증명하며 Unity·실기기·Apple sandbox는 미검증이다. 누락 방지를 위해 strict 필수 lane과 manifest 연결을 추가한다.
+- R34 evidence와 manifest assertion, 구매 regression 및 strict 필수 lane을 추가했다. manifest 및 fail-closed 검사를 실행한다.
+- `harness/check-regression-manifest.py`는 존재하지 않아 검증을 실행하지 못했다. 저장소의 실제 manifest 검사 명령을 확인한다.
+- `harness/check-manifest.py`와 음성 검사로 연결 및 assertion 참조를 검증한다.
+- `python3 -m unittest discover -s harness -p test_aggregation.py -v` PASS(13 tests). `harness/check-progress.py`는 존재하지 않아 원장 검사는 미실행; 실제 경로를 확인해 다시 실행한다.
+- `scripts/verify-progress.py`로 진행 원장 일관성을 확인한다.
+- R34 강화 시험 PASS 및 기존 Xcode DB 회귀 PASS, Swift 77건 중 skip 7·실패 0, manifest/음성·집계 13건·진행 원장 검사 PASS. 커밋 준비: 중복 attempt 방지, 재현 하네스, strict 연결 및 문서만 저장한다. 최신 패키지는 이 수정 전이므로 다시 빌드한다.

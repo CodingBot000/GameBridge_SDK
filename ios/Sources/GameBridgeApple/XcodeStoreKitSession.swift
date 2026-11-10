@@ -61,6 +61,16 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
             }
         }
         try validateXcodeIdentityMatches(matches)
+        // A listener and startup recovery can queue the same result. The limiter serializes
+        // them, but the later result may already have been finished by the first one.
+        // Never create a fresh durable attempt for that stale delivery.
+        var unfinishedMatches = 0
+        for await result in Transaction.unfinished {
+            guard case .verified(let transaction) = result, transaction.appAccountToken == account.bindingId else { continue }
+            if #available(iOS 18.0, macOS 15.0, *), transaction.environment == .xcode,
+               xcodeStableIdentity(result.jwsRepresentation) == proof.transactionKey { unfinishedMatches += 1 }
+        }
+        try validateXcodeIdentityMatches(unfinishedMatches)
         let attempt = try await journal.begin(account: account.userId, key: proof.transactionKey)
         let result = try await client.xcodeGrant(productId: proof.productId, transactionKey: proof.transactionKey, attemptId: attempt, account: account)
         return ServerGrant(userId: result.userId, bindingId: result.bindingId, productId: result.productId,

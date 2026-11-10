@@ -395,3 +395,10 @@
 - 두 테스트 서버(기존 local-mock 및 별도 finalization DB)를 각각 Ctrl-C 종료 130. 전용 PostgreSQL container는 volume 보존 후 정지한다.
 - `docker compose ... stop` 종료 0. 별도 finalization 시험 DB 및 전용 volume은 삭제하지 않았다.
 - 커밋 전: 사용자 승인 Mock scheduler 정책, DB 전역 advisory slot, 지수 backoff, 사용자 선택 설정과 실 DB 검증을 포함한다. 실제 Google consume/ack, 비정상 처리 중 crash·다중 배포·운영 안전성은 미완료이므로 P02-T04 PARTIAL 유지.
+
+### [P03-T03] C# 독립 컴파일 재개 — 2026-11-10 Asia/Seoul
+- Unity Editor에 포함된 .NET SDK 및 Unity managed assembly를 발견했다. Editor 라이선스 없이 C# 컴파일을 별도 확인하며 이를 Unity Editor/JNI 실행으로 취급하지 않는다.
+- Unity 포함 .NET SDK 8.0.318로 실제 Unity managed assembly를 참조해 Android C# transport 독립 `dotnet build ... -p:DefineConstants=UNITY_ANDROID` 종료 0, 경고·오류 0. Editor/JNI 실행이 아니다. .NET 첫 실행이 개발용 HTTPS 인증서를 자동 설치했다고 출력했으며 신뢰 설정은 하지 않았다. 이후 첫 실행 인증서 생성을 끄고 사용자 인증서 임의 삭제는 하지 않는다.
+- 동일 Unity managed assembly와 내장 .NET 8.0.318로 `UNITY_IOS` 분기 독립 컴파일 종료 0, 경고·오류 0. Unity IL2CPP·iOS C ABI 링크나 실행은 아니다. 이후 DOTNET_GENERATE_ASPNET_CERTIFICATE=false 사용.
+- `UNITY_EDITOR_PATH=<Unity 실행파일> bash scripts/check-csharp-compile.sh` 종료 0: UNITY_ANDROID 및 UNITY_IOS 두 분기 모두 실제 Unity managed reference 대상으로 .NET 8 컴파일, 경고·오류 0. Editor import·IL2CPP·양 플랫폼 링크/콜백 실행은 하지 않았다.
+- 커밋 전: 재현 가능한 컴파일 전용 script와 도구 증거를 포함한다. P03-T03/T04의 Unity 실연동은 ENV-002로 PARTIAL 유지.

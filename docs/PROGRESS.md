@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P02 / P02-T04
+- 현재 Phase / Task: P03 / P03-T03
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P02-T01 부분 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P02-T05 보호된 개발 push send와 P03 bridge 미구현 작업 진행
+- 바로 다음 행동: P03-T05 요청 registry·Unity facade 및 Editor Mock 구현
 - 불가피한 세션 종료 시 재개 행동: P02-T01 오류 처리와 P02-T02 인증 구현을 진행하고 P00·P01 미완료도 재검증
 
 ## 집계

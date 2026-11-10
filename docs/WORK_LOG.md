@@ -1828,3 +1828,10 @@
 - 서로 다른 Xcode 구매의 해시가 구분되는지 simulator에서 확인하고 서버에서 같은 해시 재요청의 중복 지급 방지를 시험한다.
 - `artifacts/storekit-purchase-distinct-1794332839.xcresult` iOS 18.6 1건 PASS, skip 0: 두 Xcode 테스트 구매의 JWS 해시가 달라 각각 synthetic 지급·finish됐다. 전용 DB `gamebridge_ci_d8c58af962`에서는 동일 해시 재요청에 중복 지급이 없고 sandbox/production 개발 경로가 없는 것을 확인했다. 동일 미완료 거래의 JWS 재발급 안정성, 실제 DB와 결합한 StoreKit 복구, Unity player는 아직 미검증이다.
 - 커밋 준비: Xcode 전용 JWS 해시 식별자, fake 서버 멱등성 및 simulator 시험을 저장한다. Apple 실제 거래 검증은 WAITING_USER이며 BUG-013 OPEN 유지.
+### P05-T03 미완료 거래 JWS 안정성 검증 시작
+- 새 전용 simulator에서 생성한 Xcode 테스트 거래에 대해 구매 직후와 미완료 조회의 JWS digest가 같은지 확인한다. 시험이 생성한 로컬 거래만 마지막에 finish하며 실제 서버 지급이나 Apple sandbox 시험으로 취급하지 않는다.
+- 블로커: 전용 iOS 18.6 simulator에서 같은 미완료 거래의 구매 시점과 재조회 JWS SHA-256이 달라 안정적이지 않음이 확인됐다(`artifacts/storekit-stability-1794332909.xcresult`, 1 FAIL). 현재 JWS 전체 해시를 거래 식별자로 쓰면 복구 시 중복 지급 위험이 있으므로 즉시 Xcode fake 지급을 fail-closed로 차단하고 안정적인 필드를 조사한다. 기존 PASS는 synthetic 단일 실행 범위로만 유지한다.
+### P05-T03 임시 차단 검증 시작
+- 거래 식별자 재조회 불안정 상태에서 fake 지급을 호출하지 않도록 차단한 후 Swift 회귀를 확인한다. 차단 중 구매는 finish되지 않는다.
+- 임시 차단 상태에서 기존 Swift fake 7건 통과. Xcode 실제 지급은 의도적으로 중단 상태이며 안정적 거래 ID 확정·DB 복구 재검증이 필요하다.
+- 커밋 준비: 재현 시험과 fail-closed 차단을 먼저 기록한다. 사용자 거래·기존 simulator 데이터는 삭제하지 않았다.

@@ -16,9 +16,8 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
     init(client: LocalMockClient, account: XcodeMockAccount) { self.client = client; self.account = account }
     func verify(_ proof: ApplePurchaseProof, userId: UUID) async throws -> ServerGrant {
         guard userId == account.userId, proof.binding == account.bindingId else { throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH") }
-        let result = try await client.xcodeGrant(productId: proof.productId, transactionKey: proof.transactionKey, account: account)
-        return ServerGrant(userId: result.userId, bindingId: result.bindingId, productId: result.productId,
-            transactionKey: result.transactionKey, serverPurchaseId: result.serverPurchaseId, fulfillmentStatus: result.fulfillmentStatus)
+        // Fail closed until Xcode transaction identity remains stable across unfinished recovery.
+        throw SdkFailure("CONFIG_REQUIRED", nativeCode: "XCODE_TRANSACTION_IDENTITY_UNSTABLE")
     }
 }
 /// Xcode-local StoreKit client verification with an isolated fake server grant; never Apple server validation.

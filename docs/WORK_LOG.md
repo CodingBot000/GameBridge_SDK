@@ -1210,3 +1210,9 @@
 - `scripts/check-csharp-compile.sh` 종료 0: 네 조건부 compile 성공. 이벤트에 숫자형 enum 문자열을 허용하지 않도록 엄격 검사를 추가하고 현재 session·검증된 구매 ID·민감정보 필터 경계를 smoke로 확인한다.
 - `UNITY_EDITOR_PATH=... bash scripts/smoke-csharp-registry.sh` 종료 0: 현재 session의 서버 구매 ID가 있는 이벤트 수신, 다른 session·미확인 구매·숫자 enum 거부를 확인했다. Unity runtime과 Native 이벤트 발행은 미검증이다.
 - 커밋 전: Unity 구매 이벤트 수신·sanitized model과 독립 .NET smoke만 포함한다. Native 발행 및 실제 상점 연결은 다음 작업이다.
+
+### [P05-T07] Android Google Play bridge
+- Task 시작: 기존 GooglePlayStore를 Unity sandbox에 연결한다. UI 결과는 서버 지급 전 PENDING 또는 VERIFICATION_PENDING으로 반환하고, 검증 후 Native 이벤트만 PURCHASED로 전달한다. 실 스토어 거래는 실행하지 않는다.
+- 사용자 요청으로 일시 중단한다. P05-T07 Android Google Play bridge는 Native facade와 비동기 구매/event 계약을 조사했으며 코드 변경은 시작하지 않았다. 재개 시 상품 ID 설정 전달, 서버 검증 전 PENDING/VERIFICATION_PENDING 반환, 검증 후 PurchaseUpdated 발행과 session/lifecycle 격리를 구현·검증한다. 이어 iOS 상점·푸시 및 P08~P11을 진행한다.
+- 이 세션의 Android/iOS Mock bridge, Android Google/iOS Apple 인증 bridge, Unity 구매 이벤트 수신은 로컬 커밋됐다. Mock 및 fake 시험은 실제 계정·결제·Unity JNI/IL2CPP 성공이 아니다. ENV-002와 StoreKit 실패, USER_SETUP의 외부 인증 대기는 유지한다. 새 생성 검증 artifacts와 기존 미추적 unity/Demo·scripts/__pycache__ 및 DB 데이터는 보존한다. 자동 push/배포는 하지 않았다.
+- 커밋 전: 일시 중단 및 재개 지점 문서만 포함한다.

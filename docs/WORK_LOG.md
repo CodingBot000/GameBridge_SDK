@@ -1046,3 +1046,13 @@
 - worker fake 시험 4건 통과: 동시 1건, 100개 제한, 최초+3회 후 종료, DB 일시 오류 재시도. sandbox HTTP 및 local dev/production route 회귀를 다시 실행한다.
 - sandbox HTTP/security/DB→fake FCM QUEUED/retry 및 production 개발 route 미등록 시험 2건 통과(skip 0). 실제 서비스 자격증명·원격 발송은 사용하지 않았다. retry queue는 in-memory여서 서버 재시작 시 소실되고, 이미 시작된 원격 요청 취소는 보장하지 않는다.
 - 커밋 전: 사용자 선택 동시 1건/3회 retry, APNs 5xx 최소 15분, 제한 queue 및 sandbox 개발 sender 조립을 포함한다. production sender runtime, 실제 수신·token 발급·원격 발송과 재시작 복구는 미검증 또는 미구현이므로 P06-T04 PARTIAL/WAITING_USER 유지.
+
+### [P05-T04] Google 실 검증 경로 연결
+- 승인된 증빙 삭제 기준과 worker가 구현되어 Google sandbox/production verify endpoint 및 구매 전 readiness를 연결한다. 실제 Play API/구매는 실행하지 않고 synthetic Publisher fixture로 검증한다.
+- Google verifier의 30초 network timeout, server readiness(구매 binding·catalog·credential·암호화 키)와 verify endpoint 초안 작성. 실제 Play 서버는 호출하지 않았다.
+- Google server Kotlin compile 성공. Native sink 및 공유 runtime에 readiness를 연결하며 config 미설정·credential 누락 시 Billing UI가 열리지 않게 한다.
+- Android gate 初次 unit 通过. readiness가 없거나 false면 실제 UI를 시작하지 않는 fake 시험과 JSON boolean 엄격 검증을 추가한다.
+- Google verify→durable grant→fake finalizer→증빙 삭제를 실제 sandbox HTTP/security/PostgreSQL에서 동시 요청 10건으로 검증한다. Publisher/완료 응답은 test-only fake이며 외부 Play 호출은 없다.
+- synthetic Google HTTP 10건→원장 1건→fake 완료 후 증빙 NULL 통합 시험 통과. readiness의 암호화 키 부재 및 pending 증빙 무지급도 추가 확인한다.
+- 격리 local DB readiness의 암호화 키 누락 503, sandbox 실제 HTTP/security/DB에서 synthetic PENDING 무지급, 10개 동시 verify 중 grant 1건 및 fake 완료 뒤 증빙 NULL을 확인했다. 실제 Google Play 조회/결제/consume/ack는 미실행이다.
+- 커밋 전: Google verifier/readiness/HTTP·Native sink 조립 및 synthetic 통합만 포함한다. 실제 Play와 sample/Unity는 미완료로 P05-T04/T05/T07 PARTIAL·WAITING_USER 유지한다.

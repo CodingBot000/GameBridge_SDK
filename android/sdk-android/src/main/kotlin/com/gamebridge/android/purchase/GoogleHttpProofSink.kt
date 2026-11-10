@@ -13,17 +13,29 @@ import java.util.UUID
 /** Native-only proof transport; token is sent exclusively to configured Backend. */
 internal class GoogleHttpProofSink(
     private val auth: GoogleAuthProvider,
-    private val request: suspend (body: String, accessToken: String, attemptId: String) -> String,
+    private val request: suspend (path: String, body: String, accessToken: String, attemptId: String?) -> String,
 ) : PlayProofSink {
-    constructor(auth: GoogleAuthProvider, client: BackendClient) : this(auth, { body, accessToken, attemptId ->
-        client.request("/v1/purchases/google/verify", "POST", body, accessToken = accessToken, idempotencyKey = attemptId).json
+    constructor(auth: GoogleAuthProvider, client: BackendClient) : this(auth, { path, body, accessToken, attemptId ->
+        client.request(path, "POST", body, accessToken = accessToken, idempotencyKey = attemptId).json
     })
+    suspend fun ensureReady(storeProductId: String) {
+        val ready = auth.withAuthenticatedSession { session ->
+            val body = buildJsonObject { put("storeProductId", storeProductId) }.toString()
+            val data = request("/v1/purchases/google/readiness", body, session.accessToken, null)
+            try {
+                val value = Json.parseToJsonElement(data).jsonObject.getValue("ready").jsonPrimitive
+                !value.isString && value.content == "true"
+            }
+            catch (_: Exception) { false }
+        } ?: throw SdkFailure("SESSION_EXPIRED")
+        if (!ready) throw SdkFailure("CONFIG_REQUIRED")
+    }
     override suspend fun verify(account: BoundPlayAccount, productId: String, proof: RawPlayPurchase): ServerPlayResult {
         if (proof.token.isBlank()) throw SdkFailure("VERIFICATION_FAILED")
         return auth.withAuthenticatedSession { session ->
             if (session.userId != account.userId.toString()) throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH")
             val body = buildJsonObject { put("storeProductId", proof.storeId); put("purchaseToken", proof.token) }.toString()
-            parseGoogleGrant(request(body, session.accessToken, UUID.randomUUID().toString()), productId)
+            parseGoogleGrant(request("/v1/purchases/google/verify", body, session.accessToken, UUID.randomUUID().toString()), productId)
         } ?: throw SdkFailure("SESSION_EXPIRED")
     }
 }

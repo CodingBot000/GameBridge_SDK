@@ -2,6 +2,7 @@ package com.gamebridge.config
 
 import com.gamebridge.purchase.PurchaseConflict
 import com.gamebridge.purchase.AppleVerifierUnavailable
+import com.gamebridge.purchase.GoogleVerifierUnavailable
 import com.gamebridge.auth.AuthFlowException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -55,7 +56,7 @@ class ApiErrors {
         val code = if (ex.code in setOf("AUTH_REPLAY_DETECTED", "CONFIG_REQUIRED", "NETWORK_UNAVAILABLE")) ex.code else "AUTH_FAILED"
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(mapOf("code" to code, "message" to "Authentication failed", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to (code == "NETWORK_UNAVAILABLE")))
     }
-    @ExceptionHandler(AppleVerifierUnavailable::class)
+    @ExceptionHandler(AppleVerifierUnavailable::class, GoogleVerifierUnavailable::class)
     fun appleUnavailable(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).contentType(MediaType.APPLICATION_JSON)
         .body(mapOf("code" to "NETWORK_UNAVAILABLE", "message" to "Store verification unavailable", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to true))
     @ExceptionHandler(PurchaseConflict::class)

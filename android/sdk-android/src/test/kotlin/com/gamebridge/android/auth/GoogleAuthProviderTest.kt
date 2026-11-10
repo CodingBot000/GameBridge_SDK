@@ -111,11 +111,18 @@ class GoogleAuthProviderTest {
         val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend())
         val user = provider.signIn(); val binding = UUID.randomUUID().toString(); val purchase = UUID.randomUUID()
         val token = "synthetic-proof"; val hash = MessageDigest.getInstance("SHA-256").digest(token.toByteArray()).joinToString("") { "%02x".format(it) }
-        var status = "GRANTED"
-        val sink = GoogleHttpProofSink(provider) { body, access, attempt ->
-            assertTrue(body.contains(token)); assertEquals("test-access", access); assertNotNull(UUID.fromString(attempt))
-            """{"userId":"${user.userId}","accountId":"$binding","productId":"coins_100","serverPurchaseId":"$purchase","fulfillmentStatus":"$status","proofFingerprint":"$hash"}"""
+        var status = "GRANTED"; var ready = true
+        val sink = GoogleHttpProofSink(provider) { path, body, access, attempt ->
+            assertEquals("test-access", access)
+            if (path.endsWith("/readiness")) { assertNull(attempt); """{"ready":$ready}""" }
+            else {
+                assertEquals("/v1/purchases/google/verify", path)
+                assertTrue(body.contains(token)); assertNotNull(UUID.fromString(attempt))
+                """{"userId":"${user.userId}","accountId":"$binding","productId":"coins_100","serverPurchaseId":"$purchase","fulfillmentStatus":"$status","proofFingerprint":"$hash"}"""
+            }
         }
+        sink.ensureReady("coins.store"); ready = false
+        assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> { sink.ensureReady("coins.store") }.code)
         val account = BoundPlayAccount(UUID.fromString(user.userId), binding)
         val proof = RawPlayPurchase("coins.store", token, binding, 1, Purchase.PurchaseState.PURCHASED)
         val result = sink.verify(account, "coins_100", proof)

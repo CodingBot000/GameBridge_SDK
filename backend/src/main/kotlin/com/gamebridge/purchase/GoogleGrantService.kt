@@ -16,6 +16,7 @@ private data class GoogleExistingPurchase(val id: UUID, val userId: UUID, val pr
 /** Requires store-verified facts; encrypted evidence remains pending until an authorized retention policy is applied. */
 @Service
 internal class GoogleGrantService(private val db: JdbcTemplate, private val tx: TransactionTemplate, private val cipher: GoogleEvidenceCipher) {
+    fun requireEvidenceKey() { cipher.requireConfigured() }
     fun grant(principal: SessionPrincipal, environment: StoreEnvironment, verified: VerifiedGooglePurchase, token: String, attemptId: UUID): GoogleGrantResult = tx.execute {
         val app = db.query("SELECT app_scope FROM sessions WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at>now() FOR UPDATE",
             { rs, _ -> rs.getString(1) }, principal.sessionId, principal.userId).firstOrNull() ?: throw PurchaseConflict("SESSION_EXPIRED")

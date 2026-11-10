@@ -18,6 +18,7 @@ internal class GoogleEvidenceCipher(@Value("\${SERVER_PURCHASE_ENCRYPTION_KEY:}"
         if (value == null || value.size != 32) throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CONFIG_REQUIRED")
         return SecretKeySpec(value, "AES")
     }
+    fun requireConfigured() { key() }
     fun encrypt(token: String, context: String): ByteArray {
         val nonce = ByteArray(12).also { SecureRandom().nextBytes(it) }
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")

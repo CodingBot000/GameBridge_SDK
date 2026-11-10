@@ -88,11 +88,18 @@ class GooglePlayBillingProviderTest {
         assertEquals("MAINTENANCE", assertFailsWith<SdkFailure> { maintenance.purchase("coins_100") }.code)
         assertEquals(0, gateway.launches); maintenance.close()
     }
+    @Test fun `missing readiness blocks billing ui even with valid config`() = runBlocking {
+        val gateway = FakePlayGateway()
+        val sink = PlayProofSink { _, _, raw -> ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray())) }
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink, maintenanceState = { false })
+        try { assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> { provider.purchase("coins_100") }.code); assertEquals(0, gateway.launches) }
+        finally { provider.close() }
+    }
     @Test fun `shared ui gate blocks billing while another ui owns it`() = runBlocking {
         val gateway = FakePlayGateway()
         val sink = PlayProofSink { _, _, raw -> ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray())) }
         val gate = Mutex(locked = true)
-        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink, uiGate = gate, maintenanceState = { false })
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink, uiGate = gate, maintenanceState = { false }, readiness = {})
         try {
             assertEquals("BUSY", assertFailsWith<SdkFailure> { provider.purchase("coins_100") }.code)
             assertEquals(0, gateway.launches)
@@ -124,7 +131,7 @@ class GooglePlayBillingProviderTest {
     @Test fun `verified result is bound to proof and raw proof is redacted`() = runBlocking {
         val gateway = FakePlayGateway()
         val sink = PlayProofSink { _, _, raw -> ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray())) }
-        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink, verificationConcurrency = 1, maintenanceState = { false })
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink, verificationConcurrency = 1, maintenanceState = { false }, readiness = {})
         val products = provider.products(); assertEquals("₩1,000", products.first().localizedPrice)
         assertEquals("VERIFICATION_PENDING", provider.purchase("coins_100")); assertEquals(1, gateway.launches)
         val raw = proof(Purchase.PurchaseState.PURCHASED)

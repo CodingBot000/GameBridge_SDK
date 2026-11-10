@@ -51,6 +51,7 @@ internal class GooglePlayBillingProvider(
     private val verificationConcurrency: Int? = 1,
     private val uiGate: Mutex = Mutex(),
     private val maintenanceState: suspend () -> Boolean? = { null },
+    private val readiness: suspend (String) -> Unit = { throw SdkFailure("CONFIG_REQUIRED") },
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutableEvents = MutableSharedFlow<PlayPurchaseEvent>(extraBufferCapacity = 100, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -89,6 +90,8 @@ internal class GooglePlayBillingProvider(
         if (proofSink == null || verificationConcurrency == null) throw SdkFailure("CONFIG_REQUIRED")
         val maintenance = try { maintenanceState() } catch (cancel: CancellationException) { throw cancel } catch (_: Exception) { null }
         if (!MaintenanceGate.permits(maintenance, ProtectedOperation.START_PURCHASE)) throw SdkFailure(if (maintenance == true) "MAINTENANCE" else "CONFIG_REQUIRED")
+        readiness(storeId)
+        if (accountSource.current() != account) throw SdkFailure("CANCELED")
         if (!uiGate.tryLock()) throw SdkFailure("BUSY")
         return try { gateway.launch(storeId, account) } finally { uiGate.unlock() }
     }

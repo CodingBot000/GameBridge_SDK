@@ -50,6 +50,9 @@ class GoogleGrantDatabaseTest {
             .setProductLineItem(listOf(ProductLineItem().setProductId("coins.play").setProductOfferDetails(ProductOfferDetails().setQuantity(1))))
         val verifier = GooglePurchaseVerifier("test.package", setOf("coins.play"), true, GooglePurchaseLookup { _, _ -> storeResponse })
         val pipeline = GooglePurchasePipeline(db, GoogleVerifierRegistry { scope, env -> assertEquals(app, scope); assertEquals(StoreEnvironment.SANDBOX, env); verifier }, service)
+        val unavailable = GooglePurchasePipeline(db, GoogleVerifierRegistry { _, _ -> verifier }, GoogleGrantService(db, tx, GoogleEvidenceCipher("")))
+        assertEquals(503, assertFailsWith<org.springframework.web.server.ResponseStatusException> { unavailable.ensureReady(principal, StoreEnvironment.SANDBOX, "coins.play") }.statusCode.value())
+        pipeline.ensureReady(principal, StoreEnvironment.SANDBOX, "coins.play")
         val pool = Executors.newFixedThreadPool(10)
         val results = try { (1..10).map { pool.submit<GoogleGrantResult> { pipeline.verifyAndGrant(principal, StoreEnvironment.SANDBOX, "coins.play", token, attempt) } }.map { it.get(20, TimeUnit.SECONDS) } }
                       finally { pool.shutdownNow() }

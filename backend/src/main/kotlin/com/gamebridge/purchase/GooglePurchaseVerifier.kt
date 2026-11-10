@@ -1,6 +1,7 @@
 package com.gamebridge.purchase
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
+import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.auth.http.HttpCredentialsAdapter
@@ -25,6 +26,7 @@ internal class GooglePurchaseVerifier(
     private val lookup: GooglePurchaseLookup,
 ) {
     init { require(packageName.isNotBlank() && allowedProducts.isNotEmpty()) }
+    fun supports(productId: String): Boolean = productId in allowedProducts
     fun verify(token: String, expectedProduct: String, expectedAccount: String): VerifiedGooglePurchase {
         if (token.isBlank() || expectedProduct !in allowedProducts || expectedAccount.isBlank()) throw GoogleProofRejected()
         val purchase = try { lookup.get(packageName, token) } catch (e: GoogleJsonResponseException) {
@@ -43,7 +45,9 @@ internal class GooglePurchaseVerifier(
         /** Called only when a host explicitly supplies authorized service credentials. */
         fun withCredentials(packageName: String, products: Set<String>, sandbox: Boolean, credentials: GoogleCredentials): GooglePurchaseVerifier {
             val scoped = credentials.createScoped(listOf("https://www.googleapis.com/auth/androidpublisher"))
-            val client = AndroidPublisher.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), HttpCredentialsAdapter(scoped))
+            val adapter = HttpCredentialsAdapter(scoped)
+            val initializer = HttpRequestInitializer { request -> adapter.initialize(request); request.connectTimeout = 30_000; request.readTimeout = 30_000 }
+            val client = AndroidPublisher.Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(), initializer)
                 .setApplicationName("GameBridge SDK").build()
             return configured(packageName, products, sandbox, client)
         }

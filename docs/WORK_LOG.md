@@ -418,3 +418,14 @@
 - 공통 fixture를 C# DTO로 읽는 독립 smoke 종료 0: 한글·emoji, 64-bit 문자열, unknown enum 및 필수 nullable 누락 검사. 검토 중 JSON.NET이 숫자를 문자열로 암묵 변환할 수 있으므로 wire JSON 타입과 민감 오류 세부정보를 추가 검증한다.
 - C# wire model에 JSON 타입·필수 nullable·enum·UUID·64-bit 문자열 및 UTC 시각 검증과 공개 오류 정보 정제를 추가하고 독립 smoke 종료 0. 숫자형 priceMicros·unknown enum·누락 필드 거부 확인. Unity Editor/IL2CPP 검증은 아님.
 - 커밋 전: Editor-only 메모리 Fake, transport 공통 interface 및 C# 모델 검증을 포함. Unity facade·main-thread dispatcher·실제 native operation과 이벤트 처리 미완료로 P03-T05 PARTIAL 유지.
+- P03-T05 계속: 캐시 snapshot을 반환하는 C# facade와 main-thread Pump 소유자를 작성한다. Native bridge의 미구현 operation은 성공으로 치환하지 않는다.
+- `check-csharp-compile.sh` 종료 0: 새 C# client facade가 Android/iOS/Editor 조건에서 각각 독립 컴파일. 구현 검토 중 초기 상태를 임의 Editor 모드로 표시하는 문제와 초기화 전 취소·빈 상태 shutdown 뒤 새 session ID 필요성을 발견해 보정한다.
+- 초기 상태 Mode를 미정(null)으로 표현하고, 이미 취소된 초기화는 dispatch하지 않으며, 초기화 전 shutdown 이후 새 wire session을 사용하도록 보정. Android/iOS/Editor C# 독립 컴파일 재실행 종료 0. facade 동작 smoke는 다음에 확인한다.
+- 확장한 `smoke-csharp-registry.sh` 종료 1: smoke 코드의 지역 변수 중복으로 C# 컴파일 실패(제품 코드 검증 전). 변수명을 분리하고 불필요한 미대기 경고도 수정 후 재실행한다.
+- smoke 코드 변수 중복을 수정한 뒤 `smoke-csharp-registry.sh` 종료 0: C# facade의 Fake 로그인·상품·구매·잔액·복원·종료, 동일 초기화 합류, 호출자별 취소 및 종료 뒤 새 session ID 확인. Unity runtime은 미실행.
+- `check-csharp-compile.sh` 종료 1: 독립 컴파일 프로젝트에서 Unity.Scripting reference가 빠져 RuntimeInitializeOnLoadMethod의 PreserveAttribute를 찾지 못했다. 실제 Unity Editor 오류로 간주하지 않고 설치된 reference 위치를 확인한다.
+- Unity.Scripting reference를 추가한 재검사: Android/iOS 분기 컴파일 성공, Editor 분기에서 platform namespace가 조건부로 사라져 컴파일 실패(종료 1). 조건부 using을 수정한다.
+- 조건부 using 수정 후 Android/iOS/Editor 세 C# 분기 독립 컴파일 종료 0, 경고·오류 0. Unity Editor import/재생 및 domain reload 검증은 여전히 미실행이다.
+- domain reload 정적 초기화에서 이전 driver를 분리·파괴하도록 보정하고 Android/iOS/Editor/미지원 플랫폼 네 C# 분기 독립 컴파일 종료 0, 경고 0. 실제 Unity domain reload/scene 전환은 ENV-002로 검증하지 않았다.
+- 최종 `smoke-csharp-registry.sh` 종료 0: C# facade·Editor Fake 경로와 request registry 동작 재확인. 이는 .NET 독립 테스트이며 Unity Editor 실행·Native operation 연동이 아니다.
+- 커밋 전: C# client facade 및 단일 main-thread driver 기반만 포함. capabilities·push·sync·이벤트 공용 facade 일부와 Native init/auth/purchase 연결, Unity scene/domain reload·IL2CPP 검증은 미완료이므로 P03-T05 PARTIAL 유지.

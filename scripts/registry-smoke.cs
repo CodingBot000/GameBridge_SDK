@@ -7,6 +7,20 @@ using Newtonsoft.Json.Linq;
 
 internal static class Program
 {
+    private sealed class HeldTransport : IWireTransport
+    {
+        public event Action<string> Message;
+        internal readonly List<JObject> Requests = new List<JObject>();
+        public void Dispatch(string json) { Requests.Add(JObject.Parse(json)); }
+        public void Pump() { }
+        public void Dispose() { Message = null; }
+        internal void Reply(JObject request, JObject result)
+        {
+            Message?.Invoke(new JObject { ["protocolVersion"] = 1, ["sdkSessionId"] = request["sdkSessionId"], ["kind"] = "response",
+                ["requestId"] = request["requestId"], ["operation"] = request["operation"], ["ok"] = true,
+                ["result"] = result, ["error"] = JValue.CreateNull() }.ToString(Newtonsoft.Json.Formatting.None));
+        }
+    }
     private static void Check(bool condition, string label) { if (!condition) throw new Exception(label); }
     private static async Task Expect(string code, Task task)
     {
@@ -93,6 +107,38 @@ internal static class Program
         var stopped = await fakeRegistry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(2));
         Check((string)stopped["state"] == "SHUTDOWN", "shutdown status");
         fakeRegistry.Dispose(); fake.Dispose();
-        Console.WriteLine("Registry and offline fake smoke passed; no Unity runtime or real provider tested");
+        var config = new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.EditorOffline, null);
+        var facade = new GameBridge.GameBridgeClient(new EditorOfflineTransport());
+        Check(facade.GetStatus().Mode == null, "initial mode unknown");
+        await facade.InitializeAsync(config);
+        Check(facade.GetStatus().State == "READY", "facade initialized");
+        var profile = await facade.SignInAsync(GameBridge.AuthProvider.MOCK); Check(profile.provider == "MOCK", "facade sign-in");
+        Check((await facade.GetProductsAsync()).Count == 2, "facade products");
+        var purchase = await facade.PurchaseAsync("coins_100"); Check(purchase.fulfillmentStatus == GameBridge.FulfillmentStatus.GRANTED, "facade fake purchase");
+        Check((await facade.GetEntitlementsAsync()).coinBalance == "100", "facade wallet");
+        Check((await facade.RestoreSessionAsync()).signedIn, "facade restore");
+        await facade.SignOutAsync(); await facade.ShutdownAsync(); await facade.ShutdownAsync();
+        Check(facade.GetStatus().State == "SHUTDOWN", "facade shutdown");
+        await facade.InitializeAsync(config); facade.Dispose();
+        var held = new HeldTransport(); var concurrent = new GameBridge.GameBridgeClient(held);
+        using (var callerCancellation = new CancellationTokenSource())
+        {
+            var firstInit = concurrent.InitializeAsync(config, callerCancellation.Token);
+            var secondInit = concurrent.InitializeAsync(config);
+            Check(held.Requests.Count == 1, "same configuration joins initialization");
+            try { _ = concurrent.InitializeAsync(new GameBridge.GameBridgeConfig("other", GameBridge.ProviderMode.EditorOffline, null)); throw new Exception("different config accepted"); }
+            catch (SdkException error) { Check(error.Code == "ALREADY_INITIALIZED_DIFFERENT_CONFIG", "different config"); }
+            callerCancellation.Cancel(); await Expect("CANCELED", firstInit);
+            held.Reply(held.Requests[0], new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE" });
+            await secondInit;
+            var oldSession = (string)held.Requests[0]["sdkSessionId"];
+            var shutdown = concurrent.ShutdownAsync();
+            held.Reply(held.Requests[1], new JObject { ["state"] = "SHUTDOWN" }); await shutdown;
+            var reinit = concurrent.InitializeAsync(config);
+            Check((string)held.Requests[2]["sdkSessionId"] != oldSession, "new session after shutdown");
+            held.Reply(held.Requests[2], new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE" }); await reinit;
+        }
+        concurrent.Dispose();
+        Console.WriteLine("Registry, facade and offline fake smoke passed; no Unity runtime or real provider tested");
     }
 }

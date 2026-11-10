@@ -21,10 +21,14 @@ cat > "$root/artifacts/csharp-check/BridgeCheck.csproj" <<'PROJECT'
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/WireModels.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Models.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeSdk.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/IWireTransport.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs" />
     <Reference Include="Newtonsoft.Json"><HintPath>$(GAMEBRIDGE_NEWTONSOFT_DLL)</HintPath></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(GAMEBRIDGE_UNITY_MANAGED)/UnityEngine.CoreModule.dll</HintPath></Reference>
+    <Reference Include="Unity.Scripting"><HintPath>$(GAMEBRIDGE_UNITY_MANAGED)/Unity.Scripting.dll</HintPath></Reference>
     <Reference Include="UnityEngine.AndroidJNIModule"><HintPath>$(GAMEBRIDGE_UNITY_MANAGED)/UnityEngine.AndroidJNIModule.dll</HintPath></Reference>
   </ItemGroup>
 </Project>
@@ -37,3 +41,4 @@ if [[ ! -f "$GAMEBRIDGE_NEWTONSOFT_DLL" ]]; then echo 'CONFIG_REQUIRED: NEWTONSO
 "$dotnet" build "$root/artifacts/csharp-check/BridgeCheck.csproj" -p:DefineConstants=UNITY_ANDROID --nologo
 "$dotnet" build "$root/artifacts/csharp-check/BridgeCheck.csproj" -p:DefineConstants=UNITY_IOS --nologo
 "$dotnet" build "$root/artifacts/csharp-check/BridgeCheck.csproj" -p:DefineConstants=UNITY_EDITOR --nologo
+"$dotnet" build "$root/artifacts/csharp-check/BridgeCheck.csproj" -p:DefineConstants=GAMEBRIDGE_UNSUPPORTED_PLATFORM --nologo

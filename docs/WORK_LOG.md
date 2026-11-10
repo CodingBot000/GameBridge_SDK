@@ -1659,3 +1659,10 @@
 - 사용자가 LOCAL_MOCK push는 앱 연결 중에만 전달하고 미연결 시 버리도록 결정했다. 실제 FCM/APNs에는 적용하지 않는다. 구현은 아직 시작 전이며 `docs/DECISIONS.md`에 기록했다.
 - Android Maven 강제 재빌드 및 별도 R8 consumer 45개 task 실행 성공, iOS device/simulator XCFramework archive 성공, 새 UPM staging checksum 전체 통과. Unity import 및 새 iOS 독립 consumer 실행은 미검증이다.
 - 커밋 준비: 산출물 SHA-256 manifest, 사용자 푸시 정책 및 검증 증거만 기록한다. 기존 산출물과 미추적 사용자 파일은 보존한다.
+
+### [P06-T05] BUG-014 전달 구현 시작
+- 사용자가 승인한 LOCAL_MOCK 연결 중 전달·미연결 폐기 정책으로 서버의 연결 기반 전송부터 구현한다. 실제 FCM/APNs 경로와 분리하고 인증·installation 소유권 및 로그아웃 후 차단을 유지한다. Native와 Unity 연결 및 E2E 전까지 미완료다.
+### P06-T05 연결 기반 broker 검증 시작
+- 메시지를 저장하지 않는 LOCAL_MOCK broker의 사용자·앱·installation 분리 및 미연결 폐기, 실패 구독 정리를 단위 시험한다. 서버 HTTP와 Native 수신 연결은 아직 없다.
+- `backend/gradlew -p backend test --tests com.gamebridge.push.MockPushBrokerTest --rerun-tasks` 종료 0: 2건 통과. 기존 Jackson/FCM deprecation 경고가 출력됐다. HTTP/Native 수신 미구현으로 BUG-014 OPEN.
+- 커밋 준비: 사용자가 승인한 무보관 broker 및 단위 시험만 저장하고 나머지 경로를 계속 연결한다.

@@ -1000,3 +1000,7 @@
 - local-mock 진짜 HTTP/security/DB 시험 통과: key·allowlist·소유권 거부와 10회 이후 429 확인. 429의 retryable flag를 true로 보정하고 production route 미등록도 검증한다.
 - local-mock 실제 HTTP 및 production web slice 총 2건 통과(skip 0): 사용자 인증·별도 admin·allowlist·소유권·분당 10회, production route 404. local-mock은 SIMULATED이고 sandbox sender는 fail-closed다.
 - 커밋 전: 개발 endpoint 접근 통제와 mock 응답만 포함한다. sandbox 실제 sender, retry worker 및 전체 push 전달·클릭 smoke는 미완료로 P02-T05/P06-T04 PARTIAL 유지.
+- P06-T04 계속: 실제 발송 중 폐기된 토큰은 삭제가 아니라 비활성화하고, 오래된 응답이 새로 회전한 토큰을 비활성화하지 않게 hash 조건을 둔다. 재시도 worker 동시성은 사용자 선택을 기다린다.
+- nullable invalidation migration과 hash 조건부 비활성화/재등록 해제를 작성했다. sandbox synthetic rotation race를 HTTP/DB로 검증한다.
+- sandbox synthetic HTTP/DB 시험 통과(skip 0): 회전 전 hash의 늦은 invalidation은 새 토큰에 영향 없고, 현재 hash는 비활성화되며 재등록 시 해제된다. 실제 FCM/APNs invalid response는 아직 미실행이다.
+- 커밋 전: nullable migration·조건부 invalidation 및 회귀시험만 포함한다. sender 연결과 동시성 정책은 미완료다.

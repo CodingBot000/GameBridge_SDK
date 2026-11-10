@@ -40,7 +40,7 @@ internal class DeviceRegistrationController(private val db: JdbcTemplate, privat
             val encrypted = cipher.encrypt(input.token, "$app:$mode:${input.platform}:$installationId")
             db.update("""INSERT INTO device_tokens(app_id,environment,platform,installation_id,user_id,provider,token_encrypted,token_hash,updated_at,session_id)
                 VALUES (?,?,?,?,?,?,?,?,now(),?) ON CONFLICT (app_id,environment,platform,installation_id) DO UPDATE SET
-                user_id=excluded.user_id,provider=excluded.provider,token_encrypted=excluded.token_encrypted,token_hash=excluded.token_hash,updated_at=now(),session_id=excluded.session_id
+                user_id=excluded.user_id,provider=excluded.provider,token_encrypted=excluded.token_encrypted,token_hash=excluded.token_hash,updated_at=now(),session_id=excluded.session_id,invalidated_at=NULL
                 WHERE device_tokens.user_id IS NULL OR device_tokens.user_id=excluded.user_id""",
                 app, mode, input.platform, installationId, principal.userId, input.provider, encrypted, hash, principal.sessionId)
         } ?: 0

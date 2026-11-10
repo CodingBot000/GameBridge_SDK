@@ -62,7 +62,7 @@ class MockDevicesController(private val db: JdbcTemplate, private val cipher: To
             db.update("""INSERT INTO device_tokens(app_id,environment,platform,installation_id,user_id,provider,token_encrypted,token_hash,updated_at,session_id)
             VALUES (?, 'local-mock', 'MOCK', ?, ?, 'MOCK', ?, ?, now(), ?)
             ON CONFLICT (app_id,environment,platform,installation_id) DO UPDATE SET user_id=excluded.user_id,
-              token_encrypted=excluded.token_encrypted,token_hash=excluded.token_hash,updated_at=now(),session_id=excluded.session_id
+              token_encrypted=excluded.token_encrypted,token_hash=excluded.token_hash,updated_at=now(),session_id=excluded.session_id,invalidated_at=NULL
             WHERE device_tokens.user_id IS NULL OR device_tokens.user_id=excluded.user_id""", input.appId, installationId, user, encrypted, hash, principal.sessionId)
         } ?: 0
         if (count != 1) throw ResponseStatusException(HttpStatus.FORBIDDEN)

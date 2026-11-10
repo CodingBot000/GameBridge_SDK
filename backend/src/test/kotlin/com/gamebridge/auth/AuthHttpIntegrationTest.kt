@@ -1,6 +1,7 @@
 package com.gamebridge.auth
 
 import com.gamebridge.push.TokenCipher
+import com.gamebridge.push.PushTokenInvalidator
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
@@ -52,6 +53,7 @@ class AuthHttpIntegrationTest {
     @Autowired lateinit var rest: TestRestTemplate
     @Autowired lateinit var db: JdbcTemplate
     @Autowired lateinit var tokenCipher: TokenCipher
+    @Autowired internal lateinit var invalidator: PushTokenInvalidator
     companion object {
         @JvmStatic @DynamicPropertySource fun properties(registry: DynamicPropertyRegistry) {
             registry.add("DATABASE_URL") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_URL")) }
@@ -108,6 +110,16 @@ class AuthHttpIntegrationTest {
         assertFalse(encrypted.toString(Charsets.ISO_8859_1).contains("synthetic-fcm-token"))
         assertEquals("synthetic-fcm-token", tokenCipher.decrypt(encrypted, "test-app:sandbox:ANDROID:$installation"))
         assertFails { tokenCipher.decrypt(encrypted, "other-app:sandbox:ANDROID:$installation") }
+        val userId = UUID.fromString(session["userId"] as String)
+        val oldHash = MessageDigest.getInstance("SHA-256").digest("synthetic-fcm-token".toByteArray())
+        val rotatedBody = pushBody + ("token" to "synthetic-fcm-token-rotated")
+        assertEquals(200, rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT, HttpEntity(rotatedBody, headers), Map::class.java).statusCode.value())
+        assertFalse(invalidator.invalidate("test-app", "sandbox", "ANDROID", installation, userId, oldHash))
+        val newHash = MessageDigest.getInstance("SHA-256").digest("synthetic-fcm-token-rotated".toByteArray())
+        assertTrue(invalidator.invalidate("test-app", "sandbox", "ANDROID", installation, userId, newHash))
+        assertEquals(true, db.queryForObject("SELECT invalidated_at IS NOT NULL FROM device_tokens WHERE installation_id=? AND platform='ANDROID'", Boolean::class.java, installation))
+        assertEquals(200, rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT, HttpEntity(pushBody, headers), Map::class.java).statusCode.value())
+        assertEquals(false, db.queryForObject("SELECT invalidated_at IS NOT NULL FROM device_tokens WHERE installation_id=? AND platform='ANDROID'", Boolean::class.java, installation))
         val iosBody = mapOf("token" to "synthetic-apns-token", "provider" to "APNS", "platform" to "IOS")
         assertEquals(200, rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT, HttpEntity(iosBody, headers), Map::class.java).statusCode.value())
         assertEquals(2, db.queryForObject("SELECT COUNT(*) FROM device_tokens WHERE installation_id=?", Int::class.java, installation))

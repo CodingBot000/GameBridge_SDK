@@ -2329,3 +2329,9 @@
 - source e9b64fb + 문서 변경 strict `artifacts/verify-all-k8z14qqw/summary.md` 종료 1: R34 process recovery와 실행된 local/synthetic suite PASS; Unity Editor NOT_RUN, Unity push DEFERRED_ENV, PARTIAL 시나리오 및 기존 실패로 전체 FAIL. 실제 제공자 13개 WAITING_USER.
 - R20 Android/iOS revoke 실패·token 삭제 assertion을 auth-regression manifest에 연결했다. 실제 네트워크·Unity 검증은 별도로 유지한다. manifest 및 원장 검증을 실행한다.
 - R20 manifest 검사와 음성·원장 검사 PASS. 커밋 준비: 최신 패키지 hash·strict 결과·R20 증거 매핑 및 감사 기록만 저장한다. strict 실행은 매핑 전이므로 최신 manifest 기준 전체 재실행으로 주장하지 않는다.
+### P11-T01 소스 미완성 표식 재감사 시작
+- 제품 소스의 TODO/FIXME·unsupported 경로와 원장의 제한 사항을 대조한다. 테스트 fixture와 명시 범위 제외는 구분한다.
+- Android/iOS/Backend/Unity 제품 경로에서 TODO·FIXME·NotImplementedException·fatalError 표식은 검색되지 않았다. unsupported/config-required 분기는 별도 계약·제한으로 남아 있고, 표식 부재를 전체 구현 완료로 취급하지 않는다.
+- e9b64fb iOS simulator slice를 별도 Swift consumer source에서 link한다. 실행·서명·Unity link 시험은 아니다.
+- `xcrun --sdk iphonesimulator swiftc ... ios/consumer-check/main.swift` 종료 0. 별도 Swift consumer의 arm64 simulator link만 확인했다.
+- 커밋 준비: TODO 감사 및 최신 iOS consumer link 결과와 FINAL_REPORT 갱신. 새 제품 동작이나 실제 플랫폼 PASS는 주장하지 않는다.

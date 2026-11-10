@@ -48,7 +48,7 @@ XCFramework arch·C ABI 선검사를 적용해 다시 staging한 최신 UPM은 `
 
 최신 제품 소스 `2bc9d77`에서 Android Maven `artifacts/maven-2bc9d77`, iOS XCFramework `artifacts/ios-2bc9d77/GameBridgeNative.xcframework`, UPM staging `artifacts/upm-2bc9d77`을 재생성했다. Android R8 consumer, iOS arch별 C ABI 및 UPM checksum은 통과했다. [산출물 해시](evidence/artifacts-2bc9d77.json); Unity import 및 실기기는 미실행이다.
 
-최신 iOS 수정 반영본은 source `e9b64fb`의 `artifacts/ios-e9b64fb/GameBridgeNative.xcframework`, `artifacts/upm-e9b64fb`이며 [파일별 SHA-256](evidence/artifacts-e9b64fb.json)을 기록했다. Android 트리는 `2bc9d77` 이후 변경이 없어 해당 Maven R8 consumer 산출물을 재사용했다. iOS arch별 C ABI 및 UPM checksum은 통과했고 Unity import·실기기는 미실행이다.
+최신 iOS 수정 반영본은 source `e9b64fb`의 `artifacts/ios-e9b64fb/GameBridgeNative.xcframework`, `artifacts/upm-e9b64fb`이며 [파일별 SHA-256](evidence/artifacts-e9b64fb.json)을 기록했다. Android 트리는 `2bc9d77` 이후 변경이 없어 해당 Maven R8 consumer 산출물을 재사용했다. iOS arch별 C ABI, arm64 simulator 독립 Swift consumer link 및 UPM checksum은 통과했고 Unity import·실기기는 미실행이다.
 
 ## 주요 이력과 재개
 

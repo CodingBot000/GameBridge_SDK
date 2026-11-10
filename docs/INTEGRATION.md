@@ -37,3 +37,5 @@ Android/iOS LOCAL_MOCK은 별도 암호화 저장소에 pending transaction/atte
 Unity Android에서 host manifest는 `POST_NOTIFICATIONS`를 선언해야 한다. SDK 초기화는 권한 창을 열지 않으며 `RequestPushPermissionAsync()` 호출 시 Android 13 이상에서 Unity permission API를 사용한다. 권한과 앱 전체 알림 설정은 등록 전에 다시 확인한다. 이 경로는 managed compile/fake facade만 확인했고 실제 Unity/Android dialog는 미검증이다.
 
 LOCAL_MOCK의 push permission은 OS에 요청하지 않는 simulated 결과다. 명시적 installation UUID가 있으면 Native가 가짜 token을 local Backend에 등록하고 unregister/logout에서 삭제한다. local DB 검증은 통과했지만 개발 send 응답을 client 이벤트까지 전달하는 E2E는 아직 구현하지 않았다.
+
+Sandbox의 `GetServiceConfigAsync()`와 Native 구매 gate는 같은 Backend-backed TTL cache를 사용한다. 유효 cache가 없고 서버 설정을 읽지 못하면 신규 구매를 차단한다. 이 조립과 CACHE 응답은 fake 시험 및 compile로 확인했으며 실제 sandbox 서버·Unity player는 별도 검증이 필요하다.

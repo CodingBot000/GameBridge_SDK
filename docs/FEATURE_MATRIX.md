@@ -10,7 +10,7 @@
 | 구매 복구 | fake | 양 Native Mock의 암호화 pending 단서·sync, Play/StoreKit recovery 및 동일 계정 single-flight | local DB 응답 유실 모사와 Android emulator Keystore/iOS simulator Keychain 인스턴스 재생성 확인. 실기기 프로세스 재시작·Unity player·실제 스토어 복구 미실행 (BUG-009 OPEN) |
 | push 권한·등록·해제 | fake | LOCAL_MOCK simulated 등록, Android FCM 및 iOS host-managed APNs sandbox 등록 코드 | Mock local DB의 unregister/logout 즉시 삭제, synthetic provider 시험·컴파일. 실제 권한 dialog/원격 FCM·APNs/Unity player 미실행 |
 | push 수신·열기 | fake UI 경로 일부 | Android host forwarding/메모리 cold-start queue, iOS Unity Notifications host adapter 및 C ABI route 연결 | allowlist·중복·session fake 시험. host 앱에 service/Activity forwarding 필요, 실제 원격 알림 및 Unity player 미실행 |
-| 점검 설정 | fake default | LOCAL_MOCK 서버 조회·유효 cache와 구매 차단 연결; sandbox `config.get` 공개 bridge 미연결 | server/fake 및 local HTTP→Unity decoder 확인. sandbox Native 상점의 구매 gate는 별도 연결됨 |
+| 점검 설정 | fake default | LOCAL_MOCK 및 sandbox 서버 조회·유효 cache와 구매 gate 연결 | server/fake 및 local HTTP→Unity decoder 확인. sandbox 공개 조회와 구매 gate는 같은 Native cache를 사용하며 실제 sandbox/Unity player는 미검증 |
 | 진단 | C# registry snapshot | Native 진단 ring과 Unity 공개 snapshot 전체 연결 미완료 | Native typed ring 단위 시험 일부 |
 | 샘플 | Editor Offline UGUI 소스 | Android/iOS Native sample과 별도 UPM Native Demo 소스 | Native Mock sample의 과거 simulator/emulator UI 일부, 최신 UPM sample은 managed compile만 확인. Unity scene 렌더링 및 Native player는 ENV-002 대기 |
 | 패키지 | UPM staging·export hooks | Android Maven/AAR, iOS static XCFramework script | 과거 산출물의 별도 소비 compile과 hook 시험은 있으나 최근 소스 변경 후 staging 재생성·Unity import/export 미완료 |

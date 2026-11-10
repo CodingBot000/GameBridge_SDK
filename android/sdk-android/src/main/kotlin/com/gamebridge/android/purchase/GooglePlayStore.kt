@@ -3,6 +3,8 @@ package com.gamebridge.android.purchase
 import android.app.Activity
 import android.content.Context
 import com.gamebridge.BackendClient
+import com.gamebridge.EffectiveServiceSettings
+import com.gamebridge.backendServiceConfiguration
 import com.gamebridge.EntitlementSnapshot
 import com.gamebridge.GameBridgeConfig
 import com.gamebridge.ProviderMode
@@ -46,6 +48,24 @@ class GooglePlayStore internal constructor(private val auth: GoogleAuthProvider,
         return GoogleRecoveryCounts(counts.examined, counts.recovered, counts.deferred, counts.failed)
     }
     override fun close() { provider.close() }
+}
+
+/** Shares one Backend-backed maintenance cache between public config and store operations. */
+class GoogleStoreSession private constructor(private val context: Context, private val config: GameBridgeConfig,
+                                             private val auth: GoogleAuthProvider, private val client: BackendClient) {
+    private val serviceConfig = backendServiceConfiguration(client)
+    companion object {
+        @JvmStatic fun create(context: Context, config: GameBridgeConfig, auth: GoogleAuthProvider): GoogleStoreSession {
+            if (config.mode != ProviderMode.PLATFORM_SANDBOX || !auth.usesConfiguration(config)) throw SdkFailure("CONFIG_REQUIRED")
+            config.validate()
+            return GoogleStoreSession(context.applicationContext, config, auth, BackendClient(config))
+        }
+    }
+    fun createStore(productIds: Map<String, String>): GooglePlayStore {
+        validateGoogleStoreConfiguration(config, auth, productIds)
+        return GooglePlayStore(auth, client, GoogleStoreRuntime.create(context, auth, client, productIds, serviceConfig = serviceConfig))
+    }
+    suspend fun serviceSettings(): EffectiveServiceSettings = serviceConfig.current() ?: throw SdkFailure("CONFIG_REQUIRED")
 }
 
 private val entitlementJson = Json { ignoreUnknownKeys = true }

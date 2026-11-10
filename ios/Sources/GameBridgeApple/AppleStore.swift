@@ -25,10 +25,10 @@ public final class AppleStore {
         guard auth.usesConfiguration(config) else { throw SdkFailure("CONFIG_REQUIRED") }
         try self.init(auth: auth, client: BackendClient(config: config), productIds: productIds)
     }
-    internal init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String]) throws {
+    internal init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String], serviceConfig: ServiceConfigurationRepository? = nil) throws {
         self.auth = auth; self.client = client
         let updates = AppleStoreUpdates(); self.updates = updates
-        runtime = try AppleStoreRuntime(auth: auth, client: client, productIds: productIds) { productId, grant in
+        runtime = try AppleStoreRuntime(auth: auth, client: client, productIds: productIds, serviceConfig: serviceConfig) { productId, grant in
             updates.handler?(AppleStorePurchaseResult(productId: productId, status: .purchased,
                 serverPurchaseId: grant.serverPurchaseId, fulfillmentStatus: grant.fulfillmentStatus))
         }
@@ -57,4 +57,23 @@ public final class AppleStore {
     public func recoverDetailed(userInitiated: Bool) async throws -> AppleRecoveryCounts { try await runtime.recoverDetailed(userInitiated: userInitiated) }
     public func restore() async throws { try await runtime.userRestore() }
     public func stop() { updates.handler = nil; runtime.stop() }
+}
+
+/// Shares a Backend-backed maintenance cache between config queries and StoreKit purchases.
+@MainActor public final class AppleStoreSession {
+    private let auth: AppleAuthProvider
+    private let client: BackendClient
+    private let serviceConfig: ServiceConfigurationRepository
+    public init(auth: AppleAuthProvider, config: GameBridgeConfig) throws {
+        guard config.mode == .platformSandbox, auth.usesConfiguration(config) else { throw SdkFailure("CONFIG_REQUIRED") }
+        let client = try BackendClient(config: config)
+        self.auth = auth; self.client = client; self.serviceConfig = backendServiceConfiguration(client)
+    }
+    public func createStore(productIds: [String: String]) throws -> AppleStore {
+        try AppleStore(auth: auth, client: client, productIds: productIds, serviceConfig: serviceConfig)
+    }
+    public func serviceSettings() async throws -> EffectiveServiceSettings {
+        guard let value = try await serviceConfig.current() else { throw SdkFailure("CONFIG_REQUIRED") }
+        return value
+    }
 }

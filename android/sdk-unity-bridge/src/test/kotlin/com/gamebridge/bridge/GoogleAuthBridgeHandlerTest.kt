@@ -45,6 +45,7 @@ class GoogleAuthBridgeHandlerTest {
             override suspend fun signOut() {}
             override suspend fun purchase(productId: String) = PurchaseStatus.VERIFICATION_PENDING
             override suspend fun recoverDetailed() = GoogleRecoveryCounts(4, 1, 2, 1)
+            override suspend fun serviceSettings() = EffectiveServiceSettings(ServiceSettings("42", true, null, java.time.Instant.parse("2099-01-01T00:00:00Z")), ConfigurationSource.CACHE)
             override suspend fun entitlements() = EntitlementSnapshot("d2719c4e-d533-47ee-9efd-838791ea79c8", false, "100", "1", "2026-01-01T00:00:00Z")
             override fun close() {}
         }
@@ -61,6 +62,9 @@ class GoogleAuthBridgeHandlerTest {
         assertEquals("VERIFICATION_PENDING", purchase.getValue("status").jsonPrimitive.content)
         assertEquals("NOT_GRANTED", purchase.getValue("fulfillmentStatus").jsonPrimitive.content)
         assertEquals(JsonNull, purchase.getValue("serverPurchaseId"))
+        val configResult = handler.invoke("config.get", buildJsonObject {}).jsonObject
+        assertEquals("CACHE", configResult.getValue("source").jsonPrimitive.content)
+        assertTrue(configResult.getValue("maintenanceEnabled").jsonPrimitive.boolean)
         val sync = handler.invoke("store.sync", buildJsonObject { put("reason", "APP_RESUME") }).jsonObject
         assertEquals(4, sync.getValue("examinedCount").jsonPrimitive.int)
         assertEquals(2, sync.getValue("deferredCount").jsonPrimitive.int)

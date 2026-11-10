@@ -6,6 +6,7 @@ import com.gamebridge.BridgeDispatchResult
 import com.gamebridge.LocalMockBridgeHandler
 import com.gamebridge.android.auth.GoogleAuthProvider
 import com.gamebridge.android.purchase.GooglePlayStore
+import com.gamebridge.android.purchase.GoogleStoreSession
 import com.gamebridge.android.purchase.GoogleStoreEvent
 import com.gamebridge.android.push.GooglePushClient
 import com.gamebridge.android.push.AndroidPushHostAdapter
@@ -48,6 +49,7 @@ object BridgeFacade {
         val activity = host?.get() ?: throw com.gamebridge.SdkFailure("NOT_INITIALIZED")
         val provider = GoogleAuthProvider.create(activity.applicationContext, config, KeystoreTokenStore(activity.applicationContext, "unity_google"))
         val push = installationId?.let { GooglePushClient.create(provider, config, it) }
+        val serviceSession = GoogleStoreSession.create(activity.applicationContext, config, provider)
         object : GoogleAuthBridgeApi {
             private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
             private var store: GooglePlayStore? = null
@@ -56,7 +58,7 @@ object BridgeFacade {
             private fun activeStore(): GooglePlayStore {
                 val current = host?.get() ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "HOST_ACTIVITY")
                 val ids = productIds ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
-                return (store ?: GooglePlayStore.create(current.applicationContext, config, provider, ids).also { created ->
+                return (store ?: serviceSession.createStore(ids).also { created ->
                     val emitter = purchaseEmitter()
                     eventJob = scope.launch(start = CoroutineStart.UNDISPATCHED) { created.events.collect { emitter(it) } }
                     store = created
@@ -74,6 +76,7 @@ object BridgeFacade {
             override suspend fun purchase(productId: String) = activeStore().purchase(productId)
             override suspend fun entitlements() = activeStore().entitlements()
             override suspend fun recoverDetailed() = activeStore().recoverDetailed()
+            override suspend fun serviceSettings() = serviceSession.serviceSettings()
             override suspend fun registerPush(): String {
                 val target = push ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
                 val current = host?.get() ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "HOST_ACTIVITY")

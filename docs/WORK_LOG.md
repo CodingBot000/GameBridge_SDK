@@ -1434,3 +1434,13 @@
 - Task 시작: 기존 matrix가 Native bridge·config cache를 미구현으로 표시해 현재 코드와 어긋나므로 호출 경로와 실제 검증 범위를 다시 대조한다. 최종 P11 완료 감사와 혼동하지 않는다.
 - Android/iOS Mock·실 Provider bridge, push, config, sample, packaging의 실제 호출 경로와 WORK_LOG 증거를 대조해 오래된 matrix를 수정했다. 검증은 코드/기록 검토이며 새 플랫폼 실행은 아니다.
 - 커밋 전: 기능 matrix 상태 문서만 포함한다. P11 최종 감사나 전체 완료로 표시하지 않는다.
+
+### [P07-T01] Sandbox config 공개 bridge
+- Task 시작: Android/iOS sandbox의 `config.get`을 Native 상점의 점검 gate와 같은 서버 설정 repository에 연결한다. 캐시 부재 시 사용자 결정대로 신규 구매를 막고, 실패를 정상 상태로 바꾸지 않는다.
+- Android에 인증 설정이 일치하는 Backend 전용 GoogleStoreSession을 추가해 공개 config 조회와 구매 gate가 같은 cache를 사용하도록 했다. 임의 fake cache를 실제 store에 주입하는 공개 경로는 만들지 않는다. Android compile/fake 시험을 진행한다.
+- `:sdk-android:testDebugUnitTest :sdk-unity-bridge:testDebugUnitTest :sdk-unity-bridge:assembleDebug` 종료 0: 기존 Native/bridge fake 시험과 AAR compile 통과. sandbox config 값 전달과 iOS 동등 경로는 이어서 검증한다.
+- iOS에도 인증·Backend 구성이 일치하는 AppleStoreSession을 추가하여 공개 config와 StoreKit 구매 gate가 같은 Backend-backed cache를 공유하도록 했다. Swift compile과 fake config 경계를 확인한다.
+- Swift `AppleAuthBridgeTests` 3건, `AppleAuthProviderTests` 13건 종료 0. 기존 fake 인증·상점·점검 회귀이며 새 config.get response와 공유 cache 동작은 별도 확인한다.
+- `:sdk-unity-bridge:testDebugUnitTest` 종료 0, Swift `AppleAuthBridgeTests` 3건 및 config 일치 store test 1건 종료 0: fake CACHE·점검 상태 전달과 다른 Backend 설정 거부를 확인했다. 실제 sandbox Backend/Unity 왕복은 미실행이다. iOS simulator compile을 확인한다.
+- `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. UIKit/StoreKit 포함 무서명 compile이며 실제 sandbox 서버·기기·Unity player 검증은 아니다.
+- 커밋 전: sandbox config.get과 Native 구매 gate의 Backend-backed cache 공유 코드 및 fake/compile 증거만 포함한다. 실제 sandbox와 Unity 실행은 미검증이다.

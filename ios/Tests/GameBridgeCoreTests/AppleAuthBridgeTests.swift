@@ -22,6 +22,9 @@ import GameBridgeCore
     }
     func registerPush(tokenHex: String) async throws -> String { receivedToken = tokenHex; return "abcdef123456" }
     func unregisterPush() async throws { pushUnregistered = true }
+    func serviceSettings() async throws -> (ServiceSettings, ConfigurationSource) {
+        (ServiceSettings(revision: "42", maintenanceEnabled: true, message: nil, expiresAt: Date(timeIntervalSince1970: 4070908800)), .cache)
+    }
     func close() { closed = true }
 }
 final class AppleAuthBridgeTests: XCTestCase {
@@ -50,6 +53,8 @@ final class AppleAuthBridgeTests: XCTestCase {
         XCTAssertEqual(pending?["status"] as? String, "VERIFICATION_PENDING")
         XCTAssertEqual(pending?["fulfillmentStatus"] as? String, "NOT_GRANTED")
         XCTAssertTrue(pending?["serverPurchaseId"] is NSNull)
+        let configuration = try await handler.invoke("config.get", payload: [:]) as? [String: Any]
+        XCTAssertEqual(configuration?["source"] as? String, "CACHE"); XCTAssertEqual(configuration?["maintenanceEnabled"] as? Bool, true)
         let resume = try await handler.invoke("store.sync", payload: ["reason": "APP_RESUME"]) as? [String: Any]
         XCTAssertEqual(resume?["examinedCount"] as? Int, 3)
         XCTAssertEqual((resume?["entitlements"] as? [String: Any])?["coinBalance"] as? String, "100")

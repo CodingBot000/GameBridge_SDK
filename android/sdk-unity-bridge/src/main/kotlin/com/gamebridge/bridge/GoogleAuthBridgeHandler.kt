@@ -17,6 +17,7 @@ internal interface GoogleAuthBridgeApi {
     suspend fun registerPush(): String = throw SdkFailure("CONFIG_REQUIRED")
     suspend fun registerPushToken(token: String): String = throw SdkFailure("CONFIG_REQUIRED")
     suspend fun unregisterPush(): Unit = throw SdkFailure("CONFIG_REQUIRED")
+    suspend fun serviceSettings(): EffectiveServiceSettings = throw SdkFailure("CONFIG_REQUIRED")
     fun close()
 }
 
@@ -65,6 +66,15 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
                         }
                     }
                     "auth.signOut" -> { auth.signOut(); buildJsonObject {} }
+                    "config.get" -> {
+                        val effective = auth.serviceSettings()
+                        buildJsonObject {
+                            put("revision", effective.settings.revision); put("maintenanceEnabled", effective.settings.maintenanceEnabled)
+                            put("message", effective.settings.message?.let(::JsonPrimitive) ?: JsonNull)
+                            put("expiresAt", effective.settings.expiresAt.toString())
+                            put("source", if (effective.source == ConfigurationSource.REMOTE) "NETWORK" else "CACHE")
+                        }
+                    }
                     "push.register" -> {
                         if (installationId == null) throw SdkFailure("CONFIG_REQUIRED")
                         val fingerprint = auth.registerPush()
@@ -139,8 +149,8 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
             put("state", "READY"); put("mode", "PLATFORM_SANDBOX"); put("provider", "GOOGLE")
             put("capabilities", buildJsonObject {
                 for (name in listOf("auth", "store", "push", "config")) {
-                    val supported = name == "auth" || name == "store" || name == "push"
-                    val configured = when (name) { "auth" -> clientId != null; "store" -> clientId != null && mapping != null; "push" -> installation != null; else -> false }
+                    val supported = name == "auth" || name == "store" || name == "push" || name == "config"
+                    val configured = when (name) { "auth" -> clientId != null; "store" -> clientId != null && mapping != null; "push" -> installation != null; "config" -> true; else -> false }
                     put(name, buildJsonObject {
                         put("supported", supported); put("configured", configured); put("mode", "PLATFORM_SANDBOX")
                         put("reason", when {

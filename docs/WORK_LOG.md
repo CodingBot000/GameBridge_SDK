@@ -1628,3 +1628,11 @@
 - strict-local 집계, 원장 검사와 diff 검사를 실행한다. 미구현 시나리오·Unity 미실행·기존 StoreKit 실패는 성공으로 바꾸지 않는다.
 - `bash scripts/verify-all.sh --strict-local` 종료 1, `artifacts/verify-all-g_lqddbb/summary.md`: Kotlin/Swift contract, 여러 Native fake 및 부정 시험 통과; DB 등 opt-in 환경과 일부 도구는 DEFERRED_ENV, Mock push 전달·시나리오 미구현, Unity NOT_RUN, 기존 StoreKit 실패로 전체 FAIL. 외부 13개 WAITING_USER. `git diff --check` 통과.
 - 커밋 준비: 실패 및 미실행을 그대로 보존하고 다음 내부 누락 수정을 계속한다.
+
+### [P07-T01] BUG-015 재개
+- Native typed 진단 ring과 Unity 공개 경계의 연결을 조사한다. payload·토큰을 노출하지 않는 구조화된 정보만 대상으로 구현 및 검증하며 기존 공개 API 호환성을 유지한다.
+- Android bridge dispatcher에 요청 payload를 보관하지 않는 typed 진단 event 기록과 diagnostics.get snapshot을 연결했다. iOS 및 Unity 공개 경계는 아직 미연결이다.
+### P07-T01 BUG-015 Android 검증 시작
+- 기존 dispatcher 회귀 및 200개 제한·예외 비밀값 비노출 시험을 실행한다. Native 단위 검증으로 Unity 실행을 대체하지 않는다.
+- Android `:sdk-core:test --tests com.gamebridge.BridgeDispatcherTest --rerun-tasks` 종료 0, 기존 dispatcher와 신규 200개 ring·민감 문자열 비노출 확인. `harness/check-api-baseline.py` 통과. 실제 Unity 및 iOS는 아직 미검증.
+- 커밋 준비: Android 경계의 독립 부분만 기록하고 BUG-015 OPEN 유지한다.

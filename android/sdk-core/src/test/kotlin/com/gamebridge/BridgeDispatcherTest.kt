@@ -47,4 +47,18 @@ class BridgeDispatcherTest {
         assertEquals("INTERNAL_ERROR", BridgeProtocol.parse(redacted.json.toByteArray())["error"]!!.jsonObject["code"]!!.jsonPrimitive.content)
     }
 
+    @Test fun `diagnostics expose only typed bounded events without payload or failure details`() {
+        val fixture = File("../../contracts/fixtures/bridge/request.json").readText()
+        val dispatcher = BridgeDispatcher(BridgeOperationHandler { _, _ -> throw IllegalStateException("sensitive token") })
+        repeat(101) { dispatcher.dispatch(fixture.toByteArray()) }
+        val query = fixture.replace("store.purchase", "diagnostics.get")
+        val response = dispatcher.dispatch(query.toByteArray()) as BridgeDispatchResult.Message
+        val events = Json.parseToJsonElement(response.json).jsonObject["result"]!!.jsonObject["events"]!!.jsonArray
+        assertEquals(200, events.size)
+        assertEquals("PURCHASE", events.last().jsonObject["kind"]!!.jsonPrimitive.content)
+        assertEquals("FAILED", events.last().jsonObject["outcome"]!!.jsonPrimitive.content)
+        assertFalse(response.json.contains("sensitive"))
+        assertFalse(response.json.contains("payload"))
+    }
+
 }

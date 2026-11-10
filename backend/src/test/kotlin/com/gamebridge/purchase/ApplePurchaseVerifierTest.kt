@@ -30,4 +30,15 @@ class ApplePurchaseVerifierTest {
         assertFailsWith<AppleProofRejected> { failing(VerificationStatus.INVALID_CHAIN).verify("forged", "coins", account) }
         assertFailsWith<AppleVerifierUnavailable> { failing(VerificationStatus.RETRYABLE_VERIFICATION_FAILURE).verify("synthetic", "coins", account) }
     }
+    @Test fun `official verifier rejects forged compact JWS without trusted chain`() {
+        val root = requireNotNull(javaClass.getResourceAsStream("/fixtures/synthetic-apple-root.pem"))
+        val verifier = ApplePurchaseVerifier.configured("test.bundle", null, Environment.SANDBOX, setOf("coins"), setOf(root))
+        val key = com.nimbusds.jose.jwk.gen.ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256).generate()
+        val forged = com.nimbusds.jwt.SignedJWT(com.nimbusds.jose.JWSHeader(com.nimbusds.jose.JWSAlgorithm.ES256),
+            com.nimbusds.jwt.JWTClaimsSet.Builder().subject("synthetic").build()).apply {
+            sign(com.nimbusds.jose.crypto.ECDSASigner(key.toECPrivateKey()))
+        }.serialize()
+        assertFailsWith<AppleProofRejected> { verifier.verify(forged, "coins", account) }
+    }
+
 }

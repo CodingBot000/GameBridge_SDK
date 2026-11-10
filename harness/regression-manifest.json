@@ -123,6 +123,14 @@
       ],
       "mode": "ISOLATED_DB_SYNTHETIC_VERIFIER",
       "platform": "Backend/PostgreSQL"
+    },
+    "purchase-verifier": {
+      "command": [
+        "python3",
+        "harness/run-purchase-verifier.py"
+      ],
+      "mode": "SYNTHETIC_AND_OFFICIAL_DECODER",
+      "platform": "Backend"
     }
   },
   "scenarios": [
@@ -819,17 +827,30 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R29"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-verifier",
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Synthetic store facts and actual Apple decoder rejection; no real store credentials or signed purchase.",
+      "assertions": [
+        {
+          "suite": "purchase-verifier",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/ApplePurchaseVerifierTest.kt",
+          "testCase": "official verifier rejects forged compact JWS without trusted chain"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/ApplePurchaseHttpIntegrationTest.kt",
+          "testCase": "wrong.bundle"
+        }
+      ]
     },
     {
       "id": "R30",
@@ -839,17 +860,30 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R30"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-verifier",
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Synthetic store facts and actual Apple decoder rejection; no real store credentials or signed purchase.",
+      "assertions": [
+        {
+          "suite": "purchase-verifier",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GooglePurchaseVerifierTest.kt",
+          "testCase": "setTestPurchaseContext(null)"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/ApplePurchaseHttpIntegrationTest.kt",
+          "testCase": "Environment.PRODUCTION"
+        }
+      ]
     },
     {
       "id": "R31",
@@ -1031,17 +1065,30 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R39"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-verifier",
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Synthetic store facts and actual Apple decoder rejection; no real store credentials or signed purchase.",
+      "assertions": [
+        {
+          "suite": "purchase-verifier",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GooglePurchaseVerifierTest.kt",
+          "testCase": "setQuantity(2)"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/ApplePurchaseHttpIntegrationTest.kt",
+          "testCase": "revocationDate(1L)"
+        }
+      ]
     },
     {
       "id": "R40",

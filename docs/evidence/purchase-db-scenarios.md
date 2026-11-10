@@ -5,3 +5,5 @@
 Synthetic Apple 검증 결과를 사용한 10개 동시 검증은 구매·원장 한 건과 코인 100을 남겼다. 다른 idempotency key로 같은 거래를 재요청해도 지급은 한 번이며, 같은 key로 다른 거래를 제출하면 HTTP 409와 잔액 불변을 확인했다. 다른 사용자 증빙 재사용은 거부됐다. 테스트 전용 schema에 ledger 제약 실패를 주입했을 때 구매·원장·idempotency 상태가 모두 rollback됐다.
 
 이는 격리 DB·test verifier 결과이며 실제 Apple 서명, 스토어 거래, Unity player의 통과를 뜻하지 않는다. 실행은 별도 local/sandbox DB URL 및 명시적 test opt-in을 요구한다.
+
+후속 회귀 `artifacts/purchase-db-scenarios-0_5gs2l8`는 전용 DB `gamebridge_ci_c36863b21d_local` / `_sandbox`에서 잘못된 bundle·상품·스토어 환경, 취소/철회 및 2개 수량의 synthetic 검증 결과를 HTTP에서 거부하고 기존 잔액·원장이 증가하지 않음을 확인했다. `artifacts/purchase-verifier-2l6nsxv4`의 5건은 Apple/Google verifier의 synthetic 상태 검사와 실제 Apple server library가 테스트용 비신뢰 ES256 JWS를 거부하는 경계를 포함한다. 유효한 실제 Apple 서명이나 실제 스토어 응답 검증은 포함하지 않는다.

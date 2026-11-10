@@ -73,6 +73,29 @@ class ApplePurchaseHttpIntegrationTest {
         val conflict = rest.exchange("/v1/purchases/apple/verify", HttpMethod.POST, changedBody, Map::class.java)
         assertEquals(409, conflict.statusCode.value()); assertEquals("IDEMPOTENCY_CONFLICT", conflict.body!!["code"])
         assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
+        fun fixture() = JWSTransactionDecodedPayload().bundleId("test.bundle").environment(Environment.SANDBOX)
+            .productId("coins.apple").appAccountToken(binding).transactionId("bad-" + UUID.randomUUID()).quantity(1).type(Type.CONSUMABLE)
+        val rejected = listOf(fixture().bundleId("wrong.bundle"), fixture().productId("wrong.product"), fixture().environment(Environment.PRODUCTION),
+            fixture().revocationDate(1L), fixture().quantity(2))
+        for (badPayload in rejected) {
+            val badVerifier = ApplePurchaseVerifier("test.bundle", Environment.SANDBOX, setOf("coins.apple"), AppleSignedTransactionDecoder { badPayload })
+            Mockito.`when`(registry.verifier(app, StoreEnvironment.SANDBOX)).thenReturn(badVerifier)
+            val attemptHeaders = HttpHeaders().apply { setBearerAuth(tokens.accessToken); set("Idempotency-Key", UUID.randomUUID().toString()) }
+            val rejectedResponse = rest.exchange("/v1/purchases/apple/verify", HttpMethod.POST,
+                HttpEntity(mapOf("storeProductId" to "coins.apple", "signedTransaction" to "synthetic-invalid"), attemptHeaders), Map::class.java)
+            assertEquals(400, rejectedResponse.statusCode.value()); assertEquals("VERIFICATION_FAILED", rejectedResponse.body!!["code"])
+        }
+        val forgedVerifier = ApplePurchaseVerifier("test.bundle", Environment.SANDBOX, setOf("coins.apple"), AppleSignedTransactionDecoder {
+            throw com.apple.itunes.storekit.verification.VerificationException(com.apple.itunes.storekit.verification.VerificationStatus.INVALID_CHAIN)
+        })
+        Mockito.`when`(registry.verifier(app, StoreEnvironment.SANDBOX)).thenReturn(forgedVerifier)
+        val forgedHeaders = HttpHeaders().apply { setBearerAuth(tokens.accessToken); set("Idempotency-Key", UUID.randomUUID().toString()) }
+        val forged = rest.exchange("/v1/purchases/apple/verify", HttpMethod.POST,
+            HttpEntity(mapOf("storeProductId" to "coins.apple", "signedTransaction" to "synthetic-forged"), forgedHeaders), Map::class.java)
+        assertEquals(400, forged.statusCode.value()); assertEquals("VERIFICATION_FAILED", forged.body!!["code"])
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger WHERE user_id=?", Int::class.java, principal.userId))
+        assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
+        Mockito.`when`(registry.verifier(app, StoreEnvironment.SANDBOX)).thenReturn(verifier)
         val readHeaders = HttpHeaders().apply { setBearerAuth(tokens.accessToken) }
         val wallet = rest.exchange("/v1/entitlements", HttpMethod.GET, HttpEntity<Void>(readHeaders), Map::class.java)
         assertEquals(200, wallet.statusCode.value()); assertEquals("100", wallet.body!!["coinBalance"])

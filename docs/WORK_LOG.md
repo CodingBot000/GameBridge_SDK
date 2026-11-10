@@ -2083,3 +2083,15 @@
 ### P09-T04 manifest·부정 검증 시작
 - R23~R26·R31 manifest/assertion 검증 및 음성 검사 통과. opt-in 없는 DB scenario runner는 종료 2로 설정 부족을 표시하고 PASS를 만들지 않는다.
 - 커밋 준비: synthetic DB 테스트·scenario evidence만 저장한다. 실제 Apple 검증 및 Unity는 미실행이다.
+
+### [P09-T04] R29/R30/R39 구매 증빙 거부 검증 시작
+- 합성 Apple verifier 실패·앱/상품/환경 불일치·철회·다중 수량을 실제 sandbox fixture HTTP/DB에 주입하고 지급이 추가되지 않는지 확인한다. 실제 Apple 서명이나 외부 스토어 호출은 아니다.
+### P09-T04 거부·무지급 DB 검증 시작
+- synthetic HTTP/DB에서 잘못된 bundle·상품·환경·철회·다중 수량 및 위조 verifier 결과가 모두 거부되고 잔액이 증가하지 않았다(`gamebridge_ci_47fb203141`). 위조 JWS의 경우 실제 Apple server library 검증기가 합성 비신뢰 서명을 거부하는 단위 시험을 추가한다. 합성 공개 test root만 저장하고 개인키는 보존하지 않는다.
+### P09-T04 실제 라이브러리 forged JWS 거부 검증 시작
+- 실제 Apple server library에 synthetic 비신뢰 ES256 compact JWS를 전달했을 때 거부되는 단위 시험과 Google/Apple verifier 합성 경계가 통과했다. 정상 Apple 서명·실 서버 검증은 아니다. DB scenario runner를 새 assertion 포함 상태로 다시 실행한다.
+### P09-T04 verifier·DB scenario 재검증 시작
+- 실제 Apple 검증기 거부 및 synthetic Google verifier 5건 `artifacts/purchase-verifier-2l6nsxv4`, local/sandbox DB runner `artifacts/purchase-db-scenarios-0_5gs2l8` PASS. R29/R30/R39는 해당 로컬 거부·무지급 범위에서만 IMPLEMENTED로 연결한다.
+### P09-T04 scenario mapping 검증 시작
+- strict aggregate에도 purchase verifier를 필수 lane으로 연결해 scenario IMPLEMENTED 표시만으로 실행을 생략할 수 없도록 했다.
+- 커밋 준비: R29/R30/R39 synthetic 거부와 무지급 증거 및 필수 실행 연결. 실제 서명/스토어는 WAITING_USER 유지.

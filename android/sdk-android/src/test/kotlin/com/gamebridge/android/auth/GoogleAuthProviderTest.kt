@@ -6,6 +6,7 @@ import com.gamebridge.android.push.GooglePushRegistration
 import com.gamebridge.android.purchase.BoundPlayAccount
 import com.gamebridge.android.purchase.GoogleHttpProofSink
 import com.gamebridge.android.purchase.RawPlayPurchase
+import com.gamebridge.android.purchase.validateGoogleStoreConfiguration
 import java.security.MessageDigest
 import java.util.UUID
 import com.gamebridge.GameBridgeConfig
@@ -96,6 +97,13 @@ class GoogleAuthProviderTest {
         val store = MemoryStore()
         assertEquals("CANCELED", assertFailsWith<SdkFailure> { GoogleAuthProvider(config(), store, gateway, StubBackend()).signIn() }.code)
         assertNull(store.stored)
+    }
+    @Test fun `store configuration cannot redirect an authenticated session`() {
+        val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend())
+        val products = mapOf("coins_100" to "coins", "premium_unlock" to "premium")
+        validateGoogleStoreConfiguration(config(), provider, products)
+        assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> { validateGoogleStoreConfiguration(config().copy(backendBaseUrl = "https://other.example"), provider, products) }.code)
+        assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> { validateGoogleStoreConfiguration(config(), provider, mapOf("coins_100" to "same", "premium_unlock" to "same")) }.code)
     }
     @Test fun `push registration uses current session and only returns fingerprint`() = runBlocking {
         val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend()); provider.signIn()

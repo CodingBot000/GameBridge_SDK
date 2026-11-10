@@ -14,4 +14,10 @@ class GooglePurchaseAccountSourceTest {
         assertEquals("BRIDGE_PROTOCOL_MISMATCH", assertFailsWith<SdkFailure> { parseGoogleBinding(user.toString(), "{}") }.code)
         assertEquals("BRIDGE_PROTOCOL_MISMATCH", assertFailsWith<SdkFailure> { parseGoogleBinding(user.toString(), """{"googleObfuscatedAccountId":"bad"}""") }.code)
     }
+    @Test fun `store entitlement must match authenticated user`() {
+        val user = UUID.randomUUID().toString()
+        val body = """{"userId":"$user","premiumEnabled":true,"coinBalance":"100","revision":"1","updatedAt":"2026-01-01T00:00:00Z"}"""
+        assertEquals("100", decodeGoogleEntitlements(body, user).coinBalance)
+        assertEquals("BRIDGE_PROTOCOL_MISMATCH", assertFailsWith<SdkFailure> { decodeGoogleEntitlements(body, UUID.randomUUID().toString()) }.code)
+    }
 }

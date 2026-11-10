@@ -1082,3 +1082,14 @@
 - Swift fake 13건 통과. public AppleStore가 다른 서버 설정을 CONFIG_REQUIRED로 거부함을 명시 검증하고, Android 공개 facade에 사용할 동일 config 비교 경계도 추가한다.
 - Swift auth fake 13건 및 Android sdk unit task 통과: AppleStore가 다른 Backend config를 CONFIG_REQUIRED로 거부하며, Android auth의 설정 비교도 확인했다. 실제 네트워크에 토큰을 보내지 않았다.
 - 커밋 전: Apple 공개 생성자의 구성 일치 강제와 Android 내부 비교 경계만 포함한다. 실제 계정·스토어 검증은 별도다.
+
+### [P05-T07] Android Native store facade
+- Google auth와 Backend config가 정확히 일치할 때만 공개 store facade를 조립한다. 상품·상태·서버 entitlement만 노출하고 proof/token은 Native 내부에 둔다. 실제 Play UI는 실행하지 않는다.
+- Android facade 초안과 public Flow의 전이 의존성(api)을 설정했다. init config 불일치 시 즉시 거부하며 Billing client 생성 전 상품 mapping을 검증한다. compile 및 unit을 확인한다.
+- Android facade와 mock sample build 통과. 불필요한 JSON 객체 재생성을 줄이고 다른 사용자 entitlement 거부 시험, Maven 소비자의 public Flow 전이 의존성 compile을 추가한다.
+- Android sdk unit 및 Maven publish는 통과했으나 독립 consumer release build 실패. 원인을 확인하기 전 배포 소비 성공으로 기록하지 않는다.
+- 원인: 새 소비자 Kotlin task는 기본 JVM 21, Java는 17이라 target 불일치. SDK와 동일한 JVM 17로 지정해 전체 packaging/consumer build를 재실행한다.
+- 독립 consumer failure는 JVM target 17 통일 후 R8 release build 통과. Android 공개 facade의 인증/Backend 일치 및 상품 mapping 사전 검사를 독립 unit으로 보강한다.
+- Android store config/unit 재실행 통과: 다른 Backend 및 중복 상품 ID 거부. 마지막 SDK 변경을 포함해 local Maven publication과 별도 consumer R8 compile을 다시 확인한다.
+- Android unit 및 최신 Maven publish·mock sample·source 없는 Kotlin Flow consumer의 R8 release build 재통과. 최초 JVM 21/17 불일치 실패는 consumer target 17로 수정했다. 실제 Play UI/스토어는 미실행이다.
+- 커밋 전: Android public facade·entitlement 사용자 검증 및 Maven API dependency/consumer compile만 포함한다. Native sample/Unity 연동과 실제 Play 시험은 미완료다.

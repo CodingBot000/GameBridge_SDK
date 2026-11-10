@@ -1,0 +1,6 @@
+{
+  "name": "GameBridge.Runtime",
+  "rootNamespace": "GameBridge",
+  "references": [],
+  "autoReferenced": true
+}

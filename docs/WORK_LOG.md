@@ -1444,3 +1444,15 @@
 - `:sdk-unity-bridge:testDebugUnitTest` 종료 0, Swift `AppleAuthBridgeTests` 3건 및 config 일치 store test 1건 종료 0: fake CACHE·점검 상태 전달과 다른 Backend 설정 거부를 확인했다. 실제 sandbox Backend/Unity 왕복은 미실행이다. iOS simulator compile을 확인한다.
 - `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. UIKit/StoreKit 포함 무서명 compile이며 실제 sandbox 서버·기기·Unity player 검증은 아니다.
 - 커밋 전: sandbox config.get과 Native 구매 gate의 Backend-backed cache 공유 코드 및 fake/compile 증거만 포함한다. 실제 sandbox와 Unity 실행은 미검증이다.
+
+### [P08-T01] 최신 Android 산출물 검증
+- Task 시작: 최근 Native/Unity bridge 변경이 포함된 Maven 산출물과 소스 없는 consumer compile을 다시 확인한다. 기존 artifacts를 덮어쓰지 않는 경로를 우선 사용한다. 실제 Unity export/Play 검증은 별개다.
+- 기존 Maven 경로를 덮어쓰는 build script를 새 절대 경로 또는 고유 임시 output 사용으로 변경하고, publish와 독립 consumer가 동일 경로를 읽도록 구성했다. 기존 산출물은 보존한다. 새 경로에서 빌드·R8 consumer를 검증한다.
+- 새 `scripts/build-android.sh --mock`의 Maven publish·sample APK는 진행됐으나 독립 R8 consumer에서 `Missing class com.google.firebase.messaging.FirebaseMessaging`으로 종료 1. Firebase를 optional compileOnly로 선언한 SDK를 bridge가 참조하며 비-Firebase consumer의 shrink가 실패하는 회귀를 발견했다. 원인을 수정하고 새 output에서 재검증한다.
+- FirebaseMessaging은 선택적 host 의존성이므로 SDK consumer ProGuard에 해당 단일 class에 대한 좁은 dontwarn을 추가했다. 실제 호출은 class 존재 확인과 LinkageError→CONFIG_REQUIRED/onError로 보호하며, Firebase 없는 기기 실행도 별도로 확인한다.
+- 새 output `artifacts/maven-p08-20261111-b`에서 `scripts/build-android.sh --mock` 종료 0: Maven publish·sample APK 및 Firebase 없는 독립 consumer R8 release build 통과. SDK XML 버전 경고는 있었고, runtime CONFIG_REQUIRED 동작은 아직 별도 기기 시험 전이다.
+- Firebase 없는 sandbox bridge의 runtime 차단을 검증하는 Android instrumented test를 추가했고 sample/test APK build 종료 0. 테스트는 example.invalid 설정만 사용하며 네트워크 인증을 요청하지 않는다.
+- AVD가 adb 연결만 완료된 시점에 APK 설치를 시작해 package service가 없어 실패했다. `sys.boot_completed=1` 확인 후 같은 전용 AVD에 재시도한다. 테스트는 아직 실행되지 않았다.
+- 전용 Android 36 emulator에서 `FirebaseOptionalBridgeTest` 1건 통과: FirebaseMessaging class 부재, sandbox bridge 초기화 후 push.register가 네트워크 호출 없이 CONFIG_REQUIRED를 반환했다. debug instrumented runtime이며 R8 release 실행 자체는 아니다.
+- 동일 `GAMEBRIDGE_MAVEN_REPO=.../maven-p08-20261111-b`로 재실행 시 종료 2 및 “output exists”를 확인해 기존 Maven output을 덮어쓰지 않았다. 직접 기동한 전용 AVD만 종료했다.
+- 커밋 전: 선택적 Firebase consumer 규칙·runtime fail-closed 시험과 새 Maven output 경로만 포함한다. R8 release 실제 실행, Unity import/export 및 원격 FCM은 미검증이다.

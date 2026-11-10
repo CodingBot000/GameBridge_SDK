@@ -16,5 +16,5 @@ dependencies { testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.
 
 publishing {
     publications { create<MavenPublication>("release") { from(components["java"]) } }
-    repositories { maven { name = "staging"; url = uri(rootProject.layout.projectDirectory.dir("../artifacts/maven-repo")) } }
+    repositories { maven { name = "staging"; url = System.getenv("GAMEBRIDGE_MAVEN_REPO")?.let { uri(it) } ?: uri(rootProject.layout.projectDirectory.dir("../artifacts/maven-repo")) } }
 }

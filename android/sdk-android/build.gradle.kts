@@ -1,7 +1,7 @@
 plugins { `maven-publish`; id("com.android.library"); kotlin("android"); kotlin("plugin.serialization") }
 android { namespace = "com.gamebridge.sdk"; compileSdk = 36
     publishing { singleVariant("release") }
-    defaultConfig { minSdk = 26 }
+    defaultConfig { minSdk = 26; consumerProguardFiles("consumer-rules.pro") }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
 }
@@ -23,6 +23,6 @@ tasks.withType<Test>().configureEach { useJUnitPlatform() }
 afterEvaluate {
     publishing {
         publications { create<MavenPublication>("release") { from(components["release"]) } }
-        repositories { maven { name = "staging"; url = uri(rootProject.layout.projectDirectory.dir("../artifacts/maven-repo")) } }
+        repositories { maven { name = "staging"; url = System.getenv("GAMEBRIDGE_MAVEN_REPO")?.let { uri(it) } ?: uri(rootProject.layout.projectDirectory.dir("../artifacts/maven-repo")) } }
     }
 }

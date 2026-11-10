@@ -16,6 +16,6 @@ tasks.withType<Test>().configureEach { useJUnitPlatform() }
 afterEvaluate {
     publishing {
         publications { create<MavenPublication>("release") { from(components["release"]) } }
-        repositories { maven { name = "staging"; url = uri(rootProject.layout.projectDirectory.dir("../artifacts/maven-repo")) } }
+        repositories { maven { name = "staging"; url = System.getenv("GAMEBRIDGE_MAVEN_REPO")?.let { uri(it) } ?: uri(rootProject.layout.projectDirectory.dir("../artifacts/maven-repo")) } }
     }
 }

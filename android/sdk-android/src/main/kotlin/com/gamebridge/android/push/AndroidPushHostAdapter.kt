@@ -38,6 +38,7 @@ class AndroidPushHostAdapter(
         try {
             FirebaseMessaging.getInstance().token.addOnSuccessListener { onToken(it) }.addOnFailureListener { onError() }
         } catch (_: IllegalStateException) { onError() }
+        catch (_: LinkageError) { onError() }
     }
     /** Host service forwards token rotation; token must be sent only to the configured Backend. */
     fun onNewToken(token: String) { if (token.isNotBlank()) onToken(token) else onError() }

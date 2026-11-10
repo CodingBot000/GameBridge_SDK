@@ -366,3 +366,13 @@
 - XCFramework Info.plist·`file`·`nm -g` 검사 종료 0: device arm64와 simulator arm64/x86_64 각각 static archive, 4개 C export 확인. 시뮬레이터/실기기 Unity 실행 및 링크 확인은 아직 안 됨. archive 시 Swift-only umbrella header 경고는 남아 있다.
 - `nm -u` device static archive 검사 종료 0: 외부 `GameBridgeCore` 참조 0건. Swift runtime 의존성과 UnityFramework 링크는 이 결과만으로 증명되지 않는다.
 - 커밋 전: Swift C ABI, C# iOS transport 소스, static framework target 및 심볼 검증만 포함. 실제 SDK 요청 연결·Unity 빌드·device 실행·archive 경고 해결은 미완료로 P03-T04 PARTIAL 유지.
+
+### [P02-T05] 사용자 결정 반영 — 2026-11-10 Asia/Seoul
+- 등록 해제와 로그아웃 시 해당 토큰 즉시 삭제를 구현한다. 각 등록을 세션에 묶어 다른 세션·다른 사용자의 토큰을 삭제하지 않으며, 기존 세션 미연결 행은 임의 귀속하지 않는다.
+- 사용자 결정에 따라 세션 소유권 migration과 등록 해제·로그아웃 시 물리 삭제 코드를 작성. `./backend/gradlew -p backend test` 종료 0, 기존 단위 시험만 통과했으며 DB 삭제·다른 세션 보존 검증은 아직 미실행.
+- 검토 중 이미 인증된 등록 요청과 동시에 로그아웃하면 삭제 직후 token이 다시 기록될 수 있는 경합을 발견했다. 같은 session row lock으로 직렬화하고 폐기 상태를 다시 확인한다.
+- 등록·로그아웃이 같은 session row를 잠그고 등록 시 폐기/만료를 재확인하도록 보정 후 `./backend/gradlew -p backend test` 종료 0. 실 DB 경합·삭제 결과 검증은 아직 미실행.
+- 전용 local-mock DB에 V4 세션 소유권 migration 적용 후 서버 기동 확인. 신규 token은 해당 session에 연결하며 기존 session_id 없는 행은 자동 삭제·귀속하지 않는다.
+- `python3 scripts/smoke-device-local.py` 종료 0: local-mock HTTP/PostgreSQL assertion 15건 통과. 다른 사용자 삭제 거부, 같은 사용자의 다른 세션 토큰 보존, 해당 세션 로그아웃 시 행 삭제, 명시적 등록 해제 삭제 및 등록↔로그아웃 경합 후 토큰 미잔존을 확인. 실제 FCM/APNs는 아님.
+- `SELECT count(*) ... WHERE session_id IS NULL` 종료 0, 기존 Mock 시험 행 2개. 이전 schema의 행은 특정 session에 안전하게 귀속할 수 없어 임의 삭제하지 않았다. 신규 등록부터 즉시 삭제 정책 적용.
+- 커밋 전: 정책과 설정/문서, local-mock token 삭제·경합 검증을 함께 포함. 실제 FCM/APNs, legacy 행 처리 및 개발 push sender는 미구현이므로 P02-T05는 PARTIAL 유지.

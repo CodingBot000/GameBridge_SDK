@@ -75,7 +75,13 @@ class SessionService(private val db: JdbcTemplate, private val tx: TransactionTe
         }
         return result ?: unauthorized()
     }
-    fun logout(principal: SessionPrincipal) { db.update("UPDATE sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE id=?", principal.sessionId) }
+    fun logout(principal: SessionPrincipal) {
+        tx.executeWithoutResult {
+            db.query("SELECT id FROM sessions WHERE id=? AND user_id=? FOR UPDATE", { rs, _ -> rs.getObject(1, UUID::class.java) }, principal.sessionId, principal.userId)
+            db.update("DELETE FROM device_tokens WHERE user_id=? AND session_id=?", principal.userId, principal.sessionId)
+            db.update("UPDATE sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE id=? AND user_id=?", principal.sessionId, principal.userId)
+        }
+    }
 }
 
 @Component

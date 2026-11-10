@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Exercise local mock token registration; test rows remain in the dedicated DB."""
+import concurrent.futures
 import json
+import subprocess
 import os
 import sys
 import urllib.error
@@ -29,7 +31,13 @@ def main():
     status, config = call('GET', '/v1/config'); check(status == 200 and config['source'] == 'DEFAULT', 'public default config')
     status, a = call('POST', '/v1/dev/auth', {'subject': 'A'}, {'X-Development-Key': KEY}); check(status == 200, 'login A')
     status, b = call('POST', '/v1/dev/auth', {'subject': 'B'}, {'X-Development-Key': KEY}); check(status == 200, 'login B')
-    path = '/v1/devices/' + str(uuid.uuid4()) + '/push-token'
+    installation = str(uuid.uuid4())
+    path = '/v1/devices/' + installation + '/push-token'
+    def row_count(identifier):
+        canonical = str(uuid.UUID(identifier))
+        sql = "SELECT count(*) FROM device_tokens WHERE installation_id='" + canonical + "'::uuid"
+        result = subprocess.run(['docker', 'exec', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', 'gamebridge_local', '-tAc', sql], capture_output=True, text=True, check=True)
+        return int(result.stdout.strip())
     payload = {'provider': 'MOCK', 'platform': 'MOCK', 'appId': 'gamebridge-sample', 'token': 'mock:' + str(uuid.uuid4())}
     auth_a = {'Authorization': 'Bearer ' + a['accessToken']}; auth_b = {'Authorization': 'Bearer ' + b['accessToken']}
     status, _ = call('PUT', path, payload); check(status == 401, 'anonymous rejected')
@@ -37,6 +45,22 @@ def main():
     rotated = {**payload, 'token': 'mock:' + str(uuid.uuid4())}
     status, changed = call('PUT', path, rotated, auth_a); check(status == 200 and changed['tokenFingerprint'] != registered['tokenFingerprint'], 'rotate token')
     status, _ = call('PUT', path, rotated, auth_b); check(status == 403, 'ownership conflict')
+    status, _ = call('DELETE', path, headers=auth_b); check(status == 403 and row_count(installation) == 1, 'other user cannot delete')
+    status, a2 = call('POST', '/v1/dev/auth', {'subject': 'A'}, {'X-Development-Key': KEY}); check(status == 200, 'second session')
+    auth_a2 = {'Authorization': 'Bearer ' + a2['accessToken']}
+    second = str(uuid.uuid4()); second_path = '/v1/devices/' + second + '/push-token'
+    status, _ = call('PUT', second_path, payload, auth_a2); check(status == 200, 'second device registered')
+    status, _ = call('POST', '/v1/auth/logout', headers=auth_a); check(status == 200, 'logout first session')
+    check(row_count(installation) == 0 and row_count(second) == 1, 'only logged-out session token deleted')
+    status, _ = call('DELETE', second_path, headers=auth_a2); check(status == 200 and row_count(second) == 0, 'unregister deletes token')
+    status, a3 = call('POST', '/v1/dev/auth', {'subject': 'A'}, {'X-Development-Key': KEY}); check(status == 200, 'race session')
+    auth_a3 = {'Authorization': 'Bearer ' + a3['accessToken']}
+    raced = str(uuid.uuid4()); race_path = '/v1/devices/' + raced + '/push-token'
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        put = pool.submit(call, 'PUT', race_path, payload, auth_a3)
+        logout = pool.submit(call, 'POST', '/v1/auth/logout', None, auth_a3)
+        put_status, _ = put.result(); logout_status, _ = logout.result()
+    check(put_status in (200, 401) and logout_status == 200 and row_count(raced) == 0, 'register/logout race leaves no token')
     print(f'LOCAL_MOCK device checks passed: {count}; no remote push tested')
 
 if __name__ == '__main__':

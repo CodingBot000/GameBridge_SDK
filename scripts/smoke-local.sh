@@ -16,5 +16,5 @@ for check in smoke-auth-local.py smoke-purchase-local.py smoke-device-local.py; 
   fi
 done
 # Mandatory flows not yet implemented; keep aggregate fail-closed.
-echo 'NOT_IMPLEMENTED: automatic finalization recovery, token deregistration/logout unlink, protected development push send' >&2
+echo 'NOT_IMPLEMENTED: automatic finalization recovery, protected development push send' >&2
 exit 1

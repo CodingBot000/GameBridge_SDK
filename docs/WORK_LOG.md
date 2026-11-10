@@ -1129,3 +1129,7 @@
 - 전용 Android emulator instrumented 3건 통과: 독립 namespace, body 없는 form logout, 실제 local-mock 재시작 session 복원/로그아웃. 기존 Android UI smoke를 재실행한다.
 - 수정된 서버에서 전용 Android UI login→재시작→restore→logout smoke 통과. Android 3 instrumented tests도 통과했으며 실제 Play/Google은 아니다. 실패한 form-content logout은 BUG-008로 기록·해결했다.
 - 커밋 전: 서버 logout media-type 수정·정제 예외 class 로그 및 Android 기기 회귀시험만 포함한다. 샘플 화면 변경은 별도 커밋한다.
+- Android sandbox sample 검토에서 빈 Google server client ID를 초기 구성 단계에서 거부하고, callback 취소를 삼키지 않도록 수정했다. iOS 설정 입력도 구성 후 잠가 실제 적용값과 화면값이 어긋나지 않게 한다.
+- 수정 후 전용 Android emulator에서 Google Sandbox 빈 설정 차단 재통과. 기존 local-mock UI 재실행도 통과했고 Google 계정/스토어는 사용하지 않았다. iOS 설정 필드 잠금 변경을 simulator build로 확인한다.
+- Android sample 수정 후 emulator의 sandbox 빈 설정 UI 통과, local-mock 로그인/재시작/restore/logout 재통과. iOS 설정 필드 잠금 변경도 simulator build 성공. 직접 기동한 Backend와 전용 AVD만 종료하고 데이터·volume은 보존했다.
+- 커밋 전: Google Sandbox sample 및 iOS 설정 표시 일치만 포함한다. 실제 Google/Apple 계정·스토어, Unity player 연결 및 전체 UI audit은 미완료다.

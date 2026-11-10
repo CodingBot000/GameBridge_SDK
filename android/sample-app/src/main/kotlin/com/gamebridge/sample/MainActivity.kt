@@ -3,6 +3,7 @@ package com.gamebridge.sample
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.ViewModelProvider
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,10 +20,17 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
+    private lateinit var sandboxModel: GoogleSandboxModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sandboxModel = ViewModelProvider(this)[GoogleSandboxModel::class.java]
+        sandboxModel.attachHost(this)
         setContent {
             MaterialTheme {
+                var showSandbox by remember { mutableStateOf(false) }
+                if (showSandbox) {
+                    GoogleSandboxScreen(sandboxModel, this@MainActivity) { showSandbox = false }
+                } else {
                 var url by remember { mutableStateOf("http://10.0.2.2:18080") }
                 var key by remember { mutableStateOf("") }
                 var client by remember { mutableStateOf<LocalMockClient?>(null) }
@@ -70,8 +78,11 @@ class MainActivity : ComponentActivity() {
                     } }) { Text("Sign out") }
                     Text("Coins: ${wallet?.coinBalance ?: "—"}; premium: ${wallet?.premiumEnabled ?: false}")
                     Text(message)
+                    Button(onClick = { showSandbox = true }) { Text("Google Sandbox") }
+                }
                 }
             }
         }
     }
+    override fun onDestroy() { sandboxModel.detachHost(); super.onDestroy() }
 }

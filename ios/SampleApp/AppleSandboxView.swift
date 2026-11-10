@@ -63,10 +63,10 @@ struct AppleSandboxView: View {
         Form {
             Section {
                 Text("Apple Sandbox: use a configured test app and sandbox account.")
-                TextField("App ID", text: $model.appId).textInputAutocapitalization(.never).autocorrectionDisabled().accessibilityIdentifier("appleAppId")
-                TextField("HTTPS Backend URL", text: $model.backendURL).textInputAutocapitalization(.never).autocorrectionDisabled()
-                TextField("Coins store product ID", text: $model.coinsStoreId).textInputAutocapitalization(.never).autocorrectionDisabled()
-                TextField("Premium store product ID", text: $model.premiumStoreId).textInputAutocapitalization(.never).autocorrectionDisabled()
+                TextField("App ID", text: $model.appId).textInputAutocapitalization(.never).autocorrectionDisabled().disabled(model.configured).accessibilityIdentifier("appleAppId")
+                TextField("HTTPS Backend URL", text: $model.backendURL).textInputAutocapitalization(.never).autocorrectionDisabled().disabled(model.configured)
+                TextField("Coins store product ID", text: $model.coinsStoreId).textInputAutocapitalization(.never).autocorrectionDisabled().disabled(model.configured)
+                TextField("Premium store product ID", text: $model.premiumStoreId).textInputAutocapitalization(.never).autocorrectionDisabled().disabled(model.configured)
             }
             Section("Account") {
                 Button("Sign in with Apple", action: model.signIn).disabled(model.busy || !model.configured || model.signedIn)

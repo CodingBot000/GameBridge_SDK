@@ -20,3 +20,4 @@
 Unity Editor offline sample의 home/store uGUI 소스는 실제 Unity managed assembly 기준 독립 컴파일했다. Unity Editor 렌더링·입력·실행과 Native player 연결은 검증하지 않았다.
 
 iOS sample에는 별도 Apple Sandbox 화면이 추가되었다. 설정 누락 차단만 simulator UI에서 확인했고 실제 Apple 로그인/상품/구매/복원은 미실행이다. local-mock UI 로그인·구매·재시작 복원·로그아웃은 ad-hoc simulator 서명으로 통과했다.
+Android sample에도 별도 Google Sandbox 화면을 추가했다. 빈 설정의 CONFIG_REQUIRED는 전용 emulator에서 확인했지만 실제 Google 인증/Play 상품/구매는 미실행이다.

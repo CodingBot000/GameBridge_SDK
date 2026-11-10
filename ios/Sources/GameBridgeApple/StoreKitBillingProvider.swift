@@ -69,7 +69,7 @@ final class StoreKitBillingProvider {
     private let limiter: AppleVerificationLimiter?
     private let onVerified: (ServerGrant) -> Void
     private var listener: Task<Void, Never>?
-    private var recovering = false
+    private let recoveryFlight = AppleRecoveryFlight()
 
     init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, onVerified: @escaping (ServerGrant) -> Void = { _ in }, currentAccount: @escaping () -> ApplePurchaseAccount?) {
         self.sink = sink
@@ -90,7 +90,7 @@ final class StoreKitBillingProvider {
             }
         }
     }
-    func stop() { listener?.cancel(); listener = nil }
+    func stop() { listener?.cancel(); listener = nil; recoveryFlight.cancel() }
 
     func products(ids: Set<String>) async throws -> [Product] {
         try await Product.products(for: ids)
@@ -114,21 +114,29 @@ final class StoreKitBillingProvider {
     }
 
     func recoverUnfinished() async throws -> AppleRecoveryCounts {
-        guard !recovering else { throw SdkFailure("BUSY") }
-        recovering = true; defer { recovering = false }
-        var accumulator = AppleRecoveryAccumulator()
-        for await result in Transaction.unfinished { try await recordRecovery(result, accumulator: &accumulator) }
-        return accumulator.counts
+        guard let account = currentAccount() else { throw SdkFailure("SESSION_EXPIRED") }
+        return try await recoveryFlight.run(account: account, userInitiated: false) { [weak self] in
+            guard let self, self.currentAccount() == account else { throw SdkFailure("CANCELED") }
+            var accumulator = AppleRecoveryAccumulator()
+            for await result in Transaction.unfinished { try await self.recordRecovery(result, accumulator: &accumulator) }
+            guard self.currentAccount() == account else { throw SdkFailure("CANCELED") }
+            return accumulator.counts
+        }
     }
     /// Only call from an explicit user restore action, never during startup.
     func userRestore() async throws -> AppleRecoveryCounts {
-        guard !recovering else { throw SdkFailure("BUSY") }
-        recovering = true; defer { recovering = false }
-        try await AppStore.sync()
-        var accumulator = AppleRecoveryAccumulator()
-        for await result in Transaction.unfinished { try await recordRecovery(result, accumulator: &accumulator) }
-        for await result in Transaction.currentEntitlements { try await recordRecovery(result, accumulator: &accumulator) }
-        return accumulator.counts
+        guard let account = currentAccount() else { throw SdkFailure("SESSION_EXPIRED") }
+        return try await recoveryFlight.run(account: account, userInitiated: true) { [weak self] in
+            guard let self, self.currentAccount() == account else { throw SdkFailure("CANCELED") }
+            try self.uiGate.acquire(); defer { self.uiGate.release() }
+            try await AppStore.sync()
+            guard self.currentAccount() == account else { throw SdkFailure("CANCELED") }
+            var accumulator = AppleRecoveryAccumulator()
+            for await result in Transaction.unfinished { try await self.recordRecovery(result, accumulator: &accumulator) }
+            for await result in Transaction.currentEntitlements { try await self.recordRecovery(result, accumulator: &accumulator) }
+            guard self.currentAccount() == account else { throw SdkFailure("CANCELED") }
+            return accumulator.counts
+        }
     }
     private func recordRecovery(_ result: VerificationResult<Transaction>, accumulator: inout AppleRecoveryAccumulator) async throws {
         if Task.isCancelled { throw SdkFailure("CANCELED") }

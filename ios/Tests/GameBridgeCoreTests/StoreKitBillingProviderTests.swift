@@ -44,4 +44,27 @@ final class StoreKitBillingProviderTests: XCTestCase {
         XCTAssertThrowsError(try counts.failure(SdkFailure("CANCELED")))
     }
 
+    @MainActor func testRecoveryFlightSharesEquivalentCallsButSeparatesReasonAndAccount() async throws {
+        let flight = AppleRecoveryFlight()
+        let account = ApplePurchaseAccount(userId: UUID(), binding: UUID())
+        var continuation: CheckedContinuation<Void, Never>?
+        var executions = 0
+        let work: @MainActor () async throws -> AppleRecoveryCounts = {
+            executions += 1; await withCheckedContinuation { continuation = $0 }
+            var counts = AppleRecoveryCounts(); counts.examinedCount = 1; counts.recoveredCount = 1; return counts
+        }
+        let first = Task { @MainActor in try await flight.run(account: account, userInitiated: false, work: work) }
+        while continuation == nil { await Task.yield() }
+        let second = Task { @MainActor in try await flight.run(account: account, userInitiated: false, work: work) }
+        for _ in 0..<20 { await Task.yield() }
+        do { _ = try await flight.run(account: account, userInitiated: true, work: work); XCTFail("different reason") }
+        catch let failure as SdkFailure { XCTAssertEqual(failure.code, "BUSY") }
+        do { _ = try await flight.run(account: ApplePurchaseAccount(userId: UUID(), binding: UUID()), userInitiated: false, work: work); XCTFail("different account") }
+        catch let failure as SdkFailure { XCTAssertEqual(failure.code, "CANCELED") }
+        first.cancel(); continuation?.resume()
+        let result = try await second.value; XCTAssertEqual(result.recoveredCount, 1); XCTAssertEqual(executions, 1)
+        do { _ = try await first.value; XCTFail("caller canceled") }
+        catch let failure as SdkFailure { XCTAssertEqual(failure.code, "CANCELED") }
+    }
+
 }

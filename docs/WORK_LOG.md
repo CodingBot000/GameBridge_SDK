@@ -1384,3 +1384,11 @@
 - 기존 `GooglePlayBillingProviderTest` 종료 0: 기본 검증 동시성·account binding·복구 집계 회귀 통과. 새 공유 복구 및 caller 취소/계정 전환은 별도 fake 시험을 추가한다.
 - `:sdk-android:testDebugUnitTest --tests GooglePlayBillingProviderTest` 재실행 종료 0: 동시 복구 요청은 조회 1회를 공유하고 한 caller 취소 후 다른 caller가 완료했으며, 도중 계정 변경은 공유와 결과를 CANCELED로 차단했다. 실제 Play는 미실행이다.
 - 커밋 전: Android Native recovery single-flight와 fake 시험만 포함한다. iOS의 중첩 복구는 현재 BUSY 처리이며 실제 플랫폼 검증은 대기다.
+
+### [P05-T06] StoreKit recovery single-flight
+- Task 시작: iOS의 중첩 복구 BUSY를 동일 계정·동일 사유에 한해 공유 작업으로 변경한다. APP_RESUME과 USER_RESTORE는 합치지 않아 background에서 사용자 인증 UI가 생기지 않도록 한다.
+- StoreKit recovery를 동일 계정·동일 사유에서 공유하고, 다른 계정은 CANCELED, 다른 사유는 BUSY로 분리했다. 명시적 USER_RESTORE만 AppStore.sync/UI gate를 사용하며 stop 시 공유 작업을 취소한다. fake concurrency 시험을 진행한다.
+- `swift test --package-path ios --filter StoreKitBillingProviderTests` 종료 0, 기존 3건 회귀 통과. 새 flight 공유·취소 및 다른 사유/계정 차단은 별도 fake 시험을 추가한다.
+- `swift test --package-path ios --filter StoreKitBillingProviderTests` 종료 0, 4건: fake 공유 복구 1회, caller 취소 격리, 다른 사유 BUSY·다른 계정 CANCELED를 확인했다. 실제 AppStore.sync 및 StoreKit 거래는 실행하지 않았다. simulator framework compile을 확인한다.
+- `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. 무서명 simulator compile이며 실제 StoreKit 복원·Unity player는 아니다.
+- 커밋 전: iOS 동일 사유·계정 recovery single-flight 및 fake 시험만 포함한다. 실제 StoreKit 복원과 ENV-STOREKIT-26은 미검증/실패 유지한다.

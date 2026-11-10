@@ -2343,3 +2343,8 @@
 - 기존 전용 iOS 18.6 재시작 runner에 런타임 선택을 추가하고 별도 26.5 simulator에서 실행한다. 실패를 자동으로 성공 처리하지 않으며 Apple sandbox와 구분한다.
 - iOS 26.5 전용 simulator·DB 재시험 `artifacts/xcode-process-recovery-ifyufa3n` exit 1: 앱 prepare 상태 보고 timeout. 이번 결과만으로 기존 SKInternalErrorDomain Code 3과 동일 원인이라고 판단하지 않는다. 제품 StoreKit 기능 검증은 FAIL 유지한다.
 - runtime override 및 증거 JSON에 사용 런타임을 기록하도록 보강했고 Python 문법 검사는 PASS. 커밋 준비: 테스트 runner와 실패 사실만 저장한다.
+- iOS 26.5 prepare timeout의 위치를 구분하기 위해 테스트 앱의 안전한 단계 checkpoint를 추가하고 전용 환경에서 재실행한다.
+- 상태 파일에 테스트 단계 이름만 쓰고 timeout에서 마지막 단계를 기록하도록 한 뒤 새 전용 simulator·DB로 실행한다.
+- 26.5 전용 simulator에서 SKTestSession 생성 단계 timeout (`artifacts/xcode-process-recovery-p8qyld6o`); Code 3 발생 여부는 미확인. 테스트 계측 자체의 회귀를 배제하기 위해 iOS 18.6에서 동일 runner를 재실행한다.
+- 동일 계측 runner의 iOS 18.6 process recovery PASS (`artifacts/xcode-process-recovery-2jktejkt`), 반면 26.5는 SKTestSession 생성에서 timeout. 두 runtime 결과는 분리해 기록한다.
+- 커밋 준비: 테스트 앱 단계 checkpoint와 timeout 결과, 26.5 실패·18.6 대조 PASS를 보존한다. 실제 Apple sandbox는 미실행이다.

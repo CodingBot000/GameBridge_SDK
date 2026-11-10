@@ -232,3 +232,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - P05-T03 iOS 26.5 재검증 시작: 전용 simulator에서 현재 Xcode 로컬 앱 재시작 시험을 실행해 기존 StoreKit Code 3 실패가 유지되는지 확인한다. 기존 simulator·설정은 보존한다.
 - P05-T03 iOS 26.5 전용 재검증 FAIL (`artifacts/xcode-process-recovery-ifyufa3n`): 테스트 앱 prepare 상태 보고가 제한시간 내 오지 않았다. Code 3 재현 여부는 확인되지 않았으며 기존 실패는 유지한다.
 - P05-T03 runtime 선택 runner 문법 검사 PASS. 커밋 준비: iOS 26.5 재실행은 timeout FAIL로 남긴다.
+- P05-T03 timeout 원인 조사 시작: 테스트 앱 진행 단계만 기록해 어디에서 멈추는지 확인한다. 거래 증빙과 인증값은 기록하지 않는다.
+- P05-T03 단계 checkpoint 적용 후 iOS 26.5 timeout 위치 재검증 시작.
+- P05-T03 iOS 26.5 재시험 FAIL (`artifacts/xcode-process-recovery-p8qyld6o`): SKTestSession 생성 중 prepare timeout. 기존 Code 3과 동일 원인인지는 미확정. checkpoint 변경 후 iOS 18.6 양성 대조를 확인한다.
+- P05-T03 동일 계측 iOS 18.6 양성 대조 PASS (`artifacts/xcode-process-recovery-2jktejkt`). iOS 26.5 SKTestSession timeout은 별도 FAIL 유지한다.
+- P05-T03 커밋 준비: 26.5 timeout 단계와 18.6 대조 결과 및 테스트 checkpoint만 기록한다.

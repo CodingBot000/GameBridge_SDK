@@ -60,7 +60,9 @@ def main():
                 if data.get('phase')=='failed': raise RuntimeError('app reported failure: '+str(data))
                 if data.get('phase')==('pending' if phase=='prepare' else 'recovered'): return data
                 time.sleep(.25)
-            raise RuntimeError('app phase timeout: '+phase)
+            try: last=json.loads(status.read_text())
+            except (OSError,ValueError): last={}
+            raise RuntimeError('app phase timeout: '+phase+'; stage='+str(last.get('stage','unreported')))
         print('Testing committed purchase and process termination...',flush=True)
         first=launch('prepare'); report['prepare']=first
         terminated=run(['xcrun','simctl','terminate',device,BUNDLE],timeout=30)

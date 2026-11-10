@@ -623,3 +623,8 @@
 
 ### [P04-T04] 커밋 전 — 2026-11-10 Asia/Seoul
 - 사용자가 최초 로그인 기준 7일 고정을 승인했으며 DB refresh UPDATE는 원래 만료를 변경하지 않는다. 앞서 local Backend Kotlin/Swift single-flight·응답 유실·logout 및 mock HTTP 시험을 통과했다. 실제 Provider와 revoke 실패의 재시작 후 재시도는 미검증/미구현으로 PARTIAL 유지한다.
+- P05-T04 계속: Google 공식 Android Publisher Java client를 사용해 스토어 상태 조회를 구성한다. 로컬 fake 응답과 실제 Play 조회를 분리한다.
+- Google Publisher v2 조회 adapter 초안 작성. package는 설정에서 고정하고 product·상태·account·test 환경·수량을 검증한다. compile 및 fake 응답 시험 전이다.
+- Google 공식 client 포함 Kotlin 컴파일 종료 0. fake Publisher 응답과 네트워크 실패를 이용해 승인/거부 경계를 확인한다.
+- Google fake Publisher 응답 시험 2건 통과: PENDING·계정·상품·환경·수량 불일치 거부와 네트워크 오류 분리. 실제 Google API 조회·취소/환불 처리·지급 연결은 미검증이다.
+- 커밋 전: 공식 Google Publisher client 조회 경계와 fake 시험만 포함한다. 자격 증명 조립 및 실제 거래, 원장 연결은 미완료로 P05-T04 PARTIAL 유지.

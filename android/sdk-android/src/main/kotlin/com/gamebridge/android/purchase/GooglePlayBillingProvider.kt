@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.util.UUID
@@ -26,6 +28,7 @@ internal data class BoundPlayAccount(val userId: UUID, val obfuscatedAccountId: 
 internal class RawPlayPurchase(val storeId: String, val token: String, val accountId: String?, val quantity: Int, val state: Int) {
     override fun toString() = "RawPlayPurchase([redacted])"
 }
+internal data class PlayRecoveryCounts(val examined: Int, val recovered: Int, val deferred: Int, val failed: Int)
 internal data class PlayPurchaseEvent(val productId: String, val status: String, val errorCode: String? = null, val serverPurchaseId: UUID? = null)
 internal data class ServerPlayResult(val userId: UUID, val accountId: String, val productId: String, val serverPurchaseId: UUID, val fulfillmentStatus: String, val proofFingerprint: ByteArray) {
     override fun toString() = "ServerPlayResult([redacted])"
@@ -56,13 +59,15 @@ internal class GooglePlayBillingProvider(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutableEvents = MutableSharedFlow<PlayPurchaseEvent>(extraBufferCapacity = 100, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val proofQueue = Channel<RawPlayPurchase>(capacity = 100)
+    private val verificationGate = verificationConcurrency?.takeIf { it > 0 }?.let(::Semaphore)
+    private val recoveryLock = Mutex()
     val events: SharedFlow<PlayPurchaseEvent> = mutableEvents
     init {
         if (productIds.keys != setOf("coins_100", "premium_unlock") || productIds.values.any { it.isBlank() } || productIds.values.toSet().size != 2) throw SdkFailure("CONFIG_REQUIRED")
         if (verificationConcurrency != null && verificationConcurrency <= 0) throw SdkFailure("CONFIG_REQUIRED")
         if (verificationConcurrency != null) repeat(verificationConcurrency) {
             scope.launch {
-                for (raw in proofQueue) try { process(raw) }
+                for (raw in proofQueue) try { verificationGate!!.withPermit { process(raw) } }
                 catch (cancel: CancellationException) { throw cancel }
                 catch (_: Exception) {
                     val product = productIds.entries.firstOrNull { it.value == raw.storeId }?.key
@@ -96,6 +101,27 @@ internal class GooglePlayBillingProvider(
         return try { gateway.launch(storeId, account) } finally { uiGate.unlock() }
     }
     suspend fun recover() { gateway.recover().forEach(::enqueue) }
+    suspend fun recoverDetailed(): PlayRecoveryCounts = recoveryLock.withLock {
+        val gate = verificationGate ?: throw SdkFailure("CONFIG_REQUIRED")
+        val purchases = gateway.recover()
+        var recovered = 0; var deferred = 0; var failed = 0
+        for (raw in purchases) {
+            val result = try { gate.withPermit { process(raw) } }
+            catch (cancel: CancellationException) { throw cancel }
+            catch (failure: SdkFailure) {
+                if (failure.code == "CANCELED") throw failure
+                if (failure.code in setOf("NETWORK_UNAVAILABLE", "TIMEOUT", "STORE_UNAVAILABLE", "BUSY")) deferred++ else failed++
+                continue
+            }
+            when (result?.status) {
+                "PURCHASED" -> recovered++
+                "PENDING", "VERIFICATION_PENDING" -> deferred++
+                null -> throw SdkFailure("CANCELED")
+                else -> failed++
+            }
+        }
+        PlayRecoveryCounts(purchases.size, recovered, deferred, failed)
+    }
     fun close() { gateway.setObserver(null); proofQueue.close(); gateway.close(); scope.cancel() }
     private fun enqueue(raw: RawPlayPurchase) {
         if (verificationConcurrency == null || !proofQueue.trySend(raw).isSuccess) {
@@ -104,34 +130,35 @@ internal class GooglePlayBillingProvider(
             mutableEvents.tryEmit(PlayPurchaseEvent(product, status))
         }
     }
-    private suspend fun process(raw: RawPlayPurchase) {
-        val product = productIds.entries.firstOrNull { it.value == raw.storeId }?.key ?: return
+    private suspend fun emit(event: PlayPurchaseEvent): PlayPurchaseEvent { mutableEvents.emit(event); return event }
+    private suspend fun process(raw: RawPlayPurchase): PlayPurchaseEvent? {
+        val product = productIds.entries.firstOrNull { it.value == raw.storeId }?.key
+            ?: return emit(PlayPurchaseEvent("", "FAILED", "PRODUCT_NOT_FOUND"))
         val account = accountSource.current()
-        if (account == null) { mutableEvents.emit(PlayPurchaseEvent(product, "FAILED", "SESSION_EXPIRED")); return }
-        if (raw.token.isBlank()) { mutableEvents.emit(PlayPurchaseEvent(product, "FAILED", "VERIFICATION_FAILED")); return }
-        if (raw.quantity != 1) { mutableEvents.emit(PlayPurchaseEvent(product, "FAILED", "UNSUPPORTED_OPERATION")); return }
-        if (raw.accountId != account.obfuscatedAccountId) { mutableEvents.emit(PlayPurchaseEvent(product, "FAILED", "PURCHASE_ACCOUNT_MISMATCH")); return }
-        when (raw.state) {
-            Purchase.PurchaseState.PENDING -> mutableEvents.emit(PlayPurchaseEvent(product, "PENDING"))
+        if (account == null) return emit(PlayPurchaseEvent(product, "FAILED", "SESSION_EXPIRED"))
+        if (raw.token.isBlank()) return emit(PlayPurchaseEvent(product, "FAILED", "VERIFICATION_FAILED"))
+        if (raw.quantity != 1) return emit(PlayPurchaseEvent(product, "FAILED", "UNSUPPORTED_OPERATION"))
+        if (raw.accountId != account.obfuscatedAccountId) return emit(PlayPurchaseEvent(product, "FAILED", "PURCHASE_ACCOUNT_MISMATCH"))
+        return when (raw.state) {
+            Purchase.PurchaseState.PENDING -> emit(PlayPurchaseEvent(product, "PENDING"))
             Purchase.PurchaseState.PURCHASED -> {
-                val sink = proofSink
-                if (sink == null) { mutableEvents.emit(PlayPurchaseEvent(product, "VERIFICATION_PENDING")); return }
+                val sink = proofSink ?: return emit(PlayPurchaseEvent(product, "VERIFICATION_PENDING"))
                 val verified = try { sink.verify(account, product, raw) } catch (failure: SdkFailure) {
-                    if (failure.code in setOf("PURCHASE_ACCOUNT_MISMATCH", "VERIFICATION_FAILED", "UNSUPPORTED_OPERATION")) mutableEvents.emit(PlayPurchaseEvent(product, "FAILED", failure.code))
-                    else mutableEvents.emit(PlayPurchaseEvent(product, "VERIFICATION_PENDING"))
-                    return
-                } catch (_: CancellationException) { throw CancellationException() }
-                catch (_: Exception) { mutableEvents.emit(PlayPurchaseEvent(product, "VERIFICATION_PENDING")); return }
+                    return if (failure.code in setOf("PURCHASE_ACCOUNT_MISMATCH", "VERIFICATION_FAILED", "UNSUPPORTED_OPERATION"))
+                        emit(PlayPurchaseEvent(product, "FAILED", failure.code))
+                    else emit(PlayPurchaseEvent(product, "VERIFICATION_PENDING"))
+                } catch (cancel: CancellationException) { throw cancel }
+                catch (_: Exception) { return emit(PlayPurchaseEvent(product, "VERIFICATION_PENDING")) }
                 val current = accountSource.current()
-                if (current?.userId != account.userId || current.obfuscatedAccountId != account.obfuscatedAccountId) return
+                if (current?.userId != account.userId || current.obfuscatedAccountId != account.obfuscatedAccountId) return null
                 val fingerprint = MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray(Charsets.UTF_8))
                 if (verified.userId != account.userId || verified.accountId != account.obfuscatedAccountId || verified.productId != product ||
                     !MessageDigest.isEqual(fingerprint, verified.proofFingerprint) || verified.fulfillmentStatus !in setOf("GRANTED", "ALREADY_GRANTED")) {
-                    mutableEvents.emit(PlayPurchaseEvent(product, "FAILED", "PURCHASE_ACCOUNT_MISMATCH")); return
+                    return emit(PlayPurchaseEvent(product, "FAILED", "PURCHASE_ACCOUNT_MISMATCH"))
                 }
-                mutableEvents.emit(PlayPurchaseEvent(product, "PURCHASED", serverPurchaseId = verified.serverPurchaseId))
+                emit(PlayPurchaseEvent(product, "PURCHASED", serverPurchaseId = verified.serverPurchaseId))
             }
-            else -> mutableEvents.emit(PlayPurchaseEvent(product, "FAILED", "PURCHASE_FAILED"))
+            else -> emit(PlayPurchaseEvent(product, "FAILED", "PURCHASE_FAILED"))
         }
     }
 }

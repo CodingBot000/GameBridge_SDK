@@ -20,12 +20,13 @@ private class FakePlayGateway : PlayGateway {
     var listener: ((RawPlayPurchase) -> Unit)? = null
     var launches = 0
     var recoveries = 0
+    var recoveredPurchases: List<RawPlayPurchase> = emptyList()
     override fun attach(activity: Activity) {}
     override fun detach() {}
     override fun setObserver(observer: ((RawPlayPurchase) -> Unit)?) { this.listener = observer }
     override suspend fun products(storeIds: List<String>) = storeIds.map { PlayCatalogItem(it, "title-$it", "₩1,000", "KRW", 1_000_000) }
     override suspend fun launch(storeId: String, account: BoundPlayAccount): String { launches++; return "VERIFICATION_PENDING" }
-    override suspend fun recover(): List<RawPlayPurchase> { recoveries++; return emptyList() }
+    override suspend fun recover(): List<RawPlayPurchase> { recoveries++; return recoveredPurchases }
     override fun close() {}
 }
 class GooglePlayBillingProviderTest {
@@ -147,4 +148,32 @@ class GooglePlayBillingProviderTest {
         assertEquals("PURCHASE_ACCOUNT_MISMATCH", next(provider, gateway, proof(Purchase.PurchaseState.PURCHASED)).errorCode)
         provider.close()
     }
+    @Test fun `recovery counts only observed verification outcomes`() = runBlocking {
+        val gateway = FakePlayGateway()
+        gateway.recoveredPurchases = listOf(proof(Purchase.PurchaseState.PURCHASED), proof(Purchase.PurchaseState.PENDING),
+            proof(Purchase.PurchaseState.PURCHASED, quantity = 2), RawPlayPurchase("coins.store", "retry", account.obfuscatedAccountId, 1, Purchase.PurchaseState.PURCHASED))
+        val sink = PlayProofSink { _, _, raw ->
+            if (raw.token == "retry") throw SdkFailure("NETWORK_UNAVAILABLE")
+            ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray()))
+        }
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink)
+        try { assertEquals(PlayRecoveryCounts(4, 1, 2, 1), provider.recoverDetailed()) }
+        finally { provider.close() }
+    }
+    @Test fun `recovery shares the one transaction verification limit with callbacks`() = runBlocking {
+        val gateway = FakePlayGateway(); gateway.recoveredPurchases = listOf(proof(Purchase.PurchaseState.PURCHASED))
+        val entered = CompletableDeferred<Unit>(); val release = CompletableDeferred<Unit>(); val count = java.util.concurrent.atomic.AtomicInteger()
+        val sink = PlayProofSink { _, _, raw ->
+            if (count.incrementAndGet() == 1) { entered.complete(Unit); release.await() }
+            ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", UUID.randomUUID(), "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray()))
+        }
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink)
+        try {
+            gateway.listener!!.invoke(proof(Purchase.PurchaseState.PURCHASED)); withTimeout(2000) { entered.await() }
+            val recovery = async { provider.recoverDetailed() }
+            assertNull(withTimeoutOrNull(150) { recovery.await() }); assertEquals(1, count.get())
+            release.complete(Unit); assertEquals(1, withTimeout(2000) { recovery.await() }.recovered); assertEquals(2, count.get())
+        } finally { provider.close() }
+    }
+
 }

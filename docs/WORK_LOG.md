@@ -1239,3 +1239,12 @@
 - `xcodebuild -project artifacts/ios-apple-bridge.JMOwJF/... -scheme GameBridgeNative -destination generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0: UIKit/StoreKit 이벤트 분기 포함 컴파일. 실제 listener·기기·Unity 동작은 미실행이다. 전체 Swift 회귀를 실행한다.
 - `swift test --package-path ios` 종료 0: 총 47건 중 4건 opt-in local Backend skip, 나머지 실패 0. 이 결과는 실제 StoreKit 거래 또는 UIKit 이벤트 실행을 뜻하지 않는다.
 - 커밋 전: iOS sandbox 상점의 상품·구매·잔액 및 검증된 지연 이벤트 코드와 fake/compile 증거만 포함한다. 실제 StoreKit 거래·listener·Unity와 사용자 복원/sync bridge는 미완료다.
+
+### [P05-T06] LOCAL_MOCK 구매 복구
+- Task 시작: 로컬 Mock의 거래는 서버에서 즉시 지급하고 별도 스토어 완료 처리가 없으므로 sync에서 서버 entitlement를 재조회한다. 실제 스토어의 비동기 복구 건수는 확인 전 임의로 성공 집계하지 않는다.
+- 정정: 앞선 “별도 스토어 완료 처리가 없다”는 기록은 부정확하다. MockPurchaseController는 서버 MOCK finalization job을 생성하고 worker가 별도 완료한다. 또한 현재 Native Mock client는 구매 요청의 transaction/attempt를 재시작용으로 저장하지 않아 응답 유실 뒤 복구 건수를 알 수 없다. entitlement 재조회만으로 sync 성공·0건이라고 표시하지 않고, 이 누락을 남긴 채 독립적인 실제 상점 복구 경로를 조사한다.
+- Mock 재시작 pending 단서 누락은 BUG-009 OPEN으로 원장에 등록했다. Android Play는 기존 queryPurchases 결과를 단일 검증 경계에서 처리하고 실제 결과를 집계할 수 있으므로 독립적으로 개발한다.
+- Google Play recovery가 조회한 거래를 기존 callback worker와 공유하는 검증 semaphore에서 처리하고 실제 PURCHASED/PENDING/FAILED 결과를 집계하도록 작성했다. 1건 동시 검증 기본값과 계정 전환 차단을 유지한다. Fake gateway 회귀를 확인한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-android:testDebugUnitTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest` 종료 0: 기존 Play fake 검증 불변식과 기본 동시 1건 회귀 통과. 새 recovery 집계와 worker 동시성은 추가로 검증한다.
+- 동일 GooglePlayBillingProviderTest 재실행 종료 0: fake 거래 4건의 verified 1·pending/일시 장애 2·실패 1 집계, callback 처리와 recovery가 검증 동시 1건을 공유하는 것을 확인했다. 실제 Google Play 조회/consume은 실행하지 않았다.
+- 커밋 전: Android Native recovery 결과 집계와 fake 검증만 포함한다. Unity sync 연결은 다음 하위 작업이며, recovery 요청 중복의 완전한 single-flight와 BUG-009는 미완료다.

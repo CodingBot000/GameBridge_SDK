@@ -17,6 +17,7 @@ import kotlinx.serialization.json.Json
 import java.util.UUID
 
 /** No token, receipt or account binding is exposed in public results. */
+data class GoogleRecoveryCounts(val examinedCount: Int, val recoveredCount: Int, val deferredCount: Int, val failureCount: Int)
 data class GoogleStoreEvent(val productId: String, val status: PurchaseStatus, val errorCode: String?, val serverPurchaseId: UUID?)
 class GooglePlayStore internal constructor(private val auth: GoogleAuthProvider, private val client: BackendClient,
                                            private val provider: GooglePlayBillingProvider) : AutoCloseable {
@@ -40,6 +41,10 @@ class GooglePlayStore internal constructor(private val auth: GoogleAuthProvider,
         decodeGoogleEntitlements(client.request("/v1/entitlements", "GET", accessToken = session.accessToken).json, session.userId)
     } ?: throw SdkFailure("SESSION_EXPIRED")
     suspend fun recover() = provider.recover()
+    suspend fun recoverDetailed(): GoogleRecoveryCounts {
+        val counts = provider.recoverDetailed()
+        return GoogleRecoveryCounts(counts.examined, counts.recovered, counts.deferred, counts.failed)
+    }
     override fun close() { provider.close() }
 }
 

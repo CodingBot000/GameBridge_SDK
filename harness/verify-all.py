@@ -83,6 +83,7 @@ def main() -> int:
     simple('lifecycle-stress',['bash','scripts/stress-csharp-lifecycle.sh'],'"samples": 100')
     simple('r50-negative',['python3','harness/run-r50.py'],'R50 PASS:')
     simple('purchase-verifier',['python3','harness/run-purchase-verifier.py'],'Purchase verifier PASS:')
+    simple('push-router-scenarios',['python3','harness/run-push-router-scenarios.py'],'Push router scenarios PASS:')
     nested('auth',['python3','harness/run-auth-regression.py'])
     nested('purchase',['python3','harness/run-purchase-regression.py'])
     ledger_env = env.copy()
@@ -115,7 +116,7 @@ def main() -> int:
     required_names = {
         'harness-self', 'progress', 'manifest', 'api-baseline', 'api-baseline-negative', 'csharp-compat',
         'aggregation-self', 'progress-negative', 'manifest-negative', 'contract-negative', 'bridge-mutation',
-        'lifecycle-stress', 'r50-negative', 'purchase-verifier', 'ledger-mutation', 'scenario-coverage', 'unity-editor-runtime',
+        'lifecycle-stress', 'r50-negative', 'purchase-verifier', 'push-router-scenarios', 'ledger-mutation', 'scenario-coverage', 'unity-editor-runtime',
         *(f'contracts/{name}' for name in ('kotlin','swift','csharp')),
         *(f'auth/{name}' for name in ('backend-jwt-fake','backend-sandbox-test-key-db','android-native-fake','swift-native-fake')),
         *(f'purchase/{name}' for name in ('local-postgres-fixtures','sandbox-http-fixtures','android-native-fake','swift-native-fake',

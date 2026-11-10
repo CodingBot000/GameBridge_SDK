@@ -139,6 +139,14 @@
       ],
       "mode": "ISOLATED_MUTATION",
       "platform": "Standalone .NET"
+    },
+    "push-router-scenarios": {
+      "command": [
+        "python3",
+        "harness/run-push-router-scenarios.py"
+      ],
+      "mode": "NATIVE_AND_MANAGED_FAKE",
+      "platform": "Android/Swift/Standalone .NET"
     }
   },
   "scenarios": [
@@ -1282,17 +1290,34 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R44"
       ],
       "candidateSuites": [
-        "push-regression"
+        "push-router-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/push-router-maintenance-scenarios.md",
+      "note": "Synthetic Native and managed routing/maintenance recovery; Unity and remote push are separate.",
+      "assertions": [
+        {
+          "suite": "push-router-scenarios",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/PushRouterTest.kt",
+          "testCase": "queues until ready"
+        },
+        {
+          "suite": "push-router-scenarios",
+          "testFile": "ios/Tests/GameBridgeCoreTests/PushRouterTests.swift",
+          "testCase": "openResult"
+        },
+        {
+          "suite": "push-router-scenarios",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "cold push delivered after ready"
+        }
+      ]
     },
     {
       "id": "R45",
@@ -1302,17 +1327,34 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R45"
       ],
       "candidateSuites": [
-        "push-regression"
+        "push-router-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/push-router-maintenance-scenarios.md",
+      "note": "Synthetic Native and managed routing/maintenance recovery; Unity and remote push are separate.",
+      "assertions": [
+        {
+          "suite": "push-router-scenarios",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/PushRouterTest.kt",
+          "testCase": "PushEnqueueResult.DUPLICATE"
+        },
+        {
+          "suite": "push-router-scenarios",
+          "testFile": "ios/Tests/GameBridgeCoreTests/PushPayloadTests.swift",
+          "testCase": "testOnlyAllowlistedRoutesAndFieldsAreAccepted"
+        },
+        {
+          "suite": "push-router-scenarios",
+          "testFile": "scripts/registry-smoke.cs",
+          "testCase": "unsafe route ignored"
+        }
+      ]
     },
     {
       "id": "R46",
@@ -1322,17 +1364,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R46"
       ],
       "candidateSuites": [
-        "push-regression"
+        "push-router-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/push-router-maintenance-scenarios.md",
+      "note": "Synthetic Native and managed routing/maintenance recovery; Unity and remote push are separate.",
+      "assertions": [
+        {
+          "suite": "push-router-scenarios",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/LocalMockRecoveryTest.kt",
+          "testCase": "maintenance.set(true)"
+        },
+        {
+          "suite": "push-router-scenarios",
+          "testFile": "ios/Tests/GameBridgeCoreTests/LocalMockRecoveryTests.swift",
+          "testCase": "RecoveryProtocol.setMaintenance(true)"
+        }
+      ]
     },
     {
       "id": "R47",

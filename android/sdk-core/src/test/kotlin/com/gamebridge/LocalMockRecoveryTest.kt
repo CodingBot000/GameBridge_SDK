@@ -15,6 +15,7 @@ class LocalMockRecoveryTest {
         val purchaseId = "b2719c4e-d533-47ee-9efd-838791ea79c8"
         val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
         val attempts = mutableListOf<Pair<String, String>>()
+        val maintenance = java.util.concurrent.atomic.AtomicBoolean(false)
         fun reply(e: HttpExchange, status: Int, text: String) { val bytes = text.toByteArray(); e.sendResponseHeaders(status, bytes.size.toLong()); e.responseBody.use { it.write(bytes) } }
         server.createContext("/v1/dev/auth") { e ->
             val subject = Json.parseToJsonElement(e.requestBody.bufferedReader().readText()).jsonObject.getValue("subject").jsonPrimitive.content
@@ -25,7 +26,7 @@ class LocalMockRecoveryTest {
             val user = if (e.requestHeaders.getFirst("Authorization") == "Bearer access-A") userA else userB
             reply(e, 200, """{"userId":"$user"}""")
         }
-        server.createContext("/v1/config") { e -> reply(e, 200, """{"revision":"1","maintenanceEnabled":false,"message":null,"expiresAt":"2099-01-01T00:00:00Z"}""") }
+        server.createContext("/v1/config") { e -> reply(e, 200, """{"revision":"1","maintenanceEnabled":${maintenance.get()},"message":null,"expiresAt":"2099-01-01T00:00:00Z"}""") }
         server.createContext("/v1/auth/logout") { e -> reply(e, 200, "{}") }
         server.createContext("/v1/purchases/verify") { e ->
             val key = e.requestHeaders.getFirst("Idempotency-Key")
@@ -48,6 +49,9 @@ class LocalMockRecoveryTest {
             val other = LocalMockClient(config, sessions, "x".repeat(32), pending); other.signIn("B")
             assertEquals(LocalRecoveryCounts(0, 0, 0, 0), other.recoverPending()); assertNotNull(pending.value); other.signOut()
             val restarted = LocalMockClient(config, sessions, "x".repeat(32), pending); restarted.signIn("A")
+            maintenance.set(true)
+            assertEquals("MAINTENANCE", assertFailsWith<SdkFailure> { restarted.purchase("coins_100", UUID.randomUUID(), UUID.randomUUID()) }.code)
+            assertEquals(1, attempts.size)
             assertEquals(LocalRecoveryCounts(1, 1, 0, 0), restarted.recoverPending()); assertNull(pending.value)
             assertEquals(2, attempts.size); assertEquals(attempts[0], attempts[1]); restarted.signOut()
         } finally { server.stop(0) }

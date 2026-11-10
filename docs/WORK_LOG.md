@@ -2121,3 +2121,14 @@
 ### P09-T02 R05/R08 scenario 검증 시작
 - R05·R08 개별 entry, manifest 음성·원장 및 duplicate guard mutation 재실행 통과. 실제 JNI/Unity player는 별도다.
 - 커밋 준비: timeout 후 이벤트 및 Swift C ABI 입력 경계 시험과 로컬 scenario evidence만 저장한다.
+
+### [P09-T05] R44/R45/R46 회귀 보강 시작
+- 초기화 전 클릭의 READY 후 전달과 중복·route 제한을 양 Native/C# fake에서 확인하고, 실제 pending 단서를 만든 뒤 점검 중 신규 구매 차단·기존 복구 허용을 양 Native에서 검증한다. 실제 OS 알림·Unity player는 별도다.
+### P09-T05 점검 중 pending 복구 검증 시작
+- 양 Native에서 신규 구매는 MAINTENANCE로 거부하고 기존 pending은 같은 idempotency 단서로 복구되는지 synthetic HTTP로 시험한다.
+- Android synthetic router·payload·pending 恢復 및 Swift 4건 PASS: 점검 중 신규 구매는 MAINTENANCE로 차단됐고 기존 pending은 같은 단서로 복구됐다. C# fake cold click과 함께 전용 runner로 재실행한다.
+### P09-T05 router/maintenance scenario runner 검증 시작
+- `artifacts/push-router-scenarios-ohmtb_j0`: 양 Native router·점검 중 pending 복구와 C# cold event fake PASS. R44/R45/R46에 정확한 assertion을 연결하고 strict aggregate에서도 필수 실행한다. 원격 알림·Unity는 미검증이다.
+### P09-T05 scenario mapping 검증 시작
+- R44/R45/R46 manifest·부정 검사·원장 검사 통과, 나머지 23개는 PARTIAL로 유지한다. strict runner도 해당 synthetic lane 실행을 요구한다.
+- 커밋 준비: router 및 점검 중 pending 복구의 검증·evidence만 포함한다. 실제 Unity/OS 알림은 미검증이다.

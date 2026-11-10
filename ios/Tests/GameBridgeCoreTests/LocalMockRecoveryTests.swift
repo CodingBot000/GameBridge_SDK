@@ -12,9 +12,11 @@ private final class RecoveryProtocol: URLProtocol {
     static let lock = NSLock()
     static var attempts: [(String, String)] = []
     static var subject = "A"
+    static var maintenance = false
     static let userA = "d2719c4e-d533-47ee-9efd-838791ea79c8"
     static let userB = "a2719c4e-d533-47ee-9efd-838791ea79c8"
-    static func reset() { lock.lock(); attempts = []; subject = "A"; lock.unlock() }
+    static func reset() { lock.lock(); attempts = []; subject = "A"; maintenance = false; lock.unlock() }
+    static func setMaintenance(_ value: Bool) { lock.lock(); maintenance = value; lock.unlock() }
     static func setSubject(_ value: String) { lock.lock(); subject = value; lock.unlock() }
     static func snapshot() -> [(String, String)] { lock.lock(); defer { lock.unlock() }; return attempts }
     override class func canInit(with request: URLRequest) -> Bool { true }
@@ -36,7 +38,9 @@ private final class RecoveryProtocol: URLProtocol {
             body = """
             {"accessToken":"access-\(subject)","refreshToken":"refresh-\(subject)","expiresAt":"2099-01-01T00:00:00Z","userId":"\(user)"}
             """
-        case "/v1/config": body = #"{"revision":"1","maintenanceEnabled":false,"message":null,"expiresAt":"2099-01-01T00:00:00Z"}"#
+        case "/v1/config":
+            Self.lock.lock(); let maintenance = Self.maintenance; Self.lock.unlock()
+            body = "{\"revision\":\"1\",\"maintenanceEnabled\":\(maintenance),\"message\":null,\"expiresAt\":\"2099-01-01T00:00:00Z\"}"
         case "/v1/purchases/verify":
             let object = (try? JSONSerialization.jsonObject(with: bodyData())) as? [String: Any]
             Self.lock.lock(); Self.attempts.append((request.value(forHTTPHeaderField: "Idempotency-Key") ?? "", object?["proof"] as? String ?? "")); let number = Self.attempts.count; Self.lock.unlock()
@@ -74,6 +78,10 @@ final class LocalMockRecoveryTests: XCTestCase {
         let restarted = try LocalMockClient(config: config, store: sessions, developmentKey: key, sessionConfiguration: network, pendingStore: pending)
         RecoveryProtocol.setSubject("A")
         let originalUser = try await restarted.signIn(subject: "A"); XCTAssertEqual(originalUser.userId, RecoveryProtocol.userA)
+        RecoveryProtocol.setMaintenance(true)
+        do { _ = try await restarted.purchase(productId:"coins_100", transactionId:UUID(), attemptId:UUID()); XCTFail("maintenance purchase") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "MAINTENANCE") }
+        XCTAssertEqual(RecoveryProtocol.snapshot().count, 1)
         let result = try await restarted.recoverPending(); XCTAssertEqual(result.examinedCount, 1); XCTAssertEqual(result.recoveredCount, 1)
         XCTAssertNil(pending.value)
         let attempts = RecoveryProtocol.snapshot(); XCTAssertEqual(attempts.count, 2)

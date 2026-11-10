@@ -33,3 +33,5 @@ Android Unity sandbox의 Google Play bridge는 host가 명시한 두 상품 ID�
 iOS Unity sandbox는 Native StoreKit 상품·구매·서버 잔액을 연결하고 서버 확인 및 finish 후에만 완료 결과를 반환한다. 거래 업데이트와 미완료 복구의 검증된 결과는 session·계정 세대가 일치할 때 구매 이벤트로 전달한다. 이 경로는 fake 결과와 simulator compile만 확인했으며 실제 StoreKit listener, 사용자 복원 및 Unity iOS는 미검증이다. 복구 사유 분기는 fake 시험으로 확인했다.
 
 Android/iOS LOCAL_MOCK은 별도 암호화 저장소에 pending transaction/attempt를 저장하고, 복구 시 같은 사용자와 Backend에서 동일 멱등키를 재사용한다. 양쪽 모두 격리 local DB의 지급 후 응답 유실을 모사해 중복 지급이 없음을 확인했다. 현재 기기 보안 저장소 및 Unity player 재시작은 별도 검증이 필요하다.
+
+Unity Android에서 host manifest는 `POST_NOTIFICATIONS`를 선언해야 한다. SDK 초기화는 권한 창을 열지 않으며 `RequestPushPermissionAsync()` 호출 시 Android 13 이상에서 Unity permission API를 사용한다. 권한과 앱 전체 알림 설정은 등록 전에 다시 확인한다. 이 경로는 managed compile/fake facade만 확인했고 실제 Unity/Android dialog는 미검증이다.

@@ -49,6 +49,10 @@ namespace GameBridge
     }
     public sealed class InitResult { public SdkStatus Status { get; } internal InitResult(SdkStatus status) { Status = status; } }
 
+    internal interface IHostPushPermissionDriver
+    {
+        Task<PushPermission> RequestPermissionAsync(CancellationToken cancellation);
+    }
     internal interface IHostPushDriver
     {
         Task<PushPermission> RequestPermissionAsync(CancellationToken cancellation);
@@ -72,6 +76,7 @@ namespace GameBridge
         private int generation;
         private bool disposed;
         private IHostPushDriver hostPushDriver;
+        private readonly IHostPushPermissionDriver hostPushPermissionDriver;
         internal event Action<GameBridgeClient> Disposed;
         public event Action<PurchaseUpdate> PurchaseUpdated;
         public event Action<PushUpdate> PushReceived;
@@ -79,6 +84,7 @@ namespace GameBridge
         internal GameBridgeClient(IWireTransport transport)
         {
             this.transport = transport ?? throw new ArgumentNullException(nameof(transport));
+            hostPushPermissionDriver = transport as IHostPushPermissionDriver;
             registry = CreateRegistry();
             transport.Message += OnMessage;
         }
@@ -196,7 +202,9 @@ namespace GameBridge
         {
             if (cancellation.IsCancellationRequested) throw new SdkException("CANCELED");
             var host = ActiveHostPushDriver();
-            return host != null ? await host.RequestPermissionAsync(cancellation) : WireModels.Decode<PushPermission>(await Invoke("push.permission", new JObject(), true, cancellation));
+            if (host != null) return await host.RequestPermissionAsync(cancellation);
+            if (hostPushPermissionDriver != null) return await hostPushPermissionDriver.RequestPermissionAsync(cancellation);
+            return WireModels.Decode<PushPermission>(await Invoke("push.permission", new JObject(), true, cancellation));
         }
         public async Task<PushRegistration> RegisterPushAsync(CancellationToken cancellation = default)
         {

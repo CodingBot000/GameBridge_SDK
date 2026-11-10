@@ -17,8 +17,9 @@ class AndroidPushHostAdapter(
     private val onMessage: (PushPayload, Boolean) -> Unit,
     private val onError: () -> Unit,
 ) {
-    fun hasNotificationPermission(context: Context): Boolean = Build.VERSION.SDK_INT < 33 ||
-        context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    fun hasNotificationPermission(context: Context): Boolean =
+        (Build.VERSION.SDK_INT < 33 || context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) &&
+        context.getSystemService(NotificationManager::class.java).areNotificationsEnabled()
 
     /** Call only in response to the user's explicit action; host handles onRequestPermissionsResult. */
     fun requestNotificationPermission(activity: Activity, requestCode: Int) {

@@ -1354,3 +1354,15 @@
 - push capability에는 installation ID가 있어도 Firebase 초기화와 OS 권한은 별도 확인이 필요하다는 이유를 명시했다. 변경 후 bridge fake 시험을 재실행한다.
 - `:sdk-unity-bridge:testDebugUnitTest` 재실행 종료 0. Firebase host 실제 초기화·Android OS permission UI·token refresh 수명주기 및 원격 FCM은 확인하지 않았다.
 - 커밋 전: Android sandbox FCM token 조회·Backend 등록/해제 코드 및 fake 경계만 포함한다. Unity permission dialog·host service 자동 forwarding·실제 FCM 및 FID 전환은 미완료다.
+
+### [P06-T01] Unity Android 알림 권한
+- Task 시작: Unity Android host가 명시적 public 권한 요청에서만 OS 권한 UI를 표시하도록 연결하고, 거부 또는 미설정 상태는 등록 성공으로 처리하지 않는다.
+- Unity 공식 PermissionCallbacks/RequestUserPermission 문서를 확인했다: https://docs.unity3d.com/ja/6000.0/ScriptReference/Android.Permission.RequestUserPermission.html . Android 13 이상에서 명시적 호출로만 runtime 권한 dialog를 띄우고, 이전 버전은 별도 runtime 알림 권한 요청이 없도록 구현한다.
+- Unity Android transport에 notification permission 전용 host 경계를 작성했다. 연결/초기화만으로 prompt하지 않으며 Android 13 이상은 Unity PermissionCallbacks 결과를 사용하고, 취소·중복·종료를 구분한다. 공식 Unity managed reference compile 및 facade fake 시험을 진행한다.
+- `scripts/check-csharp-compile.sh` 종료 0이나 Android 조건부에서 `PermissionDeniedAndDontAskAgain` deprecated 경고 1개가 발생했다. Unity 공식 문서가 해당 callback을 신뢰하지 않고 PermissionDenied fallback을 권장하므로 deprecated 구독을 제거하고 재검증한다.
+- `scripts/check-csharp-compile.sh` 재실행 종료 0, Android 포함 경고 0; `scripts/smoke-csharp-registry.sh` 종료 0: fake transport 초기화 시 prompt 없음과 명시적 Android 권한 거부 전달을 확인했다. 실제 Android 권한 dialog는 미실행이다.
+- Android 13 미만에서도 앱 알림이 설정에서 꺼져 있을 수 있어 NotificationManager 실제 허용 상태를 확인하도록 보강했다. 취소된 요청은 가능한 경우 dialog 시작 전에 중단한다. Native compile과 C# 조건부 compile을 재확인한다.
+- `:sdk-android:testDebugUnitTest --tests AndroidPushHostAdapterTest` 종료 0, `scripts/check-csharp-compile.sh` 종료 0(경고 0). Native test는 token callback fake이며 실제 OS 알림 설정은 아직 실행하지 않았다.
+- C# 권한 snapshot도 Native 등록 검사와 동일하게 앱 전체 알림 허용 상태를 확인하도록 보정한다. 최종 조건부 compile을 확인한다.
+- 최종 `scripts/check-csharp-compile.sh` 종료 0, 4개 조건부 경고·오류 0. 실제 Android 13+ dialog·권한 설정 및 Unity Player 실행은 미검증이다.
+- 커밋 전: Android permission driver와 fake facade/compile만 포함한다. Firebase token rotation·수신 host forwarding 및 실제 원격 FCM은 미완료다.

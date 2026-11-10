@@ -21,6 +21,16 @@ internal static class Program
                 ["result"] = result, ["error"] = JValue.CreateNull() }.ToString(Newtonsoft.Json.Formatting.None));
         }
     }
+    private sealed class FakePermissionTransport : IWireTransport, GameBridge.IHostPushPermissionDriver
+    {
+        private readonly EditorOfflineTransport inner = new EditorOfflineTransport();
+        internal int Requests;
+        public event Action<string> Message { add { inner.Message += value; } remove { inner.Message -= value; } }
+        public void Dispatch(string json) => inner.Dispatch(json);
+        public void Pump() => inner.Pump();
+        public void Dispose() => inner.Dispose();
+        public Task<GameBridge.PushPermission> RequestPermissionAsync(CancellationToken cancellation) { Requests++; return Task.FromResult(new GameBridge.PushPermission { provider = "FCM", permission = "DENIED" }); }
+    }
     private sealed class FakeHostPushDriver : GameBridge.IHostPushDriver
     {
         internal int PermissionCalls, RegisterCalls;
@@ -174,6 +184,11 @@ internal static class Program
         await facade.SignOutAsync(); await facade.ShutdownAsync(); await facade.ShutdownAsync();
         Check(facade.GetStatus().State == "SHUTDOWN", "facade shutdown");
         await facade.InitializeAsync(config); facade.Dispose();
+        var permissionTransport = new FakePermissionTransport();
+        var permissionFacade = new GameBridge.GameBridgeClient(permissionTransport);
+        await permissionFacade.InitializeAsync(config); Check(permissionTransport.Requests == 0, "initialization must not prompt Android permission");
+        Check((await permissionFacade.RequestPushPermissionAsync()).permission == "DENIED", "Android host denial");
+        Check(permissionTransport.Requests == 1, "explicit Android permission request"); permissionFacade.Dispose();
         var held = new HeldTransport(); var concurrent = new GameBridge.GameBridgeClient(held);
         using (var callerCancellation = new CancellationTokenSource())
         {

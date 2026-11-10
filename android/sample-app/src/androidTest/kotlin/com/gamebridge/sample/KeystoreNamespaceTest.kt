@@ -3,6 +3,10 @@ package com.gamebridge.sample
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.gamebridge.android.KeystoreTokenStore
+import com.gamebridge.GameBridgeConfig
+import com.gamebridge.ProviderMode
+import com.gamebridge.LocalMockClient
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,5 +25,31 @@ class KeystoreNamespaceTest {
             assertEquals("synthetic-b", second.load())
             first.clear(); assertNull(first.load()); assertEquals("synthetic-b", second.load())
         } finally { first.clear(); second.clear() }
+    }
+    @Test fun localMockSessionRestoresAndLogsOut() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val namespace = "test_" + UUID.randomUUID().toString().replace("-", "")
+        val store = KeystoreTokenStore(context, namespace)
+        val config = GameBridgeConfig("gamebridge-sample", ProviderMode.LOCAL_MOCK, "http://10.0.2.2:18080")
+        val key = "local-test-key-0123456789-abcdef0123456789" // Test-only local key.
+        try {
+            LocalMockClient(config, store, key).signIn("A")
+            val restored = LocalMockClient(config, store, key)
+            assertNotNull(restored.restore()); restored.signOut(); assertNull(store.load())
+        } finally { store.clear() }
+    }
+    @Test fun probeBodylessLogoutPost() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val store = KeystoreTokenStore(context, "test_" + UUID.randomUUID().toString().replace("-", ""))
+        val config = GameBridgeConfig("gamebridge-sample", ProviderMode.LOCAL_MOCK, "http://10.0.2.2:18080")
+        try {
+            LocalMockClient(config, store, "local-test-key-0123456789-abcdef0123456789").signIn("A")
+            val access = org.json.JSONObject(store.load()!!).getString("accessToken")
+            val connection = java.net.URL("http://10.0.2.2:18080/v1/auth/logout").openConnection() as java.net.HttpURLConnection
+            connection.requestMethod = "POST"; connection.setRequestProperty("Authorization", "Bearer $access")
+            try { assertEquals(200, connection.responseCode) }
+            catch (error: java.io.IOException) { fail("bodyless POST exception type=" + error.javaClass.simpleName) }
+            finally { connection.disconnect() }
+        } finally { store.clear() }
     }
 }

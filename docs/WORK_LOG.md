@@ -1114,3 +1114,18 @@
 - sample APK 및 Android instrumented test APK build 성공. 기존 전용 AVD만 무창으로 기동해 namespace 시험을 실행하며 사용자 AVD나 데이터 초기화는 하지 않는다.
 - 전용 Android 36 emulator에서 instrumented Keystore namespace 시험 1건 통과: 두 무작위 test namespace가 서로 덮어쓰지 않고 한쪽 삭제가 다른 쪽에 영향 없음. 기존 default 사용자 session은 읽거나 지우지 않았다. Java 1인자 생성자도 bytecode에서 확인했다.
 - 커밋 전: namespace 분리와 전용 AVD 검증만 포함한다. 실제 Google 계정 및 상점은 미실행이다.
+- P07-T02 계속: 기존 Android local-mock 화면을 유지하고 별도 Google Sandbox 화면을 추가한다. provider/coordinator는 ViewModel에서 화면 전환 동안 유지하고 로그인·구매는 명시적 버튼에서만 시작한다.
+- Google Sandbox sample 초안은 별도 Keystore namespace와 ViewModel 소유 coordinator를 사용한다. user가 설정·로그인·store·구매를 명시적으로 누르기 전 외부 호출하지 않는다. 컴파일 및 전용 emulator 확인을 진행한다.
+- Android sandbox sample assembleDebug 성공. 빈 config 예외를 CONFIG_REQUIRED로 표시하고 전용 emulator에서 화면 진입·구성 거부만 확인한다. Google 계정 또는 실제 Billing UI는 시작하지 않는다.
+- 전용 Android 36 emulator에서 Google Sandbox 화면 진입과 빈 config의 CONFIG_REQUIRED 표시를 확인했다. 실제 Google 로그인이나 Play 구매는 시작하지 않았다. 기존 local-mock 흐름 회귀를 실행한다.
+- Android local-mock UI 회귀는 로그인·앱 재시작·복원까지 진행했으나 Signed out 상태를 관찰하지 못해 실패했다. 원인을 확인하기 전 전체 UI 통과로 기록하지 않는다.
+- Android 화면에는 `NETWORK_UNAVAILABLE — local session cleared; server revoke unconfirmed`가 표시됐다. 서버/에뮬레이터 포트는 열려 있어, 테스트 전용 namespace를 이용한 instrumented 로그인→복원→logout으로 네트워크 경로를 분리한다.
+- 전용 emulator instrumented 로그인/복원 후 logout도 NETWORK_UNAVAILABLE로 재현되어 단순 UI hit 문제가 아님을 확인했다. test-only session으로 body 없는 POST의 Android HttpURLConnection 예외 종류만 확인한다(토큰/응답 원문 출력 금지).
+- Android 직접 HttpURLConnection test에서 body 없는 logout POST가 서버 HTTP 500을 반환하는 것을 확인했다. 이전 NETWORK_UNAVAILABLE은 서버 500 매핑이었고 실제 네트워크 단절이 아니다. 예외 class만 정제 로깅하고 동일 form-content POST를 sandbox HTTP test로 재현한다.
+- sandbox HTTP test에서도 body 없는 form-content logout이 실패해 서버 오류를 재현했다. 정제된 예외 class를 확인해 원인을 수정한다.
+- 서버 정제 로그로 HttpMediaTypeNotSupportedException을 확인했다. Android의 빈 form-content POST도 받을 수 있게 logout을 ByteArray body로 수신하고, refresh logout JSON은 명시적으로 파싱해 기존 인증/오류 경계를 유지한다.
+- logout 수정 최초 컴파일 실패: nullable ByteArray에 isNullOrEmpty 확장이 없다. null/empty를 명시 분기해 재검증한다.
+- sandbox 실제 HTTP 테스트에서 빈 form-content access logout과 refresh JSON logout이 모두 통과했다. 직접 기동한 local 서버를 새 코드로 재시작해 Android emulator instrumented/UI 회귀를 확인한다.
+- 전용 Android emulator instrumented 3건 통과: 독립 namespace, body 없는 form logout, 실제 local-mock 재시작 session 복원/로그아웃. 기존 Android UI smoke를 재실행한다.
+- 수정된 서버에서 전용 Android UI login→재시작→restore→logout smoke 통과. Android 3 instrumented tests도 통과했으며 실제 Play/Google은 아니다. 실패한 form-content logout은 BUG-008로 기록·해결했다.
+- 커밋 전: 서버 logout media-type 수정·정제 예외 class 로그 및 Android 기기 회귀시험만 포함한다. 샘플 화면 변경은 별도 커밋한다.

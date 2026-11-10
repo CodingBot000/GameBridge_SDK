@@ -50,6 +50,7 @@ class HealthController {
 }
 @RestControllerAdvice
 class ApiErrors {
+    private val logger = org.slf4j.LoggerFactory.getLogger(ApiErrors::class.java)
     @ExceptionHandler(AuthFlowException::class)
     fun authFailure(ex: AuthFlowException, request: HttpServletRequest): ResponseEntity<Map<String, Any>> {
         val status = when (ex.code) { "AUTH_REPLAY_DETECTED" -> HttpStatus.CONFLICT; "CONFIG_REQUIRED", "NETWORK_UNAVAILABLE" -> HttpStatus.SERVICE_UNAVAILABLE; else -> HttpStatus.UNAUTHORIZED }
@@ -83,6 +84,9 @@ class ApiErrors {
         .body(mapOf("code" to "INVALID_ARGUMENT", "message" to "Invalid request", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
 
     @ExceptionHandler(Exception::class)
-    fun internal(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON)
-        .body(mapOf("code" to "INTERNAL_ERROR", "message" to "Request failed", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
+    fun internal(ex: Exception, request: HttpServletRequest): ResponseEntity<Map<String, Any>> {
+        logger.warn("Unhandled API exception type={}", ex.javaClass.simpleName)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON)
+            .body(mapOf("code" to "INTERNAL_ERROR", "message" to "Request failed", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
+    }
 }

@@ -154,14 +154,17 @@ data class RefreshInput(@field:NotBlank val refreshToken: String) {
 data class MockInput(@field:NotBlank val subject: String)
 data class LogoutInput(val refreshToken: String?) { override fun toString() = "LogoutInput([redacted])" }
 @RestController
-class SessionsController(private val sessions: SessionService) {
+class SessionsController(private val sessions: SessionService, private val mapper: com.fasterxml.jackson.databind.ObjectMapper) {
     @PostMapping("/v1/auth/refresh") fun refresh(@Valid @RequestBody input: RefreshInput) = sessions.refresh(input.refreshToken)
     @GetMapping("/v1/me") fun me(auth: org.springframework.security.core.Authentication): SessionProfile = sessions.profile(auth.principal as SessionPrincipal)
-    @PostMapping("/v1/auth/logout") fun logout(auth: org.springframework.security.core.Authentication?, @RequestBody(required = false) input: LogoutInput?): Map<String, Boolean> {
+    @PostMapping("/v1/auth/logout") fun logout(auth: org.springframework.security.core.Authentication?, @RequestBody(required = false) raw: ByteArray?): Map<String, Boolean> {
         val principal = auth?.principal as? SessionPrincipal
         if (principal != null) sessions.logout(principal)
-        else if (!input?.refreshToken.isNullOrBlank()) sessions.logoutWithRefresh(input!!.refreshToken!!)
-        else unauthorized()
+        else {
+            val input = if (raw == null || raw.isEmpty()) null else try { mapper.readValue(raw, LogoutInput::class.java) }
+                        catch (_: Exception) { throw ResponseStatusException(HttpStatus.BAD_REQUEST) }
+            if (!input?.refreshToken.isNullOrBlank()) sessions.logoutWithRefresh(input!!.refreshToken!!) else unauthorized()
+        }
         return mapOf("signedOut" to true)
     }
 }

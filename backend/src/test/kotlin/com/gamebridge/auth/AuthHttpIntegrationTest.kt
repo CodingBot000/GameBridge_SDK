@@ -52,6 +52,7 @@ class TestIdentityConfiguration {
 class AuthHttpIntegrationTest {
     @Autowired lateinit var rest: TestRestTemplate
     @Autowired lateinit var db: JdbcTemplate
+    @Autowired lateinit var sessions: com.gamebridge.session.SessionService
     @Autowired lateinit var tokenCipher: TokenCipher
     @Autowired internal lateinit var invalidator: PushTokenInvalidator
     companion object {
@@ -75,6 +76,10 @@ class AuthHttpIntegrationTest {
     @Test fun `http exchange verifies tokens and challenge replay while retaining first display name`() {
         val unsetConfig = rest.getForEntity("/v1/config", Map::class.java)
         assertEquals(503, unsetConfig.statusCode.value()); assertEquals("CONFIG_REQUIRED", unsetConfig.body!!["code"])
+        val extra = sessions.createVerified(VerifiedIdentity(IdentityProvider.GOOGLE, "https://accounts.google.com", "logout-test-" + UUID.randomUUID(), "test-google"), "test-app", null)
+        val emptyHeaders = HttpHeaders().apply { setBearerAuth(extra.accessToken); contentType = org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED }
+        val emptyLogout = rest.exchange("/v1/auth/logout", HttpMethod.POST, HttpEntity<Void>(emptyHeaders), Map::class.java)
+        assertEquals(200, emptyLogout.statusCode.value())
         val dev = rest.postForEntity("/v1/dev/auth", mapOf("subject" to "A"), Map::class.java)
         assertEquals(404, dev.statusCode.value())
         val subject = "subject-" + UUID.randomUUID()

@@ -190,3 +190,18 @@
 - local-mock 테스트 서버 Ctrl-C 종료 130. 전용 DB 컨테이너는 volume 삭제 없이 정지한다.
 - `docker compose ... stop` 종료 0; 전용 volume과 두 시험 DB는 보존.
 - 커밋 직전: 환경 guard 및 V2 migration만 반영. 이 guard는 DB 공유 방어의 일부이며 전체 개발 모드 격리·실 Provider·Unity 검증은 미완료다.
+
+### [P02-T03] 원장 구현 재개 — 2026-11-10 Asia/Seoul
+- DB profile 격리 guard를 반영했다. Mock 거래 고유키·서버 결정 지급액·동일 DB transaction·소유권을 보장하는 경로를 작성한다. 실제 스토어 검증과 완료 처리는 별도 미완료로 남긴다.
+- `./backend/gradlew -p backend test` 종료 0: Mock 원장 코드 컴파일과 기존 테스트 4건 통과. 신규 HTTP·DB 구매 및 원장 불변식은 아직 검증 전이다.
+- 점검 중 Mock 상품 seed가 공통 migration 경로에 있음을 발견해 Sandbox DB에 Mock 상품이 들어가지 않도록 profile 전용 migration으로 이동한다.
+- Mock seed를 local-mock Flyway 경로로 분리하고 사용자/멱등 충돌 코드를 구분한 뒤 `./backend/gradlew -p backend test` 종료 0, 기존 4건 통과. DB 통합 확인은 이어서 수행.
+- `scripts/run-demo-backend.sh` 실행 중: 전용 local-mock DB에 V3 Mock catalog migration 적용과 서버 기동 확인. 실제 구매 기능 검증은 아직 미실행.
+- `GAMEBRIDGE_DEV_AUTH_KEY=<local-test> python3 scripts/smoke-purchase-local.py` 종료 0: local-mock DB assertion 13건 통과. 동일 거래 재검증 및 동시 두 요청의 1회 지급, 다른 계정 충돌, key/body 충돌, 수량 2 거부, premium 재요청을 확인. 실제 스토어 proof·finalization은 미검증.
+- 검토 중 catalog 누락 시 ledger 없이 GRANTED가 기록될 위험을 발견해 상품 행과 ledger insert 수를 검사하고 실패 시 transaction을 rollback하도록 보정. `./backend/gradlew -p backend test` 종료 0. 변경 후 HTTP/DB 재검증 필요.
+- 변경 전 서버 Ctrl-C 종료 130. 수정된 서버로 재기동해 Mock 구매 smoke를 반복한다.
+- 보정된 local-mock 서버 재기동 관측. 기존 전용 DB는 보존한다.
+- 보정 후 `python3 scripts/smoke-purchase-local.py` 종료 0, local-mock assertion 13건 재통과. catalog 누락 강제 주입과 재시작·실제 스토어 검증은 별도로 남는다.
+- 테스트 서버 Ctrl-C 종료 130; 전용 DB는 데이터 보존 상태로 정지한다.
+- 전용 DB `docker compose ... stop` 종료 0. 실제 코인 구매가 아닌 Mock 구매·원장 데이터는 전용 volume에 보존됐다.
+- 커밋 전: local-mock catalog·동일 transaction 원장 지급·일부 멱등 처리와 smoke만 포함. 최종화 worker·실 스토어 검증·장애 복구·정밀 revision 계약 등은 미구현이므로 P02-T03은 PARTIAL 유지한다.

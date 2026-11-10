@@ -77,7 +77,7 @@ GAMEBRIDGE_BACKEND_BASE_URL=기기에서 접근 가능한 주소
 
 local-mock 기본 host port는 loopback이다. 실기기 접근을 위해 LAN으로 노출할 경우 fake identity/proof 수락 서버가 공개되지 않게 제한한다. sandbox는 real Provider와 별도 DB/schema/config를 사용한다. `allowAllTLS`, certificate trust 무시, 운영 cleartext 허용은 해결책이 아니다.
 
-현재 준비: `GAMEBRIDGE_DB_PASSWORD`와 local-mock 인증 시험용 `GAMEBRIDGE_DEV_AUTH_KEY`(32자 이상, 비밀값)를 로컬 환경에 설정한 뒤 `bash scripts/run-demo-backend.sh`로 local-mock 서버와 전용 DB를 기동할 수 있다. 최초 기동 시 적용한 DB 비밀번호와 이후 실행 값은 같아야 한다. 기동·health와 migration 재시작만 로컬에서 확인했으며 local-mock A/B 로그인·세션 회전 및 logout의 제한된 smoke는 `python3 scripts/smoke-auth-local.py`로 확인했으나, 속도 제한·Native 연동·실제 인증·구매·푸시 전체 smoke는 아직 구현되지 않았다. 전용 volume 수명은 `infra/README.md`를 따른다. 환경 표식이 없는 기존 Flyway DB는 자동 변환하지 않고 기동을 차단하므로, 소유권과 마이그레이션 절차를 확인하기 전 기존 데이터를 재사용하지 않는다.
+현재 준비: `GAMEBRIDGE_DB_PASSWORD`와 local-mock 인증 시험용 `GAMEBRIDGE_DEV_AUTH_KEY`(32자 이상, 비밀값)를 로컬 환경에 설정한 뒤 `bash scripts/run-demo-backend.sh`로 local-mock 서버와 전용 DB를 기동할 수 있다. 최초 기동 시 적용한 DB 비밀번호와 이후 실행 값은 같아야 한다. 기동·health와 migration 재시작만 로컬에서 확인했으며 local-mock A/B 로그인·세션 회전 및 logout의 제한된 smoke는 `python3 scripts/smoke-auth-local.py`로 확인했으나, Mock 구매·중복 지급 검사는 `python3 scripts/smoke-purchase-local.py`로 확인했으나, 속도 제한·Native 연동·실제 인증·실제 결제·푸시 전체 smoke는 아직 구현되지 않았다. 전용 volume 수명은 `infra/README.md`를 따른다. 환경 표식이 없는 기존 Flyway DB는 자동 변환하지 않고 기동을 차단하므로, 소유권과 마이그레이션 절차를 확인하기 전 기존 데이터를 재사용하지 않는다.
 
 확인 순서: doctor → server start → health → smoke-local → 기기 통신. 기대 결과: 로컬 원장 smoke 통과, 비밀값 미출력, profile 격리. 설정이 맞아도 실제 Google/Apple 검증이 통과했다는 뜻은 아니다.
 

@@ -1,5 +1,6 @@
 package com.gamebridge.config
 
+import com.gamebridge.purchase.PurchaseConflict
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -35,6 +36,9 @@ class HealthController {
 }
 @RestControllerAdvice
 class ApiErrors {
+    @ExceptionHandler(PurchaseConflict::class)
+    fun purchaseConflict(ex: PurchaseConflict, request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(mapOf("code" to ex.errorCode, "message" to "Purchase conflict", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
     @ExceptionHandler(ResponseStatusException::class)
     fun status(ex: ResponseStatusException, request: HttpServletRequest): ResponseEntity<Map<String, Any>> {
         val code = when (ex.statusCode.value()) { 400 -> "INVALID_ARGUMENT"; 401 -> "SESSION_EXPIRED"; 403 -> "PERMISSION_DENIED"; else -> "INTERNAL_ERROR" }

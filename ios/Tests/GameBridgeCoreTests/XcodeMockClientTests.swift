@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 @testable import GameBridgeCore
 @testable import GameBridgeUnityBridge
+import GameBridgeApple
 
 private final class XcodeStore: TokenStore {
     var value: String?
@@ -54,6 +55,16 @@ final class XcodeMockClientTests: XCTestCase {
         XCTAssertEqual(profile?["userId"] as? String, "d2719c4e-d533-47ee-9efd-838791ea79c8")
         XCTAssertFalse(String(describing: profile).contains(key))
         _ = try await handler.invoke("sdk.shutdown", payload: [:])
+    }
+
+    @MainActor func testXcodePurchaseFailsClosedWhenIdentityIsAmbiguous() async throws {
+        let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [XcodeProtocol.self]
+        let config = GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:"http://127.0.0.1:18080")
+        let client = try LocalMockClient(config:config, store:XcodeStore(), developmentKey:String(repeating:"x",count:32), sessionConfiguration:configuration)
+        _ = try await client.signIn(subject:"A")
+        let store = try await XcodeStoreKitSession(client:client); defer { store.stop() }
+        do { _ = try await store.purchase("coins_100"); XCTFail("ambiguous identity must not open purchase") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED"); XCTAssertEqual(error.nativeCode, "XCODE_TRANSACTION_IDENTITY_UNSTABLE") }
     }
 
 }

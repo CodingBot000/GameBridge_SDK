@@ -52,8 +52,11 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
                 title: value.displayName, localizedPrice: value.displayPrice, currencyCode: value.priceFormatStyle.currencyCode, priceMicros: nil)
         }
     }
+    private var transactionIdentityReady: Bool { false }
     public func purchase(_ id: String) async throws -> AppleStorePurchaseResult {
         guard ["coins_100", "premium_unlock"].contains(id) else { throw SdkFailure("PRODUCT_NOT_FOUND") }
+        // Xcode's local transaction identity was observed to collide across separate purchases.
+        guard transactionIdentityReady else { throw SdkFailure("CONFIG_REQUIRED", nativeCode: "XCODE_TRANSACTION_IDENTITY_UNSTABLE") }
         let settings = try await client.serviceSettings()
         guard MaintenanceGate.permits(maintenanceEnabled: settings.settings.maintenanceEnabled, operation: .startPurchase) else { throw SdkFailure("MAINTENANCE") }
         guard let product = try await provider.products(ids: [id]).first, product.id == id,

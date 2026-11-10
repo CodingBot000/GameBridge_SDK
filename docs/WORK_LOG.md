@@ -1835,3 +1835,18 @@
 - 거래 식별자 재조회 불안정 상태에서 fake 지급을 호출하지 않도록 차단한 후 Swift 회귀를 확인한다. 차단 중 구매는 finish되지 않는다.
 - 임시 차단 상태에서 기존 Swift fake 7건 통과. Xcode 실제 지급은 의도적으로 중단 상태이며 안정적 거래 ID 확정·DB 복구 재검증이 필요하다.
 - 커밋 준비: 재현 시험과 fail-closed 차단을 먼저 기록한다. 사용자 거래·기존 simulator 데이터는 삭제하지 않았다.
+### P05-T03 Xcode 거래 안정 필드 조사 시작
+- 검증된 JWS payload의 필드명만 비교해 서명 재생성 시 변하는 부분을 확인한다. 필드값·원문 증빙은 출력하지 않는다. 생성한 전용 simulator 시험 거래만 finish한다.
+### P05-T03 안정 필드 진단 시험 실행
+- Xcode 서명 payload에서 같은 거래 재조회 시 달라지는 필드는 `deviceVerification`, `deviceVerificationNonce`, `signedDate`로 확인됐다(`artifacts/storekit-fields-1794333020.xcresult`). 임의로 나머지 전체를 해시하면 향후 새 가변 필드가 추가될 때 다시 중복 지급될 수 있으므로 고정 허용 필드 후보와 구매 간 유일성을 검증한다. fake 지급 차단 유지.
+### P05-T03 허용 필드 목록 진단 시작
+- 개인정보·서명 원문 없이 필드명만 기록하는 의도적 실패 시험을 실행한다.
+- 의도적 필드 목록 시험 `artifacts/storekit-fields-list-1794333087.xcresult`에서 고정 후보로 transactionId, originalTransactionId, productId, purchaseDate, originalPurchaseDate, appAccountToken, bundleId, appTransactionId가 있음을 확인했다. 같은 계정의 연속 구매에서 실제 어떤 고정 필드가 달라지는지 확인하기 전까지 지급은 차단한다.
+### P05-T03 다른 구매의 고정 필드 진단 시작
+- 동일 계정에서 연속 두 Xcode 로컬 거래를 생성하고 값은 출력하지 않은 채 서로 다른 필드명만 의도적 실패로 기록한다. 테스트가 생성한 거래만 finish한다.
+- 동일 account에서 연속한 별도 Xcode 구매 두 건의 서명 payload를 비교한 결과, 서로 다른 것은 앞서 재조회 시에도 바뀌는 세 필드뿐이었다(`artifacts/storekit-fields-different-1794333146.xcresult`). 관측된 고정 필드로는 서로 다른 거래를 구분할 수 없어 해시로 멱등성을 보장할 수 없다. fake grant 차단에 더해 신규 StoreKit 구매 자체도 차단하고 기존 미완료 거래는 finish하지 않는다. 실제 Apple sandbox 경로는 영향 없다.
+### P05-T03 신규 구매 차단 검증 시작
+- StoreKit provider fake 회귀와 코드 compile을 실행하고 미해결 상태를 명시한다. Xcode 거래를 더 생성하지 않는다.
+- Swift 기존 fake 7건 통과. 구매 화면 호출 전에 `CONFIG_REQUIRED`를 반환하는 직접 unit 시험을 추가한다.
+- 직접 unit 시험 3건 통과: 모호한 식별자일 때 StoreKit 구매 화면 호출 전에 CONFIG_REQUIRED를 반환한다. 실패 재현 시험을 고정 후보 필드 충돌을 검출하는 명시적 회귀로 정리했다.
+- 커밋 준비: fail-closed 신규 구매 차단·재현 시험·보고 수정. 실제 복구 및 Unity 검증은 미완료다.

@@ -16,8 +16,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 21 / IN_PROGRESS 41 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 21 / PASS 2 / FAIL 1 / PARTIAL 40 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 20 / IN_PROGRESS 42 / IMPLEMENTED 2 / BLOCKED 0
+- 로컬 검증: NOT_RUN 20 / PASS 2 / FAIL 1 / PARTIAL 40 / DEFERRED_ENV 1 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: 아직 조사하지 않음. 추가 시 PX-Tnn으로 등록하고 분모에 포함한다.
@@ -78,7 +78,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P08-T01 | Android Maven 산출물·소비 build | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T01 | - |
 | P08-T02 | Swift Package·static XCFramework 산출물 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T02 | - |
 | P08-T03 | UPM staging·멱등 build hook | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T03 | ENV-002 |
-| P08-T04 | 신규 Unity 프로젝트 재설치 검증 | NOT_STARTED | NOT_RUN | N/A | - | - |
+| P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IN_PROGRESS | DEFERRED_ENV | N/A | WORK_LOG P08-T04 | ENV-002 |
 | P08-T05 | 기능 개발 기준점 고정 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P09-T01 | 후반 하네스 manifest·공통 contract test | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P09-T02 | Core·Bridge 회귀·실패 주입 | NOT_STARTED | NOT_RUN | N/A | - | - |

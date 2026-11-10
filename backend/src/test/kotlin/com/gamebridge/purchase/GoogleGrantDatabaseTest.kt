@@ -19,6 +19,8 @@ import java.security.MessageDigest
 import java.util.Base64
 import java.util.UUID
 import java.util.concurrent.Executors
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.TimeUnit
 import kotlin.test.*
 
@@ -67,5 +69,29 @@ class GoogleGrantDatabaseTest {
         assertFails { cipher.decrypt(encrypted, "$app:PRODUCTION:GOOGLE:$id") }
         assertEquals("GOOGLE_CONSUME", db.queryForObject("SELECT action FROM store_finalization_jobs WHERE purchase_id=?", String::class.java, id))
         assertEquals("VERIFICATION_FAILED", assertFailsWith<PurchaseConflict> { service.grant(principal, StoreEnvironment.SANDBOX, verified, "other-token", UUID.randomUUID()) }.errorCode)
+        val entered = CountDownLatch(1); val release = CountDownLatch(1); val calls = AtomicInteger()
+        val fake = GoogleFinalizationExecutor { claim, plaintext ->
+            assertEquals(id, claim.purchaseId); assertEquals(token, plaintext)
+            if (calls.incrementAndGet() == 1) { entered.countDown(); assertTrue(release.await(10, TimeUnit.SECONDS)); throw java.io.IOException("test failure") }
+        }
+        val worker = GoogleFinalizationWorker(db, tx, source, cipher, fake, GoogleFinalizationPolicy(1, 5))
+        val executor = Executors.newSingleThreadExecutor()
+        try {
+            val running = executor.submit<Boolean> { worker.runOnce(id) }
+            assertTrue(entered.await(10, TimeUnit.SECONDS))
+            assertFalse(worker.runOnce(id)) // Only one global advisory slot can be held.
+            release.countDown(); assertTrue(running.get(10, TimeUnit.SECONDS))
+        } finally { release.countDown(); executor.shutdownNow() }
+        assertEquals("PENDING", db.queryForObject("SELECT status FROM store_finalization_jobs WHERE purchase_id=?", String::class.java, id))
+        assertNotNull(db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, id))
+        val delay = db.queryForObject("SELECT EXTRACT(EPOCH FROM (next_attempt_at-now())) FROM store_finalization_jobs WHERE purchase_id=?", Double::class.java, id)!!
+        assertTrue(delay in 0.0..5.0)
+        db.update("UPDATE store_finalization_jobs SET next_attempt_at=now()-interval '1 second' WHERE purchase_id=?", id)
+        assertTrue(worker.runOnce(id))
+        assertEquals("DONE", db.queryForObject("SELECT status FROM store_finalization_jobs WHERE purchase_id=?", String::class.java, id))
+        assertEquals("FINALIZED", db.queryForObject("SELECT finalization_state FROM purchases WHERE id=?", String::class.java, id))
+        assertNull(db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, id))
+        assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
+        assertFalse(worker.runOnce(id)); assertEquals(2, calls.get())
     }
 }

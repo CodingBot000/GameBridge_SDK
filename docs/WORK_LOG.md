@@ -946,3 +946,20 @@
 - Android/iOS 순수 maintenance gate와 회귀시험 작성. 실제 원격 config cache 및 SDK 구매 경로에는 아직 연결하지 않았다.
 - Android core 및 Swift gate unit 통과: 점검 중 신규 구매는 거부, 검증·복구·로그아웃은 허용. 실제 config fetching과 구매 UI 적용은 아직 검증되지 않았다.
 - 커밋 전: 순수 정책과 unit만 포함하며 P07-T01 PARTIAL 유지.
+
+### [P08-T04] 신규 Unity 소비 프로젝트 검사 시작 — 2026-11-10 Asia/Seoul
+- 최신 소스에서 Android/iOS 산출물을 새로 만들고 새 staging을 사용한다. Unity CLI는 새 전용 경로에만 프로젝트를 생성하며 기존 Demo와 사용자의 다른 Unity 프로젝트를 변경·삭제하지 않는다. 라이선스 실패가 반복되면 import는 환경 대기로 기록한다.
+- 최신 Android SDK local Maven publish·mock sample·별도 R8 consumer build 모두 종료 0. 다음으로 최신 iOS XCFramework를 새 경로에 생성한다.
+- 최신 Apple 코드 포함 무서명 device/simulator archive 및 XCFramework 생성 성공, module-map 경고 없음. 새 output에 Unity staging을 생성해 checksum을 확인한다.
+- 최신 staging 생성 및 checksum 101개 검증 성공. 새 `artifacts/GameBridgeConsumerP08` 경로에서 Unity CLI로 독립 프로젝트 생성을 시도한다. 기존 경로가 있으면 실행하지 않는다.
+- Unity CLI 새 소비 프로젝트 생성 실패: Editor exit 198 licensing failure. import 이전 종료이며, 실제 UPM 재설치·씬·Android/iOS export는 실행되지 않았다. 기존 Demo/다른 프로젝트는 건드리지 않았다. ENV-002 유지.
+- 사용자 정책 결정 수신: push retry 최대 3회/5초 지수, 개발 발송 관리자 키별 분당 10회, Google 완료 증빙 즉시 삭제, 세션 push ID 최근 200개, usable config 없으면 신규 구매 차단. APNs 5xx는 최소 15분 후 재시도하도록 추가로 결정했다. 문서에 기록하고 코드·검증에 반영한다.
+
+### [P05-T05] 사용자 결정 반영 — Google finalizer worker
+- 기존 승인 동시 1개·5초 지수 백오프와 신규 결정 완료 확인 즉시 증빙 삭제를 durable DB worker에 반영한다. 외부 Store 호출은 DB transaction 밖에서 하며 테스트에서는 fake executor만 사용한다.
+- Google worker/공식 Publisher lazy executor 초안 작성. 성공 시 job DONE과 암호문 NULL을 같은 DB transaction에 기록하고 실패는 증빙을 보존한다. 테스트 전이며 실제 Play 호출은 하지 않았다.
+- Google worker 컴파일 성공. test-only 암호화 거래와 fake finalizer로 전역 동시 1개, 첫 실패의 증빙 보존·5초 backoff, 성공 시 job/암호문 원자 삭제, 원장 불변을 격리 DB에서 검증한다.
+- Google worker 격리 DB 시험 통과: advisory slot 1개, 첫 실패의 증빙 유지/5초 backoff, 재시도 성공 시 DONE·FINALIZED·증빙 NULL과 원장 불변 확인. cache가 claim 객체를 붙잡지 않도록 조정하고 성공 시 구매 상태 update 실패는 전체 transaction rollback하도록 강화한다.
+- 개선 후 Google worker 격리 DB 시험 재통과. sandbox profile의 실제 Spring bean 조립과 기존 인증 HTTP 회귀를 별도 시험 DB에서 확인한다. 외부 credential은 제공하지 않는다.
+- sandbox Spring context와 인증/Apple synthetic HTTP 통합 2건 통과(skip 0). 실제 Google credential 없이 lazy executor가 서버 시작을 막지 않음을 확인했다. 실제 Google finalization은 실행하지 않았다.
+- 커밋 전: 사용자 결정 6건 기록 및 Google worker·fake DB 검증을 포함한다. push retry/rate, message dedup, config default는 승인된 기준으로 구현 진행 중이며 실제 Play·remote push는 미검증이다.

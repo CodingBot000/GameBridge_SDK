@@ -18,3 +18,9 @@
 - 2026-11-10 사용자 결정 USER-SESSION-TTL: refresh 토큰의 기본 7일 만료는 최초 로그인부터 고정하며 refresh로 연장하지 않는다.
 - 2026-11-10 사용자 결정 USER-VERIFY-CONCURRENCY: 한 기기의 구매 증빙 서버 검증 기본 동시성은 1건이며 설정으로 변경할 수 있다.
 - 2026-11-10 사용자 결정 USER-STOREKIT-TEST-PRICE: Xcode 로컬 StoreKit 시험 표시 가격은 coins $0.99, premium $1.99이다. 실제 App Store 상품 가격 정책이 아니다.
+
+- 2026-11-10 USER-PUSH-RETRY: 푸시 일시 장애와 429 기본 재시도는 최대 3회, 5초부터 지수 백오프. Apple APNs 5xx는 플랫폼 지침에 따라 최소 15분 뒤 재시도한다.
+- 2026-11-10 USER-DEV-PUSH-RATE: 개발용 push API는 단일 서버에서 관리자 키별 분당 10회로 제한한다.
+- 2026-11-10 USER-GOOGLE-EVIDENCE: Google 구매 완료를 확인하면 암호화된 구매 증빙을 즉시 삭제한다. 완료 확인 전에는 재시도에 필요한 증빙을 보존한다.
+- 2026-11-10 USER-PUSH-DEDUP: 앱 세션에서 최근 messageId 200개를 기억하고 초과 시 오래된 ID부터 잊는다. 앱 재시작 시 초기화한다.
+- 2026-11-10 USER-CONFIG-DEFAULT: 서버 설정을 가져오지 못하고 사용할 수 있는 캐시도 없으면 신규 구매를 차단한다. 기존 검증·복구·로그아웃은 허용한다.

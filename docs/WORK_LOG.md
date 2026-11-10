@@ -678,3 +678,10 @@
 - public C umbrella header 추가 후 device/simulator 재archive 성공, module map 경고가 사라졌다. simulator Swift consumer가 SDK 지정 링크와 public Apple adapter import에 성공했다. C ABI 함수 호출도 링크 확인한다.
 - 별도 Swift consumer에서 Apple adapter와 C ABI GB_ProtocolVersion 호출을 simulator 대상으로 컴파일·링크하고 Mach-O/심볼 확인했다. 실제 simulator 실행과 Unity link는 미실행이다.
 - 커밋 전: Apple 소스를 포함한 unsigned static XCFramework build·header·독립 link 경로만 포함. 실제 기기 서명/실행과 Unity consumer는 미완료이므로 P08-T02 PARTIAL 유지.
+
+### [P08-T03] 시작 — 2026-11-10 Asia/Seoul
+- 로컬 Maven과 XCFramework를 UPM staging에 묶는 경로를 작성한다. Unity 라이선스/Editor import는 ENV-002로 미검증이며 staging 생성만으로 설치 가능하다고 주장하지 않는다.
+- 기존 출력 덮어쓰기를 거부하고 Maven/XCFramework 필수 입력을 검사하는 staging script 초안 작성. 새 전용 경로에 복사 및 checksum을 확인한다.
+- 전용 UPM staging 생성 성공. SHA256 목록 일치, 재실행 overwrite 거부와 누락 입력 실패를 확인한다. Unity import 증거는 아니다.
+- staging checksum 93개 전체 일치, 기존 출력 overwrite와 누락 입력 각각 종료 2를 확인했다.
+- 커밋 전: staging script만 포함한다. Gradle/iOS build hook·Unity .meta/import·package 소비 실행은 미구현/미검증이므로 P08-T03 PARTIAL이며 배포 가능한 패키지로 취급하지 않는다.

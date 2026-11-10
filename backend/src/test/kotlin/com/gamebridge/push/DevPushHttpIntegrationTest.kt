@@ -81,6 +81,14 @@ class DevPushHttpIntegrationTest {
         assertEquals(200, sent.statusCode.value())
         assertEquals("event:push", reader.readLine())
         val data = reader.readLine(); assertTrue(data.contains("stream-test")); assertFalse(data.contains("secret-title")); assertFalse(data.contains("secret-body"))
+        assertEquals("", reader.readLine())
+        assertEquals(200, rest.exchange("/v1/auth/logout", HttpMethod.POST, HttpEntity<Any>(owner), Void::class.java).statusCode.value())
+        val newSession = login("A"); val newHeaders = HttpHeaders().apply { setBearerAuth(newSession) }
+        assertEquals(200, rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT, HttpEntity(register, newHeaders), Map::class.java).statusCode.value())
+        newHeaders.set("X-Admin-Key", adminKey)
+        assertEquals(200, rest.exchange("/v1/dev/push/send", HttpMethod.POST, HttpEntity(payload + ("messageId" to "after-logout"), newHeaders), Map::class.java).statusCode.value())
+        val end = java.util.concurrent.CompletableFuture.supplyAsync { try { reader.readLine() } catch (_: java.io.IOException) { null } }
+        assertNull(end.get(5, java.util.concurrent.TimeUnit.SECONDS), "old session must not receive new session's push")
         reader.close()
     }
 

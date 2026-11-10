@@ -1682,3 +1682,9 @@
 - 별도 빈 DB에서 같은 HTTP 통합 시험을 재실행해 서버 graceful shutdown을 확인한다. heartbeat 및 Native 수신은 아직 미구현이다.
 - 전용 DB `gamebridge_ci_ac6dcaa892`의 HTTP 시험에서 타 사용자 403·연결 수신·title/body 비노출이 통과했고 graceful shutdown이 즉시 완료됐다. DB는 보존한다. Native 수신·재연결과 heartbeat는 미구현이다.
 - 커밋 준비: local 전용 인증 스트림과 HTTP 시험을 저장한다. 사용자 선택 전 heartbeat 정책을 확정하지 않으며 BUG-014 OPEN이다.
+### P06-T05 세션 변경 시 전달 차단 검증 시작
+- 기존 연결이 logout 뒤 새 세션의 동일 installation 메시지를 수신하지 않는지 전용 DB HTTP 시험으로 확인한다. heartbeat와 클라이언트 수신은 아직 미구현이다.
+- 세션 변경 시험 첫 실행 실패: logout의 실제 성공 HTTP 상태는 200인데 시험에서 204를 기대했다. 기존 endpoint 계약에 맞춰 시험 기대값을 수정하고 재실행한다. 전용 DB `gamebridge_ci_ef603351fa` 보존.
+- 재시험에서 구 세션 스트림은 새 메시지를 보내지 않고 닫혔지만 Java HTTP client가 정상 EOF 대신 연결 EOFException을 보고해 assertion이 실패했다. 연결 종료와 메시지 미전달을 별도로 확인하도록 시험을 보정한다. 전용 DB `gamebridge_ci_512a1dba1e` 보존.
+- 전용 DB `gamebridge_ci_faeb266f16` 재시험 통과: logout·동일 사용자 새 세션 재등록 뒤 기존 연결에는 새 메시지가 전달되지 않고 연결 종료됨을 확인했다. 서버 종료도 정상이다. heartbeat·Native 수신은 미완료다.
+- 커밋 준비: 세션 소유권 회귀 시험만 추가한다. BUG-014 OPEN 유지.

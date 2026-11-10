@@ -99,6 +99,14 @@
       ],
       "mode": "EDITOR_OFFLINE_FAKE",
       "platform": "Standalone .NET"
+    },
+    "r50-negative": {
+      "command": [
+        "python3",
+        "harness/run-r50.py"
+      ],
+      "mode": "ISOLATED_NEGATIVE",
+      "platform": "Harness"
     }
   },
   "scenarios": [
@@ -1123,17 +1131,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R50"
       ],
       "candidateSuites": [
-        "harness-self"
+        "r50-negative"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Isolated negative checks exist; full required lane and CI verification remain incomplete."
+      "evidence": "docs/evidence/r50-required-evidence.md",
+      "note": "Harness-only required suite and evidence omission negative checks; product and platform results are separate.",
+      "assertions": [
+        {
+          "suite": "r50-negative",
+          "testFile": "harness/test_aggregation.py",
+          "testCase": "test_specific_missing_required_suite_is_not_pass"
+        },
+        {
+          "suite": "r50-negative",
+          "testFile": "harness/check-progress-negative.py",
+          "testCase": "Missing evidence was not detected"
+        }
+      ]
     }
   ]
 }

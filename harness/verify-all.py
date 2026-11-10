@@ -79,6 +79,7 @@ def main() -> int:
     nested('contracts',['python3','harness/run-contracts.py'])
     simple('bridge-mutation',['python3','harness/check-bridge-mutation.py'],'Duplicate response guard mutation: detected')
     simple('lifecycle-stress',['bash','scripts/stress-csharp-lifecycle.sh'],'"samples": 100')
+    simple('r50-negative',['python3','harness/run-r50.py'],'R50 PASS:')
     nested('auth',['python3','harness/run-auth-regression.py'])
     nested('purchase',['python3','harness/run-purchase-regression.py'])
     ledger_env = env.copy()
@@ -111,7 +112,7 @@ def main() -> int:
     required_names = {
         'harness-self', 'progress', 'manifest', 'api-baseline', 'api-baseline-negative', 'csharp-compat',
         'aggregation-self', 'progress-negative', 'manifest-negative', 'contract-negative', 'bridge-mutation',
-        'lifecycle-stress', 'ledger-mutation', 'scenario-coverage', 'unity-editor-runtime',
+        'lifecycle-stress', 'r50-negative', 'ledger-mutation', 'scenario-coverage', 'unity-editor-runtime',
         *(f'contracts/{name}' for name in ('kotlin','swift','csharp')),
         *(f'auth/{name}' for name in ('backend-jwt-fake','backend-sandbox-test-key-db','android-native-fake','swift-native-fake')),
         *(f'purchase/{name}' for name in ('local-postgres-fixtures','sandbox-http-fixtures','android-native-fake','swift-native-fake',

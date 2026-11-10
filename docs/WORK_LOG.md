@@ -2041,3 +2041,17 @@
 - 알려진 required lane 하나가 결과에서 빠지면 다른 lane이 모두 PASS여도 실패하는지 unit으로 확인한다.
 - 필수 lane 누락을 다른 PASS lane이 가리지 못하는 aggregate unit 포함 13건 통과. missing document/evidence 및 외부 symlink 음성 검증, manifest 음성 검증도 통과했다. self-check가 이제 strict에서 실제 실행되도록 연결했다.
 - 커밋 준비: fail-closed 필수 lane inventory 및 자체 검증 연결만 저장한다. 전체 재실행은 별도로 수행한다.
+
+### [P11-T04] 필수 suite 강화 후 strict 실행 시작
+- 모든 required lane 이름과 self-check를 실제 집계에 포함해 전용 DB·simulator에서 재실행한다. 외부 서비스와 Unity Editor/player는 실행하지 않으며 기존 실패도 그대로 남긴다.
+
+### [P09-T08] R50 필수 suite·증거 누락 게이트 시작
+- 수정 후 strict `artifacts/verify-all-jqyyy3g2/summary.md` 종료 1. self-check·Native/DB/Xcode local·iOS synthetic host·100회 stress는 PASS, 49 PARTIAL·Unity 미실행 및 기존 iOS 26.5 FAIL 유지. 외부 13개 WAITING_USER. 전용 DB `gamebridge_ci_91455f1057_local`, `_sandbox` 보존.
+- R50의 필수 suite 누락과 증거 누락 음성 시험을 credential 없는 독립 scenario로 연결해 실제 실행한다. 다른 시나리오 상태는 바꾸지 않는다.
+### P09-T08 R50 검증 시작
+- required suite 누락과 evidence 누락 음성 시험을 독립 runner로 실행한다. 플랫폼 기능 검증은 포함하지 않는다.
+- `python3 harness/run-r50.py` 종료 0: required lane 누락·미실행·0건과 증거 문서 누락을 각각 거부했다. 이를 R50 하네스 범위로만 IMPLEMENTED 연결한다.
+### P09-T08 R50 manifest 실행 검증 시작
+- evidence/assertion mapping과 scenario entry의 실제 실행을 다시 확인한다.
+- `harness/run-scenario.py R50` 및 manifest·누락 음성·원장 검사 모두 통과. strict aggregate에도 R50 자체를 필수 lane으로 추가했다. Unity 및 다른 미완료 시나리오는 그대로다.
+- 커밋 준비: R50 하네스 범위의 검증 및 증거 mapping만 IMPLEMENTED로 기록한다.

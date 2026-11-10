@@ -9,6 +9,7 @@ public struct UserProfile: Codable, Equatable {
     public let userId: String
     public let displayName: String?
     public let provider: String
+    public init(userId: String, displayName: String?, provider: String) { self.userId = userId; self.displayName = displayName; self.provider = provider }
     enum CodingKeys: String, CodingKey { case userId, displayName, provider }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -26,6 +27,10 @@ public struct StoreProduct: Codable, Equatable {
     public let type: ProductType
     public let title, localizedPrice, currencyCode: String
     public let priceMicros: String?
+    public init(productId: String, storeProductId: String, type: ProductType, title: String, localizedPrice: String, currencyCode: String, priceMicros: String?) {
+        self.productId = productId; self.storeProductId = storeProductId; self.type = type; self.title = title
+        self.localizedPrice = localizedPrice; self.currencyCode = currencyCode; self.priceMicros = priceMicros
+    }
     enum CodingKeys: String, CodingKey { case productId, storeProductId, type, title, localizedPrice, currencyCode, priceMicros }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)

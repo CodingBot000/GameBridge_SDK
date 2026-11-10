@@ -253,3 +253,11 @@
 - 검토 중 Swift shutdown이 취소된 초기화의 종료를 기다리지 않고 Provider를 종료할 수 있는 경합을 발견하여 수정한다.
 - Swift shutdown이 초기화 취소 완료를 기다리도록 보정 후 `swift test --package-path ios` 종료 0: XCTest 총 9건, 실패 0. 초기화 중 shutdown 시험 추가. 취소에 협력하지 않는 Provider의 timeout 처리는 아직 미구현이다.
 - 커밋 전: Kotlin/Swift coordinator와 최소 Provider interface만 포함. Unity 상태 mirror, 세부 Provider interface, timeout·모든 생명주기 및 플랫폼 빌드는 미구현/미검증이므로 P01-T03 PARTIAL 유지.
+
+### [P01-T04] 시작 — 2026-11-10 Asia/Seoul
+- P01-T03은 기본 coordinator만 구현. 별도 test module에서 결정적 offline Fake를 작성하고 실제 Provider 또는 Backend 지급과 혼동하지 않는다.
+- `./android/gradlew -p android :sdk-testing:test` 종료 0: 별도 Kotlin Offline Fake에서 pending·취소 미지급, 동일 거래 중복 미지급, 상품 충돌, 네트워크 실패, Sandbox 모드 사용 거부 확인. DB나 실제 플랫폼 테스트가 아니다.
+- `swift test --package-path ios` 종료 0: XCTest 총 10건, 별도 Swift Offline Fake의 모드 격리·pending 미지급·중복 미지급 포함. 이는 macOS 메모리 Fake 시험이며 서버·iOS 기기·실제 결제 성공이 아니다.
+- Kotlin Offline Fake에 명시적 권한·등록·allowlist route·messageId 중복 제거 추가 후 `./android/gradlew -p android :sdk-testing:test` 종료 0. 이는 메모리 주입 이벤트이며 FCM 수신이 아니다.
+- Swift Offline Fake에도 권한·등록·route 허용 목록·중복 이벤트 제거를 추가하고 `swift test --package-path ios` 종료 0, XCTest 10건 통과. APNs 전송·수신 검증이 아니다.
+- 커밋 전: Kotlin/Swift의 독립 테스트용 메모리 Fake만 포함. Unity Editor Fake, late callback 시나리오, Native→Backend LOCAL_MOCK 통합은 미구현이므로 P01-T04 PARTIAL 유지.

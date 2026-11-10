@@ -2246,3 +2246,10 @@
 ### P09-T05 R41/R42 mapping 검증 시작
 - R41/R42 manifest·누락 음성·원장 검사 통과. 나머지 8개는 PARTIAL이며 Unity 및 실제 원격 푸시는 대기다.
 - 커밋 준비: 격리 HTTP/DB ownership 시험과 scenario runner·strict 연결만 저장한다.
+
+### [P09-T05] R43 iOS host delegate 보존 검증 시작
+- 전용 simulator에서 기존 notification delegate를 보존하고 Host completion callback을 호출하는지 synthetic 입력으로 검증한다. Unity host·실 APNs는 별도다.
+### P09-T05 iOS delegate simulator 검증 시작
+- 사용자 기존 simulator가 아닌 새로운 전용 iOS 18.6 simulator에서 synthetic host callback을 시험한다.
+- 전용 iOS 18.6 simulator `193C8CC2-18B0-46A4-827C-4AAFAC245D47`, `artifacts/push-delegate-1794340271.xcresult` 1건 PASS/skip 0: 기존 UNUserNotificationCenter delegate가 adapter 생성·전달 뒤 유지되고 sample remote callback completion이 호출됐다. 실제 APNs 및 Unity host 동작은 미검증이므로 R43은 PARTIAL 유지한다.
+- 커밋 준비: 실제 iOS simulator synthetic host assertion만 기록한다.

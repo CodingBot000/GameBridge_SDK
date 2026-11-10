@@ -1012,3 +1012,9 @@
 - FCM/APNs failure 종류 mapping 검증 통과. push content의 자동 문자열화가 제목·본문을 노출할 수 있어 redaction을 추가하고 잘못된 FCM 메시지는 영구 오류로 분류한다.
 - fake sender/config/policy unit 7건 통과: APNs 429·5xx failure 구분, token/content 정제, 서명/cache 및 제한 정책. 실제 remote push는 없다.
 - 커밋 전: 단발 sender 결과 분류와 redaction만 포함한다. 실제 endpoint retry worker 동시성은 사용자 결정 대기다.
+- P06-T04 계속: sender가 매 시도마다 현재 session/installation 소유의 활성 token만 DB에서 조회·복호화하고 invalid 응답은 같은 hash에만 적용하도록 만든다. worker 동시성 선택 전 endpoint 자동 발송에는 연결하지 않는다.
+- token을 보유하지 않는 단발 dispatcher 초안을 작성했다. 활성 session·app·설치/user를 재조회하고 중복 플랫폼 record는 전송하지 않으며 invalid 응답은 같은 hash에만 적용한다.
+- dispatcher를 fake provider·격리 PostgreSQL에서 검증한다. 전송 중 token 회전 후 이전 invalid 응답은 새 token에 영향을 주지 않고 logout 후 재시도는 호출되지 않아야 한다.
+- synthetic rotation/logout DB 시험 통과. 추가 검토에서 요청자 logout 후 같은 사용자가 새 session에 token을 재등록하면 이전 retry가 전송될 수 있어, 요청자 session도 재검증하고 회귀시험한다.
+- 격리 DB fake dispatcher 재검증 통과: 오래된 invalid 응답이 회전 토큰을 비활성화하지 않고, logout 후 새 session이 재등록해도 이전 session의 대기 발송은 거부된다. 이미 네트워크 전송이 시작된 요청은 취소 보장하지 않는다.
+- 커밋 전: DB token 재조회·조건부 invalidation dispatcher와 fake 시험만 포함한다. sandbox endpoint/worker에는 아직 미연결이며 실제 push는 없다.

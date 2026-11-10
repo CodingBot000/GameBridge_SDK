@@ -807,3 +807,6 @@
 - 현재 public operation→Native/Server→sample 경로를 조사한다. `rg TODO/FIXME/NotImplementedException/fatalError` 결과가 비어 있어도 호출 경로가 없는 기능을 구현 완료로 간주하지 않는다. 최종 P11 audit은 별도다.
 - Unity facade operation, Editor fake switch, Native Bridge 제한, Native sample/Backend source를 대조해 FEATURE_MATRIX 초안을 작성했다. 실 StoreKit 실패와 미연결 endpoint·Unity 경로를 명시했다. 전체 API/설정 재검토와 수정 후 재감사는 남았다.
 - 커밋 전: 1차 traceability 초안만 포함하고 P07-T04 PARTIAL 유지한다. `TODO` 검색 결과만으로 기능 완료를 판정하지 않았다.
+- P05-T05 추가 검증: Apple 서명 검사 중 logout이 일어나면 늦은 검증 결과가 지급되지 않는지 격리 DB에서 확인한다. 기존 데이터를 변경하지 않는다.
+- 격리 DB 시험 통과: synthetic 검증 도중 session logout 시 grant 단계에서 SESSION_EXPIRED로 거부하고 원장 항목은 증가하지 않았다. 실제 Apple 서명/스토어 거래는 아니다.
+- 커밋 전: 경합 회귀 시험만 포함한다. 서버 endpoint·실 credential 연결은 미완료다.

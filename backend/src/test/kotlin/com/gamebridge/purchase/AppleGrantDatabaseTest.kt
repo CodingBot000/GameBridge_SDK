@@ -57,5 +57,17 @@ class AppleGrantDatabaseTest {
             service.grant(other, StoreEnvironment.SANDBOX, verified.copy(account = otherBinding))
         }.errorCode)
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger", Int::class.java))
+        val late = sessions.authenticate(session("user-c").accessToken)!!
+        val lateBinding = PurchaseBindings(db).forUser(late.userId, app).appleAccountToken
+        val latePayload = JWSTransactionDecodedPayload().bundleId("test.bundle").environment(Environment.SANDBOX)
+            .productId("coins.apple").appAccountToken(lateBinding).transactionId("late-transaction").quantity(1).type(Type.CONSUMABLE)
+        val lateVerifier = ApplePurchaseVerifier("test.bundle", Environment.SANDBOX, setOf("coins.apple"), AppleSignedTransactionDecoder {
+            sessions.logout(late); latePayload
+        })
+        val latePipeline = ApplePurchasePipeline(db, AppleVerifierRegistry { _, _ -> lateVerifier }, service)
+        assertEquals("SESSION_EXPIRED", assertFailsWith<PurchaseConflict> {
+            latePipeline.verifyAndGrant(late, StoreEnvironment.SANDBOX, "coins.apple", "synthetic-late")
+        }.errorCode)
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger", Int::class.java))
     }
 }

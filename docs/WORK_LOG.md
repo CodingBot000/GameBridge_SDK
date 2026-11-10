@@ -714,3 +714,12 @@
 - 패키징 검토에서 Maven repository 내부 AAR/JAR을 Plugins/Android에 두면 Unity가 자동 plugin import해 중복될 위험을 발견했다. Unity import 대상에서 제외되는 Editor의 `GameBridgeArtifacts~` 아래로 이동하고 callback 경로를 함께 수정한다. 기존 staging은 보존한다.
 - 숨김 artifact 경로로 변경 후 stubbed Android hook smoke와 새 staging 생성·checksum 통과. Unity 공식 매뉴얼은 `~`로 끝나는 폴더를 Asset import에서 제외한다고 설명한다. 실제 UPM import는 아직 확인하지 않았다.
 - 커밋 전: 중복 plugin import 방지용 artifact 경로 변경과 대응 시험만 포함. iOS hook과 Unity import는 미완료다.
+- P08-T03 계속: static XCFramework를 UnityFramework에 명시적으로 링크하는 iOS post-build 경계를 작성한다. 기존 Xcode export의 동일 경로 파일이 다르면 overwrite하지 않는다. Unity 실행 검증은 ENV-002로 남긴다.
+- iOS post-build callback 초안을 추가해 숨김 staging XCFramework를 복사/검증하고 UnityFramework target에 링크한다. 먼저 Android 회귀와 iOS 코드 컴파일 경계를 검증한다.
+- iOS callback을 stubbed PBX API와 별도 export fixture로 컴파일·2회 호출한다. stub은 실제 Xcode project link나 Unity Editor 동작의 증거가 아니다.
+- Android/iOS stubbed callback smoke 통과. 설치된 Unity iOS Xcode 관리 assembly로 iOS callback의 실제 API 컴파일을 추가 확인한다(실제 Editor 실행은 아님).
+- 실제 Unity managed assembly 대상 iOS callback 컴파일 실패: `UnityEditor.PackageInfo`와 `UnityEditor.PackageManager.PackageInfo` 이름 충돌(CS0104). stub 시험이 놓친 차이이며 전체 이름으로 수정한다.
+- 실제 Unity iOS Xcode assembly 대상 callback 컴파일 오류 수정 후 경고0/오류0. Unity PBXProject가 동일 file link를 두 번 추가할 때 중복을 방지하는지 생성 프로젝트를 읽기 전용 입력으로 시험한다.
+- Unity의 실제 PBXProject managed API를 생성 Xcode 프로젝트에 읽기 전용으로 적용한 독립 .NET 시험에서 같은 file link 2회 추가가 동일 결과임을 확인했다. 이 검증을 재실행 가능한 smoke로 저장한다. 실제 Unity export는 아니다.
+- gerçek Unity Xcode managed API smoke 및 Android/iOS stub hook smoke 재실행 통과. 새 staging 98개 checksum 일치. 실제 Unity Editor import/iOS export·static Swift runtime/IL2CPP 링크는 미검증이다.
+- 커밋 전: iOS Xcode hook, 안전 복사 공통화 및 독립 시험만 포함. P08-T03 PARTIAL/ENV-002 유지한다.

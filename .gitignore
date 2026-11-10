@@ -30,3 +30,5 @@ config/*.local.*
 # Local .NET test output
 tests/GradlePatcher/bin/
 tests/GradlePatcher/obj/
+tests/UnityIosHook/bin/
+tests/UnityIosHook/obj/

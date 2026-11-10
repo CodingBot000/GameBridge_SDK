@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems><DefineConstants>UNITY_IOS</DefineConstants></PropertyGroup><ItemGroup>
+<Compile Include="Program.cs"/><Compile Include="../../unity/Packages/com.gamebridge.sdk/Editor/IosXcodeBuildHook.cs"/><Compile Include="../../unity/Packages/com.gamebridge.sdk/Editor/ArtifactCopy.cs"/>
+<Reference Include="UnityEngine.CoreModule"><HintPath>$(UNITY_MANAGED)/UnityEngine.CoreModule.dll</HintPath></Reference>
+<Reference Include="UnityEditor.CoreModule"><HintPath>$(UNITY_MANAGED)/UnityEditor.CoreModule.dll</HintPath></Reference>
+<Reference Include="UnityEditor.iOS.Extensions.Xcode"><HintPath>$(UNITY_XCODE_DLL)</HintPath></Reference>
+</ItemGroup></Project>

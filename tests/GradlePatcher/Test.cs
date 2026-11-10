@@ -31,6 +31,14 @@ class Test {
         rejected = false;
         try { hook.OnPostGenerateGradleAndroidProject(library); } catch (UnityEditor.Build.BuildFailedException) { rejected = true; }
         if (!rejected) throw new Exception("changed repository accepted");
-        Console.WriteLine("Gradle patcher and stubbed hook smoke: PASS");
+        string ios = System.IO.Path.Combine(package, "Editor", "GameBridgeArtifacts~", "iOS", "GameBridgeNative.xcframework");
+        string iosExport = System.IO.Path.Combine(temp, "ios-export");
+        System.IO.Directory.CreateDirectory(ios); System.IO.Directory.CreateDirectory(iosExport);
+        System.IO.File.WriteAllText(System.IO.Path.Combine(ios, "Info.plist"), "test-plist");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(iosExport, "project.pbxproj"), "fixture");
+        IosXcodeBuildHook.OnPostprocessBuild(UnityEditor.BuildTarget.iOS, iosExport);
+        IosXcodeBuildHook.OnPostprocessBuild(UnityEditor.BuildTarget.iOS, iosExport);
+        if (UnityEditor.iOS.Xcode.PBXProject.Files.Count != 1 || UnityEditor.iOS.Xcode.PBXProject.Links.Count != 1) throw new Exception("iOS reference duplicate");
+        Console.WriteLine("Gradle patcher and stubbed hooks smoke: PASS");
     }
 }

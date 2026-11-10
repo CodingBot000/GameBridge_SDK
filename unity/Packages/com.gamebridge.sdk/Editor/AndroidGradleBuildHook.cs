@@ -1,8 +1,6 @@
 #if UNITY_ANDROID
 using System;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
 using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEditor.PackageManager;
@@ -28,33 +26,9 @@ namespace GameBridge.Editor
             try { newSettings = GradlePatcher.AddRepository(oldSettings); newLibrary = GradlePatcher.AddDependency(oldLibrary); }
             catch (InvalidOperationException ex) { throw new BuildFailedException("GameBridge cannot safely patch Gradle: " + ex.Message); }
             var target = Path.Combine(root, "gamebridge-maven");
-            CopyOrVerify(repo, target);
+            ArtifactCopy.CopyOrVerify(repo, target);
             if (newSettings != oldSettings) File.WriteAllText(settingsPath, newSettings);
             if (newLibrary != oldLibrary) File.WriteAllText(libraryPath, newLibrary);
-        }
-        private static void CopyOrVerify(string source, string target)
-        {
-            var files = Directory.GetFiles(source, "*", SearchOption.AllDirectories).Where(f => !f.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)).ToArray();
-            if (Directory.Exists(target))
-            {
-                using (var sha = SHA256.Create())
-                    foreach (var file in files)
-                    {
-                        var relative = file.Substring(source.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                        var existing = Path.Combine(target, relative);
-                        if (!File.Exists(existing) || !sha.ComputeHash(File.ReadAllBytes(file)).SequenceEqual(sha.ComputeHash(File.ReadAllBytes(existing))))
-                            throw new BuildFailedException("Existing gamebridge-maven differs; choose a clean export directory.");
-                    }
-                return;
-            }
-            Directory.CreateDirectory(target);
-            foreach (var file in files)
-            {
-                var relative = file.Substring(source.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                var destination = Path.Combine(target, relative);
-                Directory.CreateDirectory(Path.GetDirectoryName(destination));
-                File.Copy(file, destination, false);
-            }
         }
     }
 }

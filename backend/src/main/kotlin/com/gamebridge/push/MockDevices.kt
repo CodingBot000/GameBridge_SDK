@@ -28,6 +28,13 @@ class TokenCipher(@Value("\${SERVER_TOKEN_ENCRYPTION_KEY:}") private val configu
         if (bytes == null || bytes.size != 32) throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CONFIG_REQUIRED")
         return SecretKeySpec(bytes, "AES")
     }
+    fun decrypt(value: ByteArray, associatedData: String): String {
+        require(value.size >= 28)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, value.copyOfRange(0, 12)))
+        cipher.updateAAD(associatedData.toByteArray(StandardCharsets.UTF_8))
+        return String(cipher.doFinal(value.copyOfRange(12, value.size)), StandardCharsets.UTF_8)
+    }
     fun encrypt(value: String, associatedData: String): ByteArray {
         val nonce = ByteArray(12).also { SecureRandom().nextBytes(it) }
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")

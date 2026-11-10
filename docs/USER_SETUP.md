@@ -146,7 +146,7 @@ Codex 준비물: StoreKit 2 provider, signed data 검증, appAccountToken 일치
 
 설정: `FIREBASE_PROJECT_ID`, 적절한 server credential path, 실제 host config file. FCM 설정 때문에 Google identity 로그인이나 Play Billing 설정이 자동 완료되지는 않는다. 프로젝트와 앱 매핑을 각각 확인한다.
 
-현재 준비: host-owned Firebase 초기화를 전제로 한 Android adapter와 host service/manifest 예시가 있다. host가 `com.google.firebase:firebase-messaging:26.0.1` 및 Firebase 설정을 제공하고 기존 service에서 callback을 전달해야 한다. permission 결과·Backend token 등록·백그라운드/클릭 routing 및 실제 FCM은 미완료다. Mock 샘플 빌드는 Firebase 설정 없이 통과했다. 서버 Firebase Admin 단발 전송 경계와 오류 mapping은 fake 시험만 수행했으며 DB 토큰 연결·실제 발송은 미완료다. Firebase의 기존 registration token API는 deprecated이고 FID 전환은 아직 구현하지 않았다.
+현재 준비: host-owned Firebase 초기화를 전제로 한 Android adapter와 host service/manifest 예시가 있다. host가 `com.google.firebase:firebase-messaging:26.0.1` 및 Firebase 설정을 제공하고 기존 service에서 callback을 전달해야 한다. permission 결과·Backend token 등록·백그라운드/클릭 routing 및 실제 FCM은 미완료다. Mock 샘플 빌드는 Firebase 설정 없이 통과했다. 서버 Firebase Admin 단발 전송 경계와 오류 mapping은 fake 시험만 수행했다. sandbox/production 토큰 등록 경로는 synthetic sandbox HTTP fixture로만 검증했으며 Native 연결과 실제 발송은 미완료다. Firebase의 기존 registration token API는 deprecated이고 FID 전환은 아직 구현하지 않았다.
 
 Codex 준비물: host-owned Firebase init, explicit registration, permission/channel, token rotation, foreground/background/click, Backend sender, 개발 발송 API 보호. 기존 host FirebaseMessagingService가 있으면 forwarding 방식으로 통합한다.
 

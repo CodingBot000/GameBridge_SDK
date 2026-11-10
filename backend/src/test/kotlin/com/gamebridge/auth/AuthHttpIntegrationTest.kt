@@ -1,5 +1,6 @@
 package com.gamebridge.auth
 
+import com.gamebridge.push.TokenCipher
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
@@ -50,6 +51,7 @@ class TestIdentityConfiguration {
 class AuthHttpIntegrationTest {
     @Autowired lateinit var rest: TestRestTemplate
     @Autowired lateinit var db: JdbcTemplate
+    @Autowired lateinit var tokenCipher: TokenCipher
     companion object {
         @JvmStatic @DynamicPropertySource fun properties(registry: DynamicPropertyRegistry) {
             registry.add("DATABASE_URL") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_URL")) }
@@ -57,6 +59,7 @@ class AuthHttpIntegrationTest {
             registry.add("DATABASE_PASSWORD") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_PASSWORD")) }
             registry.add("gamebridge.session.access-ttl-seconds") { 120L }
             registry.add("gamebridge.session.refresh-ttl-seconds") { 600L }
+            registry.add("SERVER_TOKEN_ENCRYPTION_KEY") { java.util.Base64.getEncoder().encodeToString(ByteArray(32) { it.toByte() }) }
             registry.add("GAMEBRIDGE_AUTH_AUDIENCES_JSON") { """{"test-app":{"GOOGLE":["test-google"],"APPLE":["test.apple.bundle"]}}""" }
         }
     }
@@ -96,11 +99,28 @@ class AuthHttpIntegrationTest {
             HttpEntity(mapOf("storeProductId" to "coins.apple", "signedTransaction" to "synthetic-jws"), purchaseHeaders), Map::class.java)
         assertEquals(503, purchase.statusCode.value()); assertEquals("CONFIG_REQUIRED", purchase.body!!["code"])
         assertEquals(walletBefore, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger WHERE user_id=?", Int::class.java, UUID.fromString(session["userId"] as String)))
+        val installation = UUID.randomUUID()
+        val pushBody = mapOf("token" to "synthetic-fcm-token", "provider" to "FCM", "platform" to "ANDROID")
+        val registered = rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT, HttpEntity(pushBody, headers), Map::class.java)
+        assertEquals(200, registered.statusCode.value()); assertEquals(true, registered.body!!["registered"])
+        assertFalse(registered.body?.toString().orEmpty().contains("synthetic-fcm-token"))
+        val encrypted = db.queryForObject("SELECT token_encrypted FROM device_tokens WHERE installation_id=?", ByteArray::class.java, installation)!!
+        assertFalse(encrypted.toString(Charsets.ISO_8859_1).contains("synthetic-fcm-token"))
+        assertEquals("synthetic-fcm-token", tokenCipher.decrypt(encrypted, "test-app:sandbox:ANDROID:$installation"))
+        assertFails { tokenCipher.decrypt(encrypted, "other-app:sandbox:ANDROID:$installation") }
+        val removed = rest.exchange("/v1/devices/$installation/push-token", HttpMethod.DELETE, HttpEntity<Void>(headers), Map::class.java)
+        assertEquals(200, removed.statusCode.value())
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM device_tokens WHERE installation_id=?", Int::class.java, installation))
+        assertEquals(200, rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT, HttpEntity(pushBody, headers), Map::class.java).statusCode.value())
+        val invalidPush = rest.exchange("/v1/devices/$installation/push-token", HttpMethod.PUT,
+            HttpEntity(mapOf("token" to "fake", "provider" to "APNS", "platform" to "ANDROID"), headers), Map::class.java)
+        assertEquals(400, invalidPush.statusCode.value())
         val refresh = session["refreshToken"] as String
         val digest = MessageDigest.getInstance("SHA-256").digest(refresh.toByteArray())
         assertEquals(1, db.update("UPDATE sessions SET expires_at=now()-interval '1 second' WHERE refresh_hash=?", digest))
         val logout = rest.postForEntity("/v1/auth/logout", mapOf("refreshToken" to refresh), Map::class.java)
         assertEquals(200, logout.statusCode.value())
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM device_tokens WHERE installation_id=?", Int::class.java, installation))
         assertEquals(200, rest.postForEntity("/v1/auth/logout", mapOf("refreshToken" to refresh), Map::class.java).statusCode.value())
         assertEquals(401, rest.postForEntity("/v1/auth/refresh", mapOf("refreshToken" to refresh), Map::class.java).statusCode.value())
         val replay = exchange(googleChallenge, "GOOGLE", googleToken)

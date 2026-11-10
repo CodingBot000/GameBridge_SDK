@@ -893,3 +893,11 @@
 - synthetic host callback와 completion handler XCTest를 별도 scheme으로 작성했다. StoreKit 실패 시험과 혼합하지 않는다.
 - iOS 26.5 simulator의 synthetic PushHostTests 1건 통과: token callback, home/store allowlist, sample background completion(.noData) 호출. 실제 APNs token 발급·원격 전송·OS 클릭이 아니다.
 - 커밋 전: 별도 iOS host XCTest/scheme만 포함한다. 실제 APNs 및 server token 연결은 미완료이므로 P06-T02 PARTIAL/WAITING_USER 유지.
+
+### [P06-T04] 실 provider 토큰 등록 경로 — 2026-11-10 Asia/Seoul
+- sandbox/production의 FCM/APNs 토큰을 인증된 app·session·installation에 암호화 결속한다. 등록 해제/로그아웃 시 즉시 삭제하는 사용자 결정에 맞추며 외부 발송이나 실제 토큰 발급은 하지 않는다.
+- provider/platform 검증 및 session/app 소유권을 강제하는 등록/해제 초안을 작성했다. test-only token으로 ciphertext와 logout 삭제를 검증하기 전이다.
+- Kotlin compile 성공. sandbox HTTP/security/DB 시험에 synthetic FCM token 등록·암호문·잘못된 platform 거부·logout 즉시 삭제 검사를 추가한다. test-only AES 키 사용.
+- sandbox HTTP 등록·logout 삭제 시험 통과. 등록 해제 즉시 삭제 및 AES-GCM AAD 검증도 추가해 재시험한다(합성 토큰만 사용).
+- sandbox 실제 HTTP/security/DB 시험 재통과(skip 0): synthetic FCM 등록 ciphertext와 AAD, 명시 해제 즉시 삭제, 재등록 후 logout 즉시 삭제, provider/platform 불일치 거부. 실제 FCM/APNs token이나 원격 발송은 아니다.
+- 커밋 전: 실제 profile 토큰 등록·삭제 경로와 synthetic 시험만 포함. Native 등록 연결, 발송 worker·retry/rate 정책 및 실제 플랫폼은 미완료로 P06-T04 PARTIAL 유지.

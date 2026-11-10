@@ -1,0 +1,27 @@
+{
+  "identifier": "GBLOCAL01",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "GBLOCALCOINS",
+      "localizations": [{"description": "Local test coins", "displayName": "100 Coins", "locale": "en_US"}],
+      "productID": "coins_100",
+      "referenceName": "100 Coins (Local Test)",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "GBLOCALPREMIUM",
+      "localizations": [{"description": "Local test unlock", "displayName": "Premium Unlock", "locale": "en_US"}],
+      "productID": "premium_unlock",
+      "referenceName": "Premium Unlock (Local Test)",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {"_billingGracePeriodEnabled": false, "_renewalBillingIssuesEnabled": false, "_storefront": "USA", "_timeRate": 0},
+  "subscriptionGroups": [],
+  "version": {"major": 2, "minor": 0}
+}

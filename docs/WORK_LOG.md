@@ -698,3 +698,10 @@
 - callback을 stub Unity API와 임시 Gradle export fixture로 두 번 실행하고, 기존 repo 내용 변경 시 overwrite를 거부하는지 검증한다. 이는 실제 Unity Editor 시험이 아니다.
 - stubbed Unity API 기반 callback smoke 통과: 두 번 적용 결과 동일하고 기존 Maven repo 변경을 감지해 덮어쓰기를 거부한다. 실제 Unity Editor/Android export가 아니며 iOS hook은 미구현이다.
 - 커밋 전: 사용자 StoreKit 시험 가격 결정, Android callback과 stub smoke만 포함한다. P08-T03 PARTIAL/ENV-002 유지.
+
+### [P05-T03] 로컬 StoreKit 구성 계속 — 2026-11-10 Asia/Seoul
+- 승인된 로컬 시험 가격 coins $0.99, premium $1.99를 별도 Xcode StoreKit scheme에만 적용한다. 실제 Sandbox 및 production 가격과 거래는 영향을 받지 않는다. 기존 StoreKit 거래를 삭제하지 않는다.
+- 별도 StoreKit 구성/테스트 scheme과 상품 조회 시험을 작성했다. 계획과 Apple 공식 형식에 맞춘 로컬 fixture이며 실제 App Store 서버가 아니다. 설정 생성과 simulator 시험을 확인한다.
+- 블로커: iOS 26.5 simulator에서 StoreKitTest 상품 조회가 빈 배열을 반환해 테스트 1건 실패(가격 assertion 포함). bundle 구성·scheme 및 test environment를 확인한다. 실제 결제나 거래 삭제는 하지 않았으며 로컬 StoreKit PASS가 아니다.
+- 시험 번들에 GameBridge.storekit이 포함됐으나 SKTestSession이 SKInternalErrorDomain Code 3 설정 저장 오류를 출력했다. Apple Developer Forums에 같은 iOS 26.5 증상과 조사 중인 문제 보고가 있다(https://developer.apple.com/forums/thread/826971). 동일 원인이라고 단정하지 않으며 이 로컬 상품 조회는 FAIL로 기록한다.
+- 커밋 전: 사용자 승인 시험 가격, 별도 scheme 및 실패한 회귀 시험을 보존한다. StoreKit local transaction·실 Apple Sandbox·서버 지급은 미검증이다.

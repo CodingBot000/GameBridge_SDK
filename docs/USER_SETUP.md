@@ -210,4 +210,4 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 
 ## USER-STOREKIT-TEST-PRICE — Xcode 로컬 시험 가격
 
-사용자가 로컬 시험 표시 가격으로 coins $0.99, premium $1.99를 선택했다. 실제 App Store 가격은 콘솔에서 별도로 설정하며 이 선택에 포함되지 않는다. `.storekit` 구성과 로컬 시험은 아직 준비 중이다.
+사용자가 로컬 시험 표시 가격으로 coins $0.99, premium $1.99를 선택했다. 실제 App Store 가격은 콘솔에서 별도로 설정하며 이 선택에 포함되지 않는다. 별도 `.storekit` 구성과 테스트 scheme을 작성했다. iOS 26.5 CLI 상품 조회 시험은 SKTestSession 설정 저장 오류(Code 3)로 실패했으며, 실제 Sandbox 및 로컬 구매 흐름은 아직 검증하지 않았다.

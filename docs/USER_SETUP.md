@@ -232,7 +232,7 @@ Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상�
 
 ### Unity Android 개발 전용 LOCAL_MOCK
 
-개발 서버의 `GAMEBRIDGE_DEV_AUTH_KEY`는 로컬 환경에서만 제공하고 채팅·Git·Unity 에셋에 넣지 않는다. Android의 `GameBridgeConfig` 6인자 생성자에 같은 개발 전용 키와 Mock subject `A` 또는 `B`를 명시적으로 전달한다. 에뮬레이터에서는 Backend 주소에 `10.0.2.2`를 사용하고 host의 개발 전용 네트워크 보안 설정을 준비한다. 이 연결은 실제 Google 로그인이 아니며 현재 Unity 라이선스 대기로 JNI 실동작 미검증이고 push 등록·해제와 구매 sync bridge는 구현했으나 Unity 실행은 미검증이며 Mock push 전달은 미구현이다. config 조회의 NETWORK/CACHE 경로는 synthetic 시험으로 확인했다. iOS의 같은 생성자도 LOCAL_MOCK을 Swift C ABI로 전달한다. Swift handler와 local Backend/DB는 검증했으나 C ABI→Keychain→Backend 전체 흐름과 Unity iOS 실행은 미검증이다.
+개발 서버의 `GAMEBRIDGE_DEV_AUTH_KEY`는 로컬 환경에서만 제공하고 채팅·Git·Unity 에셋에 넣지 않는다. Android의 `GameBridgeConfig` 6인자 생성자에 같은 개발 전용 키와 Mock subject `A` 또는 `B`를 명시적으로 전달한다. 에뮬레이터에서는 Backend 주소에 `10.0.2.2`를 사용하고 host의 개발 전용 네트워크 보안 설정을 준비한다. 이 연결은 실제 Google 로그인이 아니며 현재 Unity 라이선스 대기로 JNI 실동작 미검증이고 push 등록·해제와 구매 sync bridge는 구현했으나 Unity 실행은 미검증이며 Mock push의 Backend→Native 수신은 전용 DB에서 확인했다. config 조회의 NETWORK/CACHE 경로는 synthetic 시험으로 확인했다. iOS의 같은 생성자도 LOCAL_MOCK을 Swift C ABI로 전달한다. Swift handler와 local Backend/DB는 검증했으나 C ABI→Keychain→Backend 전체 흐름과 Unity iOS 실행은 미검증이다.
 
 ### Unity Android Google 인증 bridge
 
@@ -260,12 +260,12 @@ Unity Android sandbox는 host가 초기화한 Firebase Messaging과 10인자 `Ga
 
 Android host callback의 `forwardFcmToken` 반환값 true는 큐 접수이며 Backend 등록 성공이 아니다. 결과는 `PushTokenChanged`의 fingerprint 또는 오류로 확인한다. SDK session이 없을 때 token은 저장하지 않으므로 로그인 후 명시적 `RegisterPushAsync()`로 현재 token을 다시 가져온다. 알림 route는 home/store만 허용하며 cold-start queue는 프로세스 메모리에서 최대 100건이다.
 
-LOCAL_MOCK에서도 `GameBridgeConfig` 10인자 생성자에 installation UUID를 제공하면 Native Mock token을 local Backend에 등록·해제할 수 있다. permission은 OS dialog가 없는 simulated 결과이며 등록 해제와 logout은 서버 token을 즉시 삭제한다. 서버에는 local 전용 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하다. Mock send의 SIMULATED 응답은 실제 기기 알림이 아니며 현재 Backend→client simulated delivery E2E는 미구현이다.
+LOCAL_MOCK에서도 `GameBridgeConfig` 10인자 생성자에 installation UUID를 제공하면 Native Mock token을 local Backend에 등록·해제할 수 있다. permission은 OS dialog가 없는 simulated 결과이며 등록 해제와 logout은 서버 token을 즉시 삭제한다. 서버에는 local 전용 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하다. Mock send의 SIMULATED 응답은 실제 기기 알림이 아니며 Backend→Android·Swift Native simulated delivery는 전용 로컬 DB에서 확인했으며 Unity player는 미검증이다.
 
 UPM의 `Native Mock and Sandbox Demo`는 Android/iOS player용이다. Unity UI package와 호환 EventSystem을 준비하고 `NativeDemo`를 scene의 빈 GameObject에 붙인다. 사용자가 실행 중 URL·개발키·상품 ID·installation UUID를 입력하며 기존 `unity/Demo`는 변경하지 않았다. iOS host push는 `NativeDemoIosPush`를 명시적으로 추가해야 한다. Editor/실기기 UI는 아직 검증하지 않았다.
 
 ## 실연동 준비 상태 확인
 
-서버를 실행할 동일한 로컬 환경에서 `bash scripts/verify-external.sh --check-config`를 실행한다. 이 명령은 설정 항목과 credential 파일의 존재·기본 형태만 확인하고 값과 경로를 출력하지 않으며, 네트워크 요청이나 실제 로그인·구매·발송을 수행하지 않는다. 누락 또는 형식 오류가 있으면 종료 코드 2다. `PRESENT_SHAPE_ONLY`는 자격 증명 유효성이나 실연동 성공을 뜻하지 않는다. Android/iOS host의 앱 ID·서명·기기·Unity 라이선스 및 각 항목의 실제 검증은 위 절의 안내를 따로 수행해야 한다. 로컬 StoreKit 전체 지급과 Mock push 전달은 내부 미구현이므로 사용자 설정만으로 완료되지 않는다.
+서버를 실행할 동일한 로컬 환경에서 `bash scripts/verify-external.sh --check-config`를 실행한다. 이 명령은 설정 항목과 credential 파일의 존재·기본 형태만 확인하고 값과 경로를 출력하지 않으며, 네트워크 요청이나 실제 로그인·구매·발송을 수행하지 않는다. 누락 또는 형식 오류가 있으면 종료 코드 2다. `PRESENT_SHAPE_ONLY`는 자격 증명 유효성이나 실연동 성공을 뜻하지 않는다. Android/iOS host의 앱 ID·서명·기기·Unity 라이선스 및 각 항목의 실제 검증은 위 절의 안내를 따로 수행해야 한다. 로컬 StoreKit 전체 지급은 내부 미구현이고 Mock push의 Unity 실행 검증은 남아 있으므로 사용자 설정만으로 완료되지 않는다.
 
-LOCAL_MOCK simulated push 전달 정책은 앱이 연결 중일 때만 전달하고 연결이 없으면 즉시 버리는 것으로 사용자가 선택했다. 서버 스트림은 구현 및 제한된 HTTP 검증을 마쳤고 Native 수신·Unity E2E는 현재 구현 및 검증 중이며 실제 FCM/APNs 전달과 별개다. 연결 확인 기본 간격은 30초이며 `GAMEBRIDGE_MOCK_PUSH_HEARTBEAT_SECONDS`로 변경할 수 있다.
+LOCAL_MOCK simulated push 전달 정책은 앱이 연결 중일 때만 전달하고 연결이 없으면 즉시 버리는 것으로 사용자가 선택했다. 서버 스트림과 Native 수신은 전용 로컬 DB E2E를 통과했고 Unity E2E는 미검증이며 실제 FCM/APNs 전달과 별개다. 연결 확인 기본 간격은 30초이며 `GAMEBRIDGE_MOCK_PUSH_HEARTBEAT_SECONDS`로 변경할 수 있다.

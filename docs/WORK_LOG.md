@@ -1744,3 +1744,14 @@
 - 격리된 Xcode project에서 Native framework simulator compile을 수행한다. 스토어와 Unity 실행 검증으로 간주하지 않는다.
 - 격리 project `artifacts/ios-project.TTcc9k`의 iOS simulator Native framework compile 종료 0. Xcode 다중 destination 경고만 표시됐고 실제 simulator 실행은 아니다.
 - 커밋 준비: iOS 등록·세션 가드·종료 연결과 synthetic lifecycle 시험을 저장한다. 실제 DB 및 Unity E2E가 남아 BUG-014 OPEN이다.
+### P06-T05 실제 로컬 Backend E2E 시작
+- 전용 임시 DB와 local-mock 서버를 사용해 Android/iOS Native 수신을 검증할 opt-in harness를 작성한다. synthetic key만 사용하고 실제 외부 서비스는 호출하지 않는다. Unity player는 별도 대기다.
+### P06-T05 Android E2E 컴파일 검증 시작
+- opt-in 시험이 기본 실행에서 건너뛰어지는지와 Kotlin compile을 확인한다. 실제 local DB 실행은 전용 harness 구성 후 수행한다.
+### P06-T05 iOS E2E 컴파일 검증 시작
+- 명시 opt-in이 없을 때 실제 서버에 연결하지 않고 skip되는지 확인한다.
+- iOS E2E 첫 컴파일은 `XCTUnwrap` autoclosure 안의 async 호출 제약으로 실패했다. 응답을 먼저 await한 뒤 unwrap하도록 시험을 수정한다.
+### P06-T05 로컬 DB E2E 실행 시작
+- `harness/run-mock-push-e2e.py --run-local`은 새 DB·role을 만들고 기존 데이터는 삭제하지 않는다. 생성된 synthetic key는 출력하지 않으며 local Backend→Android 및 Swift Native receiver를 시험한다. Unity 및 실제 원격 발송은 포함하지 않는다.
+- `python3 harness/run-mock-push-e2e.py --run-local` 종료 0, `artifacts/mock-push-e2e-imlgc2et/result.json`: 전용 DB `gamebridge_ci_003a23e777`, Android·Swift Native 각 1건 PASS. synthetic key, local-mock만 사용했고 Unity player·실기기·원격 푸시는 미검증이다. 테스트용 DB와 role은 보존한다.
+- 커밋 준비: opt-in E2E harness, 양 Native 시험 및 실제 확인 범위 문서만 저장한다. BUG-014는 Unity lifecycle 검증까지 OPEN이다.

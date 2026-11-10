@@ -11,7 +11,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 - Android Kotlin, iOS Swift 및 Unity C# 경계의 계약·fake 테스트와 일부 local-mock HTTP/PostgreSQL 시험을 실행했다. 인증, 구매 중복 지급 방지 및 응답 유실 복구, 푸시 토큰 등록·삭제의 제한된 경로를 확인했다. 실제 제공자 테스트와 구분한다.
 - Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성 복구를 확인했지만 실제 기기 프로세스 종료·Unity player 복구는 확인하지 않았다.
 - Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. Unity 신규 프로젝트 import 및 IL2CPP는 실행하지 않았다.
-- 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. push 전달 미구현과 미완성 시나리오 때문에 전체 검증은 통과하지 않았다. 마지막 strict 집계는 `artifacts/verify-all-g_lqddbb/summary.md`에 있으며 일부 opt-in 환경은 미실행이었다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
+- 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. Unity 푸시 전달 미검증과 미완성 시나리오 때문에 전체 검증은 통과하지 않았다. 마지막 strict 집계는 `artifacts/verify-all-g_lqddbb/summary.md`에 있으며 일부 opt-in 환경은 미실행이었다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
 - 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
 
 ## 남은 내부 작업과 실패
@@ -19,7 +19,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 | 항목 | 상태 및 영향 |
 |---|---|
 | BUG-013 | XCODE_STOREKIT의 서버 지급 및 Unity 전체 경로 미구현. simulator StoreKit 시험도 Code 3으로 실패했다. |
-| BUG-014 | LOCAL_MOCK 개발 push 응답은 SIMULATED이나 Backend에서 client까지 전달하는 경로가 미구현이다. |
+| BUG-014 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과했다. Unity player와 실제 기기 lifecycle은 미검증이다. |
 | BUG-015 | Native 진단 ring의 Unity 비동기 조회를 구현하고 fake/managed compile을 확인했다. 실제 Unity player에서의 연결은 미검증이다. |
 | BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |
 | P09 | 3개 시나리오 미구현, 나머지 부분 검증; Unity lane 미구현. strict 전체 gate는 성공이 아니다. |
@@ -44,4 +44,4 @@ Unity Editor 라이선스 오류(ENV-002)와 계획된 버전 확인(ENV-001)으
 
 P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912`, `a93cf52` 등에 기록됐다. P10 리팩토링·호환성은 `36db140`, `e689dd7`, `d02b8ed`, `3bf8d0a`, P11 감사·설정 점검은 `31b683c`, `35bf2bd`에 기록됐다. 이후 문서 커밋은 `git log`에서 확인한다.
 
-다음 개발은 BUG-013, BUG-014와 P09 미완성 시나리오를 해결하고 BUG-015 실제 Unity 검증을 진행하며 각 범위의 검증을 추가하는 것이다. 사용자 설정이 준비되면 USER_SETUP의 해당 항목에서 실제 플랫폼 검증을 별도로 실행한다. 자동 push, 공개 배포와 스토어 업로드는 수행하지 않았다.
+다음 개발은 BUG-013과 P09 미완성 시나리오를 해결하고 BUG-014·015 실제 Unity 검증을 진행하며 각 범위의 검증을 추가하는 것이다. 사용자 설정이 준비되면 USER_SETUP의 해당 항목에서 실제 플랫폼 검증을 별도로 실행한다. 자동 push, 공개 배포와 스토어 업로드는 수행하지 않았다.

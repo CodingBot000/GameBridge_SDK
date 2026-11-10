@@ -711,3 +711,6 @@
 - 새 staging 96개 checksum 일치. simulator slice 이름을 고정하지 않고 XCFramework Info.plist의 device/simulator 실제 binary를 검사하도록 보정해 다른 아키텍처 환경에서도 동작하게 한다.
 - Info.plist 기반 slice 확인 후 새 staging 생성 및 96개 checksum 재검증 성공. 기존 staging은 보존했다. .NET 테스트의 생성 bin/obj를 ignore해 기존 파일을 제거하지 않았다.
 - 커밋 전: staging 입력 완전성 검사와 로컬 생성물 ignore만 포함한다. Unity import/iOS build hook은 미검증/미구현이다.
+- 패키징 검토에서 Maven repository 내부 AAR/JAR을 Plugins/Android에 두면 Unity가 자동 plugin import해 중복될 위험을 발견했다. Unity import 대상에서 제외되는 Editor의 `GameBridgeArtifacts~` 아래로 이동하고 callback 경로를 함께 수정한다. 기존 staging은 보존한다.
+- 숨김 artifact 경로로 변경 후 stubbed Android hook smoke와 새 staging 생성·checksum 통과. Unity 공식 매뉴얼은 `~`로 끝나는 폴더를 Asset import에서 제외한다고 설명한다. 실제 UPM import는 아직 확인하지 않았다.
+- 커밋 전: 중복 plugin import 방지용 artifact 경로 변경과 대응 시험만 포함. iOS hook과 Unity import는 미완료다.

@@ -16,7 +16,7 @@ class Test {
         if (!rejected) throw new Exception("unknown layout accepted");
         string temp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "gamebridge-hook-" + Guid.NewGuid());
         string package = System.IO.Path.Combine(temp, "package"), export = System.IO.Path.Combine(temp, "export"), library = System.IO.Path.Combine(export, "unityLibrary");
-        string repo = System.IO.Path.Combine(package, "Plugins", "Android", "maven-repo", "com", "gamebridge", "sdk-unity-bridge", "0.1.0-dev");
+        string repo = System.IO.Path.Combine(package, "Editor", "GameBridgeArtifacts~", "Android", "maven-repo", "com", "gamebridge", "sdk-unity-bridge", "0.1.0-dev");
         System.IO.Directory.CreateDirectory(repo); System.IO.Directory.CreateDirectory(library);
         System.IO.File.WriteAllText(System.IO.Path.Combine(repo, "sdk-unity-bridge-0.1.0-dev.pom"), "test-pom");
         System.IO.File.WriteAllText(System.IO.Path.Combine(export, "settings.gradle"), settings);

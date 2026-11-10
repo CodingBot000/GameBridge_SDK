@@ -16,7 +16,7 @@ namespace GameBridge.Editor
         {
             var package = PackageInfo.FindForAssembly(typeof(AndroidGradleBuildHook).Assembly);
             if (package == null) throw new BuildFailedException("GameBridge package path unavailable.");
-            var repo = Path.Combine(package.resolvedPath, "Plugins", "Android", "maven-repo");
+            var repo = Path.Combine(package.resolvedPath, "Editor", "GameBridgeArtifacts~", "Android", "maven-repo");
             var pom = Path.Combine(repo, "com", "gamebridge", "sdk-unity-bridge", "0.1.0-dev", "sdk-unity-bridge-0.1.0-dev.pom");
             if (!File.Exists(pom)) throw new BuildFailedException("GameBridge Maven repository is missing. Build and install the staged SDK package.");
             var root = Directory.GetParent(path)?.FullName ?? throw new BuildFailedException("Unity Gradle root missing.");

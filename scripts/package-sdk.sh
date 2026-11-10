@@ -37,9 +37,9 @@ if [[ -e "$output" ]]; then echo 'Output already exists; choose a new directory.
 mkdir -p "$(dirname "$output")"
 mkdir "$output"
 cp -R "$root/unity/Packages/com.gamebridge.sdk" "$output/com.gamebridge.sdk"
-mkdir -p "$output/com.gamebridge.sdk/Plugins/Android" "$output/com.gamebridge.sdk/Plugins/iOS"
-cp -R "$maven" "$output/com.gamebridge.sdk/Plugins/Android/maven-repo"
-cp -R "$ios" "$output/com.gamebridge.sdk/Plugins/iOS/GameBridgeNative.xcframework"
+mkdir -p "$output/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android" "$output/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS"
+cp -R "$maven" "$output/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo"
+cp -R "$ios" "$output/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework"
 python3 - "$output" <<'PY'
 import hashlib
 from pathlib import Path

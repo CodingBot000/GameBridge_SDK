@@ -813,3 +813,10 @@
 - P05-T05 계속: Apple endpoint의 중복 요청 key가 같은 거래에만 재사용되도록 grant transaction에 idempotency record를 연결한다. 실제 인증서 구성과 HTTP 노출은 별도로 검증한다.
 - 격리 PostgreSQL 시험 통과: 같은 attempt key 동시 10개는 원장 1건, 같은 key로 다른 거래는 IDEMPOTENCY_CONFLICT이며 logout 경합도 거부한다. synthetic Apple 응답이다.
 - 커밋 전: Apple grant의 idempotency DB transaction만 포함한다. 공개 endpoint·실 서명·Google finalizer는 미완료다.
+
+### [P05-T04] Apple verifier 실행 구성 — 2026-11-10 Asia/Seoul
+- Apple 공식 root와 app별 bundle/product 설정이 명시된 경우에만 verifier를 lazy 생성하는 경로를 추가한다. 설정 없이 시작하거나 실제 credential 없이 local-mock을 이용할 수 있어야 한다.
+- 앱별 bundle·상품 allowlist·Apple 공개 root 경로를 최초 사용 시 읽는 registry 초안 작성. local-mock profile에는 bean을 만들지 않는다. 환경/설정 누락은 fail-closed여야 한다.
+- verifier registry Kotlin 컴파일 성공. 앱 설정·root 누락 및 잘못된 production 설정이 네트워크 호출 없이 503으로 실패하는지 검증한다.
+- app/root 누락 registry 시험 1건 통과. 공개 Apple root와 실제 signed transaction을 사용하지 않았으며 공개 purchase endpoint도 아직 없다.
+- 커밋 전: lazy Apple verifier 설정과 fail-closed unit만 포함. 실제 인증서·스토어·원장 HTTP 연결은 미검증이다.

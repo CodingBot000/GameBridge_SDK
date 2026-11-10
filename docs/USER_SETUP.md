@@ -132,7 +132,7 @@ Codex 준비물: Play Billing provider, real server verifier, purchase binding, 
 
 사용자 할 일: App Store Connect 앱, 두 IAP 상품, Sandbox tester, 필요한 계약/계정/상품 상태를 준비한다. 실제 App Store 테스트에 사용하는 bundle ID와 상품 mapping을 맞춘다. Xcode scheme의 `.storekit` 선택을 실제 Sandbox 시험 시 어떻게 해제/전환하는지 확인한다.
 
-서버 검증 설정: `APPLE_BUNDLE_ID`, `APPLE_STORE_ENVIRONMENT=Sandbox`, Apple 공개 root certificate 경로. App Store Server API 호출 경로에 필요한 경우 `APPLE_STORE_KEY_ID`, `APPLE_STORE_ISSUER_ID`, `APPLE_STORE_PRIVATE_KEY_PATH`를 서버에 둔다. 서명된 transaction JWS 검증과 서버 API 자격증명을 혼동하지 않는다. production용 appAppleId 요구 여부는 선택 라이브러리/환경에 맞춰 확인한다.
+서버 검증 설정: app ID별 `bundleId`, 허용 `productIds`, Apple 공개 `rootCertificatePaths`, production의 양수 `appAppleId`를 서버 비밀 설정 `GAMEBRIDGE_APPLE_PURCHASE_CONFIG_JSON`에 지정한다. sandbox/production 환경은 서버 profile로 구분한다. 값이 없거나 root를 읽지 못하면 실제 verifier는 CONFIG_REQUIRED로 실패한다. App Store Server API 호출 경로에 필요한 경우 `APPLE_STORE_KEY_ID`, `APPLE_STORE_ISSUER_ID`, `APPLE_STORE_PRIVATE_KEY_PATH`를 서버에 둔다. 서명된 transaction JWS 검증과 서버 API 자격증명을 혼동하지 않는다. production용 appAppleId 요구 여부는 선택 라이브러리/환경에 맞춰 확인한다.
 
 Codex 준비물: StoreKit 2 provider, signed data 검증, appAccountToken 일치 확인, 지급 후 finish, unfinished 복구, restore. 현재 StoreKit API 및 Apple 공식 서명 verifier 경계만 부분 구현되어 있다. Xcode 로컬 시험과 실제 Sandbox 시험은 아직 실행되지 않았다.
 

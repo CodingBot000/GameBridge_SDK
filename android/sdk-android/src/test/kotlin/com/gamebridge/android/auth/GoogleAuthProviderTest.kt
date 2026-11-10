@@ -87,6 +87,24 @@ class GoogleAuthProviderTest {
         assertEquals("CANCELED", assertFailsWith<SdkFailure> { GoogleAuthProvider(config(), store, gateway, StubBackend()).signIn() }.code)
         assertNull(store.stored)
     }
+    @Test fun `authenticated purchase request completes before logout clears session`() = runBlocking {
+        val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend())
+        provider.signIn()
+        val entered = CompletableDeferred<Unit>(); val release = CompletableDeferred<Unit>()
+        val request = async {
+            provider.withAuthenticatedSession { session ->
+                entered.complete(Unit); release.await(); session.userId
+            }
+        }
+        entered.await()
+        val logout = async { provider.signOut() }
+        kotlinx.coroutines.yield()
+        assertFalse(logout.isCompleted)
+        release.complete(Unit)
+        assertEquals("d2719c4e-d533-47ee-9efd-838791ea79c8", request.await())
+        logout.await()
+        assertNull(provider.withAuthenticatedSession { it.userId })
+    }
     @Test fun `concurrent restores rotate once and offline logout clears local session`() = runBlocking {
         val gateway = StubGateway(); val backend = StubBackend(); val store = MemoryStore()
         val provider = GoogleAuthProvider(config(), store, gateway, backend)

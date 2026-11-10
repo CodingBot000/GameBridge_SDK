@@ -111,6 +111,14 @@ class GoogleAuthProvider internal constructor(
         if (profile.userId != session.userId || profile.provider != "GOOGLE") { store.clear(); throw SdkFailure("AUTH_FAILED") }
         profile
     } } catch (_: CancellationException) { throw SdkFailure("CANCELED") }
+    internal suspend fun <T> withAuthenticatedSession(block: suspend (NativeSession) -> T): T? {
+        val profile = restore() ?: return null
+        return sessionLock.withLock {
+            val session = loadBound()?.session ?: return@withLock null
+            if (session.userId != profile.userId) throw SdkFailure("CANCELED")
+            block(session)
+        }
+    }
     suspend fun signOut() = sessionLock.withLock {
         if (store.load() == "{\"state\":\"refresh_pending\"}") { store.clear(); throw SdkFailure("SESSION_EXPIRED", "REVOCATION_UNCONFIRMED") }
         val saved = loadBound()

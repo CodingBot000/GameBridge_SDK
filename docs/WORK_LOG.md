@@ -764,3 +764,10 @@
 - mock SessionService를 포함한 web slice 1건 통과: Accept 없는 health 성공 응답이 JSON이다. Backend 일반 suite를 재실행한다.
 - Backend 일반 suite 재실행 종료 0: 33건 중 26 통과, 7 opt-in skip, 실패0. 성공·오류의 Accept 미지정 JSON 계약을 각각 확인했다.
 - 커밋 전: 기본 JSON content negotiation과 web slice 시험을 포함한다. 실제 외부 provider 및 생략한 DB opt-in은 이 결과에 포함하지 않는다.
+
+### [P05-T01] Android purchase binding 연결 — 2026-11-10 Asia/Seoul
+- Google 인증 세션 복원 후 server binding을 인증된 내부 경로로 조회한다. 토큰·binding은 Unity/public profile에 노출하지 않고 logout/계정 변경과 경합을 검사한다. 실제 결제 검증 연결은 별도다.
+- Android 내부 binding 조회 초안과 malformed 응답 단위시험을 작성했다. 세션 mutex를 유지한 채 요청하며 실제 Backend 연결 전 단위 컴파일을 확인한다.
+- Android binding parser unit 및 전체 sdk-android unit task 통과. 인증 session 요청 도중 logout이 기존 계정과 경합하지 않는지도 fake 경계 시험을 추가한다.
+- Android unit 재실행 종료 0. fake 인증 backend에서 binding 요청 진행 중 logout이 기다리고 완료 후 session이 비워짐을 확인했다. 실제 Google 인증·Backend binding HTTP·Play 거래는 미실행이다.
+- 커밋 전: Native-only account source와 parser·session 경합 unit만 포함. Apple 연결, provider 조립 및 real proof sink는 미완료로 P05-T01 PARTIAL 유지.

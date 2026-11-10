@@ -49,16 +49,28 @@ class BridgeDispatcherTest {
 
     @Test fun `diagnostics expose only typed bounded events without payload or failure details`() {
         val fixture = File("../../contracts/fixtures/bridge/request.json").readText()
-        val dispatcher = BridgeDispatcher(BridgeOperationHandler { _, _ -> throw IllegalStateException("sensitive token") })
-        repeat(101) { dispatcher.dispatch(fixture.toByteArray()) }
+        val initialized = fixture.replace("store.purchase", "sdk.initialize")
+        val working = BridgeDispatcher(BridgeOperationHandler { operation, _ ->
+            if (operation == "sdk.initialize" || operation == "sdk.shutdown") buildJsonObject {} else throw IllegalStateException("sensitive token")
+        })
+        working.dispatch(initialized.toByteArray())
+        repeat(101) { working.dispatch(fixture.toByteArray()) }
         val query = fixture.replace("store.purchase", "diagnostics.get")
-        val response = dispatcher.dispatch(query.toByteArray()) as BridgeDispatchResult.Message
+        val response = working.dispatch(query.toByteArray()) as BridgeDispatchResult.Message
         val events = Json.parseToJsonElement(response.json).jsonObject["result"]!!.jsonObject["events"]!!.jsonArray
         assertEquals(200, events.size)
         assertEquals("PURCHASE", events.last().jsonObject["kind"]!!.jsonPrimitive.content)
         assertEquals("FAILED", events.last().jsonObject["outcome"]!!.jsonPrimitive.content)
         assertFalse(response.json.contains("sensitive"))
         assertFalse(response.json.contains("payload"))
+        working.dispatch(fixture.replace("store.purchase", "sdk.shutdown").toByteArray())
+        val after = working.dispatch(query.toByteArray()) as BridgeDispatchResult.Message
+        assertEquals("NOT_INITIALIZED", Json.parseToJsonElement(after.json).jsonObject["error"]!!.jsonObject["code"]!!.jsonPrimitive.content)
+        working.dispatch(initialized.toByteArray())
+        val next = working.dispatch(query.toByteArray()) as BridgeDispatchResult.Message
+        val fresh = Json.parseToJsonElement(next.json).jsonObject["result"]!!.jsonObject["events"]!!.jsonArray
+        assertEquals(2, fresh.size)
+        assertTrue(fresh.all { it.jsonObject["kind"]!!.jsonPrimitive.content == "INITIALIZE" })
     }
 
 }

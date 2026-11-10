@@ -16,5 +16,6 @@ public actor Diagnostics {
         if events.count == 200 { events.removeFirst() }
         events.append(DiagnosticEvent(kind: kind, outcome: outcome, timestamp: Date(), requestId: requestId))
     }
+    public func clear() { events.removeAll() }
     public func snapshot() -> [DiagnosticEvent] { events }
 }

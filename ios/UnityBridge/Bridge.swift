@@ -20,6 +20,7 @@ private final class BridgeState {
     private var eventSession: String?
     private var accountEpoch: UInt64 = 0
     private let pushRouter = PushRouter()
+    private let diagnostics = Diagnostics()
     // Accessed only by the serial bridge queue and the one task it waits for.
     private var state = "UNINITIALIZED"
     private var ownerSession: String?
@@ -59,9 +60,27 @@ private final class BridgeState {
               let operation = request["operation"] as? String, let session = request["sdkSessionId"] as? String,
               let payload = request["payload"] as? [String: Any] else { return nil }
         if let ownerSession, ownerSession != session { return envelope(data, result: nil, failure: SdkFailure("NOT_INITIALIZED")) }
+        let category: DiagnosticKind?
+        if operation == "sdk.initialize" { category = .initialize }
+        else if operation == "sdk.shutdown" { category = .shutdown }
+        else if operation.hasPrefix("auth.") { category = .auth }
+        else if operation.hasPrefix("store.") { category = .purchase }
+        else if operation.hasPrefix("push.") { category = .push }
+        else { category = nil }
+        let requestId = (request["requestId"] as? String).flatMap(UUID.init(uuidString:))
+        if operation == "sdk.initialize" && ownerSession == nil { await diagnostics.clear() }
+        if let category { await diagnostics.record(category, .started, requestId: requestId) }
         do {
             let result: Any
             switch operation {
+            case "diagnostics.get":
+                guard state == "READY" else { throw SdkFailure("NOT_INITIALIZED") }
+                let events = await diagnostics.snapshot()
+                result = ["events": events.map { event in
+                    ["kind": event.kind.rawValue.uppercased(), "outcome": event.outcome.rawValue.uppercased(),
+                     "timestamp": ISO8601DateFormatter().string(from: event.timestamp),
+                     "requestId": event.requestId?.uuidString.lowercased() as Any? ?? NSNull()] as [String: Any]
+                }]
             case "sdk.status": result = ["state": state, "sdkVersion": GameBridgeVersion.current]
             case "sdk.shutdown":
                 await pushRouter.reset()
@@ -112,9 +131,15 @@ private final class BridgeState {
                 }
                 result = try await invokeActive(operation, payload: payload)
             }
+            if let category { await diagnostics.record(category, .succeeded, requestId: requestId) }
             return envelope(data, result: result, failure: nil)
-        } catch let failure as SdkFailure { return envelope(data, result: nil, failure: failure) }
-        catch { return envelope(data, result: nil, failure: SdkFailure("INTERNAL_ERROR")) }
+        } catch let failure as SdkFailure {
+            if let category { await diagnostics.record(category, .failed, requestId: requestId) }
+            return envelope(data, result: nil, failure: failure)
+        } catch {
+            if let category { await diagnostics.record(category, .failed, requestId: requestId) }
+            return envelope(data, result: nil, failure: SdkFailure("INTERNAL_ERROR"))
+        }
     }
     private func invokeActive(_ operation: String, payload: [String: Any]) async throws -> Any {
         switch activeMode {

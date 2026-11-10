@@ -33,10 +33,13 @@ class BridgeDispatcher(private val handler: BridgeOperationHandler? = null) {
             else -> null
         }
         val id = runCatching { UUID.fromString(request.getValue("requestId").jsonPrimitive.content) }.getOrNull()
+        if (operation == "sdk.initialize" && ownerSession == null) diagnostics.clear()
         category?.let { diagnostics.record(it, DiagnosticOutcome.STARTED, id) }
         return try {
             val result = when (operation) {
-                "diagnostics.get" -> buildJsonObject {
+                "diagnostics.get" -> {
+                    if (state != "READY") throw SdkFailure("NOT_INITIALIZED")
+                    buildJsonObject {
                     put("events", buildJsonArray {
                         diagnostics.snapshot().forEach { event -> add(buildJsonObject {
                             put("kind", event.kind.name); put("outcome", event.outcome.name)
@@ -44,6 +47,7 @@ class BridgeDispatcher(private val handler: BridgeOperationHandler? = null) {
                             put("requestId", event.requestId?.toString()?.let(::JsonPrimitive) ?: JsonNull)
                         }) }
                     })
+                }
                 }
                 "sdk.status" -> buildJsonObject { put("state", state); put("sdkVersion", GameBridgeVersion.CURRENT) }
                 "sdk.shutdown" -> {

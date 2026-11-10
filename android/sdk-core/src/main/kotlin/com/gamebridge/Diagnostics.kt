@@ -14,5 +14,6 @@ class Diagnostics {
         if (events.size == 200) events.removeFirst()
         events.addLast(DiagnosticEvent(kind, outcome, Instant.now(), requestId))
     }
+    @Synchronized fun clear() = events.clear()
     @Synchronized fun snapshot(): List<DiagnosticEvent> = events.toList()
 }

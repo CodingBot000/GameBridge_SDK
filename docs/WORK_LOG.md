@@ -1636,3 +1636,13 @@
 - 기존 dispatcher 회귀 및 200개 제한·예외 비밀값 비노출 시험을 실행한다. Native 단위 검증으로 Unity 실행을 대체하지 않는다.
 - Android `:sdk-core:test --tests com.gamebridge.BridgeDispatcherTest --rerun-tasks` 종료 0, 기존 dispatcher와 신규 200개 ring·민감 문자열 비노출 확인. `harness/check-api-baseline.py` 통과. 실제 Unity 및 iOS는 아직 미검증.
 - 커밋 준비: Android 경계의 독립 부분만 기록하고 BUG-015 OPEN 유지한다.
+### P07-T01 BUG-015 iOS 연결 시작
+- iOS C ABI dispatcher에도 동일한 typed event와 snapshot을 연결하고 C bridge 시험을 추가한다. 실제 Unity player 검증은 별도다.
+### P07-T01 BUG-015 iOS 검증 시작
+- Swift C bridge 회귀 및 민감 payload 비반환 시험을 실행한다. simulator/device와 Unity 실행 결과는 포함하지 않는다.
+- 검토 중 세션 종료 뒤 다른 사용자가 이전 request ID를 조회할 가능성을 발견했다. READY 세션에서만 snapshot을 허용하고 신규 소유 세션 시작 시 ring을 비우도록 두 플랫폼에 보강한다. 검증 전까지 BUG-015 OPEN이다.
+### P07-T01 세션 격리 검증 시작
+- Android dispatcher 및 Swift C bridge 시험을 다시 실행한다.
+- 세션 격리 추가 시험의 첫 실행은 실패했다. 테스트 fake가 shutdown에서도 예외를 발생시켜 종료 상태가 되지 않은 원인을 확인했으며, fake의 정상 shutdown을 명시한 뒤 재실행한다. Swift 시험은 앞선 명령 실패로 이번 조합에서 미실행이다.
+- fake 수정 후 Android dispatcher 3건과 Swift C bridge 3건 통과. 두 플랫폼에서 종료 후 조회 차단 및 새 세션 ring 초기화를 확인했다. 실제 Unity는 미실행.
+- 커밋 준비: iOS 연결과 Android/iOS 세션 격리만 포함하며 Unity 공개 API가 남아 BUG-015는 OPEN이다.

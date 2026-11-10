@@ -2144,3 +2144,14 @@
 - 각 scenario entry를 실제 opt-in artifact로 실행하고 manifest 음성 검사를 확인한다.
 - R47/R48 개별 entry 재실행과 manifest 음성 검사 통과. 새 `artifacts/upm-validated-20261111` 생성 시 XCFramework arch/C ABI 선검사와 110개 staging checksum 통과. Unity import/export는 실행하지 않았다.
 - 커밋 준비: 패키지 선검사 및 격리 consumer/artifact 음성 시험과 새 UPM 해시를 기록한다.
+
+### [P09-T04] R33 Google 완료 처리 실패 재시도 시작
+- 기존 consume fake 실패 재시도 DB 시험에 non-consumable acknowledge 실패·worker 재생성·재시도와 entitlement/원장 불변을 추가한다. 실제 Google 호출은 하지 않는다.
+### P09-T04 Google ACK/consume DB 검증 시작
+- 새 전용 local DB와 test-owned schema에서 consume·ack 실패 후 worker 재생성, retry 및 확인 후 암호화 증빙 삭제를 확인한다.
+- `gamebridge_ci_584b8f5ac2`에서 Google synthetic consume와 acknowledge 각각 실패→worker 재생성→retry→확인 뒤 암호화 증빙 삭제 및 원장/entitlement 불변 통과. 실제 Play API 호출은 없다. 이를 scenario runner에 포함해 재검증한다.
+### P09-T04 Google 최종화 scenario runner 검증 시작
+- `artifacts/purchase-verifier-34g3k75m` 7건 및 전용 DB `gamebridge_ci_92bb74bec6_local/_sandbox`의 `artifacts/purchase-db-scenarios-cye0z6z8` PASS. R33에 consume·ack durable retry assertion과 evidence를 연결한다. 실제 Google Play는 미검증이다.
+### P09-T04 R33 mapping 검증 시작
+- R33 manifest·필수 scenario 음성·원장 검사 통과. 다른 20개 scenario는 PARTIAL, 외부 실연동은 대기로 유지한다.
+- 커밋 준비: synthetic Google ACK/consume retry 시험과 증거 연결만 저장한다.

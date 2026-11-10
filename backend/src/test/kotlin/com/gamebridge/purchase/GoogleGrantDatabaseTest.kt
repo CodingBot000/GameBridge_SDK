@@ -96,5 +96,26 @@ class GoogleGrantDatabaseTest {
         assertNull(db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, id))
         assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
         assertFalse(worker.runOnce(id)); assertEquals(2, calls.get())
+        db.update("INSERT INTO products(app_id,logical_id,platform,store_id,type,grant_amount) VALUES (?, 'premium_unlock','GOOGLE','premium.play','NON_CONSUMABLE',0)", app)
+        val ackToken = "synthetic-ack-proof"; val ackHash = MessageDigest.getInstance("SHA-256").digest(ackToken.toByteArray())
+        val ackGrant = service.grant(principal, StoreEnvironment.SANDBOX, VerifiedGooglePurchase(ackHash, "premium.play", binding), ackToken, UUID.randomUUID())
+        val ackId = ackGrant.serverPurchaseId
+        assertEquals("GOOGLE_ACKNOWLEDGE", db.queryForObject("SELECT action FROM store_finalization_jobs WHERE purchase_id=?", String::class.java, ackId))
+        val ackCalls = AtomicInteger()
+        val ackFake = GoogleFinalizationExecutor { claim, plaintext ->
+            assertEquals(ackId, claim.purchaseId); assertEquals(ackToken, plaintext)
+            if (ackCalls.incrementAndGet() == 1) throw java.io.IOException("synthetic acknowledgement failure")
+        }
+        val ackFirst = GoogleFinalizationWorker(db, tx, source, cipher, ackFake, GoogleFinalizationPolicy(1, 5))
+        assertTrue(ackFirst.runOnce(ackId))
+        assertEquals("PENDING", db.queryForObject("SELECT status FROM store_finalization_jobs WHERE purchase_id=?", String::class.java, ackId))
+        assertNotNull(db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, ackId))
+        db.update("UPDATE store_finalization_jobs SET next_attempt_at=now()-interval '1 second' WHERE purchase_id=?", ackId)
+        val ackRecreated = GoogleFinalizationWorker(db, tx, source, cipher, ackFake, GoogleFinalizationPolicy(1, 5))
+        assertTrue(ackRecreated.runOnce(ackId)); assertEquals(2, ackCalls.get())
+        assertEquals("DONE", db.queryForObject("SELECT status FROM store_finalization_jobs WHERE purchase_id=?", String::class.java, ackId))
+        assertNull(db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, ackId))
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM entitlements WHERE user_id=? AND product_id='premium_unlock' AND active", Int::class.java, principal.userId))
+        assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
     }
 }

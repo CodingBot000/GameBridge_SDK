@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / P09-T05 패키지 누락 음성 검증
+- 현재 Phase / Task: P09 / P09-T04 Google 최종화 재시도 검증
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: c22336c (격리 strict aggregate; Unity·외부 서비스는 미검증)
 - 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: Android 소비자 누락 의존성과 iOS slice·C symbol 누락 검증 구현
+- 바로 다음 행동: consume·ack 일시 실패 후 durable retry와 지급 불변 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계

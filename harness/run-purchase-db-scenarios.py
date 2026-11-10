@@ -20,10 +20,14 @@ def main():
         not local or not sandbox or any(re.search(r'(?i)([?&](?:user|password)=|://[^/]*@)', value) for value in (local,sandbox))):
         print('CONFIG_REQUIRED: explicit isolated local/sandbox test DB opt-in and separate credentials',file=sys.stderr); return 2
     artifacts = ROOT/'artifacts'; artifacts.mkdir(exist_ok=True); output = Path(tempfile.mkdtemp(prefix='purchase-db-scenarios-',dir=artifacts))
-    for label, url, cls in (('local',local,'AppleGrantDatabaseTest'),('sandbox',sandbox,'ApplePurchaseHttpIntegrationTest')):
+    for label, url, classes in (('local',local,('AppleGrantDatabaseTest','GoogleGrantDatabaseTest')),
+                                ('sandbox',sandbox,('ApplePurchaseHttpIntegrationTest',))):
         lane=env.copy(); lane['GAMEBRIDGE_TEST_DB_URL']=url
-        code, _, started = common.run(['backend/gradlew','-p','backend','test','--tests',f'com.gamebridge.purchase.{cls}','--rerun-tasks'],lane,output/(label+'.log'))
-        counts=common.junit_counts([ROOT/f'backend/build/test-results/test/TEST-com.gamebridge.purchase.{cls}.xml'],started)
+        command=['backend/gradlew','-p','backend','test','--rerun-tasks']
+        for cls in classes: command += ['--tests',f'com.gamebridge.purchase.{cls}']
+        code, _, started = common.run(command,lane,output/(label+'.log'))
+        paths=[ROOT/f'backend/build/test-results/test/TEST-com.gamebridge.purchase.{cls}.xml' for cls in classes]
+        counts=common.junit_counts(paths,started)
         if common.item(label,code,counts)['status'] != 'PASS':
             print(f'Purchase DB scenario {label} failed; evidence directory: {output.relative_to(ROOT)}',file=sys.stderr); return 1
     print(f'Purchase DB scenarios PASS: local and sandbox synthetic tests; evidence directory: {output.relative_to(ROOT)}')

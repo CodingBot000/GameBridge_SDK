@@ -14,7 +14,7 @@ common=importlib.util.module_from_spec(spec); spec.loader.exec_module(common)
 def main():
     env=os.environ.copy(); env['PYTHONDONTWRITEBYTECODE']='1'
     artifacts=ROOT/'artifacts'; artifacts.mkdir(exist_ok=True); output=Path(tempfile.mkdtemp(prefix='purchase-verifier-',dir=artifacts))
-    classes=('ApplePurchaseVerifierTest','GooglePurchaseVerifierTest')
+    classes=('ApplePurchaseVerifierTest','GooglePurchaseVerifierTest','GoogleStoreFinalizerTest')
     command=['backend/gradlew','-p','backend','test','--rerun-tasks']
     for cls in classes: command += ['--tests',f'com.gamebridge.purchase.{cls}']
     code,_,started=common.run(command,env,output/'test.log')

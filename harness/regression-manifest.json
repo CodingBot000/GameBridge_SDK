@@ -1073,17 +1073,35 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R33"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-verifier",
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Synthetic Google consume/ack failures with durable DB worker; real Play API remains unverified.",
+      "assertions": [
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GoogleGrantDatabaseTest.kt",
+          "testCase": "synthetic acknowledgement failure"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GoogleGrantDatabaseTest.kt",
+          "testCase": "GOOGLE_CONSUME"
+        },
+        {
+          "suite": "purchase-verifier",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GoogleStoreFinalizerTest.kt",
+          "testCase": "already finished is accepted only after store lookup and granted check"
+        }
+      ]
     },
     {
       "id": "R34",

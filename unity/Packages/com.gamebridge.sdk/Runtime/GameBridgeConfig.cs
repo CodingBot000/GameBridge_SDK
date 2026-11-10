@@ -26,6 +26,8 @@ namespace GameBridge
         public string DevelopmentKey { get; }
         public string MockSubject { get; }
         public string GoogleServerClientId { get; }
+        public string CoinsStoreProductId { get; }
+        public string PremiumStoreProductId { get; }
 
         public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs = 30000)
             : this(appId, mode, backendBaseUrl, requestTimeoutMs, null, "A") { }
@@ -34,6 +36,9 @@ namespace GameBridge
             : this(appId, mode, backendBaseUrl, requestTimeoutMs, developmentKey, mockSubject, null) { }
 
         public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject, string googleServerClientId)
+            : this(appId, mode, backendBaseUrl, requestTimeoutMs, developmentKey, mockSubject, googleServerClientId, null, null) { }
+
+        public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject, string googleServerClientId, string coinsStoreProductId, string premiumStoreProductId)
         {
             AppId = appId;
             Mode = mode;
@@ -42,6 +47,8 @@ namespace GameBridge
             DevelopmentKey = developmentKey;
             MockSubject = mockSubject;
             GoogleServerClientId = googleServerClientId;
+            CoinsStoreProductId = coinsStoreProductId;
+            PremiumStoreProductId = premiumStoreProductId;
         }
 
         public void Validate()
@@ -56,6 +63,12 @@ namespace GameBridge
                 if (MockSubject != "A" && MockSubject != "B") errors.Add("mockSubject");
             }
             else if (!string.IsNullOrEmpty(DevelopmentKey)) errors.Add("developmentKey");
+            if (CoinsStoreProductId != null || PremiumStoreProductId != null)
+            {
+                if (Mode != ProviderMode.PlatformSandbox || string.IsNullOrWhiteSpace(CoinsStoreProductId) ||
+                    string.IsNullOrWhiteSpace(PremiumStoreProductId) || CoinsStoreProductId == PremiumStoreProductId)
+                    errors.Add("storeProductIds");
+            }
             if (Mode != ProviderMode.EditorOffline)
             {
                 if (!Uri.TryCreate(BackendBaseUrl, UriKind.Absolute, out var uri) ||

@@ -1216,3 +1216,10 @@
 - 사용자 요청으로 일시 중단한다. P05-T07 Android Google Play bridge는 Native facade와 비동기 구매/event 계약을 조사했으며 코드 변경은 시작하지 않았다. 재개 시 상품 ID 설정 전달, 서버 검증 전 PENDING/VERIFICATION_PENDING 반환, 검증 후 PurchaseUpdated 발행과 session/lifecycle 격리를 구현·검증한다. 이어 iOS 상점·푸시 및 P08~P11을 진행한다.
 - 이 세션의 Android/iOS Mock bridge, Android Google/iOS Apple 인증 bridge, Unity 구매 이벤트 수신은 로컬 커밋됐다. Mock 및 fake 시험은 실제 계정·결제·Unity JNI/IL2CPP 성공이 아니다. ENV-002와 StoreKit 실패, USER_SETUP의 외부 인증 대기는 유지한다. 새 생성 검증 artifacts와 기존 미추적 unity/Demo·scripts/__pycache__ 및 DB 데이터는 보존한다. 자동 push/배포는 하지 않았다.
 - 커밋 전: 일시 중단 및 재개 지점 문서만 포함한다.
+- 재개: Git 상태 및 계획의 결제 불변식을 확인했다. 기존 미추적 파일을 보존하며 실제 Play 거래 없이 상품 설정·구매 대기·검증 이벤트 경로를 구현한다.
+- Unity 설정에 실제 두 store 상품 ID를 명시적으로 전달하고 Android handler에 상품·구매·잔액 경계를 추가했다. 구매 즉시 결과는 PENDING/VERIFICATION_PENDING만 허용하고 지급 전 상태로 반환한다. 실제 provider 및 지연 이벤트 연결을 진행한다.
+- GooglePlayStore 실제 facade를 지연 생성하고 검증 결과 flow를 Unity PurchaseUpdated로 전달하도록 연결했다. callback 세대·SDK session·로그인 변경 epoch를 묶어 이전 계정/종료 후 이벤트를 거부하며, 원본 영수증은 직렬화하지 않는다. 컴파일과 fake 경계 시험을 진행한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-unity-bridge:testDebugUnitTest :sdk-unity-bridge:assembleDebug` 종료 0. 기존 인증 단위 시험과 AAR compile이 통과했으며 새 구매 결과·이벤트 격리 검증은 아직 추가 중이다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-unity-bridge:testDebugUnitTest` 종료 0: fake Play 결과가 VERIFICATION_PENDING/NOT_GRANTED로 전달되고 잘못된 상품 mapping은 provider 생성 전에 차단됨을 확인했다. 검증 ID 없는 구매 이벤트 및 로그아웃 이후 이전 이벤트도 차단했다. 실제 Play·Unity JNI는 아니다.
+- `scripts/check-csharp-compile.sh` 및 `scripts/smoke-csharp-registry.sh` 종료 0: 네 조건부 C# compile과 독립 registry smoke 통과. 실제 Unity Editor/JNI 및 Google Play는 검증하지 않았다.
+- 커밋 전: Android Play 상품 조회·대기 구매·서버 잔액·검증 이벤트 연결과 fake 시험만 포함한다. 실제 Play/Unity JNI 및 구매 sync/recovery, iOS 상점은 미완료로 유지한다.

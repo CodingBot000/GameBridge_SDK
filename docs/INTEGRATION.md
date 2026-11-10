@@ -27,3 +27,5 @@ Unity iOS LOCAL_MOCK도 동일한 명시 설정을 Swift C ABI로 전달하며 N
 Android PLATFORM_SANDBOX 인증 bridge는 Native GoogleAuthProvider와 Credential Manager를 사용한다. Google OAuth 서버 client ID는 `GameBridgeConfig` 7인자 생성자에 전달한다. 계정 토큰은 Native 내부에 남고 Mock fallback은 없다. fake 경계와 compile만 확인했으며 실제 Google·Unity JNI 검증은 남았다.
 
 iOS PLATFORM_SANDBOX 인증 bridge는 활성 key window를 Native AppleAuthProvider에 전달하고 Keychain을 별도 보관한다. fake 인증 경계와 simulator framework compile만 확인했으며 Apple 계정과 Unity iOS 실동작은 USER-AUTH-APPLE 준비 후 별도 확인해야 한다.
+
+Android Unity sandbox의 Google Play bridge는 host가 명시한 두 상품 ID로 Native Billing facade를 구성한다. 구매 UI의 성공 응답은 검증 대기로 표시하며, 서버 지급 확인 후 `PurchaseUpdated` 이벤트와 서버 entitlement 조회를 사용한다. fake provider 및 이벤트 session 격리만 확인했으며 실제 Play·Unity JNI와 구매 sync/recovery bridge는 미검증 또는 미연결이다.

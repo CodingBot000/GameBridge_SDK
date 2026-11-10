@@ -15,7 +15,7 @@ class GoogleAuthBridgeHandlerTest {
             override fun close() { closed = true }
         }
         val local = BridgeOperationHandler { _, _ -> mockCalls++; buildJsonObject {} }
-        val dispatcher = BridgeDispatcher(ModeBridgeHandler(local, GoogleAuthBridgeHandler { fake }))
+        val dispatcher = BridgeDispatcher(ModeBridgeHandler(local, GoogleAuthBridgeHandler { _, _ -> fake }))
         val session = UUID.randomUUID().toString()
         fun send(operation: String, payload: JsonObject = buildJsonObject {}): JsonObject {
             val request = buildJsonObject {
@@ -34,7 +34,41 @@ class GoogleAuthBridgeHandlerTest {
         val profile = send("auth.signIn", buildJsonObject { put("provider", "GOOGLE") }).getValue("result").jsonObject
         assertEquals("GOOGLE", profile.getValue("provider").jsonPrimitive.content)
         assertEquals(1, signIns); assertEquals(0, mockCalls)
-        assertEquals("UNSUPPORTED_OPERATION", send("store.purchase").getValue("error").jsonObject.getValue("code").jsonPrimitive.content)
+        assertEquals("INVALID_ARGUMENT", send("store.purchase").getValue("error").jsonObject.getValue("code").jsonPrimitive.content)
         send("sdk.shutdown"); assertTrue(closed)
     }
+    @Test fun `sandbox purchase is pending until server confirmation`() {
+        val fake = object : GoogleAuthBridgeApi {
+            override suspend fun signIn() = UserProfile("d2719c4e-d533-47ee-9efd-838791ea79c8", null, "GOOGLE")
+            override suspend fun restore(): UserProfile? = null
+            override suspend fun signOut() {}
+            override suspend fun purchase(productId: String) = PurchaseStatus.VERIFICATION_PENDING
+            override fun close() {}
+        }
+        var mapping: Map<String, String>? = null
+        val handler = GoogleAuthBridgeHandler { _, ids -> mapping = ids; fake }
+        val result = handler.invoke("sdk.initialize", buildJsonObject {
+            put("providerMode", "PLATFORM_SANDBOX"); put("appId", "demo"); put("backendBaseUrl", "https://example.invalid")
+            put("requestTimeoutMs", 30000); put("googleServerClientId", "test-client")
+            put("storeProductIds", buildJsonObject { put("coins_100", "test_coins"); put("premium_unlock", "test_premium") })
+        }).jsonObject
+        assertEquals("test_coins", mapping?.get("coins_100"))
+        assertTrue(result.getValue("capabilities").jsonObject.getValue("store").jsonObject.getValue("configured").jsonPrimitive.boolean)
+        val purchase = handler.invoke("store.purchase", buildJsonObject { put("productId", "coins_100") }).jsonObject
+        assertEquals("VERIFICATION_PENDING", purchase.getValue("status").jsonPrimitive.content)
+        assertEquals("NOT_GRANTED", purchase.getValue("fulfillmentStatus").jsonPrimitive.content)
+        assertEquals(JsonNull, purchase.getValue("serverPurchaseId"))
+    }
+    @Test fun `invalid store mapping never creates provider`() {
+        var created = false
+        val handler = GoogleAuthBridgeHandler { _, _ -> created = true; error("unexpected") }
+        val failure = assertFailsWith<SdkFailure> {
+            handler.invoke("sdk.initialize", buildJsonObject {
+                put("providerMode", "PLATFORM_SANDBOX"); put("appId", "demo"); put("backendBaseUrl", "https://example.invalid")
+                put("requestTimeoutMs", 30000); put("storeProductIds", buildJsonObject { put("coins_100", "same"); put("premium_unlock", "same") })
+            })
+        }
+        assertEquals("CONFIG_REQUIRED", failure.code); assertFalse(created)
+    }
+
 }

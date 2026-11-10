@@ -90,53 +90,69 @@ protocol AppleAuthBackend {
             guard generation == started else { throw SdkFailure("CANCELED") }
             return try validateProfile(profile, session: current)
         } catch let error as SdkFailure where error.code == "SESSION_EXPIRED" {
-            guard generation == started else { throw SdkFailure("CANCELED") }
-            if let latest = currentSession, latest.accessToken != current.accessToken {
-                let profile = try await backend.profile(session: latest)
-                guard generation == started else { throw SdkFailure("CANCELED") }
-                return try validateProfile(profile, session: latest)
-            }
-            let flight: (id: UUID, task: Task<AppleSession, Error>)
-            if let existing = refreshFlight { flight = existing }
-            else {
-                try store.save("{\"state\":\"refresh_pending\"}")
-                let backend = self.backend
-                let task = Task { try await backend.refresh(session: current) }
-                flight = (UUID(), task); refreshFlight = flight
-            }
-            let refreshed: AppleSession
-            do { refreshed = try await flight.task.value }
-            catch {
-                if generation == started && refreshFlight?.id == flight.id { refreshFlight = nil; currentSession = nil }
-                if error is CancellationError { throw SdkFailure("CANCELED") }
-                throw error
-            }
-            guard generation == started else { throw SdkFailure("CANCELED") }
-            guard refreshed.userId == current.userId, refreshed.appleUserIdentifier == current.appleUserIdentifier,
-                  matchesConfig(refreshed), !refreshed.accessToken.isEmpty, !refreshed.refreshToken.isEmpty,
-                  isUTCInstant(refreshed.expiresAt) else {
-                if refreshFlight?.id == flight.id { currentSession = nil; refreshFlight = nil }
-                throw SdkFailure("AUTH_FAILED")
-            }
-            if refreshFlight?.id == flight.id {
-                do { try store.save(String(decoding: JSONEncoder().encode(refreshed), as: UTF8.self)) }
-                catch { currentSession = nil; refreshFlight = nil; throw SdkFailure("INTERNAL_ERROR") }
-                currentSession = refreshed; refreshFlight = nil
-            }
-            guard let usable = currentSession else { throw SdkFailure("SESSION_EXPIRED") }
+            let usable = try await refreshAfterUnauthorized(current, started: started)
             let profile = try await backend.profile(session: usable)
             guard generation == started else { throw SdkFailure("CANCELED") }
             return try validateProfile(profile, session: usable)
         }
+    }
+    private func refreshAfterUnauthorized(_ current: AppleSession, started: Int) async throws -> AppleSession {
+        guard generation == started else { throw SdkFailure("CANCELED") }
+        if let latest = currentSession, latest.accessToken != current.accessToken { return latest }
+        let flight: (id: UUID, task: Task<AppleSession, Error>)
+        if let existing = refreshFlight { flight = existing }
+        else {
+            try store.save("{\"state\":\"refresh_pending\"}")
+            let backend = self.backend
+            let task = Task {
+                let value = try await backend.refresh(session: current)
+                guard value.userId == current.userId, value.appleUserIdentifier == current.appleUserIdentifier,
+                      self.matchesConfig(value), !value.accessToken.isEmpty, !value.refreshToken.isEmpty,
+                      self.isUTCInstant(value.expiresAt) else { throw SdkFailure("AUTH_FAILED") }
+                let profile = try await backend.profile(session: value)
+                guard profile.userId == value.userId, profile.provider == "APPLE" else { throw SdkFailure("AUTH_FAILED") }
+                return value
+            }
+            flight = (UUID(), task); refreshFlight = flight
+        }
+        let refreshed: AppleSession
+        do { refreshed = try await flight.task.value }
+        catch {
+            if generation == started && refreshFlight?.id == flight.id { refreshFlight = nil; currentSession = nil }
+            if error is CancellationError { throw SdkFailure("CANCELED") }
+            throw error
+        }
+        guard generation == started else { throw SdkFailure("CANCELED") }
+        guard refreshed.userId == current.userId, refreshed.appleUserIdentifier == current.appleUserIdentifier,
+              matchesConfig(refreshed), !refreshed.accessToken.isEmpty, !refreshed.refreshToken.isEmpty,
+              isUTCInstant(refreshed.expiresAt) else {
+            if refreshFlight?.id == flight.id { currentSession = nil; refreshFlight = nil }
+            throw SdkFailure("AUTH_FAILED")
+        }
+        if refreshFlight?.id == flight.id {
+            do { try store.save(String(decoding: JSONEncoder().encode(refreshed), as: UTF8.self)) }
+            catch { currentSession = nil; refreshFlight = nil; throw SdkFailure("INTERNAL_ERROR") }
+            currentSession = refreshed; refreshFlight = nil
+        }
+        guard let usable = currentSession else { throw SdkFailure("SESSION_EXPIRED") }
+        return usable
     }
     internal func usesConfiguration(_ candidate: GameBridgeConfig) -> Bool { config == candidate }
     internal var sessionGeneration: Int { generation }
     internal func withAuthenticatedSession<T>(_ action: (AppleSession) async throws -> T) async throws -> T? {
         guard let profile = try await restore(), let session = try loadBound(), profile.userId == session.userId else { return nil }
         let started = generation
-        let result = try await action(session)
-        guard generation == started, currentSession?.userId == session.userId else { throw SdkFailure("CANCELED") }
-        return result
+        do {
+            let result = try await action(session)
+            guard generation == started, currentSession?.userId == session.userId else { throw SdkFailure("CANCELED") }
+            return result
+        } catch let error as SdkFailure where error.code == "SESSION_EXPIRED" {
+            let usable = try await refreshAfterUnauthorized(session, started: started)
+            guard generation == started else { throw SdkFailure("CANCELED") }
+            let result = try await action(usable)
+            guard generation == started, currentSession?.userId == session.userId else { throw SdkFailure("CANCELED") }
+            return result
+        }
     }
     public func signOut() async throws {
         let raw = try store.load()

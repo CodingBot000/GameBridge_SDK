@@ -92,8 +92,7 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
         provider = StoreKitBillingProvider(sink: sink, onVerified: { grant in
             onVerified(AppleStorePurchaseResult(productId: grant.productId, status: .purchased, serverPurchaseId: grant.serverPurchaseId, fulfillmentStatus: grant.fulfillmentStatus))
         }, acceptsTransaction: { transaction in
-            if #available(iOS 16.0, macOS 13.0, *) { return isXcodeStoreEnvironment(transaction.environment) }
-            return false
+            isXcodeStoreEnvironment(transaction.environment)
         }, transactionIdentity: { _, jws in
             xcodeStableIdentity(jws) ?? ""
         }) { [weak ref] in ref?.value }

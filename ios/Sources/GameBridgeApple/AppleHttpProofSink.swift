@@ -27,11 +27,12 @@ final class AppleHttpProofSink: ApplePurchaseProofSink {
             let fulfillmentStatus: String
         }
         guard !proof.signedTransaction.isEmpty else { throw SdkFailure("VERIFICATION_FAILED") }
+        let attemptId = UUID().uuidString.lowercased()
         let result: ServerGrant? = try await auth.withAuthenticatedSession { session in
             guard UUID(uuidString: session.userId) == userId else { throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH") }
             let body = try JSONSerialization.data(withJSONObject: ["storeProductId": proof.productId, "signedTransaction": proof.signedTransaction])
             let response = try await client.request(path: "/v1/purchases/apple/verify", method: "POST", body: body,
-                                                    accessToken: session.accessToken, idempotencyKey: UUID().uuidString.lowercased())
+                                                    accessToken: session.accessToken, idempotencyKey: attemptId)
             guard let output = try? JSONDecoder().decode(Output.self, from: response.json),
                   ["GRANTED", "ALREADY_GRANTED"].contains(output.fulfillmentStatus) else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
             return ServerGrant(userId: output.userId, bindingId: output.bindingId, productId: output.productId,

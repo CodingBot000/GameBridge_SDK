@@ -21,6 +21,24 @@ private final class AppleProofProtocol: URLProtocol {
     }
     override func stopLoading() {}
 }
+private final class RetryAppleProofProtocol: URLProtocol {
+    static let lock = NSLock()
+    static var attempts: [String] = []
+    static var responseBody = Data()
+    static func reset(_ body: Data) { lock.lock(); attempts = []; responseBody = body; lock.unlock() }
+    static func snapshot() -> [String] { lock.lock(); defer { lock.unlock() }; return attempts }
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {
+        Self.lock.lock(); Self.attempts.append(request.value(forHTTPHeaderField:"Idempotency-Key") ?? ""); let count = Self.attempts.count; let success = Self.responseBody; Self.lock.unlock()
+        let code = count == 1 ? 401 : 200
+        let response = HTTPURLResponse(url:request.url!, statusCode:code, httpVersion:nil, headerFields:["Content-Type":"application/json"])!
+        client?.urlProtocol(self, didReceive:response, cacheStoragePolicy:.notAllowed)
+        client?.urlProtocol(self, didLoad:count == 1 ? Data(#"{"code":"SESSION_EXPIRED"}"#.utf8) : success)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+    override func stopLoading() {}
+}
 private final class AppleMemoryStore: TokenStore {
     var value: String?
     func load() throws -> String? { value }
@@ -275,4 +293,60 @@ final class AppleAuthProviderTests: XCTestCase {
         do { _ = try await provider.signIn(); XCTFail("mismatch") } catch let error as SdkFailure { XCTAssertEqual(error.code, "AUTH_FAILED") }
         XCTAssertNil(store.value)
     }
+    @MainActor func testTenUnauthorizedOperationsShareSingleRefresh() async throws {
+        let backend = AppleFakeBackend(); let provider = AppleAuthProvider(config: GameBridgeConfig(appId:"demo", mode:.platformSandbox, backendBaseURL:"https://example.com"), store:AppleMemoryStore(), gateway:AppleFakeGateway(), backend:backend)
+        _ = try await provider.signIn(); var oldFailures = 0
+        let tasks = (0..<10).map { _ in Task { @MainActor in
+            try await provider.withAuthenticatedSession { session in
+                if session.accessToken == "test-access" { oldFailures += 1; throw SdkFailure("SESSION_EXPIRED") }
+                return session.userId
+            }
+        } }
+        for task in tasks { let value = try await task.value; XCTAssertEqual(value, "d2719c4e-d533-47ee-9efd-838791ea79c8") }
+        XCTAssertEqual(oldFailures, 10); XCTAssertEqual(backend.refreshes, 1)
+    }
+    @MainActor func testUnauthorizedOperationRetriesOnlyOnce() async throws {
+        let backend = AppleFakeBackend(); let provider = AppleAuthProvider(config: GameBridgeConfig(appId:"demo", mode:.platformSandbox, backendBaseURL:"https://example.com"), store:AppleMemoryStore(), gateway:AppleFakeGateway(), backend:backend)
+        _ = try await provider.signIn(); var calls = 0
+        do { let _: String? = try await provider.withAuthenticatedSession { _ in calls += 1; throw SdkFailure("SESSION_EXPIRED") }; XCTFail("repeated 401") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "SESSION_EXPIRED") }
+        XCTAssertEqual(calls, 2); XCTAssertEqual(backend.refreshes, 1)
+    }
+    @MainActor func testSignOutDuringUnauthorizedRefreshCancelsRetry() async throws {
+        let backend = AppleFakeBackend(); let store = AppleMemoryStore()
+        let provider = AppleAuthProvider(config: GameBridgeConfig(appId:"demo", mode:.platformSandbox, backendBaseURL:"https://example.com"), store:store, gateway:AppleFakeGateway(), backend:backend)
+        _ = try await provider.signIn(); var calls = 0
+        let pending = Task { @MainActor in try await provider.withAuthenticatedSession { _ -> String in calls += 1; throw SdkFailure("SESSION_EXPIRED") } }
+        while backend.refreshes == 0 { await Task.yield() }
+        try await provider.signOut()
+        do { _ = try await pending.value; XCTFail("logout must cancel retry") } catch let error as SdkFailure { XCTAssertEqual(error.code, "CANCELED") }
+        XCTAssertEqual(calls, 1); XCTAssertNil(store.value)
+    }
+    @MainActor func testAppleProofRetryKeepsIdempotencyKey() async throws {
+        let config = GameBridgeConfig(appId:"demo", mode:.platformSandbox, backendBaseURL:"https://example.com")
+        let backend = AppleFakeBackend(); let provider = AppleAuthProvider(config:config, store:AppleMemoryStore(), gateway:AppleFakeGateway(), backend:backend)
+        let user = try await provider.signIn(); let binding = UUID(), purchase = UUID()
+        RetryAppleProofProtocol.reset(Data("{\"userId\":\"\(user.userId)\",\"bindingId\":\"\(binding.uuidString)\",\"productId\":\"coins\",\"transactionKey\":\"42\",\"serverPurchaseId\":\"\(purchase.uuidString)\",\"fulfillmentStatus\":\"GRANTED\"}".utf8))
+        let network = URLSessionConfiguration.ephemeral; network.protocolClasses = [RetryAppleProofProtocol.self]
+        let sink = AppleHttpProofSink(auth:provider, client:try BackendClient(config:config, sessionConfiguration:network))
+        let proof = ApplePurchaseProof(transactionId:42, productId:"coins", binding:binding, signedTransaction:"synthetic-proof")
+        let grant = try await sink.verify(proof, userId:UUID(uuidString:user.userId)!)
+        let attempts = RetryAppleProofProtocol.snapshot()
+        XCTAssertEqual(grant.serverPurchaseId, purchase); XCTAssertEqual(attempts.count, 2); XCTAssertEqual(attempts[0], attempts[1])
+        XCTAssertNotNil(UUID(uuidString:attempts[0])); XCTAssertEqual(backend.refreshes, 1)
+    }
+
+    @MainActor func testUnauthorizedRefreshProfileMismatchKeepsTombstone() async throws {
+        let backend = AppleFakeBackend(); let store = AppleMemoryStore()
+        let provider = AppleAuthProvider(config:GameBridgeConfig(appId:"demo", mode:.platformSandbox, backendBaseURL:"https://example.com"), store:store, gateway:AppleFakeGateway(), backend:backend)
+        _ = try await provider.signIn(); var calls = 0
+        do {
+            let _: String? = try await provider.withAuthenticatedSession { _ in
+                calls += 1; backend.profileUser = UUID().uuidString.lowercased(); throw SdkFailure("SESSION_EXPIRED")
+            }
+            XCTFail("mismatched refreshed account")
+        } catch let error as SdkFailure { XCTAssertEqual(error.code, "AUTH_FAILED") }
+        XCTAssertEqual(calls, 1); XCTAssertEqual(store.value, "{\"state\":\"refresh_pending\"}")
+    }
+
 }

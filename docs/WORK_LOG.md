@@ -2166,3 +2166,18 @@
 ### P04-T04 Android 계정 일치 회귀 시작
 - Android Google fake에서 refresh 후 profile 소유자 불일치 시 AUTH_FAILED, 재시도 0회, refresh tombstone 보존을 확인했다. 전체 GoogleAuthProviderTest 통과. 실제 Google credential/UI는 미검증이다.
 - 커밋 준비: Android 요청 401의 단일 refresh 및 purchase attempt 보존만 저장한다. iOS와 전체 동시 401 검증이 남아 BUG-016 OPEN이다.
+### P04-T04 iOS 인증 요청 401 수정 시작
+- Apple Provider의 기존 refresh single-flight를 profile 및 실제 Backend 요청 401에서 공유한다. 같은 계정 검증 후 1회만 재시도하며 StoreKit proof의 idempotency key는 재시도 전 생성한다.
+### P04-T04 iOS 기존 refresh 회귀 검증 시작
+- 우선 기존 Apple fake 인증·single-flight·취소·로그아웃 회귀를 실행한다. 이후 10개 실제 요청 401과 동일 attempt 재시도를 별도 검증한다.
+- iOS 기존 Apple Provider fake 13건 통과. 실제 요청 경계에서 10개 동시 401, 반복 401 제한, refresh 중 logout, StoreKit proof 동일 idempotency key를 별도 fake 시험한다.
+### P04-T04 iOS 401·계정 경계 검증 시작
+- iOS fake 17건 통과: 실제 action의 401 10건이 refresh 1회 공유, 반복 401 재시도 1회, refresh 중 logout 취소 및 StoreKit proof 동일 attempt. 추가 검토에서 refresh된 session의 profile을 저장 전에 확인해야 잘못된 계정이 저장되지 않으므로 보강한다.
+### P04-T04 iOS refresh 소유권 재검증 시작
+- iOS Provider fake 18건 통과: action 401 10개가 refresh 1회를 공유하고 같은 요청을 1회만 재시도, logout 시 취소, profile 불일치 시 tombstone 유지, StoreKit proof UUID 재사용을 확인했다. Android는 동시 호출을 lock으로 직렬화한다. 실제 플랫폼·실 Backend 동시 만료는 별도다.
+### P04-T04 Native build 회귀 시작
+- Android AAR 및 iOS simulator framework를 새 격리 project에서 compile한다. 실제 Google/Apple 인증은 실행하지 않는다.
+- Android AAR 53 task 및 iOS simulator framework compile 종료 0. iOS는 기존 Xcode 환경 guard의 중복 availability 경고가 있어 단순화한다. BUG-016의 코드 경계는 양쪽 fake 동시 요청·반복 401·소유권·동일 증빙 key 검증으로 해소했으며 실제 기기 및 실 Provider는 별도 대기다.
+### P04-T04 iOS guard 단순화 재검증 시작
+- iOS Apple Provider·StoreKit fake 25건 통과, simulator framework 재컴파일 종료 0(중복 availability 경고 제거). BUG-016 해결은 Native fake/compile 범위이며 실제 플랫폼·실 Backend 동시 401은 아직 미실행이다.
+- 커밋 준비: iOS 공유 refresh·요청 재시도·StoreKit proof idempotency 및 fake 시험을 저장한다. 외부 인증 대기는 유지한다.

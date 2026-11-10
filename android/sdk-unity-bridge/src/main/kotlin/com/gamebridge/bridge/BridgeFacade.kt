@@ -28,10 +28,13 @@ fun interface BridgeCallback { fun onMessage(json: String) }
 /** No Unity runtime linkage; a Unity AndroidJavaProxy may supply the callback. */
 object BridgeFacade {
     private val executor = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(100))
-    private val localMock = LocalMockBridgeHandler {
+    private val localMock = LocalMockBridgeHandler(tokenStore = {
         val activity = host?.get() ?: throw com.gamebridge.SdkFailure("NOT_INITIALIZED")
         KeystoreTokenStore(activity.applicationContext, "unity_local_mock")
-    }
+    }, pendingStore = {
+        val activity = host?.get() ?: throw com.gamebridge.SdkFailure("NOT_INITIALIZED")
+        KeystoreTokenStore(activity.applicationContext, "unity_mock_purchases")
+    })
     private val google = GoogleAuthBridgeHandler { config, productIds ->
         val activity = host?.get() ?: throw com.gamebridge.SdkFailure("NOT_INITIALIZED")
         val provider = GoogleAuthProvider.create(activity.applicationContext, config, KeystoreTokenStore(activity.applicationContext, "unity_google"))

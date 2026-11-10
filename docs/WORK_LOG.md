@@ -1269,3 +1269,16 @@
 - `swift test --package-path ios --filter AppleAuthBridgeTests` 종료 0, 2건: fake에서 APP_RESUME은 false, USER_RESTORE는 true로 전달되고 회복 집계·잔액이 반환되며 잘못된 사유가 거부됐다. 실제 AppStore.sync는 호출하지 않았다.
 - `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0: iOS sync bridge를 포함한 무서명 simulator compile. 실제 StoreKit 복원 및 Unity iOS는 미검증이다.
 - 커밋 전: iOS sync bridge와 fake 요청 분기만 포함하며 실제 StoreKit local 실패·Apple 계정·Unity 검증 및 BUG-009는 미완료다.
+
+### [P05-T06] BUG-009 Android Mock 응답 유실 복구
+- Task 시작: Mock 구매 transaction/attempt 단서를 별도 Native 암호화 저장소에 기록하고 서버 확인 전에는 보존한다. 재시작 후 같은 사용자·설정의 요청만 동일 transaction/멱등키로 재검증한다. 다른 사용자의 보류 데이터는 삭제하지 않는다.
+- Android Mock client에 별도 TokenStore 기반 pending transaction/attempt 기록과 동일 사용자·Backend 범위 재검증 경로를 작성했다. 서버 지급 응답을 검증하고 확인 후에만 해당 단서를 제거하며, 미설정 기존 소비자에서는 recovery를 가장하지 않는다. 기존 Mock sample·Unity는 별도 Keystore namespace를 사용한다. 컴파일과 장애/재시작 시험을 진행한다.
+- Android 전체 compile 첫 시도 종료 1: LocalMockBridgeHandler에 두 번째 함수형 인자를 추가하면서 기존 trailing lambda 호출이 마지막 인자에 바인딩됐다. 기존 단일 생성자 overload를 보존하도록 수정한다.
+- 생성자 수정 후 Android 전체 테스트 종료 1: 기존 synthetic bridge 구매 fixture의 serverPurchaseId가 UUID가 아니어서 새 응답 검증을 통과하지 못했다. fixture와 실제 실패 위치를 확인한다. 전체 suite PASS로 기록하지 않는다.
+- 확인: 실패 fixture의 `serverPurchaseId=purchase-1`은 계약상 UUID가 아니었다. 테스트 값을 유효한 고정 UUID로 교체하고 응답 유실·재시작·사용자 전환 복구를 별도 시험한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-core:test :sdk-unity-bridge:assembleDebug :sample-app:assembleDebug` 종료 0: synthetic 응답 유실→다른 사용자 차단→원래 사용자 재시작 복구에서 같은 proof/멱등키 재사용 및 확인 후 pending 삭제를 확인했다. 실제 DB commit 후 응답 유실과 기기 Keystore는 이 시험에 포함되지 않는다.
+- Android Unity Mock store.sync와 Native sample 복원에 pending 재검증 및 서버 잔액 조회를 연결했다. 실제 복구 건수만 표시하며 기존 session 저장소와 거래 단서 저장소는 분리했다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-core:test :sdk-unity-bridge:testDebugUnitTest :sdk-unity-bridge:assembleDebug :sample-app:assembleDebug` 종료 0: Android core/bridge fake 시험 및 AAR/sample APK compile 통과. 실제 Unity JNI와 기기 Keystore 복구 시험은 미실행이다.
+- 같은 TokenStore 인스턴스를 session과 pending에 동시에 전달하면 서로 덮어쓸 수 있어 초기화 시 거부하도록 보강하고 회귀를 실행한다.
+- `:sdk-core:test --tests com.gamebridge.LocalMockRecoveryTest` 종료 0: 동일 session/pending 저장소 인스턴스 차단과 synthetic 응답 유실 복구 재검증. BUG-009는 iOS 및 실제 DB 응답 유실/기기 복구 검증이 남아 OPEN이다.
+- 커밋 전: Android Mock pending 보존·recovery 및 sample/Unity 연결만 포함한다. 실결제·Unity JNI·iOS 복구는 미검증 또는 미완료다.

@@ -249,3 +249,5 @@ Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상�
 ### Unity iOS StoreKit bridge
 
 `PLATFORM_SANDBOX`의 9인자 `GameBridgeConfig`에 Apple 테스트 앱에 등록한 `coins_100`, `premium_unlock`의 서로 다른 StoreKit 상품 ID를 전달한다(Google client ID는 null). Native StoreKit이 상품·가격을 조회하며, 서버 지급 확인과 finish 후에만 구매 완료를 반환한다. 서버 검증이 일시 실패한 거래는 검증 대기로 남고, 추후 확인된 거래는 `PurchaseUpdated` 이벤트로 알린다. 사용자 복원/sync bridge는 구현했고 fake 분기 및 simulator compile만 확인했다. 실제 Apple Sandbox 거래, Unity iOS 실행, StoreKit 26.5 local 환경 실패는 별도 검증이 필요하다.
+
+Android LOCAL_MOCK의 session과 보류 구매 단서는 별도 Keystore namespace에 저장한다. 직접 Native client를 만드는 경우 네 번째 생성자 인자로 별도 암호화 TokenStore를 제공해야 재시작 복구가 동작한다. 기존 3인자 생성자에는 구매 단서 영속 저장소가 없으며 `recoverPending`은 CONFIG_REQUIRED를 반환한다. Unity/Android sample은 별도 저장소를 구성한다. iOS 동등 복구 및 실제 기기 재시작 검증은 아직 남았다.

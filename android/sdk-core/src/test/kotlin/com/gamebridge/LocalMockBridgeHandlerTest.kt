@@ -30,7 +30,7 @@ class LocalMockBridgeHandlerTest {
         server.createContext("/v1/purchases/verify") { e ->
             assertEquals("Bearer test-access", e.requestHeaders.getFirst("Authorization"))
             assertNotNull(e.requestHeaders.getFirst("Idempotency-Key")); purchases++
-            reply(e, """{"serverPurchaseId":"purchase-1","fulfillmentStatus":"GRANTED","finalizationStatus":"NOT_REQUIRED","entitlements":$wallet}""")
+            reply(e, """{"serverPurchaseId":"d2719c4e-d533-47ee-9efd-838791ea79c8","fulfillmentStatus":"GRANTED","finalizationStatus":"NOT_REQUIRED","entitlements":$wallet}""")
         }
         server.createContext("/v1/entitlements") { e -> reply(e, wallet) }
         server.createContext("/v1/auth/logout") { e -> reply(e, "{}") }
@@ -42,7 +42,13 @@ class LocalMockBridgeHandlerTest {
                 override fun save(value: String) { saved = value }
                 override fun clear() { saved = null }
             }
-            val dispatcher = BridgeDispatcher(LocalMockBridgeHandler { store })
+            var pendingValue: String? = null
+            val pending = object : TokenStore {
+                override fun load() = pendingValue
+                override fun save(value: String) { pendingValue = value }
+                override fun clear() { pendingValue = null }
+            }
+            val dispatcher = BridgeDispatcher(LocalMockBridgeHandler({ store }, { pending }))
             val session = UUID.randomUUID().toString()
             fun request(operation: String, payload: JsonObject = buildJsonObject {}, id: String = session): JsonObject {
                 val envelope = buildJsonObject {
@@ -69,6 +75,9 @@ class LocalMockBridgeHandlerTest {
             assertEquals("GRANTED", result.getValue("result").jsonObject.getValue("fulfillmentStatus").jsonPrimitive.content)
             assertEquals(1, purchases)
             assertEquals("100", request("store.entitlements").getValue("result").jsonObject.getValue("coinBalance").jsonPrimitive.content)
+            val sync = request("store.sync", buildJsonObject { put("reason", "APP_RESUME") }).getValue("result").jsonObject
+            assertEquals(0, sync.getValue("examinedCount").jsonPrimitive.int)
+            assertEquals("100", sync.getValue("entitlements").jsonObject.getValue("coinBalance").jsonPrimitive.content)
             assertEquals("NOT_INITIALIZED", request("store.entitlements", id = UUID.randomUUID().toString()).getValue("error").jsonObject.getValue("code").jsonPrimitive.content)
             request("auth.signOut"); assertNull(saved)
             dispatcher.reset()

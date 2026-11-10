@@ -57,13 +57,13 @@ class MainActivity : ComponentActivity() {
                         visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
                     Button(enabled = !busy, onClick = {
                         run {
-                            client = LocalMockClient(GameBridgeConfig("gamebridge-sample", ProviderMode.LOCAL_MOCK, url), KeystoreTokenStore(applicationContext), key)
+                            client = LocalMockClient(GameBridgeConfig("gamebridge-sample", ProviderMode.LOCAL_MOCK, url), KeystoreTokenStore(applicationContext), key, KeystoreTokenStore(applicationContext, "sample_mock_purchases"))
                             message = "Initialized LOCAL_MOCK"
                         }
                     }) { Text("Initialize") }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(enabled = !busy && client != null, onClick = { run { val user = client!!.signIn("A"); message = "Signed in: ${user.userId}" } }) { Text("Mock login A") }
-                        Button(enabled = !busy && client != null, onClick = { run { val user = client!!.restore(); message = if (user == null) "No session" else "Restored: ${user.userId}" } }) { Text("Restore") }
+                        Button(enabled = !busy && client != null, onClick = { run { val user = client!!.restore(); if (user == null) message = "No session" else { val recovered = client!!.recoverPending(); wallet = client!!.wallet(); message = "Restored: ${user.userId}; recovered ${recovered.recoveredCount}, deferred ${recovered.deferredCount}, failed ${recovered.failureCount}" } } }) { Text("Restore") }
                     }
                     Button(enabled = !busy && client != null, onClick = { run { products = client!!.products(); wallet = client!!.wallet(); message = "Server state loaded" } }) { Text("Load products & balance") }
                     products.forEach { product ->

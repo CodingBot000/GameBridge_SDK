@@ -5,7 +5,8 @@ import kotlinx.serialization.json.*
 import java.util.UUID
 
 /** Development-only bridge. Sessions and purchase proofs remain inside the Native client. */
-class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore) : BridgeOperationHandler {
+class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore, private val pendingStore: (() -> TokenStore)?) : BridgeOperationHandler {
+    constructor(tokenStore: () -> TokenStore) : this(tokenStore, null)
     private var client: LocalMockClient? = null
     private var config: GameBridgeConfig? = null
     private var developmentKey: String? = null
@@ -51,6 +52,15 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore) : BridgeO
                         }
                     })
                     "store.entitlements" -> Json.encodeToJsonElement(LocalWallet.serializer(), current.wallet())
+                    "store.sync" -> {
+                        if (payload.string("reason") !in setOf("APP_RESUME", "USER_RESTORE")) throw SdkFailure("INVALID_ARGUMENT")
+                        val counts = current.recoverPending(); val wallet = current.wallet()
+                        buildJsonObject {
+                            put("examinedCount", counts.examinedCount); put("recoveredCount", counts.recoveredCount)
+                            put("deferredCount", counts.deferredCount); put("failureCount", counts.failureCount)
+                            put("entitlements", Json.encodeToJsonElement(LocalWallet.serializer(), wallet))
+                        }
+                    }
                     "store.purchase" -> {
                         val productId = payload.string("productId") ?: throw SdkFailure("INVALID_ARGUMENT")
                         val attempt = UUID.randomUUID()
@@ -81,7 +91,7 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore) : BridgeO
             throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG")
         }
         if (client == null) {
-            client = LocalMockClient(next, tokenStore(), key)
+            client = LocalMockClient(next, tokenStore(), key, pendingStore?.invoke())
             config = next; developmentKey = key; mockSubject = subject
         }
         return buildJsonObject {
@@ -92,7 +102,7 @@ class LocalMockBridgeHandler(private val tokenStore: () -> TokenStore) : BridgeO
                     put(name, buildJsonObject {
                         put("supported", available); put("configured", available); put("mode", "LOCAL_MOCK")
                         put("reason", when (name) {
-                            "store" -> JsonPrimitive("Purchase sync is not connected")
+                            "store" -> if (pendingStore == null) JsonPrimitive("Purchase recovery storage is not configured") else JsonNull
                             "push" -> JsonPrimitive("Bridge operation is not connected")
                             else -> JsonNull
                         })

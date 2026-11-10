@@ -22,16 +22,20 @@ private val wireJson = Json { ignoreUnknownKeys = true }
 @Serializable data class LocalWallet(val userId: String, val premiumEnabled: Boolean, val coinBalance: String, val revision: String, val updatedAt: String)
 @Serializable data class LocalProduct(val productId: String, val storeProductId: String, val type: String)
 @Serializable data class LocalPurchase(val serverPurchaseId: String, val fulfillmentStatus: String, val finalizationStatus: String, val entitlements: LocalWallet)
+@Serializable private data class PendingMockPurchase(val appId: String, val backendBaseUrl: String, val userId: String,
+                                                     val productId: String, val transactionId: String, val attemptId: String)
+data class LocalRecoveryCounts(val examinedCount: Int, val recoveredCount: Int, val deferredCount: Int, val failureCount: Int)
 
 /** Native-only local development path. Tokens remain in Native memory/storage. */
-class LocalMockClient(private val config: GameBridgeConfig, private val store: TokenStore, private val developmentKey: String) {
+class LocalMockClient @JvmOverloads constructor(private val config: GameBridgeConfig, private val store: TokenStore,
+                                                private val developmentKey: String, private val pendingStore: TokenStore? = null) {
     private val backend = BackendClient(config)
     private val serviceConfig = backendServiceConfiguration(backend)
     private val lock = Mutex()
     private var session: SecretSession? = null
     init {
         if (config.mode != ProviderMode.LOCAL_MOCK) throw SdkFailure("UNSUPPORTED_PROVIDER")
-        if (developmentKey.length < 32) throw SdkFailure("CONFIG_REQUIRED")
+        if (developmentKey.length < 32 || pendingStore === store) throw SdkFailure("CONFIG_REQUIRED")
     }
     suspend fun signIn(subject: String): UserProfile = lock.withLock {
         if (subject !in setOf("A", "B")) throw SdkFailure("INVALID_ARGUMENT")
@@ -56,9 +60,54 @@ class LocalMockClient(private val config: GameBridgeConfig, private val store: T
         val userId = session?.userId ?: throw SdkFailure("SESSION_EXPIRED")
         val maintenance = serviceConfig.current()?.settings?.maintenanceEnabled
         if (!MaintenanceGate.permits(maintenance, ProtectedOperation.START_PURCHASE)) throw SdkFailure(if (maintenance == true) "MAINTENANCE" else "CONFIG_REQUIRED")
-        val proof = "mock:$userId:$productId:$transactionId"
-        val body = buildJsonObject { put("productId", productId); put("proof", proof); put("quantity", 1) }.toString()
-        decode(authenticated("/v1/purchases/verify", "POST", body, attemptId.toString()).json)
+        val pending = PendingMockPurchase(config.appId, config.backendBaseUrl!!, userId, productId, transactionId.toString(), attemptId.toString())
+        val saved = loadPending()
+        val existing = saved.firstOrNull { sameScope(it, userId) }
+        if (existing != null && existing != pending) throw SdkFailure("BUSY")
+        if (pendingStore != null && existing == null) savePending(saved + pending)
+        val result = verifyPending(pending)
+        if (pendingStore != null) savePending(loadPending().filterNot { it == pending })
+        result
+    }
+    suspend fun recoverPending(): LocalRecoveryCounts = lock.withLock {
+        if (pendingStore == null) throw SdkFailure("CONFIG_REQUIRED")
+        val userId = session?.userId ?: throw SdkFailure("SESSION_EXPIRED")
+        val pending = loadPending().filter { sameScope(it, userId) }
+        var recovered = 0; var deferred = 0; var failed = 0
+        for (item in pending) {
+            try {
+                verifyPending(item)
+                savePending(loadPending().filterNot { it == item }); recovered++
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (failure: SdkFailure) {
+                if (failure.code in setOf("SESSION_EXPIRED", "CANCELED")) throw failure
+                if (failure.code in setOf("NETWORK_UNAVAILABLE", "TIMEOUT", "BUSY")) deferred++ else failed++
+            }
+        }
+        LocalRecoveryCounts(pending.size, recovered, deferred, failed)
+    }
+    private fun sameScope(item: PendingMockPurchase, userId: String) = item.appId == config.appId && item.backendBaseUrl == config.backendBaseUrl && item.userId == userId
+    private fun loadPending(): List<PendingMockPurchase> {
+        val raw = pendingStore?.load() ?: return emptyList()
+        val list = try { wireJson.decodeFromString<List<PendingMockPurchase>>(raw) } catch (_: Exception) { throw SdkFailure("INTERNAL_ERROR") }
+        if (list.any { it.appId.isBlank() || it.backendBaseUrl.isBlank() || it.productId !in setOf("coins_100", "premium_unlock") ||
+            listOf(it.userId, it.transactionId, it.attemptId).any { id -> runCatching { UUID.fromString(id).toString() != id }.getOrDefault(true) } }) throw SdkFailure("INTERNAL_ERROR")
+        return list
+    }
+    private fun savePending(items: List<PendingMockPurchase>) {
+        val target = pendingStore ?: throw SdkFailure("CONFIG_REQUIRED")
+        if (items.isEmpty()) target.clear() else target.save(wireJson.encodeToString(items))
+    }
+    private suspend fun verifyPending(item: PendingMockPurchase): LocalPurchase {
+        val userId = session?.userId ?: throw SdkFailure("SESSION_EXPIRED")
+        if (!sameScope(item, userId)) throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH")
+        val proof = "mock:$userId:${item.productId}:${item.transactionId}"
+        val body = buildJsonObject { put("productId", item.productId); put("proof", proof); put("quantity", 1) }.toString()
+        val result = decode<LocalPurchase>(authenticated("/v1/purchases/verify", "POST", body, item.attemptId).json)
+        if (result.entitlements.userId != userId || result.fulfillmentStatus !in setOf("GRANTED", "ALREADY_GRANTED") ||
+            result.finalizationStatus !in setOf("PENDING", "FINALIZED", "NOT_REQUIRED") ||
+            runCatching { UUID.fromString(result.serverPurchaseId).toString() != result.serverPurchaseId }.getOrDefault(true)) throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH")
+        return result
     }
     suspend fun signOut() = lock.withLock {
         if (store.load() == "{\"state\":\"refresh_pending\"}") {

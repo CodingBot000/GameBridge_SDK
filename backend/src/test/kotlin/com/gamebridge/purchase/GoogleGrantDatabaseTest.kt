@@ -1,5 +1,10 @@
 package com.gamebridge.purchase
 
+import com.google.api.services.androidpublisher.model.ProductPurchaseV2
+import com.google.api.services.androidpublisher.model.ProductLineItem
+import com.google.api.services.androidpublisher.model.ProductOfferDetails
+import com.google.api.services.androidpublisher.model.PurchaseStateContext
+import com.google.api.services.androidpublisher.model.TestPurchaseContext
 import com.gamebridge.auth.IdentityProvider
 import com.gamebridge.auth.VerifiedIdentity
 import com.gamebridge.session.SessionService
@@ -38,11 +43,17 @@ class GoogleGrantDatabaseTest {
         val token = "synthetic-secret-proof"; val hash = MessageDigest.getInstance("SHA-256").digest(token.toByteArray())
         val cipher = GoogleEvidenceCipher(Base64.getEncoder().encodeToString(ByteArray(32) { it.toByte() })) // Test-only key.
         val service = GoogleGrantService(db, tx, cipher); val verified = VerifiedGooglePurchase(hash, "coins.play", binding); val attempt = UUID.randomUUID()
+        val storeResponse = ProductPurchaseV2().setPurchaseStateContext(PurchaseStateContext().setPurchaseState("PURCHASED"))
+            .setObfuscatedExternalAccountId(binding).setTestPurchaseContext(TestPurchaseContext())
+            .setProductLineItem(listOf(ProductLineItem().setProductId("coins.play").setProductOfferDetails(ProductOfferDetails().setQuantity(1))))
+        val verifier = GooglePurchaseVerifier("test.package", setOf("coins.play"), true, GooglePurchaseLookup { _, _ -> storeResponse })
+        val pipeline = GooglePurchasePipeline(db, GoogleVerifierRegistry { scope, env -> assertEquals(app, scope); assertEquals(StoreEnvironment.SANDBOX, env); verifier }, service)
         val pool = Executors.newFixedThreadPool(10)
-        val results = try { (1..10).map { pool.submit<GoogleGrantResult> { service.grant(principal, StoreEnvironment.SANDBOX, verified, token, attempt) } }.map { it.get(20, TimeUnit.SECONDS) } }
+        val results = try { (1..10).map { pool.submit<GoogleGrantResult> { pipeline.verifyAndGrant(principal, StoreEnvironment.SANDBOX, "coins.play", token, attempt) } }.map { it.get(20, TimeUnit.SECONDS) } }
                       finally { pool.shutdownNow() }
         assertEquals(1, results.count { it.fulfillmentStatus == "GRANTED" }); assertEquals(1, results.map { it.serverPurchaseId }.toSet().size)
         assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
+        assertFailsWith<GoogleProofRejected> { pipeline.verifyAndGrant(principal, StoreEnvironment.SANDBOX, "unknown", token, UUID.randomUUID()) }
         val id = results.first().serverPurchaseId
         val encrypted = db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, id)!!
         assertFalse(encrypted.toString(Charsets.ISO_8859_1).contains(token))

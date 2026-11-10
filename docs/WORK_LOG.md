@@ -860,3 +860,8 @@
 - Google grant 컴파일 성공. 전용 test-only AES 키와 synthetic 거래로 10개 동시 원장 1건, 증빙 암호문·AAD 변조 거부, pending job을 격리 DB에서 확인한다.
 - synthetic Google 거래 10건 동시 DB 시험 1건 통과(skip 0): grant 1건·원장 100·pending consume job, 암호문/AAD 검증. test-only key 사용, 실제 Google 조회/발송은 없다.
 - 커밋 전: 미완료 증빙 암호화와 내부 grant transaction만 포함. 완료 후 삭제 정책, 실제 verifier endpoint·worker·실 Play는 미완료로 P05-T05 PARTIAL 유지.
+- P05-T04/T05 계속: Google 검증기→암호화 pending grant pipeline을 연결한다. 완료 후 증빙 보존 정책이 정해지기 전 worker는 활성화하지 않는다.
+- Google pipeline 신규 session scope/binding을 기준으로 공식 verifier를 호출한 뒤 grant에서 다시 검증한다. fake Publisher 응답과 격리 DB 경쟁 시험을 실행한다.
+- fake Publisher→Google grant 경쟁 시험 통과. unknown product를 grant 없이 거부하는 경계도 재확인한다.
+- fake Publisher→Google grant 격리 DB 시험 재실행 통과: 동일 거래 10건 중 지급 1건, unknown product 거부. 실제 Play 서버 또는 worker는 호출하지 않았다.
+- 커밋 전: 내부 검증/지급 조립과 fake DB 시험만 포함한다. 서버 credential 설정·HTTP·완료 후 증빙 정책·worker는 미완료다.

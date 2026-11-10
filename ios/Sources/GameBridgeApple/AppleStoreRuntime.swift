@@ -32,7 +32,7 @@ final class AppleStoreRuntime {
     func start() async throws {
         guard try await account.refresh() != nil else { throw SdkFailure("SESSION_EXPIRED") }
         provider.start()
-        await provider.recoverUnfinished()
+        _ = try await provider.recoverUnfinished()
     }
     func products() async throws -> [StoreProduct] {
         let products = try await provider.products(ids: Set(ids.values))
@@ -55,10 +55,11 @@ final class AppleStoreRuntime {
         return try await provider.purchase(product)
     }
     /// Must be called only in response to a user restore action.
-    func userRestore() async throws {
+    func recoverDetailed(userInitiated: Bool) async throws -> AppleRecoveryCounts {
         guard try await account.refresh() != nil else { throw SdkFailure("SESSION_EXPIRED") }
-        try await provider.userRestore()
+        return try await userInitiated ? provider.userRestore() : provider.recoverUnfinished()
     }
+    func userRestore() async throws { _ = try await recoverDetailed(userInitiated: true) }
     func stop() { provider.stop() }
     func ensurePurchaseAllowed() async throws {
         let value: Bool?

@@ -1254,3 +1254,11 @@
 - Android sandbox bridge에 실제 회복 건수와 서버 잔액을 반환하는 store.sync 경로를 추가하고, 허용되지 않은 복구 사유는 차단한다. fake provider 및 AAR compile 검증을 실행한다.
 - `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-unity-bridge:testDebugUnitTest :sdk-unity-bridge:assembleDebug` 종료 0: fake 회복 건수·서버 잔액 전달, 잘못된 사유 거부 및 AAR compile 확인. 실제 Play/Unity JNI는 미실행이다.
 - 커밋 전: Android Unity sync bridge 및 fake 시험만 포함한다. 반복 복구의 완전한 single-flight, iOS sync, Mock BUG-009 및 실제 플랫폼 검증은 미완료다.
+
+### [P05-T06] iOS 구매 복구 집계
+- Task 시작: StoreKit 미완료 거래와 사용자 명시 복원의 검증 결과를 구분하여 집계한다. 앱 복귀 시 AppStore.sync 인증 UI를 호출하지 않고, 검증되지 않은 거래를 완료로 세지 않는다.
+- iOS 회복에서 고유 transaction별 서버 검증·finish 성공/일시 대기/영구 실패를 집계하고 중복 transaction은 한 번만 센다. 사용자 복원에만 AppStore.sync를 호출하며 중첩 복구는 BUSY로 거부한다. Swift 컴파일과 fake 범위를 확인한다.
+- `swift test --package-path ios --filter StoreKitBillingProviderTests` 종료 0, 2건: 기존 grant 결합과 검증 동시성 시험 통과. 새 집계 분류는 StoreKit transaction이 없는 환경에서 별도 순수 경계 시험을 추가한다.
+- `swift test --package-path ios --filter StoreKitBillingProviderTests` 종료 0, 3건: 순수 집계에서 transaction 중복 제거, 서버 완료·네트워크 대기·계정 불일치 실패 분리와 취소 전파를 확인했다. StoreKit transaction sequence 자체는 미실행이다.
+- `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. 무서명 static simulator compile이며 실제 사용자 복원·StoreKit sequence 실행은 아니다.
+- 커밋 전: iOS Native recovery 집계와 순수 fake 경계만 포함한다. Unity sync bridge와 실제 StoreKit 복원, BUG-009는 미완료다.

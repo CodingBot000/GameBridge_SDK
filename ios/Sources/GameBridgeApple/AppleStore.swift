@@ -53,7 +53,8 @@ public final class AppleStore {
         guard let value else { throw SdkFailure("SESSION_EXPIRED") }
         return value
     }
-    /// Only call after an explicit user restore action.
+    /// Only call with userInitiated true after an explicit user restore action.
+    public func recoverDetailed(userInitiated: Bool) async throws -> AppleRecoveryCounts { try await runtime.recoverDetailed(userInitiated: userInitiated) }
     public func restore() async throws { try await runtime.userRestore() }
     public func stop() { updates.handler = nil; runtime.stop() }
 }

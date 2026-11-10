@@ -24,6 +24,31 @@ struct ApplePurchaseAccount: Equatable {
 }
 
 enum ApplePurchaseOutcome { case pending, verificationPending, cancelled, verified(ServerGrant) }
+public struct AppleRecoveryCounts {
+    public internal(set) var examinedCount = 0
+    public internal(set) var recoveredCount = 0
+    public internal(set) var deferredCount = 0
+    public internal(set) var failureCount = 0
+    public init() {}
+}
+
+struct AppleRecoveryAccumulator {
+    private var seen = Set<UInt64>()
+    private(set) var counts = AppleRecoveryCounts()
+    mutating func begin(_ transactionId: UInt64) -> Bool {
+        guard seen.insert(transactionId).inserted else { return false }
+        counts.examinedCount += 1; return true
+    }
+    mutating func success() { counts.recoveredCount += 1 }
+    mutating func failure(_ error: Error) throws {
+        if error is CancellationError { throw SdkFailure("CANCELED") }
+        if let failure = error as? SdkFailure {
+            if failure.code == "CANCELED" { throw failure }
+            if ["VERIFICATION_FAILED", "PURCHASE_ACCOUNT_MISMATCH", "UNSUPPORTED_OPERATION"].contains(failure.code) { counts.failureCount += 1; return }
+        }
+        counts.deferredCount += 1
+    }
+}
 
 func acceptAppleGrant(_ grant: ServerGrant, proof: ApplePurchaseProof, account: ApplePurchaseAccount, current: ApplePurchaseAccount?) throws {
     guard current == account, proof.binding == account.binding,
@@ -44,6 +69,7 @@ final class StoreKitBillingProvider {
     private let limiter: AppleVerificationLimiter?
     private let onVerified: (ServerGrant) -> Void
     private var listener: Task<Void, Never>?
+    private var recovering = false
 
     init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, onVerified: @escaping (ServerGrant) -> Void = { _ in }, currentAccount: @escaping () -> ApplePurchaseAccount?) {
         self.sink = sink
@@ -87,17 +113,30 @@ final class StoreKitBillingProvider {
         }
     }
 
-    func recoverUnfinished() async {
-        for await result in Transaction.unfinished { if let grant = try? await process(result) { onVerified(grant) } }
-    }
-    func recoverEntitlements() async {
-        for await result in Transaction.currentEntitlements { if let grant = try? await process(result) { onVerified(grant) } }
+    func recoverUnfinished() async throws -> AppleRecoveryCounts {
+        guard !recovering else { throw SdkFailure("BUSY") }
+        recovering = true; defer { recovering = false }
+        var accumulator = AppleRecoveryAccumulator()
+        for await result in Transaction.unfinished { try await recordRecovery(result, accumulator: &accumulator) }
+        return accumulator.counts
     }
     /// Only call from an explicit user restore action, never during startup.
-    func userRestore() async throws {
+    func userRestore() async throws -> AppleRecoveryCounts {
+        guard !recovering else { throw SdkFailure("BUSY") }
+        recovering = true; defer { recovering = false }
         try await AppStore.sync()
-        await recoverUnfinished()
-        await recoverEntitlements()
+        var accumulator = AppleRecoveryAccumulator()
+        for await result in Transaction.unfinished { try await recordRecovery(result, accumulator: &accumulator) }
+        for await result in Transaction.currentEntitlements { try await recordRecovery(result, accumulator: &accumulator) }
+        return accumulator.counts
+    }
+    private func recordRecovery(_ result: VerificationResult<Transaction>, accumulator: inout AppleRecoveryAccumulator) async throws {
+        if Task.isCancelled { throw SdkFailure("CANCELED") }
+        let transaction: Transaction
+        switch result { case .verified(let value): transaction = value; case .unverified(let value, _): transaction = value }
+        guard accumulator.begin(transaction.id) else { return }
+        do { let grant = try await process(result); accumulator.success(); onVerified(grant) }
+        catch { try accumulator.failure(error) }
     }
 
     @discardableResult private func process(_ result: VerificationResult<Transaction>) async throws -> ServerGrant {

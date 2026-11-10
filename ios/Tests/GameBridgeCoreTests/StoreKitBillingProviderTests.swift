@@ -33,4 +33,15 @@ final class StoreKitBillingProviderTests: XCTestCase {
         XCTAssertThrowsError(try acceptAppleGrant(wrong, proof: proof, account: account, current: account))
         XCTAssertFalse(String(describing: proof).contains("secret-jws"))
     }
+    func testRecoveryCountsDeduplicateAndSeparateFailures() throws {
+        var counts = AppleRecoveryAccumulator()
+        XCTAssertTrue(counts.begin(1)); counts.success()
+        XCTAssertFalse(counts.begin(1))
+        XCTAssertTrue(counts.begin(2)); try counts.failure(SdkFailure("NETWORK_UNAVAILABLE"))
+        XCTAssertTrue(counts.begin(3)); try counts.failure(SdkFailure("PURCHASE_ACCOUNT_MISMATCH"))
+        XCTAssertEqual(counts.counts.examinedCount, 3); XCTAssertEqual(counts.counts.recoveredCount, 1)
+        XCTAssertEqual(counts.counts.deferredCount, 1); XCTAssertEqual(counts.counts.failureCount, 1)
+        XCTAssertThrowsError(try counts.failure(SdkFailure("CANCELED")))
+    }
+
 }

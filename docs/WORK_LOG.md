@@ -746,3 +746,10 @@
 - Apple의 4KB 알림 한도 및 HTTP/2 요구에 맞춰 크기 초과를 전송 전 거부하고 HTTP/1 fallback을 성공으로 취급하지 않도록 보강한다. fake 시험을 재실행한다.
 - APNs fake transport unit 4건 재통과. 4KB 초과는 실제 전송 호출 전에 실패한다. HTTP/2 version 확인은 코드 검사/컴파일만 했으며 실제 네트워크 협상은 미실행이다.
 - 커밋 전: APNs protocol 경계 보강만 포함. 재시도 및 실제 발송은 여전히 미완료다.
+
+### [P05-T01] 신규 세션 app scope 연결 — 2026-11-10 Asia/Seoul
+- 신규 인증 세션에 검증된 app scope를 저장하고 서버 발급 구매 binding을 인증 세션으로만 조회한다. 기존 scope 없는 세션은 추정·수정·삭제하지 않고 재인증을 요구한다. 격리 schema에서 검증한다.
+- nullable app_scope migration과 신규 세션에만 scope를 쓰는 API 초안 작성. 기존 세션은 손대지 않는다. 컴파일 및 격리 schema 검증을 진행한다.
+- 서버 Kotlin 컴파일 종료 0. 별도 schema에서 신규 세션 app별 binding 분리와 legacy null scope 거부·보존을 DB 시험한다.
+- 전용 PostgreSQL 격리 schema의 binding 시험 2건 통과(skip 0): 10개 동시 생성의 안정성, 신규 app scope 분리, legacy null scope 거부 및 기존 값 보존. 실제 Apple/Google 서버 증빙·지급/Native 전달은 아니다. 테스트 schema는 삭제하지 않았다.
+- 커밋 전: nullable migration, 신규 세션 scope 및 인증 binding 조회 경로만 포함. Native sink·실 결제 및 기존 세션 마이그레이션은 미완료이므로 P05-T01 PARTIAL 유지.

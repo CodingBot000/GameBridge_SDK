@@ -53,7 +53,7 @@ class SessionService(
         val user = UUID.nameUUIDFromBytes("gamebridge-local-mock:$subject".toByteArray(Charsets.UTF_8))
         db.update("INSERT INTO users (id, display_name) VALUES (?, ?) ON CONFLICT (id) DO NOTHING", user, subject)
         db.update("INSERT INTO auth_identities (user_id,provider,issuer,subject,app_scope) VALUES (?, 'MOCK', 'local-mock', ?, 'gamebridge-sample') ON CONFLICT DO NOTHING", user, subject)
-        issueForUser(user)
+        issueForUser(user, "gamebridge-sample")
     }!!
     fun createVerified(identity: VerifiedIdentity, appScope: String, displayName: String?): SessionTokens = tx.execute {
         val lockKey = listOf(identity.provider.name, identity.issuer, identity.subject, appScope).joinToString("") { "${it.length}:$it" }
@@ -66,12 +66,12 @@ class SessionService(
                 id, identity.provider.name, identity.issuer, identity.subject, appScope) == 1)
         }
         if (existing != null && !displayName.isNullOrBlank()) db.update("UPDATE users SET display_name=COALESCE(display_name,?) WHERE id=?", displayName, user)
-        issueForUser(user)
+        issueForUser(user, appScope)
     }!!
-    private fun issueForUser(user: UUID): SessionTokens {
+    private fun issueForUser(user: UUID, appScope: String): SessionTokens {
         val access = token(); val refresh = token(); val now = Instant.now(); val expires = now.plusSeconds(accessTtlSeconds)
-        db.update("INSERT INTO sessions (id,user_id,access_hash,refresh_hash,expires_at,refresh_expires_at,family_id) VALUES (?,?,?,?,?,?,?)",
-            UUID.randomUUID(), user, hash(access), hash(refresh), java.sql.Timestamp.from(expires), java.sql.Timestamp.from(now.plusSeconds(refreshTtlSeconds)), UUID.randomUUID())
+        db.update("INSERT INTO sessions (id,user_id,access_hash,refresh_hash,expires_at,refresh_expires_at,family_id,app_scope) VALUES (?,?,?,?,?,?,?,?)",
+            UUID.randomUUID(), user, hash(access), hash(refresh), java.sql.Timestamp.from(expires), java.sql.Timestamp.from(now.plusSeconds(refreshTtlSeconds)), UUID.randomUUID(), appScope)
         return SessionTokens(access, refresh, expires.toString(), user.toString())
     }
     fun authenticate(access: String, allowRevokedForLogout: Boolean = false): SessionPrincipal? {

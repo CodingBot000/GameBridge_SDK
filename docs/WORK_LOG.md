@@ -2031,3 +2031,13 @@
 - 전용 DB와 simulator에서 동일 응답 유실·finish 후 지속 삭제 실패·인스턴스 재생성을 다시 시험한다. 실패하면 구현과 테스트를 계속 조사한다.
 - 지속 삭제 실패 주입으로 수정한 `artifacts/xcode-storekit-e2e-gtiqgyob/result.json` PASS/skip 0: 전용 DB `gamebridge_ci_558f36962d`, 서버 commit 후 응답 유실, Keychain 재생성, finish 뒤 지속 삭제 실패, 다음 인스턴스의 완료 이력 정리 및 잔액 100 확인. 이전 strict 실패는 그대로 보존하고 수정 후 aggregate를 재실행한다.
 - 커밋 준비: 결정적 회귀 시험과 R12·iOS host 포함 aggregate 보강을 저장한다. Unity player·실기기·실 Apple은 미검증이다.
+
+### [P11-T04] 수정 후 strict 전체 재검증 시작
+- 수정한 Xcode 지속 실패 주입, R12 100회 및 iOS synthetic host를 포함해 격리 DB와 local harness를 다시 실행한다. Unity 및 외부 실연동은 미실행 상태를 유지한다.
+- 수정 후 `artifacts/verify-all-vc71_h1b/summary.md` strict 종료 1: 전용 DB·synthetic 인증/구매/푸시, Xcode local DB recovery, iOS host simulator, 100회 lifecycle 등 실행된 lane PASS. 49개 시나리오 PARTIAL, Unity player DEFERRED_ENV·Editor NOT_RUN, 기존 P05-T03 iOS 26.5 FAIL로 전체 FAIL이며 외부 13개 WAITING_USER다. 전용 DB `gamebridge_ci_379100a8a9_local`, `_sandbox`와 test simulator는 보존한다.
+### [P09-T08] 필수 suite 누락 감지 보강 시작
+- 현재 aggregator는 1개 이상의 required lane만 있으면 개별 필수 lane 누락을 직접 알지 못한다. 알려진 필수 lane 목록을 대조하고 하나를 제거하는 음성 시험을 추가한다. 자체 self-check도 strict 집계에 실제 포함한다.
+### P09-T08 필수 suite 누락 음성 검증 시작
+- 알려진 required lane 하나가 결과에서 빠지면 다른 lane이 모두 PASS여도 실패하는지 unit으로 확인한다.
+- 필수 lane 누락을 다른 PASS lane이 가리지 못하는 aggregate unit 포함 13건 통과. missing document/evidence 및 외부 symlink 음성 검증, manifest 음성 검증도 통과했다. self-check가 이제 strict에서 실제 실행되도록 연결했다.
+- 커밋 준비: fail-closed 필수 lane inventory 및 자체 검증 연결만 저장한다. 전체 재실행은 별도로 수행한다.

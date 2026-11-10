@@ -12,6 +12,10 @@ class AggregationTests(unittest.TestCase):
     def test_partial_is_not_pass(self): self.assertEqual(summarize([{'name':'local','status':'PARTIAL','required':True,'tests':0}])['exitCode'],1)
     def test_unimplemented_is_not_pass(self): self.assertEqual(summarize([{'name':'local','status':'NOT_IMPLEMENTED','required':True,'tests':0}])['exitCode'],1)
     def test_missing_required_is_not_pass(self): self.assertEqual(summarize([{'name':'local','status':'DEFERRED_ENV','required':True,'tests':0}])['exitCode'],2)
+    def test_specific_missing_required_suite_is_not_pass(self):
+        lanes = [{'name':'present','status':'PASS','required':True,'tests':1}]
+        self.assertEqual(summarize(lanes, {'present','omitted'})['exitCode'],1)
+        self.assertEqual(summarize(lanes, {'present'})['exitCode'],0)
     def test_no_required_lane_is_not_pass(self): self.assertEqual(summarize([{'name':'external','status':'WAITING_USER','required':False,'tests':0}])['exitCode'],1)
     def test_pass_with_failed_exit_or_assertion_is_not_pass(self):
         self.assertEqual(summarize([{'name':'x','status':'PASS','required':True,'tests':1,'exitCode':1}])['exitCode'],1)

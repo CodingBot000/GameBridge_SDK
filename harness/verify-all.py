@@ -66,6 +66,7 @@ def main() -> int:
         statuses = [value['status'] for value in lanes[start:]]
         if runner_inconsistent(code, statuses):
             lanes.append({'name':name+'/runner-consistency','status':'FAIL','required':True,'tests':0,'skipped':0,'exitCode':code,'command':command,'evidence':log})
+    simple('harness-self',['python3','harness/run-self-check.py'],'normal-contracts: PASS')
     simple('progress',['python3','scripts/verify-progress.py'],'Progress ledger consistency checks passed')
     simple('manifest',['python3','harness/check-manifest.py'],'Manifest inventory valid')
     simple('api-baseline',['python3','harness/check-api-baseline.py'],'Baseline source comparison PASS')
@@ -107,7 +108,20 @@ def main() -> int:
     if failed_rows:
         lanes.append({'name':'recorded-unresolved-failures','status':'FAIL','required':True,'tests':0,'skipped':0,'exitCode':1,
                       'command':[],'evidence':'docs/PROGRESS.md','reason':'previous failures not rerun by this command','tasks':failed_rows})
-    summary = summarize(lanes)
+    required_names = {
+        'harness-self', 'progress', 'manifest', 'api-baseline', 'api-baseline-negative', 'csharp-compat',
+        'aggregation-self', 'progress-negative', 'manifest-negative', 'contract-negative', 'bridge-mutation',
+        'lifecycle-stress', 'ledger-mutation', 'scenario-coverage', 'unity-editor-runtime',
+        *(f'contracts/{name}' for name in ('kotlin','swift','csharp')),
+        *(f'auth/{name}' for name in ('backend-jwt-fake','backend-sandbox-test-key-db','android-native-fake','swift-native-fake')),
+        *(f'purchase/{name}' for name in ('local-postgres-fixtures','sandbox-http-fixtures','android-native-fake','swift-native-fake',
+                                         'android-local-response-loss','swift-local-response-loss','xcode-storekit-local-db-recovery')),
+        *(f'push/{name}' for name in ('backend-push-fake','sandbox-push-http-fake','android-push-fake','swift-push-fake',
+                                     'ios-host-simulator-synthetic','upm-staging-integrity','package-negative-fixtures',
+                                     'local-push-native-db-e2e','unity-player-notifications')),
+    }
+    if failed_rows: required_names.add('recorded-unresolved-failures')
+    summary = summarize(lanes, required_names)
     external_tasks = re.findall(r'^\| (P\d\d-T\d\d) \|[^\n]*\| WAITING_USER \|',progress,re.M)
     external_waits = len(external_tasks)
     report = {'mode':'strict-local' if args.strict_local else 'available','sourceHead':head,'sourceDirty':dirty,

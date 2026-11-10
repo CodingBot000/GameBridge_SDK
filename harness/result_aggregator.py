@@ -1,7 +1,7 @@
 """Pure fail-closed status classification; external waits are reported separately."""
 VALID = {'PASS', 'FAIL', 'PARTIAL', 'NOT_IMPLEMENTED', 'DEFERRED_ENV', 'NOT_RUN', 'SKIP', 'WAITING_USER'}
 
-def summarize(lanes):
+def summarize(lanes, required_names=None):
     if not lanes: return {'status':'FAIL', 'exitCode':1, 'reason':'no required lanes'}
     names = set(); failure = False; deferred = False; required_count = 0
     for lane in lanes:
@@ -19,6 +19,10 @@ def summarize(lanes):
                 lane.get('exitCode', 0) != 0 or lane.get('failures', 0) != 0): failure = True
             elif skipped: deferred = True
     if required_count == 0: failure = True
+    if required_names is not None:
+        expected = set(required_names)
+        actual_required = {lane.get('name') for lane in lanes if lane.get('required') is True}
+        if not expected or not expected.issubset(actual_required): failure = True
     if failure: return {'status':'FAIL', 'exitCode':1, 'reason':'required failure, partial/unimplemented coverage, or invalid evidence'}
     if deferred: return {'status':'DEFERRED_ENV', 'exitCode':2, 'reason':'required lane not executed or skipped'}
     return {'status':'PASS', 'exitCode':0, 'reason':'all required local lanes executed and passed'}

@@ -54,7 +54,9 @@ def main() -> int:
         result = common.item('sandbox-fake-token',code,counts); result['name'] = result.pop('suite'); result['required'] = True; lanes.append(result)
     else: lanes.append({'name':'sandbox-fake-token','status':'DEFERRED_ENV','required':True,'tests':0,'skipped':0,'exitCode':2})
     expect_marker('normal-contracts',['python3','harness/run-contracts.py'],'csharp: PASS')
-    summary = summarize(lanes)
+    expected = {'progress-negative','manifest-negative','package-negative','contract-negative','bridge-mutation',
+                'ledger-mutation','failed-and-zero-test','sandbox-fake-token','normal-contracts'}
+    summary = summarize(lanes, expected)
     report = {'scope':'harness-negative-self-check','sourceHead':subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip(),
               'workingTree':'HEAD plus uncommitted changes may be present','timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'lanes':lanes,'summary':summary}
     (workspace/'result.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')

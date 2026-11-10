@@ -926,3 +926,12 @@
 - filter unit 및 sandbox auth/purchase HTTP 통합 3건 통과(skip 0). Native HTTP client가 413을 PAYLOAD_TOO_LARGE로 반환하도록 두 플랫폼 매핑도 보정하고 검증한다.
 - Android core unit 및 Swift BackendClient unit에서 413→PAYLOAD_TOO_LARGE를 확인했다. 실제 플랫폼/외부 서비스 검증은 아니다.
 - 커밋 전: 서버 body 상한 filter, Native 오류 mapping 및 단위/통합 시험을 포함한다. P02-T01 전체 완료 판정은 다른 미완료 항목 때문에 유지하지 않는다.
+
+### [P07-T02] Unity Editor offline 샘플 시작 — 2026-11-10 Asia/Seoul
+- 기존 사용자 Demo scene은 수정하지 않고 UPM의 별도 Samples~에 home/store uGUI 샘플을 작성한다. `ui-ugui` 지침에 따라 생성 UI를 명시적으로 구성한다. Unity license 오류로 Editor 렌더링은 미검증이다.
+- 기존 Demo를 건드리지 않고 Samples~에 Editor offline home/store uGUI 코드 초안을 작성했다. Canvas 및 명시 배너·잔액·두 mock 상품을 포함한다. 실제 화면과 Input System은 아직 확인하지 않았다.
+- Unity Editor 실행 없이 설치된 실제 UnityEngine/UI managed assembly와 Unity Newtonsoft package로 샘플 C# 컴파일을 시도한다. 이는 Unity hierarchy 렌더링 검증이 아니다.
+- Unity managed assembly 대상 샘플 C# compile 경고0/오류0. 실제 EventSystem은 Host가 기존 input 설정에 맞게 제공하도록 명시하고, 초기화 실패 시 버튼이 활성화되지 않도록 보정해 재컴파일한다.
+- uGUI layout 검토에서 childControlHeight=false가 preferredHeight를 적용하지 않는 점을 발견해 두 vertical group에서 true로 수정한다. 시각 렌더링은 Editor 부재로 아직 확인하지 못한다.
+- 수정 후 Unity managed assembly 대상 독립 C# compile 경고0/오류0. Editor 렌더링·터치/입력·scene 전환은 라이선스 오류로 NOT_RUN이며, 사용자 기존 Demo와 EventSystem은 수정하지 않았다.
+- 커밋 전: 별도 Editor offline sample 및 compile check만 포함한다. 세 sample 전체 연결·실기기·Unity Editor 검증은 미완료이므로 P07-T02 PARTIAL/ENV-002 유지.

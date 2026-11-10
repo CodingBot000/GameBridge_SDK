@@ -1,0 +1,5 @@
+{
+  "name": "GameBridge.OfflineDemo",
+  "references": ["GameBridge.Runtime", "UnityEngine.UI"],
+  "autoReferenced": true
+}

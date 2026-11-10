@@ -6,5 +6,12 @@
   "unity": "6000.5",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.2"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "Editor Offline Demo",
+      "description": "In-memory fake home and store; not a real purchase.",
+      "path": "Samples~/Offline Demo"
+    }
+  ]
 }

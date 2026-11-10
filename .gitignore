@@ -32,3 +32,5 @@ tests/GradlePatcher/bin/
 tests/GradlePatcher/obj/
 tests/UnityIosHook/bin/
 tests/UnityIosHook/obj/
+tests/UnityOfflineDemo/bin/
+tests/UnityOfflineDemo/obj/

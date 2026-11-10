@@ -16,3 +16,5 @@
 구매 서버는 Apple synthetic verifier→DB grant 동시 시험, Google verifier 및 finalizer fake 시험이 있다. provider 설정·공개 verify endpoint·durable Google finalization·Native sink가 이어지지 않아 실거래 지급 경로는 미완성이다. iOS StoreKit local 상품 조회는 simulator 시험에서 실패했다. Unity staged package의 import 및 Android/iOS export는 라이선스·모듈 제약으로 미검증이다.
 
 초기 검색에서 대상 소스에 `TODO`, `FIXME`, `NotImplementedException`, `fatalError(` 표기는 발견되지 않았지만, 위의 호출 경로 누락은 실제 미구현이다. 이 표는 코드 변경에 따라 계속 갱신한다.
+
+Unity Editor offline sample의 home/store uGUI 소스는 실제 Unity managed assembly 기준 독립 컴파일했다. Unity Editor 렌더링·입력·실행과 Native player 연결은 검증하지 않았다.

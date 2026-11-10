@@ -53,6 +53,10 @@ class AppleGrantDatabaseTest {
         assertEquals(1, results.count { it.fulfillmentStatus == "GRANTED" })
         assertEquals(1, results.map { it.serverPurchaseId }.toSet().size)
         assertEquals(100L, db.queryForObject("SELECT COALESCE(SUM(delta),0) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
+        val differentAttempt = pipeline.verifyAndGrant(principal, StoreEnvironment.SANDBOX, "coins.apple", "synthetic-jws", UUID.randomUUID())
+        assertEquals("ALREADY_GRANTED", differentAttempt.fulfillmentStatus)
+        assertEquals(results.first().serverPurchaseId, differentAttempt.serverPurchaseId)
+        assertEquals(100L, db.queryForObject("SELECT COALESCE(SUM(delta),0) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
         assertEquals("IDEMPOTENCY_CONFLICT", assertFailsWith<PurchaseConflict> {
             service.grant(principal, StoreEnvironment.SANDBOX, verified.copy(transactionId = "other-transaction"), attempt)
         }.errorCode)
@@ -75,5 +79,12 @@ class AppleGrantDatabaseTest {
             latePipeline.verifyAndGrant(late, StoreEnvironment.SANDBOX, "coins.apple", "synthetic-late")
         }.errorCode)
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger", Int::class.java))
+        // New, test-owned schema only: reject the next grant after purchase insertion.
+        db.execute("ALTER TABLE wallet_ledger ADD CONSTRAINT test_reject_grant CHECK (delta < 100) NOT VALID")
+        val rollbackAttempt = UUID.randomUUID()
+        assertFails { service.grant(principal, StoreEnvironment.SANDBOX, verified.copy(transactionId = "rollback-transaction"), rollbackAttempt) }
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM purchases", Int::class.java))
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger", Int::class.java))
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM idempotency_records WHERE key=?", Int::class.java, rollbackAttempt.toString()))
     }
 }

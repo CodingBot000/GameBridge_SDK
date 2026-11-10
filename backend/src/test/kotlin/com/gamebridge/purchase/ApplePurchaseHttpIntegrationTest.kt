@@ -68,6 +68,11 @@ class ApplePurchaseHttpIntegrationTest {
         assertEquals(1, responses.map { it.body!!["serverPurchaseId"] }.toSet().size)
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger WHERE user_id=?", Int::class.java, principal.userId))
         assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
+        payload.transactionId("test-other-" + UUID.randomUUID())
+        val changedBody = HttpEntity(mapOf("storeProductId" to "coins.apple", "signedTransaction" to "synthetic-other-jws"), headers)
+        val conflict = rest.exchange("/v1/purchases/apple/verify", HttpMethod.POST, changedBody, Map::class.java)
+        assertEquals(409, conflict.statusCode.value()); assertEquals("IDEMPOTENCY_CONFLICT", conflict.body!!["code"])
+        assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
         val readHeaders = HttpHeaders().apply { setBearerAuth(tokens.accessToken) }
         val wallet = rest.exchange("/v1/entitlements", HttpMethod.GET, HttpEntity<Void>(readHeaders), Map::class.java)
         assertEquals(200, wallet.statusCode.value()); assertEquals("100", wallet.body!!["coinBalance"])

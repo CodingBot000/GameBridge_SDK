@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P10 / P10-T04 최신 소스 패키지 호환성 재검증
+- 현재 Phase / Task: P09 / P09-T04 구매 원장 scenario 검증
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
+- 마지막 검증된 소스 커밋: c22336c (격리 strict aggregate; Unity·외부 서비스는 미검증)
 - 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 현재 Native·Unity 소스의 Android/iOS/UPM 새 산출물 및 소비자 검증
+- 바로 다음 행동: 구매 동시성·멱등성·중간 실패 원자성 assertion 보강
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계

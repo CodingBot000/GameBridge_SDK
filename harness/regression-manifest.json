@@ -115,6 +115,14 @@
       ],
       "mode": "SYNTHETIC_TEST_KEY",
       "platform": "Backend"
+    },
+    "purchase-db-scenarios": {
+      "command": [
+        "python3",
+        "harness/run-purchase-db-scenarios.py"
+      ],
+      "mode": "ISOLATED_DB_SYNTHETIC_VERIFIER",
+      "platform": "Backend/PostgreSQL"
     }
   },
   "scenarios": [
@@ -648,17 +656,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R23"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Isolated DB with synthetic Apple verifier; real store and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "concurrent verified transactions grant once and cannot change owner"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "(1..10)"
+        }
+      ]
     },
     {
       "id": "R24",
@@ -668,17 +688,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R24"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Isolated DB with synthetic Apple verifier; real store and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "differentAttempt"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "ALREADY_GRANTED"
+        }
+      ]
     },
     {
       "id": "R25",
@@ -688,17 +720,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R25"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Isolated DB with synthetic Apple verifier; real store and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/ApplePurchaseHttpIntegrationTest.kt",
+          "testCase": "changedBody"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/ApplePurchaseHttpIntegrationTest.kt",
+          "testCase": "IDEMPOTENCY_CONFLICT"
+        }
+      ]
     },
     {
       "id": "R26",
@@ -708,17 +752,24 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R26"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Isolated DB with synthetic Apple verifier; real store and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "PURCHASE_ACCOUNT_MISMATCH"
+        }
+      ]
     },
     {
       "id": "R27",
@@ -808,17 +859,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R31"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-db-scenarios.md",
+      "note": "Isolated DB with synthetic Apple verifier; real store and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "test_reject_grant"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "rollbackAttempt"
+        }
+      ]
     },
     {
       "id": "R32",

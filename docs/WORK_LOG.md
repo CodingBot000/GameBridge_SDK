@@ -2069,3 +2069,17 @@
 ### P09-T03 auth-regression entry 검증 시작
 - 전체 auth-regression `artifacts/auth-regression-ow4xd7hv/result.json` 종료 0: 전용 sandbox DB `gamebridge_ci_e092ef4315`, JWT 6·DB HTTP 2·Android fake 13·Swift fake 17 PASS/skip 0. 실 Provider 계정이나 네트워크 토큰은 사용하지 않았다.
 - 커밋 준비: R13/R14/R15/R17/R21의 실제 assertion·suite·증거를 연결한다. 나머지 부분 scenario 및 외부 실연동 대기는 유지한다.
+
+### [P09-T04] 구매 원장 scenario assertion 시작
+- R23~R26 및 R31의 전용 PostgreSQL 합성 Apple grant 테스트를 대조한다. 다른 멱등키의 동일 거래와 중간 ledger 실패 rollback을 추가해 원장 원자성을 확인한다. 실제 Apple 스토어 거래는 아니다.
+### P09-T04 구매 DB assertion 검증 시작
+- 새 test-owned schema에만 실패 제약을 추가하고 purchase/ledger/idempotency rollback을 확인한다. 기존 사용자 DB schema는 수정하지 않는다.
+- 전용 local DB `gamebridge_ci_2d069129ec`에서 10회 동시 지급 1회, 다른 attempt의 동일 거래 재요청, 같은 attempt 다른 거래 충돌, 타 계정 차단, ledger 제약으로 유도한 중간 실패 rollback이 통과했다. R25의 실제 HTTP 409도 synthetic sandbox 테스트에 추가한다.
+### P09-T04 HTTP 409 회귀 검증 시작
+- 전용 sandbox DB `gamebridge_ci_93ac210a09`의 synthetic Apple HTTP에서 동일 idempotency key·다른 검증 거래는 409이고 잔액은 100으로 유지됨을 확인했다. scenario별 실행 경로는 local/sandbox 전용 DB opt-in을 요구한다.
+### P09-T04 scenario runner 검증 시작
+- 격리 DB 두 개와 synthetic verifier로 candidate runner가 두 시험 모두 실행하는지 확인한다. 실 Apple 서버는 호출하지 않는다.
+- scenario runner `artifacts/purchase-db-scenarios-18xuxp_k`: 전용 local/sandbox DB에서 각 시험 PASS/skip 0. R23~R26 및 R31의 정확한 assertion·실행 경로·증거를 연결한다. 실제 Apple store 및 Unity는 별개다.
+### P09-T04 manifest·부정 검증 시작
+- R23~R26·R31 manifest/assertion 검증 및 음성 검사 통과. opt-in 없는 DB scenario runner는 종료 2로 설정 부족을 표시하고 PASS를 만들지 않는다.
+- 커밋 준비: synthetic DB 테스트·scenario evidence만 저장한다. 실제 Apple 검증 및 Unity는 미실행이다.

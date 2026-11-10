@@ -16,7 +16,7 @@ class GoogleAuthBridgeHandlerTest {
             override fun close() { closed = true }
         }
         val local = BridgeOperationHandler { _, _ -> mockCalls++; buildJsonObject {} }
-        val dispatcher = BridgeDispatcher(ModeBridgeHandler(local, GoogleAuthBridgeHandler { _, _ -> fake }))
+        val dispatcher = BridgeDispatcher(ModeBridgeHandler(local, GoogleAuthBridgeHandler { _, _, _ -> fake }))
         val session = UUID.randomUUID().toString()
         fun send(operation: String, payload: JsonObject = buildJsonObject {}): JsonObject {
             val request = buildJsonObject {
@@ -49,7 +49,7 @@ class GoogleAuthBridgeHandlerTest {
             override fun close() {}
         }
         var mapping: Map<String, String>? = null
-        val handler = GoogleAuthBridgeHandler { _, ids -> mapping = ids; fake }
+        val handler = GoogleAuthBridgeHandler { _, ids, _ -> mapping = ids; fake }
         val result = handler.invoke("sdk.initialize", buildJsonObject {
             put("providerMode", "PLATFORM_SANDBOX"); put("appId", "demo"); put("backendBaseUrl", "https://example.invalid")
             put("requestTimeoutMs", 30000); put("googleServerClientId", "test-client")
@@ -69,7 +69,7 @@ class GoogleAuthBridgeHandlerTest {
     }
     @Test fun `invalid store mapping never creates provider`() {
         var created = false
-        val handler = GoogleAuthBridgeHandler { _, _ -> created = true; error("unexpected") }
+        val handler = GoogleAuthBridgeHandler { _, _, _ -> created = true; error("unexpected") }
         val failure = assertFailsWith<SdkFailure> {
             handler.invoke("sdk.initialize", buildJsonObject {
                 put("providerMode", "PLATFORM_SANDBOX"); put("appId", "demo"); put("backendBaseUrl", "https://example.invalid")
@@ -77,6 +77,33 @@ class GoogleAuthBridgeHandlerTest {
             })
         }
         assertEquals("CONFIG_REQUIRED", failure.code); assertFalse(created)
+    }
+
+    @Test fun `fcm registration exposes fingerprint and unregisters without token`() {
+        var received: String? = null; var unregistered = false
+        val fake = object : GoogleAuthBridgeApi {
+            override suspend fun signIn() = UserProfile("d2719c4e-d533-47ee-9efd-838791ea79c8", null, "GOOGLE")
+            override suspend fun restore(): UserProfile? = null
+            override suspend fun signOut() {}
+            override suspend fun registerPush() = "abcdef123456"
+            override suspend fun registerPushToken(token: String): String { received = token; return "abcdef123456" }
+            override suspend fun unregisterPush() { unregistered = true }
+            override fun close() {}
+        }
+        val installation = UUID.randomUUID(); var captured: UUID? = null
+        val handler = GoogleAuthBridgeHandler { _, _, id -> captured = id; fake }
+        handler.invoke("sdk.initialize", buildJsonObject {
+            put("providerMode", "PLATFORM_SANDBOX"); put("appId", "demo"); put("backendBaseUrl", "https://example.invalid")
+            put("requestTimeoutMs", 30000); put("installationId", installation.toString())
+        })
+        assertEquals(installation, captured)
+        val token = "synthetic-fcm-token"
+        val result = handler.invoke("host.pushToken", buildJsonObject { put("provider", "FCM"); put("token", token) }).jsonObject
+        assertEquals(token, received); assertFalse(result.toString().contains(token))
+        assertEquals("abcdef123456", result.getValue("tokenFingerprint").jsonPrimitive.content)
+        val registered = handler.invoke("push.register", buildJsonObject {}).jsonObject
+        assertEquals("FCM", registered.getValue("provider").jsonPrimitive.content)
+        handler.invoke("push.unregister", buildJsonObject {}); assertTrue(unregistered)
     }
 
 }

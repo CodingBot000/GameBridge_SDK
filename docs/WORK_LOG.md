@@ -1342,3 +1342,15 @@
 - client Dispose 시 host driver를 해제하고 대기 중 요청을 종료하도록 연결했다. OS authorization 객체 생성 자체가 실패해도 Task가 무한 대기하지 않도록 보강 후 공식 package compile을 재실행한다.
 - `scripts/check-unity-ios-host.sh` 및 `scripts/check-csharp-compile.sh` 종료 0: 공식 Notifications source와 iOS host assembly, 4개 조건부 C# compile 모두 경고·오류 0. 실제 Unity coroutine/권한 대화상자, 원격 APNs는 검증하지 않았다.
 - 커밋 전: iOS host driver의 public permission/register 연결·fake facade 검증과 source compile만 포함한다. 실제 Unity Player/기기·원격 APNs 및 Android push 연결은 미완료다.
+
+### [P06-T01] Android FCM 등록 bridge
+- Task 시작: host가 초기화한 Firebase와 Android notification 권한을 전제로 Native token 등록·해제를 Unity sandbox bridge에 연결한다. 실제 Firebase 설정 및 원격 발송은 사용자 설정 대기로 유지한다.
+- Android sandbox bridge에 host 설치 UUID와 Native GooglePushClient 등록·해제, 명시적 FCM token 조회 경로를 추가했다. Firebase가 없거나 OS 권한이 없으면 성공으로 처리하지 않고 오류를 반환한다. 컴파일과 fake 경계를 확인한다.
+- Android FCM bridge 첫 컴파일 종료 1: 기본 `unregisterPush`의 Kotlin 반환형이 Nothing으로 추론되어 실제 Unit 구현과 충돌했다. 반환형을 명시하고 재검증한다.
+- 재컴파일에서 Native 코드는 통과했지만 기존 fake test factory lambda 한 곳이 새 installation 인자를 받지 않아 test compile 종료 1. fake signature를 맞추어 재실행한다.
+- `:sdk-unity-bridge:testDebugUnitTest :sdk-unity-bridge:assembleDebug` 재실행 종료 0. 기존 fake 인증·구매 시험 및 AAR compile 통과했고, 새 FCM token redaction·등록 해제는 추가 fake 시험이 필요하다.
+- FCM fake 통합 시험에서 bridge test는 실행됐지만 Android test compile이 실패했다. 새 설정 불일치 시험이 기존 `config()` 함수를 값처럼 참조한 위치를 확인해 수정한다.
+- 수정 후 `:sdk-android:testDebugUnitTest --tests GoogleAuthProviderTest :sdk-unity-bridge:testDebugUnitTest` 종료 0: fake FCM 등록·해제, token 비노출, 다른 Backend 설정 거부를 확인했다. 실제 Firebase token/원격 수신은 미실행이다.
+- push capability에는 installation ID가 있어도 Firebase 초기화와 OS 권한은 별도 확인이 필요하다는 이유를 명시했다. 변경 후 bridge fake 시험을 재실행한다.
+- `:sdk-unity-bridge:testDebugUnitTest` 재실행 종료 0. Firebase host 실제 초기화·Android OS permission UI·token refresh 수명주기 및 원격 FCM은 확인하지 않았다.
+- 커밋 전: Android sandbox FCM token 조회·Backend 등록/해제 코드 및 fake 경계만 포함한다. Unity permission dialog·host service 자동 forwarding·실제 FCM 및 FID 전환은 미완료다.

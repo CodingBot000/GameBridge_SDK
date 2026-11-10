@@ -108,6 +108,9 @@ class GoogleAuthProviderTest {
     @Test fun `push registration uses current session and only returns fingerprint`() = runBlocking {
         val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), StubBackend()); provider.signIn()
         val installation = UUID.randomUUID(); val calls = mutableListOf<String>()
+        assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> {
+            com.gamebridge.android.push.GooglePushClient.create(provider, config().copy(appId = "different"), installation)
+        }.code)
         val push = GooglePushRegistration(provider, installation) { path, method, body, token ->
             calls.add(method); assertEquals("/v1/devices/$installation/push-token", path); assertEquals("test-access", token)
             if (method == "PUT") { assertTrue(body!!.contains("synthetic-token")); """{"provider":"FCM","registered":true,"tokenFingerprint":"abcdef123456"}""" }

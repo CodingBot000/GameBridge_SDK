@@ -42,3 +42,15 @@ internal class GooglePushRegistration(
         } ?: throw SdkFailure("SESSION_EXPIRED")
     }
 }
+
+/** Host-managed FCM registration; raw tokens remain within the Native SDK. */
+class GooglePushClient internal constructor(private val registration: GooglePushRegistration) {
+    companion object {
+        @JvmStatic fun create(auth: GoogleAuthProvider, config: com.gamebridge.GameBridgeConfig, installationId: UUID): GooglePushClient {
+            if (config.mode != com.gamebridge.ProviderMode.PLATFORM_SANDBOX || !auth.usesConfiguration(config)) throw SdkFailure("CONFIG_REQUIRED")
+            return GooglePushClient(GooglePushRegistration(auth, installationId, BackendClient(config)))
+        }
+    }
+    suspend fun register(token: String): String = registration.register(token)
+    suspend fun unregister() = registration.unregister()
+}

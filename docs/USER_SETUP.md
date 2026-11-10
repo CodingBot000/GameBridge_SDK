@@ -194,7 +194,7 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 
 ## USER-PUSH-RETENTION — 등록 해제 후 토큰 보존
 
-사용자가 등록 해제·로그아웃 시 해당 토큰 즉시 삭제를 선택했다. local-mock 신규 등록 경로에서는 세션별 삭제와 다른 세션 보존을 검증했다. 실제 FCM/APNs 경로는 미구현이다. 기존 local-mock 시험 DB의 session_id가 없는 토큰 2개는 어느 세션에 속하는지 알 수 없어 자동 삭제하지 않았다. Mock token 등록에는 별도 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하며, Base64로 인코딩한 32바이트 AES 키를 로컬 비밀 환경 변수로 공급한다. 예제나 로그에 실제 키를 넣지 않는다.
+사용자가 등록 해제·로그아웃 시 해당 토큰 즉시 삭제를 선택했다. local-mock 신규 등록 경로에서는 세션별 삭제와 다른 세션 보존을 검증했다. sandbox FCM/APNs token 등록·해제 코드는 연결됐으나 실제 원격 서비스 검증은 수행하지 않았다. 기존 local-mock 시험 DB의 session_id가 없는 토큰 2개는 어느 세션에 속하는지 알 수 없어 자동 삭제하지 않았다. Mock token 등록에는 별도 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하며, Base64로 인코딩한 32바이트 AES 키를 로컬 비밀 환경 변수로 공급한다. 예제나 로그에 실제 키를 넣지 않는다.
 
 ## USER-AUTH-RATE — 인증 요청 제한
 
@@ -255,3 +255,5 @@ Android LOCAL_MOCK의 session과 보류 구매 단서는 별도 Keystore namespa
 Unity iOS host-managed APNs를 사용하려면 `GameBridgeConfig` 10인자 생성자에 host가 안정적으로 관리하는 installation UUID를 명시한다. `IosPushHostAdapter.RequestRegistration()`은 명시적 사용자 동작에서만 호출하며, Native는 host token을 인증된 Backend에 등록하고 `UnregisterPushAsync()`는 해당 등록을 해제한다. token 원문을 로그·저장소·공개 결과에 넣지 않는다. 현재 Unity Editor/실기기 및 원격 APNs 검증은 수행하지 않았다.
 
 Unity iOS에서는 활성 `IosPushHostAdapter`를 SDK client에 `Attach`한 후 `RequestPushPermissionAsync()` 또는 `RegisterPushAsync()`를 사용한다. adapter 연결만으로 권한 창은 열리지 않는다. 등록 결과의 시각은 Backend 등록 응답을 받은 클라이언트 시각이다. 등록 도중 호출자 취소는 이미 시작된 OS/네트워크 작업의 취소를 보장하지 않는다.
+
+Unity Android sandbox는 host가 초기화한 Firebase Messaging과 10인자 `GameBridgeConfig`의 installation UUID를 사용한다. OS notification 권한을 먼저 host에서 허용한 뒤 `RegisterPushAsync()`를 명시적으로 호출하면 Native가 FCM token을 가져와 인증된 Backend에 등록한다. Firebase 미설정·권한 거부는 오류이며 token 원문은 공개하지 않는다. 현재 Unity permission UI, FirebaseMessagingService의 token rotation/수신 자동 forwarding, FID 전환 및 실제 FCM 시험은 미완료다. 등록 응답 시각은 클라이언트 시각이다.

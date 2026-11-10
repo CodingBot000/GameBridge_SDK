@@ -14,6 +14,9 @@ internal interface GoogleAuthBridgeApi {
     suspend fun purchase(productId: String): PurchaseStatus = throw SdkFailure("CONFIG_REQUIRED")
     suspend fun entitlements(): EntitlementSnapshot = throw SdkFailure("CONFIG_REQUIRED")
     suspend fun recoverDetailed(): GoogleRecoveryCounts = throw SdkFailure("CONFIG_REQUIRED")
+    suspend fun registerPush(): String = throw SdkFailure("CONFIG_REQUIRED")
+    suspend fun registerPushToken(token: String): String = throw SdkFailure("CONFIG_REQUIRED")
+    suspend fun unregisterPush(): Unit = throw SdkFailure("CONFIG_REQUIRED")
     fun close()
 }
 
@@ -37,14 +40,15 @@ internal class ModeBridgeHandler(private val local: BridgeOperationHandler, priv
     }
 }
 
-internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, Map<String, String>?) -> GoogleAuthBridgeApi) : BridgeOperationHandler {
+internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, Map<String, String>?, UUID?) -> GoogleAuthBridgeApi) : BridgeOperationHandler {
     private var provider: GoogleAuthBridgeApi? = null
     private var config: GameBridgeConfig? = null
     private var productIds: Map<String, String>? = null
+    private var installationId: UUID? = null
     override fun invoke(operation: String, payload: JsonObject): JsonElement = runBlocking {
         when (operation) {
             "sdk.initialize" -> initialize(payload)
-            "sdk.shutdown" -> { provider?.close(); provider = null; config = null; productIds = null; buildJsonObject {} }
+            "sdk.shutdown" -> { provider?.close(); provider = null; config = null; productIds = null; installationId = null; buildJsonObject {} }
             else -> {
                 val auth = provider ?: throw SdkFailure("NOT_INITIALIZED")
                 when (operation) {
@@ -61,6 +65,27 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
                         }
                     }
                     "auth.signOut" -> { auth.signOut(); buildJsonObject {} }
+                    "push.register" -> {
+                        if (installationId == null) throw SdkFailure("CONFIG_REQUIRED")
+                        val fingerprint = auth.registerPush()
+                        if (!fingerprint.matches(Regex("[0-9a-f]{12}"))) throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH")
+                        buildJsonObject {
+                            put("provider", "FCM"); put("registered", true); put("permission", "GRANTED")
+                            put("tokenFingerprint", fingerprint); put("updatedAt", java.time.Instant.now().toString())
+                        }
+                    }
+                    "host.pushToken" -> {
+                        if (installationId == null) throw SdkFailure("CONFIG_REQUIRED")
+                        if (payload.string("provider") != "FCM") throw SdkFailure("UNSUPPORTED_PROVIDER")
+                        val token = payload.string("token")?.takeIf { it.isNotBlank() } ?: throw SdkFailure("INVALID_ARGUMENT")
+                        val fingerprint = auth.registerPushToken(token)
+                        if (!fingerprint.matches(Regex("[0-9a-f]{12}"))) throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH")
+                        buildJsonObject { put("registered", true); put("tokenFingerprint", fingerprint) }
+                    }
+                    "push.unregister" -> {
+                        if (installationId == null) throw SdkFailure("CONFIG_REQUIRED")
+                        auth.unregisterPush(); buildJsonObject { put("registered", false) }
+                    }
                     "store.products" -> JsonArray(auth.products().map { Json.encodeToJsonElement(StoreProduct.serializer(), it) })
                     "store.entitlements" -> Json.encodeToJsonElement(EntitlementSnapshot.serializer(), auth.entitlements())
                     "store.sync" -> {
@@ -104,17 +129,27 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
             if (coins == premium) throw SdkFailure("CONFIG_REQUIRED")
             mapOf("coins_100" to coins, "premium_unlock" to premium)
         }
-        if (provider != null && (config != next || productIds != mapping)) throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG")
-        if (provider == null) { provider = factory(next, mapping); config = next; productIds = mapping }
+        val installation = payload["installationId"]?.let { element ->
+            val value = (element as? JsonPrimitive)?.takeIf { it.isString }?.content ?: throw SdkFailure("CONFIG_REQUIRED")
+            runCatching { UUID.fromString(value).also { if (it.toString() != value.lowercase()) throw IllegalArgumentException() } }.getOrElse { throw SdkFailure("CONFIG_REQUIRED") }
+        }
+        if (provider != null && (config != next || productIds != mapping || installationId != installation)) throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG")
+        if (provider == null) { provider = factory(next, mapping, installation); config = next; productIds = mapping; installationId = installation }
         return buildJsonObject {
             put("state", "READY"); put("mode", "PLATFORM_SANDBOX"); put("provider", "GOOGLE")
             put("capabilities", buildJsonObject {
                 for (name in listOf("auth", "store", "push", "config")) {
-                    val supported = name == "auth" || name == "store"
-                    val configured = when (name) { "auth" -> clientId != null; "store" -> clientId != null && mapping != null; else -> false }
+                    val supported = name == "auth" || name == "store" || name == "push"
+                    val configured = when (name) { "auth" -> clientId != null; "store" -> clientId != null && mapping != null; "push" -> installation != null; else -> false }
                     put(name, buildJsonObject {
                         put("supported", supported); put("configured", configured); put("mode", "PLATFORM_SANDBOX")
-                        put("reason", if (configured) JsonNull else JsonPrimitive(if (supported) "Google client ID and store product IDs required" else "Bridge operation is not connected"))
+                        put("reason", when {
+                            name == "push" && configured -> JsonPrimitive("Firebase host initialization and notification permission must be checked")
+                            configured -> JsonNull
+                            name == "push" -> JsonPrimitive("Installation ID required")
+                            supported -> JsonPrimitive("Google client ID and store product IDs required")
+                            else -> JsonPrimitive("Bridge operation is not connected")
+                        })
                     })
                 }
             })

@@ -7,6 +7,10 @@ import com.gamebridge.LocalMockBridgeHandler
 import com.gamebridge.android.auth.GoogleAuthProvider
 import com.gamebridge.android.purchase.GooglePlayStore
 import com.gamebridge.android.purchase.GoogleStoreEvent
+import com.gamebridge.android.push.GooglePushClient
+import com.gamebridge.android.push.AndroidPushHostAdapter
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import com.gamebridge.BridgeProtocol
 import com.gamebridge.PurchaseStatus
 import kotlinx.coroutines.*
@@ -35,9 +39,10 @@ object BridgeFacade {
         val activity = host?.get() ?: throw com.gamebridge.SdkFailure("NOT_INITIALIZED")
         KeystoreTokenStore(activity.applicationContext, "unity_mock_purchases")
     })
-    private val google = GoogleAuthBridgeHandler { config, productIds ->
+    private val google = GoogleAuthBridgeHandler { config, productIds, installationId ->
         val activity = host?.get() ?: throw com.gamebridge.SdkFailure("NOT_INITIALIZED")
         val provider = GoogleAuthProvider.create(activity.applicationContext, config, KeystoreTokenStore(activity.applicationContext, "unity_google"))
+        val push = installationId?.let { GooglePushClient.create(provider, config, it) }
         object : GoogleAuthBridgeApi {
             private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
             private var store: GooglePlayStore? = null
@@ -64,6 +69,27 @@ object BridgeFacade {
             override suspend fun purchase(productId: String) = activeStore().purchase(productId)
             override suspend fun entitlements() = activeStore().entitlements()
             override suspend fun recoverDetailed() = activeStore().recoverDetailed()
+            override suspend fun registerPush(): String {
+                val target = push ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
+                val current = host?.get() ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "HOST_ACTIVITY")
+                try { Class.forName("com.google.firebase.messaging.FirebaseMessaging") }
+                catch (_: ClassNotFoundException) { throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST") }
+                catch (_: LinkageError) { throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST") }
+                val token = try { withTimeout(config.requestTimeoutMs) {
+                    suspendCancellableCoroutine<String> { continuation ->
+                        try {
+                            val adapter = AndroidPushHostAdapter(
+                                { if (continuation.isActive) continuation.resume(it) }, { _, _ -> },
+                                { if (continuation.isActive) continuation.resumeWithException(com.gamebridge.SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST")) })
+                            if (!adapter.hasNotificationPermission(current)) continuation.resumeWithException(com.gamebridge.SdkFailure("PERMISSION_DENIED"))
+                            else adapter.register()
+                        } catch (_: LinkageError) { if (continuation.isActive) continuation.resumeWithException(com.gamebridge.SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST")) }
+                    }
+                } } catch (_: TimeoutCancellationException) { throw com.gamebridge.SdkFailure("TIMEOUT", retryable = true) }
+                return target.register(token)
+            }
+            override suspend fun registerPushToken(token: String): String = (push ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).register(token)
+            override suspend fun unregisterPush() = (push ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).unregister()
             override fun close() { dropStore(); scope.cancel(); provider.detachHost() }
         }
     }

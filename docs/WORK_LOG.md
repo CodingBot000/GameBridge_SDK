@@ -2199,3 +2199,26 @@
 ### P09-T03 R19 mapping 검증 시작
 - R19 assertion·manifest 및 음성 검사 통과, 나머지 17 scenario는 PARTIAL이다. 실제 Apple/Google 계정 검증은 포함되지 않는다.
 - 커밋 준비: 격리 local HTTP replay test와 fail-closed aggregate 연결만 저장한다.
+
+### [P09-T04] R27/R28/R35 pending·검증 실패 회귀 시작
+- Play fake에서 같은 거래의 PENDING→PURCHASED 및 중복 검증을 확인하고, timeout/검증 실패 시 미완료 상태를 검사한다. Xcode local StoreKit은 응답 유실 뒤 unfinished 보존을 확인한다. 실 Play/Apple은 실행하지 않는다.
+### P09-T04 Play pending/timeout 검증 시작
+- synthetic Play gateway의 PENDING→PURCHASED·중복 지급 방지와 timeout 후 pending을 실행한다. Google DB의 PENDING proof는 purchase/job 생성 전 거부되어야 한다.
+- Android Play Provider fake의 PENDING→PURCHASED·중복 1회 지급 및 timeout 후 VERIFICATION_PENDING→복구가 통과했다. Google PENDING proof의 DB 무지급과 Xcode local 미완료 거래 보존을 검증한다.
+### P09-T04 Google pending DB 검증 시작
+- 전용 DB `gamebridge_ci_9870ea16ad`에서 Google synthetic PENDING proof가 purchase/finalization job을 만들지 않음을 확인했다. Apple 공식 StoreKitTest Ask to Buy 설정 문서(https://developer.apple.com/documentation/storekittest/sktestsession/asktobuyenabled)에 따라 별도 simulator에서 실제 Xcode pending이 fake grant에 도달하지 않는지 검증한다.
+### P09-T04 Xcode Ask to Buy pending 검증 시작
+- `artifacts/storekit-pending-1794339452.xcresult`: iOS 18.6 전용 simulator Ask to Buy pending 1건 PASS/skip 0, 서버 grant 호출 없음. 테스트 코드의 async NSLock 사용 경고는 동기 helper로 정리했다. 대기 거래는 전용 simulator에 보존한다.
+### P09-T04 Xcode timeout 후 unfinished 확인 시작
+- local DB commit 후 synthetic 응답 유실에서 StoreKit unfinished가 실제로 남고, 복구 후 없어지는 assertion을 추가해 재실행한다.
+- `artifacts/xcode-storekit-e2e-azc6m12g/result.json` 1건 PASS/skip 0: 전용 DB `gamebridge_ci_8bb91acbd1`에서 서버 commit 후 응답 유실 시 실제 Xcode transaction이 unfinished로 남고, 재생성 복구 후 finish·journal 삭제 및 잔액 100을 확인했다. 실제 프로세스 kill·Unity/Apple sandbox는 아니다.
+### P09-T04 pending scenario runner 검증 시작
+- Android fake 전용 entry의 실행 건수와 Xcode DB runner opt-in 부재 시 미실행 처리를 확인한다.
+- `artifacts/play-pending-08y6r7o4` Play fake 17건 PASS. Xcode wrapper는 opt-in이 없을 때 종료 2였다. 명시 opt-in wrapper의 실제 결과·source·skip 검사를 재확인한다.
+### P09-T04 Xcode opt-in entry 재검증 시작
+- 명시 opt-in Xcode entry `artifacts/xcode-storekit-e2e-71smgiej` PASS/skip 0. Play fake와 전용 DB assertion을 조합해 R27/R28/R35를 로컬 synthetic/Xcode 범위로 연결한다. 실제 Play/Apple 서버와 Unity는 미검증이다.
+### P09-T04 pending mapping 검증 시작
+- manifest/음성/원장 검증 통과, 14개 scenario PARTIAL 유지. 신규 Google PENDING assertion을 포함한 local/sandbox DB scenario runner 전체를 새 DB에서 확인한다.
+### P09-T04 pending 포함 DB runner 재실행
+- 신규 pending assertion 포함 DB runner `artifacts/purchase-db-scenarios-bdz2e9vh`, 전용 `gamebridge_ci_534be12e3b_local/_sandbox` PASS. 시나리오에 필요한 각 suite를 실행했다.
+- 커밋 준비: pending/검증 실패 회귀, Xcode unfinished assertion 및 explicit opt-in entry를 저장한다. 실제 스토어·프로세스 kill·Unity는 미검증이다.

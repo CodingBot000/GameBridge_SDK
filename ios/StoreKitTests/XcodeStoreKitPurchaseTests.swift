@@ -17,6 +17,8 @@ private final class StoreKitFakeBackend: URLProtocol {
     static var grantBodyValid = false
     static var grants: [String: (purchaseId: String, attemptId: String)] = [:]
     static func snapshot() -> String { lock.lock(); defer { lock.unlock() }; return "paths=\(paths), bodyValid=\(grantBodyValid)" }
+    static func resetPaths() { lock.lock(); defer { lock.unlock() }; paths = [] }
+    static func capturedPaths() -> [String] { lock.lock(); defer { lock.unlock() }; return paths }
     private let account = "d2719c4e-d533-47ee-9efd-838791ea79c8"
     override class func canInit(with request: URLRequest) -> Bool { true }
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
@@ -76,4 +78,21 @@ final class XcodeStoreKitPurchaseTests: XCTestCase {
         let recovery = try await store.recover(userInitiated:false)
         XCTAssertEqual(recovery.examinedCount, 0); XCTAssertNil(pendingStore.value)
     }
+    @MainActor func testAskToBuyPendingNeverRequestsGrant() async throws {
+        let testSession = try SKTestSession(configurationFileNamed:"GameBridge")
+        testSession.disableDialogs = true; testSession.askToBuyEnabled = true
+        defer { testSession.askToBuyEnabled = false }
+        StoreKitFakeBackend.resetPaths()
+        let config = URLSessionConfiguration.ephemeral; config.protocolClasses = [StoreKitFakeBackend.self]
+        let client = try LocalMockClient(config:GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:"http://127.0.0.1:18080"),
+                                         store:StoreKitTestMemoryStore(), developmentKey:String(repeating:"x", count:32), sessionConfiguration:config)
+        _ = try await client.signIn(subject:"A")
+        let store = try await XcodeStoreKitSession(client:client, pendingStore:StoreKitTestMemoryStore()); defer { store.stop() }
+        try await store.start()
+        let result = try await store.purchase("coins_100")
+        XCTAssertEqual(result.status, .pending); XCTAssertNil(result.serverPurchaseId)
+        let paths = StoreKitFakeBackend.capturedPaths()
+        XCTAssertFalse(paths.contains("/v1/dev/xcode-storekit/grant"))
+    }
+
 }

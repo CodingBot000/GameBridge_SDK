@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 import StoreKitTest
+import StoreKit
 import GameBridgeCore
 @testable import GameBridgeApple
 
@@ -76,6 +77,11 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         let walletBeforeRestart = try await client.xcodeWallet(account: accountBeforeRestart)
         XCTAssertEqual(walletBeforeRestart.coinBalance, "100", "grant must already be committed before recovery")
         XCTAssertNotNil(try pendingStore.load(), "attempt must be durable before retry")
+        var unfinishedCount = 0
+        for await value in Transaction.unfinished {
+            if case .verified(let transaction) = value, transaction.appAccountToken == accountBeforeRestart.bindingId { unfinishedCount += 1 }
+        }
+        XCTAssertGreaterThan(unfinishedCount, 0, "unconfirmed grant must remain unfinished")
         first.stop()
         DropCommittedGrantProtocol.setDrop(false)
         stage = "recreate client and restore"

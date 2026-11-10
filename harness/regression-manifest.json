@@ -171,6 +171,22 @@
       ],
       "mode": "ISOLATED_LOCAL_MOCK_HTTP",
       "platform": "Backend/PostgreSQL"
+    },
+    "play-pending": {
+      "command": [
+        "python3",
+        "harness/run-play-pending.py"
+      ],
+      "mode": "PLAY_GATEWAY_FAKE",
+      "platform": "Android"
+    },
+    "xcode-local-recovery": {
+      "command": [
+        "python3",
+        "harness/run-xcode-e2e-optin.py"
+      ],
+      "mode": "XCODE_LOCAL_AND_ISOLATED_DB",
+      "platform": "iOS simulator/Backend"
     }
   },
   "scenarios": [
@@ -959,17 +975,30 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R27"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "play-pending",
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/pending-verification-scenarios.md",
+      "note": "Play gateway fake and isolated DB/Xcode local StoreKit; real stores and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "play-pending",
+          "testFile": "android/sdk-android/src/test/kotlin/com/gamebridge/android/purchase/GooglePlayBillingProviderTest.kt",
+          "testCase": "pending wrong account and quantity never reach verifier"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GoogleGrantDatabaseTest.kt",
+          "testCase": "setPurchaseState(\"PENDING\")"
+        }
+      ]
     },
     {
       "id": "R28",
@@ -979,17 +1008,30 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R28"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "play-pending",
+        "purchase-db-scenarios"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/pending-verification-scenarios.md",
+      "note": "Play gateway fake and isolated DB/Xcode local StoreKit; real stores and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "play-pending",
+          "testFile": "android/sdk-android/src/test/kotlin/com/gamebridge/android/purchase/GooglePlayBillingProviderTest.kt",
+          "testCase": "pending to purchased verifies before one durable grant"
+        },
+        {
+          "suite": "purchase-db-scenarios",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GoogleGrantDatabaseTest.kt",
+          "testCase": "(1..10)"
+        }
+      ]
     },
     {
       "id": "R29",
@@ -1175,17 +1217,30 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R35"
       ],
       "candidateSuites": [
-        "purchase-regression"
+        "play-pending",
+        "xcode-local-recovery"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/pending-verification-scenarios.md",
+      "note": "Play gateway fake and isolated DB/Xcode local StoreKit; real stores and Unity are separate.",
+      "assertions": [
+        {
+          "suite": "play-pending",
+          "testFile": "android/sdk-android/src/test/kotlin/com/gamebridge/android/purchase/GooglePlayBillingProviderTest.kt",
+          "testCase": "timeout keeps purchase unfulfilled until later verification"
+        },
+        {
+          "suite": "xcode-local-recovery",
+          "testFile": "ios/StoreKitTests/XcodeStoreKitLocalDatabaseTests.swift",
+          "testCase": "unconfirmed grant must remain unfinished"
+        }
+      ]
     },
     {
       "id": "R36",

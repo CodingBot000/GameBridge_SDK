@@ -209,4 +209,37 @@ class GooglePlayBillingProviderTest {
         } finally { provider.close() }
     }
 
+    @Test fun `pending to purchased verifies before one durable grant`() = runBlocking {
+        val gateway = FakePlayGateway(); var verifies = 0; var grants = 0; val purchaseId = UUID.randomUUID()
+        val sink = PlayProofSink { _, _, raw ->
+            verifies++; if (grants == 0) grants++
+            ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", purchaseId,
+                if (verifies == 1) "GRANTED" else "ALREADY_GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray()))
+        }
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink)
+        try {
+            assertEquals("PENDING", next(provider, gateway, proof(Purchase.PurchaseState.PENDING)).status)
+            assertEquals(0, verifies); assertEquals(0, grants)
+            val completed = next(provider, gateway, proof(Purchase.PurchaseState.PURCHASED))
+            assertEquals("PURCHASED", completed.status); assertEquals(purchaseId, completed.serverPurchaseId)
+            val duplicate = next(provider, gateway, proof(Purchase.PurchaseState.PURCHASED))
+            assertEquals(purchaseId, duplicate.serverPurchaseId); assertEquals(2, verifies); assertEquals(1, grants)
+        } finally { provider.close() }
+    }
+    @Test fun `timeout keeps purchase unfulfilled until later verification`() = runBlocking {
+        val gateway = FakePlayGateway(); var fail = true; var grants = 0; val purchaseId = UUID.randomUUID()
+        val sink = PlayProofSink { _, _, raw ->
+            if (fail) throw SdkFailure("TIMEOUT", retryable = true)
+            grants++; ServerPlayResult(account.userId, account.obfuscatedAccountId, "coins_100", purchaseId, "GRANTED", MessageDigest.getInstance("SHA-256").digest(raw.token.toByteArray()))
+        }
+        val provider = GooglePlayBillingProvider(gateway, mapping, PlayAccountSource { account }, sink)
+        try {
+            val pending = next(provider, gateway, proof(Purchase.PurchaseState.PURCHASED))
+            assertEquals("VERIFICATION_PENDING", pending.status); assertNull(pending.serverPurchaseId); assertEquals(0, grants)
+            fail = false
+            val recovered = next(provider, gateway, proof(Purchase.PurchaseState.PURCHASED))
+            assertEquals("PURCHASED", recovered.status); assertEquals(purchaseId, recovered.serverPurchaseId); assertEquals(1, grants)
+        } finally { provider.close() }
+    }
+
 }

@@ -89,6 +89,8 @@ local-mock 기본 host port는 loopback이다. 실기기 접근을 위해 LAN으
 
 Codex 준비물: GoogleAuthProvider, nonce challenge, server verifier, error mapping, UI, config 검사. TODO 또는 “여기에 OAuth 구현”만 남아 있으면 코드 준비 IMPLEMENTED가 아니다.
 
+현재 Android Debug 샘플은 LOCAL_MOCK Backend 연결만 지원한다. emulator 기본 주소는 `http://10.0.2.2:18080`이며, 개발용 서버와 동일한 `GAMEBRIDGE_DEV_AUTH_KEY`를 앱에 직접 입력한다. HTTPS 또는 별도 기기 주소 사용 시 Host 네트워크 설정이 필요하며 실서비스 모드의 자동 Mock 전환은 없다.
+
 실제 검증: Android Native sample에서 Google 로그인→서버 `/me`→재실행 세션 복원→로그아웃. 이후 Unity Android에서 같은 흐름. 취소·audience 불일치·네트워크 실패도 확인한다.
 
 성공 증거: 검증된 provider subject와 서버 user의 비식별 대응, token 원문 없는 결과, 실제 환경/빌드/시각. Mock token이나 자체 서명 token 통과는 실제 Google 인증 증거가 아니다.

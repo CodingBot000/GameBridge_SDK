@@ -17,3 +17,6 @@ UserSettings/
 google-services.json
 GoogleService-Info.plist
 local.properties
+
+# Local generated test artifacts
+artifacts/

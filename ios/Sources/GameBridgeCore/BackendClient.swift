@@ -42,7 +42,7 @@ public final class BackendClient {
             if response.statusCode == 401 { throw SdkFailure("SESSION_EXPIRED") }
             guard (200...299).contains(response.statusCode) else { throw SdkFailure(response.statusCode >= 500 ? "NETWORK_UNAVAILABLE" : "INTERNAL_ERROR") }
             guard data.count <= 256 * 1024 else { throw SdkFailure("PAYLOAD_TOO_LARGE") }
-            guard let value = try? JSONSerialization.jsonObject(with: data), value is [String: Any] else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+            guard let value = try? JSONSerialization.jsonObject(with: data), (value is [String: Any] || value is [Any]) else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
             return BackendResponse(requestId: response.value(forHTTPHeaderField: "X-Request-Id"), json: data)
         } catch let error as SdkFailure { throw error }
         catch let error as URLError where error.code == .timedOut { throw SdkFailure("TIMEOUT") }

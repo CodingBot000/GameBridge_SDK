@@ -272,3 +272,36 @@
 - `swift test --package-path ios` 종료 0: XCTest 총 11건 중 URLProtocol mock을 이용한 HTTP 성공·401·잘못된 JSON·timeout·경로 거부 확인. 실제 네트워크·Keychain 기기 저장 검증은 아님.
 - `ANDROID_HOME=<installed SDK> ./android/gradlew -p android :sdk-core:test :sdk-android:assembleDebug` 종료 0: HTTP timeout을 포함한 core 시험 10건 및 Keystore 코드 AAR 빌드. 실제 기기 저장·복원 검증은 미실행.
 - 커밋 전: Native HTTP와 OS 보안 저장소 기반만 포함. 세션 갱신·오류 코드 세분화·취소·기기 Keychain/Keystore 실행·백업 정책 및 LOCAL_MOCK 수직 연결은 미완료. Swift 응답 크기는 수신 완료 후 검사한다. P01-T05는 PARTIAL 유지.
+
+### [P03-T01] 시작 — 2026-11-10 Asia/Seoul
+- P01-T04/T05 및 P02-T06은 부분 완료. 이미 확인된 local-mock Backend 경로를 Kotlin SDK와 연결하고 Compose/실기기 검증은 별도 기록한다.
+- `./android/gradlew -p android :sdk-core:test` 종료 0: 새 local-mock client 컴파일 및 기존 10건 통과. 신규 수직 client 테스트는 아직 없으며 검토 중 catalog 응답이 배열인데 HTTP object-only 검사에 막히는 문제를 발견해 수정한다.
+- `./android/gradlew -p android :sdk-core:test` 및 `swift test --package-path ios` 종료 0: JSON object/array 허용 후 기존 시험 통과(Swift XCTest 11건). 신규 opt-in Backend 수직 시험은 미실행/skip이다.
+- 전용 PostgreSQL과 local-mock 서버 기동 확인. JVM Native client 수직 시험은 임시 메모리 TokenStore를 사용하며 전용 Mock DB에 구매 기록을 남긴다.
+- `GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST=true ... ./android/gradlew -p android :sdk-core:test --rerun-tasks` 종료 0: Kotlin JVM SDK→실제 local-mock HTTP/PostgreSQL 경로의 로그인·상품·구매·동일 거래 재요청·서버 잔액·메모리 저장소 복원·로그아웃 검증. XML에서 통합 테스트가 skip 없이 실행되었는지 확인한다. Android 기기·Keystore 실행이 아니다.
+- JUnit XMLで Kotlin Native client の local-mock integration 1件、失敗0・skip0を確認。次に Android Compose consumer を SDK API のみに接続する。
+- `ANDROID_HOME=<installed SDK> ./android/gradlew -p android :sample-app:assembleDebug` 종료 0: Compose 샘플이 SDK public API로 local-mock 초기화·로그인·복원·상품·구매·서버 잔액·로그아웃을 컴파일. debug 전용 제한된 localhost/emulator cleartext 설정 사용. 네이티브 라이브러리 strip 경고가 있으며 앱 실행은 아직 확인 전이다.
+- `adb devices` 종료 0: 연결된 Android 기기·emulator 없음. 설치된 AVD가 있으면 직접 실행 가능 여부를 추가로 확인한다.
+- `emulator -list-avds` 종료 0: 기존 사용자 AVD들이 존재. 기존 AVD 데이터를 사용하지 않고 별도 테스트 AVD를 만들 수 있는지 확인; Android 36 arm64 system image가 설치되어 있다.
+- `avdmanager create avd` 종료 0: 기존 AVD와 별도로 GameBridge_SDK_Test_20261110을 프로젝트 artifacts 경로에 생성. 앱 실행은 아직 미확인.
+- 専用 AVD を `emulator -avd GameBridge_SDK_Test_20261110 -port 5566 -no-window -no-audio -no-snapshot -no-boot-anim` で起動中。既存 AVD は変更していない。boot 終了とアプリ実行は未確認。
+- `adb -s emulator-5566 shell getprop sys.boot_completed` 폴링 종료 0: 전용 Android 36 AVD 부팅 완료 확인. 앱 실행은 미검증.
+- `adb -s emulator-5566 install -r .../sample-app-debug.apk` 종료 0: 전용 테스트 AVD에 Debug APK 설치 성공.
+- `adb ... am start -n com.gamebridge.sample/.MainActivity` 종료 0: Activity 실행 요청 성공. 화면과 기능 수행 결과는 별도 확인한다.
+- `uiautomator dump` 종료 0: Compose 초기 화면과 LOCAL_MOCK 미연결 상태가 실제 AVD에 표시됨. 로그인·구매 흐름은 아직 미검증.
+- 전용 AVD에서 테스트 전용 개발키를 입력하고 Initialize 클릭 후 UI dump 종료 0: `Initialized LOCAL_MOCK` 표시. 키와 토큰은 dump 요약에서 제외.
+- AVD에서 Mock login A 클릭 후 UI dump 종료 0: 로그인 성공 표시. localhost Backend에 연결된 LOCAL_MOCK 결과이며 Google 인증은 아니다.
+- AVD에서 상품·잔액 조회 후 UI dump 종료 0: 두 Mock 상품과 서버 잔액(전용 테스트 DB의 기존 잔액) 표시 확인. 구매 후 변화 확인은 이어서 수행한다.
+- AVD Mock coins_100 구매 후 UI dump 종료 0: 전용 Backend 서버 잔액 900→1000, `GRANTED / PENDING` 표시. 이는 실제 Play 결제나 완료 처리 성공이 아니다. 앱 재시작·Keystore 복원을 확인한다.
+- 앱 재시작 직후 화면이 준비되기 전 자동 입력해 테스트 전용 키 문자열이 URL 칸에 들어갔고 `INTERNAL_ERROR`가 표시됐다. 실제 키/토큰은 사용하지 않았으며 이는 복원 성공 증거가 아니다. 화면 준비를 확인하고 재시험한다.
+- 재시작 후 UI 준비를 확인하고 개발키를 올바른 password 칸에 입력해 `Initialized LOCAL_MOCK`을 다시 확인. 복원 동작은 다음 단계에서 확인한다.
+- 준비 확인 후 Restore 클릭 및 UI dump 종료 0: 앱 재시작 뒤 Keystore 저장 세션으로 local-mock 사용자 복원 성공. ENV-004 자동화 입력 오류 해소.
+- 전용 AVD `run-as`로 SDK preferences를 읽어 내용 자체를 출력하지 않고 검사: session 암호문 항목 존재, accessToken·refreshToken 필드명과 테스트 개발키 평문 없음, Python 종료 0. 전체 기기 보안 감사는 아니다.
+- AVD 복원 후 서버 상태 재조회 UI dump 종료 0: 잔액 1000과 `Server state loaded` 확인. 실제 Play/Google 통과가 아니라 local-mock 연동이다.
+- AVD에서 Sign out 클릭 후 `Signed out` UI 확인(명령 종료 0). 기기에 저장된 SDK session 제거 여부를 따로 검사한다.
+- AVD SDK preferences를 내용 비출력으로 검사: 로그아웃 후 session 항목 없음, 종료 0. push 설치 연결 해제는 별도 미구현이며 이 시험에서는 등록하지 않았다.
+- `adb -s emulator-5566 emu kill` 종료 0: 이번 작업에서 만든 전용 AVD만 종료, AVD 및 테스트 데이터는 삭제하지 않았다.
+- local-mock 테스트 서버 Ctrl-C 종료 130. DB는 전용 volume을 보존하고 컨테이너만 정지한다.
+- 전용 DB container `stop` 종료 0. 전용 volume과 새 AVD는 보존했다. Android SDK 요청·local-mock server·DB 수직 경로는 확인했으나 실제 Store/Google, Unity, 릴리스 패키지 및 세션 예외 전체는 미검증이다.
+- `docs/evidence/p03-t01-android-local-mock.md`에 비식별 결과와 한계를 기록. `python3 scripts/verify-progress.py` 종료 0.
+- 커밋 전: Kotlin Native LOCAL_MOCK 경로와 Compose debug 소비자·제한적 emulator 네트워크 설정을 포함한다. Provider·실결제·Unity·전체 오류 처리와 선행 작업은 남아 P03-T01 PARTIAL 유지.

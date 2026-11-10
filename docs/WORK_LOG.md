@@ -1588,3 +1588,11 @@
 - 첫 stress 실행은 종료 0이나 측정 코드가 client 생성 뒤 stopwatch를 시작하면서 결과 설명에 create를 포함했다. 첫 수치(100회 p50 0.1475ms/p95 0.1907ms)는 생성 제외 측정으로 보존하고, 시작 시점을 생성 앞으로 수정해 새 output에서 재측정한다.
 - 생성 시점 수정 후 `scripts/stress-csharp-lifecycle.sh` 종료 0: macOS Darwin 25.5 arm64, .NET 8.0.21 Release, warm-up 5·sample 100에서 fake create/init/product query/shutdown p50 0.1467ms, p95 0.2125ms; 매 회차 pending 0 확인. 결과 `artifacts/lifecycle-stress.zrf6NN/result.json`. dispose 시간은 측정에 포함하지 않으며 Unity/실기기/메모리 측정이 아니다.
 - 커밋 전: 독립 fake 측정 코드와 증거만 포함한다. Unity scene 교체·기기 profiling·누수 측정은 NOT_RUN으로 P10-T03 PARTIAL 유지한다.
+
+### [P10-T04] 리팩토링 후 재패키징
+- Task 시작: 기존 P08 binary를 재사용하지 않고 현재 source에서 Android Maven과 iOS device/simulator XCFramework를 각각 새 경로에 다시 생성한다. 이전 산출물과 사용자 파일은 보존한다.
+- 첫 P10 Android Maven/R8 빌드는 종료 0이지만 여러 Native 산출 task가 UP-TO-DATE였다. 계획의 리팩토링 후 재패키징은 이전 binary 재사용을 허용하지 않으므로 이것을 최종 재빌드 증거로 쓰지 않고 --rerun-tasks를 적용해 새 경로에서 재실행한다. iOS는 새 격리 Xcode project에서 device/simulator archive 및 XCFramework 생성 종료 0.
+- `GAMEBRIDGE_MAVEN_REPO=.../maven-p10-20261111-b bash scripts/build-android.sh --mock` 종료 0: --rerun-tasks로 Native publish 및 별도 R8 consumer 재실행(consumer 45개 task 실행). 새 iOS XCFramework도 생성됐다. Swift 별도 소비 link·UPM staging을 확인한다.
+- 새 iOS XCFramework의 device C ABI 네 symbol과 별도 simulator Swift consumer link 종료 0. 새 Android/iOS 산출물로 UPM staging 110개 checksum 및 baseline source 비교 종료 0. 기존 C# 공개 생성자·메서드 소비 fixture를 별도 assembly에 대해 컴파일한다.
+- `scripts/check-csharp-compat.sh` 종료 0: 별도로 빌드된 GameBridge.Runtime assembly을 참조하여 P08 기준 생성자·메서드 consumer source를 컴파일·실행했다. 이는 binary ABI 또는 Unity Editor 실행을 증명하지 않는다.
+- 커밋 전: Android 강제 재빌드 script, 과거 C# 소비자 fixture 및 P10 산출물 evidence만 포함한다. Unity clean consumer/IL2CPP·실기기와 전체 기능 gate는 미완료다.

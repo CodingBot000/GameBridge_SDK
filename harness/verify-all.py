@@ -65,6 +65,7 @@ def main() -> int:
     simple('manifest',['python3','harness/check-manifest.py'],'Manifest inventory valid')
     simple('api-baseline',['python3','harness/check-api-baseline.py'],'Baseline source comparison PASS')
     simple('api-baseline-negative',['python3','harness/check-api-baseline-negative.py'],'Public API mutation detected')
+    simple('csharp-compat',['bash','scripts/check-csharp-compat.sh'],'Legacy C# consumer source: PASS')
     simple('aggregation-self',['python3','-m','unittest','discover','-s','harness','-p','test_aggregation.py','-v'],'OK')
     simple('progress-negative',['python3','harness/check-progress-negative.py'],'Progress negatives PASS')
     simple('manifest-negative',['python3','harness/check-manifest-negative.py'],'Negative manifest: missing R49 rejected')

@@ -15,5 +15,5 @@ else
 fi
 export GAMEBRIDGE_MAVEN_REPO
 printf 'Maven output: %s\n' "$GAMEBRIDGE_MAVEN_REPO"
-"$root/android/gradlew" -p "$root/android" :sdk-core:publishReleasePublicationToStagingRepository :sdk-android:publishReleasePublicationToStagingRepository :sdk-unity-bridge:publishReleasePublicationToStagingRepository :sample-app:assembleDebug
-"$root/android/gradlew" -p "$root/android/consumer-check" :app:assembleRelease
+"$root/android/gradlew" -p "$root/android" --rerun-tasks :sdk-core:publishReleasePublicationToStagingRepository :sdk-android:publishReleasePublicationToStagingRepository :sdk-unity-bridge:publishReleasePublicationToStagingRepository :sample-app:assembleDebug
+"$root/android/gradlew" -p "$root/android/consumer-check" --rerun-tasks :app:assembleRelease

@@ -201,4 +201,47 @@ class GoogleAuthProviderTest {
         assertEquals("BUSY", assertFailsWith<SdkFailure> { provider.signIn() }.code)
         gateway.release!!.complete(Unit); first.await(); Unit
     }
+    @Test fun `ten authenticated operations share refresh after operation 401`() = runBlocking {
+        val backend = StubBackend(); val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), backend)
+        provider.signIn(); val oldFailures = java.util.concurrent.atomic.AtomicInteger()
+        val calls = (1..10).map { async(kotlinx.coroutines.Dispatchers.Default) {
+            provider.withAuthenticatedSession { session ->
+                if (session.accessToken == "test-access") { oldFailures.incrementAndGet(); throw SdkFailure("SESSION_EXPIRED") }
+                session.userId
+            }
+        } }.map { it.await() }
+        assertEquals(10, calls.size); assertTrue(calls.all { it == "d2719c4e-d533-47ee-9efd-838791ea79c8" })
+        assertEquals(1, oldFailures.get()); assertEquals(1, backend.refreshes)
+    }
+    @Test fun `repeated unauthorized operation retries only once`() = runBlocking {
+        val backend = StubBackend(); val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), backend)
+        provider.signIn(); var calls = 0
+        assertEquals("SESSION_EXPIRED", assertFailsWith<SdkFailure> { provider.withAuthenticatedSession<String> { calls++; throw SdkFailure("SESSION_EXPIRED") } }.code)
+        assertEquals(2, calls); assertEquals(1, backend.refreshes)
+    }
+    @Test fun `proof retry keeps same idempotency key after 401`() = runBlocking {
+        val backend = StubBackend(); val provider = GoogleAuthProvider(config(), MemoryStore(), StubGateway(), backend)
+        val user = provider.signIn(); val binding = UUID.randomUUID().toString(); val purchase = UUID.randomUUID()
+        val token = "synthetic-proof"; val hash = MessageDigest.getInstance("SHA-256").digest(token.toByteArray()).joinToString("") { "%02x".format(it) }
+        val attempts = mutableListOf<String>()
+        val sink = GoogleHttpProofSink(provider) { _, _, _, attempt ->
+            attempts.add(requireNotNull(attempt))
+            if (attempts.size == 1) throw SdkFailure("SESSION_EXPIRED")
+            """{"userId":"${user.userId}","accountId":"$binding","productId":"coins_100","serverPurchaseId":"$purchase","fulfillmentStatus":"GRANTED","proofFingerprint":"$hash"}"""
+        }
+        val result = sink.verify(BoundPlayAccount(UUID.fromString(user.userId), binding), "coins_100", RawPlayPurchase("coins.store", token, binding, 1, Purchase.PurchaseState.PURCHASED))
+        assertEquals(purchase, result.serverPurchaseId); assertEquals(2, attempts.size); assertEquals(attempts[0], attempts[1]); assertEquals(1, backend.refreshes)
+    }
+
+    @Test fun `refresh profile mismatch leaves tombstone and never retries operation`() = runBlocking {
+        val backend = StubBackend(); val store = MemoryStore(); val provider = GoogleAuthProvider(config(), store, StubGateway(), backend)
+        provider.signIn(); var calls = 0
+        val failure = assertFailsWith<SdkFailure> {
+            provider.withAuthenticatedSession<String> {
+                calls++; backend.profileUser = UUID.randomUUID().toString(); throw SdkFailure("SESSION_EXPIRED")
+            }
+        }
+        assertEquals("AUTH_FAILED", failure.code); assertEquals(1, calls); assertEquals("{\"state\":\"refresh_pending\"}", store.stored)
+    }
+
 }

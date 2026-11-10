@@ -32,10 +32,11 @@ internal class GoogleHttpProofSink(
     }
     override suspend fun verify(account: BoundPlayAccount, productId: String, proof: RawPlayPurchase): ServerPlayResult {
         if (proof.token.isBlank()) throw SdkFailure("VERIFICATION_FAILED")
+        val attempt = UUID.randomUUID().toString()
         return auth.withAuthenticatedSession { session ->
             if (session.userId != account.userId.toString()) throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH")
             val body = buildJsonObject { put("storeProductId", proof.storeId); put("purchaseToken", proof.token) }.toString()
-            parseGoogleGrant(request("/v1/purchases/google/verify", body, session.accessToken, UUID.randomUUID().toString()), productId)
+            parseGoogleGrant(request("/v1/purchases/google/verify", body, session.accessToken, attempt), productId)
         } ?: throw SdkFailure("SESSION_EXPIRED")
     }
 }

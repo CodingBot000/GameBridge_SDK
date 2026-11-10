@@ -117,7 +117,19 @@ class GoogleAuthProvider internal constructor(
         return sessionLock.withLock {
             val session = loadBound()?.session ?: return@withLock null
             if (session.userId != profile.userId) throw SdkFailure("CANCELED")
-            block(session)
+            try { block(session) } catch (failure: SdkFailure) {
+                if (failure.code != "SESSION_EXPIRED") throw failure
+                // A 401 can arrive after the preflight profile check. Keep the rotation tombstone
+                // durable and retry only once, while the session lock prevents account changes.
+                store.save("{\"state\":\"refresh_pending\"}")
+                val refreshed = backend.refresh(session)
+                validate(refreshed)
+                if (refreshed.userId != session.userId) throw SdkFailure("AUTH_FAILED")
+                val verifiedProfile = backend.profile(refreshed)
+                if (verifiedProfile.userId != refreshed.userId || verifiedProfile.provider != "GOOGLE") throw SdkFailure("AUTH_FAILED")
+                store.save(storageJson.encodeToString(StoredGoogleSession(config.appId, config.mode.name, config.backendBaseUrl!!, "GOOGLE", refreshed)))
+                block(refreshed)
+            }
         }
     }
     suspend fun signOut() = sessionLock.withLock {

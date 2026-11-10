@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / P09-T04 Google 최종화 재시도 검증
+- 현재 Phase / Task: P04 / P04-T04 인증 요청 401 재시도
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: c22336c (격리 strict aggregate; Unity·외부 서비스는 미검증)
 - 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: consume·ack 일시 실패 후 durable retry와 지급 불변 검증
+- 바로 다음 행동: 실제 Provider의 인증된 요청에서 401 발생 시 안전한 단일 refresh·재시도 구현
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -103,6 +103,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 |---|---|---|---|---|---|---|
 | USER-PUSH-CONCURRENCY | USER | P06-T04 | 기본 동시 1건 사용자 선택 | scheduler 설정·검증 진행 | 실제 원격 발송은 별도 | RESOLVED |
 | USER-CONFIG-TTL | USER | P07-T01 | 기본 유효기간 5분 사용자 선택 | 서버 설정·local-mock 통합 진행 | 실제 플랫폼 검증은 별도 | RESOLVED |
+| BUG-016 | BUG | P04-T04, P09-T03 | Native 실제 Provider의 사전 profile 확인 이후 요청에서 401이 발생하면 refresh 없이 실패 | 요청 재시도 전 기존 idempotency key 유지 및 단일 refresh 구현 | 동시 요청·계정 변경·반복 401·증빙 멱등키 검증 | OPEN |
 | BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring의 Unity 공개 조회 구현 및 fake 확인; 실제 Unity player 미검증 | Native typed snapshot과 C# 제한 검사 유지 | 실제 Unity player에서 Native 진단 경계·redaction 확인 | OPEN |
 | BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과; Unity player·재연결 실제 수명주기 미검증 | 인증·소유권·heartbeat 회귀 유지 | Unity player 전달 및 lifecycle 검증 | OPEN |
 | BUG-013 | BUG | P05-T03, P05-T07 | XCODE_STOREKIT iOS 18+에서 이력 단일성·durable attempt로 local DB 응답 유실 복구 확인; Unity·실기기 미검증 | 전용 DB fake 지급과 분리 검증 유지 | 실제 프로세스 종료·Unity player 및 iOS 26.5 실패 재검증 | OPEN |

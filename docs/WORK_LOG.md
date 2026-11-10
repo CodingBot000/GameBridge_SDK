@@ -2155,3 +2155,14 @@
 ### P09-T04 R33 mapping 검증 시작
 - R33 manifest·필수 scenario 음성·원장 검사 통과. 다른 20개 scenario는 PARTIAL, 외부 실연동은 대기로 유지한다.
 - 커밋 준비: synthetic Google ACK/consume retry 시험과 증거 연결만 저장한다.
+
+### [P04-T04] BUG-016 발견 및 작업 시작
+- Google/Apple Provider는 요청 직전 profile에서 만료를 갱신하지만, 실제 인증된 Backend 요청 자체가 그 후 401을 반환하면 자동 refresh/retry하지 않는 누락을 발견했다. 재시도 시 구매 증빙 idempotency key를 유지하고 계정 변경·취소·반복 401을 안전하게 처리한다. R18은 미완료로 유지한다.
+### P04-T04 Android 인증 요청 401 수정 시작
+- Android Provider의 authenticated operation 401에서 잠금 안 단일 refresh 후 1회만 재시도한다. 구매 검증 attempt UUID는 재시도 전 생성해 동일하게 유지한다. 사용자 변경·취소·재시도 실패는 기존 오류 정책을 유지한다.
+### P04-T04 Android 401 검증 시작
+- 동시 10개 호출·반복 401의 1회 재시도 한도·구매 proof attempt UUID 동일성을 fake Provider로 검사한다. 실제 Google 로그인은 포함하지 않는다.
+- Android synthetic Provider에서 동시 10개 호출은 lock으로 직렬화돼 실제 401을 받은 첫 호출만 refresh했고 모두 성공했다. 반복 401은 두 번 호출 후 중단했고 구매 검증 attempt UUID는 재시도 전후 동일했다. refresh 후 계정 불일치도 재시도하지 않는지 추가 검증한다.
+### P04-T04 Android 계정 일치 회귀 시작
+- Android Google fake에서 refresh 후 profile 소유자 불일치 시 AUTH_FAILED, 재시도 0회, refresh tombstone 보존을 확인했다. 전체 GoogleAuthProviderTest 통과. 실제 Google credential/UI는 미검증이다.
+- 커밋 준비: Android 요청 401의 단일 refresh 및 purchase attempt 보존만 저장한다. iOS와 전체 동시 401 검증이 남아 BUG-016 OPEN이다.

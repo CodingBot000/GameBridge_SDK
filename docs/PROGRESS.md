@@ -7,11 +7,11 @@
 - 전체 상태: IN_PROGRESS (작업 미완료)
 - 현재 Phase / Task: P06 / P06-T04
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
-- 현재 작업 트리 상태: P05-T04 진행 중; Unity 미완성 Demo와 Python 캐시 미추적
-- 현재 실행 모드: 미선택
-- 바로 다음 행동: P05-T04 실제 스토어 서버 검증 구현; P08-T03 iOS hook 실제 Unity API 컴파일 오류 수정; P05 StoreKit 실패 유지
-- 불가피한 세션 종료 시 재개 행동: P04-T04/P04-T05부터 진행하고 P00~P03의 PARTIAL 항목을 재검증
+- 마지막 검증된 소스 커밋: 82ca242 (FCM/APNs 단발 sender fake 시험; 전체 기능 완료 아님)
+- 현재 작업 트리 상태: 코드 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적
+- 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
+- 바로 다음 행동: P06-T04 retry 및 개발 API 사용자 결정 대기 중 독립 작업 계속; P05 로컬 StoreKit 실패 원인 재검증
+- 불가피한 세션 종료 시 재개 행동: 미완료 P05~P08 구현 및 P09~P11 진행, 실제 플랫폼과 mock 증거 분리
 
 ## 집계
 
@@ -106,12 +106,12 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | BUG-001 | BUG | P01-T05 | BackendClientTest 1건 실패 | 원인 확인 및 재실행 | HTTP 검증 통과 | RESOLVED |
 | USER-VERIFY-CONCURRENCY | USER | P05-T02 | 기본 동시 1건 사용자 선택 | 코드·검증 반영 진행 | 서버 sink 연결 별도 필요 | RESOLVED |
 | USER-SESSION-TTL | USER | P04-T04 | 최초 로그인부터 7일 고정 사용자 선택 | 기존 코드와 대조·검증 진행 | 실제 인증 검증 별도 필요 | RESOLVED |
-| USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제; 코드 반영 대기 | 등록·회전과 다른 독립 작업 진행 | 결정된 삭제 및 소유권 경로 구현·검증 | RESOLVED |
-| USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프; 코드 반영 대기 | 수동 Mock worker 및 다른 독립 작업 진행 | 결정된 정책을 설정과 실행 코드에 반영 | RESOLVED |
+| USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제 | local-mock 세션별 삭제와 경쟁 상황 검증 완료 | 실제 FCM/APNs 경로 별도 구현 | RESOLVED |
+| USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프 | local-mock worker·재시작·동시성 검증 완료 | 실제 store finalizer 별도 구현 | RESOLVED |
 | ENV-008 | ENV | P04-T04 | 전용 PostgreSQL container 정상 종료 상태에서 opt-in DB 시험 실패 | 기존 volume 보존 후 재기동 | DB healthy 및 실패 시험 재실행 | RESOLVED |
 | ENV-005 | ENV | P03-T02 | Simulator UI snapshot 대상 0개, 수동 대체 입력으로도 흐름 미확인 | XCTest 기반 독립 UI 검증 시도 | iOS local-mock UI smoke 실행 확인 | RESOLVED |
 | ENV-004 | ENV | P03-T01 | 전용 emulator 복원 시험에서 화면 준비 전 입력 실패 | UI 준비 후 재시도 | Keystore 복원 확인 | RESOLVED |
-| ENV-003 | ENV | P00-T03 | XcodeGen 명령 없음; iOS 프로젝트 명세 생성·앱 빌드 미검증 | 독립 작업 진행; XcodeGen 준비 또는 다른 재현 가능한 프로젝트 생성 | Xcode 프로젝트 생성 및 빌드 | OPEN |
+| ENV-003 | ENV | P00-T03 | XcodeGen 최초 부재 | 로컬 도구 2.46.0 확보 후 프로젝트 생성·빌드 확인 | 실제 스토어 및 Unity 검증 별도 | RESOLVED |
 | ENV-002 | ENV | P00-T03 및 Unity 검증 | Unity Editor 생성 시 라이선스 확인 실패, 종료 198 | 프로젝트 생성 안내 스크립트 제공, 다른 플랫폼 계속 | 사용자 라이선스 및 Editor 재확인 | OPEN |
 | ENV-001 | ENV | P00-T02 | Unity 6.3 LTS 미설치; 설치 버전의 모듈·라이선스 미확인 | 설치된 Editor로 검증 시도 | 호환 Editor와 모듈·라이선스 확인 | OPEN |
 

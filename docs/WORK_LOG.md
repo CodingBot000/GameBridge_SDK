@@ -733,3 +733,5 @@
 - Apple 공식 APNs 지침상 provider JWT는 매 요청 갱신하면 안 되므로 40분 재사용 캐시를 추가한다(20~60분 범위). APNs 5xx 재시도는 별도 15분 지침이 있어 사용자에게 요청한 일반 재시도와 구분해 적용해야 한다.
 - 단발 전송 경계 fake 시험 4건 통과: FCM 오류 구분, APNs host/topic·상태·네트워크 오류, synthetic ES256 서명, provider token 40분 재사용. 실제 Firebase/APNs 외부 호출은 없다.
 - 커밋 전: 실제 SDK/HTTP 단발 sender와 fake 시험만 포함. 사용자가 선택할 재시도·개발 API 제한, DB lifecycle, 실 credential 조립/발송은 미완료이며 P06-T04 PARTIAL/WAITING_USER 유지한다.
+- 진행표의 오래된 체크포인트와 이미 해결된 XcodeGen·Mock 삭제/재시도 설명을 실제 검증 상태로 정정했다. 전체 프로젝트 완료를 뜻하지 않는다.
+- 커밋 전: 진행 문서 사실관계 수정만 포함한다.

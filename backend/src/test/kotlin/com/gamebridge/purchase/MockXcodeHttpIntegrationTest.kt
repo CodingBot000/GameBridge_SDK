@@ -52,6 +52,11 @@ class MockXcodeHttpIntegrationTest {
         assertTrue(concurrent.all { it.statusCode.value() == 200 })
         assertEquals(1, concurrent.count { it.body!!["fulfillmentStatus"] == "GRANTED" })
         assertEquals("200", call(walletPath, a).body!!["coinBalance"])
+        val digest = "a".repeat(64); val hashInput = input + ("transactionId" to digest)
+        assertEquals("GRANTED", call(grantPath, a, hashInput).body!!["fulfillmentStatus"])
+        assertEquals("ALREADY_GRANTED", call(grantPath, a, hashInput).body!!["fulfillmentStatus"])
+        assertEquals(400, call(grantPath, a, hashInput + ("transactionId" to "G".repeat(64))).statusCode.value())
+        assertEquals("300", call(walletPath, a).body!!["coinBalance"])
         val normal = rest.exchange("/v1/entitlements", HttpMethod.GET, HttpEntity<Any>(HttpHeaders().apply { setBearerAuth(a) }), Map::class.java)
         assertEquals("0", normal.body!!["coinBalance"])
     }

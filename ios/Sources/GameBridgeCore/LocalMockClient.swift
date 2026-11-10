@@ -198,11 +198,16 @@ public actor LocalMockClient {
         return value
     }
     public func xcodeGrant(productId: String, transactionId: UInt64, account: XcodeMockAccount) async throws -> XcodeMockGrant {
-        guard ["coins_100", "premium_unlock"].contains(productId), transactionId > 0 else { throw SdkFailure("INVALID_ARGUMENT") }
-        let body = try encode(["productId": productId, "transactionId": String(transactionId), "bindingId": account.bindingId.uuidString.lowercased()])
+        guard transactionId > 0 else { throw SdkFailure("INVALID_ARGUMENT") }
+        return try await xcodeGrant(productId: productId, transactionKey: String(transactionId), account: account)
+    }
+    public func xcodeGrant(productId: String, transactionKey: String, account: XcodeMockAccount) async throws -> XcodeMockGrant {
+        guard ["coins_100", "premium_unlock"].contains(productId),
+              transactionKey.range(of: "^([1-9][0-9]{0,19}|[0-9a-f]{64})$", options: .regularExpression) != nil else { throw SdkFailure("INVALID_ARGUMENT") }
+        let body = try encode(["productId": productId, "transactionId": transactionKey, "bindingId": account.bindingId.uuidString.lowercased()])
         let value: XcodeMockGrant = try decode(try await authenticated(path: "/v1/dev/xcode-storekit/grant", method: "POST", body: body, development: true).json)
         guard value.userId == account.userId, value.bindingId == account.bindingId, value.productId == productId,
-              value.transactionKey == String(transactionId), ["GRANTED", "ALREADY_GRANTED"].contains(value.fulfillmentStatus) else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
+              value.transactionKey == transactionKey, ["GRANTED", "ALREADY_GRANTED"].contains(value.fulfillmentStatus) else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
         return value
     }
     public func xcodeWallet(account: XcodeMockAccount) async throws -> LocalWallet {

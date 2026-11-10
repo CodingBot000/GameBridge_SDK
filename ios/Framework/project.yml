@@ -72,6 +72,10 @@ targets:
         buildPhase: resources
     dependencies:
       - target: GameBridgeSample
+      - package: GameBridge
+        product: GameBridgeCore
+      - package: GameBridge
+        product: GameBridgeApple
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

@@ -1,6 +1,7 @@
 #if canImport(StoreKit)
 import Foundation
 import StoreKit
+import CryptoKit
 #if !GAMEBRIDGE_CORE_EMBEDDED
 import GameBridgeCore
 #endif
@@ -15,7 +16,7 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
     init(client: LocalMockClient, account: XcodeMockAccount) { self.client = client; self.account = account }
     func verify(_ proof: ApplePurchaseProof, userId: UUID) async throws -> ServerGrant {
         guard userId == account.userId, proof.binding == account.bindingId else { throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH") }
-        let result = try await client.xcodeGrant(productId: proof.productId, transactionId: proof.transactionId, account: account)
+        let result = try await client.xcodeGrant(productId: proof.productId, transactionKey: proof.transactionKey, account: account)
         return ServerGrant(userId: result.userId, bindingId: result.bindingId, productId: result.productId,
             transactionKey: result.transactionKey, serverPurchaseId: result.serverPurchaseId, fulfillmentStatus: result.fulfillmentStatus)
     }
@@ -37,6 +38,8 @@ private final class XcodeFakeProofSink: ApplePurchaseProofSink {
         }, acceptsTransaction: { transaction in
             if #available(iOS 16.0, macOS 13.0, *) { return isXcodeStoreEnvironment(transaction.environment) }
             return false
+        }, transactionIdentity: { _, jws in
+            SHA256.hash(data: Data(jws.utf8)).map { String(format: "%02x", $0) }.joined()
         }) { [weak ref] in ref?.value }
     }
     public var userId: UUID { account.userId }

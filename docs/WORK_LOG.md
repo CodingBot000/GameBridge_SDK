@@ -1807,3 +1807,24 @@
 - 이전 iOS 26.5 SKTestSession Code 3 실패를 유지한 채 새로 생성한 전용 iOS 18.6 simulator에서 기존 상품 조회 시험을 재실행한다. 사용자 기존 simulator 데이터와 거래는 수정·삭제하지 않는다. 이 시험은 구매/서버 지급 검증이 아니다.
 - 새 iOS 18.6 전용 simulator `D7C33BEE-66F5-4C37-A896-8649CE20A9F7`에서 `GameBridgeStoreKit` 상품 조회 시험 1건 PASS, skip 0: 두 상품 및 사용자 승인 시험 가격 확인. 결과 `artifacts/storekit-p05-18-1794332423.xcresult`. iOS 26.5의 기존 실패는 별도 OPEN으로 유지하며 구매·취소·대기·서버 지급은 이 시험에 포함되지 않는다. 전용 simulator는 보존한다.
 - 커밋 준비: 대체 simulator의 제한된 상품 조회 증거와 현재 구현 상태를 기록한다. P05-T03 전체 FAIL과 BUG-013 OPEN은 유지한다.
+### P05-T03 Xcode 실제 로컬 거래 시험 시작
+- 격리 iOS 18.6 simulator에서 StoreKit 구매와 Native의 Xcode 환경 확인, synthetic 서버 지급 응답, finish를 연결하는 시험을 추가한다. 실 Apple Sandbox와 실제 Backend/DB 지급은 별도다. 기존 simulator 거래를 초기화하거나 삭제하지 않는다.
+### P05-T03 로컬 거래 검증 실행
+- 기존 전용 iOS 18.6 simulator에서 Xcode StoreKit 구매 및 synthetic server grant/finish 시험을 실행한다. 실패 시 원인을 남기고 이전 상품 조회 통과와 구분한다.
+- iOS 18.6 실제 Xcode 테스트 구매에서 transaction은 생성됐으나 결과가 VERIFICATION_PENDING이고 finish되지 않아 실패했다(`artifacts/storekit-purchase-p05-18-1794332528.xcresult`). fake 서버 호출 경계를 추가 계측해 원인을 확인한다. 이 거래는 전용 simulator에 보존하며 실제 Apple 결제가 아니다.
+### P05-T03 StoreKit 지급 실패 진단 검증 시작
+- synthetic HTTP 호출 경로와 body 유효성만 기록하고 비밀값이나 거래 증빙은 출력하지 않는다. 같은 전용 simulator에서 재실행한다.
+- 재시험 `artifacts/storekit-purchase-debug-1794332613.xcresult`도 VERIFICATION_PENDING. synthetic backend의 grant endpoint에 도달하지 않아 StoreKit 검증 후 Native 내부 단계에서 중단됨을 확인했다. 전용 simulator의 미완료 거래 정보에서 원인을 더 좁힌다.
+### P05-T03 미완료 거래 진단 검증 시작
+- 전용 Xcode simulator transaction의 식별자·환경·account token 존재 여부만 확인한다. raw JWS나 인증키는 기록하지 않는다.
+- 진단 결과 전용 iOS 18.6의 검증된 Xcode transaction ID가 `0`이다(`artifacts/storekit-purchase-diag-1794332670.xcresult`). 기존 양수 검사 때문에 fake grant 전에 실패한다. 단순히 0을 허용하면 여러 Xcode 거래가 같은 키로 합쳐져 중복·누락이 생길 수 있으므로, 검증된 Xcode JWS의 SHA-256을 별도 거래 식별자로 쓰고 동일 증빙 재복구의 멱등성을 검증한다. 실제 Apple 경로 식별자는 변경하지 않는다.
+### P05-T03 Xcode 0 거래 ID 보강 검증 시작
+- Swift fake 검증 및 서버 격리 회귀를 먼저 수행한 뒤 simulator에서 같은 transaction 재복구와 finish를 재시험한다. JWS 원문은 로그·DB에 저장하지 않는다.
+- 첫 Swift compile은 두 인자 identity closure의 기본 구현에서 두 번째 인자를 명시하지 않아 실패했다. 선언을 수정하고 재실행한다.
+- Swift 回归 7건 통과. 기존 Apple sandbox 경로는 여전히 숫자 transaction ID를 사용하며 Xcode 경로만 검증된 JWS 해시를 사용한다. 전용 simulator에서 미완료 거래 복구와 새 거래 finish를 다시 확인한다.
+### P05-T03 simulator 재시험 시작
+- iOS 18.6 `artifacts/storekit-purchase-hash-1794332782.xcresult` 1건 PASS: Xcode 검증 거래→synthetic grant→finish 및 미완료 목록 0건. 이전 실패 거래도 시작 복구 경로에서 처리됐다. 이는 실제 DB·Unity player·Apple sandbox 검증이 아니다.
+### P05-T03 거래 해시 멱등성 검증 시작
+- 서로 다른 Xcode 구매의 해시가 구분되는지 simulator에서 확인하고 서버에서 같은 해시 재요청의 중복 지급 방지를 시험한다.
+- `artifacts/storekit-purchase-distinct-1794332839.xcresult` iOS 18.6 1건 PASS, skip 0: 두 Xcode 테스트 구매의 JWS 해시가 달라 각각 synthetic 지급·finish됐다. 전용 DB `gamebridge_ci_d8c58af962`에서는 동일 해시 재요청에 중복 지급이 없고 sandbox/production 개발 경로가 없는 것을 확인했다. 동일 미완료 거래의 JWS 재발급 안정성, 실제 DB와 결합한 StoreKit 복구, Unity player는 아직 미검증이다.
+- 커밋 준비: Xcode 전용 JWS 해시 식별자, fake 서버 멱등성 및 simulator 시험을 저장한다. Apple 실제 거래 검증은 WAITING_USER이며 BUG-013 OPEN 유지.

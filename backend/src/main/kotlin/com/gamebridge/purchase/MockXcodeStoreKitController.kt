@@ -47,8 +47,10 @@ internal class MockXcodeStoreKitController(private val db: JdbcTemplate, private
     fun grant(auth: Authentication, @RequestHeader("X-Development-Key", required = false) key: String?, @Valid @RequestBody input: XcodeGrantInput): XcodeGrantOutput {
         val principal = principal(auth, key); val user = scopedUser(principal)
         if (input.bindingId != user) throw PurchaseConflict("PURCHASE_ACCOUNT_MISMATCH")
-        if (input.productId !in setOf("coins_100", "premium_unlock") || !input.transactionId.matches(Regex("[1-9][0-9]{0,19}")) ||
-            runCatching { BigInteger(input.transactionId) > BigInteger("18446744073709551615") }.getOrDefault(true))
+        val legacyNumber = input.transactionId.matches(Regex("[1-9][0-9]{0,19}")) &&
+            runCatching { BigInteger(input.transactionId) <= BigInteger("18446744073709551615") }.getOrDefault(false)
+        val xcodeDigest = input.transactionId.matches(Regex("[0-9a-f]{64}"))
+        if (input.productId !in setOf("coins_100", "premium_unlock") || (!legacyNumber && !xcodeDigest))
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         val hash = MessageDigest.getInstance("SHA-256").digest(input.transactionId.toByteArray(Charsets.UTF_8))
         return tx.execute {

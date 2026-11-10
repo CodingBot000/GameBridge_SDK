@@ -10,6 +10,11 @@ struct ApplePurchaseProof: CustomStringConvertible {
     let productId: String
     let binding: UUID?
     let signedTransaction: String
+    let transactionKey: String
+    init(transactionId: UInt64, productId: String, binding: UUID?, signedTransaction: String, transactionKey: String? = nil) {
+        self.transactionId = transactionId; self.productId = productId; self.binding = binding
+        self.signedTransaction = signedTransaction; self.transactionKey = transactionKey ?? String(transactionId)
+    }
     var description: String { "ApplePurchaseProof([redacted])" }
 }
 
@@ -33,10 +38,11 @@ public struct AppleRecoveryCounts {
 }
 
 struct AppleRecoveryAccumulator {
-    private var seen = Set<UInt64>()
+    private var seen = Set<String>()
     private(set) var counts = AppleRecoveryCounts()
-    mutating func begin(_ transactionId: UInt64) -> Bool {
-        guard seen.insert(transactionId).inserted else { return false }
+    mutating func begin(_ transactionId: UInt64) -> Bool { begin(key: String(transactionId)) }
+    mutating func begin(key: String) -> Bool {
+        guard seen.insert(key).inserted else { return false }
         counts.examinedCount += 1; return true
     }
     mutating func success() { counts.recoveredCount += 1 }
@@ -53,7 +59,7 @@ struct AppleRecoveryAccumulator {
 func acceptAppleGrant(_ grant: ServerGrant, proof: ApplePurchaseProof, account: ApplePurchaseAccount, current: ApplePurchaseAccount?) throws {
     guard current == account, proof.binding == account.binding,
           grant.userId == account.userId, grant.bindingId == account.binding,
-          grant.productId == proof.productId, grant.transactionKey == String(proof.transactionId) else {
+          grant.productId == proof.productId, grant.transactionKey == proof.transactionKey else {
         throw SdkFailure("VERIFICATION_FAILED")
     }
 }
@@ -69,16 +75,18 @@ final class StoreKitBillingProvider {
     private let limiter: AppleVerificationLimiter?
     private let onVerified: (ServerGrant) -> Void
     private let acceptsTransaction: (Transaction) -> Bool
+    private let transactionIdentity: (Transaction, String) -> String
     private var listener: Task<Void, Never>?
     private let recoveryFlight = AppleRecoveryFlight()
 
-    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, onVerified: @escaping (ServerGrant) -> Void = { _ in }, acceptsTransaction: @escaping (Transaction) -> Bool = { _ in true }, currentAccount: @escaping () -> ApplePurchaseAccount?) {
+    init(sink: ApplePurchaseProofSink?, verificationConcurrency: Int? = 1, uiGate: AppleUiGate? = nil, onVerified: @escaping (ServerGrant) -> Void = { _ in }, acceptsTransaction: @escaping (Transaction) -> Bool = { _ in true }, transactionIdentity: @escaping (Transaction, String) -> String = { transaction, _ in String(transaction.id) }, currentAccount: @escaping () -> ApplePurchaseAccount?) {
         self.sink = sink
         self.verificationConcurrency = verificationConcurrency
         self.currentAccount = currentAccount
         self.uiGate = uiGate ?? AppleUiGate()
         self.onVerified = onVerified
         self.acceptsTransaction = acceptsTransaction
+        self.transactionIdentity = transactionIdentity
         self.limiter = verificationConcurrency.flatMap { $0 > 0 ? AppleVerificationLimiter(limit: $0) : nil }
     }
     deinit { listener?.cancel() }
@@ -144,7 +152,7 @@ final class StoreKitBillingProvider {
         if Task.isCancelled { throw SdkFailure("CANCELED") }
         let transaction: Transaction
         switch result { case .verified(let value): transaction = value; case .unverified(let value, _): transaction = value }
-        guard accumulator.begin(transaction.id) else { return }
+        guard accumulator.begin(key: transactionIdentity(transaction, result.jwsRepresentation)) else { return }
         do { let grant = try await process(result); accumulator.success(); onVerified(grant) }
         catch { try accumulator.failure(error) }
     }
@@ -158,7 +166,8 @@ final class StoreKitBillingProvider {
         return try await limiter.withPermit {
             guard currentAccount() == account else { throw SdkFailure("CANCELED") }
             let proof = ApplePurchaseProof(transactionId: transaction.id, productId: transaction.productID,
-                                           binding: transaction.appAccountToken, signedTransaction: result.jwsRepresentation)
+                                           binding: transaction.appAccountToken, signedTransaction: result.jwsRepresentation,
+                                           transactionKey: transactionIdentity(transaction, result.jwsRepresentation))
             let grant = try await sink.verify(proof, userId: account.userId)
             try acceptAppleGrant(grant, proof: proof, account: account, current: currentAccount())
             await transaction.finish()

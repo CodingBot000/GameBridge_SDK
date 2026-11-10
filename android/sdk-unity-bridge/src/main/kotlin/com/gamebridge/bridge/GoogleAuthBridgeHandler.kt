@@ -4,6 +4,7 @@ import com.gamebridge.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
 import java.util.UUID
+import com.gamebridge.android.purchase.GoogleRecoveryCounts
 
 internal interface GoogleAuthBridgeApi {
     suspend fun signIn(): UserProfile
@@ -12,6 +13,7 @@ internal interface GoogleAuthBridgeApi {
     suspend fun products(): List<StoreProduct> = throw SdkFailure("CONFIG_REQUIRED")
     suspend fun purchase(productId: String): PurchaseStatus = throw SdkFailure("CONFIG_REQUIRED")
     suspend fun entitlements(): EntitlementSnapshot = throw SdkFailure("CONFIG_REQUIRED")
+    suspend fun recoverDetailed(): GoogleRecoveryCounts = throw SdkFailure("CONFIG_REQUIRED")
     fun close()
 }
 
@@ -61,6 +63,16 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
                     "auth.signOut" -> { auth.signOut(); buildJsonObject {} }
                     "store.products" -> JsonArray(auth.products().map { Json.encodeToJsonElement(StoreProduct.serializer(), it) })
                     "store.entitlements" -> Json.encodeToJsonElement(EntitlementSnapshot.serializer(), auth.entitlements())
+                    "store.sync" -> {
+                        if (payload.string("reason") !in setOf("APP_RESUME", "USER_RESTORE")) throw SdkFailure("INVALID_ARGUMENT")
+                        val counts = auth.recoverDetailed()
+                        val wallet = auth.entitlements()
+                        buildJsonObject {
+                            put("examinedCount", counts.examinedCount); put("recoveredCount", counts.recoveredCount)
+                            put("deferredCount", counts.deferredCount); put("failureCount", counts.failureCount)
+                            put("entitlements", Json.encodeToJsonElement(EntitlementSnapshot.serializer(), wallet))
+                        }
+                    }
                     "store.purchase" -> {
                         val product = payload.string("productId") ?: throw SdkFailure("INVALID_ARGUMENT")
                         val status = auth.purchase(product)

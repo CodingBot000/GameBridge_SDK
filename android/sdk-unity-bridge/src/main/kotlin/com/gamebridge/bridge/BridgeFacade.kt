@@ -60,6 +60,7 @@ object BridgeFacade {
             override suspend fun products() = activeStore().products()
             override suspend fun purchase(productId: String) = activeStore().purchase(productId)
             override suspend fun entitlements() = activeStore().entitlements()
+            override suspend fun recoverDetailed() = activeStore().recoverDetailed()
             override fun close() { dropStore(); scope.cancel(); provider.detachHost() }
         }
     }

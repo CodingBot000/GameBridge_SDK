@@ -1248,3 +1248,9 @@
 - `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-android:testDebugUnitTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest` 종료 0: 기존 Play fake 검증 불변식과 기본 동시 1건 회귀 통과. 새 recovery 집계와 worker 동시성은 추가로 검증한다.
 - 동일 GooglePlayBillingProviderTest 재실행 종료 0: fake 거래 4건의 verified 1·pending/일시 장애 2·실패 1 집계, callback 처리와 recovery가 검증 동시 1건을 공유하는 것을 확인했다. 실제 Google Play 조회/consume은 실행하지 않았다.
 - 커밋 전: Android Native recovery 결과 집계와 fake 검증만 포함한다. Unity sync 연결은 다음 하위 작업이며, recovery 요청 중복의 완전한 single-flight와 BUG-009는 미완료다.
+
+### [P05-T07] Android Unity 구매 복구
+- Task 시작: Google Play 실제 recovery 검증 결과와 서버 entitlement를 Unity store.sync 응답으로 전달한다. APP_RESUME과 USER_RESTORE만 받으며 실제 Play 검증은 사용자 설정 대기다.
+- Android sandbox bridge에 실제 회복 건수와 서버 잔액을 반환하는 store.sync 경로를 추가하고, 허용되지 않은 복구 사유는 차단한다. fake provider 및 AAR compile 검증을 실행한다.
+- `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-unity-bridge:testDebugUnitTest :sdk-unity-bridge:assembleDebug` 종료 0: fake 회복 건수·서버 잔액 전달, 잘못된 사유 거부 및 AAR compile 확인. 실제 Play/Unity JNI는 미실행이다.
+- 커밋 전: Android Unity sync bridge 및 fake 시험만 포함한다. 반복 복구의 완전한 single-flight, iOS sync, Mock BUG-009 및 실제 플랫폼 검증은 미완료다.

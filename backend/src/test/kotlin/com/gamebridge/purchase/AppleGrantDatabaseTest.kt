@@ -44,6 +44,8 @@ class AppleGrantDatabaseTest {
         val pipeline = ApplePurchasePipeline(db, AppleVerifierRegistry { scope, environment ->
             assertEquals(app, scope); assertEquals(StoreEnvironment.SANDBOX, environment); verifier
         }, service)
+        pipeline.ensureReady(principal, StoreEnvironment.SANDBOX, "coins.apple")
+        assertEquals("PRODUCT_NOT_FOUND", assertFailsWith<PurchaseConflict> { pipeline.ensureReady(principal, StoreEnvironment.SANDBOX, "unknown") }.errorCode)
         val attempt = UUID.randomUUID()
         val pool = Executors.newFixedThreadPool(10)
         val results = try { (1..10).map { pool.submit<AppleGrantResult> { pipeline.verifyAndGrant(principal, StoreEnvironment.SANDBOX, "coins.apple", "synthetic-jws", attempt) } }.map { it.get(20, TimeUnit.SECONDS) } }

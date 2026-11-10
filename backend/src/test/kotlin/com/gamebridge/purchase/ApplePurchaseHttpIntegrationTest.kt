@@ -53,6 +53,10 @@ class ApplePurchaseHttpIntegrationTest {
         val verifier = ApplePurchaseVerifier("test.bundle", Environment.SANDBOX, setOf("coins.apple"), AppleSignedTransactionDecoder { payload })
         Mockito.`when`(registry.verifier(app, StoreEnvironment.SANDBOX)).thenReturn(verifier)
         val headers = HttpHeaders().apply { setBearerAuth(tokens.accessToken); set("Idempotency-Key", UUID.randomUUID().toString()) }
+        val ready = rest.exchange("/v1/purchases/apple/readiness", HttpMethod.POST, HttpEntity(mapOf("storeProductId" to "coins.apple"), headers), Map::class.java)
+        assertEquals(200, ready.statusCode.value()); assertEquals(true, ready.body!!["ready"])
+        val unknown = rest.exchange("/v1/purchases/apple/readiness", HttpMethod.POST, HttpEntity(mapOf("storeProductId" to "unknown"), headers), Map::class.java)
+        assertEquals(404, unknown.statusCode.value())
         val entity = HttpEntity(mapOf("storeProductId" to "coins.apple", "signedTransaction" to "synthetic-jws"), headers)
         val pool = Executors.newFixedThreadPool(10)
         val responses = try { (1..10).map { pool.submit<org.springframework.http.ResponseEntity<Map<*, *>>> {

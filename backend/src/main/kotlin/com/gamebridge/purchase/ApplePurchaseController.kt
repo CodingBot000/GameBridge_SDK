@@ -19,9 +19,17 @@ internal data class ApplePurchaseInput(@field:NotBlank val storeProductId: Strin
                                        @field:NotBlank @field:Size(max = 262144) val signedTransaction: String) {
     override fun toString() = "ApplePurchaseInput([redacted])"
 }
+internal data class AppleReadinessInput(@field:NotBlank val storeProductId: String)
 @RestController
 @Profile("sandbox", "production")
 internal class ApplePurchaseController(private val pipeline: ApplePurchasePipeline, private val environment: Environment) {
+    @PostMapping("/v1/purchases/apple/readiness")
+    fun readiness(authentication: Authentication, @Valid @RequestBody input: AppleReadinessInput): Map<String, Boolean> {
+        val principal = authentication.principal as SessionPrincipal
+        val storeEnvironment = if (environment.activeProfiles.contains("sandbox")) StoreEnvironment.SANDBOX else StoreEnvironment.PRODUCTION
+        pipeline.ensureReady(principal, storeEnvironment, input.storeProductId)
+        return mapOf("ready" to true)
+    }
     @PostMapping("/v1/purchases/apple/verify")
     fun verify(authentication: Authentication, @RequestHeader("Idempotency-Key") key: String,
                @Valid @RequestBody input: ApplePurchaseInput): AppleGrantResult {

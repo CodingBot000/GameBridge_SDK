@@ -30,6 +30,7 @@ internal class ApplePurchaseVerifier(
         require(environment == Environment.SANDBOX || environment == Environment.PRODUCTION)
     }
 
+    fun supports(productId: String): Boolean = productId in products
     fun verify(jws: String, expectedProduct: String, expectedAccount: UUID): VerifiedApplePurchase {
         if (jws.isBlank() || expectedProduct !in products) throw AppleProofRejected()
         val payload = try { decoder.decode(jws) } catch (e: VerificationException) {

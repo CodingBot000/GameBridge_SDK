@@ -9,6 +9,16 @@ final class AppleHttpProofSink: ApplePurchaseProofSink {
     private let auth: AppleAuthProvider
     private let client: BackendClient
     init(auth: AppleAuthProvider, client: BackendClient) { self.auth = auth; self.client = client }
+    func ensureReady(storeProductId: String) async throws {
+        let ready: Bool? = try await auth.withAuthenticatedSession { session in
+            let body = try JSONSerialization.data(withJSONObject: ["storeProductId": storeProductId])
+            let response = try await client.request(path: "/v1/purchases/apple/readiness", method: "POST", body: body, accessToken: session.accessToken)
+            struct Readiness: Decodable { let ready: Bool }
+            guard let value = try? JSONDecoder().decode(Readiness.self, from: response.json), value.ready else { throw SdkFailure("CONFIG_REQUIRED") }
+            return true
+        }
+        guard ready == true else { throw SdkFailure("SESSION_EXPIRED") }
+    }
     func verify(_ proof: ApplePurchaseProof, userId: UUID) async throws -> ServerGrant {
         struct Output: Decodable {
             let userId, bindingId: UUID

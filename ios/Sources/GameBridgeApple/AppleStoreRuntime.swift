@@ -10,6 +10,7 @@ final class AppleStoreRuntime {
     private let ids: [String: String]
     private let account: ApplePurchaseAccountSource
     private let provider: StoreKitBillingProvider
+    private let sink: AppleHttpProofSink
 
     init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String], verificationConcurrency: Int = 1) throws {
         guard Set(productIds.keys) == Set(["coins_100", "premium_unlock"]),
@@ -19,6 +20,7 @@ final class AppleStoreRuntime {
         let account = ApplePurchaseAccountSource(auth: auth, client: client)
         self.account = account
         let sink = AppleHttpProofSink(auth: auth, client: client)
+        self.sink = sink
         provider = StoreKitBillingProvider(sink: sink, verificationConcurrency: verificationConcurrency, uiGate: auth.uiGate) { [weak account] in account?.current() }
     }
     func start() async throws {
@@ -39,6 +41,8 @@ final class AppleStoreRuntime {
     func purchase(_ logicalProductId: String) async throws -> ApplePurchaseOutcome {
         guard let storeId = ids[logicalProductId] else { throw SdkFailure("PRODUCT_NOT_FOUND") }
         guard try await account.refresh() != nil else { throw SdkFailure("SESSION_EXPIRED") }
+        try await sink.ensureReady(storeProductId: storeId)
+        guard account.current() != nil else { throw SdkFailure("CANCELED") }
         guard let product = try await provider.products(ids: [storeId]).first, product.id == storeId else { throw SdkFailure("PRODUCT_NOT_FOUND") }
         try validateType(product, logical: logicalProductId)
         return try await provider.purchase(product)

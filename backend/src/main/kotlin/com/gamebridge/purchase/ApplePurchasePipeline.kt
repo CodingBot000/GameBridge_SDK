@@ -9,6 +9,14 @@ internal fun interface AppleVerifierRegistry {
     fun verifier(appId: String, environment: StoreEnvironment): ApplePurchaseVerifier
 }
 internal class ApplePurchasePipeline(private val db: JdbcTemplate, private val registry: AppleVerifierRegistry, private val grants: AppleGrantService) {
+    fun ensureReady(principal: SessionPrincipal, environment: StoreEnvironment, productId: String) {
+        val app = db.query("SELECT app_scope FROM sessions WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at>now()",
+            { rs, _ -> rs.getString(1) }, principal.sessionId, principal.userId).firstOrNull() ?: throw PurchaseConflict("SESSION_EXPIRED")
+        val hasBinding = db.queryForObject("SELECT EXISTS(SELECT 1 FROM purchase_account_bindings WHERE app_id=? AND user_id=?)", Boolean::class.java, app, principal.userId) == true
+        if (!hasBinding) throw PurchaseConflict("PURCHASE_ACCOUNT_MISMATCH")
+        val configured = db.queryForObject("SELECT EXISTS(SELECT 1 FROM products WHERE app_id=? AND platform='APPLE' AND store_id=?)", Boolean::class.java, app, productId) == true
+        if (!configured || !registry.verifier(app, environment).supports(productId)) throw PurchaseConflict("PRODUCT_NOT_FOUND")
+    }
     fun verifyAndGrant(principal: SessionPrincipal, environment: StoreEnvironment, productId: String, signedTransaction: String, attemptId: UUID? = null): AppleGrantResult {
         val app = db.query("SELECT app_scope FROM sessions WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at>now()",
             { rs, _ -> rs.getString(1) }, principal.sessionId, principal.userId).firstOrNull()

@@ -935,3 +935,10 @@
 - uGUI layout 검토에서 childControlHeight=false가 preferredHeight를 적용하지 않는 점을 발견해 두 vertical group에서 true로 수정한다. 시각 렌더링은 Editor 부재로 아직 확인하지 못한다.
 - 수정 후 Unity managed assembly 대상 독립 C# compile 경고0/오류0. Editor 렌더링·터치/입력·scene 전환은 라이선스 오류로 NOT_RUN이며, 사용자 기존 Demo와 EventSystem은 수정하지 않았다.
 - 커밋 전: 별도 Editor offline sample 및 compile check만 포함한다. 세 sample 전체 연결·실기기·Unity Editor 검증은 미완료이므로 P07-T02 PARTIAL/ENV-002 유지.
+- P05-T06 안전 검토: Apple runtime이 서버 verifier/catalog 미구성 상태에서 실제 구매 UI를 열 수 있었다. 인증된 readiness 검사로 app binding·store ID·Apple verifier 설정을 확인한 후에만 UI를 열도록 수정한다. 실제 StoreKit 결제는 실행하지 않는다.
+- readiness 검사 초안을 추가했다. Native purchase UI 전에 서버 응답을 요구하며, 검증 중 거래 복구는 readiness에 막지 않는다. fake DB 및 Native unit을 확인한다.
+- sandbox 모사 verifier+격리 DB readiness 및 unknown product 거부 시험 통과. Swift fake HTTP 응답 ready=false일 때 차단되는지 확인한다.
+- Swift fake HTTP/auth 11건 통과. 실제 Spring security/DB + synthetic registry로 readiness 성공과 미등록 상품 거부를 통합 검증한다.
+- sandbox 실제 HTTP/DB + synthetic registry readiness 성공·unknown 상품 404 및 기존 동시 grant 시험 통과. 실제 StoreKit 구매 화면 차단은 실행하지 못했다. simulator framework 컴파일을 확인한다.
+- iOS simulator static framework build 성공. 실제 StoreKit UI/상품 조회는 ENV-STOREKIT-26 실패가 남아 있으므로 readiness가 실제 결제 화면을 막는지 OS 수준 검증은 미실행이다.
+- 커밋 전: Apple readiness 서버·Native 호출 및 fake/격리 DB 검증을 포함한다. 실제 provider 설정·StoreKit/기기 검증·공개 sample 연결은 미완료다.

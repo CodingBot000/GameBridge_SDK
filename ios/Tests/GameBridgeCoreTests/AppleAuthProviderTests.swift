@@ -135,6 +135,12 @@ final class AppleAuthProviderTests: XCTestCase {
         func response(_ status: String) -> Data {
             Data("{\"userId\":\"\(user.userId)\",\"bindingId\":\"\(binding.uuidString)\",\"productId\":\"coins\",\"transactionKey\":\"42\",\"serverPurchaseId\":\"\(purchase.uuidString)\",\"fulfillmentStatus\":\"\(status)\"}".utf8)
         }
+        AppleProofProtocol.responseBody = Data("{\"ready\":true}".utf8)
+        try await sink.ensureReady(storeProductId: "coins")
+        XCTAssertEqual(AppleProofProtocol.capturedPath, "/v1/purchases/apple/readiness")
+        AppleProofProtocol.responseBody = Data("{\"ready\":false}".utf8)
+        do { try await sink.ensureReady(storeProductId: "coins"); XCTFail("unready store") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED") }
         AppleProofProtocol.responseBody = response("GRANTED")
         let grant = try await sink.verify(proof, userId: UUID(uuidString: user.userId)!)
         XCTAssertEqual(grant.serverPurchaseId, purchase)

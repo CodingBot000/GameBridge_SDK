@@ -1992,3 +1992,10 @@
 ### P09-T04 Xcode opt-in lane 검증 시작
 - opt-in 집계 `artifacts/purchase-regression-qqoq1op6/result.json`: Xcode local DB recovery 1건 PASS, Android/Swift fake 각 16건 PASS; 별도 DB·local response-loss 미설정 lane은 DEFERRED_ENV라 전체 종료 2. 실제 Apple sandbox/Unity는 아니다.
 - 커밋 준비: 명시 opt-in·source 일치·비skip 확인을 포함한 구매 회귀 lane만 저장한다.
+
+### [P11-T03] 변경 후 문서 정합성 재개
+- 현재 코드와 fake/Native/실제 플랫폼 증거를 API·통합·보안·기능 매트릭스에 반영한다. Unity와 외부 스토어 미실행, 기존 StoreKit 26.5 실패를 유지한다.
+### P11-T03 문서 정합성 검증 시작
+- 변경 문서의 오래된 미연결·미구현 표현과 상태 원장을 점검하고 `smoke-local`의 Unity 미실행 표현을 확인한다.
+- 원장·diff 검사 통과, 갱신한 문서에서 이미 연결된 Provider를 미연결로 쓰던 표현을 제거했다. `smoke-local`은 Unity player 경로가 실제 미실행이므로 계속 실패하며 NOT_RUN으로 표시한다.
+- 커밋 준비: 사실 관계와 검증 범위 문서 및 smoke 상태 문구만 포함한다. 실제 Unity·외부 서비스 PASS는 없다.

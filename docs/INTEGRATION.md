@@ -8,7 +8,7 @@ Host가 Android Activity 및 Firebase 초기화, iOS window와 AppDelegate/notif
 
 ## 구매 및 계정
 
-신규 서버 세션은 인증 challenge로 확인한 앱 범위에 연결된다. 범위가 없는 기존 세션은 구매 binding을 받기 전에 재인증해야 하며 자동 변경·삭제하지 않는다. Apple/Google account binding은 Native 내부 값이다. 검증된 거래만 서버에서 지급하며 Apple finish는 서버의 지속된 지급 확인 뒤에만 수행해야 한다. 서버 verifier와 Native 내부 runtime은 synthetic fixture로 연결 검증했으나 공개 sample/Unity 조립과 실제 스토어 검증은 아직 완성되지 않았다.
+신규 서버 세션은 인증 challenge로 확인한 앱 범위에 연결된다. 범위가 없는 기존 세션은 구매 binding을 받기 전에 재인증해야 하며 자동 변경·삭제하지 않는다. Apple/Google account binding은 Native 내부 값이다. 검증된 거래만 서버에서 지급하며 Apple finish는 서버의 지속된 지급 확인 뒤에만 수행해야 한다. 서버 verifier와 Native/Unity bridge는 연결했고 synthetic fixture로 검증했다. 실제 Unity player 및 스토어 검증은 미실행이다.
 
 ## 패키지 소비
 
@@ -20,9 +20,9 @@ Unity iOS의 Mobile Notifications 2.5.0 host adapter는 명시적으로 권한�
 
 ### Unity Android LOCAL_MOCK (부분 연결)
 
-개발 서버를 명시적으로 `local-mock` profile로 실행하고 Android host가 접근할 수 있는 개발 서버 주소를 설정한다. `new GameBridgeConfig(appId, ProviderMode.LocalMock, backendUrl, timeoutMs, developmentKey, mockSubject)`로 메모리에서만 개발키와 `A` 또는 `B`를 전달한다. 이 키는 로컬 개발 서버 전용이며 소스·Unity 에셋·로그에 저장하지 않는다. Android emulator의 host loopback은 `10.0.2.2`를 사용하고, 개발 전용 cleartext 허용은 host 앱에서 해당 주소에 한정해 설정한다. 토큰과 구매 증빙은 Native에 남는다. 인증·상품 조회·Mock 구매·서버 잔액 경로는 연결됐지만 구매 sync와 push, 실제 스토어 브리지는 아직 미연결이다. config 조회는 서버 설정과 유효 cache를 구분한다. 이 경로는 Native JVM→로컬 Backend/DB로만 검증했으며 Unity JNI 실행은 ENV-002로 미검증이다.
+개발 서버를 명시적으로 `local-mock` profile로 실행하고 Android host가 접근할 수 있는 개발 서버 주소를 설정한다. `new GameBridgeConfig(appId, ProviderMode.LocalMock, backendUrl, timeoutMs, developmentKey, mockSubject)`로 메모리에서만 개발키와 `A` 또는 `B`를 전달한다. 이 키는 로컬 개발 서버 전용이며 소스·Unity 에셋·로그에 저장하지 않는다. Android emulator의 host loopback은 `10.0.2.2`를 사용하고, 개발 전용 cleartext 허용은 host 앱에서 해당 주소에 한정해 설정한다. 토큰과 구매 증빙은 Native에 남는다. 인증·상품·구매·복구·서버 잔액 및 Mock push와 실제 Provider bridge가 연결돼 있다. config 조회는 서버 설정과 유효 cache를 구분한다. 이 경로는 Native JVM→로컬 Backend/DB로만 검증했으며 Unity JNI 실행은 ENV-002로 미검증이다.
 
-Unity iOS LOCAL_MOCK도 동일한 명시 설정을 Swift C ABI로 전달하며 Native Keychain 별도 항목을 사용한다. C ABI 초기화·session 분리와 Swift handler→로컬 서버/DB는 각각 검증했다. 둘을 합친 Unity iOS 실행, 실제 Apple 계정/StoreKit, 구매 sync·push 브리지는 미연결이다. config 조회의 서버/유효 cache 경계는 synthetic 시험으로 확인했다. iOS simulator의 HTTP 개발 서버 허용은 host의 개발 전용 네트워크 보안 설정이 필요하다.
+Unity iOS LOCAL_MOCK도 동일한 명시 설정을 Swift C ABI로 전달하며 Native Keychain 별도 항목을 사용한다. C ABI 초기화·session 분리와 Swift handler→로컬 서버/DB는 각각 검증했다. 구매 sync와 Mock push bridge도 연결됐으나 둘을 합친 Unity iOS 실행 및 실제 Apple 계정/StoreKit sandbox는 미검증이다. config 조회의 서버/유효 cache 경계는 synthetic 시험으로 확인했다. iOS simulator의 HTTP 개발 서버 허용은 host의 개발 전용 네트워크 보안 설정이 필요하다.
 
 Android PLATFORM_SANDBOX 인증 bridge는 Native GoogleAuthProvider와 Credential Manager를 사용한다. Google OAuth 서버 client ID는 `GameBridgeConfig` 7인자 생성자에 전달한다. 계정 토큰은 Native 내부에 남고 Mock fallback은 없다. fake 경계와 compile만 확인했으며 실제 Google·Unity JNI 검증은 남았다.
 
@@ -32,10 +32,14 @@ Android Unity sandbox의 Google Play bridge는 host가 명시한 두 상품 ID�
 
 iOS Unity sandbox는 Native StoreKit 상품·구매·서버 잔액을 연결하고 서버 확인 및 finish 후에만 완료 결과를 반환한다. 거래 업데이트와 미완료 복구의 검증된 결과는 session·계정 세대가 일치할 때 구매 이벤트로 전달한다. 이 경로는 fake 결과와 simulator compile만 확인했으며 실제 StoreKit listener, 사용자 복원 및 Unity iOS는 미검증이다. 복구 사유 분기는 fake 시험으로 확인했다.
 
-Android/iOS LOCAL_MOCK은 별도 암호화 저장소에 pending transaction/attempt를 저장하고, 복구 시 같은 사용자와 Backend에서 동일 멱등키를 재사용한다. 양쪽 모두 격리 local DB의 지급 후 응답 유실을 모사해 중복 지급이 없음을 확인했다. 현재 기기 보안 저장소 및 Unity player 재시작은 별도 검증이 필요하다.
+Android/iOS LOCAL_MOCK은 별도 암호화 저장소에 pending transaction/attempt를 저장하고, 복구 시 같은 사용자와 Backend에서 동일 멱등키를 재사용한다. 양쪽 모두 격리 local DB의 지급 후 응답 유실을 모사해 중복 지급이 없음을 확인했다. Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성은 확인했다. 실제 기기 프로세스 종료 및 Unity player 재시작은 별도 검증이 필요하다.
 
 Unity Android에서 host manifest는 `POST_NOTIFICATIONS`를 선언해야 한다. SDK 초기화는 권한 창을 열지 않으며 `RequestPushPermissionAsync()` 호출 시 Android 13 이상에서 Unity permission API를 사용한다. 권한과 앱 전체 알림 설정은 등록 전에 다시 확인한다. 이 경로는 managed compile/fake facade만 확인했고 실제 Unity/Android dialog는 미검증이다.
 
-LOCAL_MOCK의 push permission은 OS에 요청하지 않는 simulated 결과다. 명시적 installation UUID가 있으면 Native가 가짜 token을 local Backend에 등록하고 unregister/logout에서 삭제한다. local DB 검증은 통과했지만 개발 send 응답을 client 이벤트까지 전달하는 E2E는 아직 구현하지 않았다.
+LOCAL_MOCK의 push permission은 OS에 요청하지 않는 simulated 결과다. 명시적 installation UUID가 있으면 Native가 가짜 token을 local Backend에 등록하고 unregister/logout에서 삭제한다. 전용 local DB의 개발 send에서 Android·Swift Native 수신까지 확인했다. 연결 중에만 전달하며 미연결 시 버린다. Unity player 전달과 실제 원격 알림은 미검증이다.
 
 Sandbox의 `GetServiceConfigAsync()`와 Native 구매 gate는 같은 Backend-backed TTL cache를 사용한다. 유효 cache가 없고 서버 설정을 읽지 못하면 신규 구매를 차단한다. 이 조립과 CACHE 응답은 fake 시험 및 compile로 확인했으며 실제 sandbox 서버·Unity player는 별도 검증이 필요하다.
+
+## Xcode 로컬 StoreKit
+
+`XCODE_STOREKIT`은 일반 Mock과 구분된 개발 전용 서버 지급을 사용한다. iOS 18 이상, local-mock Backend 및 개발키, `.storekit` scheme과 소모품 이력 설정이 필요하다. Unity 개발 빌드에서 `GAMEBRIDGE_XCODE_STOREKIT` define을 설정하면 iOS hook이 Info.plist에 이력 옵션을 추가한다. 서버가 Apple 서명을 검증하는 것은 아니며 실제 Apple sandbox 결과와 구분한다. 자세한 실행 조건은 [USER_SETUP](USER_SETUP.md)을 따른다.

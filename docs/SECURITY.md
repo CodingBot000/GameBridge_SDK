@@ -15,11 +15,15 @@
 
 - 실제 인증 경로는 Google/Apple의 공개 JWKS, RS256 서명, issuer, app별 audience, 만료와 서버 challenge nonce hash를 확인한다. challenge 소비와 사용자 identity/session 생성은 DB transaction으로 묶는다. 실제 Provider 발급 token과 실기기 시험은 아직 사용자 설정 대기다.
 - 인증 rate limit은 사용자가 선택한 단일 프로세스 IP별 rolling 1분 challenge 30회·교환 10회가 기본이다. 전달 proxy header는 신뢰하지 않고 다중 서버 전역 제한은 지원하지 않는다.
-- 현재 구매 원장과 최종화는 명시적 Mock 경로만 검증됐다. 실제 Google/Apple 거래 검증·finalization과 환불/취소 알림 처리는 아직 준비되지 않았다. Mock 지급을 실결제 성공으로 취급하지 않는다.
-- 사용자가 선택한 푸시 정책은 등록 해제·로그아웃 시 해당 session 토큰 즉시 삭제다. local-mock 신규 등록은 이 동작을 검증했지만 실제 FCM/APNs 연결은 미구현이며 과거 session 미연결 시험 행은 자동 삭제하지 않았다.
+- 구매 원장·Google/Apple verifier 및 Google finalizer는 Mock·synthetic 데이터와 전용 DB 경계에서 검증했다. 실제 Google/Apple 거래·finalization은 실행하지 않았고 환불/취소 알림 운영은 범위 밖이다. Mock 지급을 실결제 성공으로 취급하지 않는다.
+- 사용자가 선택한 푸시 정책은 등록 해제·로그아웃 시 해당 session 토큰 즉시 삭제다. local-mock 신규 등록과 삭제는 검증했다. FCM/APNs sender와 등록 경계는 구현됐지만 실제 원격 연결은 미검증이며 과거 session 미연결 시험 행은 자동 삭제하지 않았다.
 
 ## 현재 제한
 
 - Mock 서버는 기본 loopback에만 노출한다. Android 및 iOS Debug 샘플의 HTTP 예외는 명시된 로컬 주소에만 적용되며, iOS Release에는 해당 예외가 없다. 실제 Provider에서는 TLS 검증을 무시하거나 오류를 Mock으로 전환하지 않는다.
-- Google/Apple 실 Provider는 샘플·Unity에 아직 연결되지 않았다. Unity Editor/JNI/IL2CPP 및 실제 기기 보안 저장소 시험, 실제 스토어 인증·결제·푸시, 키 rotation·운영 보안 심사는 미완료다.
+- Google/Apple Provider는 Native 및 Unity bridge에 연결됐으나 Unity Editor/JNI/IL2CPP 및 실제 기기 보안 저장소 시험, 실제 스토어 인증·결제·푸시, 키 rotation·운영 보안 심사는 미완료다.
 - 환불 자동화, Google RTDN 및 Apple Server Notifications 운영, 스토어 심사와 SLA는 이번 계획의 범위 밖이다.
+
+## Xcode StoreKit 개발 경계
+
+Xcode 로컬 StoreKit은 iOS 18 이상과 host 소모품 이력 opt-in을 요구한다. StoreKit이 검증한 Xcode 거래만 Native가 받아 고정 필드 후보 식별자를 생성하고, 같은 식별자 이력의 단일성을 확인한다. 개발 서버는 Apple JWS를 검증하지 않는 fake 지급이며 별도 Xcode 사용자·지갑과 개발 DB profile에 격리된다. 서버는 시도 UUID와 거래 키를 원자적으로 연결해 다른 시도의 충돌을 거부하고, Native Keychain은 finish 확인 후 시도 단서를 삭제한다. 전용 simulator/local DB 응답 유실과 저장소 인스턴스 재생성 시험은 통과했으나 실제 프로세스 종료·Unity player·Apple sandbox는 미검증이다.

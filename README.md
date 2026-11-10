@@ -24,7 +24,7 @@ bash scripts/build-ios.sh --simulator
 ./backend/gradlew -p backend test
 ```
 
-Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh`는 push 전달과 라우팅의 전체 경로가 미구현이므로 전체 성공하지 않습니다. 개발 발송 endpoint의 local-mock 응답은 SIMULATED이며 원격 전송이 아닙니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
+Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh`는 Unity player를 포함한 push 전달·라우팅 검증이 미완료이므로 전체 성공하지 않습니다. 개발 발송 endpoint의 local-mock 응답은 SIMULATED이며 원격 전송이 아닙니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
 
 ## 패키징
 
@@ -34,4 +34,4 @@ Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시
 
 ## 로컬 회귀 집계
 
-`bash scripts/verify-all.sh --available` 또는 `--strict-local`은 실제 실행한 suite, 필수 미실행·미구현·기존 실패, 외부 설정 대기를 구분해 `artifacts/verify-all-*`에 기록합니다. 격리 DB와 local server가 필요한 lane은 명시적인 test 환경 설정이 없으면 건너뛰며, 전체 성공으로 처리하지 않습니다. 현재 Mock push 전달 E2E와 Unity runtime 검증은 미완료입니다.
+`bash scripts/verify-all.sh --available` 또는 `--strict-local`은 실제 실행한 suite, 필수 미실행·미구현·기존 실패, 외부 설정 대기를 구분해 `artifacts/verify-all-*`에 기록합니다. 격리 DB와 local server가 필요한 lane은 명시적인 test 환경 설정이 없으면 건너뛰며, 전체 성공으로 처리하지 않습니다. Mock push의 Backend→Native local DB 시험은 통과했으며 Unity runtime 전체 경로는 미완료입니다.

@@ -41,6 +41,9 @@ def main() -> int:
             match = re.search(r'Ran (\d+) tests?', text); count = int(match.group(1)) if match else 0
         if name == 'unity-editor-runtime':
             match = re.search(r'Unity consumer tests PASS: (\d+) executed', text); count = int(match.group(1)) if match else 0
+        if name == 'lifecycle-stress':
+            match = re.search(r'"samples"\s*:\s*(\d+)', text)
+            count = int(match.group(1)) if match and '"liveClients": 0' in text and '"liveTransports": 0' in text else 0
         passed = code == 0 and marker in text and count > 0
         status = 'PASS' if passed else ('DEFERRED_ENV' if code == 2 else 'FAIL')
         lanes.append({'name':name,'status':status,'required':True,'tests':count if passed else 0,'skipped':0,'exitCode':code,'command':command,'evidence':log})
@@ -74,6 +77,7 @@ def main() -> int:
     simple('contract-negative',['python3','harness/check-contract-negative.py'],'Negative contract: Kotlin and Swift rejected')
     nested('contracts',['python3','harness/run-contracts.py'])
     simple('bridge-mutation',['python3','harness/check-bridge-mutation.py'],'Duplicate response guard mutation: detected')
+    simple('lifecycle-stress',['bash','scripts/stress-csharp-lifecycle.sh'],'"samples": 100')
     nested('auth',['python3','harness/run-auth-regression.py'])
     nested('purchase',['python3','harness/run-purchase-regression.py'])
     ledger_env = env.copy()

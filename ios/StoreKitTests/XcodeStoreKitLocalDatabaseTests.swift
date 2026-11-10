@@ -34,16 +34,12 @@ private final class DropCommittedGrantProtocol: URLProtocol {
     }
     override func stopLoading() {}
 }
-private final class FailOnceClearStore: TokenStore {
+private final class FailClearStore: TokenStore {
     let backing: TokenStore
-    var shouldFail = true
     init(_ backing: TokenStore) { self.backing = backing }
     func load() throws -> String? { try backing.load() }
     func save(_ value: String) throws { try backing.save(value) }
-    func clear() throws {
-        if shouldFail { shouldFail = false; throw SdkFailure("INTERNAL_ERROR") }
-        try backing.clear()
-    }
+    func clear() throws { throw SdkFailure("INTERNAL_ERROR") }
 }
 final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
     @MainActor func testCommittedGrantResponseLossRecoversAfterJournalRecreation() async throws {
@@ -87,7 +83,7 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         let restoredUser = try await restored.restore(); XCTAssertNotNil(restoredUser)
         let recreatedPending = KeychainTokenStore(service:pendingService)
         stage = "recreate StoreKit and journal"
-        let recovered = try await XcodeStoreKitSession(client:restored, pendingStore:FailOnceClearStore(recreatedPending))
+        let recovered = try await XcodeStoreKitSession(client:restored, pendingStore:FailClearStore(recreatedPending))
         stage = "recover and finish with injected journal clear failure"
         try await recovered.start()
         let wallet = try await recovered.wallet()

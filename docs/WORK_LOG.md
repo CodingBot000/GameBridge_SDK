@@ -2020,3 +2020,14 @@
 - 결과 분류 unit과 음성 검사를 실행하고 미검증을 PASS로 바꾸지 않는다.
 - 집계 unit 12건, manifest 음성 및 원장 검사 통과. `check-required-coverage`는 `49 PARTIAL, 0 NOT_IMPLEMENTED`를 출력하고 종료 1로 전체 통과를 막는다. 이전 strict 결과는 수정 전 source의 증거로 보존한다.
 - 커밋 준비: 격리 strict runner와 부분/미구현 구분만 저장한다. 실제 Unity·외부 서비스는 미실행이다.
+### [P11-T04] strict 집계 누락 보강 시작
+- R12가 manifest에 기록됐어도 aggregate가 해당 stress를 실제로 실행하지 않으면 최종 PASS가 될 수 있는 누락을 발견했다. 필수 lane으로 실행·건수 확인을 추가한다. iOS synthetic host simulator도 새 전용 simulator에서 실행해 미제공 lane을 줄인다.
+### P11-T04 aggregate 변경 unit 검증 시작
+- 집계 분류 unit과 원장 검사를 먼저 실행하고 R12 실패·0건이 통과하지 않도록 확인한다.
+### P11-T04 보강된 strict 실행 시작
+- 새 전용 local/sandbox DB, Xcode local 구매 복구, Native Mock push, iOS synthetic host simulator, R12 100회 stress를 함께 실행한다. Unity Editor 및 실제 외부 서비스는 별도로 대기한다.
+- 보강 strict `artifacts/verify-all-4ktnqqlg/summary.md` 종료 1: R12 100회, iOS synthetic host 포함 다수 PASS이나 Xcode local DB recovery 1건 FAIL(`artifacts/xcode-storekit-e2e-mo4zgb3s/result.xcresult`), 49 PARTIAL, Unity NOT_RUN, 기존 iOS 26.5 실패, 외부 13 WAITING_USER. 문제 시험은 finish 후 단서 삭제 실패를 한 번만 주입했으나 StoreKit updates listener가 재시도해 단서를 지웠을 수 있다. 삭제 실패를 해당 인스턴스에서 지속시키고 재생성 뒤만 해제해 동작을 결정적으로 검증한다. 최초 실패는 보존한다.
+### P05-T05 결정적 저장 실패 재검증 시작
+- 전용 DB와 simulator에서 동일 응답 유실·finish 후 지속 삭제 실패·인스턴스 재생성을 다시 시험한다. 실패하면 구현과 테스트를 계속 조사한다.
+- 지속 삭제 실패 주입으로 수정한 `artifacts/xcode-storekit-e2e-gtiqgyob/result.json` PASS/skip 0: 전용 DB `gamebridge_ci_558f36962d`, 서버 commit 후 응답 유실, Keychain 재생성, finish 뒤 지속 삭제 실패, 다음 인스턴스의 완료 이력 정리 및 잔액 100 확인. 이전 strict 실패는 그대로 보존하고 수정 후 aggregate를 재실행한다.
+- 커밋 준비: 결정적 회귀 시험과 R12·iOS host 포함 aggregate 보강을 저장한다. Unity player·실기기·실 Apple은 미검증이다.

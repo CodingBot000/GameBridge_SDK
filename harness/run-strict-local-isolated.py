@@ -69,6 +69,15 @@ def main():
             GAMEBRIDGE_SANDBOX_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_TEST_DB_USER=role,GAMEBRIDGE_TEST_DB_PASSWORD=password,
             GAMEBRIDGE_RUN_MOCK_PUSH_HARNESS='true',GAMEBRIDGE_RUN_XCODE_STOREKIT_HARNESS='true',GAMEBRIDGE_UPM_STAGING=str(staging),
             UNITY_EDITOR_PATH=str(editor),NEWTONSOFT_DLL=str(managed),GAMEBRIDGE_NEWTONSOFT_DLL=str(managed))
+        generated=subprocess.run(['bash','scripts/generate-ios-project.sh'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        (output/'ios-project.log').write_text(generated.stderr)
+        sim=subprocess.run(['xcrun','simctl','create','GameBridge-Push-Strict-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],
+                           cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        if generated.returncode == 0 and sim.returncode == 0:
+            env['GAMEBRIDGE_IOS_PROJECT']=generated.stdout.strip()
+            env['GAMEBRIDGE_IOS_SIMULATOR_ID']=sim.stdout.strip()
+            print('Retained synthetic host test simulator:',sim.stdout.strip(),flush=True)
+        else: print('iOS synthetic host lane unavailable; it remains deferred.',flush=True)
         print('Running strict local aggregation; Unity Editor and external services remain separate...',flush=True)
         try:
             result=subprocess.run(['bash','scripts/verify-all.sh','--strict-local'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=900)

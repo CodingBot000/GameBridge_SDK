@@ -464,3 +464,13 @@
 - Apple 로그인과 credential-state 확인에 공통 provider gate를 적용하고 취소 오류를 표준 CANCELED로 매핑한 뒤 `swift test --package-path ios` 종료 0: 15건 통과·1건 skip. Fake gateway의 동시 state 검사 BUSY 확인. iOS 실제 gateway 수정본 컴파일은 이어서 확인한다.
 - 최종 Apple gateway 수정본에 대한 XcodeBuildMCP `build_sim` Debug 성공(경고·오류 0). AuthenticationServices 실제 사용자 UI·서명·계정·서버 교환은 미실행.
 - 커밋 전: Swift Apple adapter, fake gateway 시험, iOS Simulator 컴파일 및 entitlement 예제를 포함. Backend verifier·실제 샘플/Unity 연결과 Apple 계정 검증은 남아 P04-T02 IN_PROGRESS/PARTIAL/WAITING_USER 유지.
+
+### [P04-T03] 시작 — 2026-11-10 Asia/Seoul
+- Google/Apple 실제 공개키 검증 코드와 로컬 서명 fixture를 작성한다. 인증 요청 수 제한은 사용자 수치 결정 대기이므로 그 결정에 의존하는 공개 route는 아직 활성화하지 않는다.
+- 공식 Google discovery와 Apple JWKS를 읽어 현재 두 Provider의 공개 ID-token key algorithm이 RS256임을 확인(조회 종료 0). Spring Security 공식 문서의 JWKS cache·30초 통신 timeout과 issuer/audience/expiry 계약을 확인했다. 요청별 audience와 DB에 저장된 nonce hash를 비교하며, 실 Provider 서명 성공으로 기록하지 않는다.
+- `./backend/gradlew -p backend test` 종료 0: IdentityVerifier JUnit XML 3건·실패0·skip0. 메모리에서 생성한 RSA 서명 fixture로 Google 양 issuer·Apple issuer, 잘못된 audience/issuer/nonce/만료/알고리즘/서명 및 JWKS network 오류 거부를 확인했다. 실제 Provider 발급 토큰 테스트가 아니다. DB opt-in 테스트는 별도다.
+- 검토 중 Google의 두 허용 issuer 표기를 그대로 identity key에 쓰면 같은 subject가 서로 다른 계정으로 분리될 수 있어, 검증 후 canonical issuer로 정규화한다.
+- 사용자 결정 수신: 단일 서버 IP별 challenge 30회/분·token 교환 10회/분, 설정 가능. DECISIONS에 기록했으며 rate limiter 및 실제 route 적용은 아직 미구현이다.
+- Google issuer 표기를 동일한 canonical issuer로 정규화 후 Backend test 종료 0. 사용자 승인 rate limit은 단일 서버 메모리에서 IP별 rolling 1분으로 구현하며 reverse proxy header는 신뢰하지 않는다.
+- 사용자 승인 rate limit과 rolling-minute 구현 후 `./backend/gradlew -p backend test` 종료 0: Identity verifier 3건 및 rate limiter 1건 XML에서 실행·통과 확인. IP별·operation별 분리와 1분 만료를 단위 검증했다. HTTP route 연동과 다중 서버 전역 제한은 아직 검증하지 않았다.
+- 커밋 전: 실제 고정 JWKS endpoint verifier와 로컬 서명 fixture, 사용자 결정 rate limiter만 포함. challenge 발급·원자적 소비·실제 HTTP 인증 연결과 외부 실연동은 미완료이므로 P04-T03 PARTIAL/WAITING_USER 유지.

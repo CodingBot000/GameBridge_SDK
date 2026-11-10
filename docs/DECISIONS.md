@@ -8,3 +8,5 @@
 - P04-T01: googleid 1.2.1은 Kotlin metadata 2.4로 현재 compiler 2.1에서 빌드되지 않아 Google Maven의 안정 1.1.1로 변경했고 Credential Manager 1.6.0, Kotlin 2.1.20 조합의 AAR·샘플 빌드와 stub 시험을 확인했다. 실제 Google 로그인 검증은 별도다.
 
 - P04 인증 nonce: Android Google `GetGoogleIdOption.setNonce`와 Apple `ASAuthorizationAppleIDRequest.nonce`에 서버 challenge의 raw nonce를 그대로 전달한다. 서버는 각 Provider가 서명한 nonce claim을 동일한 raw 값과 비교해야 하며, 별도 hash 적용을 임의 가정하지 않는다. 실제 Provider 서명 검증은 P04-T03 미구현이다.
+
+- 2026-11-10 사용자 결정 USER-AUTH-RATE: 단일 서버에서 IP별 인증 challenge는 분당 30회, token 교환은 분당 10회를 기본 제한으로 한다. 설정 `GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE`와 `GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE`로 반영하고 단일 프로세스 rolling 1분 단위 시험을 수행했다. HTTP route 연동 및 다중 서버 전역 제한은 별도 미검증이다.

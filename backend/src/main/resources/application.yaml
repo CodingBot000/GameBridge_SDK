@@ -12,3 +12,7 @@ server:
   port: ${GAMEBRIDGE_PORT:18080}
   error:
     include-message: never
+gamebridge:
+  auth-rate:
+    challenge-per-minute: ${GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE:30}
+    exchange-per-minute: ${GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE:10}

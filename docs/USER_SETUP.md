@@ -190,3 +190,7 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 ## USER-PUSH-RETENTION — 등록 해제 후 토큰 보존
 
 사용자가 등록 해제·로그아웃 시 해당 토큰 즉시 삭제를 선택했다. local-mock 신규 등록 경로에서는 세션별 삭제와 다른 세션 보존을 검증했다. 실제 FCM/APNs 경로는 미구현이다. 기존 local-mock 시험 DB의 session_id가 없는 토큰 2개는 어느 세션에 속하는지 알 수 없어 자동 삭제하지 않았다. Mock token 등록에는 별도 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하며, Base64로 인코딩한 32바이트 AES 키를 로컬 비밀 환경 변수로 공급한다. 예제나 로그에 실제 키를 넣지 않는다.
+
+## USER-AUTH-RATE — 인증 요청 제한
+
+사용자가 선택한 단일 서버 IP별 challenge 분당 30회·token 교환 분당 10회를 rolling 1분 제한으로 구현하고 단위 검증했다. `GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE`, `GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE`로 조정한다. IP는 메모리에서 hash로만 보유하며 process 재시작 시 초기화된다. reverse proxy 전달 header는 신뢰하지 않으므로 proxy 뒤에서는 모든 요청이 proxy IP로 집계될 수 있다. 실제 인증 route 및 HTTP 통합 검증은 진행 중이며, 다중 서버 전역 제한은 구현하지 않았다.

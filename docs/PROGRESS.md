@@ -5,10 +5,10 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / P09-T04 Xcode 앱 프로세스 복구
+- 현재 Phase / Task: P09 / P09-T03 회귀 시나리오 감사
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: c22336c (격리 strict aggregate; Unity·외부 서비스는 미검증)
-- 현재 작업 트리 상태: 구현 변경 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
+- 마지막 검증된 소스 커밋: e9b64fb (격리 strict aggregate 전체 FAIL; Unity·외부 서비스는 미검증)
+- 현재 작업 트리 상태: 진행 문서·회귀 매핑 변경 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 바로 다음 행동: 수정된 소스로 패키지를 재생성하고 strict-local 및 남은 시나리오를 계속 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
@@ -205,3 +205,19 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - 집계 unit 검증은 실행됐으나 진행 원장 검증에 잘못된 파일 경로를 사용해 해당 검사는 미실행이다. 올바른 명령을 확인한다.
 - P09/P11 진행 원장 실제 검사 시작.
 - P09/P11 manifest·음성·집계 13건·진행 원장 검사 PASS. R34 local 시나리오는 IMPLEMENTED이며 실제 기기·Unity는 미검증. 커밋 후 수정 제품 소스로 패키지를 다시 생성한다.
+- P08-T02/T03 최신 패키지 재생성 시작: e9b64fb iOS 수정 반영. Android 소스는 2bc9d77 이후 변경 여부를 확인해 재사용 가능성을 판단한다.
+- P08 iOS e9b64fb device/simulator XCFramework archive PASS. Android 제품 소스는 2bc9d77 이후 변경 없어 독립 R8 검증된 Maven을 재사용한다. UPM staging 및 무결성 검증을 시작한다.
+- P08 e9b64fb XCFramework arch·C ABI 및 UPM checksum PASS. Unity import와 실기기는 미실행이다. P09 새 필수 R34 lane을 포함한 strict 재검증을 시작한다.
+- P09-T03 R20 offline logout 시나리오 감사 시작: Android·iOS 및 Unity의 로컬 token 삭제와 서버 revoke 불확실성 전달 증거를 대조한다.
+- R20 감사: Android/iOS Native fake가 서버 revoke 실패 시 로컬 저장 삭제와 REVOCATION_UNCONFIRMED를 각각 검증하며 최근 strict에서 해당 두 suite가 PASS했다. 실제 기기·Unity는 별도다. 진행 중 strict 종료 후 manifest를 갱신한다.
+- P09-T02 R09 UTF-8 복사 증거 감사 시작: C ABI와 JNI 각각의 한글·emoji 수명 검증을 분리해 확인한다.
+- R09 감사: iOS C ABI 한글·emoji 복사 시험은 존재하지만 Android 실제 JNI 경계 수명 검증은 확인되지 않아 PARTIAL 유지한다.
+- P09-T05 R40 권한 거부 시나리오 감사 시작: OS 권한 응답과 등록·표시 상태를 검증한 범위를 확인한다.
+- R40 감사: Native fake의 허용 경로 외 OS 권한 거부 후 등록·표시 상태 실행 근거를 찾지 못해 PARTIAL 유지한다.
+- P09-T02 R22 민감정보 노출 시나리오 감사 시작: 로그와 Unity 결과 경계의 검증 범위를 확인한다.
+- R22 감사 검색에 존재하지 않는 glob을 사용해 명령이 실행되지 않았다. 경로를 수정해 계속한다.
+- R22 감사: Android bridge·iOS C bridge 등 개별 synthetic redaction assertion은 있으나 전체 로그 및 실제 Unity 결과에 대한 실행 범위는 부족해 PARTIAL 유지한다.
+- P11 FINAL_REPORT에 e9b64fb 패키지와 Android 무변경 재사용 근거를 추가했다. strict 결과는 실행 완료 후 갱신한다.
+- P09 strict-local `artifacts/verify-all-k8z14qqw` 전체 FAIL: 새 R34 프로세스 복구 포함 실행된 Native synthetic·local DB·패키지 검사는 PASS. Unity Editor NOT_RUN, Unity push DEFERRED_ENV, 시나리오 PARTIAL 및 기존 실패로 전체 통과가 아니다. 외부 13개 WAITING_USER.
+- P09 R20 Native fake 증거에 맞춰 manifest를 IMPLEMENTED로 연결하고 검사 시작한다. 실제 기기·Unity 검증을 의미하지 않는다.
+- P09 R20 manifest·누락 음성·진행 원장 검사 PASS. strict는 R20 매핑 전 실행이며 전체 FAIL 상태는 변함없다. 커밋 준비 후 남은 시나리오를 계속 검토한다.

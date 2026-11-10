@@ -2308,3 +2308,24 @@
 - `python3 -m unittest discover -s harness -p test_aggregation.py -v` PASS(13 tests). `harness/check-progress.py`는 존재하지 않아 원장 검사는 미실행; 실제 경로를 확인해 다시 실행한다.
 - `scripts/verify-progress.py`로 진행 원장 일관성을 확인한다.
 - R34 강화 시험 PASS 및 기존 Xcode DB 회귀 PASS, Swift 77건 중 skip 7·실패 0, manifest/음성·집계 13건·진행 원장 검사 PASS. 커밋 준비: 중복 attempt 방지, 재현 하네스, strict 연결 및 문서만 저장한다. 최신 패키지는 이 수정 전이므로 다시 빌드한다.
+### P08 수정 후 패키지 재검증 시작
+- e9b64fb iOS 중복 복구 수정이 이전 XCFramework에 없으므로 별도 산출물을 생성한다. Android 제품 입력의 변경 여부를 검사하고 수정이 없을 때 기존 R8 검증 산출물을 재사용한다.
+- `git diff 2bc9d77 e9b64fb -- android` 변경 없음. iOS device/simulator archive PASS (`artifacts/ios-e9b64fb`); 기존 `maven-2bc9d77`와 묶어 새 UPM staging을 검증한다.
+- `artifacts/ios-e9b64fb/GameBridgeNative.xcframework` arch/symbol 및 `artifacts/upm-e9b64fb` checksum PASS; 파일별 hash `docs/evidence/artifacts-e9b64fb.json`. Android 제품 소스 무변경으로 2bc9d77 R8 산출물 재사용. 새 R34 필수 lane 포함 strict-local을 전용 환경에서 재실행한다.
+### P09-T03 R20 offline logout 증거 감사 시작
+- 기존 Native fake와 Unity 경계 테스트가 요구 결과를 실제 검증하는지 확인하고 부족한 경우 보강한다.
+- R20 Android `GoogleAuthProviderTest`와 iOS `AppleAuthProviderTests`는 token 삭제와 revoke 미확인 오류를 실제 assertion으로 확인한다. `artifacts/verify-all-2cnr0y99`의 관련 synthetic suite PASS. 증거 `docs/evidence/offline-logout.md`를 추가했다.
+### P09-T02 R09 문자열 경계 감사 시작
+- Native C ABI 및 Android JNI에서 한글·emoji 복사와 callback 이후 소유권이 실제로 검증되는지 확인한다.
+- R09 `CBridgeTests.testCopiedUTF8AndCorrelatedResponse`는 iOS 문자열 복사를 검증한다. Android JNI 경계의 동일 문자열 및 메모리 수명 실행 근거가 없어 완료로 승격하지 않는다.
+### P09-T05 R40 푸시 권한 거부 감사 시작
+- Native fake와 simulator 시험이 시스템 권한 거부 후 상태와 crash 방지를 모두 검증하는지 확인한다.
+- R40 기존 push 테스트 검색에서 OS 거부 시나리오 실행 assertion은 확인되지 않았다. 실제 권한 팝업·설정 검증 없이 완료로 변경하지 않는다.
+### P09-T02 R22 진단·결과 redaction 감사 시작
+- token·증빙을 synthetic 값으로 주입한 회귀가 Native 로그와 Unity 결과에 적용되는지 검토한다.
+- zsh의 미일치 glob 때문에 첫 검색은 미실행됐다. 실제 경로에서 재검색한다.
+- R22 일부 Native bridge 오류·push token·진단 redaction assertion을 확인했다. 실제 Unity player 및 전체 로그 수집을 통한 증거는 없어 부분 상태를 유지한다.
+- 최종 보고서에 최신 iOS·UPM 산출물과 hash, Android 트리 동일성 근거 및 Unity 미실행을 반영했다.
+- source e9b64fb + 문서 변경 strict `artifacts/verify-all-k8z14qqw/summary.md` 종료 1: R34 process recovery와 실행된 local/synthetic suite PASS; Unity Editor NOT_RUN, Unity push DEFERRED_ENV, PARTIAL 시나리오 및 기존 실패로 전체 FAIL. 실제 제공자 13개 WAITING_USER.
+- R20 Android/iOS revoke 실패·token 삭제 assertion을 auth-regression manifest에 연결했다. 실제 네트워크·Unity 검증은 별도로 유지한다. manifest 및 원장 검증을 실행한다.
+- R20 manifest 검사와 음성·원장 검사 PASS. 커밋 준비: 최신 패키지 hash·strict 결과·R20 증거 매핑 및 감사 기록만 저장한다. strict 실행은 매핑 전이므로 최신 manifest 기준 전체 재실행으로 주장하지 않는다.

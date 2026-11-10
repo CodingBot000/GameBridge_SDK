@@ -1139,7 +1139,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -1148,8 +1148,20 @@
       "candidateSuites": [
         "purchase-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-restore-scenarios.md",
+      "note": "Local mock/synthetic verifier and Xcode local StoreKit; actual process kill, device stores and Unity remain separate.",
+      "assertions": [
+        {
+          "suite": "purchase-regression",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/LocalMockIntegrationTest.kt",
+          "testCase": "persisted mock transaction recovers after committed response is lost"
+        },
+        {
+          "suite": "purchase-regression",
+          "testFile": "ios/StoreKitTests/XcodeStoreKitLocalDatabaseTests.swift",
+          "testCase": "server grant must commit before response is dropped"
+        }
+      ]
     },
     {
       "id": "R33",
@@ -1250,7 +1262,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -1259,8 +1271,20 @@
       "candidateSuites": [
         "purchase-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-restore-scenarios.md",
+      "note": "Local mock/synthetic verifier and Xcode local StoreKit; actual process kill, device stores and Unity remain separate.",
+      "assertions": [
+        {
+          "suite": "purchase-regression",
+          "testFile": "ios/Tests/GameBridgeCoreTests/LocalMockIntegrationTests.swift",
+          "testCase": "oldPremium.fulfillmentStatus"
+        },
+        {
+          "suite": "purchase-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "premiumAgain.fulfillmentStatus"
+        }
+      ]
     },
     {
       "id": "R37",
@@ -1270,7 +1294,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -1279,8 +1303,20 @@
       "candidateSuites": [
         "purchase-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-restore-scenarios.md",
+      "note": "Local mock/synthetic verifier and Xcode local StoreKit; actual process kill, device stores and Unity remain separate.",
+      "assertions": [
+        {
+          "suite": "purchase-regression",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/LocalMockIntegrationTest.kt",
+          "testCase": "restored.purchase(\"coins_100\", transaction, request)"
+        },
+        {
+          "suite": "purchase-regression",
+          "testFile": "ios/Tests/GameBridgeCoreTests/LocalMockIntegrationTests.swift",
+          "testCase": "afterOldPurchases.coinBalance"
+        }
+      ]
     },
     {
       "id": "R38",
@@ -1290,7 +1326,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -1299,8 +1335,25 @@
       "candidateSuites": [
         "purchase-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/purchase-restore-scenarios.md",
+      "note": "Local mock/synthetic verifier and Xcode local StoreKit; actual process kill, device stores and Unity remain separate.",
+      "assertions": [
+        {
+          "suite": "purchase-regression",
+          "testFile": "android/sdk-android/src/test/kotlin/com/gamebridge/android/purchase/GooglePlayBillingProviderTest.kt",
+          "testCase": "account switch suppresses stale verified event"
+        },
+        {
+          "suite": "purchase-regression",
+          "testFile": "ios/Tests/GameBridgeCoreTests/StoreKitBillingProviderTests.swift",
+          "testCase": "testGrantMustMatchAccountAndTransactionAndDoesNotExposeProof"
+        },
+        {
+          "suite": "purchase-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/AppleGrantDatabaseTest.kt",
+          "testCase": "PURCHASE_ACCOUNT_MISMATCH"
+        }
+      ]
     },
     {
       "id": "R39",

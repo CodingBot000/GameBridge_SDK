@@ -59,11 +59,12 @@ def main() -> int:
     else: results.append(common.item('swift-native-fake', 2, (0,0,0)))
     if env.get('GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST') == 'true' and env.get('GAMEBRIDGE_DEV_AUTH_KEY'):
         command = ['android/gradlew','-p','android',':sdk-core:test','--rerun-tasks','--tests',
-                   'com.gamebridge.LocalMockIntegrationTest.persisted mock transaction recovers after committed response is lost']
+                   'com.gamebridge.LocalMockIntegrationTest.persisted mock transaction recovers after committed response is lost', '--tests',
+                   'com.gamebridge.LocalMockIntegrationTest.native client uses server authoritative wallet and restores session']
         code, _, started = common.run(command, env, output/'android-loss.log')
         results.append(common.item('android-local-response-loss', code, common.junit_counts([ROOT/'android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockIntegrationTest.xml'], started)))
         if shutil.which('swift'):
-            code, text, _ = common.run(['swift','test','--package-path','ios','--filter','LocalMockIntegrationTests.testPersistedMockTransactionRecoversAfterCommittedResponseIsLost'], env, output/'swift-loss.log')
+            code, text, _ = common.run(['swift','test','--package-path','ios','--filter','LocalMockIntegrationTests.testPersistedMockTransactionRecoversAfterCommittedResponseIsLost|LocalMockIntegrationTests.testLocalServerWalletAndRestore'], env, output/'swift-loss.log')
             results.append(common.item('swift-local-response-loss', code, swift_counts(text)))
         else: results.append(common.item('swift-local-response-loss', 2, (0,0,0)))
     else:

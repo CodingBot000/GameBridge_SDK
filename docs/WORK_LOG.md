@@ -2222,3 +2222,16 @@
 ### P09-T04 pending 포함 DB runner 재실행
 - 신규 pending assertion 포함 DB runner `artifacts/purchase-db-scenarios-bdz2e9vh`, 전용 `gamebridge_ci_534be12e3b_local/_sandbox` PASS. 시나리오에 필요한 각 suite를 실행했다.
 - 커밋 준비: pending/검증 실패 회귀, Xcode unfinished assertion 및 explicit opt-in entry를 저장한다. 실제 스토어·프로세스 kill·Unity는 미검증이다.
+
+### [P09-T04] R32/R36/R37/R38 구매 복원·소유권 검증 시작
+- 전용 local DB의 Native 소비 잔액·비소모성 복원을 확대하고 synthetic Apple DB의 entitlement 중복 방지 및 계정 전환 보호 assertion을 대조한다. 실제 Play/Apple/Unity는 별도다.
+### P09-T04 non-consumable DB 검증 시작
+- 전용 test schema에서 같은 non-consumable 거래를 다른 attempt로 재검증해 entitlement 한 건만 유지하는지 확인한다. 기존 DB는 변경하지 않는다.
+- synthetic Apple DB `gamebridge_ci_84c1faaad9`에서 비소모성 동일 거래 재검증 시 entitlement 한 건과 동일 purchase ID를 확인했다. Native의 소모성 잔액·비소모성 복원과 commit 응답 유실을 전용 local 서버로 함께 실행한다.
+### P09-T04 구매 복원 전체 runner 검증 시작
+- `artifacts/purchase-regression-jclkbpp1/result.json`: 전용 DB `gamebridge_ci_be36c79f67_local/_sandbox`, Android fake 18·Swift fake 16·각 Native local 2건 및 Xcode local DB 1건 등 전체 PASS. 복원 이후 과거 소모성/비소모성 거래를 다시 검증해도 지급되지 않는 assertion을 추가해 재실행한다.
+### P09-T04 복원 후 재지급 방지 재검증 시작
+- `artifacts/purchase-regression-hnncaxbh` 전체 PASS/skip 0: 전용 `gamebridge_ci_248eb1b40b_local/_sandbox`. 복원 후 동일 소모성·비소모성 거래 재검증에도 재지급 없고 synthetic Apple entitlement 한 건, 계정 전환 시 binding 보호를 확인했다. R32/R36/R37/R38을 로컬 Mock·synthetic 범위로 연결한다. 실제 프로세스 kill·스토어·Unity는 미검증이다.
+### P09-T04 복원 scenario mapping 검증 시작
+- R32/R36/R37/R38 manifest·필수 coverage 음성·원장 검사 통과, 10개 scenario는 PARTIAL로 남긴다. 개별 suite는 격리 DB opt-in을 요구하며 정상 Provider 시험을 대체하지 않는다.
+- 커밋 준비: 복원 assertion·runner 및 검증 범위 evidence만 저장한다.

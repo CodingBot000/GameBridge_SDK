@@ -79,11 +79,17 @@ class AppleGrantDatabaseTest {
             latePipeline.verifyAndGrant(late, StoreEnvironment.SANDBOX, "coins.apple", "synthetic-late")
         }.errorCode)
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger", Int::class.java))
+        db.update("INSERT INTO products(app_id,logical_id,platform,store_id,type,grant_amount) VALUES (?, 'premium_unlock','APPLE','premium.apple','NON_CONSUMABLE',0)", app)
+        val premium = VerifiedApplePurchase("synthetic-premium", "premium.apple", binding)
+        val premiumFirst = service.grant(principal, StoreEnvironment.SANDBOX, premium, UUID.randomUUID())
+        val premiumAgain = service.grant(principal, StoreEnvironment.SANDBOX, premium, UUID.randomUUID())
+        assertEquals("ALREADY_GRANTED", premiumAgain.fulfillmentStatus); assertEquals(premiumFirst.serverPurchaseId, premiumAgain.serverPurchaseId)
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM entitlements WHERE user_id=? AND product_id='premium_unlock' AND active", Int::class.java, principal.userId))
         // New, test-owned schema only: reject the next grant after purchase insertion.
         db.execute("ALTER TABLE wallet_ledger ADD CONSTRAINT test_reject_grant CHECK (delta < 100) NOT VALID")
         val rollbackAttempt = UUID.randomUUID()
         assertFails { service.grant(principal, StoreEnvironment.SANDBOX, verified.copy(transactionId = "rollback-transaction"), rollbackAttempt) }
-        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM purchases", Int::class.java))
+        assertEquals(2, db.queryForObject("SELECT COUNT(*) FROM purchases", Int::class.java))
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger", Int::class.java))
         assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM idempotency_records WHERE key=?", Int::class.java, rollbackAttempt.toString()))
     }

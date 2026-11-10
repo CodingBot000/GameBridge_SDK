@@ -62,9 +62,15 @@ class LocalMockIntegrationTest {
         val purchased = client.purchase("coins_100", transaction, request)
         assertEquals(before + 100, purchased.entitlements.coinBalance.toLong())
         assertEquals(before + 100, client.purchase("coins_100", transaction, request).entitlements.coinBalance.toLong())
+        val premiumTransaction = UUID.randomUUID(); val premiumAttempt = UUID.randomUUID()
+        assertTrue(client.purchase("premium_unlock", premiumTransaction, premiumAttempt).entitlements.premiumEnabled)
+        assertEquals("ALREADY_GRANTED", client.purchase("premium_unlock", premiumTransaction, premiumAttempt).fulfillmentStatus)
         val restored = LocalMockClient(config, storage, key)
         assertEquals(user.userId, restored.restore()?.userId)
-        assertEquals(before + 100, restored.wallet().coinBalance.toLong())
+        assertEquals(before + 100, restored.wallet().coinBalance.toLong()); assertTrue(restored.wallet().premiumEnabled)
+        assertEquals("ALREADY_GRANTED", restored.purchase("coins_100", transaction, request).fulfillmentStatus)
+        assertEquals("ALREADY_GRANTED", restored.purchase("premium_unlock", premiumTransaction, premiumAttempt).fulfillmentStatus)
+        assertEquals(before + 100, restored.wallet().coinBalance.toLong()); assertTrue(restored.wallet().premiumEnabled)
         restored.signOut(); assertNull(storage.load())
     }
     @Test fun `bridge uses real local backend for mock purchase and restore`() {

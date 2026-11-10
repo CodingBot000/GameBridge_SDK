@@ -168,3 +168,8 @@
 - local-mock smoke 서버를 Ctrl-C 종료 130. 전용 DB 컨테이너는 데이터 보존 상태로 정지한다.
 - 전용 Compose DB `stop` 종료 0, named volume 보존. local-mock에는 A/B 사용자 및 테스트 session 기록이 남아 있다. 분리 sandbox 시험 DB도 같은 전용 volume에 남아 있다.
 - 커밋 전: 인증·세션의 제한된 Mock 경로와 11개 smoke 확인. 속도 제한, 실제 identity 검증, Native 보안 저장소와 전체 contract는 미구현이므로 P02-T02는 IN_PROGRESS/PARTIAL로 유지한다.
+
+### [P02-T03] 시작 — 2026-11-10 Asia/Seoul
+- P02-T02는 속도 제한 및 Native 연동이 남아 PARTIAL. 인증된 Mock 사용자를 기준으로 구매 검증·원장 경로를 작성하며 실제 스토어 거래와 격리한다.
+- `./backend/gradlew -p backend test` 종료 0: 신규 Mock proof 검사 1건 포함 전체 테스트 4건 통과. 사용자·상품 불일치와 실제처럼 보이는 namespace를 거부한다. 이는 조작 가능한 local-mock 증명이며 실제 스토어 proof 검증이 아니다.
+- 커밋 직전: Mock verifier만 추가. 구매 API·DB 거래 지급·중복 방지·스토어 최종화는 아직 없어 P02-T03 IN_PROGRESS/PARTIAL로 유지한다.

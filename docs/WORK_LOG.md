@@ -758,3 +758,9 @@
 - 실패 원인 확인: Firebase 의존성 추가로 XML converter가 추가되어 Accept 미지정 요청의 오류 응답이 XML로 직렬화됐다. SDK 계약은 JSON이므로 모든 ApiErrors 응답 content type을 명시한다.
 - 오류 응답 JSON content type 명시 후 Backend 일반 suite 종료 0: 32건 중 25 통과·7 opt-in skip, 실패0. 실패했던 HTTP sanitized 오류와 request ID 시험이 통과했다. DB opt-in·실 provider 시험은 이 결과에 포함하지 않는다.
 - 커밋 전: XML 오류 응답 회귀 수정 및 실패/재검증 증거만 포함한다.
+- 오류 경로 수정 후 추가 검토: 동일 XML converter가 성공 응답에도 영향을 줄 수 있다. Accept 미지정 성공 응답의 JSON 기본 협상을 Spring MVC에서 고정하고 독립 web slice 시험으로 확인한다.
+- JSON web slice 초기 실행 1건 실패: Spring test context의 누락 bean으로 기동하지 못했다. 실제 응답 검증은 실행되지 않았으며 의존성을 확인한다.
+- web slice가 auth SessionFilter를 자동 검색하지만 SessionService를 포함하지 않는 것이 원인이었다. 테스트 전용 mock bean을 제공해 실제 content negotiation 검증을 재실행한다.
+- mock SessionService를 포함한 web slice 1건 통과: Accept 없는 health 성공 응답이 JSON이다. Backend 일반 suite를 재실행한다.
+- Backend 일반 suite 재실행 종료 0: 33건 중 26 통과, 7 opt-in skip, 실패0. 성공·오류의 Accept 미지정 JSON 계약을 각각 확인했다.
+- 커밋 전: 기본 JSON content negotiation과 web slice 시험을 포함한다. 실제 외부 provider 및 생략한 DB opt-in은 이 결과에 포함하지 않는다.

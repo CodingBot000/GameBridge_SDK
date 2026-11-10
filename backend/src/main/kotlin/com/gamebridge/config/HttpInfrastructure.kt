@@ -20,7 +20,17 @@ import org.springframework.stereotype.Component
 import org.springframework.core.annotation.Order
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.servlet.resource.NoResourceFoundException
+import org.springframework.context.annotation.Configuration
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import java.util.UUID
+
+@Configuration
+class ApiWebConfiguration : WebMvcConfigurer {
+    override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
+        configurer.defaultContentType(MediaType.APPLICATION_JSON)
+    }
+}
 
 @Component
 @Order(-110)

@@ -15,3 +15,5 @@
 후보: Android AGP 8.13.0 및 Gradle 8.13, Android API 36; backend Spring Boot 3.5.16 및 JDK 21. 이는 공식 문서상 호환 후보이며 함께 빌드되기 전에는 확정 조합이 아니다. Kotlin과 PostgreSQL 패치, Unity 버전은 실제 빌드 시 확정한다. 설치된 Unity는 공식 문서상 6.3 LTS가 아니므로 LTS 부재를 기록하고 설치된 버전의 호환성을 확인한다.
 
 출처: [Android AGP 호환성](https://developer.android.com/build/releases/agp-8-13-0-release-notes), [Spring Boot 시스템 요구사항](https://docs.spring.io/spring-boot/3.5/system-requirements.html), [Unity 지원 정책](https://unity.com/releases/unity-6/support).
+
+Android AGP 8.13.0 / Gradle 8.13 / Kotlin 2.1.20 / API 36 / JDK 21 최소 Compose 앱 빌드 성공 (2026-11-10); 기기 실행 및 Unity export 미검증. Backend Spring Boot 3.5.16 / Kotlin 2.1.20 / Gradle 8.13 / JDK 21 최소 빌드 성공.

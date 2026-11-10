@@ -1,0 +1,21 @@
+name: GameBridgeSample
+options:
+  deploymentTarget:
+    iOS: '16.0'
+packages:
+  GameBridge:
+    path: ..
+targets:
+  GameBridgeSample:
+    type: application
+    platform: iOS
+    sources:
+      - ../SampleApp
+    dependencies:
+      - package: GameBridge
+        product: GameBridgeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.gamebridge.sample
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: '5.0'

@@ -1,6 +1,6 @@
 # GameBridge SDK 진행 원장
 
-> 이 파일은 초기 양식이다. **개발·검증·커밋은 아직 수행되지 않았다.** 각 Task 시작·검증·블로커·커밋 전에 반드시 갱신한다.
+> 각 Task 시작·검증·블로커·커밋 전에 갱신한다.
 
 ## 현재 체크포인트
 
@@ -8,9 +8,9 @@
 - 현재 Phase / Task: P00 / P00-T03
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
-- 현재 작업 트리 상태: P00-T03 골격 커밋 후 wrapper 줄바꿈 검사 수정 중; 사용자 .DS_Store 보존
+- 현재 작업 트리 상태: P00-T03 부분 변경 및 Unity 생성 실패의 미검증 Demo 존재
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: wrapper 줄바꿈 검사 수정 후 P00-T03 Android 앱, iOS 앱·프레임워크, Unity 및 Compose 구성
+- 바로 다음 행동: P00-T03 부분 커밋 후 독립적인 P00-T04 원장 검사 구현; Unity Demo 미검증
 - 불가피한 세션 종료 시 재개 행동: P00-T03 미완료 항목부터 이어서 구현하고 P00-T02 버전 조합을 재검증
 
 ## 집계
@@ -34,7 +34,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 |---|---|---|---|---|---|---|
 | P00-T01 | 저장소 보존·작업 원장 초기화 | IMPLEMENTED | PASS | N/A | WORK_LOG P00-T01 | - |
 | P00-T02 | 도구·라이선스·버전 조합 확정 | IN_PROGRESS | PARTIAL | N/A | docs/TOOLCHAIN.md, WORK_LOG P00-T02 | ENV-001 |
-| P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T03 | - |
+| P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T03 | ENV-002, ENV-003 |
 | P00-T04 | 진행 문서 검사·기본 명령 진입점 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P00-T05 | 모드·비밀정보·설정 격리 | NOT_STARTED | NOT_RUN | N/A | - | - |
 | P01-T01 | 공통 모델·오류·상태 schema | NOT_STARTED | NOT_RUN | N/A | - | - |
@@ -101,6 +101,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 | ID | 유형 | 영향 Task | 실제 증상/실행 명령 | 코드 개발 지속 방법 | 해소 조건 | 상태 |
 |---|---|---|---|---|---|---|
+| ENV-003 | ENV | P00-T03 | XcodeGen 명령 없음; iOS 프로젝트 명세 생성·앱 빌드 미검증 | 독립 작업 진행; XcodeGen 준비 또는 다른 재현 가능한 프로젝트 생성 | Xcode 프로젝트 생성 및 빌드 | OPEN |
+| ENV-002 | ENV | P00-T03 및 Unity 검증 | Unity Editor 생성 시 라이선스 확인 실패, 종료 198 | 프로젝트 생성 안내 스크립트 제공, 다른 플랫폼 계속 | 사용자 라이선스 및 Editor 재확인 | OPEN |
 | ENV-001 | ENV | P00-T02 | Unity 6.3 LTS 미설치; 설치 버전의 모듈·라이선스 미확인 | 설치된 Editor로 검증 시도 | 호환 Editor와 모듈·라이선스 확인 | OPEN |
 
 유형: USER=사용자 계정·서명·콘솔, ENV=설치/실행환경, BUG=내부 버그, DEP=선행 구현 미해결. 같은 사건은 중복 ID를 만들지 않고 영향 Task를 추가한다. 사용자 인증 필요성은 USER_SETUP에 이미 계획되어 있지만 실제 구현 준비 여부는 개발 중 갱신한다.

@@ -41,7 +41,7 @@ Git identity·도구/라이선스 → 앱 package/bundle ID·서명 → Backend 
 
 ## USER-UNITY — Unity 환경
 
-사용자 할 일: 선택한 Unity LTS Editor와 Android/iOS build support, 필요한 라이선스를 준비한다. 라이선스 활성화와 계정 로그인은 사용자가 수행한다. Codex가 license secret을 가져오거나 약관을 대신 수락하지 않는다.
+사용자 할 일: 선택한 Unity LTS Editor와 Android/iOS build support, 필요한 라이선스를 준비한다. 2026-11-10 확인: 설치된 6000.5.8f1 Editor는 프로젝트 생성 시 라이선스 확인에 실패하여 종료 198을 반환했다 (ENV-002). 라이선스 활성화와 계정 로그인은 사용자가 수행한다. Codex가 license secret을 가져오거나 약관을 대신 수락하지 않는다.
 
 설정: `UNITY_EDITOR_PATH`를 실제 실행파일로 지정한다. 정확한 버전은 TOOLCHAIN/ProjectVersion과 일치시킨다. 다른 Unity major/minor를 자동으로 설치해 기존 project를 올리지 않는다.
 

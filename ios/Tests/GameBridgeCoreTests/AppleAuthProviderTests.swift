@@ -3,6 +3,24 @@ import XCTest
 import GameBridgeCore
 @testable import GameBridgeApple
 
+private final class AppleProofProtocol: URLProtocol {
+    static var responseBody = Data()
+    static var capturedPath: String?
+    static var capturedAuth: String?
+    static var capturedIdempotency: String?
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {
+        Self.capturedPath = request.url?.path
+        Self.capturedAuth = request.value(forHTTPHeaderField: "Authorization")
+        Self.capturedIdempotency = request.value(forHTTPHeaderField: "Idempotency-Key")
+        let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: Self.responseBody)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+    override func stopLoading() {}
+}
 private final class AppleMemoryStore: TokenStore {
     var value: String?
     func load() throws -> String? { value }
@@ -75,6 +93,29 @@ final class AppleAuthProviderTests: XCTestCase {
         gateway.state = .revoked; backend.revokeFails = true
         do { _ = try await provider.checkCredentialState(); XCTFail("revoke error") } catch let error as SdkFailure { XCTAssertEqual(error.code, "NETWORK_UNAVAILABLE"); XCTAssertEqual(error.nativeCode, "REVOCATION_UNCONFIRMED") }
         XCTAssertNil(store.value); XCTAssertTrue(backend.revoked)
+    }
+    @MainActor func testAppleProofSinkRequiresDurableServerGrant() async throws {
+        let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
+        let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
+        let user = try await auth.signIn()
+        let binding = UUID(), purchase = UUID()
+        let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [AppleProofProtocol.self]
+        let client = try BackendClient(config: config, sessionConfiguration: configuration)
+        let sink = AppleHttpProofSink(auth: auth, client: client)
+        let proof = ApplePurchaseProof(transactionId: 42, productId: "coins", binding: binding, signedTransaction: "test-secret-jws")
+        func response(_ status: String) -> Data {
+            Data("{\"userId\":\"\(user.userId)\",\"bindingId\":\"\(binding.uuidString)\",\"productId\":\"coins\",\"transactionKey\":\"42\",\"serverPurchaseId\":\"\(purchase.uuidString)\",\"fulfillmentStatus\":\"\(status)\"}".utf8)
+        }
+        AppleProofProtocol.responseBody = response("GRANTED")
+        let grant = try await sink.verify(proof, userId: UUID(uuidString: user.userId)!)
+        XCTAssertEqual(grant.serverPurchaseId, purchase)
+        XCTAssertEqual(AppleProofProtocol.capturedPath, "/v1/purchases/apple/verify")
+        XCTAssertEqual(AppleProofProtocol.capturedAuth, "Bearer test-access")
+        XCTAssertNotNil(AppleProofProtocol.capturedIdempotency.flatMap(UUID.init(uuidString:)))
+        XCTAssertFalse(String(describing: grant).contains("test-secret-jws"))
+        AppleProofProtocol.responseBody = response("PENDING")
+        do { _ = try await sink.verify(proof, userId: UUID(uuidString: user.userId)!); XCTFail("pending is not a grant") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "BRIDGE_PROTOCOL_MISMATCH") }
     }
     @MainActor func testPurchaseBindingCacheInvalidatesOnLogout() async throws {
         let auth = AppleAuthProvider(config: GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com"), store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())

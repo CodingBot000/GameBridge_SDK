@@ -1,6 +1,7 @@
 package com.gamebridge.config
 
 import com.gamebridge.purchase.PurchaseConflict
+import com.gamebridge.purchase.AppleVerifierUnavailable
 import com.gamebridge.auth.AuthFlowException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -54,9 +55,20 @@ class ApiErrors {
         val code = if (ex.code in setOf("AUTH_REPLAY_DETECTED", "CONFIG_REQUIRED", "NETWORK_UNAVAILABLE")) ex.code else "AUTH_FAILED"
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(mapOf("code" to code, "message" to "Authentication failed", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to (code == "NETWORK_UNAVAILABLE")))
     }
+    @ExceptionHandler(AppleVerifierUnavailable::class)
+    fun appleUnavailable(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).contentType(MediaType.APPLICATION_JSON)
+        .body(mapOf("code" to "NETWORK_UNAVAILABLE", "message" to "Store verification unavailable", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to true))
     @ExceptionHandler(PurchaseConflict::class)
-    fun purchaseConflict(ex: PurchaseConflict, request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.CONFLICT).contentType(MediaType.APPLICATION_JSON)
-        .body(mapOf("code" to ex.errorCode, "message" to "Purchase conflict", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
+    fun purchaseConflict(ex: PurchaseConflict, request: HttpServletRequest): ResponseEntity<Map<String, Any>> {
+        val status = when (ex.errorCode) {
+            "SESSION_EXPIRED" -> HttpStatus.UNAUTHORIZED
+            "VERIFICATION_FAILED" -> HttpStatus.BAD_REQUEST
+            "PRODUCT_NOT_FOUND" -> HttpStatus.NOT_FOUND
+            else -> HttpStatus.CONFLICT
+        }
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON)
+            .body(mapOf("code" to ex.errorCode, "message" to "Purchase rejected", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
+    }
     @ExceptionHandler(ResponseStatusException::class)
     fun status(ex: ResponseStatusException, request: HttpServletRequest): ResponseEntity<Map<String, Any>> {
         val code = when (ex.statusCode.value()) { 400 -> "INVALID_ARGUMENT"; 401 -> "SESSION_EXPIRED"; 403 -> "PERMISSION_DENIED"; 503 -> "CONFIG_REQUIRED"; else -> "INTERNAL_ERROR" }

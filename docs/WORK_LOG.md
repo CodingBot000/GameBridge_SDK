@@ -820,3 +820,12 @@
 - verifier registry Kotlin 컴파일 성공. 앱 설정·root 누락 및 잘못된 production 설정이 네트워크 호출 없이 503으로 실패하는지 검증한다.
 - app/root 누락 registry 시험 1건 통과. 공개 Apple root와 실제 signed transaction을 사용하지 않았으며 공개 purchase endpoint도 아직 없다.
 - 커밋 전: lazy Apple verifier 설정과 fail-closed unit만 포함. 실제 인증서·스토어·원장 HTTP 연결은 미검증이다.
+- P05-T04 계속: sandbox/production에서만 Apple 증빙을 처리하는 인증 endpoint 초안을 작성한다. 앱·계정은 세션에서 유도하며 미설정 verifier는 503, 위조·계정 충돌은 지급 없이 실패해야 한다.
+- Apple 전용 authenticated verify endpoint와 오류 상태 mapping 초안을 작성했다. 컴파일 및 HTTP fixture 검증 전이며 Google endpoint와 실제 서명 시험은 별도다.
+- Apple Native proof sink 초안은 인증 세션 잠금/세대 확인과 Backend의 durable grant 응답 확인 후에만 내부 ServerGrant를 반환한다. 서버 검증 불가와 위조를 구분하며 iOS/Backend 컴파일을 확인한다.
+- Swift Apple auth unit 8건通과(실 receipt 아님). Apple endpoint에 fake pipeline을 주입해 인증 principal, idempotency key, 응답 mapping과 malformed key 거부를 HTTP slice로 확인한다.
+- HTTP slice 최초 실행은 테스트 컴파일 실패: public 테스트 property가 internal pipeline 타입을 노출(Kotlin). 제품 endpoint 실행 전이며 test visibility를 수정한다.
+- Apple HTTP slice mock pipeline 1건 통과. Native proof sink의 credential header·idempotency·서버 GRANTED만 수락하는 fake URLProtocol 시험을 추가한다. 실제 JWS/스토어 요청이 아니다.
+- Swift fake URLProtocol 시험 포함 9건 통과: 서버 GRANTED만 Native ServerGrant로 수락한다. Backend HTTP slice에서 위조와 retryable 서명 검증 실패의 응답 구분도 확인한다.
+- Backend HTTP slice에서 fake pipeline의 정상 grant, 잘못된 idempotency key, 위조 증빙 400, retryable 검증 오류 503을 확인했다. security filter는 slice에서 꺼져 있으므로 실제 HTTP 인증 검증을 대체하지 않는다.
+- 커밋 전: sandbox/production Apple 검증 endpoint, Native proof sink와 fake HTTP/unit만 포함. 실제 Apple 서명·StoreKit finish, 제품 catalog 설정, 보안 필터 통합 및 Android Google sink는 미완료여서 P05-T04/T05 PARTIAL 유지.

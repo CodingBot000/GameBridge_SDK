@@ -34,7 +34,7 @@ public final class BackendClient {
               let base = config.backendBaseURL, var components = URLComponents(string: base) else { throw SdkFailure("INVALID_ARGUMENT") }
         if developmentKey != nil && (config.mode != .localMock || path != "/v1/dev/auth") { throw SdkFailure("UNSUPPORTED_OPERATION") }
         if let idempotencyKey {
-            guard path == "/v1/purchases/verify", let uuid = UUID(uuidString: idempotencyKey), uuid.uuidString.lowercased() == idempotencyKey else { throw SdkFailure("INVALID_ARGUMENT") }
+            guard ["/v1/purchases/verify", "/v1/purchases/apple/verify"].contains(path), let uuid = UUID(uuidString: idempotencyKey), uuid.uuidString.lowercased() == idempotencyKey else { throw SdkFailure("INVALID_ARGUMENT") }
         }
         components.path = path; components.query = nil; components.fragment = nil
         guard let url = components.url else { throw SdkFailure("INVALID_ARGUMENT") }
@@ -62,10 +62,10 @@ public final class BackendClient {
         let allowed: Set<String>
         let fallback: String
         switch status {
-        case 400: allowed = ["INVALID_ARGUMENT"]; fallback = "INVALID_ARGUMENT"
+        case 400: allowed = ["INVALID_ARGUMENT", "VERIFICATION_FAILED"]; fallback = "INVALID_ARGUMENT"
         case 401: allowed = ["AUTH_FAILED", "SESSION_EXPIRED"]; fallback = "SESSION_EXPIRED"
         case 403: allowed = ["PERMISSION_DENIED"]; fallback = "PERMISSION_DENIED"
-        case 404: allowed = ["UNSUPPORTED_OPERATION"]; fallback = "UNSUPPORTED_OPERATION"
+        case 404: allowed = ["UNSUPPORTED_OPERATION", "PRODUCT_NOT_FOUND"]; fallback = "UNSUPPORTED_OPERATION"
         case 409: allowed = ["AUTH_REPLAY_DETECTED", "PURCHASE_ACCOUNT_MISMATCH", "IDEMPOTENCY_CONFLICT"]; fallback = "INTERNAL_ERROR"
         case 429: allowed = ["BUSY"]; fallback = "BUSY"
         case 503: allowed = ["CONFIG_REQUIRED", "NETWORK_UNAVAILABLE"]; fallback = "NETWORK_UNAVAILABLE"

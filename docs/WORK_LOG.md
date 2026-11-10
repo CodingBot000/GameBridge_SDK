@@ -942,3 +942,7 @@
 - sandbox 실제 HTTP/DB + synthetic registry readiness 성공·unknown 상품 404 및 기존 동시 grant 시험 통과. 실제 StoreKit 구매 화면 차단은 실행하지 못했다. simulator framework 컴파일을 확인한다.
 - iOS simulator static framework build 성공. 실제 StoreKit UI/상품 조회는 ENV-STOREKIT-26 실패가 남아 있으므로 readiness가 실제 결제 화면을 막는지 OS 수준 검증은 미실행이다.
 - 커밋 전: Apple readiness 서버·Native 호출 및 fake/격리 DB 검증을 포함한다. 실제 provider 설정·StoreKit/기기 검증·공개 sample 연결은 미완료다.
+- P07-T01 계속: 확인된 maintenance=true일 때 신규 구매만 막고 기존 검증·복구·로그아웃은 허용하는 순수 정책을 구현한다. config offline TTL과 default는 별도이며 이 작업에서 임의 결정하지 않는다.
+- Android/iOS 순수 maintenance gate와 회귀시험 작성. 실제 원격 config cache 및 SDK 구매 경로에는 아직 연결하지 않았다.
+- Android core 및 Swift gate unit 통과: 점검 중 신규 구매는 거부, 검증·복구·로그아웃은 허용. 실제 config fetching과 구매 UI 적용은 아직 검증되지 않았다.
+- 커밋 전: 순수 정책과 unit만 포함하며 P07-T01 PARTIAL 유지.

@@ -35,7 +35,11 @@ targets:
     platform: iOS
     sources:
       - ../Sources/GameBridgeCore
+      - ../Sources/GameBridgeApple
       - ../UnityBridge
+      - path: include/GameBridgeNative.h
+        buildPhase: headers
+        headerVisibility: public
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.gamebridge.sdk.native

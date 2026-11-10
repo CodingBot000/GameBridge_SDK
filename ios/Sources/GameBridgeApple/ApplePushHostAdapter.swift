@@ -2,7 +2,9 @@
 import Foundation
 import UIKit
 import UserNotifications
+#if !GAMEBRIDGE_CORE_EMBEDDED
 import GameBridgeCore
+#endif
 
 /// The host owns UIApplicationDelegate and UNUserNotificationCenterDelegate.
 /// Forward callbacks to this adapter; it never replaces either delegate.

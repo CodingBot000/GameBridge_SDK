@@ -2,7 +2,9 @@
 import Foundation
 import UIKit
 import AuthenticationServices
+#if !GAMEBRIDGE_CORE_EMBEDDED
 import GameBridgeCore
+#endif
 
 @MainActor final class AppleSystemGateway: NSObject, AppleCredentialGateway, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     private weak var host: UIWindow?

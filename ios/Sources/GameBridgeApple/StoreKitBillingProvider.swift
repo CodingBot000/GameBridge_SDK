@@ -1,6 +1,8 @@
 import Foundation
 import StoreKit
+#if !GAMEBRIDGE_CORE_EMBEDDED
 import GameBridgeCore
+#endif
 
 /// StoreKit proofs stay internal and are never returned as public SDK results.
 struct ApplePurchaseProof: CustomStringConvertible {

@@ -668,3 +668,13 @@
 - 좌표만 사용하는 별도 소비 앱의 R8 release build 성공, BridgeFacade keep 규칙이 mapping에 유지됨. 미서명 로컬 build이며 실행/기능 검증은 아니다. 기존 스크립트의 --mock 명시 계약을 유지한 채 전체 명령을 확인한다.
 - `bash scripts/build-android.sh --mock` 종료 0: 세 모듈 로컬 Maven publish 및 별도 좌표 소비 R8 release build 성공. Firebase는 optional compileOnly이므로 FCM host가 별도로 의존성을 제공해야 한다. 해당 빌드에서 실제 Firebase 경로·앱 실행 및 전체 기능은 검증하지 않았다.
 - 커밋 전: 로컬 publication·독립 소비 앱·명시적 mock build script만 포함. 기능 감사 및 실제 provider 포함 소비 검증은 미완료로 P08-T01 PARTIAL 유지. 외부 publish 없음.
+
+### [P08-T02] 시작 — 2026-11-10 Asia/Seoul
+- 기존 static XCFramework에는 Core/Bridge만 포함되어 실제 Apple Provider가 빠져 있음을 확인했다. Apple 소스를 binary target에 포함하고 source package와 분리 빌드를 확인한다. Unity 링크·실기기 검증은 별도다.
+- Apple 소스를 포함한 iOS simulator static framework build 성공. 이제 기존 산출물을 덮어쓰지 않는 새 output에 무서명 device/simulator archive와 XCFramework를 생성한다.
+- 무서명 device arm64와 simulator arm64/x86_64 archive·XCFramework 생성 성공. ApplePushHostAdapter 심볼과 source Swift unit 1건을 확인했다. Xcode가 umbrella header 부재/module map warning을 양 archive에서 출력했으므로 별도 consumer 링크 전 패키징 완전 통과로 기록하지 않는다.
+- 독립 Swift consumer에서 XCFramework의 공개 ApplePushHostAdapter를 import/링크해 경고가 실제 소비를 막는지 확인한다.
+- 독립 Swift consumer가 simulator 대상 XCFramework를 import/링크했고 Mach-O platform IOSSIMULATOR 확인. 컴파일러 sysroot 경고는 있었으므로 실제 실행 증거는 아니다. 누락된 public C ABI umbrella header를 추가해 module map 경고를 해결하고 다시 archive한다.
+- public C umbrella header 추가 후 device/simulator 재archive 성공, module map 경고가 사라졌다. simulator Swift consumer가 SDK 지정 링크와 public Apple adapter import에 성공했다. C ABI 함수 호출도 링크 확인한다.
+- 별도 Swift consumer에서 Apple adapter와 C ABI GB_ProtocolVersion 호출을 simulator 대상으로 컴파일·링크하고 Mach-O/심볼 확인했다. 실제 simulator 실행과 Unity link는 미실행이다.
+- 커밋 전: Apple 소스를 포함한 unsigned static XCFramework build·header·독립 link 경로만 포함. 실제 기기 서명/실행과 Unity consumer는 미완료이므로 P08-T02 PARTIAL 유지.

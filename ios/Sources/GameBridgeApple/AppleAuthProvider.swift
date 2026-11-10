@@ -1,5 +1,7 @@
 import Foundation
+#if !GAMEBRIDGE_CORE_EMBEDDED
 import GameBridgeCore
+#endif
 
 public enum AppleCredentialState { case authorized, revoked, notFound, transferred, unknown }
 struct AppleCredential: CustomStringConvertible {

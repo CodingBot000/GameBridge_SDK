@@ -1,5 +1,7 @@
 import Foundation
+#if !GAMEBRIDGE_CORE_EMBEDDED
 import GameBridgeCore
+#endif
 
 enum StoreTransactionState { case initiated, pending, purchased, canceled, failed }
 enum GrantState { case notGranted, granted }

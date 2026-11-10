@@ -261,3 +261,5 @@ Unity Android sandbox는 host가 초기화한 Firebase Messaging과 10인자 `Ga
 Android host callback의 `forwardFcmToken` 반환값 true는 큐 접수이며 Backend 등록 성공이 아니다. 결과는 `PushTokenChanged`의 fingerprint 또는 오류로 확인한다. SDK session이 없을 때 token은 저장하지 않으므로 로그인 후 명시적 `RegisterPushAsync()`로 현재 token을 다시 가져온다. 알림 route는 home/store만 허용하며 cold-start queue는 프로세스 메모리에서 최대 100건이다.
 
 LOCAL_MOCK에서도 `GameBridgeConfig` 10인자 생성자에 installation UUID를 제공하면 Native Mock token을 local Backend에 등록·해제할 수 있다. permission은 OS dialog가 없는 simulated 결과이며 등록 해제와 logout은 서버 token을 즉시 삭제한다. 서버에는 local 전용 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하다. Mock send의 SIMULATED 응답은 실제 기기 알림이 아니며 현재 Backend→client simulated delivery E2E는 미구현이다.
+
+UPM의 `Native Mock and Sandbox Demo`는 Android/iOS player용이다. Unity UI package와 호환 EventSystem을 준비하고 `NativeDemo`를 scene의 빈 GameObject에 붙인다. 사용자가 실행 중 URL·개발키·상품 ID·installation UUID를 입력하며 기존 `unity/Demo`는 변경하지 않았다. iOS host push는 `NativeDemoIosPush`를 명시적으로 추가해야 한다. Editor/실기기 UI는 아직 검증하지 않았다.

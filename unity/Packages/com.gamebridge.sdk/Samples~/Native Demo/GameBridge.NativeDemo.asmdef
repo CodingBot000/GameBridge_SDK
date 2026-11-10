@@ -1,0 +1,5 @@
+{
+  "name": "GameBridge.NativeDemo",
+  "references": ["GameBridge.Runtime", "UnityEngine.UI"],
+  "autoReferenced": true
+}

@@ -1,0 +1,6 @@
+{
+  "name": "GameBridge.NativeDemo.iOS",
+  "references": ["GameBridge.NativeDemo", "GameBridge.iOSHost"],
+  "includePlatforms": ["iOS"],
+  "autoReferenced": true
+}

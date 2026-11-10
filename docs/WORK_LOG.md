@@ -1418,3 +1418,14 @@
 - Mock token fingerprint는 서버 JSON의 문자열만 허용하도록 엄격화했다. 직접 기동한 Backend만 종료하고 DB volume을 보존했다. C#·iOS compile 및 Android core 회귀를 확인한다.
 - `:sdk-core:test`, `scripts/check-csharp-compile.sh` 4개 조건부, `xcodebuild ... GameBridgeNative ... generic/platform=iOS Simulator CODE_SIGNING_ALLOWED=NO build -quiet` 모두 종료 0. 실제 Unity Player와 Mock push 전체 전달은 미검증이다.
 - 커밋 전: 양 Native Mock token 등록·해제, Mock permission 모드 격리, local DB/fake 및 compile 증거만 포함한다. Backend SIMULATED 발송의 client 전달 E2E·실제 FCM/APNs는 미구현/미검증으로 유지한다.
+
+### [P07-T02] Unity sample Native 경로
+- Task 시작: 기존 사용자 소유 `unity/Demo`는 보존하고 UPM sample의 설정·Mock/sandbox 기능·상태 표시를 조사한다. Backend SIMULATED push는 실제 수신으로 가장하지 않는다.
+- UPM에 별도 Native Demo를 추가했다. runtime 입력으로 Mock/Sandbox 설정, 로그인·상품·구매·잔액·복구·push·로그아웃을 명시적으로 호출하며 개발키는 scene asset에 저장하지 않는다. Unity Editor 실행은 허위 지원하지 않는다. Unity managed reference로 컴파일한다.
+- `scripts/check-unity-sample.sh` 종료 0: Native Demo와 기존 Offline Demo가 Unity managed/uGUI 참조로 컴파일됐다. Editor 렌더링·기기 실행은 아니다. 구매 완료 이벤트가 UI 작업 중 도착해도 서버 잔액 재조회가 누락되지 않도록 보강한다.
+- Native Demo의 iOS host bridge는 사용자가 scene에 명시적으로 추가하도록 분리했다. 단순 생성만으로 foreground 알림 표시 정책을 바꾸지 않으며, 실제 iOS 분기와 공식 host assembly를 별도 compile한다.
+- `scripts/check-unity-sample.sh` 두 번째 iOS 조건부 compile 종료 1: 별도 시험 project에 UnityEngine.UIModule/TextRenderingModule 참조가 빠져 Canvas/Font를 찾지 못했고 FindFirstObjectByType deprecated 경고가 발생했다. 실제 Unity 빌드 실패로 오인하지 않고 시험 참조와 API를 수정한다.
+- `scripts/check-unity-sample.sh` 재실행 종료 0: Editor 조건부 sample 및 iOS host branch가 실제 Unity managed/uGUI/Notifications 참조로 각각 경고·오류 0 컴파일됐다. Unity Editor 렌더링·IL2CPP·기기 실행은 아니다.
+- 샘플 객체가 UI 요청 중 파괴될 때 늦은 Task가 제거된 상태 UI를 갱신하지 않도록 보호를 추가한다. 최종 sample compile을 확인한다.
+- `scripts/check-unity-sample.sh` 최종 종료 0: Native/Offline sample과 iOS host bridge가 Unity managed/uGUI/Notifications 참조로 경고 0 컴파일됐다. sample object 파괴 후 late Task UI 접근을 막았다. 실제 scene 렌더링·입력·Unity player는 ENV-002로 미검증이다.
+- 커밋 전: UPM Native sample 소스·설치 안내 및 독립 compile project만 포함한다. 기존 미추적 unity/Demo는 보존하고 실제 Native 앱 실행은 미완료다.

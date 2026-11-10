@@ -13,6 +13,11 @@
       "displayName": "Editor Offline Demo",
       "description": "In-memory fake home and store; not a real purchase.",
       "path": "Samples~/Offline Demo"
+    },
+    {
+      "displayName": "Native Mock and Sandbox Demo",
+      "description": "Explicit Native mock or sandbox configuration and SDK flows.",
+      "path": "Samples~/Native Demo"
     }
   ]
 }

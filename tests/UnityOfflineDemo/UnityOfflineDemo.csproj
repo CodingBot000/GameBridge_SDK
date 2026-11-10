@@ -3,6 +3,7 @@
   <ItemGroup>
     <Compile Include="../../unity/Packages/com.gamebridge.sdk/Runtime/**/*.cs" />
     <Compile Include="../../unity/Packages/com.gamebridge.sdk/Samples~/Offline Demo/OfflineDemo.cs" />
+    <Compile Include="../../unity/Packages/com.gamebridge.sdk/Samples~/Native Demo/NativeDemo.cs" />
     <Reference Include="Newtonsoft.Json"><HintPath>$(GAMEBRIDGE_NEWTONSOFT_DLL)</HintPath></Reference>
     <Reference Include="Unity.Scripting"><HintPath>$(UNITY_MANAGED)/Unity.Scripting.dll</HintPath></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(UNITY_MANAGED)/UnityEngine.CoreModule.dll</HintPath></Reference>

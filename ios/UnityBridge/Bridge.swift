@@ -106,7 +106,7 @@ private final class BridgeState {
                     if xcodeHandler == nil {
                         xcodeHandler = await MainActor.run { XcodeStoreKitBridgeHandler(makeClient: { config, key in
                             try LocalMockClient(config: config, store: KeychainTokenStore(service: "com.gamebridge.sdk.unity.xcode-storekit"), developmentKey: key)
-                        }, makeEmitter: { self.purchaseEmitter() }) }
+                        }, pendingStore: { KeychainTokenStore(service: "com.gamebridge.sdk.unity.xcode-pending") }, makeEmitter: { self.purchaseEmitter() }) }
                     }
                     result = try await xcodeHandler!.invoke(operation, payload: payload)
                     #else

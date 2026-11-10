@@ -8,14 +8,15 @@ import GameBridgeApple
 @MainActor final class XcodeStoreKitBridgeHandler {
     private let makeClient: (GameBridgeConfig, String) throws -> LocalMockClient
     private let makeEmitter: () -> (AppleStorePurchaseResult) -> Void
+    private let pendingStore: () -> TokenStore
     private var client: LocalMockClient?
     private var config: GameBridgeConfig?
     private var key: String?
     private var subject: String?
     private var store: XcodeStoreKitSession?
-    init(makeClient: @escaping (GameBridgeConfig, String) throws -> LocalMockClient,
+    init(makeClient: @escaping (GameBridgeConfig, String) throws -> LocalMockClient, pendingStore: @escaping () -> TokenStore,
          makeEmitter: @escaping () -> (AppleStorePurchaseResult) -> Void) {
-        self.makeClient = makeClient; self.makeEmitter = makeEmitter
+        self.makeClient = makeClient; self.pendingStore = pendingStore; self.makeEmitter = makeEmitter
     }
     func invoke(_ operation: String, payload: [String: Any]) async throws -> Any {
         if operation == "sdk.initialize" { return try initialize(payload) }
@@ -65,7 +66,7 @@ import GameBridgeApple
     }
     private func activeStore(_ client: LocalMockClient) async throws -> XcodeStoreKitSession {
         if let store { return store }
-        let next = try await XcodeStoreKitSession(client: client, onVerified: makeEmitter())
+        let next = try await XcodeStoreKitSession(client: client, pendingStore: pendingStore(), onVerified: makeEmitter())
         do { try await next.start(); store = next; return next } catch { next.stop(); throw error }
     }
     private func initialize(_ payload: [String: Any]) throws -> [String: Any] {

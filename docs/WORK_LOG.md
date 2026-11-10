@@ -1915,3 +1915,11 @@
 - 기존 Apple sink와 journal 단위 시험을 실행한다. 실 StoreKit 지급 차단은 유지한다.
 - Swift 기존 StoreKit 및 journal 8건 통과. protocol 기본 callback은 기존 Apple sink에서 no-op이며 실제 StoreKit finish 순서는 simulator 통합에서 다시 확인해야 한다.
 - 커밋 준비: finish 이후 callback 경계만 저장하고 Xcode 구매 차단은 유지한다.
+### P05-T05 Xcode journal 통합 시작
+- Keychain journal을 StoreKit 완료 순서 및 서버 attempt와 연결한다. 여러 거래의 후보 key 충돌이나 완료 증거 부재는 차단한다. 실제 Unity 공개 경로의 구매 차단은 유지하고 별도 테스트 전용 경계에서만 통합 흐름을 검증한다.
+### P05-T05 journal 통합 compile 검증 시작
+- Xcode 공개 경로는 차단 유지, 내부 시험 경로만 시도 ID·완료 후 정리를 활성화한다. Swift unit 및 iOS simulator compile을 확인한다.
+- Swift 합성 journal·StoreKit 및 공개 차단 unit 11건 통과. 내부 시험 전용 구성에서 시도 ID와 완료 후 단서 삭제를 simulator로 확인한다. 외부 공개 구성은 차단 상태다.
+### P05-T05 내부 구성 StoreKit 통합 검증 시작
+- 격리 iOS 18.6 simulator `444C37EF-E7F9-4EF1-AC2E-012E28889BB1`, `artifacts/storekit-attempt-1794334311.xcresult`: 내부 시험 전용 설정에서 Xcode 구매 2건, fake attempt 결합, finish 및 journal 삭제 1개 시험 PASS/skip 0. Keychain, 실제 local DB 응답 유실·재시작과 Unity 경로는 아직 검증되지 않았다. 공개 Xcode 구매는 계속 차단 중이다.
+- 커밋 준비: journal/finish 통합과 내부 simulator 시험 경계만 저장한다. 테스트 전용 우회는 공개 SDK 설정에 노출하지 않는다.

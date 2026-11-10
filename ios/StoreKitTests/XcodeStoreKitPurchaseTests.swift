@@ -3,7 +3,7 @@ import Foundation
 import StoreKit
 import StoreKitTest
 import GameBridgeCore
-import GameBridgeApple
+@testable import GameBridgeApple
 
 private final class StoreKitTestMemoryStore: TokenStore {
     var value: String?
@@ -15,13 +15,13 @@ private final class StoreKitFakeBackend: URLProtocol {
     static let lock = NSLock()
     static var paths: [String] = []
     static var grantBodyValid = false
-    static var grants: [String: String] = [:]
+    static var grants: [String: (purchaseId: String, attemptId: String)] = [:]
     static func snapshot() -> String { lock.lock(); defer { lock.unlock() }; return "paths=\(paths), bodyValid=\(grantBodyValid)" }
     private let account = "d2719c4e-d533-47ee-9efd-838791ea79c8"
     override class func canInit(with request: URLRequest) -> Bool { true }
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
     override func startLoading() {
-        let path = request.url!.path; let body: String
+        let path = request.url!.path; let body: String; var status = 200
         Self.lock.lock(); Self.paths.append(path); Self.lock.unlock()
         switch path {
         case "/v1/dev/auth": body = #"{"accessToken":"fake-access","refreshToken":"fake-refresh","expiresAt":"2099-01-01T00:00:00Z","userId":"98b56d7a-5669-4fb0-b70e-1c313f72fd99"}"#
@@ -36,15 +36,19 @@ private final class StoreKitFakeBackend: URLProtocol {
             }
             guard let raw, let values = (try? JSONSerialization.jsonObject(with: raw)) as? [String: Any],
                   let transaction = values["transactionId"] as? String, let product = values["productId"] as? String,
+                  let attempt = values["attemptId"] as? String, UUID(uuidString: attempt) != nil,
                   values["bindingId"] as? String == account else { client?.urlProtocol(self, didFailWithError: URLError(.cannotParseResponse)); return }
             guard transaction.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil else { client?.urlProtocol(self, didFailWithError: URLError(.cannotParseResponse)); return }
             Self.lock.lock(); Self.grantBodyValid = true
-            let existing = Self.grants[transaction]; let purchaseId = existing ?? UUID().uuidString.lowercased()
-            Self.grants[transaction] = purchaseId; Self.lock.unlock()
-            body = "{\"userId\":\"\(account)\",\"bindingId\":\"\(account)\",\"productId\":\"\(product)\",\"transactionKey\":\"\(transaction)\",\"serverPurchaseId\":\"\(purchaseId)\",\"fulfillmentStatus\":\"\(existing == nil ? "GRANTED" : "ALREADY_GRANTED")\"}"
+            let existing = Self.grants[transaction]; let purchaseId = existing?.purchaseId ?? UUID().uuidString.lowercased()
+            if let existing, existing.attemptId != attempt { status = 409 }
+            else { Self.grants[transaction] = (purchaseId, attempt) }
+            Self.lock.unlock()
+            if status == 409 { body = #"{"code":"IDEMPOTENCY_CONFLICT"}"# }
+            else { body = "{\"userId\":\"\(account)\",\"bindingId\":\"\(account)\",\"productId\":\"\(product)\",\"transactionKey\":\"\(transaction)\",\"serverPurchaseId\":\"\(purchaseId)\",\"fulfillmentStatus\":\"\(existing == nil ? "GRANTED" : "ALREADY_GRANTED")\"}" }
         default: body = "{}"
         }
-        let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type":"application/json"])!
+        let response = HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: ["Content-Type":"application/json"])!
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: Data(body.utf8)); client?.urlProtocolDidFinishLoading(self)
     }
@@ -57,7 +61,8 @@ final class XcodeStoreKitPurchaseTests: XCTestCase {
         let client = try LocalMockClient(config: GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:"http://127.0.0.1:18080"),
                                          store: StoreKitTestMemoryStore(), developmentKey:String(repeating:"x", count:32), sessionConfiguration:config)
         _ = try await client.signIn(subject:"A")
-        let store = try await XcodeStoreKitSession(client:client); defer { store.stop() }
+        let pendingStore = StoreKitTestMemoryStore()
+        let store = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore, enableTestGrant:true); defer { store.stop() }
         try await store.start()
         let purchase = try await store.purchase("coins_100")
         var unfinished: [String] = []
@@ -69,6 +74,6 @@ final class XcodeStoreKitPurchaseTests: XCTestCase {
         XCTAssertEqual(second.status, .purchased); XCTAssertNotNil(second.serverPurchaseId)
         XCTAssertNotEqual(purchase.serverPurchaseId, second.serverPurchaseId, "two local purchases must have distinct stable keys")
         let recovery = try await store.recover(userInitiated:false)
-        XCTAssertEqual(recovery.examinedCount, 0)
+        XCTAssertEqual(recovery.examinedCount, 0); XCTAssertNil(pendingStore.value)
     }
 }

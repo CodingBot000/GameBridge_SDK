@@ -45,7 +45,7 @@ final class XcodeMockClientTests: XCTestCase {
         let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [XcodeProtocol.self]
         let handler = XcodeStoreKitBridgeHandler(makeClient: { config, key in
             try LocalMockClient(config: config, store: XcodeStore(), developmentKey: key, sessionConfiguration: configuration)
-        }, makeEmitter: { { _ in } })
+        }, pendingStore: { XcodeStore() }, makeEmitter: { { _ in } })
         let key = String(repeating:"x", count:32)
         let payload: [String: Any] = ["appId":"gamebridge-sample", "providerMode":"XCODE_STOREKIT", "backendBaseUrl":"http://127.0.0.1:18080",
                                        "requestTimeoutMs":30000, "developmentKey":key, "mockSubject":"A"]
@@ -62,7 +62,7 @@ final class XcodeMockClientTests: XCTestCase {
         let config = GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:"http://127.0.0.1:18080")
         let client = try LocalMockClient(config:config, store:XcodeStore(), developmentKey:String(repeating:"x",count:32), sessionConfiguration:configuration)
         _ = try await client.signIn(subject:"A")
-        let store = try await XcodeStoreKitSession(client:client); defer { store.stop() }
+        let store = try await XcodeStoreKitSession(client:client, pendingStore:XcodeStore()); defer { store.stop() }
         do { _ = try await store.purchase("coins_100"); XCTFail("ambiguous identity must not open purchase") }
         catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED"); XCTAssertEqual(error.nativeCode, "XCODE_TRANSACTION_IDENTITY_UNSTABLE") }
     }

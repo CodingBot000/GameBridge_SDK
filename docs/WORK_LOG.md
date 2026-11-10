@@ -797,3 +797,8 @@
 - README/API/INTEGRATION 초안을 현재 공개 소스와 검증 상태에 맞춰 작성하고 USER_SETUP의 오래된 Mock 설명을 수정했다. 명령 경로·API 이름과 실패 표기를 검토한다.
 - 문서에 적힌 로컬 명령 파일 존재와 주요 공개 class/method 이름을 소스에서 대조했다. 기존 `smoke-local.sh`는 보호된 dev push 미구현으로 실패하는 사실을 명시했다. 문서 전체 flow 및 실 provider 예제 감사는 미완료다.
 - 커밋 전: 현재 상태의 문서 초안만 포함한다. 기능 완결 및 API 전체 교차 감사 전이므로 P07-T03 PARTIAL 유지.
+- P05-T05 계속: Google 공식 Publisher consume/ack 단발 경계를 작성한다. 저장된 grant 검증을 선행하며, 증빙 보관 및 자동 retry는 사용자 결정 전 연결하지 않는다.
+- Google finalizer 초안: durable grant 확인 후 제품·계정·스토어 상태 재조회, 미완료만 consume/ack한다. credential·worker/증빙 저장소와는 연결되지 않았다. 컴파일을 확인한다.
+- Google finalizer 编译 성공. fake gateway로 grant 이전 호출 차단·계정 불일치·기완료 재조회·consume/ack 분기를 검증한다.
+- Google finalizer fake gateway 시험 2건 통과: grant 전 조회 차단, 계정 불일치 거부, 완료 상태 스토어 재조회, consume/ack 분리. 실제 Publisher 호출은 없다.
+- 커밋 전: Google 공식 client 단발 finalization과 fake 경계만 포함. durable grant check 실제 DB 구현, 증빙 보관·삭제 정책, job worker 연결 및 실제 Play 시험은 미완료다.

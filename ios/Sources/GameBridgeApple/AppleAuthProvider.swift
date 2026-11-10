@@ -127,6 +127,14 @@ protocol AppleAuthBackend {
             return try validateProfile(profile, session: usable)
         }
     }
+    internal var sessionGeneration: Int { generation }
+    internal func withAuthenticatedSession<T>(_ action: (AppleSession) async throws -> T) async throws -> T? {
+        guard let profile = try await restore(), let session = try loadBound(), profile.userId == session.userId else { return nil }
+        let started = generation
+        let result = try await action(session)
+        guard generation == started, currentSession?.userId == session.userId else { throw SdkFailure("CANCELED") }
+        return result
+    }
     public func signOut() async throws {
         let raw = try store.load()
         let pending = raw == "{\"state\":\"refresh_pending\"}"

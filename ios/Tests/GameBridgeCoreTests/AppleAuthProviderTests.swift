@@ -76,6 +76,40 @@ final class AppleAuthProviderTests: XCTestCase {
         do { _ = try await provider.checkCredentialState(); XCTFail("revoke error") } catch let error as SdkFailure { XCTAssertEqual(error.code, "NETWORK_UNAVAILABLE"); XCTAssertEqual(error.nativeCode, "REVOCATION_UNCONFIRMED") }
         XCTAssertNil(store.value); XCTAssertTrue(backend.revoked)
     }
+    @MainActor func testPurchaseBindingCacheInvalidatesOnLogout() async throws {
+        let auth = AppleAuthProvider(config: GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com"), store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
+        _ = try await auth.signIn()
+        let binding = UUID()
+        let source = ApplePurchaseAccountSource(auth: auth) { token in
+            XCTAssertEqual(token, "test-access")
+            return Data("{\"appleAccountToken\":\"\(binding.uuidString)\"}".utf8)
+        }
+        let account = try await source.refresh()
+        XCTAssertEqual(account?.binding, binding)
+        XCTAssertNotNil(source.current())
+        try await auth.signOut()
+        XCTAssertNil(source.current())
+        do { _ = try parseAppleBinding(userId: UUID().uuidString, data: Data("{}".utf8)); XCTFail("invalid binding") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "BRIDGE_PROTOCOL_MISMATCH") }
+    }
+    @MainActor func testLatePurchaseBindingAfterLogoutIsDiscarded() async throws {
+        let auth = AppleAuthProvider(config: GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com"), store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
+        _ = try await auth.signIn()
+        var continuation: CheckedContinuation<Void, Never>?
+        var entered = false
+        let source = ApplePurchaseAccountSource(auth: auth) { _ in
+            entered = true
+            await withCheckedContinuation { continuation = $0 }
+            return Data("{\"appleAccountToken\":\"\(UUID().uuidString)\"}".utf8)
+        }
+        let pending = Task { try await source.refresh() }
+        while !entered { await Task.yield() }
+        try await auth.signOut()
+        continuation?.resume()
+        do { _ = try await pending.value; XCTFail("late binding") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CANCELED") }
+        XCTAssertNil(source.current())
+    }
     @MainActor func testConcurrentAuthorizationIsBusy() async throws {
         let store = AppleMemoryStore(); let gateway = AppleFakeGateway(); gateway.hold = true
         let provider = AppleAuthProvider(config: GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com"), store: store, gateway: gateway, backend: AppleFakeBackend())

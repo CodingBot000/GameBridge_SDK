@@ -771,3 +771,11 @@
 - Android binding parser unit 및 전체 sdk-android unit task 통과. 인증 session 요청 도중 logout이 기존 계정과 경합하지 않는지도 fake 경계 시험을 추가한다.
 - Android unit 재실행 종료 0. fake 인증 backend에서 binding 요청 진행 중 logout이 기다리고 완료 후 session이 비워짐을 확인했다. 실제 Google 인증·Backend binding HTTP·Play 거래는 미실행이다.
 - 커밋 전: Native-only account source와 parser·session 경합 unit만 포함. Apple 연결, provider 조립 및 real proof sink는 미완료로 P05-T01 PARTIAL 유지.
+
+### [P05-T01] Apple purchase binding 연결 — 2026-11-10 Asia/Seoul
+- Apple 인증 세션을 복원하고 서버 binding을 Native 내부 cache에만 연결한다. async 요청 중 logout/계정 변경 시 이전 계정 결과를 버린다.
+- Apple Native-only binding source 초안과 logout 후 cache 무효화 단위시험을 추가했다. session generation으로 요청 도중 변경을 감지한다.
+- Swift Apple auth fake 단위시험 7건 통과. binding 요청 중 logout 후 늦게 도착한 응답을 폐기하는 경합 시험을 추가한다.
+- Swift Apple auth fake 시험 8건 통과: logout 후 cache 무효화, 요청 지연 중 logout 시 응답 폐기 포함. simulator 타깃 컴파일을 확인한다.
+- 새 Apple binding source를 포함한 simulator static framework build 성공. 이전 XCFramework/staging은 이 커밋을 포함하지 않으므로 최신 산출물로 간주하지 않는다. 실제 StoreKit·Backend HTTP 연동은 미실행이다.
+- 커밋 전: Apple Native-only binding source와 generation 경합 unit만 포함한다. 양 플랫폼 provider 조립·실 proof sink·실거래는 미완료로 P05-T01 PARTIAL 유지.

@@ -205,3 +205,14 @@
 - 테스트 서버 Ctrl-C 종료 130; 전용 DB는 데이터 보존 상태로 정지한다.
 - 전용 DB `docker compose ... stop` 종료 0. 실제 코인 구매가 아닌 Mock 구매·원장 데이터는 전용 volume에 보존됐다.
 - 커밋 전: local-mock catalog·동일 transaction 원장 지급·일부 멱등 처리와 smoke만 포함. 최종화 worker·실 스토어 검증·장애 복구·정밀 revision 계약 등은 미구현이므로 P02-T03은 PARTIAL 유지한다.
+
+### [P02-T04] 시작 — 2026-11-10 Asia/Seoul
+- P02-T03 Mock 지급·중복 방지 일부 확인. 영속적인 완료 처리 큐와 재시도를 작성한다. 실제 Google consume/acknowledge는 아직 구현하지 않으며 Mock 완료와 구별한다.
+- `./backend/gradlew -p backend test` 종료 0: 새 Mock finalizer의 첫 시도 실패·후속 성공을 포함해 단위 테스트 통과. DB 큐·worker 재시작·원장 불변은 아직 미검증이며 구매 경로에 연결되지 않았다.
+- 전용 PostgreSQL `docker compose ... up -d --wait` 종료 0, healthy. DB test는 local-mock marker를 확인하고 새 UUID 행만 생성하며 사용자 기존 데이터는 삭제하지 않는다.
+- `GAMEBRIDGE_RUN_DB_TESTS=true ... ./backend/gradlew -p backend test` 종료 0: 전용 PostgreSQL에서 Mock 첫 실패 후 worker 객체 재생성·성공과 원장 1행/100 유지 확인. 상세 테스트 수와 skip 여부는 XML로 확인한다. 이 시험은 실제 프로세스 종료나 실제 스토어 finalization이 아니다.
+- JUnit XML: 총 6건, 실패 0, skip 0 (DB finalization 1건 포함). 검토 중 테스트가 대기 중인 다른 Mock 작업을 집어갈 수 있음을 발견해 테스트 대상 purchase ID만 선택하도록 보정한다.
+- 테스트 전용 purchase ID를 명시적으로 선택하도록 보정 후 DB 포함 `./backend/gradlew -p backend test` 종료 0. 다른 대기 작업을 시험이 소비하지 않도록 제한했다.
+- 전용 DB container는 데이터 삭제 없이 정지한다.
+- 전용 DB `docker compose ... stop` 종료 0. 시험 전용 UUID 사용자·구매·원장·완료 처리 행은 volume에 보존했다.
+- 커밋 전: Mock worker 독립 DB 시험만 통과. 실제 구매와 job 생성 연결·자동 실행·프로세스 재시작 시험·실제 Play finalizer는 미구현이므로 P02-T04 PARTIAL 유지.

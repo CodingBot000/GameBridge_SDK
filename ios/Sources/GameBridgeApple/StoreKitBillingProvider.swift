@@ -21,6 +21,10 @@ struct ApplePurchaseProof: CustomStringConvertible {
 /// Implementations must return only after the Backend durably commits the grant.
 protocol ApplePurchaseProofSink {
     func verify(_ proof: ApplePurchaseProof, userId: UUID) async throws -> ServerGrant
+    func didFinish(_ proof: ApplePurchaseProof, userId: UUID) async throws
+}
+extension ApplePurchaseProofSink {
+    func didFinish(_ proof: ApplePurchaseProof, userId: UUID) async throws {}
 }
 
 struct ApplePurchaseAccount: Equatable {
@@ -171,6 +175,7 @@ final class StoreKitBillingProvider {
             let grant = try await sink.verify(proof, userId: account.userId)
             try acceptAppleGrant(grant, proof: proof, account: account, current: currentAccount())
             await transaction.finish()
+            try await sink.didFinish(proof, userId: account.userId)
             return grant
         }
     }

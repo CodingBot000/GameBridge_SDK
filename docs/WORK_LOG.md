@@ -1909,3 +1909,9 @@
 ### P05-T05 journal 보수적 정리 검증 시작
 - journal 재시험 2건 통과: 재시도 시도 ID 유지, 타 계정·다른 거래 차단, 정상 finish 삭제, 미확인 빈 조회에서는 보존, 완료 이력 확인 시 정리, 손상 기록 fail-closed. 아직 Keychain·StoreKit·서버 통합 전이다.
 - 커밋 준비: Native journal 및 필수 attempt ID client만 저장한다. 실제 구매 차단 유지.
+### P05-T05 StoreKit finish와 journal 연결 시작
+- 성공적인 서버 지급 후 StoreKit finish가 돌아온 경우에만 해당 attempt 단서를 지우는 callback을 연결한다. Xcode 구매는 여전히 차단하며 실제 provider 기본 동작은 그대로 유지한다.
+### P05-T05 finish callback 회귀 검증 시작
+- 기존 Apple sink와 journal 단위 시험을 실행한다. 실 StoreKit 지급 차단은 유지한다.
+- Swift 기존 StoreKit 및 journal 8건 통과. protocol 기본 callback은 기존 Apple sink에서 no-op이며 실제 StoreKit finish 순서는 simulator 통합에서 다시 확인해야 한다.
+- 커밋 준비: finish 이후 callback 경계만 저장하고 Xcode 구매 차단은 유지한다.

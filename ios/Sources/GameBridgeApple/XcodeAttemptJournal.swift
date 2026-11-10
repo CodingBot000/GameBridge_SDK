@@ -24,6 +24,10 @@ actor XcodeAttemptJournal {
         catch { throw SdkFailure("INTERNAL_ERROR") }
         return pending.attemptId
     }
+    func finish(account: UUID, key: String) throws {
+        guard let pending = try load() else { throw SdkFailure("INTERNAL_ERROR") }
+        try finish(account: account, key: key, attempt: pending.attemptId)
+    }
     func finish(account: UUID, key: String, attempt: UUID) throws {
         guard let pending = try load(), pending.accountId == account, pending.transactionKey == key, pending.attemptId == attempt else { throw SdkFailure("INTERNAL_ERROR") }
         do { try store.clear() } catch { throw SdkFailure("INTERNAL_ERROR") }

@@ -2339,3 +2339,7 @@
 - 실키·서명·기기 설정은 USER_SETUP으로 유지하고 비밀값을 출력하지 않는 check-config만 실행한다. 통과하더라도 실제 provider 검증은 아니다.
 - `bash scripts/verify-external.sh --check-config` exit 2: auth audiences, Google purchase, Apple purchase, FCM, APNs, purchase encryption, push token encryption이 MISSING_OR_INVALID. 비밀값은 출력하지 않았고 실제 인증·발송·결제는 수행하지 않았다.
 - 커밋 준비: 외부 설정 형태 재확인 결과만 기록한다. 실연동은 NOT_RUN이고 USER_SETUP의 사용자 작업이 남아 있다.
+### P05-T03 iOS 26.5 로컬 StoreKit 재검증 시작
+- 기존 전용 iOS 18.6 재시작 runner에 런타임 선택을 추가하고 별도 26.5 simulator에서 실행한다. 실패를 자동으로 성공 처리하지 않으며 Apple sandbox와 구분한다.
+- iOS 26.5 전용 simulator·DB 재시험 `artifacts/xcode-process-recovery-ifyufa3n` exit 1: 앱 prepare 상태 보고 timeout. 이번 결과만으로 기존 SKInternalErrorDomain Code 3과 동일 원인이라고 판단하지 않는다. 제품 StoreKit 기능 검증은 FAIL 유지한다.
+- runtime override 및 증거 JSON에 사용 런타임을 기록하도록 보강했고 Python 문법 검사는 PASS. 커밋 준비: 테스트 runner와 실패 사실만 저장한다.

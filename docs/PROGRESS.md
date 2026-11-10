@@ -229,3 +229,6 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - P11-T02 외부 설정 점검 재검증 시작: 실제 인증·발송·결제를 수행하지 않는 설정 확인만 실행한다.
 - P11-T02 설정 형태 확인 exit 2: 인증 audience, Google/Apple 구매, FCM/APNs 및 구매·푸시 암호화 키가 누락 또는 유효하지 않다. 실제 provider 시험은 NOT_RUN이며 USER_SETUP 대기다.
 - P11-T02 커밋 준비: 설정 확인 결과와 사용자 준비 대기를 기록한다. 외부 설정은 수정하지 않았다.
+- P05-T03 iOS 26.5 재검증 시작: 전용 simulator에서 현재 Xcode 로컬 앱 재시작 시험을 실행해 기존 StoreKit Code 3 실패가 유지되는지 확인한다. 기존 simulator·설정은 보존한다.
+- P05-T03 iOS 26.5 전용 재검증 FAIL (`artifacts/xcode-process-recovery-ifyufa3n`): 테스트 앱 prepare 상태 보고가 제한시간 내 오지 않았다. Code 3 재현 여부는 확인되지 않았으며 기존 실패는 유지한다.
+- P05-T03 runtime 선택 runner 문법 검사 PASS. 커밋 준비: iOS 26.5 재실행은 timeout FAIL로 남긴다.

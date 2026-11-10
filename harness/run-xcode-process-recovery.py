@@ -23,11 +23,12 @@ def main():
     if build.returncode: print('Backend build failed:',out); return 1
     project=run(['bash','scripts/generate-ios-project.sh']);
     if project.returncode: print('Xcode generation failed:',out); return 1
-    sim=run(['xcrun','simctl','create','GameBridge-Process-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'])
+    runtime=os.environ.get('GAMEBRIDGE_PROCESS_SIM_RUNTIME','com.apple.CoreSimulator.SimRuntime.iOS-18-6')
+    sim=run(['xcrun','simctl','create','GameBridge-Process-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16',runtime])
     if sim.returncode: print('Simulator unavailable:',out); return 2
     device=sim.stdout.strip(); print('Retained simulator:',device,flush=True)
     log=(out/'backend.log').open('w'); server=subprocess.Popen(['java','-jar',str(ROOT/'backend/build/libs/gamebridge-backend.jar')],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT)
-    report={'status':'FAIL','database':name,'simulator':device,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'limitations':['Xcode local StoreKit and synthetic local database only','not Unity or Apple sandbox']}
+    report={'status':'FAIL','database':name,'simulator':device,'runtime':runtime,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'limitations':['Xcode local StoreKit and synthetic local database only','not Unity or Apple sandbox']}
     try:
         deadline=time.monotonic()+60
         while time.monotonic()<deadline:

@@ -23,3 +23,5 @@ gamebridge:
     max-retries: ${GAMEBRIDGE_PUSH_MAX_RETRIES:3}
     initial-backoff-seconds: ${GAMEBRIDGE_PUSH_INITIAL_BACKOFF_SECONDS:5}
     dev-per-minute: ${GAMEBRIDGE_DEV_PUSH_PER_MINUTE:10}
+  config:
+    ttl-seconds: ${GAMEBRIDGE_CONFIG_TTL_SECONDS:300}

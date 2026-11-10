@@ -1020,3 +1020,16 @@
 - 커밋 전: DB token 재조회·조건부 invalidation dispatcher와 fake 시험만 포함한다. sandbox endpoint/worker에는 아직 미연결이며 실제 push는 없다.
 - push worker 동시성 및 server config 기본 TTL의 사용자 선택 대기를 blocker 표에 등록했다. 이 값이 필요한 scheduler/default는 결정 전 활성화하지 않는다.
 - 커밋 전: 미결정 항목 문서화만 포함한다.
+- 사용자 결정 수신: server config cache 기본 TTL 5분, push worker 기본 동시 1건(설정 가능). 결정 문서에 기록하고 구현·검증한다.
+- 사용자 결정 수신: 서버 점검 상태 미설정 시 신규 구매 차단. 설정됨을 가장하지 않고 config endpoint는 명시 여부 없으면 CONFIG_REQUIRED로 응답하도록 구현한다.
+- server config endpoint는 명시적 true/false가 없으면 503, 설정 시 선택한 기본 TTL 300초의 expiry를 제공하도록 작성한다. 실제 운영 점검값을 자동 선택하지 않는다.
+- config controller unit 통과: 미설정 503, 명시 false/true와 기본 TTL 300초 확인. Android/iOS local-mock 신규 구매 전에 config gate를 연결한다. 검증·복구·logout은 영향을 받지 않는다.
+- Android core unit 통과, Swift 전체 40건 중 37 통과·local Backend opt-in 3 skip. 명시적 GAMEBRIDGE_MAINTENANCE_ENABLED=false와 test-only 키로 전용 local-mock 서버를 시작해 실제 Native↔Backend 통합 회귀를 실행한다.
+- 명시 정상 config로 실행한 local Backend에서 Android core integration 재실행 통과, Swift 전체 40건 중 40 통과(skip0). config 미설정/점검 시 신규 구매만 막고 wallet/logout을 유지하는 fake HTTP 회귀를 추가한다.
+- Android fake HTTP config 미설정·maintenance 차단 및 wallet/logout 허용 시험 통과. 같은 동작을 Swift fake URLProtocol로 확인한다.
+- Swift fake HTTP 시험 1건 통과했으나 async 테스트에서 직접 NSLock을 사용해 Swift 6 경고가 발생했다. 동기 helper로 이동해 재확인한다.
+- Swift fake HTTP 재시험 경고 없이 통과. Android fake server 상태를 atomic으로 바꿔 시험 간 thread 가시성을 보강한다. 문서에 명시적 maintenance 설정을 추가한다.
+- 수정된 local-mock config 응답을 포함한 device smoke를 기동 중인 전용 Backend에서 실행한다. 새 시험 데이터만 생성하며 원격 push는 하지 않는다.
+- local-mock device smoke 19 assertions 통과, 원격 push 없음. 직접 기동한 Backend만 종료했고 전용 DB/volume과 시험 기록은 보존했다. sandbox 실제 HTTP에서 점검 미설정 시 503을 확인한다.
+- sandbox synthetic HTTP 통합에서 점검 미설정 config 503 CONFIG_REQUIRED 확인. Android/iOS fake test에서는 미설정·점검 시 새 구매만 차단하고 wallet/logout은 허용했다.
+- 커밋 전: 사용자 선택한 명시 설정 전 차단, 5분 TTL, Native local-mock gate와 시험을 포함한다. config cache의 재시작 후 영속성과 Unity 적용 및 실제 플랫폼 검증은 미완료다.

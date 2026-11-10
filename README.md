@@ -10,7 +10,8 @@ Android/iOS 샘플의 `LOCAL_MOCK` 로그인·구매·복원은 로컬 Backend�
 
 ```sh
 # GAMEBRIDGE_DB_PASSWORD, GAMEBRIDGE_DEV_AUTH_KEY,
-# SERVER_TOKEN_ENCRYPTION_KEY를 현재 셸에 설정한 다음 실행
+# SERVER_TOKEN_ENCRYPTION_KEY와 GAMEBRIDGE_MAINTENANCE_ENABLED를
+# 현재 셸에 명시적으로 설정한 다음 실행
 bash scripts/run-demo-backend.sh
 ```
 

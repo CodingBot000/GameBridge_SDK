@@ -29,7 +29,7 @@ def main():
         nonlocal count
         count += 1
         if not condition: raise AssertionError(label)
-    status, config = call('GET', '/v1/config'); check(status == 200 and config['source'] == 'DEFAULT', 'public default config')
+    status, config = call('GET', '/v1/config'); check(status == 200 and config['source'] == 'REMOTE', 'explicit local config')
     status, a = call('POST', '/v1/dev/auth', {'subject': 'A'}, {'X-Development-Key': KEY}); check(status == 200, 'login A')
     status, b = call('POST', '/v1/dev/auth', {'subject': 'B'}, {'X-Development-Key': KEY}); check(status == 200, 'login B')
     installation = str(uuid.uuid4())

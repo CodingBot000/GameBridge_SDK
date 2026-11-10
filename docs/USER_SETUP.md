@@ -220,6 +220,10 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 
 Google 완료 처리가 확인되면 암호화 증빙을 즉시 삭제하기로 사용자가 결정했다. Google worker는 fake store와 격리 DB에서 실패 시 증빙 유지 및 완료 확인 시 즉시 삭제를 검증했다. 실제 Play Developer API 확인은 미실행이다.
 
-사용자 정책 결정: 푸시 재시도 최대 3회, 5초부터 지수 백오프(APNs 5xx는 최소 15분 후); 개발 발송 API는 관리자 키별 분당 10회; 세션 푸시 중복 ID 최근 200개; 사용 가능한 config가 없으면 신규 구매 차단. 서버 retry 정책은 단위 검증했고 worker에는 아직 미연결이다. 분당 10회 제한은 보호된 local-mock 개발 endpoint에서 HTTP 검증했다. 세션 dedup router는 Android/iOS 단위 검증했고 실제 callback 연결은 미완료다. 실제 Native store runtime은 사용 가능한 config가 없으면 신규 구매를 차단한다. 현재 서버 기본 응답에는 expiry가 없어 실제 store 시작이 차단되며 서버 config TTL 결정·구현이 필요하다. local-mock sample에는 아직 이 gate가 연결되지 않았다. 실제 플랫폼 발송은 미실행이다.
+사용자 정책 결정: 푸시 재시도 최대 3회, 5초부터 지수 백오프(APNs 5xx는 최소 15분 후); 개발 발송 API는 관리자 키별 분당 10회; 세션 푸시 중복 ID 최근 200개; 사용 가능한 config가 없으면 신규 구매 차단. 서버 retry 정책은 단위 검증했고 worker에는 아직 미연결이다. 분당 10회 제한은 보호된 local-mock 개발 endpoint에서 HTTP 검증했다. 세션 dedup router는 Android/iOS 단위 검증했고 실제 callback 연결은 미완료다. 실제 Native store runtime은 사용 가능한 config가 없으면 신규 구매를 차단한다. 서버는 점검 상태를 명시한 경우 기본 5분 expiry를 반환하고, 미설정 시 CONFIG_REQUIRED로 응답한다. Native local-mock과 실제 store runtime에 신규 구매 gate를 연결했다. 실제 플랫폼 발송은 미실행이다.
 
 local-mock 개발 push endpoint를 사용하려면 `GAMEBRIDGE_DEV_PUSH_ADMIN_KEY`(기존 개발 인증키와 다른 32자 이상 비밀값)와 쉼표로 구분한 `GAMEBRIDGE_DEV_PUSH_ALLOWLIST` installation UUID 목록을 설정한다. 사용자 인증·소유권도 필요하며 응답 SIMULATED는 원격 전달이 아니다. sandbox 실제 sender는 아직 CONFIG_REQUIRED다.
+
+사용자 결정: config cache 기본 TTL은 5분, push 발송·재시도 worker 기본 동시성은 1건이다. 코드·설정·검증에 반영 중이다.
+
+서버 점검 상태가 명시되지 않으면 신규 구매를 차단하기로 사용자가 결정했다. 로컬 시험에서 구매를 허용하려면 `GAMEBRIDGE_MAINTENANCE_ENABLED=false`를 명시하며 실제 운영 상태는 운영자가 결정한다.

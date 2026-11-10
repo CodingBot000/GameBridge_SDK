@@ -78,6 +78,15 @@ class MockDevicesController(private val db: JdbcTemplate, private val cipher: To
     }
 }
 @RestController
-class PublicServiceConfigController {
-    @GetMapping("/v1/config") fun config(): Map<String, Any?> = mapOf("revision" to "0", "maintenanceEnabled" to false, "message" to null, "expiresAt" to null, "source" to "DEFAULT")
+class PublicServiceConfigController(
+    @Value("\${GAMEBRIDGE_MAINTENANCE_ENABLED:}") private val enabled: String,
+    @Value("\${GAMEBRIDGE_MAINTENANCE_MESSAGE:}") private val message: String,
+    @Value("\${gamebridge.config.ttl-seconds:300}") private val ttlSeconds: Long,
+) {
+    @GetMapping("/v1/config") fun config(): Map<String, Any?> {
+        if (enabled !in setOf("true", "false") || ttlSeconds <= 0) throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CONFIG_REQUIRED")
+        val expires = try { java.time.Instant.now().plusSeconds(ttlSeconds).toString() } catch (_: Exception) { throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CONFIG_REQUIRED") }
+        val revision = MessageDigest.getInstance("SHA-256").digest((enabled + "\u0000" + message).toByteArray(StandardCharsets.UTF_8)).take(8).joinToString("") { "%02x".format(it) }
+        return mapOf("revision" to revision, "maintenanceEnabled" to (enabled == "true"), "message" to message.takeIf { it.isNotBlank() }, "expiresAt" to expires, "source" to "REMOTE")
+    }
 }

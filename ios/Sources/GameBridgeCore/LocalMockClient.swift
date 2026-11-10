@@ -29,6 +29,7 @@ public struct LocalPurchase: Codable {
 /// Native-owned tokens; this client only connects to the explicitly configured local mock backend.
 public actor LocalMockClient {
     private let backend: BackendClient
+    private let serviceConfig: ServiceConfigurationRepository
     private let config: GameBridgeConfig
     private let store: TokenStore
     private let developmentKey: String
@@ -39,7 +40,9 @@ public actor LocalMockClient {
     public init(config: GameBridgeConfig, store: TokenStore, developmentKey: String, sessionConfiguration: URLSessionConfiguration = .default) throws {
         guard config.mode == .localMock else { throw SdkFailure("UNSUPPORTED_PROVIDER") }
         guard developmentKey.count >= 32 else { throw SdkFailure("CONFIG_REQUIRED") }
-        backend = try BackendClient(config: config, sessionConfiguration: sessionConfiguration); self.config = config; self.store = store; self.developmentKey = developmentKey
+        let backendClient = try BackendClient(config: config, sessionConfiguration: sessionConfiguration)
+        backend = backendClient; serviceConfig = backendServiceConfiguration(backendClient)
+        self.config = config; self.store = store; self.developmentKey = developmentKey
     }
     public func signIn(subject: String) async throws -> UserProfile {
         guard ["A", "B"].contains(subject) else { throw SdkFailure("INVALID_ARGUMENT") }
@@ -71,6 +74,13 @@ public actor LocalMockClient {
     public func purchase(productId: String, transactionId: UUID, attemptId: UUID) async throws -> LocalPurchase {
         guard ["coins_100", "premium_unlock"].contains(productId) else { throw SdkFailure("PRODUCT_NOT_FOUND") }
         guard let user = session?.userId else { throw SdkFailure("SESSION_EXPIRED") }
+        let started = generation
+        let maintenance: Bool?
+        do { maintenance = try await serviceConfig.current()?.settings.maintenanceEnabled }
+        catch is CancellationError { throw SdkFailure("CANCELED") }
+        catch { maintenance = nil }
+        guard generation == started, session?.userId == user else { throw SdkFailure("CANCELED") }
+        guard MaintenanceGate.permits(maintenanceEnabled: maintenance, operation: .startPurchase) else { throw SdkFailure(maintenance == true ? "MAINTENANCE" : "CONFIG_REQUIRED") }
         let proof = "mock:\(user):\(productId):\(transactionId.uuidString.lowercased())"
         let body = try encode(["productId": productId, "proof": proof, "quantity": 1])
         return try decode(try await authenticated(path: "/v1/purchases/verify", method: "POST", body: body, idempotencyKey: attemptId.uuidString.lowercased()).json)

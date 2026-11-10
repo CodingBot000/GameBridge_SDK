@@ -61,6 +61,7 @@ class AuthHttpIntegrationTest {
             registry.add("DATABASE_PASSWORD") { requireNotNull(System.getenv("GAMEBRIDGE_TEST_DB_PASSWORD")) }
             registry.add("gamebridge.session.access-ttl-seconds") { 120L }
             registry.add("gamebridge.session.refresh-ttl-seconds") { 600L }
+            registry.add("GAMEBRIDGE_MAINTENANCE_ENABLED") { "" }
             registry.add("SERVER_TOKEN_ENCRYPTION_KEY") { java.util.Base64.getEncoder().encodeToString(ByteArray(32) { it.toByte() }) }
             registry.add("GAMEBRIDGE_AUTH_AUDIENCES_JSON") { """{"test-app":{"GOOGLE":["test-google"],"APPLE":["test.apple.bundle"]}}""" }
         }
@@ -72,6 +73,8 @@ class AuthHttpIntegrationTest {
             .apply { sign(RSASSASigner(FixtureKey.key.toPrivateKey())) }.serialize()
     }
     @Test fun `http exchange verifies tokens and challenge replay while retaining first display name`() {
+        val unsetConfig = rest.getForEntity("/v1/config", Map::class.java)
+        assertEquals(503, unsetConfig.statusCode.value()); assertEquals("CONFIG_REQUIRED", unsetConfig.body!!["code"])
         val dev = rest.postForEntity("/v1/dev/auth", mapOf("subject" to "A"), Map::class.java)
         assertEquals(404, dev.statusCode.value())
         val subject = "subject-" + UUID.randomUUID()

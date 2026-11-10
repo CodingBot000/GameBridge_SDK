@@ -26,6 +26,7 @@ private val wireJson = Json { ignoreUnknownKeys = true }
 /** Native-only local development path. Tokens remain in Native memory/storage. */
 class LocalMockClient(private val config: GameBridgeConfig, private val store: TokenStore, private val developmentKey: String) {
     private val backend = BackendClient(config)
+    private val serviceConfig = backendServiceConfiguration(backend)
     private val lock = Mutex()
     private var session: SecretSession? = null
     init {
@@ -51,6 +52,8 @@ class LocalMockClient(private val config: GameBridgeConfig, private val store: T
     suspend fun wallet(): LocalWallet = lock.withLock { decode(authenticated("/v1/entitlements", "GET").json) }
     suspend fun purchase(productId: String, transactionId: UUID, attemptId: UUID): LocalPurchase = lock.withLock {
         if (productId !in setOf("coins_100", "premium_unlock")) throw SdkFailure("PRODUCT_NOT_FOUND")
+        val maintenance = serviceConfig.current()?.settings?.maintenanceEnabled
+        if (!MaintenanceGate.permits(maintenance, ProtectedOperation.START_PURCHASE)) throw SdkFailure(if (maintenance == true) "MAINTENANCE" else "CONFIG_REQUIRED")
         val userId = session?.userId ?: throw SdkFailure("SESSION_EXPIRED")
         val proof = "mock:$userId:$productId:$transactionId"
         val body = buildJsonObject { put("productId", productId); put("proof", proof); put("quantity", 1) }.toString()

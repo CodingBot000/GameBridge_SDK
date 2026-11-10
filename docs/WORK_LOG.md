@@ -1008,3 +1008,7 @@
 - lazy provider registry编译成功。synthetic P-256 key와 임시 test-only 파일로 APNs 구성/cache 분리 및 FCM/APNs 누락 설정 실패를 확인한다. 네트워크 요청은 없다.
 - synthetic APNs EC key 기반 lazy registry/cache 및 누락 FCM/APNs config, fake sender unit 총 5건 통과. 실제 .p8/service account/원격 전송은 사용하지 않았다.
 - 커밋 전: 실제 provider 구성·단발 sender의 lazy 조립만 포함한다. sandbox dev endpoint 연결·retry worker·실 인증정보 검증은 미완료다.
+- APNs 5xx와 429에 서로 다른 승인 재시도 간격을 적용할 수 있도록 단발 sender 결과에 redacted failure 종류를 추가한다. fake status/exception mapping을 재검증한다.
+- FCM/APNs failure 종류 mapping 검증 통과. push content의 자동 문자열화가 제목·본문을 노출할 수 있어 redaction을 추가하고 잘못된 FCM 메시지는 영구 오류로 분류한다.
+- fake sender/config/policy unit 7건 통과: APNs 429·5xx failure 구분, token/content 정제, 서명/cache 및 제한 정책. 실제 remote push는 없다.
+- 커밋 전: 단발 sender 결과 분류와 redaction만 포함한다. 실제 endpoint retry worker 동시성은 사용자 결정 대기다.

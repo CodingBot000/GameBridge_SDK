@@ -15,10 +15,10 @@ import kotlin.test.*
 class PushSendersTest {
     private val content = PushContent("message-1", "home", "title", "body", "campaign")
     @Test fun `fcm maps only unregistered to invalid token`() {
-        assertEquals(PushSendResult.INVALID_TOKEN, mapFcmError(MessagingErrorCode.UNREGISTERED))
-        assertEquals(PushSendResult.RETRYABLE, mapFcmError(MessagingErrorCode.QUOTA_EXCEEDED))
-        assertEquals(PushSendResult.RETRYABLE, mapFcmError(MessagingErrorCode.UNAVAILABLE))
-        assertEquals(PushSendResult.FAILED, mapFcmError(MessagingErrorCode.INVALID_ARGUMENT))
+        assertEquals(PushSendResult.INVALID_TOKEN, mapFcmError(MessagingErrorCode.UNREGISTERED).result)
+        assertEquals(PushSendResult.RETRYABLE, mapFcmError(MessagingErrorCode.QUOTA_EXCEEDED).result)
+        assertEquals(PushSendResult.RETRYABLE, mapFcmError(MessagingErrorCode.UNAVAILABLE).result)
+        assertEquals(PushSendResult.FAILED, mapFcmError(MessagingErrorCode.INVALID_ARGUMENT).result)
     }
     @Test fun `apns request uses fixed host topic and maps results without leaking token`() {
         var called = false
@@ -29,16 +29,19 @@ class PushSendersTest {
             assertEquals("alert", req.headers().firstValue("apns-push-type").orElse(null))
             200
         })
-        assertEquals(PushSendResult.FAILED, sender.send("not-a-device-token", content)); assertFalse(called)
-        assertEquals(PushSendResult.FAILED, sender.send("aa11", content.copy(body = "x".repeat(4097)))); assertFalse(called)
-        assertEquals(PushSendResult.SENT, sender.send("aa11", content)); assertTrue(called)
-        assertEquals(PushSendResult.INVALID_TOKEN, mapApnsStatus(410))
-        assertEquals(PushSendResult.FAILED, mapApnsStatus(400))
-        assertEquals(PushSendResult.RETRYABLE, mapApnsStatus(429))
-        assertEquals(PushSendResult.RETRYABLE, mapApnsStatus(503))
+        assertEquals(PushSendResult.FAILED, sender.send("not-a-device-token", content).result); assertFalse(called)
+        assertEquals(PushSendResult.FAILED, sender.send("aa11", content.copy(body = "x".repeat(4097))).result); assertFalse(called)
+        assertEquals(PushSendResult.SENT, sender.send("aa11", content).result); assertTrue(called)
+        assertEquals(PushSendResult.INVALID_TOKEN, mapApnsStatus(410).result)
+        assertEquals(PushSendResult.FAILED, mapApnsStatus(400).result)
+        assertEquals(PushSendResult.RETRYABLE, mapApnsStatus(429).result)
+        assertEquals(PushSendResult.RETRYABLE, mapApnsStatus(503).result)
+        assertEquals(PushFailure.SERVER_ERROR, mapApnsStatus(503).failure)
+        assertEquals(PushFailure.RATE_LIMIT, mapApnsStatus(429).failure)
         val offline = ApnsPushSender("test.bundle", ApnsEnvironment.PRODUCTION, { "fixture" }, ObjectMapper(), ApnsTransport { throw IOException("offline") })
-        assertEquals(PushSendResult.RETRYABLE, offline.send("aa11", content))
+        assertEquals(PushSendResult.RETRYABLE, offline.send("aa11", content).result)
         assertFailsWith<IllegalArgumentException> { PushContent("x", "https://example.invalid", "a", "b") }
+        assertFalse(PushContent("id", "home", "secret-title", "secret-body").toString().contains("secret-body"))
     }
     @Test fun `provider token is reused and refreshed after forty minutes`() {
         var nanos = 0L; var created = 0

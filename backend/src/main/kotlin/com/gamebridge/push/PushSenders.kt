@@ -22,24 +22,30 @@ import java.time.Instant
 import java.util.Date
 
 enum class PushSendResult { SENT, INVALID_TOKEN, RETRYABLE, FAILED }
+internal data class PushAttempt(val result: PushSendResult, val failure: PushFailure? = null)
 internal data class PushContent(val messageId: String, val route: String, val title: String, val body: String, val campaignId: String? = null) {
     init { require(messageId.isNotBlank() && route in setOf("home", "store")) }
+    override fun toString() = "PushContent([redacted])"
     fun data(): Map<String, String> = buildMap { put("messageId", messageId); put("route", route); campaignId?.let { put("campaignId", it) } }
 }
 
 /** One attempt only; scheduling and durable token lifecycle are owned by the caller. */
 internal class FcmPushSender(private val messaging: FirebaseMessaging) {
-    fun send(token: String, content: PushContent): PushSendResult {
-        if (token.isBlank()) return PushSendResult.FAILED
-        val message = Message.builder().setToken(token).putAllData(content.data())
-            .setNotification(Notification.builder().setTitle(content.title).setBody(content.body).build()).build()
-        return try { messaging.send(message); PushSendResult.SENT } catch (e: FirebaseMessagingException) { mapFcmError(e.messagingErrorCode) }
+    fun send(token: String, content: PushContent): PushAttempt {
+        if (token.isBlank()) return PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT)
+        return try {
+            val message = Message.builder().setToken(token).putAllData(content.data())
+                .setNotification(Notification.builder().setTitle(content.title).setBody(content.body).build()).build()
+            messaging.send(message); PushAttempt(PushSendResult.SENT)
+        } catch (e: FirebaseMessagingException) { mapFcmError(e.messagingErrorCode) }
+        catch (_: IllegalArgumentException) { PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT) }
     }
 }
-internal fun mapFcmError(code: MessagingErrorCode?): PushSendResult = when (code) {
-    MessagingErrorCode.UNREGISTERED -> PushSendResult.INVALID_TOKEN
-    MessagingErrorCode.QUOTA_EXCEEDED, MessagingErrorCode.UNAVAILABLE, MessagingErrorCode.INTERNAL -> PushSendResult.RETRYABLE
-    else -> PushSendResult.FAILED
+internal fun mapFcmError(code: MessagingErrorCode?): PushAttempt = when (code) {
+    MessagingErrorCode.UNREGISTERED -> PushAttempt(PushSendResult.INVALID_TOKEN, PushFailure.INVALID_TOKEN)
+    MessagingErrorCode.QUOTA_EXCEEDED -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.RATE_LIMIT)
+    MessagingErrorCode.UNAVAILABLE, MessagingErrorCode.INTERNAL -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.SERVER_ERROR)
+    else -> PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT)
 }
 
 internal enum class ApnsEnvironment(val host: String) {
@@ -54,20 +60,20 @@ internal class ApnsPushSender(
     private val transport: ApnsTransport,
 ) {
     init { require(topic.isNotBlank()) }
-    fun send(deviceToken: String, content: PushContent): PushSendResult {
-        if (deviceToken.length !in 2..512 || deviceToken.length % 2 != 0 || !deviceToken.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) return PushSendResult.FAILED
+    fun send(deviceToken: String, content: PushContent): PushAttempt {
+        if (deviceToken.length !in 2..512 || deviceToken.length % 2 != 0 || !deviceToken.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) return PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT)
         val payload = mutableMapOf<String, Any>("aps" to mapOf("alert" to mapOf("title" to content.title, "body" to content.body)))
         payload.putAll(content.data())
         val payloadBytes = mapper.writeValueAsBytes(payload)
-        if (payloadBytes.size > 4096) return PushSendResult.FAILED
+        if (payloadBytes.size > 4096) return PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT)
         val request = HttpRequest.newBuilder(URI("https://${environment.host}/3/device/$deviceToken"))
             .version(HttpClient.Version.HTTP_2).timeout(Duration.ofSeconds(10))
             .header("authorization", "bearer ${tokenProvider()}")
             .header("apns-topic", topic).header("apns-push-type", "alert")
             .header("content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofByteArray(payloadBytes)).build()
-        return try { mapApnsStatus(transport.send(request)) } catch (_: IOException) { PushSendResult.RETRYABLE }
-        catch (_: InterruptedException) { Thread.currentThread().interrupt(); PushSendResult.RETRYABLE }
+        return try { mapApnsStatus(transport.send(request)) } catch (_: IOException) { PushAttempt(PushSendResult.RETRYABLE, PushFailure.TIMEOUT) }
+        catch (_: InterruptedException) { Thread.currentThread().interrupt(); PushAttempt(PushSendResult.RETRYABLE, PushFailure.TIMEOUT) }
     }
     companion object {
         fun configured(topic: String, environment: ApnsEnvironment, teamId: String, keyId: String, key: ECPrivateKey, mapper: ObjectMapper): ApnsPushSender {
@@ -83,11 +89,12 @@ internal class ApnsPushSender(
         }
     }
 }
-internal fun mapApnsStatus(status: Int): PushSendResult = when (status) {
-    200 -> PushSendResult.SENT
-    410 -> PushSendResult.INVALID_TOKEN
-    429, in 500..599 -> PushSendResult.RETRYABLE
-    else -> PushSendResult.FAILED
+internal fun mapApnsStatus(status: Int): PushAttempt = when (status) {
+    200 -> PushAttempt(PushSendResult.SENT)
+    410 -> PushAttempt(PushSendResult.INVALID_TOKEN, PushFailure.INVALID_TOKEN)
+    429 -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.RATE_LIMIT)
+    in 500..599 -> PushAttempt(PushSendResult.RETRYABLE, PushFailure.SERVER_ERROR)
+    else -> PushAttempt(PushSendResult.FAILED, PushFailure.PERMANENT)
 }
 internal fun apnsProviderToken(teamId: String, keyId: String, key: ECPrivateKey): String =
     SignedJWT(JWSHeader.Builder(JWSAlgorithm.ES256).keyID(keyId).build(), JWTClaimsSet.Builder().issuer(teamId).issueTime(Date.from(Instant.now())).build())

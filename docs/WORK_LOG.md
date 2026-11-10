@@ -1623,3 +1623,8 @@
 - 산출물 manifest의 모든 파일을 재계산하고 원장 및 문서 변경을 확인한다. 이는 Unity import나 실제 플랫폼 검증을 대체하지 않는다.
 - manifest의 192개 파일 크기 및 SHA-256 재계산과 원장 검증 통과. 산출물은 로컬에만 있고 소스 기준은 빌드 당시 변경을 포함한다.
 - 커밋 준비: 최종 보고 초안과 checksum manifest를 저장한다. 재현 빌드·Unity 설치·미완성 기능이 남아 P11-T03은 PARTIAL이다.
+
+### [P11-T04] 시작 및 검증 준비
+- strict-local 집계, 원장 검사와 diff 검사를 실행한다. 미구현 시나리오·Unity 미실행·기존 StoreKit 실패는 성공으로 바꾸지 않는다.
+- `bash scripts/verify-all.sh --strict-local` 종료 1, `artifacts/verify-all-g_lqddbb/summary.md`: Kotlin/Swift contract, 여러 Native fake 및 부정 시험 통과; DB 등 opt-in 환경과 일부 도구는 DEFERRED_ENV, Mock push 전달·시나리오 미구현, Unity NOT_RUN, 기존 StoreKit 실패로 전체 FAIL. 외부 13개 WAITING_USER. `git diff --check` 통과.
+- 커밋 준비: 실패 및 미실행을 그대로 보존하고 다음 내부 누락 수정을 계속한다.

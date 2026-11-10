@@ -82,3 +82,16 @@ final class LocalMockRecoveryTests: XCTestCase {
         try await restarted.signOut()
     }
 }
+
+private final class AliasRecoveryStore: TokenStore, StorageIdentifiedTokenStore {
+    let storageIdentity: String = "synthetic-shared-slot"
+    func load() throws -> String? { nil }
+    func save(_ value: String) throws {}
+    func clear() throws {}
+}
+extension LocalMockRecoveryTests {
+    func testDifferentObjectsWithSameStorageIdentityAreRejected() {
+        let config = GameBridgeConfig(appId: "demo", mode: .localMock, backendBaseURL: "http://127.0.0.1:8080")
+        XCTAssertThrowsError(try LocalMockClient(config: config, store: AliasRecoveryStore(), developmentKey: String(repeating: "x", count: 32), pendingStore: AliasRecoveryStore()))
+    }
+}

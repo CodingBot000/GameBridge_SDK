@@ -1945,3 +1945,19 @@
 - `artifacts/xcode-storekit-e2e-3b0ibts2/result.json` PASS/skip 0: 전용 DB `gamebridge_ci_2c900d894e`에서 서버 commit 후 응답 유실, Keychain 재생성, finish 뒤 journal 삭제 실패, 두 번째 재생성에서 완료 소모품 이력 확인·정리 및 잔액 100을 검증했다. 실제 프로세스 kill·Unity player·Apple sandbox는 아니다.
 - 공식 WWDC 자료는 완료된 소모품 이력 opt-in을 iOS 18에서 도입했다고 설명한다(https://developer.apple.com/videos/play/wwdc2024/10061/). 이전 OS에서는 해당 보장을 가정하지 않는다. 공개 구매 차단은 유지한다.
 - 커밋 준비: opt-in local E2E runner와 ad-hoc simulator Keychain 시험 및 debug host 이력 설정을 기록한다. 생성된 전용 DB·simulator는 보존한다.
+### P05-T05 Keychain namespace alias 검증 시작
+- 서로 다른 KeychainTokenStore 인스턴스라도 같은 service를 사용하면 동일 항목을 가리킨다. 객체 동일성만 검사하면 세션과 구매 단서가 서로 덮어쓸 수 있어 저장소 identity도 비교하도록 보강한다. 공개 Xcode 구매는 계속 차단한다.
+### P05-T05 Keychain alias 회귀 실행
+- synthetic Swift 회귀와 전용 simulator의 다른 인스턴스·같은 service 거부를 검증한다.
+- Swift journal·개발 client·session 회귀 10건 통과. 별도 Keychain 인스턴스가 같은 service를 가리키는 실제 simulator 검증과 local DB 응답 유실 시험을 다시 실행한다.
+- `artifacts/xcode-storekit-e2e-uxr0msws/result.json` PASS/skip 0: 전용 DB `gamebridge_ci_2d66f2ac62`, 서로 다른 Keychain 객체의 같은 service 거부와 응답 유실·finish 후 삭제 실패 복구를 확인했다. 실제 프로세스 강제 종료 및 Unity player는 미검증이다.
+### P05-T06 Native 저장 namespace alias 공통 수정 시작
+- 같은 Keychain/Keystore namespace를 서로 다른 객체로 전달하면 기존 Mock session·pending 검사가 우회될 수 있어 양 플랫폼에서 실제 저장소 identity를 비교한다. 기존 다른 namespace 데이터는 이동·삭제하지 않는다.
+### P05-T06 alias 검증 시작
+- synthetic alias 객체 및 기존 복구 회귀, Android native compile을 실행한다. 실제 사용자 저장소는 건드리지 않는다.
+- Android alias·복구 및 AAR compile과 Swift 복구 2건 통과. 다만 기존 공개 TokenStore protocol에 요구사항을 추가하면 기존 바이너리 구현체와 호환성이 깨질 수 있어, 선택적 별도 identity interface로 분리한다.
+### P05-T06 공개 interface 호환성 재검증 시작
+- 별도 선택적 identity interface와 기존 TokenStore 구현의 compile·회귀를 확인한다. 외부 바이너리 전체 호환성은 별도다.
+- 선택적 identity interface로 분리한 후 Android alias·복구 및 AAR compile, Swift 6건 통과. simulator Keychain의 서로 다른 객체·같은 service 거부 및 local DB 응답 유실 시험을 다시 확인한다.
+- `artifacts/xcode-storekit-e2e-43y9hasx/result.json` PASS/skip 0, 전용 DB `gamebridge_ci_2ca15a4099`: 서로 다른 Keychain 객체의 동일 service 거부와 실제 local DB commit 후 응답 유실·단서 삭제 실패 복구 재확인. Android alias는 synthetic unit과 native compile 범위다.
+- 커밋 준비: 선택적 저장소 identity와 양 플랫폼 alias 보호. Xcode 공개 구매 차단·Unity 실제 검증 대기는 유지한다.

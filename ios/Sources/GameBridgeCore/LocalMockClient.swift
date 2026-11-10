@@ -83,7 +83,13 @@ public actor LocalMockClient {
     public init(config: GameBridgeConfig, store: TokenStore, developmentKey: String, sessionConfiguration: URLSessionConfiguration = .default, pendingStore: TokenStore? = nil) throws {
         guard config.mode == .localMock else { throw SdkFailure("UNSUPPORTED_PROVIDER") }
         guard developmentKey.count >= 32 else { throw SdkFailure("CONFIG_REQUIRED") }
-        if let pendingStore, (store as AnyObject) === (pendingStore as AnyObject) { throw SdkFailure("CONFIG_REQUIRED") }
+        if let pendingStore {
+            let sameObject = (store as AnyObject) === (pendingStore as AnyObject)
+            let left = (store as? StorageIdentifiedTokenStore)?.storageIdentity
+            let right = (pendingStore as? StorageIdentifiedTokenStore)?.storageIdentity
+            let sameIdentity = left != nil && left == right
+            if sameObject || sameIdentity { throw SdkFailure("CONFIG_REQUIRED") }
+        }
         let backendClient = try BackendClient(config: config, sessionConfiguration: sessionConfiguration)
         backend = backendClient; serviceConfig = backendServiceConfiguration(backendClient)
         self.config = config; self.store = store; self.developmentKey = developmentKey; self.pendingStore = pendingStore; self.streamConfiguration = sessionConfiguration
@@ -192,7 +198,12 @@ public actor LocalMockClient {
               UUID(uuidString: result.serverPurchaseId)?.uuidString.lowercased() == result.serverPurchaseId else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
         return result
     }
-    public func sharesTokenStore(_ other: TokenStore) -> Bool { (store as AnyObject) === (other as AnyObject) }
+    public func sharesTokenStore(_ other: TokenStore) -> Bool {
+        if (store as AnyObject) === (other as AnyObject) { return true }
+        if let left = (store as? StorageIdentifiedTokenStore)?.storageIdentity,
+           let right = (other as? StorageIdentifiedTokenStore)?.storageIdentity { return left == right }
+        return false
+    }
     public func xcodeAccount() async throws -> XcodeMockAccount {
         let value: XcodeMockAccount = try decode(try await authenticated(path: "/v1/dev/xcode-storekit/account", method: "POST", development: true).json)
         guard value.userId == value.bindingId else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }

@@ -3,10 +3,11 @@ import Foundation
 import Security
 
 /// Stores only the SDK session item using a device-only Keychain accessibility class.
-public final class KeychainTokenStore: TokenStore {
+public final class KeychainTokenStore: TokenStore, StorageIdentifiedTokenStore {
     private let service: String
     private let account = "session"
     public init(service: String = "com.gamebridge.sdk.session") { self.service = service }
+    public var storageIdentity: String { "keychain:" + service + ":" + account }
     private var query: [String: Any] { [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service, kSecAttrAccount as String: account] }
     public func save(_ value: String) throws {
         let data = Data(value.utf8)

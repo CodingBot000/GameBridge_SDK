@@ -8,6 +8,8 @@ public protocol TokenStore {
     func save(_ value: String) throws
     func clear() throws
 }
+/// Optional underlying storage identity; never a token or credential.
+public protocol StorageIdentifiedTokenStore { var storageIdentity: String { get } }
 public struct BackendResponse: CustomStringConvertible {
     public let requestId: String?
     public let json: Data

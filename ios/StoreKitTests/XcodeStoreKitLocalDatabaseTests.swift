@@ -63,6 +63,10 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         let client = try LocalMockClient(config:config, store:authStore, developmentKey:key, sessionConfiguration:configuration)
         stage = "sign in and session Keychain save"
         _ = try await client.signIn(subject:"A")
+        do {
+            _ = try await XcodeStoreKitSession(client:client, pendingStore:KeychainTokenStore(service:sessionService), enableTestGrant:true)
+            XCTFail("separate Keychain objects with same service must be rejected")
+        } catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED") }
         DropCommittedGrantProtocol.setDrop(true)
         stage = "initial Xcode account"
         let first = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore, enableTestGrant:true)

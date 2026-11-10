@@ -19,6 +19,8 @@ interface TokenStore {
     fun save(value: String)
     fun clear()
 }
+/** Optional underlying storage identifier; never a token. */
+interface StorageIdentifiedTokenStore { val storageIdentity: String }
 class BackendResponse(val requestId: String?, val json: String) {
     override fun toString() = "BackendResponse([redacted])"
 }

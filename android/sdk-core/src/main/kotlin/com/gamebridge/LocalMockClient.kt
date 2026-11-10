@@ -57,7 +57,10 @@ class LocalMockClient @JvmOverloads constructor(private val config: GameBridgeCo
     }
     init {
         if (config.mode != ProviderMode.LOCAL_MOCK) throw SdkFailure("UNSUPPORTED_PROVIDER")
-        if (developmentKey.length < 32 || pendingStore === store) throw SdkFailure("CONFIG_REQUIRED")
+        val left = (store as? StorageIdentifiedTokenStore)?.storageIdentity
+        val right = (pendingStore as? StorageIdentifiedTokenStore)?.storageIdentity
+        val sameIdentity = left != null && left == right
+        if (developmentKey.length < 32 || pendingStore === store || sameIdentity) throw SdkFailure("CONFIG_REQUIRED")
     }
     suspend fun signIn(subject: String): UserProfile = lock.withLock {
         if (subject !in setOf("A", "B")) throw SdkFailure("INVALID_ARGUMENT")

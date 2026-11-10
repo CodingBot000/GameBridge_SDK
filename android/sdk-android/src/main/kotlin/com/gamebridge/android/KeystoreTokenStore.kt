@@ -6,6 +6,7 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import com.gamebridge.SdkFailure
 import com.gamebridge.TokenStore
+import com.gamebridge.StorageIdentifiedTokenStore
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -13,8 +14,9 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 /** Application-private encrypted storage; the encryption key remains in Android Keystore. */
-class KeystoreTokenStore @JvmOverloads constructor(context: Context, namespace: String = "default") : TokenStore {
+class KeystoreTokenStore @JvmOverloads constructor(context: Context, namespace: String = "default") : TokenStore, StorageIdentifiedTokenStore {
     init { require(namespace.matches(Regex("[a-z0-9_-]{1,48}"))) { "Invalid storage namespace" } }
+    override val storageIdentity: String = "keystore:" + context.applicationContext.packageName + ":" + namespace
     private val prefs = context.applicationContext.getSharedPreferences(if (namespace == "default") "gamebridge_secure_tokens" else "gamebridge_secure_tokens_$namespace", Context.MODE_PRIVATE)
     private val alias = if (namespace == "default") "com.gamebridge.sdk.session.v1" else "com.gamebridge.sdk.session.v1.$namespace"
     companion object { private val keyLock = Any() }

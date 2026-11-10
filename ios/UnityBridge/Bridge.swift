@@ -18,6 +18,10 @@ private final class BridgeState {
     // Accessed only by the serial bridge queue and the one task it waits for.
     private var state = "UNINITIALIZED"
     private var ownerSession: String?
+    private var activeMode: String?
+    #if canImport(UIKit) && canImport(AuthenticationServices)
+    private var appleHandler: AppleAuthBridgeHandler?
+    #endif
     func setCallback(_ value: GBCallback?) {
         lock.lock(); defer { lock.unlock() }
         generation &+= 1; callback = value
@@ -54,27 +58,54 @@ private final class BridgeState {
             switch operation {
             case "sdk.status": result = ["state": state, "sdkVersion": GameBridgeVersion.current]
             case "sdk.shutdown":
-                #if canImport(Security)
-                _ = try await handler.invoke(operation, payload: payload)
-                #endif
-                state = "SHUTDOWN"; ownerSession = nil; result = ["state": state]
+                _ = try await invokeActive(operation, payload: payload)
+                state = "SHUTDOWN"; ownerSession = nil; activeMode = nil; result = ["state": state]
             case "sdk.initialize":
-                #if canImport(Security)
-                result = try await handler.invoke(operation, payload: payload)
-                state = "READY"; ownerSession = session
-                #else
-                throw SdkFailure("UNSUPPORTED_OPERATION")
-                #endif
+                let mode = payload["providerMode"] as? String
+                if let activeMode, activeMode != mode { throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG") }
+                switch mode {
+                case "LOCAL_MOCK":
+                    #if canImport(Security)
+                    result = try await handler.invoke(operation, payload: payload)
+                    #else
+                    throw SdkFailure("UNSUPPORTED_OPERATION")
+                    #endif
+                case "PLATFORM_SANDBOX":
+                    #if canImport(UIKit) && canImport(AuthenticationServices)
+                    if appleHandler == nil { appleHandler = await makeAppleAuthBridgeHandler() }
+                    result = try await appleHandler!.invoke(operation, payload: payload)
+                    #else
+                    throw SdkFailure("UNSUPPORTED_PLATFORM")
+                    #endif
+                default: throw SdkFailure("UNSUPPORTED_PROVIDER")
+                }
+                state = "READY"; ownerSession = session; activeMode = mode
             default:
-                #if canImport(Security)
-                result = try await handler.invoke(operation, payload: payload)
-                #else
-                throw SdkFailure("UNSUPPORTED_OPERATION")
-                #endif
+                result = try await invokeActive(operation, payload: payload)
             }
             return envelope(data, result: result, failure: nil)
         } catch let failure as SdkFailure { return envelope(data, result: nil, failure: failure) }
         catch { return envelope(data, result: nil, failure: SdkFailure("INTERNAL_ERROR")) }
+    }
+    private func invokeActive(_ operation: String, payload: [String: Any]) async throws -> Any {
+        switch activeMode {
+        case "LOCAL_MOCK":
+            #if canImport(Security)
+            return try await handler.invoke(operation, payload: payload)
+            #else
+            throw SdkFailure("UNSUPPORTED_OPERATION")
+            #endif
+        case "PLATFORM_SANDBOX":
+            #if canImport(UIKit) && canImport(AuthenticationServices)
+            guard let appleHandler else { throw SdkFailure("NOT_INITIALIZED") }
+            return try await appleHandler.invoke(operation, payload: payload)
+            #else
+            throw SdkFailure("UNSUPPORTED_PLATFORM")
+            #endif
+        default:
+            if operation == "sdk.shutdown" { return [String: Any]() }
+            throw SdkFailure("NOT_INITIALIZED")
+        }
     }
     private func envelope(_ data: Data, result: Any?, failure: SdkFailure?) -> Data? {
         guard let request = try? BridgeProtocol.parse(data), request["kind"] as? String == "request",
@@ -96,10 +127,8 @@ private final class BridgeState {
         queue.async {
             let done = DispatchSemaphore(value: 0)
             Task {
-                #if canImport(Security)
-                _ = try? await self.handler.invoke("sdk.shutdown", payload: [:])
-                #endif
-                self.state = "SHUTDOWN"; self.ownerSession = nil; done.signal()
+                _ = try? await self.invokeActive("sdk.shutdown", payload: [:])
+                self.state = "SHUTDOWN"; self.ownerSession = nil; self.activeMode = nil; done.signal()
             }
             done.wait()
         }

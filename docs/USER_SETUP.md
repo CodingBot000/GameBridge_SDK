@@ -237,3 +237,7 @@ Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상�
 ### Unity Android Google 인증 bridge
 
 `PLATFORM_SANDBOX` 구성의 `GameBridgeConfig` 7인자 overload에 Google OAuth 서버 client ID를 설정한다(개발키는 null). SDK는 선택한 sandbox 서버와 Android Credential Manager를 사용하며 Mock으로 자동 전환하지 않는다. Google 서버 client ID가 없으면 auth capability가 미설정으로 표시된다. 현재 fake provider와 컴파일만 확인했으며 Unity JNI·실제 Google 계정/콘솔 인증은 USER-AUTH-GOOGLE과 Unity 라이선스 준비 후 별도 실행해야 한다. 상점·푸시 bridge는 아직 미연결이다.
+
+### Unity iOS Apple 인증 bridge
+
+`PLATFORM_SANDBOX`의 HTTPS Backend URL과 app ID를 구성하고 활성 foreground window에서 Apple 로그인을 호출한다. C ABI는 AppleAuthProvider를 사용하고 identity token과 session을 Unity에 반환하지 않는다. fake provider 및 simulator framework compile만 통과했으며 실제 Apple 계정·서명·Unity iOS는 USER-AUTH-APPLE과 Unity 라이선스 준비 후 별도 검증해야 한다. 상점·푸시 bridge는 아직 미연결이다.

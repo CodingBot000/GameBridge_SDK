@@ -12,7 +12,7 @@ let package = Package(
         .target(name: "GameBridgeCore"),
         .target(name: "GameBridgeTesting", dependencies: ["GameBridgeCore"]),
         .target(name: "GameBridgeApple", dependencies: ["GameBridgeCore"]),
-        .target(name: "GameBridgeUnityBridge", dependencies: ["GameBridgeCore"], path: "UnityBridge"),
+        .target(name: "GameBridgeUnityBridge", dependencies: ["GameBridgeCore", "GameBridgeApple"], path: "UnityBridge"),
         .testTarget(name: "GameBridgeCoreTests", dependencies: ["GameBridgeCore", "GameBridgeTesting", "GameBridgeUnityBridge", "GameBridgeApple"]),
     ]
 )

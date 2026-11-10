@@ -1193,3 +1193,9 @@
 - `ANDROID_HOME=$HOME/Library/Android/sdk android/gradlew -p android :sdk-unity-bridge:testDebugUnitTest` 종료 0: fake Google provider로 sandbox mode 분기, Mock fallback 차단, 사용자 결과 및 미연결 상점 오류, 종료 cleanup을 확인했다. 실제 Google UI/계정 시험이 아니다. C# 소비 설정을 컴파일한다.
 - `UNITY_EDITOR_PATH=... bash scripts/check-csharp-compile.sh` 종료 0: 네 플랫폼 조건부 C# compile 경고·오류 0. 실제 Unity Editor와 Android JNI 실행은 아니다.
 - 커밋 전: Android Google 인증 bridge와 fake mode 격리 시험만 포함. Apple 인증 bridge·스토어/푸시 및 실제 Google 계정 검증은 미완료이며 WAITING_USER를 유지한다.
+- 다음 하위 작업 시작: iOS AppleAuthProvider의 presentation anchor와 main-actor 수명주기를 확인하고 C ABI sandbox 인증을 연결한다. 실제 계정 시험은 수행하지 않는다.
+- Swift bridge에 AppleAuthProvider 실제 경로와 foreground key window 전달을 연결했다. 개발키가 포함된 sandbox 요청과 다른 provider 요청을 거부하며 mock fallback을 두지 않는다. Swift 컴파일과 fake 인증 경계, iOS simulator static build를 확인한다.
+- `swift test --package-path ios --filter CBridgeTests` 종료 0, 2건: 기존 Mock C ABI 동작 회귀 통과. 새 Apple handler의 fake 테스트와 iOS 전용 UIKit 빌드는 아직 별도다.
+- `swift test --package-path ios --filter AppleAuthBridgeTests` 종료 0, 1건: fake Apple provider로 sandbox mode·Mock 거부·미연결 상점 오류·정리 확인. 실제 iOS 인증 UI는 아니다. UIKit 포함 simulator static framework를 독립 생성 프로젝트에서 확인한다.
+- 격리 프로젝트 `artifacts/ios-apple-bridge.JMOwJF`에서 UIKit·AuthenticationServices 포함 `GameBridgeNative` simulator static framework 무서명 build 종료 0. 실행·Apple 계정·Unity linkage는 확인하지 않았다.
+- 커밋 전: iOS Apple 인증 C ABI 연결과 fake 시험·컴파일만 포함한다. 실제 Apple 계정과 Unity 실동작은 WAITING_USER이며 상점/푸시는 미연결이다.

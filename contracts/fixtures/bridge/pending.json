@@ -1,0 +1,12 @@
+{
+  "protocolVersion": 1,
+  "sdkSessionId": "dc9a46f4-8e20-4880-bcbb-ac45033157ca",
+  "kind": "response",
+  "requestId": "2efc133b-3138-4c3e-aa72-0532cd19056e",
+  "operation": "store.purchase",
+  "ok": true,
+  "result": {
+    "status": "PENDING"
+  },
+  "error": null
+}

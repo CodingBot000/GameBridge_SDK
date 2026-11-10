@@ -18,3 +18,5 @@
 초기 검색에서 대상 소스에 `TODO`, `FIXME`, `NotImplementedException`, `fatalError(` 표기는 발견되지 않았지만, 위의 호출 경로 누락은 실제 미구현이다. 이 표는 코드 변경에 따라 계속 갱신한다.
 
 Unity Editor offline sample의 home/store uGUI 소스는 실제 Unity managed assembly 기준 독립 컴파일했다. Unity Editor 렌더링·입력·실행과 Native player 연결은 검증하지 않았다.
+
+iOS sample에는 별도 Apple Sandbox 화면이 추가되었다. 설정 누락 차단만 simulator UI에서 확인했고 실제 Apple 로그인/상품/구매/복원은 미실행이다. local-mock UI 로그인·구매·재시작 복원·로그아웃은 ad-hoc simulator 서명으로 통과했다.

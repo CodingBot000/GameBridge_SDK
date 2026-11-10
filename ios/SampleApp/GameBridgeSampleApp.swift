@@ -34,7 +34,8 @@ final class SampleAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
 struct GameBridgeSampleApp: App {
     @UIApplicationDelegateAdaptor(SampleAppDelegate.self) private var appDelegate
     @StateObject private var model = SampleModel()
-    var body: some Scene { WindowGroup { SampleView(model: model) } }
+    @StateObject private var appleModel = AppleSandboxModel()
+    var body: some Scene { WindowGroup { SampleView(model: model, appleModel: appleModel) } }
 }
 
 @MainActor
@@ -81,6 +82,7 @@ final class SampleModel: ObservableObject {
 
 struct SampleView: View {
     @ObservedObject var model: SampleModel
+    @ObservedObject var appleModel: AppleSandboxModel
     @FocusState private var keyFocused: Bool
     var body: some View {
         NavigationStack {
@@ -103,8 +105,10 @@ struct SampleView: View {
                     }
                     Text("Coins: \(model.wallet?.coinBalance ?? "—"); premium: \(model.wallet?.premiumEnabled == true ? "true" : "false")").accessibilityIdentifier("balance")
                 }
-                Section("Status") { Text(model.message).accessibilityIdentifier("status") }
-            }.navigationTitle("GameBridge")
+                Section("Platform test") { NavigationLink("Apple Sandbox") { AppleSandboxView(model: appleModel) } }
+            }
+            .navigationTitle("GameBridge")
+            .safeAreaInset(edge: .bottom) { Text(model.message).accessibilityIdentifier("status").frame(maxWidth: .infinity).padding().background(.regularMaterial) }
         }
     }
 }

@@ -1093,3 +1093,18 @@
 - Android store config/unit 재실행 통과: 다른 Backend 및 중복 상품 ID 거부. 마지막 SDK 변경을 포함해 local Maven publication과 별도 consumer R8 compile을 다시 확인한다.
 - Android unit 및 최신 Maven publish·mock sample·source 없는 Kotlin Flow consumer의 R8 release build 재통과. 최초 JVM 21/17 불일치 실패는 consumer target 17로 수정했다. 실제 Play UI/스토어는 미실행이다.
 - 커밋 전: Android public facade·entitlement 사용자 검증 및 Maven API dependency/consumer compile만 포함한다. Native sample/Unity 연동과 실제 Play 시험은 미완료다.
+- P07-T02 계속: 기존 local-mock 샘플을 보존하고 별도 Apple Sandbox 화면에 실제 auth/store facade를 연결한다. 화면의 명시적 버튼 없이 로그인·구매를 실행하지 않는다.
+- Apple Sandbox 샘플 화면 초안은 host 입력 구성·명시적 로그인/store 연결/구매/복원·서버 잔액을 제공한다. 실제 계정·결제는 실행하지 않고 simulator build/UI 회귀를 확인한다.
+- iOS sandbox sample simulator build 성공. 빈 설정 오류를 UI에서 CONFIG_REQUIRED로 표시하도록 보정하고, 실제 계정 없이 sandbox 화면의 명시적 설정 차단과 기존 local-mock UI를 XCTest로 확인한다.
+- iOS Sandbox 화면의 빈 설정 UI XCTest 1건 실패: CONFIG_REQUIRED 상태 기대를 5초 내 관찰하지 못했다. 기존 local-mock UI 시험은 계속 실행 중이며, 원인을 확인하기 전 전체 PASS로 기록하지 않는다.
+- 同一 UI suite의 local-mock 상품 버튼 확인도 실패했다. 로그인/설정/화면 상태 원인을 조사하고 두 실패를 모두 재검증하기 전 UI PASS로 기록하지 않는다.
+- UI 실패 분석: sandbox 상태가 긴 Form 하단에 있어 찾기 어려웠다. 상태를 설정 상단에 배치하고 local-mock 로그인 성공을 명시적으로 기다려 실제 실패 지점을 확인한다. 기존 실패 기록은 유지한다.
+- sandbox UI 재시험에서도 Configure 버튼이 화면 밖 hit point로 실패했다. 스크롤 탐색을 개선하며, 실행 중인 Mock UI 결과는 별도로 확인한다.
+- 재실행 결과 sandbox UI 버튼 위치와 local-mock 로그인 상태 확인 모두 실패했다. 두 UI 시나리오는 여전히 FAIL이며, status 가시성/실제 오류값을 분리해 진단한다.
+- xcresult의 status attachment에서 local-mock 로그인 상태가 실제 INTERNAL_ERROR였음을 확인했다(단순 조회 실패가 아님). unsigned simulator의 Keychain 접근 가능성을 포함해 재현한다. sandbox UI는 짧은 스크롤과 bounds 확인으로 보정한다.
+- ad-hoc signed simulator 재시도에서 sandbox Configure도 offscreen으로 판정되어 UI 시험이 다시 실패했다. 상태/설정 버튼을 navigation toolbar에 고정해 스크롤 의존성을 제거한다.
+- ad-hoc simulator 서명 후 local-mock 로그인·구매·재시작 복원은 진행됐지만 signOut 버튼 hit point에서 실패했다. 앞선 unsigned INTERNAL_ERROR는 Keychain 서명 조건과 일치하는 정황이나 단정하지 않는다. Sandbox 설정 버튼도 화면 밖 접근 실패여서 status/action을 고정 배치한다.
+- ad-hoc simulator 재시험: sandbox 빈 설정 차단은 통과했지만 local-mock 재시작 후 logout 상태 기대가 실패했다. logout의 실제 상태값을 결과 bundle에서 확인한다.
+- 결과 attachment의 logout 후 status는 여전히 Restored였고 해당 시험 session은 revoked되지 않았다. sticky status 영역에 가려진 버튼 hit 가능성을 줄이도록 안전한 화면 중앙 영역으로 스크롤하고 enabled 상태를 기다린다. sandbox Configure는 toolbar 고정으로 scroll하지 않는다.
+- iOS 26.5 ad-hoc simulator 서명 UI 재시험 2건 통과: Sandbox 빈 설정 CONFIG_REQUIRED 및 LOCAL_MOCK 로그인→구매→재시작 복원→로그아웃. 실제 Apple 계정/스토어 거래는 실행하지 않았다. 이전 unsigned Keychain INTERNAL_ERROR 및 두 UI hit-point 실패는 이력으로 보존한다. 직접 기동한 Backend만 종료하고 DB/volume은 보존했다.
+- 커밋 전: iOS sandbox 화면, 기존 Mock 상태 표시 및 UI 시험만 포함. 실제 Apple Sandbox·Android 실제 sample·Unity player 및 P07 전체 검증은 미완료다.

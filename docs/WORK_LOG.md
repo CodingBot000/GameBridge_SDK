@@ -786,3 +786,8 @@
 - Apple grant service Kotlin 컴파일 성공. 검증 결과는 synthetic fixture로만 만들고 격리 schema에서 동시 10건, 1회 원장과 타 계정 거래 재사용 거부를 확인한다.
 - PostgreSQL 격리 schema 시험 1건 통과(skip 0): 같은 synthetic Apple 거래 10개 동시 요청에서 grant 1회·동일 purchase ID·원장 총 100, 다른 사용자의 거래 재사용 거부. 실제 Apple 서명/거래와 연결된 검증은 아니다. 시험 schema는 삭제하지 않았다.
 - 커밋 전: 내부 Apple grant transaction과 synthetic DB 시험만 포함. 실제 verifier endpoint, client finish 연결, Google 증빙 보관 및 서버 finalizer는 미완료이므로 P05-T05 PARTIAL 유지.
+- P05-T05 계속: Apple 검증기와 원자 지급을 실제 순서로 묶는 내부 pipeline을 만든다. 공개 endpoint/credential 구성은 여전히 미완료이며 임의 인증서나 mock 성공으로 대체하지 않는다.
+- Apple pipeline 초안은 verified payload의 account/product/environment 검사 후 grant 시점에 session·binding을 다시 검사한다. 격리 schema의 10건 경쟁 시험을 pipeline 경유로 재실행한다.
+- Apple pipeline 경유 동시 10건 DB 시험 통과. 검증 단계의 다른 계정 거부도 추가 확인한다. 실제 서명 검증 경로는 fake decoder가 아닌 Apple library 구성·root가 필요하다.
+- 검증기(fake decoder)→grant pipeline의 동시성·타 계정 거부 DB 시험 통과. 실제 Apple root/서명·공개 endpoint·Native finish 연동은 미실행이다.
+- 커밋 전: 내부 pipeline 및 fake+격리 DB 시험만 포함하며 P05-T05 PARTIAL 유지한다.

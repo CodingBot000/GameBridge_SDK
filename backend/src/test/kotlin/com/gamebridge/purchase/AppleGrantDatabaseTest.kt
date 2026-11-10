@@ -1,5 +1,8 @@
 package com.gamebridge.purchase
 
+import com.apple.itunes.storekit.model.Environment
+import com.apple.itunes.storekit.model.JWSTransactionDecodedPayload
+import com.apple.itunes.storekit.model.Type
 import com.gamebridge.auth.IdentityProvider
 import com.gamebridge.auth.VerifiedIdentity
 import com.gamebridge.session.SessionService
@@ -34,14 +37,22 @@ class AppleGrantDatabaseTest {
         val token = session("user-a"); val principal = sessions.authenticate(token.accessToken)!!
         val binding = PurchaseBindings(db).forUser(principal.userId, app).appleAccountToken
         val verified = VerifiedApplePurchase("synthetic-transaction", "coins.apple", binding)
-        val service = AppleGrantService(db, tx); val pool = Executors.newFixedThreadPool(10)
-        val results = try { (1..10).map { pool.submit<AppleGrantResult> { service.grant(principal, StoreEnvironment.SANDBOX, verified) } }.map { it.get(20, TimeUnit.SECONDS) } }
+        val service = AppleGrantService(db, tx)
+        val payload = JWSTransactionDecodedPayload().bundleId("test.bundle").environment(Environment.SANDBOX)
+            .productId("coins.apple").appAccountToken(binding).transactionId("synthetic-transaction").quantity(1).type(Type.CONSUMABLE)
+        val verifier = ApplePurchaseVerifier("test.bundle", Environment.SANDBOX, setOf("coins.apple"), AppleSignedTransactionDecoder { payload })
+        val pipeline = ApplePurchasePipeline(db, AppleVerifierRegistry { scope, environment ->
+            assertEquals(app, scope); assertEquals(StoreEnvironment.SANDBOX, environment); verifier
+        }, service)
+        val pool = Executors.newFixedThreadPool(10)
+        val results = try { (1..10).map { pool.submit<AppleGrantResult> { pipeline.verifyAndGrant(principal, StoreEnvironment.SANDBOX, "coins.apple", "synthetic-jws") } }.map { it.get(20, TimeUnit.SECONDS) } }
             finally { pool.shutdownNow() }
         assertEquals(1, results.count { it.fulfillmentStatus == "GRANTED" })
         assertEquals(1, results.map { it.serverPurchaseId }.toSet().size)
         assertEquals(100L, db.queryForObject("SELECT COALESCE(SUM(delta),0) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
         val other = sessions.authenticate(session("user-b").accessToken)!!
         val otherBinding = PurchaseBindings(db).forUser(other.userId, app).appleAccountToken
+        assertFailsWith<AppleProofRejected> { pipeline.verifyAndGrant(other, StoreEnvironment.SANDBOX, "coins.apple", "synthetic-jws") }
         assertEquals("PURCHASE_ACCOUNT_MISMATCH", assertFailsWith<PurchaseConflict> {
             service.grant(other, StoreEnvironment.SANDBOX, verified.copy(account = otherBinding))
         }.errorCode)

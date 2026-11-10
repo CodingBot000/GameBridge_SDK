@@ -581,3 +581,23 @@
 - 거래 binding/transaction 값의 문자열 표현을 정제한 뒤 Android 상태기계 unit test 재실행 종료 0. Swift 동일 변경을 이어서 확인한다.
 - Swift ServerGrant 문자열 정제 후 `swift test --package-path ios` 종료 0: 23 통과·local Backend 3 skip. Native 상태기계는 서버 검증 결과를 상태로 반영할 뿐 자체 코인 지급을 하지 않는다.
 - 커밋 전: Android/Swift 거래 상태기계와 단위 시험만 포함. server app scope·binding API·실제 구매 검증 및 StoreKit/Play 연결은 미완료이므로 P05-T01 PARTIAL 유지.
+
+### [P05-T02] 시작 — 2026-11-10 Asia/Seoul
+- server binding 공개 API와 실제 구매 검증은 미완료이나 Native Play Billing 실제 호출은 독립 작성한다. Google 공식 문서의 pending 미지급, 서버 consume/ack 책임과 supported version을 확인했다. refresh TTL 결정과 무관한 작업이다.
+- Google Maven metadata 및 공식 release/deprecation 문서 확인: Billing 9.1.0 안정 버전. 의존성 추가 후 `:sdk-android:assembleDebug` 종료 0; 실제 Billing adapter와 구매는 아직 작성·실행 전이다.
+- Play Billing 9.1 실제 gateway 초안의 `:sdk-android:assembleDebug` 종료 1: nullable offerToken을 non-null API에 직접 전달한 Kotlin 컴파일 오류. null/empty를 분기해 재빌드한다. 실제 스토어 UI는 실행하지 않았다.
+- nullable offerToken 보정 후 `:sdk-android:assembleDebug` 종료 0, BUG-003 컴파일 오류 해소. 실제 Play Billing 9.1 조회·UI·callback·복구 호출 코드는 있으나 Backend proof sink 연결과 실제 Play 실행은 미완료다.
+- 검토 중 Backend 응답이 다른 proof에 대한 결과일 가능성을 막도록 transaction fingerprint와 account binding 확인을 강화한다.
+- Play fake boundary 테스트 추가 후 Gradle 종료 1: FakePlayGateway의 public `observer` setter가 `setObserver` 메서드와 JVM signature 충돌. 제품 거래 시험은 실행되지 않았고 테스트 변수명을 수정한다.
+- 테스트 변수 충돌 수정 후 `:sdk-android:testDebugUnitTest :sdk-android:assembleDebug` 종료 0. JUnit XML Play boundary 4건·실패0·skip0: verifier 없을 때 UI 시작 차단, pending/계정 불일치/수량 2 미검증·미지급, 서버 응답 proof fingerprint 일치/불일치, raw proof 정제 확인. Fake gateway/sink 시험이며 실제 Play 결제는 아니다.
+- 구매 증빙의 기기 내 동시 서버 검증 한도는 계획에 없어 사용자 선택을 요청했다. 선택 전 실제 verifier 조립·구매 UI를 활성화하지 않으며, callback queue와 검증 동시성은 명시 값이 있을 때만 사용한다.
+- 사용자 결정 전 실제 검증 동시성 값이 없으면 구매 UI와 서버 proof 검증을 활성화하지 않도록 수정하고 bounded callback queue를 추가. fake boundary 테스트 재실행 종료 0; 실제 Play 이용은 아직 미실행.
+- 검토 중 무관한 지연 구매 callback이 현재 UI 대기 요청을 잘못 종료할 수 있어 product별 router로 분리한다.
+- Play callback router 보정 후 `:sdk-android:testDebugUnitTest :sdk-android:assembleDebug` 종료 0. Billing boundary XML 5건·실패0·skip0: 무관한 callback이 현재 구매 대기를 소비하지 않음을 추가 확인. 실제 Play UI·서버 proof 검증은 미실행.
+- Play gateway 검토에서 계정 변경 중 늦은 검증 응답 노출, 미완료 callback 대기와 worker 예외 시 소비 중단 가능성을 발견했다. 계정 재확인·기본 timeout·worker 오류 격리를 추가한다.
+- Play gateway timeout·계정 재확인 추가 후 Android build 종료 1: `withTimeout` lambda 내부에서 허용되지 않는 return 문법. 위치를 확인해 수정한다. 사용자 결제 UI는 실행하지 않았다.
+- `recover` lambda return 수정 후 `:sdk-android:testDebugUnitTest :sdk-android:assembleDebug` 종료 0. Play 실제 UI는 미실행이고, 다른 계정으로 전환된 동안 지연된 검증 결과가 새 UI로 전달되지 않는지 fake 경계 시험을 추가한다.
+- Play gateway에 기본 timeout·예외 격리·검증 중 계정 전환 재확인을 반영하고 fake boundary 시험 재실행 종료 0. XML 7건·실패0·skip0: 동시성 미설정 구매 UI 차단, 전환 후 stale 성공 이벤트 억제 포함. 실제 Play 연동은 USER-BILLING-GOOGLE 대기.
+- Play adapter fake test/compile partial 결과를 보존하면서 사용자에게 기기별 증빙 검증 동시성을 문의한 상태다. 선택 없는 production 구성은 구매 UI를 시작하지 않는다.
+- Play adapter에서 client `consumeAsync`·`acknowledgePurchase` 호출이 없음을 소스 검사(종료 0). Billing 9.1 의존성을 포함한 `:sample-app:assembleDebug` 종료 0. 샘플은 아직 LOCAL_MOCK이며 실제 Play UI와 상품 조회를 실행하지 않았다.
+- 커밋 전: Play Billing 실제 gateway와 fake 경계 검증만 포함. 사용자 검증 동시성 결정, 실제 서버 verifier/sink·binding API·consumer 연결 및 실제 Play 테스트가 남아 P05-T02 PARTIAL/WAITING_USER 유지.

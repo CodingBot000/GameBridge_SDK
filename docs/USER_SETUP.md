@@ -18,7 +18,7 @@ Codex는 실제 Provider 호출 코드, 설정 로더, 오류 처리, Mock, 빌�
 | USER-BACKEND | 로컬 서버·DB·개발/샌드박스 네트워크 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-AUTH-GOOGLE | Android Google 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
 | USER-AUTH-APPLE | iOS Apple 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
-| USER-BILLING-GOOGLE | Play 테스트 결제·검증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
+| USER-BILLING-GOOGLE | Play 테스트 결제·검증 | BLOCKED | WAITING_USER | NOT_RUN | - |
 | USER-BILLING-APPLE | Apple Sandbox 결제·검증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
 | USER-PUSH-GOOGLE | Android FCM 원격 전송 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
 | USER-PUSH-APPLE | iOS APNs 원격 전송 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
@@ -120,6 +120,8 @@ Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, se
 
 서버 자격증명: 필요한 범위의 Google Play Developer API 접근 권한과 credential 파일 경로. 계획 변수는 `GOOGLE_APPLICATION_CREDENTIALS` 또는 기능별 별도 credential path, `GOOGLE_PLAY_PACKAGE_ALLOWLIST`, product mapping이다. FCM 권한이 있다고 Play API 권한도 있다고 가정하지 않는다. 최소 권한 원칙으로 필요한 앱 접근을 설정한다.
 
+현재 준비: Android Play Billing 9.1 실제 연결·상품 조회·구매 UI·callback·복구 gateway와 fake 경계 시험이 있다. 서버 발급 binding 연결·실제 Google proof verifier/sink·기기별 검증 동시성 결정·샘플/Unity 통합이 미완료라 코드 준비는 BLOCKED이며, 이 상태에서는 실제 구매 UI를 시작하지 않는다.
+
 Codex 준비물: Play Billing provider, real server verifier, purchase binding, 원장 transaction, finalization worker, server consume/acknowledge. 앱에서 consume해서 서버 지급 확인을 건너뛰지 않는다.
 
 실제 시나리오: 상품 조회 → 소모성 구매 → 서버 원장 1개/코인 +100 → consume → 재구매 → 비소모성 구매/ack → 재설치 또는 재로그인 복원 → 구매 중 취소/보류 → 네트워크 단절 후 복구 → duplicate verification. 각 원장 변화가 예상과 같아야 한다.
@@ -195,3 +197,11 @@ USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --c
 ## USER-AUTH-RATE — 인증 요청 제한
 
 사용자가 선택한 단일 서버 IP별 challenge 분당 30회·token 교환 분당 10회를 rolling 1분 제한으로 구현하고 단위 검증했다. `GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE`, `GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE`로 조정한다. IP는 메모리에서 hash로만 보유하며 process 재시작 시 초기화된다. reverse proxy 전달 header는 신뢰하지 않으므로 proxy 뒤에서는 모든 요청이 proxy IP로 집계될 수 있다. sandbox 인증 route와 HTTP 제한을 synthetic 데이터로 검증했다. 다중 서버 전역 제한은 구현하지 않았다.
+
+## USER-SESSION-TTL — refresh 만료 기준
+
+기본 7일을 최초 로그인부터 계산할지, 성공적인 refresh마다 연장할지 사용자 결정 대기다. 현재 코드는 최초 로그인 기준의 미확정 구현이며 승인된 정책이 아니다. 결정 전 해당 동작을 완료·배포하지 않는다.
+
+## USER-VERIFY-CONCURRENCY — 구매 증빙 검증 동시성
+
+한 기기의 서버 증빙 검증 동시성은 사용자 선택 대기다. 결정 전 실제 verifier 조립과 구매 UI를 활성화하지 않는다. Mock/기기 내 시험값은 승인된 정책이 아니다.

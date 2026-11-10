@@ -23,3 +23,5 @@ Unity 6000.5.8f1에 포함된 .NET SDK 8.0.318로 Unity managed assembly 대상 
 Unity JSON 후보 `com.unity.nuget.newtonsoft-json` 3.2.2는 Unity 공식 registry metadata와 패키지 DLL로 독립 .NET 컴파일·smoke를 확인했다. Unity Editor import 및 IL2CPP 호환성은 미검증이다. 출처: https://packages.unity.com/com.unity.nuget.newtonsoft-json
 
 Android Google adapter: androidx.credentials 및 credentials-play-services-auth 1.6.0, googleid 1.1.1. googleid 1.2.1은 Kotlin metadata 2.4로 기존 Kotlin 2.1.20과 빌드 실패하여 제외했다. 출처: Google Maven metadata 및 https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation.
+
+Google Play Billing candidate: `com.android.billingclient:billing:9.1.0`. Google Maven metadata와 공식 9.1.0 release notes를 확인했고 Android AAR 및 Mock sample 빌드, fake boundary 시험을 수행했다. 실제 Play Console·기기 테스트는 미실행이다. 출처: https://developer.android.com/google/play/billing/release-notes 및 https://developer.android.com/google/play/billing/deprecation-faq.

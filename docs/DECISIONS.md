@@ -12,3 +12,5 @@
 - 2026-11-10 사용자 결정 USER-AUTH-RATE: 단일 서버에서 IP별 인증 challenge는 분당 30회, token 교환은 분당 10회를 기본 제한으로 한다. 설정 `GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE`와 `GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE`로 반영하고 단일 프로세스 rolling 1분 단위 시험을 수행했다. sandbox HTTP route에서 실제 제한 동작을 확인했다. 다중 서버 전역 제한은 구현하지 않았다.
 
 - P04-T03: 앱별 Google/Apple 공개 audience는 `GAMEBRIDGE_AUTH_AUDIENCES_JSON`으로 공급한다. 빈 설정은 Provider의 CONFIG_REQUIRED이며 샘플 값은 사용자의 실제 설정이 아니다. Google의 두 허용 issuer 표기는 검증 후 같은 canonical issuer로 정규화한다.
+
+- P05-T02: Google Maven의 안정 Play Billing 9.1.0을 사용한다. 이번 범위는 기본 일회성 상품이며 임의 promotional offer 선택은 하지 않는다. 실제 Play 검증은 사용자 설정 후 별도다.

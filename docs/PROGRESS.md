@@ -5,18 +5,18 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05 / P05-T01
+- 현재 Phase / Task: P05 / P05-T02
 - 마지막 갱신 시각: 2026-11-10 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 없음 (골격 검증 중)
 - 현재 작업 트리 상태: P04-T03 변경 커밋 전; Unity 미완성 Demo와 Python 캐시 미추적
 - 현재 실행 모드: 미선택
-- 바로 다음 행동: P05-T02 Play Billing 실제 호출 기반 구현; session app scope 및 USER-SESSION-TTL은 미완료
+- 바로 다음 행동: P05-T03 StoreKit 2 실제 adapter 구현; USER-SESSION-TTL·USER-VERIFY-CONCURRENCY 결정 대기
 - 불가피한 세션 종료 시 재개 행동: P04-T04/P04-T05부터 진행하고 P00~P03의 PARTIAL 항목을 재검증
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 38 / IN_PROGRESS 24 / IMPLEMENTED 2 / BLOCKED 0
+- 구현: NOT_STARTED 37 / IN_PROGRESS 25 / IMPLEMENTED 2 / BLOCKED 0
 - 로컬 검증: NOT_RUN 38 / PASS 2 / FAIL 0 / PARTIAL 24 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
@@ -60,7 +60,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P04-T04 | 세션 복원·single-flight 갱신·로그아웃 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P04-T04 | USER-SESSION-TTL |
 | P04-T05 | 인증 Native·Unity 소비자 통합 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
 | P05-T01 | 구매 상태·account binding 계약 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P05-T01 | - |
-| P05-T02 | 실제 Google Play Billing adapter | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-GOOGLE |
+| P05-T02 | 실제 Google Play Billing adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T02 | USER-BILLING-GOOGLE, USER-VERIFY-CONCURRENCY |
 | P05-T03 | StoreKit 2·로컬 .storekit 시나리오 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-APPLE |
 | P05-T04 | 실제 Google·Apple 구매 검증 서버 | NOT_STARTED | NOT_RUN | WAITING_USER | - | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
 | P05-T05 | 지급 원자성·동시성·서버 finalizer 연결 | NOT_STARTED | NOT_RUN | N/A | - | - |
@@ -101,8 +101,10 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 | ID | 유형 | 영향 Task | 실제 증상/실행 명령 | 코드 개발 지속 방법 | 해소 조건 | 상태 |
 |---|---|---|---|---|---|---|
+| BUG-003 | BUG | P05-T02 | Play Billing nullable offerToken 컴파일 실패 | 안전한 null 처리 후 재빌드 | AAR 빌드 확인, fake boundary 검증 계속 | RESOLVED |
 | BUG-002 | BUG | P04-T01 | googleid 1.2.1 Kotlin metadata 2.4와 compiler 2.1 불일치 | 호환 stable 버전 확인 | 빌드 호환성 확인, adapter fake 검증 계속 | RESOLVED |
 | BUG-001 | BUG | P01-T05 | BackendClientTest 1건 실패 | 원인 확인 및 재실행 | HTTP 검증 통과 | RESOLVED |
+| USER-VERIFY-CONCURRENCY | USER | P05-T02 | 기기별 구매 증빙 검증 동시성 미결정 | 명시 값 없는 실제 UI/검증 비활성, 독립 작업 진행 | 사용자 선택을 설정·코드·검증에 반영 | OPEN |
 | USER-SESSION-TTL | USER | P04-T04 | refresh TTL 7일의 최초 로그인 기준/갱신 시 연장 정책 미결정 | 인증 UI·독립 검증 진행 | 사용자 결정 및 관련 코드·설정·검증 반영 | OPEN |
 | USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제; 코드 반영 대기 | 등록·회전과 다른 독립 작업 진행 | 결정된 삭제 및 소유권 경로 구현·검증 | RESOLVED |
 | USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프; 코드 반영 대기 | 수동 Mock worker 및 다른 독립 작업 진행 | 결정된 정책을 설정과 실행 코드에 반영 | RESOLVED |

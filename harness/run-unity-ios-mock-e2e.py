@@ -18,7 +18,7 @@ def main():
     def digest(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
     head=must(['git','rev-parse','HEAD'],'git').strip(); dirty=bool(must(['git','status','--porcelain','--untracked-files=no'],'git-status').strip())
     result={'status':'FAIL','scope':'Unity iOS Simulator -> Swift C ABI -> LOCAL_MOCK Backend/PostgreSQL','sourceHead':head,'sourceTrackedDirty':dirty,'unityPlayer':'NOT_RUN','realAppleLogin':'NOT_RUN','realStorePurchase':'NOT_RUN'}
-    server=None; serverlog=None; player=None
+    server=None; serverlog=None; player=None; markers=[]; leaks=[]
     try:
         stage=args.staging.resolve(); must(['python3','harness/check-staging.py',stage],'staging')
         source=ROOT/'unity/Packages/com.gamebridge.sdk'; packaged=stage/'com.gamebridge.sdk'
@@ -68,7 +68,7 @@ def main():
         for command in (['boot',sim],['bootstatus',sim,'-b'],['install',sim,app]): must(['xcrun','simctl']+command,'SIMULATOR_'+command[0].upper()+'_FAILED',timeout=180)
         launch_env=os.environ.copy(); launch_env.update(SIMCTL_CHILD_GAMEBRIDGE_IOS_MOCK_URL=f'http://127.0.0.1:{port}',SIMCTL_CHILD_GAMEBRIDGE_IOS_MOCK_KEY=key)
         player=subprocess.Popen(['xcrun','simctl','launch','--console',sim,BUNDLE],cwd=ROOT,env=launch_env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)
-        result['unityPlayer']='LAUNCHED_PENDING'; markers=[]; leaks=[]
+        result['unityPlayer']='LAUNCHED_PENDING'
         def read_player():
             for line in player.stdout:
                 if key in line or password in line: leaks.append(True); continue
@@ -98,6 +98,7 @@ def main():
     except (RuntimeError,OSError,subprocess.TimeoutExpired,StopIteration) as exc: result['errorCode']=str(exc) if isinstance(exc,RuntimeError) else type(exc).__name__
     finally:
         if player and player.poll() is None: player.terminate(); player.wait(timeout=10)
+        if markers and not leaks: (out/'unity-test-markers.log').write_text('\n'.join(markers)+'\n')
         if server:
             server.terminate()
             try: server.wait(timeout=10)

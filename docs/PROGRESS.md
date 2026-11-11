@@ -361,3 +361,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T07 Simulator 전용 E2E runner 초안과 Python 문법 검사를 작성했다. 실제 Unity Player·Swift callback·DB 지급은 아직 NOT_RUN이며 실행으로 검증한다.
 - PX-T07 iOS consumer·runner 1차 구현 커밋 준비: Unity Simulator export와 Xcode build·ABI 검증까지만 PASS, 전체 Player 실행은 NOT_RUN이다.
 - PX-T07 Unity iOS LOCAL_MOCK 전체 E2E 검증 시작: 신규 Simulator·전용 DB와 checksum 검증된 staging을 사용한다. 결과는 아직 NOT_RUN이다.
+- PX-T07 전용 iOS Simulator 앱 실행 중 예상하지 않은 알림 권한 창이 표시돼 Player 진행이 막혔다. Unity notifications 설정 또는 Host 동작을 조사하며 아직 E2E 결과는 미확정이다.
+- PX-T07 첫 전체 실행 FAIL (`artifacts/unity-ios-e2e-sbwq4jn5`, exit 1 `UNITY_PLAYER_REPORTED_FAILURE`). 실제 Xcode build·Simulator 앱 launch는 진행됐지만 Player가 실패를 보고했다. 알림 권한 창은 전용 Simulator에서 거부했으며 정확한 실패 단계와 예상치 못한 권한 요청을 조사한다.
+- PX-T07 원인 조사: Unity Notifications 기본 plist에 시작 시 알림 요청이 true이며 첫 local-mock 인증은 Backend HTTP 200까지 도달했다. 전체 실패 stage는 runner가 기록하지 않아 미확정; 테스트 앱에서 자동 알림 요청을 끄고 실패 시 안전한 단계 마커를 저장한다.
+- PX-T07 테스트 전용 앱의 자동 알림 요청 비활성화와 실패 단계 마커 보존을 추가했다. 실제 결과는 재검증 전이다.
+- PX-T07 알림 설정 및 실패 마커 runner 문법 검사 PASS. 실제 전체 흐름은 미검증이며 수정 사항을 로컬 커밋 후 전용 새 Simulator에서 재검증한다.

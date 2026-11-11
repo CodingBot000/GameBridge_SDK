@@ -34,6 +34,8 @@ public static class BuildMockIosPlayer
         var ats = plist.root.CreateDict("NSAppTransportSecurity");
         var domains = ats.CreateDict("NSExceptionDomains");
         domains.CreateDict("127.0.0.1").SetBoolean("NSExceptionAllowsInsecureHTTPLoads", true);
+        plist.root.SetBoolean("UnityNotificationRequestAuthorizationOnAppLaunch", false);
+        plist.root.SetBoolean("UnityNotificationRequestAuthorizationForRemoteNotificationsOnAppLaunch", false);
         plist.WriteToFile(file);
     }
 }

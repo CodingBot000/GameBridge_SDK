@@ -2472,3 +2472,8 @@
 - `harness/run-unity-ios-mock-e2e.py`에 checksum/source 대조, Unity iOS export, arm64 무서명 Simulator build, XCFramework/C ABI, 전용 Simulator·DB, Unity/Native diagnostics·HTTP trace·원장 확인을 작성했다. runner 전체 실행은 아직 미실행이다.
 - 커밋 준비: iOS consumer, 테스트 전용 loopback ATS, Unity iOS Simulator export와 E2E runner 초안. Unity export/Xcode arm64 Simulator link·C ABI만 실제 확인했으며 Player/Backend 전체 통합은 재실행한다.
 - `python3 harness/run-unity-ios-mock-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6`를 실행할 준비를 한다. 새로운 Simulator·DB를 만들고 기존 데이터는 보존한다. Player·Native callback·Backend·원장 대조가 끝나기 전에는 PASS가 아니다. 실행 전 이 기록을 커밋한다.
+- Unity iOS Simulator 앱 최초 실행에서 테스트 시나리오가 명시적으로 push 권한을 요청하지 않았는데 알림 허용 dialog가 표시됐다. 전용 Simulator 화면에서 확인했으며 원인을 조사한다. 실행은 진행 중이고 아직 Player/Backend PASS는 아니다.
+- 첫 `harness/run-unity-ios-mock-e2e.py` 실행 결과 FAIL `UNITY_PLAYER_REPORTED_FAILURE`, evidence `artifacts/unity-ios-e2e-sbwq4jn5`. 전용 Simulator의 예기치 않은 알림 창은 ‘허용 안 함’으로 닫았다. runner가 실패 시 Player markers를 보존하지 않는 결함이 있어 원인 추적을 보강하고 권한 요청도 조사한다. 전체 경로는 PASS가 아니다.
+- 실패 결과의 서버 trace에서 mock-auth HTTP 200 확인. 별도 합성 placeholder 실행에서는 Unity initialize 뒤 로그인 NETWORK_UNAVAILABLE이 관찰됐으나 서버를 연결하지 않은 음성 시험이므로 최초 실패 원인 증거는 아니다. Unity Notifications 기본 plist `UnityNotificationRequestAuthorizationOnAppLaunch=true`가 예상치 못한 알림 창을 유발해 테스트 전용 앱에서 비활성화하고, 실패 시 `GB_MOCK_` 마커를 남기도록 보강한다.
+- 테스트 소비 앱 post-build plist에서 Unity Notifications 시작 시 로컬/원격 권한 요청을 모두 false로 설정했다. Player 실패 시에도 credential 없는 GB_MOCK 마커를 artifacts에 남긴다. 운영 SDK/사용자 앱 설정은 변경하지 않는다.
+- Python 및 셸 문법 검사 종료 0. 커밋 준비: 테스트 앱의 불필요한 알림 자동 요청 억제, 실패 마커 보존 및 실제 FAIL 기록만 포함한다.

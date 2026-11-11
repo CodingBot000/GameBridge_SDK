@@ -55,3 +55,10 @@ XCFramework arch·C ABI 선검사를 적용해 다시 staging한 최신 UPM은 `
 P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912`, `a93cf52` 등에 기록됐다. P10 리팩토링·호환성은 `36db140`, `e689dd7`, `d02b8ed`, `3bf8d0a`, P11 감사·설정 점검은 `31b683c`, `35bf2bd`에 기록됐다. 이후 문서 커밋은 `git log`에서 확인한다.
 
 다음 개발은 BUG-013과 P09 미완성 시나리오를 해결하고 BUG-014·015 실제 Unity 검증을 진행하며 각 범위의 검증을 추가하는 것이다. 사용자 설정이 준비되면 USER_SETUP의 해당 항목에서 실제 플랫폼 검증을 별도로 실행한다. 자동 push, 공개 배포와 스토어 업로드는 수행하지 않았다.
+
+
+## 후속 변경 — Unity Android LOCAL_MOCK E2E 재검증 준비
+
+후속 브랜치에서 PX-T04 Unity Android Player 검증 Runner, PX-T05 Native-only 실행 환경 가변화, PX-T06 공개용 증거 Exporter 및 오프라인 검사 코드를 추가했다. 이 변경은 기존 P00~P11 전체 완료 또는 실연동 완료를 의미하지 않는다. 변경된 Runner의 실제 Unity 실행·Android 기기 시험 및 GitHub Actions 결과는 **NOT_RUN**이며, Unity 활성 라이선스·Android Build Support가 준비된 후 실행해야 한다.
+
+기존 PX-T03 Kotlin Bridge → 로컬 Backend 1건/100코인 시험은 별도의 이전 실행 결과다. 변경된 코드를 clean checkout에서 재실행한 성공 근거 없이 그 결과를 새로운 코드의 PASS로 이전하지 않는다. 실제 실연동 대상 13건의 WAITING_USER 및 프로젝트 BLOCKED_INTERNAL 판정은 유지한다.

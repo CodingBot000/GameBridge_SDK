@@ -305,7 +305,11 @@ def main():
             jar, output, database, password, args.postgres_port)
         summary["backend"] = "LOCAL_MOCK_READY"
 
-        must([adb, "-s", serial, "install", apk], "UNITY_APK_INSTALL_FAILED", timeout=120)
+        installation = run([adb, "-s", serial, "install", apk], timeout=120)
+        # APK path and installer diagnostics contain no development key or token.
+        (output / "adb-install.log").write_text(installation.stdout, encoding="utf-8")
+        if installation.returncode or "Success" not in installation.stdout:
+            raise GateError("UNITY_APK_INSTALL_FAILED")
         summary["unityPlayer"] = "INSTALLED_NOT_RUN"
         # Safe because this is exclusively a dedicated test AVD.
         must([adb, "-s", serial, "logcat", "-c"], "LOGCAT_CLEAR_FAILED", timeout=20)

@@ -2429,3 +2429,7 @@
 - 커밋 준비: 최신 산출물 위치·빌드 검사 결과만 기록하고 생성물은 Git에 추가하지 않는다. Unity E2E는 새 전용 AVD에서 후속 실행한다.
 ### PX-T04 Unity Android Player 전체 경로 검증 시작
 - `harness/run-unity-android-mock-e2e.py --run-local`을 새 전용 AVD 및 `artifacts/upm-v2-20261112-f1e12b6`로 실행한다. 제품 소스는 f1e12b6 이후 문서 외 변경이 없고 staged source 일치 검사를 수행한다. 합성 개발키·전용 DB를 사용하며 Unity/Native/HTTP/원장을 모두 확인하기 전까지 PASS가 아니다. 실행 전 기록을 커밋해 소스 clean 여부도 확인한다.
+- `python3 harness/run-unity-android-mock-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6 --serial emulator-5584 --expected-avd GameBridge_V2_20261112_011301` 종료 1, `UNITY_APK_INSTALL_FAILED`; Unity APK 생성 이후 설치에서 멈췄고 Player 전체 실행은 수행하지 못했다. runner가 adb 상세 오류를 감춰 전용 AVD에서 원인을 확인한다.
+- 첫 실패 후 같은 전용 AVD에서 APK 재설치 없이 빈 상태를 확인하고 `adb -s emulator-5584 install .../gamebridge-mock-consumer.apk` 재시도 종료 0. 최초 실패 원인은 기록이 없어 불명이다. 앱을 보존하며 runner에 설치 출력 저장을 추가하고 새 AVD로 재실행한다.
+- `harness/run-unity-android-mock-e2e.py`가 adb install 출력과 종료 코드·Success 마커를 검사해 실패 근거를 artifacts에 저장하도록 보완했다. 개발키는 설치 명령에 포함되지 않는다.
+- runner `python3 -m py_compile` 종료 0. 커밋 준비: 설치 진단 보강과 실제 실패·재시도 기록만 포함한다.

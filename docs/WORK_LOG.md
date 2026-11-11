@@ -2487,3 +2487,4 @@
 - `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6` 종료 0, `artifacts/unity-ios-e2e-f5r4zwvp/result.json` PASS. 무서명 Simulator에서는 login INTERNAL_ERROR였고 로컬 ad-hoc Simulator 빌드로 전체 요청/DB 원장 1건·100코인을 확인했다. Apple Developer 계정이나 실키는 사용하지 않았다. Unity main thread 조건을 명시적으로 검사하고 최신 코드에서 다시 실행한다.
 - iOS 테스트 consumer에 각 await 후 managed thread ID와 시작 시 Unity 메인 thread 일치를 검사하고 `GB_MOCK_MAIN_THREAD PASS`를 출력하도록 추가했다. runner가 해당 마커를 필수 검사한다. 기존 PASS는 이전 테스트 코드의 결과로 보존한다.
 - iOS test scenario main-thread assertion 및 runner marker 조건, Python/셸 문법 검사 종료 0. 커밋 준비: 테스트 전용 강화와 기존 PASS의 범위·새 코드 미검증 상태만 기록한다.
+- 메인 스레드 확인 marker를 필수로 하는 Unity iOS LOCAL_MOCK 전체 runner를 새로운 전용 Simulator/DB에서 재실행한다. 실행 전 기록을 커밋하여 tracked-clean 상태를 확보한다.

@@ -376,3 +376,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T07 local ad-hoc 대조 E2E PASS (`artifacts/unity-ios-e2e-f5r4zwvp`, source e2a7138, tracked clean): Unity initialize/login/products/purchase/wallet/logout, Swift Native 진단, Backend HTTP 및 DB 원장 1건·100코인. Apple 계정·실제 스토어 미사용. Main Thread 확인을 명시적으로 강화한 뒤 재검증한다.
 - PX-T07 검증 강화: Unity API 각 단계와 Native diagnostics 복귀가 시작 시 Unity 메인 스레드와 같은지 명시적으로 검사하고 runner가 marker를 필수로 요구한다. 새 코드의 실제 Player 결과는 아직 NOT_RUN이다.
 - PX-T07 메인 스레드 검증 강화 runner 문법 PASS. 테스트 코드 변경 후 실제 Player·callback 검증은 재실행 전이며 커밋 준비한다.
+- PX-T07 메인 스레드 assertion 포함 전체 E2E 재검증 시작: 별도 Simulator·DB에서 현재 source로 실행한다. 결과는 NOT_RUN이다.

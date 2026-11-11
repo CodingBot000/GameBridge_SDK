@@ -2488,3 +2488,8 @@
 - iOS 테스트 consumer에 각 await 후 managed thread ID와 시작 시 Unity 메인 thread 일치를 검사하고 `GB_MOCK_MAIN_THREAD PASS`를 출력하도록 추가했다. runner가 해당 마커를 필수 검사한다. 기존 PASS는 이전 테스트 코드의 결과로 보존한다.
 - iOS test scenario main-thread assertion 및 runner marker 조건, Python/셸 문법 검사 종료 0. 커밋 준비: 테스트 전용 강화와 기존 PASS의 범위·새 코드 미검증 상태만 기록한다.
 - 메인 스레드 확인 marker를 필수로 하는 Unity iOS LOCAL_MOCK 전체 runner를 새로운 전용 Simulator/DB에서 재실행한다. 실행 전 기록을 커밋하여 tracked-clean 상태를 확보한다.
+- `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6` 종료 0, `artifacts/unity-ios-e2e-29s8tvel/result.json` PASS. 소스 tracked-clean에서 Unity iOS Player의 메인 스레드·SDK 전체 단계, Swift Native diagnostics, Backend HTTP trace 및 PostgreSQL 원장 1건/100코인을 확인했다. Simulator local ad-hoc signing만 사용했고 Apple 계정·실결제는 미실행. 공개 evidence 생성 전 원본 결과를 대조한다.
+- `docs/evidence/px-t07-unity-ios-local-mock.md`를 실제 `artifacts/unity-ios-e2e-29s8tvel/result.json` PASS, source SHA 일치·tracked-clean·원장 1건/100 및 메인 스레드 marker 대조 후 작성했다. 최초 unsigned FAIL, local ad-hoc 성공 및 과거 알림 창 조작을 명확히 구분했다.
+- PX-T07 공개 evidence와 README/FEATURE_MATRIX/USER_SETUP/FINAL_REPORT/PROGRESS를 갱신했다. Simulator local ad-hoc 서명과 초기 unsigned 실패를 구분하고 Android PASS 기록 및 외부 제공자 미검증 상태를 유지했다.
+- 최초 iOS 테스트 앱의 Unity Notifications 기본 자동 권한 요청과 최종 테스트 전용 plist의 비활성화 사실을 USER_SETUP에 명시했다. 운영 host의 권한·push 동작 검증 결과로 확대하지 않는다.
+- `python3 scripts/verify-progress.py`, iOS runner `py_compile`, Android ADB 안전 단위 테스트 2건 모두 종료 0. 공통 SDK/Android 제품 코드는 수정하지 않아 Android Player E2E는 재실행하지 않았으며, 테스트 안전 단위 결과와 기존 PX-T04 PASS는 별개다. 커밋 준비: 검증 문서와 PASS evidence만 포함하고 원본 로그·키·Simulator 데이터는 제외한다.

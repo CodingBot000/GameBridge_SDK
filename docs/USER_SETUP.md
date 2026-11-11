@@ -290,12 +290,12 @@ Xcode local `.storekit` 환경에서만 사용한다. iOS 18 이상과 host Info
 
 Android instrumentation 대조 시험은 전용 에뮬레이터에서 Kotlin bridge→local Backend 및 DB 지급을 확인했다 ([증거](evidence/px-t03-android-mock-bridge.md)). 이것은 Unity 실행이 아니다.
 
-Unity Android Player import·빌드·실행 및 서버 지급 대조는 2026-11-12 전용 에뮬레이터에서 **LOCAL_MOCK PASS**다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS Player 및 실제 제공자는 NOT_RUN이다. 개발키와 세션 토큰을 로그·Git·공개 보고서에 넣지 않는다. 이 경로는 Google 로그인이나 실제 스토어 결제가 아니다.
+Unity Android Player import·빌드·실행 및 서버 지급 대조는 2026-11-12 전용 에뮬레이터에서 **LOCAL_MOCK PASS**다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS Simulator LOCAL_MOCK 경로도 PASS했으며 실제 제공자는 NOT_RUN이다. 개발키와 세션 토큰을 로그·Git·공개 보고서에 넣지 않는다. 이 경로는 Google 로그인이나 실제 스토어 결제가 아니다.
 
 
 ## Unity Android LOCAL_MOCK 전체 E2E 및 공개 증거 — PX-T04~PX-T06
 
-**상태: Unity Android Player LOCAL_MOCK E2E PASS.** [공개 검증 증거](evidence/px-t04-unity-android-local-mock.md). 초기 전체화면 안내는 수동으로 닫았다. 기존 PX-T03 Android instrumentation PASS는 Unity를 경유하지 않은 별도 결과다. Unity iOS·실제 Google 로그인·스토어 결제는 NOT_RUN이다.
+**상태: Unity Android Player LOCAL_MOCK E2E PASS.** [공개 검증 증거](evidence/px-t04-unity-android-local-mock.md). 초기 전체화면 안내는 수동으로 닫았다. 기존 PX-T03 Android instrumentation PASS는 Unity를 경유하지 않은 별도 결과다. Unity iOS Simulator LOCAL_MOCK은 별도 PASS이며 실제 Google 로그인·스토어 결제는 NOT_RUN이다.
 
 ### 사용자 환경 준비
 
@@ -356,3 +356,9 @@ python3 harness/export-mock-e2e-evidence.py \
 Native-only 결과를 공개할 때에는 --kind native 및 별도 신규 파일명을 사용한다. 이 생성기는 PASS·DB 지급·필수 로컬 원본 파일을 검사하고 공개 가능한 제한된 필드만 Markdown에 기록한다. 원본 로그의 전체 내용, 개발키, APK, DB 식별·접속 정보, 개인 기기 경로를 복사하지 않는다.
 
 Runner와 exporter의 문법·오프라인 입력 검증은 GitHub Actions의 Linux lane에 추가했다. Unity runtime 필수 lane의 미구현 상태 및 전체 gate FAIL은 별개로 유지한다. 실제 성공 후 PROGRESS.md·WORK_LOG.md·FINAL_REPORT.md에 실행 환경, 검증 명령, 새 근거를 반영해야 한다.
+
+### Unity iOS Simulator LOCAL_MOCK (PX-T07)
+
+Unity 6000.5.8f1, Xcode 26.6 및 iOS 18.6 ARM64 Simulator에서 전용 local-mock 전체 경로가 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging <UPM staging 절대경로>`는 신규 Simulator·로컬 DB를 만들고 보존한다. 무서명 시도는 로그인 INTERNAL_ERROR였고 성공 시험에는 Apple 계정이나 개인키가 필요 없는 Simulator 로컬 ad-hoc 서명을 사용했다. 테스트 앱의 ATS는 loopback만 허용한다. 실제 Apple 로그인, App Store 결제, APNs, Unity push/lifecycle 및 실제 기기 검증은 별도 NOT_RUN이다.
+
+PX-T07의 최초 전용 Simulator 시도에서 Unity Mobile Notifications 패키지의 기본 프로젝트 설정이 시작 시 권한 창을 표시했다. 최종 테스트 소비 앱은 plist의 자동 알림 권한 요청 설정을 끈 뒤 별도의 사용자 UI 조작 없이 통과했다. 이는 테스트 앱 설정이며, 실제 host는 Unity Notifications 설정과 AppDelegate/권한 요청 정책을 직접 확인해야 한다. APNs 검증은 아니다.

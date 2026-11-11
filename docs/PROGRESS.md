@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: PX-T04 / Unity Android LOCAL_MOCK E2E 통과 후 결과 정리
+- 현재 Phase / Task: PX-T07 / Unity iOS LOCAL_MOCK E2E 통과 후 결과 정리
 - 마지막 갱신 시각: 2026-11-12 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: c58b4a6 (Unity Android LOCAL_MOCK E2E PASS; 실제 제공자·Unity iOS 미검증)
+- 마지막 검증된 소스 커밋: 8732333 (Unity iOS LOCAL_MOCK E2E PASS; 실제 Apple 제공자·스토어 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: PX-T04 공개 증거와 현재 검증 범위를 정리하고 Unity iOS Player 검증은 다음 단계로 유지
+- 바로 다음 행동: PX-T07 증거·문서를 정리하고 Apple 로그인·실제 스토어·APNs·Unity push/lifecycle을 별도 미검증으로 유지
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -137,19 +137,19 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 | 기능 | Android 코드/빌드 | iOS 코드/빌드 | Unity Editor | Unity Android | Unity iOS | 실제 외부 서비스 |
 |---|---|---|---|---|---|---|
-| Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | IMPORT:PASS / TEST:NOT_RUN | LOCAL_MOCK:PASS | NOT_RUN | N/A |
-| 인증 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | LOCAL_MOCK:PASS | NOT_RUN | WAITING_USER |
-| 결제 | BUILD:PASS / MOCK:PARTIAL | BUILD:PASS / MOCK:PARTIAL / STOREKIT_LOCAL:FAIL | NOT_RUN | LOCAL_MOCK:PASS | NOT_RUN | WAITING_USER |
+| Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | IMPORT:PASS / TEST:NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | N/A |
+| 인증 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | WAITING_USER |
+| 결제 | BUILD:PASS / MOCK:PARTIAL | BUILD:PASS / MOCK:PARTIAL / STOREKIT_LOCAL:FAIL | NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | WAITING_USER |
 | 푸시 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
 | 세션·복구 | EMULATOR:PARTIAL | SIMULATOR:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 배포·신규 소비 | MAVEN_CONSUMER:PASS | XCFRAMEWORK_CONSUMER:PASS | UPM_IMPORT:PASS | IL2CPP:PASS | NOT_RUN | N/A |
+| 배포·신규 소비 | MAVEN_CONSUMER:PASS | XCFRAMEWORK_CONSUMER:PASS | UPM_IMPORT:PASS | IL2CPP:PASS | SIM_IL2CPP:PASS | N/A |
 
 각 칸은 가능한 경우 `BUILD:PASS / RUN:WAITING_USER`처럼 분리한다. “Android 완료” 한마디로 Native standalone과 Unity Android를 합치지 않는다.
 
 ## 완료/미완료 요약
 
 - 일부 계약·빌드·가짜 Provider·로컬 DB 회귀 및 독립 패키지 소비 검증 통과. 개별 범위와 명령은 WORK_LOG 참조.
-- Unity Android LOCAL_MOCK 인증·구매는 통과했으나 실제 플랫폼·Unity iOS·푸시·복구 전체 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
+- Unity Android 및 iOS Simulator LOCAL_MOCK 인증·구매는 통과했으나 실제 플랫폼·실기기·푸시·복구 전체 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
 - 내부 미완료: Xcode StoreKit 실제 기기 및 Unity 복구 검증, Mock 푸시의 실제 Unity 전달 검증, Android LOCAL_MOCK 외 Native 진단의 Unity 검증. BUG-009 실제 기기 재시작 검증도 미완료.
 - 환경 대기: 계획된 Unity 6.3 LTS 및 Unity iOS 등 잔여 환경, StoreKit local simulator 실패. P09 하네스에는 미구현·부분 시나리오가 남아 전체 검증은 실패 상태.
 - 범위 제외: Windows/C++·Unreal/Godot·구독·환불 자동화·RTDN/Server Notifications 운영·관리자 웹·Kubernetes·상용 배포.
@@ -377,3 +377,12 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T07 검증 강화: Unity API 각 단계와 Native diagnostics 복귀가 시작 시 Unity 메인 스레드와 같은지 명시적으로 검사하고 runner가 marker를 필수로 요구한다. 새 코드의 실제 Player 결과는 아직 NOT_RUN이다.
 - PX-T07 메인 스레드 검증 강화 runner 문법 PASS. 테스트 코드 변경 후 실제 Player·callback 검증은 재실행 전이며 커밋 준비한다.
 - PX-T07 메인 스레드 assertion 포함 전체 E2E 재검증 시작: 별도 Simulator·DB에서 현재 source로 실행한다. 결과는 NOT_RUN이다.
+- PX-T07 최신 테스트 코드의 Unity iOS LOCAL_MOCK 전체 E2E PASS (`artifacts/unity-ios-e2e-29s8tvel`, exit 0): Unity 메인 스레드 확인, Swift C ABI diagnostics, Backend HTTP 및 DB 원장 1건·100코인. 로컬 ad-hoc Simulator signing 사용, 실제 Apple 계정·스토어는 NOT_RUN이다. 공개 evidence 작성에 앞서 결과와 해시를 대조한다.
+- PX-T07 실제 PASS 결과에서 검증된 source·Unity/Xcode/runtime·UPM/iOS binary hash·실행 명령·local ad-hoc 및 실패/수동 조작 한계를 공개 evidence에 기록했다. 원본 로그와 비밀은 포함하지 않았다.
+
+### 추가 Task PX-T07 — Unity iOS Simulator LOCAL_MOCK E2E
+
+구현 IMPLEMENTED / iOS 18.6 ARM64 Simulator LOCAL_MOCK E2E PASS / 실제 Apple 로그인·App Store 결제·APNs NOT_RUN. [검증 evidence](evidence/px-t07-unity-ios-local-mock.md). 로컬 ad-hoc Simulator signing을 사용했으며 최초 무서명 시도는 로그인 INTERNAL_ERROR로 실패했다. Android 기존 PASS는 그대로 유지한다.
+- PX-T07 README·FEATURE_MATRIX·USER_SETUP·FINAL_REPORT와 기능별 매트릭스에 iOS Simulator LOCAL_MOCK PASS를 반영했다. 실제 Apple 로그인·스토어·APNs·Unity push/lifecycle 및 실제 기기는 NOT_RUN 유지한다.
+- PX-T07 주의: 최초 테스트 소비 프로젝트의 Unity Notifications 기본 설정이 알림 권한 창을 표시했다. 최종 테스트 앱에서 자동 요청을 껐으며 실제 host의 push/권한 수명주기는 별도 미검증이다.
+- PX-T07 최종 원장 검사·iOS runner 문법 및 기존 Android ADB 기기 안전 단위 테스트 2건 PASS. 실제 Android Player 전체 회귀는 이번에 재실행하지 않았고 기존 PX-T04 PASS를 유지한다. 커밋 준비.

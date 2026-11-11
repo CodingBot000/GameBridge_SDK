@@ -2,7 +2,7 @@
 
 ## 판정
 
-**BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. Unity Android LOCAL_MOCK 전체 흐름은 검증했으나 전체 제품, Unity iOS 및 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미완료도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
+**BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. Unity Android 및 iOS Simulator LOCAL_MOCK 전체 흐름은 검증했으나 전체 제품, 실제 기기와 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미완료도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
 
 P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 44개 IMPLEMENTED, 6개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
 
@@ -64,3 +64,5 @@ P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912
 기존 PX-T03 Kotlin Bridge → 로컬 Backend 1건/100코인 시험은 별도의 이전 실행 결과다. 변경된 코드를 clean checkout에서 재실행한 성공 근거 없이 그 결과를 새로운 코드의 PASS로 이전하지 않는다. 실제 실연동 대상 13건의 WAITING_USER 및 프로젝트 BLOCKED_INTERNAL 판정은 유지한다.
 
 2026-11-12 최신 Android Maven·iOS XCFramework·UPM staging은 `f1e12b6` 제품 소스로 새로 생성했다. UPM 110개 파일 checksum, Android 독립 R8 consumer, iOS arch/C ABI 및 0.1.0-dev 버전을 확인했다. Unity Android Player E2E는 source `c58b4a6`의 clean tracked tree와 동일한 staged Unity SDK 소스로 실행해 PASS했으며 첫 전체화면 안내는 수동으로 닫았다. 실제 Google 로그인·스토어 및 Unity iOS는 NOT_RUN이다.
+
+2026-11-12 Unity iOS 18.6 Simulator ARM64에서 Unity C# → Swift C ABI → LOCAL_MOCK Backend/PostgreSQL 전체 흐름이 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). 무서명 실행은 로그인에서 실패했고 성공 실행은 로컬 ad-hoc Simulator 서명을 사용했다. 실제 Apple 로그인·스토어 결제·APNs 및 실기기는 미검증이다.

@@ -270,3 +270,10 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 구현 IN_PROGRESS / 로컬 검증 PARTIAL / Unity Android Player NOT_RUN. 소비 프로젝트 생성, managed compile, Backend opt-in trace 및 local HTTP 시험은 확인했다. 활성 Unity 라이선스와 Android Build Support가 없어 실제 Unity import·APK 빌드·JNI·Player 실행은 ENV-002로 대기한다. 기존 P00–P11 항목을 대체하지 않는다.
 - PX-T01 커밋 준비: 격리 consumer·trace·README 및 사용자 설정을 저장한다. 실제 Android Player/DB 전체 흐름은 NOT_RUN으로 유지한다.
+- PX-T02 전용 Android 에뮬레이터 준비 시작: 기존 AVD를 수정하지 않고 새 테스트 인스턴스를 만들어 ADB 연결을 확인한다. Unity Player 빌드는 라이선스·모듈 대기로 남는다.
+- PX-T02 새 전용 AVD 생성 및 config 확인 PASS. 에뮬레이터 기동·ADB 연결을 검증한다.
+- PX-T02 첫 에뮬레이터 백그라운드 기동은 프로세스가 종료돼 ADB 연결 미확인이다. 대기 작업을 중단하고 관리되는 세션에서 재시도한다.
+- PX-T02 관리 세션의 전용 emulator 기동 재검증 시작.
+- PX-T02 전용 Android 36 에뮬레이터 부팅·ADB 연결 PASS. Unity APK와 Native 통합 실행은 아직 NOT_RUN이다. 에뮬레이터에서 로컬 host 연결 가능 여부를 검증한다.
+- PX-T02 전용 Android 에뮬레이터의 `10.0.2.2` host TCP 연결 PASS. SDK·Backend·Unity 호출은 하지 않았으며 Player 통합은 NOT_RUN 유지한다.
+- PX-T02 커밋 준비: 격리 AVD 및 host 연결 결과를 기록한다. 실제 실행은 Unity 라이선스와 Android 모듈 준비 뒤 이어간다.

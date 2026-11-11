@@ -2380,3 +2380,11 @@
 - staging 누락을 거부하는지, 비활성 Unity license에서 APK를 만들지 않고 종료 2인지 재검증한다.
 - 생성기 staging 누락 exit 2, 빌드 preflight inactive license exit 2·APK 미생성 확인. Backend trace 단위 2건 및 local HTTP 대조, Unity managed compile과 구별한다. 사용자 라이선스 활성화·Android Build Support 후 실제 Player 흐름을 계속해야 한다.
 - 커밋 준비: 새 consumer 준비·compile-only 검증, local-mock opt-in trace 및 실제 HTTP 단독 검증, README·USER_SETUP 정정. Unity import·Android Player·Unity→Kotlin→Backend 전체 흐름은 활성 라이선스와 Android 모듈 부족으로 NOT_RUN이며 push는 하지 않는다.
+### PX-T02 전용 Android 에뮬레이터 준비 시작
+- 설치된 Android 36 ARM64 system image를 사용해 신규 AVD를 격리 경로에 생성한다. 사용자 기존 AVD는 변경하지 않으며 Unity 앱 빌드·실행을 성공으로 간주하지 않는다.
+- `GameBridge_V2_20261111_161918` AVD를 `artifacts/GameBridge_V2_20261111_161918.avd`에 생성하고 목록과 config를 확인했다. 기존 AVD는 수정하지 않았다. 전용 포트에서 부팅한다.
+- 전용 AVD 첫 백그라운드 기동은 프로세스 종료 후 ADB 미연결, 부팅 대기는 중단했다. 기존 기기에는 영향이 없고 foreground 관리 세션에서 재시도한다.
+- 전용 AVD를 foreground 세션으로 실행하고 별도 ADB에서 부팅 상태를 확인한다.
+- foreground 세션의 전용 `GameBridge_V2_20261111_161918`이 부팅 완료됐다. 에뮬레이터 포트 5598은 도구의 권장 범위 밖 경고가 있었으나 `adb -s emulator-5598`와 boot_completed=1을 확인했다. 기존 AVD는 사용하지 않았다. 이제 10.0.2.2 host 연결만 검증한다.
+- 전용 에뮬레이터에서 `10.0.2.2`를 통한 로컬 TCP 서버 응답 PASS. 이는 네트워크 도달성만 확인하며 SDK, Backend, Unity Player 검증은 아니다.
+- 커밋 준비: 전용 AVD·ADB 부팅 및 host 연결 결과와 USER_SETUP 갱신만 저장한다. 테스트 AVD와 로그는 로컬 artifacts에 남기며 자동 push하지 않는다.

@@ -43,7 +43,7 @@ Git identity·도구/라이선스 → 앱 package/bundle ID·서명 → Backend 
 
 사용자 할 일: 선택한 Unity LTS Editor와 Android/iOS build support, 필요한 라이선스를 준비한다. 2026-11-10 확인: 설치된 6000.5.8f1 Editor는 프로젝트 생성 시 라이선스 확인에 실패하여 종료 198을 반환했다 (ENV-002). 라이선스 활성화와 계정 로그인은 사용자가 수행한다. Codex가 license secret을 가져오거나 약관을 대신 수락하지 않는다.
 
-2026-11-11 재확인: Unity CLI는 로그인 상태지만 활성 라이선스가 0개이며, 설치된 6000.5.8f1과 6000.4.0f1에서 Android Build Support가 확인되지 않았다. 사용자가 Unity Hub에서 라이선스를 정상 활성화하고 사용 Editor에 Android Build Support와 필요한 SDK/NDK·JDK를 설치해야 한다. 모듈 설치에 필요한 약관 동의는 사용자가 처리한다. ADB 연결 기기는 0개다.
+2026-11-11 재확인: Unity CLI는 로그인 상태지만 활성 라이선스가 0개이며, 설치된 6000.5.8f1과 6000.4.0f1에서 Android Build Support가 확인되지 않았다. 사용자가 Unity Hub에서 라이선스를 정상 활성화하고 사용 Editor에 Android Build Support와 필요한 SDK/NDK·JDK를 설치해야 한다. 모듈 설치에 필요한 약관 동의는 사용자가 처리한다. 이후 별도 Android 36 테스트 에뮬레이터를 생성·부팅해 ADB 연결과 host 10.0.2.2 도달을 확인했다. 기존 AVD는 변경하지 않았다.
 
 Unity Android LOCAL_MOCK 격리 소비 프로젝트는 `GAMEBRIDGE_UPM_STAGING=<절대 staging 경로> bash scripts/prepare-unity-android-mock.sh --prepare`로 생성할 수 있다. 이 명령은 파일 생성과 checksum 확인만 하며 Unity import·빌드·실행은 아니다. 생성된 project 경로와 새 절대 APK 경로를 `bash scripts/build-unity-android-mock.sh <project> <새 APK>`에 전달하면 라이선스·Android 모듈을 확인한 뒤 `BuildMockPlayer.Build`를 실행한다. 테스트 APK는 개발용 cleartext 설정을 포함하므로 배포하지 않는다. 실행 시 전용 local-mock 서버와 별도 테스트 DB, 사용자 준비 Android 에뮬레이터가 필요하며 synthetic 개발키는 intent extra로만 전달한다. 실제 Google 인증이나 스토어 결제의 검증은 아니다.
 
@@ -280,7 +280,7 @@ Xcode local `.storekit` 환경에서만 사용한다. iOS 18 이상과 host Info
 
 ### Unity Android LOCAL_MOCK 재실행 준비 (PX-T01)
 
-1. Unity Hub에서 6000.5.8f1에 사용할 라이선스를 활성화하고 Android Build Support 및 필요한 구성요소를 설치한다. 로컬 전용 Android 에뮬레이터를 준비한다. 이 작업은 사용자가 직접 진행한다.
+1. Unity Hub에서 6000.5.8f1에 사용할 라이선스를 활성화하고 Android Build Support 및 필요한 구성요소를 설치한다. 라이선스 활성화와 모듈 설치는 사용자가 직접 진행한다. 별도 Android 36 테스트 에뮬레이터는 로컬에 준비돼 있다.
 2. 최신 SDK Maven/XCFramework를 `scripts/package-sdk.sh`로 새 staging에 묶고 `GAMEBRIDGE_UPM_STAGING=<staging 절대경로> bash scripts/prepare-unity-android-mock.sh --prepare`를 실행한다. 출력한 project 경로를 보존한다. 이 단계는 Unity import가 아니다.
 3. `bash scripts/build-unity-android-mock.sh <project 절대경로> <새 APK 절대경로>`를 실행한다. 성공 시에만 전용 에뮬레이터에 APK를 설치한다. 이 build 명령은 아직 실제 Editor에서 검증되지 않았다.
 4. 별도 local-mock 서버와 테스트 DB를 준비하고 `GAMEBRIDGE_LOCAL_TRACE_ENABLED=true`를 명시한다. API trace는 opt-in이고 local-mock profile에서만 켜지며 요청 경로별 고정 operation, method, 서버 request ID, status만 출력한다. 응답·요청 본문, token, 개발키는 기록하지 않는다.

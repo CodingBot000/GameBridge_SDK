@@ -88,6 +88,7 @@ def main():
         text='\n'.join(markers)
         for step in STEPS:
             if f'GB_MOCK_STEP {step} PASS' not in text: raise RuntimeError('UNITY_STEP_MISSING_'+step)
+        if 'GB_MOCK_MAIN_THREAD PASS' not in text: raise RuntimeError('UNITY_MAIN_THREAD_MISSING')
         for kind in ('INITIALIZE','AUTH','PURCHASE'):
             if not re.search(r'GB_MOCK_NATIVE kind='+kind+r' outcome=SUCCEEDED requestId=[0-9a-fA-F-]{36}',text): raise RuntimeError('NATIVE_DIAGNOSTIC_MISSING_'+kind)
         serverlog.flush(); trace=(out/'server.log').read_text()

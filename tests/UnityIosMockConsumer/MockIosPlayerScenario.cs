@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 using GameBridge;
 using GameBridge.Core;
 using UnityEngine;
@@ -12,6 +13,7 @@ public sealed class MockIosPlayerScenario : MonoBehaviour
     {
 #if UNITY_IOS && !UNITY_EDITOR
         GameBridgeClient client = null;
+        int unityMainThread = Thread.CurrentThread.ManagedThreadId;
         string stage = "configuration";
         try
         {
@@ -25,21 +27,23 @@ public sealed class MockIosPlayerScenario : MonoBehaviour
             key = null;
             stage = "native-transport";
             client = GameBridgeSdk.Create(config);
-            stage = "initialize"; await client.InitializeAsync(config); Log(stage);
-            stage = "login"; await client.SignInAsync(AuthProvider.MOCK); Log(stage);
+            stage = "initialize"; await client.InitializeAsync(config); Log(stage, unityMainThread);
+            stage = "login"; await client.SignInAsync(AuthProvider.MOCK); Log(stage, unityMainThread);
             stage = "initial-wallet"; var before = await client.GetEntitlementsAsync();
             if (!long.TryParse(before.coinBalance, out var oldBalance)) throw new InvalidOperationException("INVALID_BALANCE");
             stage = "products"; var products = await client.GetProductsAsync();
-            if (!products.Any(product => product.productId == "coins_100")) throw new InvalidOperationException("PRODUCT_NOT_FOUND"); Log(stage);
+            if (!products.Any(product => product.productId == "coins_100")) throw new InvalidOperationException("PRODUCT_NOT_FOUND"); Log(stage, unityMainThread);
             stage = "purchase"; var purchase = await client.PurchaseAsync("coins_100");
-            if (purchase.status != PurchaseStatus.PURCHASED || (purchase.fulfillmentStatus != FulfillmentStatus.GRANTED && purchase.fulfillmentStatus != FulfillmentStatus.ALREADY_GRANTED)) throw new InvalidOperationException("PURCHASE_NOT_GRANTED"); Log(stage);
+            if (purchase.status != PurchaseStatus.PURCHASED || (purchase.fulfillmentStatus != FulfillmentStatus.GRANTED && purchase.fulfillmentStatus != FulfillmentStatus.ALREADY_GRANTED)) throw new InvalidOperationException("PURCHASE_NOT_GRANTED"); Log(stage, unityMainThread);
             stage = "wallet"; var after = await client.GetEntitlementsAsync();
-            if (!long.TryParse(after.coinBalance, out var newBalance) || newBalance != oldBalance + 100) throw new InvalidOperationException("BALANCE_MISMATCH"); Log(stage);
-            stage = "logout"; await client.SignOutAsync(); Log(stage);
+            if (!long.TryParse(after.coinBalance, out var newBalance) || newBalance != oldBalance + 100) throw new InvalidOperationException("BALANCE_MISMATCH"); Log(stage, unityMainThread);
+            stage = "logout"; await client.SignOutAsync(); Log(stage, unityMainThread);
             stage = "diagnostics"; var events = await client.GetNativeDiagnosticsAsync();
             if (!events.Any(item => item.Kind == DiagnosticKind.INITIALIZE && item.Outcome == DiagnosticOutcome.SUCCEEDED && item.RequestId.HasValue) ||
                 !events.Any(item => item.Kind == DiagnosticKind.AUTH && item.Outcome == DiagnosticOutcome.SUCCEEDED && item.RequestId.HasValue) ||
                 !events.Any(item => item.Kind == DiagnosticKind.PURCHASE && item.Outcome == DiagnosticOutcome.SUCCEEDED && item.RequestId.HasValue)) throw new InvalidOperationException("NATIVE_DIAGNOSTICS_MISSING");
+            if (Thread.CurrentThread.ManagedThreadId != unityMainThread) throw new InvalidOperationException("MAIN_THREAD_MISMATCH");
+            Debug.Log("GB_MOCK_MAIN_THREAD PASS");
             foreach (var item in events) if (item.RequestId.HasValue) Debug.Log("GB_MOCK_NATIVE kind=" + item.Kind + " outcome=" + item.Outcome + " requestId=" + item.RequestId.Value);
             Debug.Log("GB_MOCK_RESULT PASS LOCAL_MOCK");
         }
@@ -51,5 +55,9 @@ public sealed class MockIosPlayerScenario : MonoBehaviour
         Debug.LogError("GB_MOCK_RESULT NOT_RUN requires iOS Player");
 #endif
     }
-    private static void Log(string stage) => Debug.Log("GB_MOCK_STEP " + stage + " PASS");
+    private static void Log(string stage, int expectedThread)
+    {
+        if (Thread.CurrentThread.ManagedThreadId != expectedThread) throw new InvalidOperationException("MAIN_THREAD_MISMATCH");
+        Debug.Log("GB_MOCK_STEP " + stage + " PASS");
+    }
 }

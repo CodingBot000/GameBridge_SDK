@@ -2448,3 +2448,4 @@
 - `aapt dump badging`과 package resolver에서 `com.unity3d.player.UnityPlayerGameActivity` 확인. 기존 `am start -a MAIN -c LAUNCHER -p ...`는 unable to resolve, 동일 APK에 `-n com.gamebridge.sdk.mockconsumer/com.unity3d.player.UnityPlayerGameActivity`는 Status ok. 사용된 key는 합성 placeholder며 Backend 복구 검증이 아니다. runner를 수정한다.
 - 실제 테스트 manifest에 맞춰 명시적 GameActivity를 실행하고 adb 결과의 Status ok와 종료 코드를 함께 확인하도록 변경했다. launch 출력에 개발키가 포함되면 redaction하며 raw argv는 기록하지 않는다.
 - Python 문법 및 ADB 재검색·기기 안전 테스트 2건 PASS/skip 0. 커밋 준비: 명시적 launcher·redacted 진단 및 실패 기록만 포함한다.
+- 수정 runner와 launcher manifest를 새 전용 AVD에서 재검증한다. 기존 AVD·앱·DB·산출물은 삭제하지 않고 실행 전 기록을 커밋한다.

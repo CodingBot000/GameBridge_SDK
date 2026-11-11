@@ -351,3 +351,12 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T04 USER_SETUP의 과거 라이선스 부재 기록을 당시 상태로 명시하고, 현재 6000.5.8f1 활성 라이선스·Android/iOS 모듈 설치 사실을 추가했다.
 - PX-T04 PASS evidence·문서 커밋 준비: 검증된 Unity Android LOCAL_MOCK 범위만 기록하고 원본 로그·APK·DB 및 미추적 사용자 파일은 포함하지 않는다. 자동 push하지 않는다.
 - PX-T04 최종 원장 검사 PASS 및 ADB 재검색 안전 테스트 2건 PASS/skip 0. Unity Player PASS 증거는 별도 source c58b4a6 결과이며 자동 push하지 않는다.
+- PX-T07 Unity iOS LOCAL_MOCK 통합 개발 시작: source `2a116c2`, 추적 파일 clean, 기존 미추적 Demo·캐시 보존. Unity 6000.5.8f1 라이선스 활성·iOS 모듈 설치, Xcode 26.6/Swift 6.3.3 및 iOS 18.6·26.5 simulator runtime을 확인했다. Unity iOS Player는 NOT_RUN이다.
+- PX-T07 기존 UPM staging 110개 checksum 및 XCFramework device/simulator arch·C ABI 4종 검사 PASS. Unity iOS Simulator 소비 프로젝트·실행 하네스 구현을 시작한다. 실제 Unity iOS 실행은 NOT_RUN이다.
+- PX-T07 iOS 전용 소비 시나리오·Simulator export 스크립트 작성. 개발키는 Simulator 프로세스 환경에서만 읽고 127.0.0.1 테스트 앱 ATS 예외만 적용한다. 코드·Player 검증은 아직 미실행이다.
+- PX-T07 소비 프로젝트 생성 및 staging checksum PASS (`artifacts/unity-ios-mock.8xjMY7`), 스크립트 문법 PASS. Unity iOS Simulator Xcode 프로젝트 생성을 시작한다.
+- PX-T07 Unity 6000.5.8f1 iOS Simulator Xcode 프로젝트 export PASS (`artifacts/unity-ios-mock.8xjMY7/xcode`). Simulator용 Xcode 링크·빌드와 ATS 범위를 확인한다. Player 실행은 NOT_RUN이다.
+- PX-T07 Unity iOS Simulator arm64 Xcode build/link PASS (`artifacts/unity-ios-mock.8xjMY7/Derived`, code signing 비활성). XCFramework 프로젝트 포함 확인. 실제 Simulator Player·Backend 통합은 아직 NOT_RUN이다.
+- PX-T07 UnityFramework 실제 Simulator binary에서 C ABI 심볼 4종 확인, 테스트 Info.plist의 loopback 127.0.0.1 예외만 확인했다. 격리 Simulator·DB 전체 E2E runner를 구현한다.
+- PX-T07 Simulator 전용 E2E runner 초안과 Python 문법 검사를 작성했다. 실제 Unity Player·Swift callback·DB 지급은 아직 NOT_RUN이며 실행으로 검증한다.
+- PX-T07 iOS consumer·runner 1차 구현 커밋 준비: Unity Simulator export와 Xcode build·ABI 검증까지만 PASS, 전체 Player 실행은 NOT_RUN이다.

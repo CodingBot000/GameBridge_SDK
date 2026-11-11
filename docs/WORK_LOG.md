@@ -2461,3 +2461,13 @@
 - USER_SETUP에서 2026-11-11 라이선스·모듈 미비는 과거 상태로 보존하고 2026-11-12 실제 환경과 Android LOCAL_MOCK PASS를 명시했다.
 - 커밋 준비: PX-T04 공개용 검증 요약 및 README/PROGRESS/USER_SETUP/FEATURE_MATRIX/FINAL_REPORT의 현재 상태만 포함한다. source c58b4a6에서 실제 PASS, Unity iOS·실제 Google/스토어는 NOT_RUN, 최초 전체화면 안내는 수동으로 닫았음을 보존한다. 원본 로그·APK·DB 및 사용자 미추적 파일은 추가하지 않는다.
 - PX-T04 결과 정리 후 `python3 scripts/verify-progress.py` 종료 0, `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 2건 PASS/skip 0. 이는 Player E2E 결과와 별도다. 커밋 준비: 최종 검사 기록만 저장한다.
+### PX-T07 Unity iOS LOCAL_MOCK 통합 시작 (2026-11-12)
+- 요청된 `fix/unity-android-mock-e2e-evidence` HEAD `2a116c22aa8a8d79b95f3a55e516f1325c8d53d8` 및 작업 트리를 확인했다. Unity 라이선스 active=true, 6000.5.8f1 iOS 모듈 Installed, Xcode 26.6 build 17F113, Swift 6.3.3, iOS simulator 18.6/26.5 확인. 기존 Android PASS와 사용자 미추적 데이터 보존. 실제 Unity iOS 빌드·실행은 NOT_RUN.
+- `python3 harness/check-staging.py artifacts/upm-v2-20261112-f1e12b6`, `python3 scripts/verify-xcframework.py .../GameBridgeNative.xcframework` 종료 0. 기존 패키지 무결성과 심볼 검사이며 Unity iOS 링크·실행 PASS가 아니다.
+- `tests/UnityIosMockConsumer`, `scripts/prepare-unity-ios-mock.sh`, `scripts/build-unity-ios-mock.sh` 작성. Unity C#이 실제 SDK API를 사용하고 process environment로 임시 local key를 전달하며, 테스트 Xcode plist에 loopback HTTP 예외를 적용한다. Simulator 프로젝트 생성과 링크·실행은 아직 검증 전이다.
+- `bash -n` 및 `GAMEBRIDGE_UPM_STAGING=.../upm-v2-20261112-f1e12b6 bash scripts/prepare-unity-ios-mock.sh --prepare` 종료 0. 110개 checksum 및 별도 소비 프로젝트 생성만 확인했다. Unity iOS Simulator export 검증을 실행한다.
+- `bash scripts/build-unity-ios-mock.sh .../project .../xcode` 종료 0: Unity iOS Simulator Xcode export 완료. 아직 Xcode 링크·실행 검증은 아니다. arm64 Simulator 및 code signing 비활성으로 빌드한다.
+- `xcodebuild -project .../Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Debug -sdk iphonesimulator -derivedDataPath .../Derived ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. GameBridgeNative.xcframework가 UnityFramework target에 연결됨을 project.pbxproj에서 확인했다. libtool의 빈 object 경고가 있었으며 Player 동작은 아직 확인하지 않았다.
+- 생성된 UnityFramework arm64 Simulator binary `nm -g`에서 GB_ProtocolVersion/SetCallback/Dispatch/Shutdown 확인. Info.plist에는 테스트 전용 127.0.0.1 도메인 예외만 있다. 실제 Unity callback 및 서버 거래는 미실행이다. 전용 Simulator·DB runner 구현을 시작한다.
+- `harness/run-unity-ios-mock-e2e.py`에 checksum/source 대조, Unity iOS export, arm64 무서명 Simulator build, XCFramework/C ABI, 전용 Simulator·DB, Unity/Native diagnostics·HTTP trace·원장 확인을 작성했다. runner 전체 실행은 아직 미실행이다.
+- 커밋 준비: iOS consumer, 테스트 전용 loopback ATS, Unity iOS Simulator export와 E2E runner 초안. Unity export/Xcode arm64 Simulator link·C ABI만 실제 확인했으며 Player/Backend 전체 통합은 재실행한다.

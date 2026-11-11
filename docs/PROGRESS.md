@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / 미완료 회귀 및 환경 검증
+- 현재 Phase / Task: PX-T01 / Unity Android LOCAL_MOCK 소비 실행
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: e9b64fb (격리 strict aggregate 전체 FAIL; Unity·외부 서비스는 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: Unity Editor 라이선스·호환 버전과 Android/iOS 기기 환경 확보 후 R09/R11/R22/R40/R43/R49 및 iOS 26.5 실패를 재검증
+- 바로 다음 행동: 사용자 Unity 라이선스 활성화와 Android Build Support 준비 후 격리 소비 프로젝트 import·Android Player 빌드·에뮬레이터의 LOCAL_MOCK 전체 흐름을 실행하고 Native/Backend 요청 ID 및 DB 지급을 확인
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -246,3 +246,27 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - P09-T02 R09 환경 조사: 연결된 Android 기기가 없고 사용자의 기존 AVD만 확인됐다. Unity AndroidJavaProxy 경계를 실제 검증할 별도 환경과 라이선스는 미준비이므로 JNI 실행 PASS로 기록하지 않는다.
 - P11 원장·manifest·음성 검사 PASS. 커밋 준비: 남은 환경 제한과 다음 검증 경로를 기록한다.
 - 저장소 공개 요청: 추적 변경은 모두 커밋됐으며 Git 전체 이력 1,690개 blob의 일반적인 인증키·개인키 패턴 검사에서 의심 항목 0건. 기존 미추적 Unity Demo 및 Python 캐시는 보존한다. 공개 저장소 생성·푸시 전 로컬 기록 커밋을 준비한다.
+- PX-T01 Unity Android LOCAL_MOCK 통합 재개: Unity 라이선스·Editor·Android 모듈과 실제 소비 경로를 확인한다. Native Player 전체 실행은 아직 NOT_RUN이다.
+- PX-T01 환경 블로커: Unity CLI는 로그인 상태이나 활성 라이선스 0개다. 설치된 Editor 6000.5.8f1·6000.4.0f1에 Android Build Support가 확인되지 않았고 ADB 기기 0개다. Player 실행은 NOT_RUN이며 사용자 라이선스 작업을 우회하지 않는다.
+- PX-T01 독립 작업 시작: 활성화 후 바로 실행할 수 있도록 별도 Unity Android LOCAL_MOCK 소비 프로젝트 생성기와 검증용 시나리오를 준비한다. 기존 사용자 Demo는 변경하지 않는다.
+- PX-T01 소비 프로젝트 생성기 초안 작성: Android Player에서만 실행되는 LOCAL_MOCK 시나리오, Native 진단 request ID, 서버 잔액 증가 assertion과 격리 Android manifest를 준비했다. Unity 실행·컴파일은 아직 미검증이다.
+- PX-T01 생성기 로컬 검증 PASS: `artifacts/unity-android-mock.uv2IER/project` 생성, staged UPM 110개 파일 체크섬 확인. Unity 실행은 NOT_RUN. 시나리오 C#을 실제 Unity managed reference로 컴파일 검증한다.
+- PX-T01 Unity managed reference 컴파일 PASS: Android 조건부 SDK와 시나리오 소스 경고 0·오류 0. 이는 Unity import·JNI·Player 실행 증거가 아니다. Backend 요청 ID의 안전한 검증 경로도 검토한다.
+- PX-T01 README의 status/shutdown만 연결됐다는 오래된 설명을 수정하고 사용자 라이선스·Android 모듈 준비 항목을 현 상태로 갱신했다.
+- PX-T01 관측 경로 보강 시작: local-mock에서 명시적으로 활성화한 경우에만 핵심 API의 서버 request ID와 상태를 남기고 토큰·요청 본문은 기록하지 않는다.
+- PX-T01 Backend tracing 단위 검증 시작: opt-in·profile 제한과 토큰/본문 비노출을 확인한다. 실제 Unity 호출은 아직 없다.
+- PX-T01 Backend trace 단위 테스트 PASS: 2건, 실패·skip 0. 이제 격리 local-mock 서버에서 실제 HTTP 응답의 request ID가 안전한 trace와 일치하는지 확인한다.
+- PX-T01 Backend 격리 local-mock 실제 HTTP trace PASS (`artifacts/unity-mock-trace-2tz526dj`): 응답 `X-Request-Id`와 서버 로그 일치, synthetic 개발키·DB 비밀번호 비노출. Unity→Kotlin 호출은 아직 NOT_RUN.
+- PX-T01 재현 가능한 Android 시나리오 managed compile 명령 검증 시작.
+- PX-T01 재현 가능한 managed compile 재검증 PASS(경고 0·오류 0). 격리 소비 프로젝트 빌드 명령은 활성 라이선스 및 Android 모듈 미비 시 실패하도록 작성하며, 현재 환경에서 preflight를 확인한다.
+- PX-T01 Player 빌드 preflight는 exit 2로 중단되어 Unity 빌드는 NOT_RUN. CLI가 라이선스 비활성 상태를 JSON으로 반환하면서 비영 종료해 현재 메시지가 부정확하므로 수정한다.
+- PX-T01 라이선스 preflight 분류 수정 후 재검증 시작.
+- PX-T01 재검증: 라이선스 inactive로 정확히 분류해 exit 2, APK 없음. Unity Player 실행은 여전히 NOT_RUN이다.
+- PX-T01 USER_SETUP에 라이선스·Android 모듈·격리 소비 프로젝트·synthetic intent·Backend trace 절차와 NOT_RUN 범위를 기록했다. 실제 기기/에뮬레이터 호출은 하지 않았다.
+- PX-T01 소비 프로젝트 생성기·빌드 preflight의 음성 경로와 현재 라이선스 상태를 다시 검증한다. Unity import 및 Player 시험은 여전히 환경 대기다.
+- PX-T01 음성 검증 PASS: staging 누락과 비활성 라이선스를 각각 exit 2로 거부하고 APK를 생성하지 않았다. Unity Android LOCAL_MOCK 전체 경로는 환경 대기로 NOT_RUN이다.
+
+### 추가 Task PX-T01
+
+구현 IN_PROGRESS / 로컬 검증 PARTIAL / Unity Android Player NOT_RUN. 소비 프로젝트 생성, managed compile, Backend opt-in trace 및 local HTTP 시험은 확인했다. 활성 Unity 라이선스와 Android Build Support가 없어 실제 Unity import·APK 빌드·JNI·Player 실행은 ENV-002로 대기한다. 기존 P00–P11 항목을 대체하지 않는다.
+- PX-T01 커밋 준비: 격리 consumer·trace·README 및 사용자 설정을 저장한다. 실제 Android Player/DB 전체 흐름은 NOT_RUN으로 유지한다.

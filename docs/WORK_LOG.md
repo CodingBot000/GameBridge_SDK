@@ -2359,3 +2359,24 @@
 - P11 진행 원장·manifest 및 누락 음성 검사 PASS. 커밋 준비: R09 연결 기기 부재 및 재개 체크포인트를 기록하며 검증 미실행을 완료로 바꾸지 않는다.
 ### 공개 저장소 생성 및 푸시 준비
 - 사용자 요청에 따라 `CodingBot000/GameBridge_SDK` 공개 저장소를 생성하고 `main`을 푸시할 예정이다. GitHub 로그인 계정과 동일 이름 저장소 부재를 확인했다. 전체 이력 blob 1,690개에서 주요 인증키·개인키 패턴은 검출되지 않았다(패턴 검사는 모든 비밀의 부재를 보장하지 않음). 기존 미추적 `unity/Demo/`, Python 캐시는 포함하지 않는다. 생성·푸시 전 로컬 기록을 커밋한다.
+### PX-T01 Unity Android LOCAL_MOCK 통합 시작
+- v2.md 지시에 따라 기존 상태·소스와 Unity 라이선스, Editor/Android 모듈을 확인한다. 실제 Android Player 검증 전 EditorOfflineTransport나 Native 단위 테스트를 대체 증거로 사용하지 않는다.
+- Unity `license status --format json`: signedIn=true, active=false, licenses=[]; `editors --installed --format json`: 6000.5.8f1과 6000.4.0f1, Android 모듈 없음. 두 설치 경로의 AndroidPlayer 디렉터리 검색 결과 없음. `adb devices` 연결 기기 0. 이는 LOCAL_MOCK Player 검증을 막는 환경 상태이며 앱 실행 결과는 아니다.
+- PX-T01 새 소비 프로젝트를 격리 경로에 생성하는 스크립트와 Android Player 전용 검증 소스를 작성한다. 실제 Unity import/build/run은 라이선스·Android 모듈 확보 전 NOT_RUN으로 유지한다.
+- `tests/UnityAndroidMockConsumer` 및 `scripts/prepare-unity-android-mock.sh`를 작성했다. 새 프로젝트의 개발 전용 cleartext 설정은 해당 격리 앱에만 적용하며, 개발키는 실행 시 synthetic intent로만 전달하고 로그에 출력하지 않는다. 실제 import/build/run은 미실행이다.
+- `GAMEBRIDGE_UPM_STAGING=.../upm-e9b64fb bash scripts/prepare-unity-android-mock.sh --prepare` 종료 0, 110개 파일 무결성 PASS. 새 프로젝트는 파일 생성만 했으며 Unity import는 실행되지 않았다. Android 시나리오의 독립 managed compile 검증을 시작한다.
+- 설치된 Unity 6000.5.8f1의 managed reference와 .NET 8로 `UNITY_ANDROID` SDK+시나리오 컴파일 성공(경고 0, 오류 0). 빌드 파이프라인·Android JNI·실행을 확인한 것은 아니다.
+- README Native bridge 설명을 현재 구현과 미검증 상태로 정정했다. USER_SETUP에는 로그인과 활성 라이선스의 차이, Android 모듈·기기 준비, 격리 소비 프로젝트 생성 범위를 기록했다.
+- Unity bridge request ID와 별도로 실제 Backend 호출을 증명하려고 local-mock 전용·opt-in API tracing을 구현한다. 허용된 고정 경로·HTTP method·서버 request ID·응답 코드만 기록하며 비밀·본문·사용자 식별자는 제외한다.
+- local-mock trace의 허용 경로·UUID·응답 코드 및 synthetic secret 비노출, profile/설정 이중 조건을 단위 테스트한다.
+- `backend/gradlew -p backend test --tests com.gamebridge.config.LocalMockTraceFilterTest` 종료 0, 2 test/0 skip. opt-in과 local-mock 동시 요구, 경로 allowlist와 synthetic secret 비노출을 확인했다. 전용 DB·실 HTTP 확인을 시작한다.
+- 전용 DB와 local-mock 서버에서 `/v1/dev/auth` HTTP 200의 X-Request-Id와 `LOCAL_MOCK_TRACE` ID가 일치했고 synthetic key·DB password는 서버 로그에 없었다 (`artifacts/unity-mock-trace-2tz526dj`). 이 검증은 Unity 또는 Android Player 실행이 아니다.
+- 재사용 가능한 시나리오 managed compile 명령을 추가하고 동일 참조로 재검증한다.
+- `scripts/check-unity-android-mock-compile.sh` 종료 0, Android 조건부 시나리오 managed compile 경고·오류 0. Unity Android Player 빌드 스크립트에 라이선스·모듈 preflight와 새 APK 경로 검사를 추가했다. 실제 빌드는 미실행이다.
+- 새 빌드 스크립트 호출은 exit 2, APK 없음. Unity CLI가 active=false JSON과 비영 종료를 함께 반환하므로 ‘상태 조회 불가’라고 잘못 분류됐다. JSON 유효성과 active 값을 먼저 구분하도록 수정한다.
+- `active=false` 응답을 inactive로, 무효 응답을 unknown으로 구분하도록 수정해 재검증한다.
+- 빌드 preflight 재실행 결과 `DEFERRED_ENV: Unity license inactive`, exit 2. CLI 종료 코드도 명시적으로 수집하며 상태를 통과로 간주하지 않는다.
+- README와 USER_SETUP에 실제 구현 범위, 격리 consumer 준비·서버 trace 사용 및 Player 미실행을 명시했다. 개발키는 test intent로만 공급하고 실제 키는 사용하지 않는다.
+- staging 누락을 거부하는지, 비활성 Unity license에서 APK를 만들지 않고 종료 2인지 재검증한다.
+- 생성기 staging 누락 exit 2, 빌드 preflight inactive license exit 2·APK 미생성 확인. Backend trace 단위 2건 및 local HTTP 대조, Unity managed compile과 구별한다. 사용자 라이선스 활성화·Android Build Support 후 실제 Player 흐름을 계속해야 한다.
+- 커밋 준비: 새 consumer 준비·compile-only 검증, local-mock opt-in trace 및 실제 HTTP 단독 검증, README·USER_SETUP 정정. Unity import·Android Player·Unity→Kotlin→Backend 전체 흐름은 활성 라이선스와 Android 모듈 부족으로 NOT_RUN이며 push는 하지 않는다.

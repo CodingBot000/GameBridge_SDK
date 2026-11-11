@@ -2,7 +2,7 @@
 
 Android, iOS 및 Unity 게임을 위한 SDK와 Backend를 개발하고 있습니다. 현재 프로젝트는 완성품이 아닙니다. 각 기능의 구현·실행·실패 상태는 [진행 원장](docs/PROGRESS.md)과 [작업 기록](docs/WORK_LOG.md)을 확인하세요. 외부 계정·서명·키 등은 [사용자 설정](docs/USER_SETUP.md)에 정리되어 있습니다.
 
-Android/iOS 샘플의 `LOCAL_MOCK` 로그인·구매·복원은 로컬 Backend를 사용합니다. 실제 Google/Apple 인증, 스토어 결제 및 원격 푸시 성공을 뜻하지 않습니다. Unity 네이티브 브리지는 아직 status/shutdown 외 기능이 연결되지 않았고, 설치된 Unity Editor의 라이선스 확인이 실패해 Editor 및 IL2CPP 검증을 수행하지 못했습니다. iOS 26.5의 로컬 StoreKit 상품 조회 시험은 실패 상태입니다.
+Android/iOS 샘플의 `LOCAL_MOCK` 로그인·구매·복원은 로컬 Backend를 사용합니다. 실제 Google/Apple 인증, 스토어 결제 및 원격 푸시 성공을 뜻하지 않습니다. Unity Native bridge에는 LOCAL_MOCK의 초기화·인증·상품·구매·서버 잔액·로그아웃 경로가 연결돼 있습니다. Native 및 fake 검증은 수행했지만 Unity Android/iOS Player 전체 흐름은 아직 실행하지 않았습니다. 현재 설치된 Unity Editor는 활성 라이선스가 없어 Editor 및 IL2CPP 검증을 수행하지 못했습니다. iOS 26.5의 로컬 StoreKit 상품 조회 시험은 실패 상태입니다.
 
 ## 로컬 개발
 
@@ -35,3 +35,7 @@ Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시
 ## 로컬 회귀 집계
 
 `bash scripts/verify-all.sh --available` 또는 `--strict-local`은 실제 실행한 suite, 필수 미실행·미구현·기존 실패, 외부 설정 대기를 구분해 `artifacts/verify-all-*`에 기록합니다. 격리 DB와 local server가 필요한 lane은 명시적인 test 환경 설정이 없으면 건너뛰며, 전체 성공으로 처리하지 않습니다. Mock push의 Backend→Native local DB 시험은 통과했으며 Unity runtime 전체 경로는 미완료입니다.
+
+### Unity Android LOCAL_MOCK 통합 확인 준비
+
+별도 소비 프로젝트 생성과 빌드 절차는 [사용자 설정의 Unity Android LOCAL_MOCK 절차](docs/USER_SETUP.md#unity-android-local_mock-재실행-준비-px-t01)를 참고하세요. 현재는 프로젝트 생성, 패키지 checksum, 시나리오의 managed compile 및 Backend 단독 local-mock trace만 확인했습니다. Unity Editor import와 Android Player 실행, Kotlin SDK를 거친 전체 흐름은 미실행입니다.

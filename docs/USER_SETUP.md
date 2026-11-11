@@ -43,6 +43,10 @@ Git identity·도구/라이선스 → 앱 package/bundle ID·서명 → Backend 
 
 사용자 할 일: 선택한 Unity LTS Editor와 Android/iOS build support, 필요한 라이선스를 준비한다. 2026-11-10 확인: 설치된 6000.5.8f1 Editor는 프로젝트 생성 시 라이선스 확인에 실패하여 종료 198을 반환했다 (ENV-002). 라이선스 활성화와 계정 로그인은 사용자가 수행한다. Codex가 license secret을 가져오거나 약관을 대신 수락하지 않는다.
 
+2026-11-11 재확인: Unity CLI는 로그인 상태지만 활성 라이선스가 0개이며, 설치된 6000.5.8f1과 6000.4.0f1에서 Android Build Support가 확인되지 않았다. 사용자가 Unity Hub에서 라이선스를 정상 활성화하고 사용 Editor에 Android Build Support와 필요한 SDK/NDK·JDK를 설치해야 한다. 모듈 설치에 필요한 약관 동의는 사용자가 처리한다. ADB 연결 기기는 0개다.
+
+Unity Android LOCAL_MOCK 격리 소비 프로젝트는 `GAMEBRIDGE_UPM_STAGING=<절대 staging 경로> bash scripts/prepare-unity-android-mock.sh --prepare`로 생성할 수 있다. 이 명령은 파일 생성과 checksum 확인만 하며 Unity import·빌드·실행은 아니다. 생성된 project 경로와 새 절대 APK 경로를 `bash scripts/build-unity-android-mock.sh <project> <새 APK>`에 전달하면 라이선스·Android 모듈을 확인한 뒤 `BuildMockPlayer.Build`를 실행한다. 테스트 APK는 개발용 cleartext 설정을 포함하므로 배포하지 않는다. 실행 시 전용 local-mock 서버와 별도 테스트 DB, 사용자 준비 Android 에뮬레이터가 필요하며 synthetic 개발키는 intent extra로만 전달한다. 실제 Google 인증이나 스토어 결제의 검증은 아니다.
+
 설정: `UNITY_EDITOR_PATH`를 실제 실행파일로 지정한다. 정확한 버전은 TOOLCHAIN/ProjectVersion과 일치시킨다. 다른 Unity major/minor를 자동으로 설치해 기존 project를 올리지 않는다.
 
 실행 예정: `bash scripts/doctor.sh`, `bash scripts/build-unity.sh --editor-smoke`. 성공 조건: Editor import, C# compilation, 실제 테스트 수 > 0, Mock demo 및 platform-independent tests 통과. license 오류는 ENV, compiler 오류는 BUG다.
@@ -273,3 +277,13 @@ LOCAL_MOCK simulated push 전달 정책은 앱이 연결 중일 때만 전달하
 ## XCODE_STOREKIT 개발 전용 구성
 
 Xcode local `.storekit` 환경에서만 사용한다. iOS 18 이상과 host Info.plist의 `SKIncludeConsumableInAppPurchaseHistory = true`가 필요하며, 미설정 또는 구버전이면 구매 전에 CONFIG_REQUIRED 또는 UNSUPPORTED_PLATFORM으로 차단된다. Unity iOS에서 `GAMEBRIDGE_XCODE_STOREKIT` scripting define과 Development Build를 함께 설정하면 build hook이 이 옵션을 추가한다. 다른 빌드는 변경하지 않으며 define을 넣고 Development Build를 끄면 build가 실패한다. 별도 local-mock Backend와 개발키, `GameBridgeConfig`의 `XcodeStoreKit` 모드 및 Mock A/B 계정을 명시하고 Xcode scheme에 `ios/StoreKit/GameBridge.storekit`을 지정한다. 거래는 StoreKit 클라이언트에서 검증되고 서버 지급은 개발용 fake 경로에서 이뤄진다. 서버가 Xcode JWS를 Apple 서버 서명으로 검증하는 것은 아니다. 같은 거래 후보 키에 둘 이상의 거래가 있거나 다른 시도가 동일 키를 쓰면 지급을 거부한다. Xcode 데이터는 일반 Mock 사용자·지갑과 분리된다. 실제 Unity player·프로세스 강제 종료 및 Apple sandbox는 별도 미검증이다.
+
+### Unity Android LOCAL_MOCK 재실행 준비 (PX-T01)
+
+1. Unity Hub에서 6000.5.8f1에 사용할 라이선스를 활성화하고 Android Build Support 및 필요한 구성요소를 설치한다. 로컬 전용 Android 에뮬레이터를 준비한다. 이 작업은 사용자가 직접 진행한다.
+2. 최신 SDK Maven/XCFramework를 `scripts/package-sdk.sh`로 새 staging에 묶고 `GAMEBRIDGE_UPM_STAGING=<staging 절대경로> bash scripts/prepare-unity-android-mock.sh --prepare`를 실행한다. 출력한 project 경로를 보존한다. 이 단계는 Unity import가 아니다.
+3. `bash scripts/build-unity-android-mock.sh <project 절대경로> <새 APK 절대경로>`를 실행한다. 성공 시에만 전용 에뮬레이터에 APK를 설치한다. 이 build 명령은 아직 실제 Editor에서 검증되지 않았다.
+4. 별도 local-mock 서버와 테스트 DB를 준비하고 `GAMEBRIDGE_LOCAL_TRACE_ENABLED=true`를 명시한다. API trace는 opt-in이고 local-mock profile에서만 켜지며 요청 경로별 고정 operation, method, 서버 request ID, status만 출력한다. 응답·요청 본문, token, 개발키는 기록하지 않는다.
+5. 테스트 앱의 실행 intent에 `gamebridge_mock_url` (`http://10.0.2.2:<포트>`)과 **전용 synthetic 개발키** `gamebridge_mock_key`를 전달한다. 실제 서비스 키를 사용하지 말고 intent가 로컬 기기 도구에 노출될 수 있음을 고려한다. 앱 logcat의 `GB_MOCK_STEP` 및 `GB_MOCK_NATIVE`와 서버의 `LOCAL_MOCK_TRACE`를 모아 각 요청의 성공과 서버 지급을 독립 확인한다. `GB_MOCK_RESULT PASS LOCAL_MOCK`만으로는 서버 DB 검증을 대체하지 않는다.
+
+위 절차의 Player import·빌드·실행 및 서버 지급 대조는 **NOT_RUN**이다. 개발키와 세션 토큰을 로그·Git·공개 보고서에 넣지 않는다. 이 경로는 Google 로그인이나 실제 스토어 결제가 아니다.

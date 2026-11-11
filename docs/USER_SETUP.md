@@ -1,6 +1,6 @@
 # GameBridge SDK — 마지막 사용자 설정 및 실연동 인계
 
-> 초기 양식이다. 현재는 코드도 아직 구현 전이다. 아래 상태가 대기라고 해서 기능 구현이 준비되었다는 뜻은 아니다. Codex는 개발 중 연결 코드·실제 경로·명령을 채우고, 사용자는 마지막에 계정/콘솔/서명을 처리한다.
+> 최초 인계 양식으로 작성된 문서다. 실제 구현 및 테스트의 최신 상태는 PROGRESS.md와 WORK_LOG.md가 우선한다. 아래 설정 대기는 구현 완료나 외부 서비스 테스트 성공을 뜻하지 않는다. 사용자만 처리할 계정/콘솔/서명을 구분한다.
 
 ## 1. 역할 경계
 
@@ -13,7 +13,7 @@ Codex는 실제 Provider 호출 코드, 설정 로더, 오류 처리, Mock, 빌�
 | 설정 ID | 준비 대상 | 코드 준비 | 설정 준비 | 실연동 검증 | 코드/실행 증거 |
 |---|---|---|---|---|---|
 | USER-GIT | 로컬 Git identity | NOT_STARTED | NOT_CHECKED | N/A | - |
-| USER-UNITY | Unity 설치·라이선스·target modules | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
+| USER-UNITY | Unity 설치·라이선스·target modules | BLOCKED | WAITING_USER | NOT_RUN | PX-T01/PX-T04, PROGRESS.md |
 | USER-DEVICE | Xcode·Android 도구·실기기·서명 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-BACKEND | 로컬 서버·DB·개발/샌드박스 네트워크 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-AUTH-GOOGLE | Android Google 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
@@ -289,3 +289,68 @@ Xcode local `.storekit` 환경에서만 사용한다. iOS 18 이상과 host Info
 Android instrumentation 대조 시험은 전용 에뮬레이터에서 Kotlin bridge→local Backend 및 DB 지급을 확인했다 ([증거](evidence/px-t03-android-mock-bridge.md)). 이것은 Unity 실행이 아니다.
 
 위 절차의 Unity Player import·빌드·실행 및 Unity를 경유한 서버 지급 대조는 **NOT_RUN**이다. 개발키와 세션 토큰을 로그·Git·공개 보고서에 넣지 않는다. 이 경로는 Google 로그인이나 실제 스토어 결제가 아니다.
+
+
+## Unity Android LOCAL_MOCK 전체 E2E 및 공개 증거 — PX-T04~PX-T06
+
+**상태: Runner 및 문서 작성. 실제 Unity import, APK 빌드, Player 실행은 NOT_RUN.** 기존 PX-T03 Android instrumentation PASS는 Unity를 경유하지 않은 별도 결과다.
+
+### 사용자 환경 준비
+
+1. Unity Hub에서 사용하는 Editor(기본 6000.5.8f1)의 라이선스를 정상 활성화하고 Android Build Support, 해당 SDK/NDK 및 OpenJDK 모듈을 설치한다. 로그인 여부와 활성 라이선스는 다르다. 약관·계정 동의는 사용자가 처리한다.
+2. 기존 사용자 기기/앱을 변경하지 않도록 새 전용 GameBridge_V2_ Android AVD를 사용한다. 이 테스트는 대상 AVD에 com.gamebridge.sdk.mockconsumer 앱이 이미 설치돼 있으면 거부한다. 기존 앱을 자동 삭제하거나 덮어쓰지 않는다.
+3. 전용 로컬 Docker Compose PostgreSQL을 준비한다. 이미 존재하는 volume이나 개인 DB는 삭제하지 않는다. docker compose -p gamebridge-sdk-local -f infra/compose.yaml up -d --wait 실행 시 GAMEBRIDGE_DB_PASSWORD가 로컬 환경에 미리 설정돼 있어야 한다. 테스트는 gamebridge-sdk-local-postgres-1에 무작위 신규 DB·역할을 만들고 종료 뒤에도 보존한다.
+4. 현재 코드로 빌드한 Android Maven, iOS XCFramework를 사용하여 scripts/package-sdk.sh로 새 Unity UPM staging을 만든다. staging은 SHA256SUMS가 있는 절대 경로여야 한다. 오래된 패키지로 검증하지 않도록 소스·산출물 SHA를 확인한다.
+5. Unity CLI(unity 명령), Java, Android adb, Docker 및 Python 3.9 이상이 사용 가능해야 한다. 기존 사용자 Unity 프로젝트는 수정하지 않는다.
+
+### 실행
+
+모든 경로·이름은 아래의 예시를 본인 환경의 실제 값으로 지정한다. 비밀번호, 개발키, 토큰은 명령에 직접 넣지 않는다.
+
+~~~sh
+export UNITY_EDITOR_PATH="/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/MacOS/Unity"
+export UNITY_EDITOR_VERSION="6000.5.8f1"
+export GAMEBRIDGE_UPM_STAGING="/absolute/path/to/fresh-upm-staging"
+export GAMEBRIDGE_ANDROID_SERIAL="emulator-5598"   # 실제 전용 에뮬레이터 serial로 변경
+export GAMEBRIDGE_TEST_AVD_NAME="GameBridge_V2_example"  # 실제 전용 AVD 이름
+# 필요할 때만:
+# export GAMEBRIDGE_ADB="/absolute/path/to/adb"
+# export GAMEBRIDGE_TEST_POSTGRES_CONTAINER="gamebridge-sdk-local-postgres-1"
+# export GAMEBRIDGE_TEST_POSTGRES_PORT="54329"
+
+python3 harness/run-unity-android-mock-e2e.py --run-local \
+  --staging "$GAMEBRIDGE_UPM_STAGING" \
+  --serial "$GAMEBRIDGE_ANDROID_SERIAL" \
+  --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME"
+~~~
+
+Runner의 실제 실행 순서는 전용 AVD 및 staging 검사 → 격리 소비 프로젝트 준비 → Unity Player APK 빌드 → Backend bootJar 빌드 → 무작위 독립 PostgreSQL DB 생성 및 LOCAL_MOCK Backend 실행 → 전용 AVD에 APK 신규 설치 → Player 실행 → Unity 단계·Native 진단 마커 수집 → Backend HTTP 200 trace와 원장 1건·100코인 대조이다. 새로운 APK를 빌드하지 못한 경우 실제 Unity 성공으로 처리하지 않는다.
+
+- Exit 0 / PASS: 위 전체 검증 완료. 실제 Google/Apple 인증·스토어 테스트를 의미하지 않는다.
+- Exit 2 / DEFERRED_ENV: 활성 Unity 라이선스·Android 모듈·전용 기기 등 환경이 준비되지 않아 실행 불가.
+- Exit 1 / FAIL: 빌드/실행/검증 조건 실패. result.json의 errorCode와 로컬 로그를 점검한다.
+
+결과는 artifacts/unity-android-e2e-*/result.json에 기록된다. 원본 build/server 로그는 해당 로컬 artifacts 내부에만 남기며 Git에 포함하지 않는다. E2E 성공 시 로그는 Unity의 GB_MOCK_RESULT, GB_MOCK_STEP, GB_MOCK_NATIVE 이벤트와 Backend LOCAL_MOCK_TRACE 및 DB 원장을 각각 대조한다. Native request ID와 서버 HTTP request ID는 다른 계층에서 발행되므로 같은 값이라고 주장하지 않는다.
+
+Kotlin Native-only 재실행은 기존 빌드된 sample-app.apk와 AndroidTest APK, Backend jar 및 아직 대상 앱이 없는 새로운 전용 GameBridge_V2_ AVD가 필요하다. 다음 명령은 Unity Player가 아니라 Kotlin bridge 시험이다.
+
+~~~sh
+python3 harness/run-android-mock-bridge-e2e.py --run-local \
+  --serial "$GAMEBRIDGE_ANDROID_SERIAL" \
+  --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME"
+~~~
+
+### 공개 증거 만들기
+
+실제 PASS 후, **추적 파일 변경이 없는 커밋된 checkout에서 실행한 결과**에 한해서 아래 export를 수행한다. 현재 저장소의 결과를 검사하므로 소스 HEAD가 다르면 거절한다. 실패·미실행 상태에서 증거 문서를 미리 만들지 않는다.
+
+~~~sh
+python3 harness/export-mock-e2e-evidence.py \
+  --kind unity \
+  --result artifacts/unity-android-e2e-실제생성경로/result.json \
+  --output docs/evidence/px-t04-unity-android-local-mock.md
+~~~
+
+Native-only 결과를 공개할 때에는 --kind native 및 별도 신규 파일명을 사용한다. 이 생성기는 PASS·DB 지급·필수 로컬 원본 파일을 검사하고 공개 가능한 제한된 필드만 Markdown에 기록한다. 원본 로그의 전체 내용, 개발키, APK, DB 식별·접속 정보, 개인 기기 경로를 복사하지 않는다.
+
+Runner와 exporter의 문법·오프라인 입력 검증은 GitHub Actions의 Linux lane에 추가했다. Unity runtime 필수 lane의 미구현 상태 및 전체 gate FAIL은 별개로 유지한다. 실제 성공 후 PROGRESS.md·WORK_LOG.md·FINAL_REPORT.md에 실행 환경, 검증 명령, 새 근거를 반영해야 한다.

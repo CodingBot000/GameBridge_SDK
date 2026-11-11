@@ -2438,3 +2438,4 @@
 - `artifacts/unity-android-e2e-usi585vl/adb-install.log`: adb daemon 재시작 직후 전용 emulator 미발견. 이후 `adb devices`에서 동일 serial online 확인. Unity 빌드 후 ADB 재검색 지연을 기다리고 AVD 이름·기존 앱 미존재를 다시 확인하는 방향으로 수정한다.
 - Unity 빌드 이후 최대 45초 동안 동일 전용 AVD를 재확인하고, 잘못된 기기나 기존 앱은 즉시 거부하도록 runner를 수정했다. 오프라인 복구와 안전한 거부에 대한 단위 테스트를 실행한다.
 - `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: ADB 재검색·전용 AVD 안전 조건 및 진단 기록만 포함한다.
+- Unity가 재시작한 ADB의 재검색을 기다리는 runner 수정 후 새 전용 AVD에서 전체 경로를 재실행한다. 기존 두 전용 AVD·DB·APK는 보존한다. 실행 전 기록을 커밋해 tracked-clean 검사를 유지한다.

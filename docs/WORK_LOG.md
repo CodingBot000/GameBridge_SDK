@@ -2443,3 +2443,4 @@
 - `aapt dump badging`에 launchable activity가 없고 `cmd package resolve-activity`도 No activity found. `scripts/prepare-unity-android-mock.sh`의 최소 custom manifest가 Unity 기본 Activity 선언을 대체한 것이 원인이다. 현재 생성 프로젝트의 Android entry는 GameActivity이며 Unity 설치본 템플릿을 기준으로 MAIN/LAUNCHER와 GameActivity metadata를 복원한다.
 - 개발용 cleartext manifest에 `UnityPlayerGameActivity`, exported MAIN/LAUNCHER 및 Unity/lib_name metadata를 추가했다. 사용자 앱 manifest는 변경하지 않으며 실제 빌드·실행은 재검증 전이다.
 - 생성기와 XML 구조 검사 종료 0: GameActivity 및 두 Unity metadata 존재. Unity APK 내부 manifest와 Player 작동은 재빌드·재실행 전이다. 커밋 준비: 테스트 전용 manifest 수정과 실패 원인 기록만 포함한다.
+- launcher GameActivity manifest 수정본을 새 AVD에서 Unity APK 재빌드·설치·실행하고 전체 local Backend·DB 원장을 확인한다. 실행 전 기록 커밋으로 tracked-clean 상태를 확보한다.

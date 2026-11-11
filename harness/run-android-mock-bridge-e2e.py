@@ -164,6 +164,8 @@ def main():
                      "android/sample-app/build/outputs/apk/androidTest/debug/sample-app-debug-androidTest.apk"):
             require([adb, "-s", serial, "install", ROOT / path], "TEST_APK_INSTALL_FAILED", timeout=90)
         # Test key is synthetic and passed to an isolated dedicated AVD; never print argv.
+        # Dedicated AVD only: clear stale test markers before this new instrumentation run.
+        require([adb, "-s", serial, "logcat", "-c"], "LOGCAT_CLEAR_FAILED", timeout=20)
         invocation = [adb, "-s", serial, "shell", "am", "instrument", "-w", "-e", "class",
                       "com.gamebridge.sample.LocalMockBridgeDeviceTest", "-e", "gamebridge_mock_url",
                       f"http://10.0.2.2:{port}", "-e", "gamebridge_mock_key", key,

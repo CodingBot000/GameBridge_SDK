@@ -284,3 +284,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T03 Native request ID 수집 검증 시작: 기존 테스트 앱은 보존하고 독립한 새 전용 에뮬레이터와 DB에서 재실행한다.
 - PX-T03 강화 대조 시험 PASS (`artifacts/android-mock-bridge-e2e-e7bbf_tp`): Kotlin bridge operation별 request ID, 서버 HTTP ID·200 및 전용 DB 원장 1건/100. 두 ID 체계는 별개이며 Unity Player는 NOT_RUN이다.
 - PX-T03 커밋 준비: Android Native instrumentation·격리 실행기와 증거를 저장한다. Unity 실행 대기는 유지한다.
+- PX-T01 재개 대기: 로그인은 돼 있으나 Unity 활성 라이선스 0개이고 Android Build Support가 없어 Unity import·Player 빌드가 불가하다. 사용자 준비 이후 `docs/USER_SETUP.md`의 PX-T01 절차로 재실행한다. Android Native 대조 시험은 통과했지만 목표인 Unity Player는 NOT_RUN이다.
+- PX-T01 문서 재개 지점 커밋 준비: Android Native 대조 결과와 Unity Player NOT_RUN을 분리한다.

@@ -2396,3 +2396,5 @@
 - Native 로그에서 operation·UUID·PASS만 저장하고 서버 trace와 분리한다. runner가 기존 설치 앱을 덮어쓰지 않으므로 새 전용 AVD를 준비한다.
 - 새 전용 AVD·DB 재실행 1 test PASS, skip 0. Native bridge request ID는 `native-requests.log`, Backend HTTP request ID는 `server.log`에 각각 저장했다. 원장 1건·delta 100 및 synthetic secret 비노출을 확인했다. Unity Android Player/JNI는 실행하지 않았다. 증거 `docs/evidence/px-t03-android-mock-bridge.md`.
 - 커밋 준비: Android Native bridge 장치 검증과 격리 DB/로그 증거만 포함한다. 설치한 테스트 앱과 전용 DB·AVD는 보존한다. 자동 push하지 않는다.
+- 사용자 조작이 필요한 잔여 블로커: Unity Hub 라이선스 활성화 및 Android Build Support 설치·해당 약관 동의. 6000.5.8f1 설치는 확인했고 전용 Android 36 AVD, 격리 consumer 및 단독 Native/Backend 증거는 준비돼 있다. Unity Player 전체 검증은 수행하지 않았다. 기존 미추적 Demo·캐시 보존, 자동 push 없음.
+- 커밋 준비: USER_SETUP의 Native 대조 결과와 사용자 준비 단계·정확한 재개 위치만 기록한다.

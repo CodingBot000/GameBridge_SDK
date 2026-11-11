@@ -330,10 +330,13 @@ def main():
         # Safe because this is exclusively a dedicated test AVD.
         must([adb, "-s", serial, "logcat", "-c"], "LOGCAT_CLEAR_FAILED", timeout=20)
         # The key is synthetic and passed only to this dedicated test app; never print the argv.
-        must([adb, "-s", serial, "shell", "am", "start", "-W", "-a",
-              "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER",
-              "-p", PACKAGE, "--es", "gamebridge_mock_url", f"http://10.0.2.2:{port}",
-              "--es", "gamebridge_mock_key", key], "UNITY_LAUNCH_FAILED", timeout=30)
+        launched = run([adb, "-s", serial, "shell", "am", "start", "-W", "-n",
+                        PACKAGE + "/com.unity3d.player.UnityPlayerGameActivity",
+                        "--es", "gamebridge_mock_url", f"http://10.0.2.2:{port}",
+                        "--es", "gamebridge_mock_key", key], timeout=30)
+        (output / "adb-launch.log").write_text(launched.stdout.replace(key, "[REDACTED]"), encoding="utf-8")
+        if launched.returncode or not re.search(r"^Status:\s*ok\s*$", launched.stdout, re.MULTILINE):
+            raise GateError("UNITY_LAUNCH_FAILED")
         summary["unityPlayer"] = "LAUNCHED_PENDING"
         deadline = time.monotonic() + args.timeout_seconds
         while time.monotonic() < deadline:

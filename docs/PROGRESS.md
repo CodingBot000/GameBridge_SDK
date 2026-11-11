@@ -334,3 +334,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T04 테스트 소비 프로젝트의 GameActivity launcher 및 Unity metadata를 복원했다. 생성 manifest의 구조 검증 후 새 AVD의 실제 APK·Player로 재검증한다.
 - PX-T04 새 소비 프로젝트 manifest 구조 검사 PASS: GameActivity·exported MAIN/LAUNCHER·Unity metadata 존재. 실제 APK 및 Player 검증은 아직 미실행이다. 커밋 후 새 전용 AVD에서 다시 실행한다.
 - PX-T04 launcher 수정 후 전체 검증 시작: 새 전용 AVD와 현재 제품 staging을 사용한다. Player 결과는 아직 NOT_RUN이다.
+- PX-T04 launcher 수정 후 전체 실행도 launch 단계 FAIL (`artifacts/unity-android-e2e-o8r7vzj4`). APK 설치는 통과했으나 Player 흐름은 미검증이다. APK launcher 및 명령 문법을 확인한다.
+- PX-T04 APK 검사 결과 launcher GameActivity 존재. 암시적 `am start`는 intent 해석 실패했으나 같은 전용 앱의 명시적 component 실행은 종료 0·Status ok. harness를 명시적 component 및 실패 로그 redaction으로 수정한다.
+- PX-T04 runner를 테스트 APK의 명시적 GameActivity 실행 및 redacted launch 진단으로 수정했다. 문법 검사 후 새 전용 AVD에서 전체 경로를 재검증한다.
+- PX-T04 runner 문법 및 ADB 안전 테스트 2건 PASS. 실제 전체 Player 재검증 전 수정 사항을 커밋한다.

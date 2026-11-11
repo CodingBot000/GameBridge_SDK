@@ -2444,3 +2444,7 @@
 - 개발용 cleartext manifest에 `UnityPlayerGameActivity`, exported MAIN/LAUNCHER 및 Unity/lib_name metadata를 추가했다. 사용자 앱 manifest는 변경하지 않으며 실제 빌드·실행은 재검증 전이다.
 - 생성기와 XML 구조 검사 종료 0: GameActivity 및 두 Unity metadata 존재. Unity APK 내부 manifest와 Player 작동은 재빌드·재실행 전이다. 커밋 준비: 테스트 전용 manifest 수정과 실패 원인 기록만 포함한다.
 - launcher GameActivity manifest 수정본을 새 AVD에서 Unity APK 재빌드·설치·실행하고 전체 local Backend·DB 원장을 확인한다. 실행 전 기록 커밋으로 tracked-clean 상태를 확보한다.
+- manifest 수정 후 새 전용 AVD 전체 runner exit 1, `UNITY_LAUNCH_FAILED`. 설치 이후 launch 오류이며 원인을 확인하기 전에는 수정 성공이나 Player PASS를 기록하지 않는다.
+- `aapt dump badging`과 package resolver에서 `com.unity3d.player.UnityPlayerGameActivity` 확인. 기존 `am start -a MAIN -c LAUNCHER -p ...`는 unable to resolve, 동일 APK에 `-n com.gamebridge.sdk.mockconsumer/com.unity3d.player.UnityPlayerGameActivity`는 Status ok. 사용된 key는 합성 placeholder며 Backend 복구 검증이 아니다. runner를 수정한다.
+- 실제 테스트 manifest에 맞춰 명시적 GameActivity를 실행하고 adb 결과의 Status ok와 종료 코드를 함께 확인하도록 변경했다. launch 출력에 개발키가 포함되면 redaction하며 raw argv는 기록하지 않는다.
+- Python 문법 및 ADB 재검색·기기 안전 테스트 2건 PASS/skip 0. 커밋 준비: 명시적 launcher·redacted 진단 및 실패 기록만 포함한다.

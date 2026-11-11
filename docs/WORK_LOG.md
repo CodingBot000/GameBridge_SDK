@@ -2477,3 +2477,4 @@
 - 실패 결과의 서버 trace에서 mock-auth HTTP 200 확인. 별도 합성 placeholder 실행에서는 Unity initialize 뒤 로그인 NETWORK_UNAVAILABLE이 관찰됐으나 서버를 연결하지 않은 음성 시험이므로 최초 실패 원인 증거는 아니다. Unity Notifications 기본 plist `UnityNotificationRequestAuthorizationOnAppLaunch=true`가 예상치 못한 알림 창을 유발해 테스트 전용 앱에서 비활성화하고, 실패 시 `GB_MOCK_` 마커를 남기도록 보강한다.
 - 테스트 소비 앱 post-build plist에서 Unity Notifications 시작 시 로컬/원격 권한 요청을 모두 false로 설정했다. Player 실패 시에도 credential 없는 GB_MOCK 마커를 artifacts에 남긴다. 운영 SDK/사용자 앱 설정은 변경하지 않는다.
 - Python 및 셸 문법 검사 종료 0. 커밋 준비: 테스트 앱의 불필요한 알림 자동 요청 억제, 실패 마커 보존 및 실제 FAIL 기록만 포함한다.
+- 알림 자동 요청 억제와 실패 마커 보존 후 `harness/run-unity-ios-mock-e2e.py`를 새로운 Simulator·DB에서 재실행한다. 실행 전 기록을 커밋해 tracked-clean 상태를 확보한다.

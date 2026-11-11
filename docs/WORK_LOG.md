@@ -2449,3 +2449,7 @@
 - 실제 테스트 manifest에 맞춰 명시적 GameActivity를 실행하고 adb 결과의 Status ok와 종료 코드를 함께 확인하도록 변경했다. launch 출력에 개발키가 포함되면 redaction하며 raw argv는 기록하지 않는다.
 - Python 문법 및 ADB 재검색·기기 안전 테스트 2건 PASS/skip 0. 커밋 준비: 명시적 launcher·redacted 진단 및 실패 기록만 포함한다.
 - 수정 runner와 launcher manifest를 새 전용 AVD에서 재검증한다. 기존 AVD·앱·DB·산출물은 삭제하지 않고 실행 전 기록을 커밋한다.
+- 명시적 GameActivity launch는 Status ok. 새 AVD에서 Android 전체화면 안내가 Unity 포커스를 막아 전용 에뮬레이터에서 안내만 닫았고, 이후 runner는 `UNITY_PLAYER_REPORTED_FAILURE` exit 1을 기록했다. 실제 오류 단계와 원인은 미확인이다.
+- `artifacts/unity-android-e2e-sapxskap`: GameActivity launch 후 `GB_MOCK_RESULT FAIL stage=configuration code=INTERNAL_ERROR`. 생성 Gradle의 settings.gradle·unityLibrary/build.gradle에 GameBridge Maven 의존성이 없고 `AndroidGradleBuildHook`은 `#if UNITY_ANDROID`; `unity run`에 Android build target 지정이 빠져 Editor hook이 실행되지 않은 것으로 추정한다. PlayerSettings의 최초 전체화면 시스템 안내로 일시 정지된 것은 전용 AVD에서 안내를 닫아 확인했다. 클래스 로드 실패 여부는 추가 진단 후 판단한다.
+- `scripts/build-unity-android-mock.sh`에서 Editor 시작 시 Android target을 선택하도록 수정. `MockPlayerScenario`의 Android intent·설정·Native transport 오류 단계를 분리하고 오류 타입만 출력한다. 명령·managed compile 검사 후 새 AVD에서 실제 Gradle hook/전체 흐름을 확인한다.
+- `bash -n scripts/build-unity-android-mock.sh` 및 Android scenario managed compile 종료 0, 경고·오류 0. 커밋 준비: Android active target 선택, 비밀 없는 오류 단계 및 실패 근거만 포함한다.

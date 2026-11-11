@@ -22,6 +22,6 @@ contents="$(cd "$(dirname "$editor")/.." && pwd)"
 editor_parent="$(cd "$contents/../.." && pwd)"
 if [[ ! -d "$contents/PlaybackEngines/AndroidPlayer" && ! -d "$editor_parent/PlaybackEngines/AndroidPlayer" ]]; then echo 'DEFERRED_ENV: Unity Android Build Support missing' >&2; exit 2; fi
 export GAMEBRIDGE_UNITY_APK="$apk"
-UNITY_NO_UPDATE_CHECK=1 unity run "$project" --editor-version "${UNITY_EDITOR_VERSION:-6000.5.8f1}" --timeout 900 --non-interactive -- -executeMethod BuildMockPlayer.Build
+UNITY_NO_UPDATE_CHECK=1 unity run "$project" --editor-version "${UNITY_EDITOR_VERSION:-6000.5.8f1}" --timeout 900 --non-interactive -- -buildTarget Android -executeMethod BuildMockPlayer.Build
 [[ -s "$apk" ]] || { echo 'FAILED: Unity returned without an APK' >&2; exit 1; }
 echo 'BUILD PASS: Android test APK created; installation and execution not yet verified.'

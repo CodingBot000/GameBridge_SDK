@@ -277,3 +277,10 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T02 전용 Android 36 에뮬레이터 부팅·ADB 연결 PASS. Unity APK와 Native 통합 실행은 아직 NOT_RUN이다. 에뮬레이터에서 로컬 host 연결 가능 여부를 검증한다.
 - PX-T02 전용 Android 에뮬레이터의 `10.0.2.2` host TCP 연결 PASS. SDK·Backend·Unity 호출은 하지 않았으며 Player 통합은 NOT_RUN 유지한다.
 - PX-T02 커밋 준비: 격리 AVD 및 host 연결 결과를 기록한다. 실제 실행은 Unity 라이선스와 Android 모듈 준비 뒤 이어간다.
+- PX-T03 독립 Android Native bridge 대조 검증 시작: 전용 에뮬레이터에서 Kotlin bridge→격리 local Backend 호출을 확인한다. Unity Player를 대체하거나 통과로 표시하지 않는다.
+- PX-T03 Kotlin bridge 장치 테스트 작성. 합성 인증값을 명시할 때만 실행하며 실제 Unity Player 여부와 분리한다. Android instrumentation APK 빌드 검증을 시작한다.
+- PX-T03 Android instrumentation APK 빌드 PASS. 전용 에뮬레이터와 전용 local DB로 Kotlin bridge 경로 검증을 시작한다. Unity Player는 여전히 NOT_RUN이다.
+- PX-T03 전용 Android 에뮬레이터 Kotlin bridge→local Backend PASS (`artifacts/android-mock-bridge-e2e-3xwlhqj0`): 테스트 1건, 서버 trace 및 원장 1건·100코인. Unity·JNI Player 실행은 NOT_RUN이다. Native request ID 증거 수집을 추가한다.
+- PX-T03 Native request ID 수집 검증 시작: 기존 테스트 앱은 보존하고 독립한 새 전용 에뮬레이터와 DB에서 재실행한다.
+- PX-T03 강화 대조 시험 PASS (`artifacts/android-mock-bridge-e2e-e7bbf_tp`): Kotlin bridge operation별 request ID, 서버 HTTP ID·200 및 전용 DB 원장 1건/100. 두 ID 체계는 별개이며 Unity Player는 NOT_RUN이다.
+- PX-T03 커밋 준비: Android Native instrumentation·격리 실행기와 증거를 저장한다. Unity 실행 대기는 유지한다.

@@ -2388,3 +2388,11 @@
 - foreground 세션의 전용 `GameBridge_V2_20261111_161918`이 부팅 완료됐다. 에뮬레이터 포트 5598은 도구의 권장 범위 밖 경고가 있었으나 `adb -s emulator-5598`와 boot_completed=1을 확인했다. 기존 AVD는 사용하지 않았다. 이제 10.0.2.2 host 연결만 검증한다.
 - 전용 에뮬레이터에서 `10.0.2.2`를 통한 로컬 TCP 서버 응답 PASS. 이는 네트워크 도달성만 확인하며 SDK, Backend, Unity Player 검증은 아니다.
 - 커밋 준비: 전용 AVD·ADB 부팅 및 host 연결 결과와 USER_SETUP 갱신만 저장한다. 테스트 AVD와 로그는 로컬 artifacts에 남기며 자동 push하지 않는다.
+### PX-T03 Android Kotlin bridge 대조 경로 시작
+- 사용자 목표의 Unity 호출에 앞서 격리 에뮬레이터에서 실제 Android Kotlin bridge와 local Backend의 초기화·인증·상품·구매·서버 잔액·로그아웃을 독립 검증한다. Unity JNI/Player는 별도 NOT_RUN이다.
+- `LocalMockBridgeDeviceTest`는 opt-in synthetic key, request ID별 callback 매칭, 상품·구매·서버 잔액 +100·로그아웃을 검증한다. 테스트 input과 credential은 로그에 남기지 않는다. 기기에서 실행하기 전에 빌드를 확인한다.
+- `:sample-app:assembleDebug :sample-app:assembleDebugAndroidTest` 종료 0. 이어 전용 local-mock 서버와 DB·에뮬레이터에서 opt-in 테스트를 실행한다.
+- 전용 DB·에뮬레이터의 `LocalMockBridgeDeviceTest` 1건 PASS: Android Kotlin bridge 초기화/로그인/상품/구매/서버 잔액/로그아웃 및 서버 trace, DB 원장 1건·100 확인 (`artifacts/android-mock-bridge-e2e-3xwlhqj0`). Unity는 사용되지 않았다. Native request ID의 공개 가능한 logcat 증거 수집을 보강한다.
+- Native 로그에서 operation·UUID·PASS만 저장하고 서버 trace와 분리한다. runner가 기존 설치 앱을 덮어쓰지 않으므로 새 전용 AVD를 준비한다.
+- 새 전용 AVD·DB 재실행 1 test PASS, skip 0. Native bridge request ID는 `native-requests.log`, Backend HTTP request ID는 `server.log`에 각각 저장했다. 원장 1건·delta 100 및 synthetic secret 비노출을 확인했다. Unity Android Player/JNI는 실행하지 않았다. 증거 `docs/evidence/px-t03-android-mock-bridge.md`.
+- 커밋 준비: Android Native bridge 장치 검증과 격리 DB/로그 증거만 포함한다. 설치한 테스트 앱과 전용 DB·AVD는 보존한다. 자동 push하지 않는다.

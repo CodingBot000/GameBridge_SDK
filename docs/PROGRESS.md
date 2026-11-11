@@ -318,3 +318,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - P08 iOS XCFramework device/simulator archive 종료 0. UPM staging·플랫폼 arch/symbol·checksum과 0.1.0-dev 버전 정합성을 확인한다.
 - P08 最新 staging `artifacts/upm-v2-20261112-f1e12b6`: Android Maven・独立 R8 consumer、iOS XCFramework device/simulator arch・C ABI、UPM 110개 checksum 및 Maven/UPM 0.1.0-dev 버전 검사 PASS. Unity import/Player는 아직 NOT_RUN이다.
 - P08 패키징 기록 커밋 준비: 생성물은 artifacts에 보존하며 Unity Player 실행 전이다.
+- PX-T04 실제 Unity Android LOCAL_MOCK E2E 검증 시작: 새 전용 GameBridge_V2_ AVD와 f1e12b6 제품 소스의 검증된 staging을 사용한다. Unity 실행·서버 원장 결과는 아직 NOT_RUN이다.

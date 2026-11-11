@@ -2427,3 +2427,5 @@
 - `GAMEBRIDGE_IOS_OUTPUT_DIR=.../ios-v2-20261112-f1e12b6 bash scripts/build-ios.sh --xcframework` 종료 0. 새 staging에 Android/iOS 산출물을 결합하고 무결성과 버전을 확인한다.
 - `scripts/package-sdk.sh` 및 `python3 harness/check-staging.py .../upm-v2-20261112-f1e12b6` 종료 0: XCFramework device arm64 / simulator arm64,x86_64와 각 C ABI 4종 검사 PASS, staging 110개 파일 checksum PASS. Android 3개 Maven POM과 UPM package version `0.1.0-dev` 일치. 이 결과는 Unity Player를 증명하지 않는다.
 - 커밋 준비: 최신 산출물 위치·빌드 검사 결과만 기록하고 생성물은 Git에 추가하지 않는다. Unity E2E는 새 전용 AVD에서 후속 실행한다.
+### PX-T04 Unity Android Player 전체 경로 검증 시작
+- `harness/run-unity-android-mock-e2e.py --run-local`을 새 전용 AVD 및 `artifacts/upm-v2-20261112-f1e12b6`로 실행한다. 제품 소스는 f1e12b6 이후 문서 외 변경이 없고 staged source 일치 검사를 수행한다. 합성 개발키·전용 DB를 사용하며 Unity/Native/HTTP/원장을 모두 확인하기 전까지 PASS가 아니다. 실행 전 기록을 커밋해 소스 clean 여부도 확인한다.

@@ -2471,3 +2471,4 @@
 - 생성된 UnityFramework arm64 Simulator binary `nm -g`에서 GB_ProtocolVersion/SetCallback/Dispatch/Shutdown 확인. Info.plist에는 테스트 전용 127.0.0.1 도메인 예외만 있다. 실제 Unity callback 및 서버 거래는 미실행이다. 전용 Simulator·DB runner 구현을 시작한다.
 - `harness/run-unity-ios-mock-e2e.py`에 checksum/source 대조, Unity iOS export, arm64 무서명 Simulator build, XCFramework/C ABI, 전용 Simulator·DB, Unity/Native diagnostics·HTTP trace·원장 확인을 작성했다. runner 전체 실행은 아직 미실행이다.
 - 커밋 준비: iOS consumer, 테스트 전용 loopback ATS, Unity iOS Simulator export와 E2E runner 초안. Unity export/Xcode arm64 Simulator link·C ABI만 실제 확인했으며 Player/Backend 전체 통합은 재실행한다.
+- `python3 harness/run-unity-ios-mock-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6`를 실행할 준비를 한다. 새로운 Simulator·DB를 만들고 기존 데이터는 보존한다. Player·Native callback·Backend·원장 대조가 끝나기 전에는 PASS가 아니다. 실행 전 이 기록을 커밋한다.

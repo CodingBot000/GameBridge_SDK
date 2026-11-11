@@ -2433,3 +2433,4 @@
 - 첫 실패 후 같은 전용 AVD에서 APK 재설치 없이 빈 상태를 확인하고 `adb -s emulator-5584 install .../gamebridge-mock-consumer.apk` 재시도 종료 0. 최초 실패 원인은 기록이 없어 불명이다. 앱을 보존하며 runner에 설치 출력 저장을 추가하고 새 AVD로 재실행한다.
 - `harness/run-unity-android-mock-e2e.py`가 adb install 출력과 종료 코드·Success 마커를 검사해 실패 근거를 artifacts에 저장하도록 보완했다. 개발키는 설치 명령에 포함되지 않는다.
 - runner `python3 -m py_compile` 종료 0. 커밋 준비: 설치 진단 보강과 실제 실패·재시도 기록만 포함한다.
+- 최초 전용 AVD와 설치한 APK는 삭제하지 않고 종료만 한다. 새 GameBridge_V2_ AVD에서 `harness/run-unity-android-mock-e2e.py`를 다시 실행한다. 진행 기록을 먼저 커밋해 clean 상태를 확보한다.

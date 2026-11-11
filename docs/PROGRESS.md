@@ -323,3 +323,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T04 설치 원인 확인: 같은 전용 AVD에서 최초 APK의 독립 adb install 재시도는 성공했다. 최초 실패의 상세 출력이 없어 원인은 미확정이며, 기존 설치 앱을 보존하고 다음 시도는 새 전용 AVD에서 수행한다.
 - PX-T04 runner의 APK 설치 오류 출력 보존 및 성공 표시 검사 추가. Python 문법 확인 후 새 전용 AVD에서 검증한다.
 - PX-T04 runner Python 문법 검사 PASS. 설치 출력 보강과 첫 실패를 기록해 커밋한다. Unity Player 전체 결과는 아직 미검증이다.
+- PX-T04 두 번째 전체 검증 시작: 새 전용 AVD에서 수정 runner와 동일한 최신 제품 패키지로 재실행한다. Player 및 원장 결과는 아직 NOT_RUN이다.

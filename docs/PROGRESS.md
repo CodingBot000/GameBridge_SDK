@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: PX-T01 / Unity Android LOCAL_MOCK 소비 실행
+- 현재 Phase / Task: PX-T04~PX-T06 / Unity Android LOCAL_MOCK E2E Runner·재현성·증거 자동화 (실행 미검증)
 - 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: e9b64fb (격리 strict aggregate 전체 FAIL; Unity·외부 서비스는 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 사용자 Unity 라이선스 활성화와 Android Build Support 준비 후 격리 소비 프로젝트 import·Android Player 빌드·에뮬레이터의 LOCAL_MOCK 전체 흐름을 실행하고 Native/Backend 요청 ID 및 DB 지급을 확인
+- 바로 다음 행동: Unity 라이선스 활성화·Android Build Support 설치 후 scripts/package-sdk.sh로 최신 UPM staging을 생성하고 harness/run-unity-android-mock-e2e.py를 별도 GameBridge_V2_ AVD에서 실행; 실패는 환경/코드 구분, PASS 이후에만 증거 문서 생성
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -286,3 +286,26 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T03 커밋 준비: Android Native instrumentation·격리 실행기와 증거를 저장한다. Unity 실행 대기는 유지한다.
 - PX-T01 재개 대기: 로그인은 돼 있으나 Unity 활성 라이선스 0개이고 Android Build Support가 없어 Unity import·Player 빌드가 불가하다. 사용자 준비 이후 `docs/USER_SETUP.md`의 PX-T01 절차로 재실행한다. Android Native 대조 시험은 통과했지만 목표인 Unity Player는 NOT_RUN이다.
 - PX-T01 문서 재개 지점 커밋 준비: Android Native 대조 결과와 Unity Player NOT_RUN을 분리한다.
+
+
+### 추가 Task PX-T04 — Unity Android Player E2E 검증 Runner (현재 브랜치)
+
+- 구현: IMPLEMENTED (Runner 소스 존재) / 실제 로컬 검증: NOT_RUN / Unity Player: DEFERRED_ENV.
+- harness/run-unity-android-mock-e2e.py를 추가했다. 기존 전용 AVD를 확인하고, 새 격리 Unity 소비 프로젝트를 생성하여 UPM staging을 검사한 후 APK를 빌드한다.
+- 빌드 이후 별도의 랜덤 local-mock DB 및 Backend를 기동하고 Player를 실행한다. Unity 로그의 initialize/login/products/purchase/wallet/logout PASS, Native 진단 초기화·인증·구매 이벤트, Backend HTTP trace와 DB wallet_ledger 1건·100코인을 **모두** 확인해야 PASS다.
+- Unity 라이선스·Android Build Support가 준비되지 않은 현재 환경에서는 런타임 검증을 수행하지 않았다. Unity import, JNI/AndroidJavaProxy, 실제 Player, 실제 Provider/스토어 모두 NOT_RUN 유지.
+- 원본 로그와 생성 APK는 로컬 artifacts에만 남기며, 전용 AVD·DB를 삭제하지 않는다.
+
+### 추가 Task PX-T05 — Native-only Runner 환경 가변화
+
+- 구현: IMPLEMENTED / 로컬 재실행: NOT_RUN (변경 후).
+- 기존 harness/run-android-mock-bridge-e2e.py의 emulator-5598, 사용자 홈 Android SDK 경로, Docker 컨테이너·포트 가정을 CLI/환경변수로 대체했다.
+- adb로 현재 연결된 emulator와 GameBridge_V2_ 전용 AVD 이름을 확인하며 기존 com.gamebridge.sample 설치 앱을 보존한다. 재검증 전에는 이전 PX-T03 PASS 증거만 유효하며, 변경 후 재현성은 미검증이다.
+
+### 추가 Task PX-T06 — 공개용 증거 요약과 CI 정적/오프라인 검사
+
+- 구현: IMPLEMENTED / 테스트 실행: NOT_RUN (신규 브랜치).
+- harness/export-mock-e2e-evidence.py는 result.json PASS, 소스 HEAD 일치, tracked-clean, 지급 원장 1건·100코인, Unity Player 또는 Native-only 증거를 구분하여 허용된 요약만 생성한다.
+- harness/test_export_mock_e2e_evidence.py에 dirty/stale/NOT_RUN/원본 누락·Mock-as-Unity를 거부하는 단위 테스트를 추가하고 .github/workflows/verify.yml의 Linux lane에 Python 문법/해당 테스트를 추가했다. 원격 CI는 아직 실행하지 않았다.
+- 실제 새로운 PASS 증거는 존재하지 않는다. docs/evidence/px-t03-android-mock-bridge.md의 기존 실험은 원래 소스/미커밋 상태 그대로 기록하며 새 HEAD의 재현성 PASS로 바꾸지 않는다.
+- 최신 공개 증거는 Unity Player 시험 및 Kotlin-only 시험을 각각 다시 실제로 실행한 뒤에만 생성하고 PROGRESS/WORK_LOG/FINAL_REPORT에 반영한다.

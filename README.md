@@ -39,3 +39,10 @@ Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시
 ### Unity Android LOCAL_MOCK 통합 확인 준비
 
 별도 소비 프로젝트 생성과 빌드 절차는 [사용자 설정의 Unity Android LOCAL_MOCK 절차](docs/USER_SETUP.md#unity-android-local_mock-재실행-준비-px-t01)를 참고하세요. 현재는 프로젝트 생성, 패키지 checksum, 시나리오의 managed compile 및 Backend 단독 local-mock trace만 확인했습니다. Unity Editor import와 Android Player 실행, Kotlin SDK를 거친 전체 흐름은 미실행입니다.
+
+
+### 추가 검증 도구 (Unity Android LOCAL_MOCK)
+
+준비가 완료된 Unity 환경에서 전체 Player 흐름을 확인하기 위한 별도 Runner는 harness/run-unity-android-mock-e2e.py이다. 전용 AVD 및 staging 무결성 확인, 격리 소비 프로젝트 생성, APK 빌드·설치·실행, Unity 마커·Backend trace 및 DB 1건/100코인 대조까지 수행하며 하나라도 누락되면 PASS가 아니다. **현재 실제 Unity Player 검증은 NOT_RUN이다.** Unity Hub 활성 라이선스와 Android Build Support 설치가 우선이다. 명령·비밀정보 분리·전용 환경 준비는 docs/USER_SETUP.md의 PX-T04~PX-T06 절을 따른다.
+
+Android Native-only 재실행기는 harness/run-android-mock-bridge-e2e.py로, 기존 고정된 adb/에뮬레이터/DB 경로를 환경변수나 실행 옵션으로 변경할 수 있다. 다만 해당 수정본 재실행은 아직 NOT_RUN이다. 실제 PASS를 확보한 뒤 검증 증거의 민감정보를 제거하고 커밋하려면 harness/export-mock-e2e-evidence.py를 사용한다. 원본 로그·APK·로컬 DB는 Git에 올리지 않는다.

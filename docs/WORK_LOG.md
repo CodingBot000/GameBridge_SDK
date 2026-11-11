@@ -2453,3 +2453,4 @@
 - `artifacts/unity-android-e2e-sapxskap`: GameActivity launch 후 `GB_MOCK_RESULT FAIL stage=configuration code=INTERNAL_ERROR`. 생성 Gradle의 settings.gradle·unityLibrary/build.gradle에 GameBridge Maven 의존성이 없고 `AndroidGradleBuildHook`은 `#if UNITY_ANDROID`; `unity run`에 Android build target 지정이 빠져 Editor hook이 실행되지 않은 것으로 추정한다. PlayerSettings의 최초 전체화면 시스템 안내로 일시 정지된 것은 전용 AVD에서 안내를 닫아 확인했다. 클래스 로드 실패 여부는 추가 진단 후 판단한다.
 - `scripts/build-unity-android-mock.sh`에서 Editor 시작 시 Android target을 선택하도록 수정. `MockPlayerScenario`의 Android intent·설정·Native transport 오류 단계를 분리하고 오류 타입만 출력한다. 명령·managed compile 검사 후 새 AVD에서 실제 Gradle hook/전체 흐름을 확인한다.
 - `bash -n scripts/build-unity-android-mock.sh` 및 Android scenario managed compile 종료 0, 경고·오류 0. 커밋 준비: Android active target 선택, 비밀 없는 오류 단계 및 실패 근거만 포함한다.
+- Android target을 선택한 Unity import/build 및 새 전용 AVD의 전체 LOCAL_MOCK 재실행을 시작한다. 기존 AVD·DB는 보존하고 실행 전 tracked-clean을 확보한다.

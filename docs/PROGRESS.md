@@ -343,3 +343,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T04 Player가 configuration 단계에서 FAIL. 생성 Gradle의 settings·unityLibrary build 파일에 GameBridge Maven 연결이 없고 Editor hook은 `UNITY_ANDROID` 조건부다. Unity Editor 활성 build target이 Android로 지정되지 않아 hook이 누락된 가능성을 확인했다. 수정 후 실제 Player로 재검증한다.
 - PX-T04 Unity batch에 `-buildTarget Android`를 명시하고 테스트 앱 실패 stage·오류 타입만 출력하도록 보강했다. credential 값과 예외 메시지는 출력하지 않는다. 실제 Gradle 의존성 및 Player 재검증 전이다.
 - PX-T04 Android target 지정 스크립트 문법 및 테스트 앱 managed compile PASS(경고 0·오류 0). Unity Editor hook과 Player 실동작은 재검증 전이다. 수정 사항 커밋 준비.
+- PX-T04 Android active target 수정 후 전체 검증 시작: 새 전용 AVD에서 Gradle SDK 의존성과 Unity Player→Backend→DB 경로를 확인한다. 결과는 아직 NOT_RUN이다.

@@ -89,6 +89,19 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def verify_staged_source_matches_checkout(staging):
+    """Reject a UPM staging folder containing an older Unity SDK source tree."""
+    source = ROOT / "unity" / "Packages" / "com.gamebridge.sdk"
+    packaged = staging / "com.gamebridge.sdk"
+    if not source.is_dir() or not packaged.is_dir():
+        raise GateError("UPM_SOURCE_MISSING")
+    for item in source.rglob("*"):
+        if item.is_file():
+            copy = packaged / item.relative_to(source)
+            if not copy.is_file() or sha256(item) != sha256(copy):
+                raise GateError("UPM_STAGING_SOURCE_MISMATCH")
+
+
 def create_isolated_database(container, admin, port):
     if not re.fullmatch(r"gamebridge-sdk-local-[A-Za-z0-9_.-]*postgres-[0-9]+", container):
         raise GateError("REFUSE_NON_LOCAL_POSTGRES_CONTAINER", "DEFERRED_ENV")
@@ -242,6 +255,7 @@ def main():
             raise GateError("UPM_STAGING_REQUIRED", "DEFERRED_ENV")
         staging = args.staging.resolve()
         must(["python3", "harness/check-staging.py", staging], "UPM_CHECKSUM_FAILED")
+        verify_staged_source_matches_checkout(staging)
         summary["stagingManifestSha256"] = sha256(staging / "SHA256SUMS")
         adb = locate_adb(args.adb)
         if adb is None:

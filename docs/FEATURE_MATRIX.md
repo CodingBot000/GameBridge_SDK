@@ -1,6 +1,6 @@
 # 기능 호출 경로 1차 조사 — 개발 중
 
-2026-11-11 소스 및 WORK_LOG 기준. `PARTIAL`은 일부 경로만 구현하거나 완료 검증이 남았다는 뜻이다. Fake·LOCAL_MOCK·실제 플랫폼 결과는 서로 대체하지 않는다. 이 문서는 최종 P11 감사가 아니다.
+2026-11-12 소스 및 WORK_LOG 기준. Unity Android LOCAL_MOCK 전체 흐름은 전용 에뮬레이터에서 PASS했다 ([증거](evidence/px-t04-unity-android-local-mock.md)); Unity iOS 및 실제 제공자는 별도다. `PARTIAL`은 일부 경로만 구현하거나 완료 검증이 남았다는 뜻이다. Fake·LOCAL_MOCK·실제 플랫폼 결과는 서로 대체하지 않는다. 이 문서는 최종 P11 감사가 아니다.
 
 | 기능/Unity 공개 표면 | Editor offline | Android/iOS Native bridge | 확인한 범위와 잔여 작업 |
 |---|---|---|---|

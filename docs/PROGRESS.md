@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: PX-T04~PX-T06 / Unity Android LOCAL_MOCK E2E Runner·재현성·증거 자동화 (실행 미검증)
-- 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: e9b64fb (격리 strict aggregate 전체 FAIL; Unity·외부 서비스는 미검증)
+- 현재 Phase / Task: PX-T04 / Unity Android LOCAL_MOCK E2E 통과 후 결과 정리
+- 마지막 갱신 시각: 2026-11-12 (Asia/Seoul)
+- 마지막 검증된 소스 커밋: c58b4a6 (Unity Android LOCAL_MOCK E2E PASS; 실제 제공자·Unity iOS 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: Unity 라이선스 활성화·Android Build Support 설치 후 scripts/package-sdk.sh로 최신 UPM staging을 생성하고 harness/run-unity-android-mock-e2e.py를 별도 GameBridge_V2_ AVD에서 실행; 실패는 환경/코드 구분, PASS 이후에만 증거 문서 생성
+- 바로 다음 행동: PX-T04 공개 증거와 현재 검증 범위를 정리하고 Unity iOS Player 검증은 다음 단계로 유지
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -128,7 +128,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | ENV-005 | ENV | P03-T02 | Simulator UI snapshot 대상 0개, 수동 대체 입력으로도 흐름 미확인 | XCTest 기반 독립 UI 검증 시도 | iOS local-mock UI smoke 실행 확인 | RESOLVED |
 | ENV-004 | ENV | P03-T01 | 전용 emulator 복원 시험에서 화면 준비 전 입력 실패 | UI 준비 후 재시도 | Keystore 복원 확인 | RESOLVED |
 | ENV-003 | ENV | P00-T03 | XcodeGen 최초 부재 | 로컬 도구 2.46.0 확보 후 프로젝트 생성·빌드 확인 | 실제 스토어 및 Unity 검증 별도 | RESOLVED |
-| ENV-002 | ENV | P00-T03 및 Unity 검증 | Unity Editor 생성 시 라이선스 확인 실패, 종료 198 | 프로젝트 생성 안내 스크립트 제공, 다른 플랫폼 계속 | 사용자 라이선스 및 Editor 재확인 | OPEN |
+| ENV-002 | ENV | P00-T03 및 Unity 검증 | 과거 Unity 라이선스 비활성 및 Android 모듈 부재 | Unity 6000.5.8f1 라이선스·Android 모듈 준비 확인, Unity Android local-mock Player 실행 | Unity iOS 및 나머지 테스트 별도 | RESOLVED |
 | ENV-001 | ENV | P00-T02 | Unity 6.3 LTS 미설치; 설치 버전의 모듈·라이선스 미확인 | 설치된 Editor로 검증 시도 | 호환 Editor와 모듈·라이선스 확인 | OPEN |
 
 유형: USER=사용자 계정·서명·콘솔, ENV=설치/실행환경, BUG=내부 버그, DEP=선행 구현 미해결. 같은 사건은 중복 ID를 만들지 않고 영향 Task를 추가한다. 사용자 인증 필요성은 USER_SETUP에 이미 계획되어 있지만 실제 구현 준비 여부는 개발 중 갱신한다.
@@ -137,21 +137,21 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 | 기능 | Android 코드/빌드 | iOS 코드/빌드 | Unity Editor | Unity Android | Unity iOS | 실제 외부 서비스 |
 |---|---|---|---|---|---|---|
-| Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | N/A |
-| 인증 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 결제 | BUILD:PASS / MOCK:PARTIAL | BUILD:PASS / MOCK:PARTIAL / STOREKIT_LOCAL:FAIL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
+| Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | IMPORT:PASS / TEST:NOT_RUN | LOCAL_MOCK:PASS | NOT_RUN | N/A |
+| 인증 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | LOCAL_MOCK:PASS | NOT_RUN | WAITING_USER |
+| 결제 | BUILD:PASS / MOCK:PARTIAL | BUILD:PASS / MOCK:PARTIAL / STOREKIT_LOCAL:FAIL | NOT_RUN | LOCAL_MOCK:PASS | NOT_RUN | WAITING_USER |
 | 푸시 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
 | 세션·복구 | EMULATOR:PARTIAL | SIMULATOR:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 배포·신규 소비 | MAVEN_CONSUMER:PASS | XCFRAMEWORK_CONSUMER:PASS | UPM_IMPORT:NOT_RUN | NOT_RUN | NOT_RUN | N/A |
+| 배포·신규 소비 | MAVEN_CONSUMER:PASS | XCFRAMEWORK_CONSUMER:PASS | UPM_IMPORT:PASS | IL2CPP:PASS | NOT_RUN | N/A |
 
 각 칸은 가능한 경우 `BUILD:PASS / RUN:WAITING_USER`처럼 분리한다. “Android 완료” 한마디로 Native standalone과 Unity Android를 합치지 않는다.
 
 ## 완료/미완료 요약
 
 - 일부 계약·빌드·가짜 Provider·로컬 DB 회귀 및 독립 패키지 소비 검증 통과. 개별 범위와 명령은 WORK_LOG 참조.
-- 인증·결제·푸시·복구의 실제 플랫폼 및 Unity 통합 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
-- 내부 미완료: Xcode StoreKit 실제 기기 및 Unity 복구 검증, Mock 푸시의 실제 Unity 전달 검증, Native 진단의 실제 Unity 검증. BUG-009 실제 기기 재시작 검증도 미완료.
-- 환경 대기: Unity 라이선스 및 호환 Editor, StoreKit local simulator 실패. P09 하네스에는 미구현·부분 시나리오가 남아 전체 검증은 실패 상태.
+- Unity Android LOCAL_MOCK 인증·구매는 통과했으나 실제 플랫폼·Unity iOS·푸시·복구 전체 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
+- 내부 미완료: Xcode StoreKit 실제 기기 및 Unity 복구 검증, Mock 푸시의 실제 Unity 전달 검증, Android LOCAL_MOCK 외 Native 진단의 Unity 검증. BUG-009 실제 기기 재시작 검증도 미완료.
+- 환경 대기: 계획된 Unity 6.3 LTS 및 Unity iOS 등 잔여 환경, StoreKit local simulator 실패. P09 하네스에는 미구현·부분 시나리오가 남아 전체 검증은 실패 상태.
 - 범위 제외: Windows/C++·Unreal/Godot·구독·환불 자동화·RTDN/Server Notifications 운영·관리자 웹·Kubernetes·상용 배포.
 
 ## 최근 체크포인트 이력
@@ -290,10 +290,10 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 ### 추가 Task PX-T04 — Unity Android Player E2E 검증 Runner (현재 브랜치)
 
-- 구현: IMPLEMENTED (Runner 소스 존재) / 실제 로컬 검증: NOT_RUN / Unity Player: DEFERRED_ENV.
+- 구현: IMPLEMENTED / 실제 Unity Android LOCAL_MOCK Player 검증: PASS ([공개 증거](evidence/px-t04-unity-android-local-mock.md)). 실제 제공자·Unity iOS는 NOT_RUN.
 - harness/run-unity-android-mock-e2e.py를 추가했다. 기존 전용 AVD를 확인하고, 새 격리 Unity 소비 프로젝트를 생성하여 UPM staging을 검사한 후 APK를 빌드한다.
 - 빌드 이후 별도의 랜덤 local-mock DB 및 Backend를 기동하고 Player를 실행한다. Unity 로그의 initialize/login/products/purchase/wallet/logout PASS, Native 진단 초기화·인증·구매 이벤트, Backend HTTP trace와 DB wallet_ledger 1건·100코인을 **모두** 확인해야 PASS다.
-- Unity 라이선스·Android Build Support가 준비되지 않은 현재 환경에서는 런타임 검증을 수행하지 않았다. Unity import, JNI/AndroidJavaProxy, 실제 Player, 실제 Provider/스토어 모두 NOT_RUN 유지.
+- Unity 6000.5.8f1 import·Android IL2CPP APK 및 전용 Android 36 에뮬레이터에서 LOCAL_MOCK 전체 경로를 검증했다. 첫 전체화면 안내는 수동으로 닫았다. 실제 Provider/스토어와 Unity iOS는 NOT_RUN 유지.
 - 원본 로그와 생성 APK는 로컬 artifacts에만 남기며, 전용 AVD·DB를 삭제하지 않는다.
 
 ### 추가 Task PX-T05 — Native-only Runner 환경 가변화
@@ -344,3 +344,9 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T04 Unity batch에 `-buildTarget Android`를 명시하고 테스트 앱 실패 stage·오류 타입만 출력하도록 보강했다. credential 값과 예외 메시지는 출력하지 않는다. 실제 Gradle 의존성 및 Player 재검증 전이다.
 - PX-T04 Android target 지정 스크립트 문법 및 테스트 앱 managed compile PASS(경고 0·오류 0). Unity Editor hook과 Player 실동작은 재검증 전이다. 수정 사항 커밋 준비.
 - PX-T04 Android active target 수정 후 전체 검증 시작: 새 전용 AVD에서 Gradle SDK 의존성과 Unity Player→Backend→DB 경로를 확인한다. 결과는 아직 NOT_RUN이다.
+- PX-T04 실제 Unity Android Player LOCAL_MOCK 전체 검증 PASS (`artifacts/unity-android-e2e-zbdkbnnl/result.json`, source c58b4a6, tracked clean): initialize/login/products/purchase/wallet/logout, Native 진단, Backend HTTP trace와 DB 원장 1건·100코인 확인. 전용 AVD의 Android 전체화면 안내는 수동으로 닫았다. Google 로그인·실제 스토어 및 Unity iOS는 NOT_RUN. 공개 요약: `docs/evidence/px-t04-unity-android-local-mock.md`.
+- PX-T04 README·USER_SETUP·FINAL_REPORT 및 기능 매트릭스의 현재 상태를 Unity Android LOCAL_MOCK PASS로 정리했다. 과거 실패 기록은 이력으로 보존하고 Unity iOS·실제 제공자는 NOT_RUN 유지한다.
+- PX-T04 공개 evidence에 실제 실행 명령 형태·종료 코드·도구 버전·staging hash 및 최초 전체화면 안내 수동 처리를 명시했다. 전체 strict suite 및 Unity iOS는 별도로 미실행이다.
+- PX-T04 기능별 매트릭스에 Unity Android LOCAL_MOCK 및 신규 UPM import·IL2CPP PASS를 반영했다. Unity Editor test suite, push·복구, iOS 및 외부 플랫폼 결과는 승격하지 않았다.
+- PX-T04 USER_SETUP의 과거 라이선스 부재 기록을 당시 상태로 명시하고, 현재 6000.5.8f1 활성 라이선스·Android/iOS 모듈 설치 사실을 추가했다.
+- PX-T04 PASS evidence·문서 커밋 준비: 검증된 Unity Android LOCAL_MOCK 범위만 기록하고 원본 로그·APK·DB 및 미추적 사용자 파일은 포함하지 않는다. 자동 push하지 않는다.

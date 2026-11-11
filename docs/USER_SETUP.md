@@ -13,7 +13,7 @@ Codex는 실제 Provider 호출 코드, 설정 로더, 오류 처리, Mock, 빌�
 | 설정 ID | 준비 대상 | 코드 준비 | 설정 준비 | 실연동 검증 | 코드/실행 증거 |
 |---|---|---|---|---|---|
 | USER-GIT | 로컬 Git identity | NOT_STARTED | NOT_CHECKED | N/A | - |
-| USER-UNITY | Unity 설치·라이선스·target modules | BLOCKED | WAITING_USER | NOT_RUN | PX-T01/PX-T04, PROGRESS.md |
+| USER-UNITY | Unity 설치·라이선스·target modules | IMPLEMENTED | READY | NOT_RUN | PX-T04 Android local-mock PASS; iOS 별도 |
 | USER-DEVICE | Xcode·Android 도구·실기기·서명 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-BACKEND | 로컬 서버·DB·개발/샌드박스 네트워크 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-AUTH-GOOGLE | Android Google 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
@@ -43,9 +43,11 @@ Git identity·도구/라이선스 → 앱 package/bundle ID·서명 → Backend 
 
 사용자 할 일: 선택한 Unity LTS Editor와 Android/iOS build support, 필요한 라이선스를 준비한다. 2026-11-10 확인: 설치된 6000.5.8f1 Editor는 프로젝트 생성 시 라이선스 확인에 실패하여 종료 198을 반환했다 (ENV-002). 라이선스 활성화와 계정 로그인은 사용자가 수행한다. Codex가 license secret을 가져오거나 약관을 대신 수락하지 않는다.
 
-2026-11-11 재확인: Unity CLI는 로그인 상태지만 활성 라이선스가 0개이며, 설치된 6000.5.8f1과 6000.4.0f1에서 Android Build Support가 확인되지 않았다. 사용자가 Unity Hub에서 라이선스를 정상 활성화하고 사용 Editor에 Android Build Support와 필요한 SDK/NDK·JDK를 설치해야 한다. 모듈 설치에 필요한 약관 동의는 사용자가 처리한다. 이후 별도 Android 36 테스트 에뮬레이터를 생성·부팅해 ADB 연결과 host 10.0.2.2 도달을 확인했다. 기존 AVD는 변경하지 않았다.
+2026-11-11 재확인: Unity CLI는 로그인 상태지만 활성 라이선스가 0개이며, 설치된 6000.5.8f1과 6000.4.0f1에서 Android Build Support가 확인되지 않았다. 당시에는 Unity Hub 라이선스 활성화와 Android Build Support 및 SDK/NDK·JDK 설치가 필요했다. 모듈 설치에 필요한 약관 동의는 사용자가 처리한다. 이후 별도 Android 36 테스트 에뮬레이터를 생성·부팅해 ADB 연결과 host 10.0.2.2 도달을 확인했다. 기존 AVD는 변경하지 않았다.
 
 Unity Android LOCAL_MOCK 격리 소비 프로젝트는 `GAMEBRIDGE_UPM_STAGING=<절대 staging 경로> bash scripts/prepare-unity-android-mock.sh --prepare`로 생성할 수 있다. 이 명령은 파일 생성과 checksum 확인만 하며 Unity import·빌드·실행은 아니다. 생성된 project 경로와 새 절대 APK 경로를 `bash scripts/build-unity-android-mock.sh <project> <새 APK>`에 전달하면 라이선스·Android 모듈을 확인한 뒤 `BuildMockPlayer.Build`를 실행한다. 테스트 APK는 개발용 cleartext 설정을 포함하므로 배포하지 않는다. 실행 시 전용 local-mock 서버와 별도 테스트 DB, 사용자 준비 Android 에뮬레이터가 필요하며 synthetic 개발키는 intent extra로만 전달한다. 실제 Google 인증이나 스토어 결제의 검증은 아니다.
+
+2026-11-12 확인: 6000.5.8f1의 라이선스가 활성이고 Android Build Support·SDK/NDK·OpenJDK 및 iOS Build Support가 설치돼 있다. Unity Android LOCAL_MOCK Player는 전용 에뮬레이터에서 PASS했으며 iOS Player는 확인하지 않았다.
 
 설정: `UNITY_EDITOR_PATH`를 실제 실행파일로 지정한다. 정확한 버전은 TOOLCHAIN/ProjectVersion과 일치시킨다. 다른 Unity major/minor를 자동으로 설치해 기존 project를 올리지 않는다.
 
@@ -280,20 +282,20 @@ Xcode local `.storekit` 환경에서만 사용한다. iOS 18 이상과 host Info
 
 ### Unity Android LOCAL_MOCK 재실행 준비 (PX-T01)
 
-1. Unity Hub에서 6000.5.8f1에 사용할 라이선스를 활성화하고 Android Build Support 및 필요한 구성요소를 설치한다. 라이선스 활성화와 모듈 설치는 사용자가 직접 진행한다. 별도 Android 36 테스트 에뮬레이터는 로컬에 준비돼 있다.
+1. Unity Hub에서 6000.5.8f1 라이선스와 Android Build Support를 확인한다. 2026-11-12에는 모두 준비된 상태였으며, 라이선스·약관 조작이 다시 필요하면 사용자가 직접 진행한다. 별도 Android 36 테스트 에뮬레이터를 사용한다.
 2. 최신 SDK Maven/XCFramework를 `scripts/package-sdk.sh`로 새 staging에 묶고 `GAMEBRIDGE_UPM_STAGING=<staging 절대경로> bash scripts/prepare-unity-android-mock.sh --prepare`를 실행한다. 출력한 project 경로를 보존한다. 이 단계는 Unity import가 아니다.
-3. `bash scripts/build-unity-android-mock.sh <project 절대경로> <새 APK 절대경로>`를 실행한다. 성공 시에만 전용 에뮬레이터에 APK를 설치한다. 이 build 명령은 아직 실제 Editor에서 검증되지 않았다.
+3. `bash scripts/build-unity-android-mock.sh <project 절대경로> <새 APK 절대경로>`를 실행한다. 성공 시에만 전용 에뮬레이터에 APK를 설치한다. Unity 6000.5.8f1에서 실제 Android Player 빌드에 사용했다.
 4. 별도 local-mock 서버와 테스트 DB를 준비하고 `GAMEBRIDGE_LOCAL_TRACE_ENABLED=true`를 명시한다. API trace는 opt-in이고 local-mock profile에서만 켜지며 요청 경로별 고정 operation, method, 서버 request ID, status만 출력한다. 응답·요청 본문, token, 개발키는 기록하지 않는다.
 5. 테스트 앱의 실행 intent에 `gamebridge_mock_url` (`http://10.0.2.2:<포트>`)과 **전용 synthetic 개발키** `gamebridge_mock_key`를 전달한다. 실제 서비스 키를 사용하지 말고 intent가 로컬 기기 도구에 노출될 수 있음을 고려한다. 앱 logcat의 `GB_MOCK_STEP` 및 `GB_MOCK_NATIVE`와 서버의 `LOCAL_MOCK_TRACE`를 모아 각 요청의 성공과 서버 지급을 독립 확인한다. `GB_MOCK_RESULT PASS LOCAL_MOCK`만으로는 서버 DB 검증을 대체하지 않는다.
 
 Android instrumentation 대조 시험은 전용 에뮬레이터에서 Kotlin bridge→local Backend 및 DB 지급을 확인했다 ([증거](evidence/px-t03-android-mock-bridge.md)). 이것은 Unity 실행이 아니다.
 
-위 절차의 Unity Player import·빌드·실행 및 Unity를 경유한 서버 지급 대조는 **NOT_RUN**이다. 개발키와 세션 토큰을 로그·Git·공개 보고서에 넣지 않는다. 이 경로는 Google 로그인이나 실제 스토어 결제가 아니다.
+Unity Android Player import·빌드·실행 및 서버 지급 대조는 2026-11-12 전용 에뮬레이터에서 **LOCAL_MOCK PASS**다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS Player 및 실제 제공자는 NOT_RUN이다. 개발키와 세션 토큰을 로그·Git·공개 보고서에 넣지 않는다. 이 경로는 Google 로그인이나 실제 스토어 결제가 아니다.
 
 
 ## Unity Android LOCAL_MOCK 전체 E2E 및 공개 증거 — PX-T04~PX-T06
 
-**상태: Runner 및 문서 작성. 실제 Unity import, APK 빌드, Player 실행은 NOT_RUN.** 기존 PX-T03 Android instrumentation PASS는 Unity를 경유하지 않은 별도 결과다.
+**상태: Unity Android Player LOCAL_MOCK E2E PASS.** [공개 검증 증거](evidence/px-t04-unity-android-local-mock.md). 초기 전체화면 안내는 수동으로 닫았다. 기존 PX-T03 Android instrumentation PASS는 Unity를 경유하지 않은 별도 결과다. Unity iOS·실제 Google 로그인·스토어 결제는 NOT_RUN이다.
 
 ### 사용자 환경 준비
 

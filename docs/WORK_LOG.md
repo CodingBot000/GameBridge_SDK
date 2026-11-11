@@ -2454,3 +2454,9 @@
 - `scripts/build-unity-android-mock.sh`에서 Editor 시작 시 Android target을 선택하도록 수정. `MockPlayerScenario`의 Android intent·설정·Native transport 오류 단계를 분리하고 오류 타입만 출력한다. 명령·managed compile 검사 후 새 AVD에서 실제 Gradle hook/전체 흐름을 확인한다.
 - `bash -n scripts/build-unity-android-mock.sh` 및 Android scenario managed compile 종료 0, 경고·오류 0. 커밋 준비: Android active target 선택, 비밀 없는 오류 단계 및 실패 근거만 포함한다.
 - Android target을 선택한 Unity import/build 및 새 전용 AVD의 전체 LOCAL_MOCK 재실행을 시작한다. 기존 AVD·DB는 보존하고 실행 전 tracked-clean을 확보한다.
+- PX-T04 `python3 harness/run-unity-android-mock-e2e.py --run-local --staging artifacts/upm-v2-20261112-f1e12b6 --serial emulator-5584 --expected-avd GameBridge_V2_20261112_012825` 종료 0, `artifacts/unity-android-e2e-zbdkbnnl/result.json` PASS. source c58b4a6 및 tracked-clean, Unity 단계 6개, Native 진단 request ID, Backend mock-auth/catalog/entitlements/verify/logout HTTP 200, DB wallet_ledger 1건·100코인 확인. 최초 Android 전체화면 안내는 새 전용 AVD에서 수동으로 닫았으므로 완전 무인 실행으로 주장하지 않는다. Google 로그인·실제 스토어 및 Unity iOS는 미검증이다. `harness/export-mock-e2e-evidence.py --kind unity ...` 종료 0으로 공개 요약만 생성했다.
+- README, USER_SETUP, FINAL_REPORT 및 FEATURE_MATRIX에 Unity Android LOCAL_MOCK 실제 Player 통과와 범위·수동 전체화면 안내를 반영했다. 과거 실패 기록은 지우지 않고 실제 외부 인증/결제, Unity iOS는 미검증으로 유지한다.
+- PASS evidence에 실행 명령 형태·exit 0·Unity 6000.5.8f1/Android 36 ARM64·staging checksum과 전체화면 안내 수동 처리를 추가했다. 합성값·원시 로그는 커밋하지 않는다.
+- 진행 매트릭스의 Unity Android local-mock 및 UPM import/IL2CPP 결과를 갱신하고, Editor 테스트·push·복구 및 iOS/외부 서비스는 별도로 유지했다. README의 오래된 Runner NOT_RUN 문구도 정정했다.
+- USER_SETUP에서 2026-11-11 라이선스·모듈 미비는 과거 상태로 보존하고 2026-11-12 실제 환경과 Android LOCAL_MOCK PASS를 명시했다.
+- 커밋 준비: PX-T04 공개용 검증 요약 및 README/PROGRESS/USER_SETUP/FEATURE_MATRIX/FINAL_REPORT의 현재 상태만 포함한다. source c58b4a6에서 실제 PASS, Unity iOS·실제 Google/스토어는 NOT_RUN, 최초 전체화면 안내는 수동으로 닫았음을 보존한다. 원본 로그·APK·DB 및 사용자 미추적 파일은 추가하지 않는다.

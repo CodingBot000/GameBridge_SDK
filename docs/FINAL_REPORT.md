@@ -2,7 +2,7 @@
 
 ## 판정
 
-**BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. 전체 제품, Unity 통합 및 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미구현도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
+**BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. Unity Android LOCAL_MOCK 전체 흐름은 검증했으나 전체 제품, Unity iOS 및 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미완료도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
 
 P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 44개 IMPLEMENTED, 6개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
 
@@ -10,7 +10,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 
 - Android Kotlin, iOS Swift 및 Unity C# 경계의 계약·fake 테스트와 일부 local-mock HTTP/PostgreSQL 시험을 실행했다. 인증, 구매 중복 지급 방지 및 응답 유실 복구, 푸시 토큰 등록·삭제의 제한된 경로를 확인했다. 실제 제공자 테스트와 구분한다.
 - Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성 복구를 확인했지만 실제 기기 프로세스 종료·Unity player 복구는 확인하지 않았다.
-- Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. Unity 신규 프로젝트 import 및 IL2CPP는 실행하지 않았다.
+- Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. 이후 Unity 6000.5.8f1 신규 소비 프로젝트 import·Android IL2CPP APK 및 local-mock Player 전체 경로는 전용 에뮬레이터에서 PASS했다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS와 실제 스토어는 미검증이다.
 - 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. Unity 푸시 전달 미검증과 미완성 시나리오 때문에 전체 검증은 통과하지 않았다. 최근 strict 집계는 `artifacts/verify-all-k8z14qqw/summary.md`이며 실행된 Native synthetic·local DB 검사는 통과했지만 Unity Editor 미실행, Unity push 환경 대기, 부분 시나리오와 기존 실패로 전체 FAIL이다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
 - 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
 
@@ -20,13 +20,13 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 |---|---|
 | BUG-013 | XCODE_STOREKIT 격리 fake 서버 지급 및 Native/Unity bridge를 구현했다. iOS 18.6 상품 조회와 일회성 synthetic 지급·finish를 확인했으나, 추가 시험에서 동일 미완료 거래의 JWS가 바뀌어 중복 지급 위험을 발견했다. 완료 후 연속 구매의 고정 필드는 한 시험에서 구분됐지만 재시작 복구의 유일성은 미확인이다. iOS 18 이상과 host 소모품 이력 설정, 거래 후보 단일성 및 durable attempt를 요구하도록 보강했다. local DB 응답 유실과 Keychain 인스턴스 재생성 복구는 통과했으며 전용 iOS 18.6 simulator 앱 재시작 시험에서 journal 재생성 실패를 재현한 뒤 중복 거래 방지 수정으로 재시험 PASS (`artifacts/xcode-process-recovery-f_w2fsya`). 실제 기기·Unity 실행은 미검증이다. iOS 26.5 StoreKit 시험은 Code 3으로 실패했다. |
 | BUG-014 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과했다. Unity player와 실제 기기 lifecycle은 미검증이다. |
-| BUG-015 | Native 진단 ring의 Unity 비동기 조회를 구현하고 fake/managed compile을 확인했다. 실제 Unity player에서의 연결은 미검증이다. |
+| BUG-015 | Native 진단 ring의 Unity 비동기 조회는 Android LOCAL_MOCK Player에서 확인했다. iOS 및 다른 모드는 미검증이다. |
 | BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |
 | P09 | 6개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor runner는 구현했으나 실행 결과가 없다. strict 전체 gate는 성공이 아니다. |
 
 ## 환경 및 사용자 설정
 
-Unity Editor 라이선스 오류(ENV-002)와 계획된 버전 확인(ENV-001)으로 Unity import/player 검증이 보류됐다. iOS 26.5 simulator의 StoreKit local 시험은 실패(ENV-STOREKIT-26)했다. 이후 별도 앱 재시험도 SKTestSession 생성에서 timeout (`artifacts/xcode-process-recovery-p8qyld6o`)이었으며 동일 계측의 iOS 18.6 대조는 PASS였다. 실제 Google/Apple 인증, 스토어, FCM/APNs의 계정·앱 등록·서명 및 기기 준비는 [USER_SETUP](USER_SETUP.md)에 정리했다. `bash scripts/verify-external.sh --check-config`는 설정 형태만 확인하며 실연동 테스트가 아니다.
+과거 Unity 라이선스 오류(ENV-002)는 활성화 후 해소됐고 Android local-mock Player는 통과했다. 계획된 6.3 LTS 확인(ENV-001), Unity iOS 및 나머지 Unity 시나리오는 별도다. iOS 26.5 simulator의 StoreKit local 시험은 실패(ENV-STOREKIT-26)했다. 이후 별도 앱 재시험도 SKTestSession 생성에서 timeout (`artifacts/xcode-process-recovery-p8qyld6o`)이었으며 동일 계측의 iOS 18.6 대조는 PASS였다. 실제 Google/Apple 인증, 스토어, FCM/APNs의 계정·앱 등록·서명 및 기기 준비는 [USER_SETUP](USER_SETUP.md)에 정리했다. `bash scripts/verify-external.sh --check-config`는 설정 형태만 확인하며 실연동 테스트가 아니다.
 
 ## 로컬 산출물
 
@@ -62,3 +62,5 @@ P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912
 후속 브랜치에서 PX-T04 Unity Android Player 검증 Runner, PX-T05 Native-only 실행 환경 가변화, PX-T06 공개용 증거 Exporter 및 오프라인 검사 코드를 추가했다. 이 변경은 기존 P00~P11 전체 완료 또는 실연동 완료를 의미하지 않는다. 변경된 Runner의 실제 Unity 실행·Android 기기 시험 및 GitHub Actions 결과는 **NOT_RUN**이며, Unity 활성 라이선스·Android Build Support가 준비된 후 실행해야 한다.
 
 기존 PX-T03 Kotlin Bridge → 로컬 Backend 1건/100코인 시험은 별도의 이전 실행 결과다. 변경된 코드를 clean checkout에서 재실행한 성공 근거 없이 그 결과를 새로운 코드의 PASS로 이전하지 않는다. 실제 실연동 대상 13건의 WAITING_USER 및 프로젝트 BLOCKED_INTERNAL 판정은 유지한다.
+
+2026-11-12 최신 Android Maven·iOS XCFramework·UPM staging은 `f1e12b6` 제품 소스로 새로 생성했다. UPM 110개 파일 checksum, Android 독립 R8 consumer, iOS arch/C ABI 및 0.1.0-dev 버전을 확인했다. Unity Android Player E2E는 source `c58b4a6`의 clean tracked tree와 동일한 staged Unity SDK 소스로 실행해 PASS했으며 첫 전체화면 안내는 수동으로 닫았다. 실제 Google 로그인·스토어 및 Unity iOS는 NOT_RUN이다.

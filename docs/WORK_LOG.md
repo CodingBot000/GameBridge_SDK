@@ -2421,3 +2421,9 @@
 - Unity CLI `license status`는 active=true, signedIn=true, licenseCount=3. `unity modules list 6000.5.8f1`은 android, android-sdk-ndk-tools, android-open-jdk 및 ios Installed. 실제 모듈 디렉터리는 `/Applications/Unity/Hub/Editor/6000.5.8f1/PlaybackEngines` 아래며 SDK/NDK/OpenJDK도 존재한다. 기존 `scripts/build-unity-android-mock.sh`가 `Unity.app/Contents/PlaybackEngines`만 확인하므로 유효한 설치를 거부하는 코드 문제를 발견했다. Player 검증 전 경로를 수정한다.
 - `scripts/build-unity-android-mock.sh`에서 Unity Hub의 버전 디렉터리 및 기존 Unity.app 내부의 AndroidPlayer 양쪽을 확인하도록 수정했다. 실행 검증 전이며 Player PASS가 아니다.
 - `bash -n scripts/build-unity-android-mock.sh` 종료 0, `python3 -m unittest discover -s harness -p test_export_mock_e2e_evidence.py -v` 4건 PASS/skip 0. 실제 Player 빌드 검증은 미실행이다. 커밋 준비: Unity Hub Android 모듈 경로 수정과 환경 확인 기록만 포함한다.
+### P08 / PX-T04 최신 SDK 패키지 재생성 시작 (2026-11-12)
+- 기준 제품 소스 HEAD `f1e12b6`. 새 Android Maven 산출물과 독립 R8 consumer, iOS device/simulator XCFramework 및 UPM staging을 순차 생성·검증한다. 이전 산출물을 덮어쓰지 않으며 Unity Player는 아직 미실행이다.
+- `GAMEBRIDGE_MAVEN_REPO=.../maven-v2-20261112-f1e12b6 bash scripts/build-android.sh --mock` 종료 0: mock sample 및 별도 R8 consumer 포함. 이어 iOS device/simulator XCFramework를 생성한다.
+- `GAMEBRIDGE_IOS_OUTPUT_DIR=.../ios-v2-20261112-f1e12b6 bash scripts/build-ios.sh --xcframework` 종료 0. 새 staging에 Android/iOS 산출물을 결합하고 무결성과 버전을 확인한다.
+- `scripts/package-sdk.sh` 및 `python3 harness/check-staging.py .../upm-v2-20261112-f1e12b6` 종료 0: XCFramework device arm64 / simulator arm64,x86_64와 각 C ABI 4종 검사 PASS, staging 110개 파일 checksum PASS. Android 3개 Maven POM과 UPM package version `0.1.0-dev` 일치. 이 결과는 Unity Player를 증명하지 않는다.
+- 커밋 준비: 최신 산출물 위치·빌드 검사 결과만 기록하고 생성물은 Git에 추가하지 않는다. Unity E2E는 새 전용 AVD에서 후속 실행한다.

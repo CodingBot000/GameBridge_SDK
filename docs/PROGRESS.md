@@ -313,3 +313,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T04 환경 확인(2026-11-12): Unity 6000.5.8f1 활성 라이선스 확인, Android Build Support·SDK·NDK·OpenJDK 및 iOS Build Support 설치 확인. 모듈은 Editor 버전 디렉터리의 `PlaybackEngines`에 있으며, 기존 Android 빌드 스크립트가 `Unity.app/Contents` 아래만 검사하는 경로 오류를 발견해 수정한다. 아직 Player 결과는 NOT_RUN이다.
 - PX-T04 빌드 preflight 경로 수정: Unity.app 내부와 Hub 버전 디렉터리 양쪽의 AndroidPlayer를 확인하도록 변경했다. 문법·실제 Player 빌드로 검증할 예정이다.
 - PX-T04 preflight 셸 문법 검사 PASS; PX-T06 evidence exporter 단위 테스트 4건 PASS/skip 0. 실제 Unity 빌드는 아직 NOT_RUN. 최신 소스 기준 산출물 및 E2E에 앞서 경로 수정 사항을 로컬 커밋한다.
+- P08/PX-T04 최신 소스 패키징 검증 시작: 별도 새 경로에서 Android Maven·iOS XCFramework·UPM staging을 생성하고 버전·무결성을 검사한다. 기존 산출물은 보존한다.
+- P08 Android 최신 로컬 Maven·별도 R8 consumer build 종료 0. iOS XCFramework 새 경로 빌드를 시작한다.
+- P08 iOS XCFramework device/simulator archive 종료 0. UPM staging·플랫폼 arch/symbol·checksum과 0.1.0-dev 버전 정합성을 확인한다.
+- P08 最新 staging `artifacts/upm-v2-20261112-f1e12b6`: Android Maven・独立 R8 consumer、iOS XCFramework device/simulator arch・C ABI、UPM 110개 checksum 및 Maven/UPM 0.1.0-dev 버전 검사 PASS. Unity import/Player는 아직 NOT_RUN이다.
+- P08 패키징 기록 커밋 준비: 생성물은 artifacts에 보존하며 Unity Player 실행 전이다.

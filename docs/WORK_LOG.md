@@ -2478,3 +2478,8 @@
 - 테스트 소비 앱 post-build plist에서 Unity Notifications 시작 시 로컬/원격 권한 요청을 모두 false로 설정했다. Player 실패 시에도 credential 없는 GB_MOCK 마커를 artifacts에 남긴다. 운영 SDK/사용자 앱 설정은 변경하지 않는다.
 - Python 및 셸 문법 검사 종료 0. 커밋 준비: 테스트 앱의 불필요한 알림 자동 요청 억제, 실패 마커 보존 및 실제 FAIL 기록만 포함한다.
 - 알림 자동 요청 억제와 실패 마커 보존 후 `harness/run-unity-ios-mock-e2e.py`를 새로운 Simulator·DB에서 재실행한다. 실행 전 기록을 커밋해 tracked-clean 상태를 확보한다.
+- 알림 자동 요청 억제 후 새 Simulator의 runner 재실행 종료 1, `UNITY_PLAYER_REPORTED_FAILURE`. 실패 마커와 서버 trace가 보존됐으며 실제 실패 단계는 조사한다. 전체 통과는 아니다.
+- `artifacts/unity-ios-e2e-rfz6jnz2/unity-test-markers.log`: initialize PASS、login INTERNAL_ERROR。Backend mock-auth 200。初期化後の Keychain 保存などを調査する。現在の app は linker ad-hoc signature・entitlement 無し。Apple Developer 登録を必要としない local ad-hoc Xcode build との違いを検証する。
+- 같은 Unity Xcode 프로젝트에서 `CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=YES` Simulator build 종료 0. `codesign`은 ad-hoc 서명 및 올바른 bundle identifier를 보고했다. 이는 키·유료 계정을 사용하지 않는 로컬 대조이며 아직 Keychain 및 E2E 성공을 뜻하지 않는다.
+- `--adhoc`은 요청 시에만 로컬 코드 서명을 선택하며 기본 무서명 경로는 유지한다. result.json에 signing 방식을 기록한다. 두 방식 모두 실제 Apple 계정·상용 서명은 아니다.
+- runner 문법 검사 종료 0. 커밋 준비: local ad-hoc Simulator 선택 경로 및 첫 실패·대조 빌드 사실만 저장한다. 전체 E2E는 아직 FAIL이다.

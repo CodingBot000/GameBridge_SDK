@@ -367,3 +367,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T07 테스트 전용 앱의 자동 알림 요청 비활성화와 실패 단계 마커 보존을 추가했다. 실제 결과는 재검증 전이다.
 - PX-T07 알림 설정 및 실패 마커 runner 문법 검사 PASS. 실제 전체 흐름은 미검증이며 수정 사항을 로컬 커밋 후 전용 새 Simulator에서 재검증한다.
 - PX-T07 수정 후 전체 E2E 재검증 시작: 새 전용 Simulator·DB를 사용하며 최신 source 기준 Player 결과는 아직 NOT_RUN이다.
+- PX-T07 두 번째 전체 E2E FAIL (`artifacts/unity-ios-e2e-rfz6jnz2`, `UNITY_PLAYER_REPORTED_FAILURE`). 저장된 Unity 단계 마커와 Backend trace를 대조해 원인을 확인한다.
+- PX-T07 失敗段階: Unity initialize PASS、Backend mock-auth HTTP 200 後 login INTERNAL_ERROR。テスト用 unsigned Simulator app の Keychain/コード署名を切り分ける。外部 Apple 認証は使用しない。
+- PX-T07 대조용 Simulator ad-hoc Xcode 빌드 PASS: 무료 로컬 서명으로 bundle identifier가 보존됐으며 Apple 계정·인증서는 사용하지 않았다. Keychain 원인 여부는 실제 Player 재검증 전 미확정이다.
+- PX-T07 runner에 명시적 Simulator local ad-hoc 대조 옵션을 추가한다. 기존 무서명 경로와 구분해 실제 전체 흐름을 재검증한다.
+- PX-T07 ad-hoc 대조 runner 문법 검사 PASS. 커밋 후 새 Simulator에서 실제 로그인·구매·원장을 재검증한다.

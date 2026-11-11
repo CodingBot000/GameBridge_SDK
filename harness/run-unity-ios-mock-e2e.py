@@ -8,7 +8,7 @@ STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); args=parser.parse_args()
+    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
     out=Path(tempfile.mkdtemp(prefix='unity-ios-e2e-',dir=ROOT/'artifacts'))
     def run(cmd,**kw): return subprocess.run([str(x) for x in cmd],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,**kw)
     def must(cmd,label,**kw):
@@ -38,7 +38,9 @@ def main():
         pbx=(xcode/'Unity-iPhone.xcodeproj/project.pbxproj').read_text()
         if 'GameBridgeNative.xcframework in Frameworks' not in pbx: raise RuntimeError('XCFRAMEWORK_NOT_LINKED')
         derived=out/'Derived'
-        build=run(['xcodebuild','-project',xcode/'Unity-iPhone.xcodeproj','-scheme','Unity-iPhone','-configuration','Debug','-sdk','iphonesimulator','-derivedDataPath',derived,'ARCHS=arm64','CODE_SIGNING_ALLOWED=NO','build','-quiet'],timeout=600)
+        signing=['CODE_SIGN_IDENTITY=-','CODE_SIGNING_REQUIRED=YES'] if args.adhoc else ['CODE_SIGNING_ALLOWED=NO']
+        result['signing']='local-ad-hoc' if args.adhoc else 'disabled'
+        build=run(['xcodebuild','-project',xcode/'Unity-iPhone.xcodeproj','-scheme','Unity-iPhone','-configuration','Debug','-sdk','iphonesimulator','-derivedDataPath',derived,'ARCHS=arm64',*signing,'build','-quiet'],timeout=600)
         (out/'xcodebuild.log').write_text(build.stdout)
         if build.returncode: raise RuntimeError('XCODE_BUILD_FAILED')
         products=derived/'Build/Products/Debug-iphonesimulator'; app=next(products.glob('*.app'),None)

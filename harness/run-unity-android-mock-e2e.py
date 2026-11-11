@@ -81,6 +81,20 @@ def find_dedicated_device(adb, serial, expected_avd):
     return serial, avd
 
 
+def wait_for_dedicated_device(adb, serial, expected_avd, timeout=45):
+    """Unity may restart ADB during a build; wait for the same AVD to reappear."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            return find_dedicated_device(adb, serial, expected_avd)
+        except GateError as error:
+            if str(error) not in ("ADB_UNAVAILABLE", "TARGET_NOT_AN_ONLINE_EMULATOR"):
+                raise
+            if time.monotonic() >= deadline:
+                raise GateError("DEDICATED_EMULATOR_REDISCOVERY_TIMEOUT", "DEFERRED_ENV") from error
+            time.sleep(1)
+
+
 def sha256(path):
     digest = hashlib.sha256()
     with Path(path).open("rb") as stream:
@@ -305,6 +319,8 @@ def main():
             jar, output, database, password, args.postgres_port)
         summary["backend"] = "LOCAL_MOCK_READY"
 
+        # Unity may restart ADB, so revalidate device identity and app absence after building.
+        wait_for_dedicated_device(adb, serial, avd)
         installation = run([adb, "-s", serial, "install", apk], timeout=120)
         # APK path and installer diagnostics contain no development key or token.
         (output / "adb-install.log").write_text(installation.stdout, encoding="utf-8")

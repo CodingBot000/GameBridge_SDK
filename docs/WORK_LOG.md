@@ -2434,3 +2434,7 @@
 - `harness/run-unity-android-mock-e2e.py`가 adb install 출력과 종료 코드·Success 마커를 검사해 실패 근거를 artifacts에 저장하도록 보완했다. 개발키는 설치 명령에 포함되지 않는다.
 - runner `python3 -m py_compile` 종료 0. 커밋 준비: 설치 진단 보강과 실제 실패·재시도 기록만 포함한다.
 - 최초 전용 AVD와 설치한 APK는 삭제하지 않고 종료만 한다. 새 GameBridge_V2_ AVD에서 `harness/run-unity-android-mock-e2e.py`를 다시 실행한다. 진행 기록을 먼저 커밋해 clean 상태를 확보한다.
+- 두 번째 `harness/run-unity-android-mock-e2e.py`는 Unity APK 빌드 후 `UNITY_APK_INSTALL_FAILED` exit 1. adb 설치 진단이 저장됐으므로 원인을 조사한다. 기존 증거를 PASS로 승격하지 않는다.
+- `artifacts/unity-android-e2e-usi585vl/adb-install.log`: adb daemon 재시작 직후 전용 emulator 미발견. 이후 `adb devices`에서 동일 serial online 확인. Unity 빌드 후 ADB 재검색 지연을 기다리고 AVD 이름·기존 앱 미존재를 다시 확인하는 방향으로 수정한다.
+- Unity 빌드 이후 최대 45초 동안 동일 전용 AVD를 재확인하고, 잘못된 기기나 기존 앱은 즉시 거부하도록 runner를 수정했다. 오프라인 복구와 안전한 거부에 대한 단위 테스트를 실행한다.
+- `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: ADB 재검색·전용 AVD 안전 조건 및 진단 기록만 포함한다.

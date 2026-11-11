@@ -324,3 +324,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T04 runner의 APK 설치 오류 출력 보존 및 성공 표시 검사 추가. Python 문법 확인 후 새 전용 AVD에서 검증한다.
 - PX-T04 runner Python 문법 검사 PASS. 설치 출력 보강과 첫 실패를 기록해 커밋한다. Unity Player 전체 결과는 아직 미검증이다.
 - PX-T04 두 번째 전체 검증 시작: 새 전용 AVD에서 수정 runner와 동일한 최신 제품 패키지로 재실행한다. Player 및 원장 결과는 아직 NOT_RUN이다.
+- PX-T04 두 번째 전체 실행 FAIL (`artifacts/unity-android-e2e-usi585vl`): 새 전용 AVD에서도 Unity APK 설치 실패. 저장된 adb 설치 로그로 원인을 확인한다. Player 전체 경로는 NOT_RUN이다.
+- PX-T04 두 번째 설치 실패 원인 확인: adb 설치 로그에 daemon 재시작 직후 `device emulator-5584 not found`; 이후 같은 AVD는 다시 online으로 확인됐다. 빌드 후 전용 AVD 재확인과 재검색 대기를 추가한다.
+- PX-T04 ADB 재검색 대기 및 전용 AVD·기존 앱 재검사 추가. 오프라인→온라인과 잘못된 기기·기존 앱 차단을 단위 검증한다.
+- PX-T04 ADB 재검색 단위 검증 2건 PASS/skip 0. 실제 수정 runner의 새 Player 전체 실행 전이며 로컬 커밋한다.

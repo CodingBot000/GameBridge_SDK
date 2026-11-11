@@ -329,3 +329,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T04 ADB 재검색 대기 및 전용 AVD·기존 앱 재검사 추가. 오프라인→온라인과 잘못된 기기·기존 앱 차단을 단위 검증한다.
 - PX-T04 ADB 재검색 단위 검증 2건 PASS/skip 0. 실제 수정 runner의 새 Player 전체 실행 전이며 로컬 커밋한다.
 - PX-T04 세 번째 전체 검증 시작: ADB 재검색 수정본을 또 다른 새 전용 AVD와 최신 staging으로 실행한다. 통합 결과는 아직 NOT_RUN이다.
+- PX-T04 세 번째 전체 실행 FAIL (`artifacts/unity-android-e2e-8t7go26x`): 새 Unity APK 설치는 진행됐으나 앱 launch 명령에서 실패해 전체 Player 흐름은 미검증이다. 실행 명령과 기기 상태를 조사한다.
+- PX-T04 launch 실패 원인: 테스트용 AndroidManifest가 Unity 기본 launcher activity를 덮어써 APK에 MAIN/LAUNCHER가 없었다. 생성된 Unity 6000.5.8f1 GameActivity 템플릿과 대조해 격리 테스트 manifest를 수정한다.
+- PX-T04 테스트 소비 프로젝트의 GameActivity launcher 및 Unity metadata를 복원했다. 생성 manifest의 구조 검증 후 새 AVD의 실제 APK·Player로 재검증한다.
+- PX-T04 새 소비 프로젝트 manifest 구조 검사 PASS: GameActivity·exported MAIN/LAUNCHER·Unity metadata 존재. 실제 APK 및 Player 검증은 아직 미실행이다. 커밋 후 새 전용 AVD에서 다시 실행한다.

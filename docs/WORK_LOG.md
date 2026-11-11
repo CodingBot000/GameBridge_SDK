@@ -2439,3 +2439,7 @@
 - Unity 빌드 이후 최대 45초 동안 동일 전용 AVD를 재확인하고, 잘못된 기기나 기존 앱은 즉시 거부하도록 runner를 수정했다. 오프라인 복구와 안전한 거부에 대한 단위 테스트를 실행한다.
 - `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: ADB 재검색·전용 AVD 안전 조건 및 진단 기록만 포함한다.
 - Unity가 재시작한 ADB의 재검색을 기다리는 runner 수정 후 새 전용 AVD에서 전체 경로를 재실행한다. 기존 두 전용 AVD·DB·APK는 보존한다. 실행 전 기록을 커밋해 tracked-clean 검사를 유지한다.
+- ADB 재검색 보강 후 세 번째 runner exit 1, `UNITY_LAUNCH_FAILED` (`artifacts/unity-android-e2e-8t7go26x`). 설치 단계는 통과했으나 앱 실행 요청이 실패했으므로 Native·Backend 전체 시나리오를 PASS로 기록하지 않는다. 원인을 확인한다.
+- `aapt dump badging`에 launchable activity가 없고 `cmd package resolve-activity`도 No activity found. `scripts/prepare-unity-android-mock.sh`의 최소 custom manifest가 Unity 기본 Activity 선언을 대체한 것이 원인이다. 현재 생성 프로젝트의 Android entry는 GameActivity이며 Unity 설치본 템플릿을 기준으로 MAIN/LAUNCHER와 GameActivity metadata를 복원한다.
+- 개발용 cleartext manifest에 `UnityPlayerGameActivity`, exported MAIN/LAUNCHER 및 Unity/lib_name metadata를 추가했다. 사용자 앱 manifest는 변경하지 않으며 실제 빌드·실행은 재검증 전이다.
+- 생성기와 XML 구조 검사 종료 0: GameActivity 및 두 Unity metadata 존재. Unity APK 내부 manifest와 Player 작동은 재빌드·재실행 전이다. 커밋 준비: 테스트 전용 manifest 수정과 실패 원인 기록만 포함한다.

@@ -2398,3 +2398,21 @@
 - 커밋 준비: Android Native bridge 장치 검증과 격리 DB/로그 증거만 포함한다. 설치한 테스트 앱과 전용 DB·AVD는 보존한다. 자동 push하지 않는다.
 - 사용자 조작이 필요한 잔여 블로커: Unity Hub 라이선스 활성화 및 Android Build Support 설치·해당 약관 동의. 6000.5.8f1 설치는 확인했고 전용 Android 36 AVD, 격리 consumer 및 단독 Native/Backend 증거는 준비돼 있다. Unity Player 전체 검증은 수행하지 않았다. 기존 미추적 Demo·캐시 보존, 자동 push 없음.
 - 커밋 준비: USER_SETUP의 Native 대조 결과와 사용자 준비 단계·정확한 재개 위치만 기록한다.
+
+
+### [PX-T04] Unity Android Player LOCAL_MOCK E2E runner 작성 (후속 변경 브랜치)
+- 변경: harness/run-unity-android-mock-e2e.py. 신규 전용 GameBridge_V2_ AVD, 미설치 상태, UPM staging 무결성, 활성 라이선스와 Android 모듈 preflight를 확인한 다음 Unity APK 빌드·설치·실행을 시도하도록 구성했다.
+- 구현: Unity GB_MOCK_STEP·GB_MOCK_NATIVE·GB_MOCK_RESULT, Backend LOCAL_MOCK_TRACE 및 전용 DB wallet_ledger의 1건·100코인까지 대조한 경우만 PASS. 원본 로그는 artifacts 내 격리.
+- 이 대화의 원격 편집에서는 Unity Editor·Android emulator·Backend를 실행하지 않았으므로 Exit Code와 PASS 없음. 코드 확인은 별도 실제 검증을 대체하지 않는다.
+- 현재 환경 블로커: Unity 활성 라이선스 0, Android Build Support 없음. 실제 Unity import·APK·Player 실행은 NOT_RUN이며 이전 PX-T03 Native-only PASS와 구분한다.
+
+### [PX-T05] Android Native-only Runner의 환경 종속성 제거
+- 변경: harness/run-android-mock-bridge-e2e.py. adb 경로·serial·전용 AVD 이름·격리 로컬 PostgreSQL 컨테이너/사용자/포트를 인자/환경변수로 설정하게 했다.
+- 안전 조건: GameBridge_V2_ prefix, 온라인 emulator, 기존 앱 무덮어쓰기, 로컬 Compose PostgreSQL 컨테이너 이름 제한, 무작위 테스트 DB 보존. 테스트 당시 HEAD, tracked dirty 및 backend jar digest를 result.json에 저장하도록 구성했다.
+- 수정본 테스트 명령을 아직 실행하지 않았다 (NOT_RUN). 기존 PX-T03 PASS는 원래 버전의 증거이며 이 버전 재현 성공을 뜻하지 않는다.
+
+### [PX-T06] 공개 검증 증거 및 CI 보강
+- 변경: harness/export-mock-e2e-evidence.py, harness/test_export_mock_e2e_evidence.py, .github/workflows/verify.yml, 관련 사용자 설정·원장.
+- Exporter는 PASS·현재 SHA·추적 파일 clean·1건/100코인 지급과 Unity/Native 근거를 개별적으로 검사한다. 원본 로그와 환경 식별자는 Markdown에 복사하지 않는다. 미실행·실패·stale은 거부한다.
+- GitHub Actions Linux lane에 py_compile 및 오프라인 단위 테스트를 추가했지만 해당 변경에 대한 Actions 실행 결과는 아직 없다 (NOT_RUN). 기존 unity-runtime-required placeholder 및 strict 전체 게이트는 성공으로 주장하지 않는다.
+- 다음 행동: 라이선스·Android 모듈 준비, 새 UPM staging, 별도 전용 AVD에서 실제 Runner 실행, 이후에만 새로운 docs/evidence 결과 생성. 실패 시 명령·exit·오류 코드부터 수집해 원장 갱신.

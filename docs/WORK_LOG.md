@@ -2483,3 +2483,4 @@
 - 같은 Unity Xcode 프로젝트에서 `CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=YES` Simulator build 종료 0. `codesign`은 ad-hoc 서명 및 올바른 bundle identifier를 보고했다. 이는 키·유료 계정을 사용하지 않는 로컬 대조이며 아직 Keychain 및 E2E 성공을 뜻하지 않는다.
 - `--adhoc`은 요청 시에만 로컬 코드 서명을 선택하며 기본 무서명 경로는 유지한다. result.json에 signing 방식을 기록한다. 두 방식 모두 실제 Apple 계정·상용 서명은 아니다.
 - runner 문법 검사 종료 0. 커밋 준비: local ad-hoc Simulator 선택 경로 및 첫 실패·대조 빌드 사실만 저장한다. 전체 E2E는 아직 FAIL이다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6`를 새 전용 Simulator/DB에서 실행해 unsigned 실패와 구분한다. 실행 전 tracked-clean 기록을 커밋한다.

@@ -372,3 +372,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T07 대조용 Simulator ad-hoc Xcode 빌드 PASS: 무료 로컬 서명으로 bundle identifier가 보존됐으며 Apple 계정·인증서는 사용하지 않았다. Keychain 원인 여부는 실제 Player 재검증 전 미확정이다.
 - PX-T07 runner에 명시적 Simulator local ad-hoc 대조 옵션을 추가한다. 기존 무서명 경로와 구분해 실제 전체 흐름을 재검증한다.
 - PX-T07 ad-hoc 대조 runner 문법 검사 PASS. 커밋 후 새 Simulator에서 실제 로그인·구매·원장을 재검증한다.
+- PX-T07 local ad-hoc Simulator 전체 E2E 대조 실행 시작. 새 전용 Simulator·DB를 사용하며 현재 결과는 NOT_RUN이다.

@@ -2460,3 +2460,4 @@
 - 진행 매트릭스의 Unity Android local-mock 및 UPM import/IL2CPP 결과를 갱신하고, Editor 테스트·push·복구 및 iOS/외부 서비스는 별도로 유지했다. README의 오래된 Runner NOT_RUN 문구도 정정했다.
 - USER_SETUP에서 2026-11-11 라이선스·모듈 미비는 과거 상태로 보존하고 2026-11-12 실제 환경과 Android LOCAL_MOCK PASS를 명시했다.
 - 커밋 준비: PX-T04 공개용 검증 요약 및 README/PROGRESS/USER_SETUP/FEATURE_MATRIX/FINAL_REPORT의 현재 상태만 포함한다. source c58b4a6에서 실제 PASS, Unity iOS·실제 Google/스토어는 NOT_RUN, 최초 전체화면 안내는 수동으로 닫았음을 보존한다. 원본 로그·APK·DB 및 사용자 미추적 파일은 추가하지 않는다.
+- PX-T04 결과 정리 후 `python3 scripts/verify-progress.py` 종료 0, `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 2건 PASS/skip 0. 이는 Player E2E 결과와 별도다. 커밋 준비: 최종 검사 기록만 저장한다.

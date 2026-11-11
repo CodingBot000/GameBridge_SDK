@@ -17,7 +17,10 @@ except (ValueError,TypeError): print("unknown")' <<< "$status")"
 if [[ "$license_state" != active || "$license_exit" != 0 ]]; then echo "DEFERRED_ENV: Unity license $license_state; user activation or status check required" >&2; exit 2; fi
 editor="${UNITY_EDITOR_PATH:-/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/MacOS/Unity}"
 contents="$(cd "$(dirname "$editor")/.." && pwd)"
-if [[ ! -d "$contents/PlaybackEngines/AndroidPlayer" ]]; then echo 'DEFERRED_ENV: Unity Android Build Support missing' >&2; exit 2; fi
+# Unity Hub installations may place PlaybackEngines beside Unity.app, while
+# other installs keep it under Contents. Check both without modifying either.
+editor_parent="$(cd "$contents/../.." && pwd)"
+if [[ ! -d "$contents/PlaybackEngines/AndroidPlayer" && ! -d "$editor_parent/PlaybackEngines/AndroidPlayer" ]]; then echo 'DEFERRED_ENV: Unity Android Build Support missing' >&2; exit 2; fi
 export GAMEBRIDGE_UNITY_APK="$apk"
 UNITY_NO_UPDATE_CHECK=1 unity run "$project" --editor-version "${UNITY_EDITOR_VERSION:-6000.5.8f1}" --timeout 900 --non-interactive -- -executeMethod BuildMockPlayer.Build
 [[ -s "$apk" ]] || { echo 'FAILED: Unity returned without an APK' >&2; exit 1; }

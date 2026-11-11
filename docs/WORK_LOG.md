@@ -2416,3 +2416,8 @@
 - Exporter는 PASS·현재 SHA·추적 파일 clean·1건/100코인 지급과 Unity/Native 근거를 개별적으로 검사한다. 원본 로그와 환경 식별자는 Markdown에 복사하지 않는다. 미실행·실패·stale은 거부한다.
 - GitHub Actions Linux lane에 py_compile 및 오프라인 단위 테스트를 추가했지만 해당 변경에 대한 Actions 실행 결과는 아직 없다 (NOT_RUN). 기존 unity-runtime-required placeholder 및 strict 전체 게이트는 성공으로 주장하지 않는다.
 - 다음 행동: 라이선스·Android 모듈 준비, 새 UPM staging, 별도 전용 AVD에서 실제 Runner 실행, 이후에만 새로운 docs/evidence 결과 생성. 실패 시 명령·exit·오류 코드부터 수집해 원장 갱신.
+### PX-T04 Unity Android 통합 재검증 재개 (2026-11-12)
+- 원격 `origin/fix/unity-android-mock-e2e-evidence`를 fetch해 같은 이름의 로컬 추적 브랜치로 전환했다. 사용자 미추적 Demo 및 Python 캐시는 보존한다. Unity 라이선스·모듈과 PX-T04~T06 기존 구현을 확인하고 새 산출물 및 별도 에뮬레이터로 실제 Player 검증을 진행한다. 아직 결과는 NOT_RUN이다.
+- Unity CLI `license status`는 active=true, signedIn=true, licenseCount=3. `unity modules list 6000.5.8f1`은 android, android-sdk-ndk-tools, android-open-jdk 및 ios Installed. 실제 모듈 디렉터리는 `/Applications/Unity/Hub/Editor/6000.5.8f1/PlaybackEngines` 아래며 SDK/NDK/OpenJDK도 존재한다. 기존 `scripts/build-unity-android-mock.sh`가 `Unity.app/Contents/PlaybackEngines`만 확인하므로 유효한 설치를 거부하는 코드 문제를 발견했다. Player 검증 전 경로를 수정한다.
+- `scripts/build-unity-android-mock.sh`에서 Unity Hub의 버전 디렉터리 및 기존 Unity.app 내부의 AndroidPlayer 양쪽을 확인하도록 수정했다. 실행 검증 전이며 Player PASS가 아니다.
+- `bash -n scripts/build-unity-android-mock.sh` 종료 0, `python3 -m unittest discover -s harness -p test_export_mock_e2e_evidence.py -v` 4건 PASS/skip 0. 실제 Player 빌드 검증은 미실행이다. 커밋 준비: Unity Hub Android 모듈 경로 수정과 환경 확인 기록만 포함한다.

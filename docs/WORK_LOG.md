@@ -2589,3 +2589,10 @@
 - iOS Unity Player의 B session에 A session 메시지를 Swift C ABI callback 입력과 동일한 C# callback 경로로 합성 주입하고 버퍼 해제 후 폐기 여부를 확인한다. 실제 APNs callback이 아니며 새 Simulator·DB를 사용한다. 실행 전 기록을 커밋한다.
 - iOS 실제 Simulator Player에서 test-only 합성 A session 메시지를 B의 C ABI callback 수신 경로에 주입하고 입력 버퍼를 즉시 해제한 뒤 ignored counter 증가·구독자 미전달을 확인했다 (`artifacts/unity-ios-push-213zsmr5`, exit 0). 기존 Mock push/background/test TCP 재연결 실패·session 전환도 통과. 실제 APNs 지연 callback은 아니다.
 - iOS evidence에 최신 source Player의 C# callback 수신 메서드 합성 입력·즉시 버퍼 해제·이전 session 폐기 및 test-only scope를 추가했다. 커밋 준비: 원시 로그·키·DB·Simulator 산출물은 제외한다.
+### PX-T17 Push/Lifecycle 결과 및 문서 감사 시작
+- Android/iOS 실제 Unity Player의 LOCAL_MOCK 시험별 PASS, test-only fault·합성 callback·수동 안내 및 미실행 실제 제공자/실기기 범위를 README, FEATURE_MATRIX, FINAL_REPORT 및 evidence에 정리한다. 과거 결과와 source SHA를 보존한다.
+- 현재 Push/Lifecycle 결과를 주요 문서와 플랫폼별 matrix에 반영했다. Android/iOS Player 실험, force-stop 별도 실행, 합성 callback 및 iOS test proxy 범위를 분리하고 FCM/APNs·실기기 미실행을 유지했다.
+- BUG-014/015 및 FINAL_REPORT의 오래된 Unity Player 미검증 표현을 Android emulator/iOS Simulator local-mock PASS 범위로 정정했다. 실제 기기·FCM/APNs·다른 모드는 미검증이므로 OPEN 유지한다.
+- evidence 내 선행 시험의 시점별 NOT_RUN과 후속 PASS가 충돌하지 않도록 과거 범위임을 명시했다. 각 시험 source SHA·실행 결과 및 실제 FCM/APNs 미검증은 보존했다.
+- FEATURE_MATRIX의 push 등록/수신·pending 복구 행 및 USER_SETUP의 오래된 Unity push 미검증 문구를 현재 범위로 정정했다. 실제 알림 클릭·원격 전송·실기기는 PASS로 표시하지 않았다.
+- `python3 scripts/verify-progress.py`, 네 runner `py_compile`, cache/ADB 안전 단위 총 4건 및 `git diff --check` 종료 0. 커밋 준비: README·FEATURE_MATRIX·FINAL_REPORT·USER_SETUP·PROGRESS·WORK_LOG·플랫폼 evidence만 포함한다. Unity Runtime CI 전체 gate 및 실제 FCM/APNs는 성공으로 변경하지 않는다.

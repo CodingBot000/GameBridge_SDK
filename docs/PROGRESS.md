@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: PX-T07 / Unity iOS LOCAL_MOCK E2E 통과 후 결과 정리
+- 현재 Phase / Task: PX-T17 / Unity Android·iOS LOCAL_MOCK Push/Lifecycle 결과 정리
 - 마지막 갱신 시각: 2026-11-12 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 8732333 (Unity iOS LOCAL_MOCK E2E PASS; 실제 Apple 제공자·스토어 미검증)
+- 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: PX-T07 증거·문서를 정리하고 Apple 로그인·실제 스토어·APNs·Unity push/lifecycle을 별도 미검증으로 유지
+- 바로 다음 행동: Push/Lifecycle 증거와 미검증 범위를 정리하고 실제 기기·Google/Apple 인증·스토어·FCM/APNs는 별도 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -104,8 +104,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | USER-PUSH-CONCURRENCY | USER | P06-T04 | 기본 동시 1건 사용자 선택 | scheduler 설정·검증 진행 | 실제 원격 발송은 별도 | RESOLVED |
 | USER-CONFIG-TTL | USER | P07-T01 | 기본 유효기간 5분 사용자 선택 | 서버 설정·local-mock 통합 진행 | 실제 플랫폼 검증은 별도 | RESOLVED |
 | BUG-016 | BUG | P04-T04, P09-T03 | Native 실제 Provider의 profile 확인 이후 요청 401에서 refresh 누락 | Android/iOS 단일 refresh·1회 재시도 및 proof idempotency 유지 구현 | fake 동시 요청·계정 변경·반복 401·증빙 멱등키 검증 | RESOLVED |
-| BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring의 Unity 공개 조회 구현 및 fake 확인; 실제 Unity player 미검증 | Native typed snapshot과 C# 제한 검사 유지 | 실제 Unity player에서 Native 진단 경계·redaction 확인 | OPEN |
-| BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과; Unity player·재연결 실제 수명주기 미검증 | 인증·소유권·heartbeat 회귀 유지 | Unity player 전달 및 lifecycle 검증 | OPEN |
+| BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring의 Unity 공개 조회: Android 및 iOS Simulator LOCAL_MOCK Player 확인 | Native typed snapshot과 C# 제한 검사 유지 | 다른 모드·실제 기기 redaction 별도 | OPEN |
+| BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle 확인 | 인증·소유권·heartbeat 회귀 유지 | 실제 기기·FCM/APNs 및 iOS OS 전체 네트워크 차단 별도 | OPEN |
 | BUG-013 | BUG | P05-T03, P05-T07 | XCODE_STOREKIT iOS 18.6 local DB 및 프로세스 재시작 복구 PASS; Unity·실기기 미검증 | 전용 DB fake 지급과 분리 검증 유지 | Unity player·실기기 및 iOS 26.5 실패 재검증 | OPEN |
 | BUG-012 | BUG | P04-T04, P10-T02 | Unity가 Native logout의 REVOCATION_UNCONFIRMED를 버려 서버 revoke 불확실성 표시 불가 | 허용된 값만 오류에 보존 | Native/C# fake logout 및 redaction 확인 | RESOLVED |
 | BUG-011 | BUG | P08-T01 | Firebase optional dependency가 없는 독립 R8 consumer에서 missing class 실패 | 선택적 runtime 경계 및 consumer shrink 규칙 보강 | Firebase 없는 R8 build와 debug emulator CONFIG_REQUIRED 확인 | RESOLVED |
@@ -140,8 +140,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | IMPORT:PASS / TEST:NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | N/A |
 | 인증 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | WAITING_USER |
 | 결제 | BUILD:PASS / MOCK:PARTIAL | BUILD:PASS / MOCK:PARTIAL / STOREKIT_LOCAL:FAIL | NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | WAITING_USER |
-| 푸시 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 세션·복구 | EMULATOR:PARTIAL | SIMULATOR:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
+| 푸시 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | WAITING_USER |
+| 세션·복구 | EMULATOR:PARTIAL | SIMULATOR:PARTIAL | NOT_RUN | LOCAL_MOCK_RESTART:PASS | SIM_LOCAL_MOCK_RESTART:PASS | WAITING_USER |
 | 배포·신규 소비 | MAVEN_CONSUMER:PASS | XCFRAMEWORK_CONSUMER:PASS | UPM_IMPORT:PASS | IL2CPP:PASS | SIM_IL2CPP:PASS | N/A |
 
 각 칸은 가능한 경우 `BUILD:PASS / RUN:WAITING_USER`처럼 분리한다. “Android 완료” 한마디로 Native standalone과 Unity Android를 합치지 않는다.
@@ -149,8 +149,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 ## 완료/미완료 요약
 
 - 일부 계약·빌드·가짜 Provider·로컬 DB 회귀 및 독립 패키지 소비 검증 통과. 개별 범위와 명령은 WORK_LOG 참조.
-- Unity Android 및 iOS Simulator LOCAL_MOCK 인증·구매는 통과했으나 실제 플랫폼·실기기·푸시·복구 전체 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
-- 내부 미완료: Xcode StoreKit 실제 기기 및 Unity 복구 검증, Mock 푸시의 실제 Unity 전달 검증, Android LOCAL_MOCK 외 Native 진단의 Unity 검증. BUG-009 실제 기기 재시작 검증도 미완료.
+- Unity Android 및 iOS Simulator LOCAL_MOCK 인증·구매·푸시/lifecycle 및 별도 프로세스 재시작 복구는 통과했으나 실제 플랫폼·실기기·원격 푸시·복구 전체 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
+- 내부 미완료: Xcode StoreKit 실제 기기 및 Unity 복구 검증, 실제 기기의 Unity push/lifecycle 검증, LOCAL_MOCK 외 Native 진단의 Unity 검증. BUG-009 실제 기기 재시작 검증도 미완료.
 - 환경 대기: 계획된 Unity 6.3 LTS 및 Unity iOS 등 잔여 환경, StoreKit local simulator 실패. P09 하네스에는 미구현·부분 시나리오가 남아 전체 검증은 실패 상태.
 - 범위 제외: Windows/C++·Unreal/Godot·구독·환불 자동화·RTDN/Server Notifications 운영·관리자 웹·Kubernetes·상용 배포.
 
@@ -472,3 +472,13 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T16 iOS Unity Simulator 합성 지연 callback·session 검증 시작: 새 Simulator/DB와 local ad-hoc, exact-version cache 사용. 실제 결과는 NOT_RUN이다.
 - PX-T16 iOS Unity Simulator 합성 지연 callback 폐기 PASS (`artifacts/unity-ios-push-213zsmr5`, exit 0): 이전 session C# callback 입력 버퍼를 즉시 해제한 뒤 Unity 큐가 폐기했다. 실제 APNs의 지연 전송은 아니다. 같은 실행의 기존 Push/Lifecycle도 통과했다.
 - PX-T16 iOS 실제 Player의 합성 이전-session callback 주입 결과와 Swift/APNs 비해당 한계를 공개 evidence에 기록했다. Android/iOS 공통 product 소스는 변경하지 않았다. 커밋 준비.
+- PX-T17 최종 범위·문서 감사 시작: Android/iOS Player의 각 Push/Lifecycle·강제 종료·재연결·합성 늦은 callback 및 인증/구매 회귀 결과를 별도 source와 함께 정리한다. 실제 원격 푸시·실기기와 혼동하지 않는다.
+
+### 추가 Task PX-T08~PX-T17 — Unity LOCAL_MOCK Push/Lifecycle
+
+Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·background/foreground·연결 복구·session 전환·해제/로그아웃 및 별도 process 종료/pending 복구가 PASS했다. 지연 이벤트는 test-only 합성 callback 주입으로만 검증했다. iOS 연결 차단은 test-only TCP proxy이며 OS 전체 네트워크 차단이 아니다. 실제 FCM/APNs, 실기기 및 실제 원격 지연 callback은 NOT_RUN. [Android evidence](evidence/px-t08-unity-android-mock-push.md), [iOS evidence](evidence/px-t12-unity-ios-mock-push.md).
+- PX-T17 README·FEATURE_MATRIX·FINAL_REPORT와 플랫폼 매트릭스에 Android/iOS Unity LOCAL_MOCK Push/Lifecycle 및 별도 restart/pending 시험을 반영했다. 합성 지연 callback·iOS TCP fault와 실제 원격/실기기 미검증을 명시한다.
+- PX-T17 BUG-014/015의 오래된 Unity 전체 미검증 문구를 실제 local-mock Player 통과 범위와 실기기/외부 미검증으로 갱신했다. 두 항목의 전체 범위는 OPEN 유지한다.
+- PX-T17 플랫폼 evidence의 과거 NOT_RUN 표현을 해당 시험 시점의 범위로 명확히 바꾸고 후속 실제 결과를 가리키도록 정리했다. 각 source 결과는 변경하지 않았다.
+- PX-T17 기능 matrix 세부 Push·복구 행과 USER_SETUP의 과거 Unity Push 미검증 표현을 현재 LOCAL_MOCK Player 증거로 정정했다. 실제 알림 클릭·원격 전송·실기기는 미검증이다.
+- PX-T17 최종 문서·원장 검사 PASS. 플랫폼별 실제 Player PASS, 합성 지연 callback 및 iOS test-only TCP fault 한계, 실기기·실제 원격 제공자 NOT_RUN을 유지하며 커밋 준비한다. 자동 push하지 않는다.

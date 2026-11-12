@@ -19,8 +19,8 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 | 항목 | 상태 및 영향 |
 |---|---|
 | BUG-013 | XCODE_STOREKIT 격리 fake 서버 지급 및 Native/Unity bridge를 구현했다. iOS 18.6 상품 조회와 일회성 synthetic 지급·finish를 확인했으나, 추가 시험에서 동일 미완료 거래의 JWS가 바뀌어 중복 지급 위험을 발견했다. 완료 후 연속 구매의 고정 필드는 한 시험에서 구분됐지만 재시작 복구의 유일성은 미확인이다. iOS 18 이상과 host 소모품 이력 설정, 거래 후보 단일성 및 durable attempt를 요구하도록 보강했다. local DB 응답 유실과 Keychain 인스턴스 재생성 복구는 통과했으며 전용 iOS 18.6 simulator 앱 재시작 시험에서 journal 재생성 실패를 재현한 뒤 중복 거래 방지 수정으로 재시험 PASS (`artifacts/xcode-process-recovery-f_w2fsya`). 실제 기기·Unity 실행은 미검증이다. iOS 26.5 StoreKit 시험은 Code 3으로 실패했다. |
-| BUG-014 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과했다. Unity player와 실제 기기 lifecycle은 미검증이다. |
-| BUG-015 | Native 진단 ring의 Unity 비동기 조회는 Android LOCAL_MOCK Player에서 확인했다. iOS 및 다른 모드는 미검증이다. |
+| BUG-014 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle을 확인했다. 실제 기기·FCM/APNs와 iOS OS 전체 네트워크 차단은 미검증이다. |
+| BUG-015 | Native 진단 ring의 Unity 비동기 조회는 Android 및 iOS Simulator LOCAL_MOCK Player에서 확인했다. 다른 모드와 실제 기기는 미검증이다. |
 | BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |
 | P09 | 6개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor runner는 구현했으나 실행 결과가 없다. strict 전체 gate는 성공이 아니다. |
 
@@ -66,3 +66,5 @@ P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912
 2026-11-12 최신 Android Maven·iOS XCFramework·UPM staging은 `f1e12b6` 제품 소스로 새로 생성했다. UPM 110개 파일 checksum, Android 독립 R8 consumer, iOS arch/C ABI 및 0.1.0-dev 버전을 확인했다. Unity Android Player E2E는 source `c58b4a6`의 clean tracked tree와 동일한 staged Unity SDK 소스로 실행해 PASS했으며 첫 전체화면 안내는 수동으로 닫았다. 실제 Google 로그인·스토어 및 Unity iOS는 NOT_RUN이다.
 
 2026-11-12 Unity iOS 18.6 Simulator ARM64에서 Unity C# → Swift C ABI → LOCAL_MOCK Backend/PostgreSQL 전체 흐름이 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). 무서명 실행은 로그인에서 실패했고 성공 실행은 로컬 ad-hoc Simulator 서명을 사용했다. 실제 Apple 로그인·스토어 결제·APNs 및 실기기는 미검증이다.
+
+2026-11-12 Unity Android emulator 및 iOS Simulator에서 LOCAL_MOCK Push 등록·수신·중복 억제·main-thread·background/foreground·연결 복구·A→B 세션 전환 및 별도 process 종료/pending 복구를 검증했다 ([Android](evidence/px-t08-unity-android-mock-push.md), [iOS](evidence/px-t12-unity-ios-mock-push.md)). 늦은 이전-session callback은 test-only 합성 주입이며 iOS 연결 단절은 test-only TCP proxy로 재현했다. 실제 FCM/APNs, 실제 기기 및 실제 원격 지연 callback은 NOT_RUN이다. Android/iOS 인증·구매 LOCAL_MOCK Player 회귀도 별도 source에서 각각 PASS했다.

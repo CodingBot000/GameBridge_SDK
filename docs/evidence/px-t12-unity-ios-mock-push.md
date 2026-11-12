@@ -14,7 +14,7 @@
 - 소스 `0b105c3dfbf2681e6c3225fe9a332b5b13d805f3`, 실행 당시 tracked-clean. `harness/run-unity-ios-mock-restart-e2e.py --run-local --staging <staging> --package-cache <동일 버전 cache>` 전용 iOS 18.6 ARM64 Simulator 실행 exit 0, `artifacts/unity-ios-restart-vidqoa21/result.json` PASS.
 - test-only loopback proxy가 서버의 최초 구매 검증 200 commit 응답을 503으로 바꿨다. Unity 앱을 Simulator에서 terminate/relaunch하고 서로 다른 PID, 세션 복원, pending 1회 복구·재sync 0건, DB 원장 1건·100코인 및 Unity main-thread를 확인했다. 단순 background 전환과 다른 시험이다.
 - UnityFramework binary SHA-256 `36e6da9a02d0c49ea7bd6baa0865ed0181f5235ca6388d2308d0ea8061a29225`. Simulator 로컬 ad-hoc 및 exact-version embedded package cache를 사용했다.
-- 임의 지연 Native callback 및 재연결 실패 명시적 주입, 실제 Apple 로그인·StoreKit·APNs와 실기기는 여전히 NOT_RUN이다.
+- 이 시험에는 임의 지연 callback 및 재연결 실패 주입이 포함되지 않았다. 후속 시험은 아래에 기록한다. 실제 Apple 로그인·StoreKit·APNs와 실기기는 NOT_RUN이다.
 
 ## 재연결 실패 주입 추가 시험
 

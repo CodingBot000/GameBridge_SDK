@@ -359,6 +359,6 @@ Runner와 exporter의 문법·오프라인 입력 검증은 GitHub Actions의 Li
 
 ### Unity iOS Simulator LOCAL_MOCK (PX-T07)
 
-Unity 6000.5.8f1, Xcode 26.6 및 iOS 18.6 ARM64 Simulator에서 전용 local-mock 전체 경로가 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging <UPM staging 절대경로>`는 신규 Simulator·로컬 DB를 만들고 보존한다. 무서명 시도는 로그인 INTERNAL_ERROR였고 성공 시험에는 Apple 계정이나 개인키가 필요 없는 Simulator 로컬 ad-hoc 서명을 사용했다. 테스트 앱의 ATS는 loopback만 허용한다. 실제 Apple 로그인, App Store 결제, APNs, Unity push/lifecycle 및 실제 기기 검증은 별도 NOT_RUN이다.
+Unity 6000.5.8f1, Xcode 26.6 및 iOS 18.6 ARM64 Simulator에서 전용 local-mock 전체 경로가 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging <UPM staging 절대경로>`는 신규 Simulator·로컬 DB를 만들고 보존한다. 무서명 시도는 로그인 INTERNAL_ERROR였고 성공 시험에는 Apple 계정이나 개인키가 필요 없는 Simulator 로컬 ad-hoc 서명을 사용했다. 테스트 앱의 ATS는 loopback만 허용한다. Unity Android emulator와 iOS Simulator의 LOCAL_MOCK push/lifecycle은 별도 검증했다 ([Android](evidence/px-t08-unity-android-mock-push.md), [iOS](evidence/px-t12-unity-ios-mock-push.md)). 실제 Apple 로그인, App Store 결제, APNs 및 실제 기기 검증은 별도 NOT_RUN이다.
 
 PX-T07의 최초 전용 Simulator 시도에서 Unity Mobile Notifications 패키지의 기본 프로젝트 설정이 시작 시 권한 창을 표시했다. 최종 테스트 소비 앱은 plist의 자동 알림 권한 요청 설정을 끈 뒤 별도의 사용자 UI 조작 없이 통과했다. 이는 테스트 앱 설정이며, 실제 host는 Unity Notifications 설정과 AppDelegate/권한 요청 정책을 직접 확인해야 한다. APNs 검증은 아니다.

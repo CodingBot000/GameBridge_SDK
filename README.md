@@ -34,7 +34,7 @@ Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시
 
 ## 로컬 회귀 집계
 
-`bash scripts/verify-all.sh --available` 또는 `--strict-local`은 실제 실행한 suite, 필수 미실행·미구현·기존 실패, 외부 설정 대기를 구분해 `artifacts/verify-all-*`에 기록합니다. 격리 DB와 local server가 필요한 lane은 명시적인 test 환경 설정이 없으면 건너뛰며, 전체 성공으로 처리하지 않습니다. Mock push의 Backend→Native local DB 시험은 통과했으며 Unity runtime 전체 경로는 미완료입니다.
+`bash scripts/verify-all.sh --available` 또는 `--strict-local`은 실제 실행한 suite, 필수 미실행·미구현·기존 실패, 외부 설정 대기를 구분해 `artifacts/verify-all-*`에 기록합니다. 격리 DB와 local server가 필요한 lane은 명시적인 test 환경 설정이 없으면 건너뛰며, 전체 성공으로 처리하지 않습니다. LOCAL_MOCK Push는 Unity Android 에뮬레이터와 iOS Simulator에서 등록·수신·중복·lifecycle·세션 전환·연결 복구를 검증했습니다. 실제 FCM/APNs와 실기기는 미검증입니다.
 
 ### Unity Android LOCAL_MOCK 통합 확인 준비
 
@@ -48,3 +48,5 @@ Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시
 Android Native-only 재실행기는 harness/run-android-mock-bridge-e2e.py로, 기존 고정된 adb/에뮬레이터/DB 경로를 환경변수나 실행 옵션으로 변경할 수 있다. 다만 해당 수정본 재실행은 아직 NOT_RUN이다. 실제 PASS를 확보한 뒤 검증 증거의 민감정보를 제거하고 커밋하려면 harness/export-mock-e2e-evidence.py를 사용한다. 원본 로그·APK·로컬 DB는 Git에 올리지 않는다.
 
 Unity iOS Simulator의 LOCAL_MOCK 전체 흐름과 로컬 ad-hoc 서명 범위는 [검증 증거](docs/evidence/px-t07-unity-ios-local-mock.md)를 참조하세요. 실제 Apple 로그인·App Store 결제·APNs는 검증하지 않았습니다.
+
+Unity LOCAL_MOCK Push/Lifecycle의 실제 Player 검증 범위는 [Android evidence](docs/evidence/px-t08-unity-android-mock-push.md)와 [iOS evidence](docs/evidence/px-t12-unity-ios-mock-push.md)에 있습니다. 프로세스 종료/pending은 별도 시험이며 지연 callback은 합성 주입입니다. iOS 연결 차단은 테스트 TCP 경로에 한정됩니다.

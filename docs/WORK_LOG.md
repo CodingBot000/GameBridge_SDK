@@ -2498,3 +2498,4 @@
 - `tests/UnityAndroidPushConsumer/MockPlayerScenario.cs`는 실제 Unity SDK API 및 PushReceived를 사용하고 synthetic key는 실행 시 intent로만 받는다. callback의 main-thread·중복·해제 후 이벤트를 검사하며 실제 FCM은 사용하지 않는다. 기기 실행 전이다.
 - Unity 6000.5.8f1 managed reference의 `UNITY_ANDROID` 조건에서 푸시 시나리오 compile 종료 0, 경고·오류 0. Player 실행이 아니므로 Push PASS로 기록하지 않는다. 기존 Android E2E의 전용 기기·DB 안전검사를 재사용하는 runner를 작성한다.
 - `harness/run-unity-android-mock-push-e2e.py`는 기존 전용 AVD/DB·staging 검사를 재사용해 합성 발송 3회, Unity 수신 중복 제거/메인 스레드, unregister 후 403·DB token 삭제를 확인한다. background/network/restart는 명시적으로 NOT_RUN이며 실제 FCM이 아니다. `python3 -m py_compile` 종료 0. 커밋 준비: 테스트 코드와 현 상태만 저장한다.
+- 전용 AVD와 DB를 신규 생성해 `harness/run-unity-android-mock-push-e2e.py --run-local`을 실행한다. 기존 AVD·앱·데이터는 수정하지 않는다. 실행 전 이 기록을 커밋한다.

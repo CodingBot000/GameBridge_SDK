@@ -797,3 +797,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T03 실제 Unity Android Gradle export hook 반복 PASS (`artifacts/unity-android-mock.mri8OM`): 자동 hook 뒤 2회 재호출 시 Gradle 설정·복사된 Maven 파일 hash 동일. APK/Player는 별도다.
 - P08-T03 실제 Android/iOS export hook 반복 검증 결과를 CI·패키징 문서에 연결한다. Git source와 Native binary 포함 staging을 명확히 구분하며 GUI/실 provider 상태는 그대로 둔다.
 - 실제 Unity export hook Android/iOS 각 2회 반복 PASS 증거 작성, CI gate 연결. CI 음성 6건·shell/원장/diff PASS; 변경된 전체 gate 및 GitHub Actions는 NOT_RUN. 커밋 준비.
+- P09-T08 Unity CI mock gate가 sample 및 양 export hook 실행을 빠뜨리지 않는지 음성 방지 시험을 보강한다.
+- CI mock gate의 sample·Android/iOS hook 호출 및 strict 실패 전파 포함 단위 6건 PASS, 원장/diff PASS. 실제 새 gate 전체는 NOT_RUN, 커밋 준비.

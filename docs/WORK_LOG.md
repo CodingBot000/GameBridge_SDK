@@ -2964,3 +2964,6 @@
 - `smoke-unity-android-hook-repeat.sh` exit 0 (`artifacts/unity-android-mock.mri8OM`): staged UPM의 실제 Unity Android Gradle export 후 hook 2회 재호출 시 settings/build.gradle 및 Maven payload hash가 초기/1회/2회 동일했다. APK/Player는 별도 결과다.
 - 두 실제 Unity export hook 반복 검증을 self-hosted CI gate에 연결하고 README의 과거 Unity 미검증·source/staging 구분 누락을 정정한다. 전체 gate 재실행 전이며 실제 provider는 별도다.
 - Android/iOS 실제 export hook 반복 hash 증거 `docs/evidence/p08-export-hooks.md` 작성. CI gate 음성 6건/skip0, shell·원장·diff PASS. 새 gate 전체 및 GitHub Actions는 NOT_RUN이며 커밋 전: hook 테스트/runner·CI·패키징 문서만 포함한다.
+### P09-T08 CI 필수 sample/hook 호출 검증 시작
+- self-hosted gate에 새로 연결한 sample 및 Android/iOS export hook이 실제 순서에서 호출되는지 mock command fixture에 assertion을 추가한다. Unity 실제 hook 시험은 별도 증거다.
+- `test_ci_gate.py` 6건 PASS/skip0: mock gate에서 Editor·sample·양 hook·isolated strict 호출과 실패 전파 확인. 원장/diff PASS; 실제 새 전체 gate 및 GitHub Actions는 NOT_RUN. 커밋 전: fixture·기록만 포함한다.

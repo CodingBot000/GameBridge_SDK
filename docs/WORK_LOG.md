@@ -2586,3 +2586,4 @@
 - Android Unity Player의 B session에서 A session 합성 메시지를 Android callback queue에 주입하고 무시되는지 확인한다. 새로운 전용 AVD/DB에서 기존 Push/Lifecycle도 재검증하며 시작 기록을 커밋한다.
 - Android 실제 Player에서 test-only로 이전 A session 메시지를 B의 Android transport callback 메서드/큐에 지연 합성 주입하고 ignored counter 증가·구독자 미전달을 확인했다 (`artifacts/unity-android-push-3n9bo6qw`, exit 0). 기존 Mock push/background/network/session도 통과, 최초 전체화면 안내는 수동으로 닫았다. 합성 메서드 호출이므로 실제 JNI/FCM 지연 발생을 의미하지 않는다.
 - Android evidence에 최신 source의 Player test-only 지연 callback 주입 PASS, 제한된 회귀 범위 및 합성 주입/JNI 차이를 추가했다. 커밋 준비: 원본 로그·APK·DB 제외.
+- iOS Unity Player의 B session에 A session 메시지를 Swift C ABI callback 입력과 동일한 C# callback 경로로 합성 주입하고 버퍼 해제 후 폐기 여부를 확인한다. 실제 APNs callback이 아니며 새 Simulator·DB를 사용한다. 실행 전 기록을 커밋한다.

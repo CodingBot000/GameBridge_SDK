@@ -20,3 +20,10 @@
 - 테스트 전용 loopback proxy가 서버의 최초 구매 검증 성공 응답을 503으로 바꾼 뒤 서버 원장 1건·100코인을 확인했다. Unity 앱을 force-stop하고 서로 다른 프로세스로 재실행해 세션 복원, pending 1회 복구, 두 번째 sync의 pending 0건, 원장 불변과 Unity 메인 스레드를 확인했다. 단순 background 전환과 별도 시험이다.
 - APK SHA-256 `56af04cd869115f80907f7009b67c20c6dfa4273d9d1edc798f33ebf8448c13c`. 전용 AVD의 최초 전체화면 안내는 수동으로 닫았다. 실제 Play Billing 거래 또는 오프라인 원격 푸시를 뜻하지 않는다.
 - 세션 변경·늦은 callback 주입, 재연결 실패 검증과 iOS Player, 실제 FCM/APNs는 별도 미완료다.
+
+## A→B 세션 전환 추가 시험
+
+- 소스 `817de08732c3534e156fbb8cf3d4f9ae05724b60`, tracked-clean. 확장된 동일 Runner의 새 전용 Android 36 AVD 실행 exit 0, `artifacts/unity-android-push-h9oyrtjy/result.json` PASS.
+- A 로그아웃 후 Unity SDK를 종료하고 B로 재초기화해 같은 설치를 등록했다. 이전 A 사용자 발송은 403으로 거부됐고 B 사용자의 Mock 이벤트는 메인 스레드에서 한 번 전달됐다. 테스트 중 이전 메시지의 재유입은 관측되지 않았다. 등록 해제·로그아웃 후 DB token row는 0개다.
+- 기본 등록/중복, background/foreground, 오프라인 미전달·재연결 후 수신도 새 코드에서 다시 통과했다. 전용 AVD의 첫 전체화면 안내는 수동으로 닫았다. APK SHA-256 `c6de2d9341c17e727570c4ae3be9f6fbb44c380338fa7e2dd8ec6ad3d5979995`.
+- 임의 지연 Native callback과 재연결 실패의 명시적 주입, iOS Player 및 실제 FCM/APNs는 이 시험으로 증명하지 않는다.

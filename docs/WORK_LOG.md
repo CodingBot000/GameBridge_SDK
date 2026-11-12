@@ -2522,3 +2522,5 @@
 - 동일 설치의 새 B session에서 이전 A 소유권 발송 403, B Mock 이벤트 및 main-thread·중복·이전 이벤트 미수신을 검증하도록 test/runner를 확장했다. API 제한을 지키도록 재발송 횟수도 조정했다.
 - Android Push scenario managed reference compile 경고·오류 0, runner Python 문법 PASS. 커밋 준비: 세션 A→B 및 늦은 이벤트 관측 test와 미검증 상태를 기록한다.
 - Android Player에서 A→B 전환을 포함한 등록/중복/background/network/로그아웃 경로를 새 전용 AVD와 DB로 재검증한다. 시작 기록을 커밋한다.
+- `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본 새 AVD 실행 종료 0 (`artifacts/unity-android-push-h9oyrtjy`): Unity Player의 Mock 등록·중복·main-thread, background/foreground, offline drop·복구, A 로그아웃 후 B 등록, 이전 A 소유권 발송 403, B 단일 수신 및 이전 이벤트 미관측 통과. 전용 AVD 첫 전체화면 안내는 수동으로 닫았다. 임의 지연 callback 및 재연결 실패 자체의 주입·iOS·실 FCM은 미검증이다.
+- Android 공개 evidence에 새 source의 A→B 전환·이전 소유권 403·B 이벤트·기존 lifecycle/network 회귀 결과를 추가했다. 커밋 준비: 원본 로그·APK·DB를 제외하고 사실 확인된 범위만 기록한다.

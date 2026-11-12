@@ -470,3 +470,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T16 Android Unity Player 합성 지연 callback 폐기 PASS (`artifacts/unity-android-push-3n9bo6qw`, exit 0): B 활성 후 A session 메시지를 Android callback 큐 경로에 합성 주입해 무시됨을 확인했다. 실제 FCM/JNI 지연 전달로 주장하지 않는다. iOS 동일 검증은 NOT_RUN이다.
 - PX-T16 Android Player 합성 이전-session callback 시험 범위와 JNI/FCM 비해당 한계를 공개 evidence에 기록했다. iOS 같은 검증은 NOT_RUN이며 커밋 후 실행한다.
 - PX-T16 iOS Unity Simulator 합성 지연 callback·session 검증 시작: 새 Simulator/DB와 local ad-hoc, exact-version cache 사용. 실제 결과는 NOT_RUN이다.
+- PX-T16 iOS Unity Simulator 합성 지연 callback 폐기 PASS (`artifacts/unity-ios-push-213zsmr5`, exit 0): 이전 session C# callback 입력 버퍼를 즉시 해제한 뒤 Unity 큐가 폐기했다. 실제 APNs의 지연 전송은 아니다. 같은 실행의 기존 Push/Lifecycle도 통과했다.
+- PX-T16 iOS 실제 Player의 합성 이전-session callback 주입 결과와 Swift/APNs 비해당 한계를 공개 evidence에 기록했다. Android/iOS 공통 product 소스는 변경하지 않았다. 커밋 준비.

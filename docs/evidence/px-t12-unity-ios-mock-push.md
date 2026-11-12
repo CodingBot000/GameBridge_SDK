@@ -25,3 +25,10 @@
 ## 기존 인증·구매 회귀
 
 소스 `90311242becb02c649eea29844237875d3a0b8cd`, tracked-clean에서 기존 Unity iOS LOCAL_MOCK 인증·구매 전체 Runner를 새 전용 iOS 18.6 Simulator·DB로 재실행해 exit 0, `artifacts/unity-ios-e2e-zizcrlvt/result.json` PASS. local ad-hoc Simulator signing 및 exact-version embedded Unity package cache를 사용했다. 실제 Apple 로그인·StoreKit 결제는 미실행이다.
+
+## 지연된 이전 세션 callback 합성 주입
+
+- 소스 `be7bfea066519ad79dcdb766289a6e3c49296a24`, tracked-clean. 새 전용 iOS 18.6 ARM64 Simulator의 확장 Push Runner exit 0 (`artifacts/unity-ios-push-213zsmr5/result.json`).
+- 실제 Unity Player의 B session 활성 후 테스트 코드가 A session 이벤트의 바이트를 비관리 메모리에 만들고 iOS transport의 C ABI callback 수신 메서드에 합성 주입했다. 즉시 원본 버퍼를 해제한 뒤 Unity 큐가 이전 session 이벤트를 폐기하고 ignored counter가 증가했음을 확인했다. Swift 또는 APNs가 실제로 지연 callback을 생성한 사례는 아니다.
+- 같은 실행에서 중복 억제·background/foreground·test proxy 재연결 거부 6회와 복구·세션 전환도 통과했다. local ad-hoc 및 exact-version embedded cache 사용. UnityFramework SHA-256 `45db40bcd75ce099e3e991ec2e288dff8ffec07db5182d89f1158d10b99feae6`.
+- timeout 후 늦은 응답과 dispose 뒤 메시지는 별도 managed 단위 시험으로 확인했다. 실제 APNs·실기기 및 OS 전체 네트워크 차단은 검증하지 않았다.

@@ -2642,3 +2642,7 @@
 - Android source `11dcde9`, tracked-clean 결과 PASS; iOS Simulator는 동일 기반에 당시 미커밋 `ios/Framework/project.yml`의 CBridge XCTest target을 추가한 working diff에서 test 1건 PASS. 커밋 준비: XcodeGen test-only target과 검증 기록을 저장하며 제품 SDK binary 변경은 없다.
 - `docs/evidence/r09-jni-cabi-utf8.md`에 Android tracked-clean 실 Player와 iOS Simulator 1건의 당시 test-only working diff를 명시했다. 새 `harness/run-r09-utf8.py`는 현재 source Android Player 및 iOS XCTest를 각각 새로 실행하고 성공·skip/marker를 검사한다. wrapper 전체 재실행은 아직 NOT_RUN이다. manifest 검사 시작.
 - `harness/check-manifest.py`, `harness/check-manifest-negative.py`, `scripts/verify-progress.py`, wrapper `py_compile` 종료 0. 커밋 준비: R09 evidence, 재현 runner, manifest 및 작업 이력만 포함한다.
+### P09 R43 iOS host delegate 및 Unity 전달 경계 시작
+- 기존 `PushHostTests.testSyntheticHostCallbacksAndCompletion`은 iOS Simulator에서 기존 delegate 보존과 completion 호출을 확인했으나 Unity host adapter 연결 자체는 검증하지 않았다. 별도 Unity iOS Player에서 synthetic iOSNotification을 host adapter에 전달해 Swift bridge 및 Unity callback을 검사한다. APNs 실제 원격 발송은 아니다.
+- 테스트 소비 앱은 synthetic `iOSNotificationPushTrigger`를 Unity host adapter에 전달하고 Swift bridge가 되돌린 `PushReceived` 이벤트의 단일 전달과 main-thread를 검증한다. SDK 또는 실제 APNs provider를 수정하지 않으며 실제 Player 실행 전이다.
+- iOS Runner Python 문법 검사 종료 0. 커밋 준비: test-only Unity host probe, 제한적인 linker 보존 설정 및 runner 옵션만 포함한다. 실행 결과는 아직 없다.

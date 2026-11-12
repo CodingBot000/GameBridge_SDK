@@ -8,7 +8,7 @@ STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
+    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
     out=Path(tempfile.mkdtemp(prefix='unity-ios-e2e-',dir=ROOT/'artifacts'))
     def run(cmd,**kw): return subprocess.run([str(x) for x in cmd],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,**kw)
     def must(cmd,label,**kw):
@@ -38,6 +38,10 @@ def main():
             cache_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(cache_module)
             try: result['embeddedCachedPackages']=cache_module.embed_cached_packages(args.package_cache.resolve(),project)
             except cache_module.common.GateError as error: raise RuntimeError(str(error)) from error
+        if args.host_callback_probe:
+            import shutil
+            shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
+            shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/link.xml',project/'Assets/link.xml')
         xcode=out/'xcode'
         exported=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],env=env,timeout=1200)
         (out/'unity-export.log').write_text(exported.stdout)
@@ -95,6 +99,7 @@ def main():
         text='\n'.join(markers)
         for step in STEPS:
             if f'GB_MOCK_STEP {step} PASS' not in text: raise RuntimeError('UNITY_STEP_MISSING_'+step)
+        if args.host_callback_probe and 'GB_MOCK_HOST_CALLBACK PASS' not in text: raise RuntimeError('HOST_CALLBACK_MARKER_MISSING')
         if 'GB_MOCK_MAIN_THREAD PASS' not in text: raise RuntimeError('UNITY_MAIN_THREAD_MISSING')
         for kind in ('INITIALIZE','AUTH','PURCHASE'):
             if not re.search(r'GB_MOCK_NATIVE kind='+kind+r' outcome=SUCCEEDED requestId=[0-9a-fA-F-]{36}',text): raise RuntimeError('NATIVE_DIAGNOSTIC_MISSING_'+kind)

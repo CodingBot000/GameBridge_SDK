@@ -523,3 +523,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R09 Android JNI Player 및 iOS Simulator C ABI 실측 모두 PASS. iOS Simulator test target 추가 당시 test-only project 설정이 미커밋이었으므로 명확히 기록하고 해당 target을 커밋한다. 재현 runner·manifest 연결은 별도다.
 - R09 Android 실제 Unity JNI 및 iOS Simulator C ABI의 UTF-8 복사·수명 실측을 evidence에 정리하고 IMPLEMENTED로 매핑했다. wrapper의 전체 재실행은 별도이며 실기기/원격 제공자는 미검증이다. manifest를 검증한다.
 - R09 manifest·누락 음성·원장 검사 및 wrapper 문법 PASS. 실제 Android JNI Player/iOS Simulator C ABI와 wrapper 미실행을区分해 커밋한다.
+- P09-T05/R43 iOS host delegate·Unity 전달 검증 시작: 기존 Simulator host delegate/completion 합성 시험과 Unity iOSHostAdapter→Swift bridge→Unity 이벤트를 별도로 대조한다. 실제 APNs 원격 수신은 제외한다.
+- R43 iOS Unity Player test-only host callback probe 및 runner 옵션 작성. 정상 Player 이벤트·중복 억제·main-thread 확인 전에는 PARTIAL 유지한다.
+- R43 host callback probe runner 문법 검사 PASS. Unity iOS Simulator Player 및 기존 host XCTest는 새 실행으로 검증한다. 수정 사항 커밋 준비.

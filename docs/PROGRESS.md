@@ -526,3 +526,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T05/R43 iOS host delegate·Unity 전달 검증 시작: 기존 Simulator host delegate/completion 합성 시험과 Unity iOSHostAdapter→Swift bridge→Unity 이벤트를 별도로 대조한다. 실제 APNs 원격 수신은 제외한다.
 - R43 iOS Unity Player test-only host callback probe 및 runner 옵션 작성. 정상 Player 이벤트·중복 억제·main-thread 확인 전에는 PARTIAL 유지한다.
 - R43 host callback probe runner 문법 검사 PASS. Unity iOS Simulator Player 및 기존 host XCTest는 새 실행으로 검증한다. 수정 사항 커밋 준비.
+- R43 Unity iOS Simulator synthetic host callback 실제 Player 검증 시작. 신규 Simulator·DB·local ad-hoc 및 격리 package cache 사용.

@@ -2646,3 +2646,4 @@
 - 기존 `PushHostTests.testSyntheticHostCallbacksAndCompletion`은 iOS Simulator에서 기존 delegate 보존과 completion 호출을 확인했으나 Unity host adapter 연결 자체는 검증하지 않았다. 별도 Unity iOS Player에서 synthetic iOSNotification을 host adapter에 전달해 Swift bridge 및 Unity callback을 검사한다. APNs 실제 원격 발송은 아니다.
 - 테스트 소비 앱은 synthetic `iOSNotificationPushTrigger`를 Unity host adapter에 전달하고 Swift bridge가 되돌린 `PushReceived` 이벤트의 단일 전달과 main-thread를 검증한다. SDK 또는 실제 APNs provider를 수정하지 않으며 실제 Player 실행 전이다.
 - iOS Runner Python 문법 검사 종료 0. 커밋 준비: test-only Unity host probe, 제한적인 linker 보존 설정 및 runner 옵션만 포함한다. 실행 결과는 아직 없다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe ...`를 새 Simulator/DB에서 실행한다. 실제 remote APNs가 아니다. 시작 기록을 커밋한다.

@@ -6,6 +6,14 @@ stage="${GAMEBRIDGE_UPM_STAGING:-}"; cache="${GAMEBRIDGE_UNITY_PACKAGE_CACHE:-}"
 if [[ -z "$stage" || ! -d "$stage/com.gamebridge.sdk" || -z "$cache" || ! -d "$cache" ]]; then echo 'DEFERRED_ENV: staged SDK and exact package cache required' >&2; exit 2; fi
 if ! command -v unity >/dev/null 2>&1; then echo 'DEFERRED_ENV: Unity CLI missing' >&2; exit 2; fi
 python3 "$root/harness/check-staging.py" "$stage"
+python3 - "$root" "$stage" <<'PYMATCH'
+import importlib.util,sys
+from pathlib import Path
+root,stage=map(Path,sys.argv[1:]);spec=importlib.util.spec_from_file_location('android_e2e',root/'harness/run-unity-android-mock-e2e.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+try: module.verify_staged_source_matches_checkout(stage)
+except module.GateError: raise SystemExit('FAIL: staged SDK source differs from checkout')
+print('Staged SDK source matches checkout')
+PYMATCH
 mkdir -p "$root/artifacts"; output="$(mktemp -d "$root/artifacts/offline-sample.XXXXXX")"; project="$output/project"
 mkdir -p "$project/Assets/Tests/Editor" "$project/Assets/Samples" "$project/Packages" "$project/ProjectSettings"
 cp -R "$stage/com.gamebridge.sdk" "$project/Packages/com.gamebridge.sdk"

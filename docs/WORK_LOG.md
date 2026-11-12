@@ -2829,3 +2829,6 @@
 - 새 staging의 Native payload 81개 파일은 f1e12b6 staging과 hash 일치, SDK source도 현재 checkout과 일치. 새 staging으로 Unity Offline Demo Editor 시험을 다시 수행한다.
 - `upm-offline-sample-current-20261112`로 격리 Unity Editor sample 시험 exit 0, 1건 PASS/skip0 (`artifacts/offline-sample.Tg04iK/results.xml`). 직전 f1e12b6 Native payload 81개와 byte 동일한 staging이며 Package Manager UI/실제 렌더링은 미검증이다. 구 staging 후보와 구분해 evidence를 수정한다.
 - `verify-progress.py`, `check-manifest.py`, `git diff --check` exit 0. 커밋 전: 올바른 staging hash·81개 Native byte 일치·새 Editor 결과와 이전 후보 차이만 기록한다. staging 바이너리/캐시는 커밋하지 않는다.
+- sample runner는 현재 staging 자체 checksum만 확인해 소스가 오래된 패키지도 실행할 수 있다. 기존 Android E2E와 같은 checkout 소스 일치 확인을 선행해 stale stage를 거부한다. Native artifact provenance는 별도로 기록한다.
+- `smoke-unity-offline-sample.sh`에 기존 `upm-v2-20261112-f1e12b6`를 제공한 음성 시험 exit 1, checksum 정상·source 불일치 거부. 의도된 검출이며 제품 실패가 아니다. 현재 stage로 양성 실행한다.
+- `upm-offline-sample-current-20261112`로 source 일치 검사 후 Unity Editor sample test exit 0, 1건 PASS/skip0 (`artifacts/offline-sample.k1uWmY/results.xml`). 커밋 전: stale stage 거부·재실행 증거만 포함한다. 실제 시각 QA는 아니다.

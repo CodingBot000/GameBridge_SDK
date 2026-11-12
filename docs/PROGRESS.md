@@ -680,3 +680,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 새 staging Native payload 81개 byte 동일·checkout 소스 일치 PASS. 이 staging의 Offline Demo Editor test를 재실행한다.
 - 올바른 Native payload staging에서 Offline Demo Unity Editor 재검증 1건 PASS/skip0 (`artifacts/offline-sample.Tg04iK/results.xml`). 이전 오래된 Native 후보와 구분해 증거·재개 경로를 수정한다.
 - 재패키징 증거·CI staging 경로 정정 후 원장·manifest·diff 검사 PASS. 이전 후보 오류를 보존하고 관련 기록만 커밋 준비한다.
+- P08-T04 sample runner의 staging 소스 일치 강제 시작: checksum만 맞는 오래된 패키지가 현재 checkout 테스트로 오인되지 않게 한다.
+- sample runner에 이전 stage 투입 음성 시험 exit 1: checksum이 정상이어도 checkout source 불일치를 거부했다. 의도된 음성 결과이며 새 stage 양성 시험을 실행한다.
+- 현재 source 일치 stage의 sample runner 양성 재실행 1건 PASS/skip0 (`artifacts/offline-sample.k1uWmY/results.xml`). 과거 stage 거부와 분리해 기록, 커밋 준비.

@@ -590,3 +590,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 managed smoke 첫 실행 컴파일 FAIL: JsonConvert namespace 누락(CS0103), 테스트 미실행. 정규화된 이름으로 수정해 재검증한다.
 - R22 managed registry 재시험 PASS: 합성 access/refresh token, purchase proof/receipt, push token이 typed 공개 결과로 나오지 않음을 확인. Player·전체 로그는 미검증이므로 R22 PARTIAL 유지. 커밋 준비.
 - P09-T06 현재 HEAD Unity Push 양 플랫폼 집계 실측 시작: 기존 앱 데이터를 보존해야 하므로 미사용 전용 Android AVD가 필요하다. 새 격리 기기와 iOS Simulator에서 같은 run의 실제 LOCAL_MOCK Player 결과를 확인한다. 외부 FCM/APNs는 미실행이다.
+- P09-T06 동일 실행 Unity Push 집계 PASS(2 Player): source f40f8d5, Android `artifacts/unity-android-push-0b67f62g`, iOS `artifacts/unity-ios-push-ejpifgez`, 양쪽 tracked-clean·필수 marker 확인. Android 최초 전체화면 안내 수동 처리; hosted CI/실제 FCM·APNs는 미검증.
+- 양 플랫폼 결과 파일 재확인 첫 호출은 작업 디렉터리 오타로 실행되지 않았다. 올바른 저장소 경로에서 재확인한다.
+- 양 result JSON 재확인: 두 Player PASS·동일 source f40f8d5·tracked-clean·token 0, iOS network는 LOCAL_TRANSPORT_FAULT로 구분. 사용한 테스트 기기 shutdown 완료, 삭제 없음. 증거·CI 문서 커밋 준비.

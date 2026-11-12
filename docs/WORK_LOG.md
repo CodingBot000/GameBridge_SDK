@@ -2718,3 +2718,6 @@
 ### P09-T06 Unity Push 동일 실행 실측 시작
 - `harness/run-unity-push-current.py` 양 플랫폼 실행을 검증한다. Android runner는 기존 테스트 앱 설치 기기를 거부하므로 별도 비어 있는 GameBridge_V2_ AVD가 필요하다. iOS runner도 독립 Simulator를 만든다. 현재 HEAD와 tracked-clean 조건을 지키기 위해 시작 기록을 먼저 커밋한 뒤 실행하고 이전 PASS는 재사용하지 않는다.
 - 커밋 전: 실측 시작 기록만 저장한다. 실제 Player 결과는 아직 NOT_RUN이다.
+- `GAMEBRIDGE_RUN_UNITY_PUSH_E2E=true ... python3 harness/run-unity-push-current.py` exit 0, 양 플랫폼 실제 Unity LOCAL_MOCK Player 2건 PASS. 소스 f40f8d5, tracked-clean; Android `artifacts/unity-android-push-0b67f62g`, iOS `artifacts/unity-ios-push-ejpifgez`. 중복·foreground/background·연결 복구·late callback·계정 전환·token 삭제와 marker를 각 runner 및 상위 gate가 확인했다. Android 신설 AVD 최초 전체화면 안내는 수동으로 닫았다. 이는 GitHub Actions·실제 FCM/APNs·실기기 검증이 아니다.
+- 결과 파일 요약 재확인 명령의 작업 디렉터리 오타로 프로세스가 시작되지 않았다. Player 통과 결과는 별도이며 올바른 경로로 재확인한다.
+- 양 result JSON의 source·tracked-clean·Player PASS·token 0 및 플랫폼별 network 범위를 재확인했다. 사용자 요청에 따라 실행 종료 후 테스트 iOS Simulator 2개 및 Android emulator를 shutdown했고 데이터는 삭제하지 않았다. 커밋 전: 공개 요약·진행 및 CI 문서만 포함, raw log·APK·DB는 제외.

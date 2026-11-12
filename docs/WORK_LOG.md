@@ -2868,3 +2868,6 @@
 - 재현 가능한 staged sample Editor 시험을 self-hosted Unity gate에 포함한다. 이 시험은 정확한 cache 패키지가 필요하므로 runner preflight에서 경로를 확인하며 미실행을 PASS로 바꾸지 않는다. GitHub Actions 실행은 별도다.
 - `bash -n scripts/ci-unity-e2e.sh`, `test_ci_gate.py` 4건 PASS. cache 미존재를 build 이전에 환경 대기로 분류하는 시험을 추가한다.
 - cache 경로 부재 등 `test_ci_gate.py` 5건 PASS/skip0, shell·원장·diff PASS. self-hosted 전체 및 GitHub Actions는 실행하지 않았다. 커밋 전: gate 연결·음성 검사·설정 문서만 포함.
+### P11-T03 최신 stage·strict 기준 정합성 시작
+- iOS sample asmdef 수정 이후 최신 staged UPM과 package cache를 체크포인트에 명시한다. strict 기존 결과가 새 asmdef 수정 이전 source와 당시 미커밋 test에서 실행됐다는 사실을 최종 보고서에 명시한다.
+- 현재 stage/cache 및 이전 strict source·dirty 범위를 명시하고 `verify-progress.py`, `git diff --check` PASS. 커밋 전: 재개 경로·보고서 정합성 기록만 포함한다.

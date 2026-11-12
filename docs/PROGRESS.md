@@ -10,6 +10,7 @@
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
+- 최신 로컬 UPM staging: `artifacts/upm-native-sample-fix-20261112`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 바로 다음 행동: R22 전체 로그·입력 변이 검증과 R40 OS 권한 자동 재현, 최신 strict의 Unity 포함 실행 및 GitHub Actions 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
@@ -712,3 +713,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 Unity self-hosted gate에 staged Offline/Native Editor sample 회귀 연결 시작: 정확한 패키지 cache를 명시적으로 요구하며 sample skip을 성공으로 처리하지 않는다.
 - CI sample gate 연결 후 shell 문법 및 기존 preflight 음성 4건 PASS. package cache 경로 누락의 직접 음성 검사를 추가한다.
 - CI preflight 음성 5건·shell/원장/diff PASS. self-hosted 전체 및 GitHub Actions 실행은 NOT_RUN이며 커밋 준비.
+- P11-T03 최신 staging·strict 소스 기준 정합성 확인 시작: 이후 재개 시 과거 staging을 최신 제품으로 사용하지 않도록 체크포인트를 갱신한다.
+- 현재 stage/cache와 strict 실행 source 명시 후 원장/diff 검사 PASS. 새 source의 strict 미실행은 별도로 유지하며 커밋 준비.

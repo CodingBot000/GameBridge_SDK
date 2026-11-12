@@ -2926,3 +2926,4 @@
 - 기존 Android/iOS Native Demo Player는 sample 파일을 직접 복사했고 Sample API import는 별도 Editor 시험이었다. 동일 격리 소비 프로젝트에서 실제 Sample API import 후 Native Player를 빌드·실행하는 경로로 연결한다. GUI 클릭·시각 QA 및 실제 provider는 별도다.
 - 양 Native Player runner가 sample을 직접 복사하지 않고 Unity Sample API import marker를 요구하도록 변경했다. Python/shell 구문 및 marker 단위 5건 PASS. importer는 실제 Player 실행 전이며 격리 artifacts 경로 보호를 추가한다.
 - Sample import helper의 artifacts 외부 consumer 거부 fixture 및 shell syntax PASS. 기존 사용자 프로젝트를 대상으로 하지 않으며 실제 양 플랫폼 Player 재실행은 아직 없다. 커밋 전: helper·runner 연결·기록만 포함한다.
+- 동일 신규 프로젝트의 Sample API import 이후 Native Demo iOS LOCAL_MOCK Player를 실행한다. 현재 source 기록을 먼저 커밋하며 결과는 미실행이다.

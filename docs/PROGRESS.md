@@ -770,3 +770,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T04 두 Player 결과의 staging manifest hash 동일, 두 source 사이 SDK/Native 제품 경로 diff 없음. Sample API 설치·Editor sample·각 플랫폼 export/build/Player 증거를 계획 산출물로 정리한다.
 - P08-T04 완료 기준의 격리 staged UPM·Sample API import·Editor mock flow·Android/iOS export/build/LOCAL_MOCK Player를 확인해 IMPLEMENTED/로컬 PASS로 갱신했다. GUI 포인터·시각 및 실제 provider 검증을 뜻하지 않는다.
 - P08-T04 상태·집계 변경 후 원장/음성/diff 검사 PASS. 실provider·시각 QA 구분과 부분 Task 범위를 명시해 커밋 준비.
+- P08-T03 Unity metadata 블로커 발견: SDK package 원본 `.meta` 0개, 새 consumer import 시 project별 GUID가 생성된다. 안정적 metadata 누락을 수정하고 기존 consumer·Demo는 보존한다.
+- Unity가 격리 package 및 Sample API import에서 생성한 metadata 37개가 원본 asset/폴더와 모두 대응됨을 확인했다. 이 Unity 생성 metadata를 원본에 고정하고 GUID 중복·누락 검사를 추가한다.
+- Unity 생성 metadata 37개를 원본에 고정했다. GUID 37개 유일성을 확인했으며 누락·중복·orphan 자동 검사 및 신규 프로젝트 간 안정성 검증은 아직 진행 전이다.
+- package metadata completeness/GUID checker PASS; 누락·중복·orphan·폴더 오류 음성 2건 PASS. 실제 신규 Unity import 간 GUID 안정성은 아직 NOT_RUN.
+- metadata 반영 staged UPM `artifacts/upm-stable-meta-20261113` 생성·147개 checksum/XCFramework 검증 PASS. 첫 신규 Unity import 및 sample 시험을 실행한다.
+- metadata stage 첫 독립 Unity Sample import·Editor flow 1건 PASS (`artifacts/offline-sample.S2hxOa`). 두 번째 새 프로젝트에서 다시 실행한다.
+- metadata stage 두 번째 신규 Unity Sample import·Editor flow 1건 PASS (`artifacts/offline-sample.McH39f`). 두 프로젝트의 실제 GUID를 원본과 대조한다.
+- 신규 Unity 두 프로젝트 GUID 비교 FAIL: 74개 중 4개 불일치가 Sample API가 새로 만드는 Offline/Native sample 최상위 폴더 GUID에 집중됐다. 내부 asset 70개 결과는 별도 검증하며 최상위 폴더 안정성은 미완료다.
+- package/sample 내부 asset GUID 70회 비교 불일치 0, Sample API 생성 최상위 폴더 GUID 4회 불일치 유지. metadata stage checksum 147개·Native payload 81개 동일성 PASS; 전체 metadata 안정성은 PARTIAL.
+- metadata 정적·음성·YAML·원장/diff 검사 PASS. Sample 최상위 폴더 GUID 불일치와 최신 Player 미실행을 PARTIAL로 보존하며 커밋 준비.

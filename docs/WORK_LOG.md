@@ -2935,3 +2935,14 @@
 - Android 64cb90b/iOS 083100f 사이 Unity SDK·Android SDK·iOS 제품 source diff exit 0, 두 Player의 staging SHA-256은 동일 `6f966d4b…`. 계획의 `docs/evidence/consumer-install.md`에 import·설정·Player·실제 플랫폼 한계를 정리한다.
 - P08-T04 계획의 신규 staged consumer·Sample API import·Editor mock flow 및 Android/iOS export/build/LOCAL_MOCK Player 실행을 `docs/evidence/consumer-install.md`에 연결했다. 해당 Task만 IMPLEMENTED/로컬 PASS로 갱신한다. GUI 포인터·시각, 실제 계정·스토어·실기기는 별도 미검증이다.
 - P08-T04 갱신 후 `verify-progress.py`, `check-progress-negative.py`, diff 검사 PASS. 커밋 전: 해당 Task의 정제된 설치 증거·상태와 기능 보고서만 포함한다. 다른 P08 Task나 실제 제공자를 완료로 바꾸지 않는다.
+### P08-T03 Unity metadata 안정성 누락
+- `unity/Packages/com.gamebridge.sdk` 원본에 `.meta`가 0개이고 Unity 소비 프로젝트에서만 생성됨을 확인했다. P08-T03의 `.meta` 안정성 기준을 충족하지 않아 package 원본에 안전하고 고정된 GUID를 마련하고 두 신규 프로젝트 import 결과를 비교한다. 기존 프로젝트와 원본 산출물은 수정하지 않는다.
+- 격리 `offline-sample.Afsqij`의 Unity 생성 package metadata와 Sample API로 생성된 sample metadata를 원본 파일/폴더에 대조한 결과 37개 모두 대응, 누락 0. `Samples~` 자체는 Unity가 무시하는 컨테이너라 제외한다. Unity가 생성한 metadata를 원본에 고정하며 GUID 중복·누락을 검사한다.
+- 격리 Unity가 만든 asset/folder metadata 37개를 대응 원본에 복사, GUID 유일성 37개 확인. 외부 경로·사용자 데이터를 수정하지 않았다. 누락/중복/orphan 검사와 두 신규 Unity import 비교는 별도다.
+- `check-unity-meta.py` PASS, `test_unity_meta.py` 2건 PASS/skip0(누락·중복·orphan·폴더 표식 거부). 이는 정적 검사이며 Unity import 간 GUID 안정성은 미실행이다.
+- 기존 검증 Native payload를 사용한 `upm-stable-meta-20261113` 생성, XCFramework와 147개 checksum PASS. 서로 다른 새 Unity consumer 두 곳의 package/sample GUID를 비교하기 위해 첫 import를 실행한다.
+- metadata stage 첫 `smoke-unity-offline-sample.sh` exit 0 (`artifacts/offline-sample.S2hxOa`): Sample API import 및 Editor 1건 PASS/skip0. GUID 안정성 판단 전 두 번째 새 프로젝트를 실행한다.
+- metadata stage 두 번째 신규 consumer도 Sample API import와 Editor fake flow 1건 PASS/skip0 (`artifacts/offline-sample.McH39f`). 이어서 두 프로젝트의 각 asset GUID를 원본과 비교한다.
+- 원본과 두 신규 프로젝트 74개 GUID 비교 exit 1: mismatch 4개는 각 프로젝트의 `Samples~/Offline Demo`, `Samples~/Native Demo` import 대상 최상위 폴더다. Sample API가 target 폴더를 생성하면서 package 경로의 폴더 metadata를 복사하지 않는다. 내부 asset과 target 폴더를 구분해 추가 검증하며 전체 GUID 안정성을 PASS로 주장하지 않는다.
+- 최상위 sample 폴더를 제외한 package/sample 내부 asset GUID 70회 비교 불일치 0. Sample API 생성 최상위 두 폴더는 각 프로젝트에서 서로 다른 GUID를 만들어 4회 불일치하며 전체 안정성은 미완료다. stage 147개 checksum 및 Native payload 81개 byte 동일성 확인. 정제 증거를 저장한다.
+- `test_unity_meta.py` 2건/skip0, workflow YAML·원장·diff PASS. 커밋 전: Unity 생성 metadata·누락/중복 검사·정제 증거만 포함한다. Sample 최상위 폴더 GUID와 최신 Player 재시험은 미완료다.

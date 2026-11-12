@@ -27,3 +27,9 @@
 - A 로그아웃 후 Unity SDK를 종료하고 B로 재초기화해 같은 설치를 등록했다. 이전 A 사용자 발송은 403으로 거부됐고 B 사용자의 Mock 이벤트는 메인 스레드에서 한 번 전달됐다. 테스트 중 이전 메시지의 재유입은 관측되지 않았다. 등록 해제·로그아웃 후 DB token row는 0개다.
 - 기본 등록/중복, background/foreground, 오프라인 미전달·재연결 후 수신도 새 코드에서 다시 통과했다. 전용 AVD의 첫 전체화면 안내는 수동으로 닫았다. APK SHA-256 `c6de2d9341c17e727570c4ae3be9f6fbb44c380338fa7e2dd8ec6ad3d5979995`.
 - 임의 지연 Native callback과 재연결 실패의 명시적 주입, iOS Player 및 실제 FCM/APNs는 이 시험으로 증명하지 않는다.
+
+## 재연결 실패 주입 추가 시험
+
+- 소스 `ea5e17fcc726f9944ec5e7348d8c26cd8dd473ec`, tracked-clean. 새 전용 Android 에뮬레이터에서 Runner exit 0 (`artifacts/unity-android-push-n3lvsnkx/result.json`).
+- 전용 AVD의 Wi-Fi/data 차단·복원 외에도 test-only loopback proxy가 SDK 재연결 시도를 2회 거부했고, 이후 연결 복원과 새 Mock 푸시 수신이 통과했다. background/foreground, 중복·세션 전환·등록 해제도 같은 실행에서 통과했다. 첫 전체화면 안내는 수동으로 닫았다.
+- APK SHA-256 `76a5e5f123cea694cc1153a193e01e82cefd620e771f88b6da57312eb7a6121d`. 실제 FCM, 임의 지연 Native callback 주입은 아니다. 강제 종료/pending은 위 PX-T10 별도 실행에서 확인했다.

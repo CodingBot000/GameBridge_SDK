@@ -2560,3 +2560,5 @@
 - Android test는 기존 AVD Wi-Fi/data 차단 확인을 유지하면서 SDK 연결만 받는 loopback proxy의 재연결 거부를 추가했다. 다른 host 네트워크·운영 SDK는 변경하지 않는다. 성공은 각각 새 Player 실행 후에만 기록한다.
 - 양 플랫폼 runner `py_compile` 및 iOS cached-package 안전 단위 2건 PASS. Android server log 검사에 B session 합성 token도 추가했다. 커밋 준비: test 전용 fault 계측만 포함하고 실제 Player 결과는 이전 source에 한정한다.
 - Android Unity Player에서 OS 네트워크 차단·복원 뒤 test-only proxy의 연결 거부 시도 관측과 재연결 후 전달을 새 전용 AVD/DB로 실행한다. 실행 전 이 기록을 커밋한다.
+- PX-T14 Android E2E 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-push-n3lvsnkx`). 실제 Player에서 Wi-Fi/data 차단·복원 및 test-only TCP proxy의 재연결 거부 후 복구를 검사했다. 첫 전체화면 안내는 전용 AVD에서 수동으로 닫았다. 실제 FCM은 아니다.
+- Android 결과 source `ea5e17f`, tracked-clean, proxy 재연결 거부 2회, 이후 수신 및 기존 lifecycle/session 통과를 evidence에 추가했다. 커밋 준비: 원본 로그·APK·DB 제외.

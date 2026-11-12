@@ -446,3 +446,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T14 Android runner에도 test 전용 TCP proxy를 추가해 OS 네트워크 복구 후 일시적 재연결 거부와 실제 시도 횟수를 검사한다. 실제 Android/iOS Player 재검증은 아직 NOT_RUN이다.
 - PX-T14 양 runner Python 문법 및 package cache 안전 단위 2건 PASS. 실제 재연결 실패/복구 Player E2E는 재실행 전이며 커밋 준비한다.
 - PX-T14 Android 재연결 실패·복구 실제 Player E2E 시작: 새 전용 AVD/DB와 test-only proxy를 사용한다. 새 결과는 NOT_RUN이다.
+- PX-T14 Android Unity Player 재연결 실패 주입·복구 PASS (`artifacts/unity-android-push-n3lvsnkx`, exit 0): OS 네트워크 차단·복원 외 test proxy 재연결 거부 관측 후 새 push 수신. 상세 횟수 및 같은 실행의 lifecycle/session을 확인한다.
+- PX-T14 Android 재연결 거부 2회 및 복구 Player PASS를 evidence에 기록했다. iOS의 동일 주입은 아직 NOT_RUN이며 커밋 후 이어서 실행한다.

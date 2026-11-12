@@ -2762,3 +2762,5 @@
 - R09 Android UTF-8 및 R43 iOS host consumer에 같은 개발키 결과 비노출 검사를 추가했고 marker 단위 2건 PASS. 이제 양 조건부 managed compile을 검증한다. 실제 Player 재실행은 별도다.
 - Android UTF-8 `UNITY_ANDROID`, iOS host `UNITY_IOS` consumer 각각 managed compile exit 0, 경고·오류 0. 이는 실제 Player 재실행이 아니다. 향후 네 소비자 중 marker 누락을 방지할 inventory 검사를 추가한다.
 - `test_unity_redaction_marker.py` 3건 PASS/skip0, 원장 및 diff 검사 PASS. R09/R43 전용 consumer의 실제 수정 후 Player는 미실행이며 이전 source의 성공과 구분한다. 커밋 전: 전용 test consumer·inventory 검사·기록만 포함한다.
+- 수정된 iOS host callback 전용 Unity LOCAL_MOCK consumer를 새 Simulator에서 실행한다. host callback은 합성 주입이며 실제 APNs가 아니다. 실행 시작 기록을 먼저 커밋한다.
+- 커밋 전: 시작 기록만 포함하고 실제 시험은 NOT_RUN이다.

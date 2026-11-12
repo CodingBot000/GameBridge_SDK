@@ -623,3 +623,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R09/R43 전용 consumer에도동일한 합성 개발키 검사와 marker를 추가했다. marker 단위 2건 PASS; 두 조건부 managed compile 및 실제 Player는 아직 미확인이다.
 - R09 UTF-8·R43 host consumer 조건부 managed compile 양쪽 PASS(각 경고·오류 0). 변경 후 실제 Player 재실행은 NOT_RUN. 공유 consumer marker 누락을 막는 inventory 검사를 추가한다.
 - 네 consumer marker inventory 포함 단위 3건과 원장 검사 PASS. R09/R43 변경 후 실제 Player 재실행은 NOT_RUN이며 기존 증거는 보존한다. 커밋 준비.
+- P09-T02/R43 host callback 전용 consumer 실제 Player 재검증 시작: 새 redaction 검사와 기존 합성 host callback·중복·main-thread 흐름을 함께 확인한다.

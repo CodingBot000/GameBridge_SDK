@@ -746,3 +746,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 강화 synthetic mock 로그 검사의 iOS 기본 LOCAL_MOCK Player PASS (`artifacts/unity-ios-e2e-o2mypwsg`), tracked-clean. Android 및 양 Push 수정 후 실제 실행은 별도 NOT_RUN.
 - 사용한 iOS Simulator shutdown, 데이터 보존. iOS 부분 결과를 기록하고 Android/Push 검증은 별도로 유지하며 커밋 준비.
 - P09-T03/R22 강화 로그 검사 Android 기본 LOCAL_MOCK Player 재검증 시작: 최신 stage와 앱 미설치 전용 AVD를 사용한다.
+- R22 강화 synthetic mock 로그 검사의 Android 기본 LOCAL_MOCK Player PASS (`artifacts/unity-android-e2e-j9tb9ven`), 최초 전체화면 안내 수동 처리. 양 Push runner 변경 후 실제 실행은 별도다.
+- 테스트 AVD shutdown·데이터 보존. Android 부분 결과 커밋 준비, 양 Push 재검증은 아직 NOT_RUN.

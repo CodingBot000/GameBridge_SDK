@@ -2551,3 +2551,4 @@
 - Android PX-T10과 동일하게 test-only loopback proxy로 서버 commit 뒤 응답만 일회 실패시키고 iOS Simulator 앱을 terminate/relaunch해 세션 복원·pending 1회 복구·중복 지급 방지를 확인한다. 별도 Simulator·DB를 사용하며 실제 StoreKit 결제는 포함하지 않는다.
 - `tests/UnityIosRestartConsumer/MockIosPlayerScenario.cs`는 Swift bridge를 통해 실제 SDK API를 호출하고 환경 변수로 합성 key만 공급받는다. libc getpid로 강제 종료 전후 프로세스를 구분한다. Unity build/Simulator 실행은 미검증이다.
 - `harness/run-unity-ios-mock-restart-e2e.py` 및 Simulator consumer 작성. 최초 서버 200 후 합성 503, Simulator terminate/relaunch, 별도 PID, 세션 restore·pending 1회 복구·재sync 0·원장 1건/100을 검사한다. Python 문법 종료 0. 커밋 준비: 실제 E2E는 아직 미실행이다.
+- `harness/run-unity-ios-mock-restart-e2e.py --run-local`을 새 Simulator/DB 및 local ad-hoc Simulator signing으로 실행한다. 실행 전 진행 기록을 커밋해 tracked-clean 상태를 보존한다.

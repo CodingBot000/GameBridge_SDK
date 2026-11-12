@@ -438,3 +438,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T13 iOS Simulator process 강제 종료·재시작 및 pending 복구 검증 시작: 서버 commit 후 응답만 합성 503으로 바꾸고 새 프로세스에서 세션·pending·원장 불변을 확인한다. 아직 NOT_RUN이다.
 - PX-T13 iOS Simulator 전용 Unity pending 복구 시나리오 작성: 서로 다른 프로세스 PID, 저장 세션, pending sync 1회·재sync 0회·잔액 100을 검사한다. 실제 실행은 NOT_RUN이다.
 - PX-T13 iOS process restart runner 문법 검사 PASS. 로컬 ad-hoc Simulator와 test-only 응답 손실 proxy를 사용하며 실제 Player 검증은 아직 NOT_RUN이다. 커밋 후 전용 환경에서 실행한다.
+- PX-T13 iOS Simulator process 종료·pending 복구 전체 검증 시작: 새 전용 Simulator·DB 및 exact-version test cache 사용. 결과는 NOT_RUN이다.

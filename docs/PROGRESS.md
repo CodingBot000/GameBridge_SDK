@@ -808,3 +808,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - synthetic 개인정보 전용 Android/iOS runner 연결과 Python 문법 PASS. 두 조건부 managed compile 및 raw 로그 누출 음성 시험을 실행한다.
 - synthetic 개인정보 probe Android/iOS managed compile 각 경고·오류 0, raw 로그 주입 거부 포함 단위 6건 PASS. 실제 Player는 NOT_RUN이며 clean-source 실행 전 커밋 준비.
 - R22 synthetic 개인정보 callback iOS LOCAL_MOCK Simulator Player 실제 검증 시작: source 48388c7 probe, 최신 stage·격리 DB 사용.
+- R22 iOS Simulator Unity Player synthetic 개인정보 callback PASS (`artifacts/unity-ios-e2e-ehxq_12y`): 허용되지 않은 email/전화번호가 공개 Push 결과 및 raw console에 없음. 실제 개인정보·APNs는 미검증.
+- iOS PII test Simulator shutdown·데이터 보존. iOS 부분 결과 커밋 준비, Android는 NOT_RUN이다.

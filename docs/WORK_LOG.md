@@ -2688,3 +2688,13 @@
 - `./android/gradlew -p android :sdk-core:test --tests com.gamebridge.BridgeDispatcherTest --tests com.gamebridge.DiagnosticsTest` exit 0; synthetic secret 오류·typed diagnostics. `swift test --package-path ios --filter CBridgeTests|DiagnosticsTests` exit 0, XCTest 5건/실패0. 실제 Unity Player 전체 및 Backend 오류 로그는 포함되지 않아 R22 PARTIAL.
 - Backend ApiErrors 예외 로그는 타입만 기록하도록 구현되어 있으나 이를 실제 logger 및 HTTP 응답으로 검증하는 회귀가 없다. MockMvc와 in-memory log appender에서 synthetic secret 노출을 확인한다.
 - `./backend/gradlew -p backend test --tests com.gamebridge.config.HttpInfrastructureTest` exit 0: MockMvc 요청 header/body와 예외 메시지에 합성 secret을 주입하고 500 응답 및 캡처된 ApiErrors logger의 메시지·예외 stack 부재를 확인했다. 실제 계정·전체 서버 로그·Unity Player는 범위 밖. 앞선 Android 4건과 Swift 5건도 PASS. 커밋 전: 테스트와 진행 기록만 포함, R22 PARTIAL 유지.
+### P09-T05/R40 iOS 권한 거부 재개
+- Unity iOS host adapter의 OS 거부·재요청과 등록 차단을 실제 Simulator에서 확인할 수 있는 기존 격리 test 경로를 조사한다. Mock 거부는 별도다.
+- `tests/UnityIosPermissionConsumer/MockIosPlayerScenario.cs`는 sandbox 설정과 실제 iOS host adapter로 DENIED→PERMISSION_DENIED→DENIED를 검사한다. 계정 로그인·원격 APNs를 사용하지 않으며 아직 컴파일·Simulator 실행 전이다.
+- iOS 권한 소비자에 Unity notifications 의존성을 격리 프로젝트에 포함하고 새 Unity Simulator Xcode export를 시도한다. 기존 Simulator·프로젝트는 수정하지 않는다.
+- `artifacts/unity-ios-mock.PLDU8j`의 새 격리 프로젝트에서 iOS 권한 소비자 Unity export exit 0. Simulator Xcode build·Player·OS 권한은 아직 NOT_RUN이다.
+- export된 격리 Xcode 프로젝트를 Simulator arm64와 ad-hoc 서명으로 빌드한다. 빌드 출력은 로컬 artifacts에만 둔다.
+- `artifacts/unity-ios-mock.PLDU8j`의 iOS Simulator arm64 Xcode build exit 0, ad-hoc 서명. Player 권한 시험은 아직 미실행이다. 새 전용 Simulator를 생성한다.
+- 전용 Simulator C766DB3F-3D32-499F-AF04-CA3960842487 부팅 PASS. 설치 시 고정한 `Unity-iPhone.app` 경로가 없어 simctl 설치 실패, 앱 실행은 NOT_RUN이다. 결과 명령의 마지막 cat 성공을 설치 성공으로 간주하지 않는다. 실제 산출물 경로를 확인한다.
+- 새 iOS 18.6 Simulator C766DB3F-3D32-499F-AF04-CA3960842487에서 격리 Unity Player를 실행하고 OS 알림 팝업의 허용 안 함을 선택했다. 첫 DENIED, SDK 등록 PERMISSION_DENIED, 재요청 DENIED marker 모두 PASS (`artifacts/unity-ios-mock.PLDU8j/player-console.log`). 현재 HEAD e0acbd6 + 미커밋 test-only 소비자 소스. 합성 sandbox 설정이며 APNs 전송·실기기·Mock 거부 주입은 NOT_RUN, R40 PARTIAL이다.
+- iOS OS 권한 marker만 정제하여 `docs/evidence/r40-ios-os-permission-partial.md`에 기록했다. 커밋 전: 전용 테스트 소비자와 부분 증거·진행 기록만 포함하며 raw 로그·빌드 산출물은 제외한다.

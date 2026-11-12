@@ -567,3 +567,12 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 부분 재검증: Android BridgeDispatcher/Diagnostics 및 Swift CBridge/Diagnostics 5건 PASS. synthetic Native 시험이며 Unity Player 전체 및 Backend 오류 로그는 미검증, R22 PARTIAL 유지.
 - R22 Backend 오류 로그 검증 시작: 합성 credential을 예외 메시지와 요청에 넣고 HTTP 응답 및 실제 캡처된 logger가 이를 내보내지 않는지 확인한다.
 - R22 Backend MockMvc 예외 응답·ApiErrors logger의 synthetic secret 비노출 시험 PASS. 전체 로그·Unity Player 검사는 미완료이므로 R22 PARTIAL. 관련 회귀와 결과 커밋 준비.
+- P09-T05/R40 iOS 권한 거부 검증 재개: 기존 test-only Player 및 host adapter의 실제 OS 권한 요청 경로와 전용 Simulator 실행 조건을 확인한다. Android 부분 PASS와 별도로 기록한다.
+- R40 iOS 전용 test-only Player 시나리오 작성: 실제 SDK host adapter로 첫 권한 거부·등록 차단·재요청 거부를 검사한다. Simulator 및 OS 실행은 NOT_RUN.
+- R40 iOS 검증 준비: 기존 staged SDK와 정확한 패키지 캐시를 새 격리 소비 프로젝트에 복사해 Unity Simulator export를 실행한다. 실제 권한 결과는 아직 NOT_RUN.
+- R40 iOS 전용 소비자 Unity Simulator Xcode export PASS (`artifacts/unity-ios-mock.PLDU8j`), 실제 Xcode 빌드 및 OS 권한 실행은 NOT_RUN.
+- R40 iOS Xcode Simulator 빌드 시작: 새 derived data와 ad-hoc 서명만 사용하며 Apple 개발 인증은 사용하지 않는다.
+- R40 iOS Simulator arm64 Xcode 빌드 PASS; 새 전용 Simulator에서 실제 권한 팝업·등록 차단 검증을 시작한다.
+- R40 iOS 새 Simulator 부팅 PASS이나 첫 설치는 잘못 추정한 앱 경로로 실패(파일 없음); Player/권한은 NOT_RUN. 실제 빌드 산출물 경로를 확인해 재시도한다.
+- R40 iOS 18.6 실제 Simulator Unity Player 부분 PASS (`artifacts/unity-ios-mock.PLDU8j/player-console.log`): OS 알림 거부, SDK 등록 PERMISSION_DENIED, 재요청 DENIED. Mock 거부 주입은 NOT_RUN이므로 R40 PARTIAL 유지. 실제 APNs 전송은 미검증.
+- R40 iOS 부분 검증의 안전한 marker·환경과 최초 설치 실패를 증거 문서에 기록했다. test-only 소비자와 결과 기록 커밋 준비; Mock 거부 미검증 유지.

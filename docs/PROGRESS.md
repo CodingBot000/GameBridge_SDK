@@ -847,3 +847,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T05/R40 iOS OS 권한 거부 재현 runner 구현 시작: 새 전용 Simulator·실제 권한 dialog를 사용한다. GUI 거부가 처리되지 않으면 DEFERRED_ENV이며 자동 성공하지 않는다.
 - iOS OS 재현 runner 초안 Python 구문 PASS. Simulator 생성 환경 대기 인자와 필수 marker·미설정 거부를 단위 확인한다. 실제 실행은 아직 NOT_RUN.
 - iOS OS marker·명시적 opt-in 음성 2건, Python/원장/diff PASS. GUI 거부 미처리 시 환경 대기이며 실제 수정 runner 실행은 NOT_RUN; 커밋 준비.
+- R40 iOS OS permission 재현 runner 실제 검증 시작: source 73638cb 코드, 최신 stage·권한 이력 없는 신규 Simulator 사용. OS 거부 입력을 실제 처리한다.

@@ -3023,3 +3023,4 @@
 - 격리 Unity iOS Simulator Player의 실제 알림 권한 dialog를 요청하고, 거부 후 첫 DENIED·등록 차단·재요청 DENIED를 검증하는 runner를 만든다. GUI 거부 입력이 없으면 환경 대기로 처리하며 원격 APNs/Apple 계정은 사용하지 않는다.
 - iOS permission runner 초안 compile PASS. Simulator 생성 호출의 환경 대기 category 인자와 필수 marker/명시적 opt-in을 확인하며 아직 실제 export/OS 시험은 미실행이다.
 - `test_unity_ios_permission_os.py` 2건 PASS/skip0, Python·원장·diff PASS. iOS GUI denial 없이는 성공하지 않는다. 실제 runner 실행 전 커밋: test-only runner·음성 검사·기록만 포함한다.
+- iOS OS permission runner를 새 Simulator에서 실행한다. 실제 알림 dialog에서 거부를 선택하며 Apple 계정·APNs는 사용하지 않는다. clean-source 시작 기록만 먼저 커밋한다.

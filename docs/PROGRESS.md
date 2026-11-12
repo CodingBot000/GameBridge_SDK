@@ -764,3 +764,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T04 Sample API import→Native Demo iOS Simulator Player 실제 검증 시작: 최신 stage·격리 DB·ad-hoc Simulator 서명 사용.
 - P08-T04 동일 신규 프로젝트 Sample API import→Native Demo iOS Simulator LOCAL_MOCK Player PASS (`artifacts/unity-ios-e2e-7ryle35b`), 원장 1건/100. GUI 클릭·실제 Apple 거래는 별도다.
 - iOS test Simulator shutdown·데이터 보존. iOS 결과 커밋 준비, Android Sample API→Player는 미실행이다.
+- P08-T04 Sample API import→Native Demo Android Player 실제 검증 시작: 앱 미설치 전용 AVD·최신 stage·격리 DB를 사용한다.

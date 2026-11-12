@@ -589,3 +589,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T03/R22 Unity 공개 결과 합성 비밀값 시험 시작: profile·purchase·push 응답의 미허용 credential 필드가 typed 결과로 유출되지 않는지 기존 managed registry smoke에 추가한다. 실제 Player 검사는 별도 유지.
 - R22 managed smoke 첫 실행 컴파일 FAIL: JsonConvert namespace 누락(CS0103), 테스트 미실행. 정규화된 이름으로 수정해 재검증한다.
 - R22 managed registry 재시험 PASS: 합성 access/refresh token, purchase proof/receipt, push token이 typed 공개 결과로 나오지 않음을 확인. Player·전체 로그는 미검증이므로 R22 PARTIAL 유지. 커밋 준비.
+- P09-T06 현재 HEAD Unity Push 양 플랫폼 집계 실측 시작: 기존 앱 데이터를 보존해야 하므로 미사용 전용 Android AVD가 필요하다. 새 격리 기기와 iOS Simulator에서 같은 run의 실제 LOCAL_MOCK Player 결과를 확인한다. 외부 FCM/APNs는 미실행이다.

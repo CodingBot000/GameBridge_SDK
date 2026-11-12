@@ -2715,3 +2715,6 @@
 - 기존 purchase error·fingerprint 검사 외에 profile/purchase/push 응답에 synthetic access token·receipt·push token 필드를 주입하고 typed 결과 직렬화에서 사라지는지 확인한다. 독립 managed test이며 Player 전체 로그를 대체하지 않는다.
 - 새 결과 redaction smoke의 첫 빌드는 `JsonConvert` namespace 누락 3건(CS0103)으로 실패했고 시험은 미실행이다. 참조 이름을 수정해 재실행한다.
 - namespace 수정 후 `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-csharp-registry.sh` exit 0. 합성 credential 추가 필드가 profile·purchase·push typed 결과의 직렬화에서 제거됨을 확인했다. standalone managed test이며 Unity Player나 실제 credential 시험이 아니다. R22 PARTIAL 유지. 커밋 전: 시험 및 기록만 포함.
+### P09-T06 Unity Push 동일 실행 실측 시작
+- `harness/run-unity-push-current.py` 양 플랫폼 실행을 검증한다. Android runner는 기존 테스트 앱 설치 기기를 거부하므로 별도 비어 있는 GameBridge_V2_ AVD가 필요하다. iOS runner도 독립 Simulator를 만든다. 현재 HEAD와 tracked-clean 조건을 지키기 위해 시작 기록을 먼저 커밋한 뒤 실행하고 이전 PASS는 재사용하지 않는다.
+- 커밋 전: 실측 시작 기록만 저장한다. 실제 Player 결과는 아직 NOT_RUN이다.

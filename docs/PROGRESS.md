@@ -695,3 +695,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T04 Native Demo Android Player 실제 검증 시작: source 337d4ec 제품/테스트 코드와 최신 staged SDK, 빈 전용 AVD·격리 DB를 사용한다. 시작 기록을 커밋한 뒤 실행한다.
 - P08-T04 Native Demo Android Unity LOCAL_MOCK Player PASS (`artifacts/unity-android-e2e-j7ir0wt8`): staged sample 설정·초기화·로그인·상품·모의 구매·로그아웃 callback 및 DB 원장 1건/100, 개발키 입력 삭제 확인. 최초 전체화면 안내는 수동 처리; 화면 터치·실제 Play 미검증.
 - Native Demo test AVD는 데이터 삭제 없이 shutdown했다. Android 부분 증거·기능 matrix 및 최종 보고 반영, iOS Player/시각 QA는 미검증으로 커밋 준비.
+- P08-T04 Native Demo iOS Simulator LOCAL_MOCK Player 검증 시작: Android와 같은 staged sample·UI callback·격리 Backend/DB 경로를 별도로 구현한다. 실제 Apple/APNs는 범위 밖이다.
+- Native Demo iOS test-only probe·runner option 초안 작성, Python 문법 및 전문 probe 동시 선택 거부 PASS. 조건부 컴파일과 실제 Player는 미실행이다.
+- Native Demo iOS probe managed compile PASS(경고·오류 0). 실제 Simulator Player는 NOT_RUN; clean-source 실행 전 코드 커밋 준비.

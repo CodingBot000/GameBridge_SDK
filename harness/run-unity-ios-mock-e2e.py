@@ -8,7 +8,8 @@ STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
+    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
+    if args.host_callback_probe and args.native_demo_probe: parser.error('choose one specialized probe')
     out=Path(tempfile.mkdtemp(prefix='unity-ios-e2e-',dir=ROOT/'artifacts'))
     def run(cmd,**kw): return subprocess.run([str(x) for x in cmd],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,**kw)
     def must(cmd,label,**kw):
@@ -42,6 +43,17 @@ def main():
             import shutil
             shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
             shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/link.xml',project/'Assets/link.xml')
+        if args.native_demo_probe:
+            import shutil
+            shutil.copy2(ROOT/'tests/UnityIosNativeDemo/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
+            shutil.copytree(stage/'com.gamebridge.sdk/Samples~/Native Demo',project/'Assets/Native Demo')
+            editor=Path('/Applications/Unity/Hub/Editor')/os.environ.get('UNITY_EDITOR_VERSION','6000.5.8f1')/'Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui'
+            try:
+                if json.loads((editor/'package.json').read_text()).get('version')!='2.5.0': raise ValueError()
+                shutil.copytree(editor,project/'Packages/com.unity.ugui',ignore=shutil.ignore_patterns('Tests','Tests.meta'))
+            except (OSError,ValueError): raise RuntimeError('UNITY_UGUI_REQUIRED')
+            (project/'Packages/manifest.json').write_text('{"dependencies":{"com.unity.ugui":"2.5.0"}}\n')
+            result['nativeDemoProbe']=True
         xcode=out/'xcode'
         exported=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],env=env,timeout=1200)
         (out/'unity-export.log').write_text(exported.stdout)
@@ -85,7 +97,7 @@ def main():
         def read_player():
             for line in player.stdout:
                 if key in line or password in line: leaks.append(True); continue
-                if 'GB_MOCK_' in line: markers.append(line.strip())
+                if 'GB_MOCK_' in line or 'GB_NATIVE_DEMO_FLOW' in line: markers.append(line.strip())
         thread=threading.Thread(target=read_player,daemon=True);thread.start()
         for _ in range(180):
             joined='\n'.join(markers)
@@ -100,6 +112,7 @@ def main():
         for step in STEPS:
             if f'GB_MOCK_STEP {step} PASS' not in text: raise RuntimeError('UNITY_STEP_MISSING_'+step)
         if args.host_callback_probe and 'GB_MOCK_HOST_CALLBACK PASS' not in text: raise RuntimeError('HOST_CALLBACK_MARKER_MISSING')
+        if args.native_demo_probe and 'GB_NATIVE_DEMO_FLOW PASS' not in text: raise RuntimeError('NATIVE_DEMO_MARKER_MISSING')
         if 'GB_MOCK_REDACTION PASS' not in text: raise RuntimeError('UNITY_RESULT_REDACTION_MISSING')
         if 'GB_MOCK_MAIN_THREAD PASS' not in text: raise RuntimeError('UNITY_MAIN_THREAD_MISSING')
         for kind in ('INITIALIZE','AUTH','PURCHASE'):

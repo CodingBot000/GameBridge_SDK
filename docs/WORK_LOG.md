@@ -3024,3 +3024,7 @@
 - iOS permission runner 초안 compile PASS. Simulator 생성 호출의 환경 대기 category 인자와 필수 marker/명시적 opt-in을 확인하며 아직 실제 export/OS 시험은 미실행이다.
 - `test_unity_ios_permission_os.py` 2건 PASS/skip0, Python·원장·diff PASS. iOS GUI denial 없이는 성공하지 않는다. 실제 runner 실행 전 커밋: test-only runner·음성 검사·기록만 포함한다.
 - iOS OS permission runner를 새 Simulator에서 실행한다. 실제 알림 dialog에서 거부를 선택하며 Apple 계정·APNs는 사용하지 않는다. clean-source 시작 기록만 먼저 커밋한다.
+- `run-unity-ios-permission-os.py --run-local` exit 0 (`artifacts/unity-ios-permission-d3b5a0lc`): iOS 18.6 Simulator 실제 권한 dialog에서 도구로 허용 안 함을 선택, 첫 DENIED·등록 PERMISSION_DENIED·재요청 DENIED marker PASS. GUI denial 입력은 자동화 runner 외부의 도구 조작이며 Apple 계정/APNs는 없다. 초기 snapshot은 종료된 이전 Simulator 기본값을 가리켜 실패했고 올바른 Simulator를 지정한 뒤 진행했다.
+- Android runner가 실제 denial button을 선택한 횟수와 외부/기존 상태를 구분하고, iOS runner는 외부 GUI 입력 필요를 result에 명시한다. 기존 실제 OS 성공 증거는 별도로 보존한다.
+- Android denial tap 횟수/interaction mode 및 iOS 외부 GUI 입력 표시를 보강했고 Android 단위 3건, iOS 2건 PASS/skip0. 양 OS 및 managed Mock을 각각 새 실행하는 opt-in R40 entry를 추가한다. iOS GUI 입력이 없으면 성공하지 않는다.
+- `test_r40_permission_optin.py` 2건 PASS/skip0: opt-in 없으면 실행하지 않고 DEFERRED, Android/iOS/Mock 중 어느 하나가 대기/실패면 전체 성공하지 않는다. 세 경로 합친 실제 wrapper 및 새 interaction 기록은 아직 미실행이다. 커밋 전: test-only runner·fixture·기록만 포함한다.

@@ -30,6 +30,10 @@ def button_center(xml, tutorial=False):
     return matches[0] if len(matches)==1 else None
 
 
+def interaction_mode(denial_taps):
+    return 'AUTOMATED_RESOURCE_ID' if denial_taps > 0 else 'EXTERNAL_OR_PREEXISTING'
+
+
 def markers_pass(text):
     return all(marker in text for marker in REQUIRED)
 
@@ -61,22 +65,24 @@ def main():
         if 'Success' not in install:raise common.GateError('INSTALL_RESULT_MISSING')
         common.must([adb,'-s',serial,'logcat','-c'],'LOGCAT_CLEAR');launch=common.must([adb,'-s',serial,'shell','am','start','-W','-n',common.PACKAGE+'/com.unity3d.player.UnityPlayerGameActivity'],'LAUNCH_FAILED',timeout=30)
         if not re.search(r'^Status:\s*ok\s*$',launch,re.M):raise common.GateError('LAUNCH_RESULT_MISSING')
-        result['player']='LAUNCHED_PENDING';deadline=time.monotonic()+150;last_tap=0
+        result['player']='LAUNCHED_PENDING';deadline=time.monotonic()+150;last_tap=0;denial_taps=0
         while time.monotonic()<deadline:
             raw=common.must([adb,'-s',serial,'logcat','-d','-v','brief','-s','Unity:I','*:S'],'LOGCAT_FAILED',timeout=20)
             lines=[line for line in raw.splitlines() if 'GB_PERMISSION_' in line];joined='\n'.join(lines)
             if 'GB_PERMISSION_RESULT FAIL' in joined:raise common.GateError('PLAYER_REPORTED_FAILURE')
             if 'GB_PERMISSION_RESULT PASS ANDROID_OS_DENIED' in joined:
                 if not markers_pass(joined):raise common.GateError('PERMISSION_MARKERS_MISSING')
-                (out/'permission-markers.log').write_text(joined+'\n');result.update(status='PASS',player='PASS',osDenial='PASS',registrationBlocked='PASS',rerequest='PASS');break
+                (out/'permission-markers.log').write_text(joined+'\n');result.update(status='PASS',player='PASS',osDenial='PASS',registrationBlocked='PASS',rerequest='PASS',denialTapCount=denial_taps,osDialogInteraction=interaction_mode(denial_taps));break
             if time.monotonic()-last_tap>2:
                 focus=common.run([adb,'-s',serial,'shell','dumpsys','window'],timeout=15).stdout
                 if 'ImmersiveModeConfirmation' in focus or 'permissioncontroller' in focus.lower():
                     dump=common.run([adb,'-s',serial,'shell','uiautomator','dump','/sdcard/gamebridge-permission.xml'],timeout=15)
                     if dump.returncode==0:
                         xml=common.run([adb,'-s',serial,'shell','cat','/sdcard/gamebridge-permission.xml'],timeout=15).stdout
-                        point=button_center(xml,'ImmersiveModeConfirmation' in focus)
-                        if point:common.must([adb,'-s',serial,'shell','input','tap',str(point[0]),str(point[1])],'DIALOG_TAP_FAILED');last_tap=time.monotonic()
+                        tutorial='ImmersiveModeConfirmation' in focus;point=button_center(xml,tutorial)
+                        if point:
+                            common.must([adb,'-s',serial,'shell','input','tap',str(point[0]),str(point[1])],'DIALOG_TAP_FAILED');last_tap=time.monotonic()
+                            if not tutorial:denial_taps+=1
             time.sleep(1)
         else:raise common.GateError('OS_DIALOG_OR_PLAYER_TIMEOUT','DEFERRED_ENV')
     except KeyboardInterrupt:result.update(status='INTERRUPTED',errorCode='USER_OR_ENV_INTERRUPTION')

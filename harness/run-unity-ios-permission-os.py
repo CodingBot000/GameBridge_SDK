@@ -21,7 +21,7 @@ def markers_pass(text):return all(marker in text for marker in REQUIRED)
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--run-local',required=True,action='store_true');p.add_argument('--staging',type=Path,required=True);p.add_argument('--package-cache',type=Path,required=True);a=p.parse_args()
-    artifacts=ROOT/'artifacts';artifacts.mkdir(exist_ok=True);out=Path(tempfile.mkdtemp(prefix='unity-ios-permission-',dir=artifacts));result={'status':'FAIL','scope':'iOS Simulator real OS permission denial; not APNs','player':'NOT_RUN'};player=None;markers=[]
+    artifacts=ROOT/'artifacts';artifacts.mkdir(exist_ok=True);out=Path(tempfile.mkdtemp(prefix='unity-ios-permission-',dir=artifacts));result={'status':'FAIL','scope':'iOS Simulator real OS permission denial; not APNs','player':'NOT_RUN','osDialogInteraction':'EXTERNAL_GUI_REQUIRED'};player=None;markers=[]
     try:
         result['sourceHead']=common.must(['git','rev-parse','HEAD'],'GIT_HEAD').strip();result['sourceTrackedDirty']=bool(common.must(['git','status','--porcelain','--untracked-files=no'],'GIT_STATUS').strip())
         stage=a.staging.resolve();common.must(['python3','harness/check-staging.py',stage],'STAGING_INVALID');common.verify_staged_source_matches_checkout(stage)

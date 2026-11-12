@@ -709,3 +709,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 수정 iOS Native Demo 결과 source aa9c155 tracked-clean, 테스트 Simulator shutdown(데이터 보존). 새 stage Native payload는 이전 검증본과 81개 byte 동일; 동일 stage에서 Editor sample 회귀 재확인한다.
 - Native Demo 수정 최신 stage에서 Offline fake/Native Editor guard 회귀 1건 PASS (`artifacts/offline-sample.GHbI58/results.xml`). iOS 부분 증거·stage 경로와 기존 실패 이력을 반영한다.
 - Native Demo iOS 증거·sample Editor 결과·현재 stage 경로 정리 후 원장/manifest/diff PASS. 원격 provider·시각 QA는 미검증, 커밋 준비.
+- P09-T07 Unity self-hosted gate에 staged Offline/Native Editor sample 회귀 연결 시작: 정확한 패키지 cache를 명시적으로 요구하며 sample skip을 성공으로 처리하지 않는다.
+- CI sample gate 연결 후 shell 문법 및 기존 preflight 음성 4건 PASS. package cache 경로 누락의 직접 음성 검사를 추가한다.
+- CI preflight 음성 5건·shell/원장/diff PASS. self-hosted 전체 및 GitHub Actions 실행은 NOT_RUN이며 커밋 준비.

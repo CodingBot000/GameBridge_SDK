@@ -2864,3 +2864,7 @@
 - source aa9c155 tracked-clean과 새 stage Native payload 81개 byte 동일성을 확인했고 전용 Simulator를 shutdown했다. asmdef 수정 stage로 Offline/Native Editor sample도 다시 실행해 최신 evidence를 갱신한다.
 - `upm-native-sample-fix-20261112`로 격리 Editor sample test 1건 PASS/skip0 (`artifacts/offline-sample.GHbI58/results.xml`): Offline fake flow와 Native Editor guard. iOS Native Player PASS 및 첫 asmdef FAIL을 별도 증거에 기록한다.
 - `verify-progress.py`, `check-manifest.py`, diff 검사 exit 0. 커밋 전: iOS 수정 후 실제 Player·Editor sample·staging provenance와 첫 실패만 정제 기록한다. raw log·키·빌드 산출물은 제외한다.
+### P09-T07 sample Editor gate 연결 시작
+- 재현 가능한 staged sample Editor 시험을 self-hosted Unity gate에 포함한다. 이 시험은 정확한 cache 패키지가 필요하므로 runner preflight에서 경로를 확인하며 미실행을 PASS로 바꾸지 않는다. GitHub Actions 실행은 별도다.
+- `bash -n scripts/ci-unity-e2e.sh`, `test_ci_gate.py` 4건 PASS. cache 미존재를 build 이전에 환경 대기로 분류하는 시험을 추가한다.
+- cache 경로 부재 등 `test_ci_gate.py` 5건 PASS/skip0, shell·원장·diff PASS. self-hosted 전체 및 GitHub Actions는 실행하지 않았다. 커밋 전: gate 연결·음성 검사·설정 문서만 포함.

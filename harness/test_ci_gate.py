@@ -16,11 +16,19 @@ class CiGateTests(unittest.TestCase):
     def test_unity_preflight_refuses_missing_environment(self):
         result=self.invoke('ci-unity-e2e.sh');self.assertEqual(result.returncode,2);self.assertIn('DEFERRED_ENV',result.stdout)
     def test_unity_preflight_refuses_missing_editor_executable(self):
-        env=os.environ.copy();env.update(UNITY_EDITOR_PATH='/nonexistent/gamebridge-unity-editor',GAMEBRIDGE_UPM_STAGING='/tmp',
+        env=os.environ.copy();env.update(UNITY_EDITOR_PATH='/nonexistent/gamebridge-unity-editor',GAMEBRIDGE_UPM_STAGING='/tmp',GAMEBRIDGE_UNITY_PACKAGE_CACHE='/tmp',
             GAMEBRIDGE_ANDROID_SERIAL='emulator-5580',GAMEBRIDGE_TEST_AVD_NAME='GameBridge_V2_baseline',
             GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push')
         result=subprocess.run(['bash',str(ROOT/'scripts/ci-unity-e2e.sh')],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         self.assertEqual(result.returncode,2);self.assertIn('UNITY_EDITOR_PATH',result.stdout)
+    def test_unity_preflight_refuses_missing_package_cache(self):
+        with tempfile.NamedTemporaryFile() as editor:
+            env=os.environ.copy();env.update(UNITY_EDITOR_PATH=editor.name,GAMEBRIDGE_UPM_STAGING='/tmp',
+                GAMEBRIDGE_UNITY_PACKAGE_CACHE='/nonexistent/gamebridge-package-cache',
+                GAMEBRIDGE_ANDROID_SERIAL='emulator-5580',GAMEBRIDGE_TEST_AVD_NAME='GameBridge_V2_baseline',
+                GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push')
+            result=subprocess.run(['bash',str(ROOT/'scripts/ci-unity-e2e.sh')],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+            self.assertEqual(result.returncode,2);self.assertIn('package cache',result.stdout)
     def test_release_gate_never_accepts_skipped_or_failed_unity(self):
         for status in ('skipped','failure','cancelled',''):
             result=self.invoke('ci-release-gate.sh',BASIC_RESULT='success',UNITY_RESULT=status)

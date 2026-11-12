@@ -821,3 +821,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 동일 실행 PII 증거의 stale·dirty·nonce·marker·원장 누락 음성 단위 1건 PASS, Python 구문 PASS. CI baseline과 strict 필수 lane을 연결한다.
 - CI/strict PII lane 연결 후 mock CI 6건·증거 음성 1건 및 Python/shell 구문 PASS. strict로 동일 nonce와 evidence 경로가 전달되는지 추가 검증한다.
 - PII 증거/nonce의 CI→strict 전달 fixture 6건, stale 증거 1건, 집계 13건 PASS. 실제 wrapper 및 변경된 전체 gate는 NOT_RUN, clean-source Player 검증 전 커밋 준비.
+- P09-T06/R22 동일 실행 PII wrapper 실제 검증 시작: source b2a000d runner, 최신 stage·실행별 nonce·빈 전용 AVD 및 격리 iOS Simulator 사용.

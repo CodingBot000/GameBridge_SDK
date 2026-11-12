@@ -2993,3 +2993,4 @@
 - `test_unity_pii_current.py` 1건 PASS/skip0: 서로 다른 nonce·HEAD·dirty·미실행·marker 누락·잘못된 원장·플랫폼 누락을 거부했다. 아직 실제 두 Player wrapper는 NOT_RUN이며 CI/strict에 fail-closed로 연결한다.
 - CI gate가 양 PII Player wrapper를 호출하고 fresh evidence/nonce를 strict 필수 lane에 전달하도록 구현했다. mock CI 6건, evidence 음성 1건 PASS; 실제 wrapper/전체 gate는 NOT_RUN이다. evidence/nonce 전달을 fixture에서 확인한다.
 - `test_ci_gate.py` 6건, `test_unity_pii_current.py` 1건, `test_aggregation.py` 13건 PASS/skip0. standalone strict는 동일 실행 PII evidence/nonce 미제공 시 DEFERRED_ENV다. 커밋 전: wrapper·검사기·CI/strict 연결·음성 시험만 포함하며 실제 wrapper/원격 CI는 NOT_RUN이다.
+- 실제 `run-unity-pii-current.py`로 양 synthetic PII LOCAL_MOCK Player를 순차 실행하고 HEAD·nonce·원장·marker 검증을 확인한다. 기존 AVD 앱은 보존하고 빈 전용 기기를 사용한다. clean-source 시작 기록만 먼저 커밋한다.

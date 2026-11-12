@@ -24,8 +24,8 @@ bash scripts/build-unity.sh --editor-smoke
 bash scripts/smoke-unity-offline-sample.sh
 bash scripts/smoke-unity-android-hook-repeat.sh
 bash scripts/smoke-unity-ios-hook-repeat.sh
-android_args=(--run-local --staging "$GAMEBRIDGE_UPM_STAGING" --serial "$GAMEBRIDGE_ANDROID_SERIAL" --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME")
-ios_args=(--run-local --adhoc --staging "$GAMEBRIDGE_UPM_STAGING")
+android_args=(--run-local --pii-probe --staging "$GAMEBRIDGE_UPM_STAGING" --serial "$GAMEBRIDGE_ANDROID_SERIAL" --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME")
+ios_args=(--run-local --adhoc --pii-probe --staging "$GAMEBRIDGE_UPM_STAGING")
 if [[ -n "${GAMEBRIDGE_UNITY_PACKAGE_CACHE:-}" ]]; then
   android_args+=(--package-cache "$GAMEBRIDGE_UNITY_PACKAGE_CACHE")
   ios_args+=(--package-cache "$GAMEBRIDGE_UNITY_PACKAGE_CACHE")

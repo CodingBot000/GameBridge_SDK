@@ -814,3 +814,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 Android Unity Player synthetic 개인정보 callback PASS (`artifacts/unity-android-e2e-rtm39zwn`): 허용되지 않은 email/전화번호가 공개 Push 결과 및 raw logcat에 없음. 최초 안내 수동 처리, 실제 개인정보/원격 push 미검증.
 - Android PII test AVD shutdown·데이터 보존. 양 Player synthetic PII 결과 증거를 기록하되 자동 strict lane·다른 개인정보 형식/실 provider는 별도 미완료다.
 - synthetic PII Player 정제 증거·원장/diff 검사 PASS. 원격 provider·자동 strict lane은 미완료로 커밋 준비.
+- P09-T07 Unity CI 기본 Android/iOS Player에 이미 검증된 synthetic PII probe 연결 시작: 별도 AVD 추가 없이 기존 기본 flow와 함께 실행한다. strict의 독립 PII lane은 여전히 미구현이다.
+- CI baseline 양 플랫폼 PII probe 인자 전달 fixture 포함 6건 PASS, shell/원장/diff PASS. 변경된 실제 전체 gate·standalone strict PII lane은 NOT_RUN/미구현, 커밋 준비.

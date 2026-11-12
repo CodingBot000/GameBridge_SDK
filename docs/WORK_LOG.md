@@ -2984,3 +2984,6 @@
 - `run-unity-android-mock-e2e.py --pii-probe` exit 0 (`artifacts/unity-android-e2e-rtm39zwn`): synthetic Native callback의 허용되지 않은 email/전화번호가 공개 PushUpdate와 raw Unity logcat에 없음. 기본 LOCAL_MOCK flow PASS, 최초 전체화면 안내 수동 처리. 실제 개인정보/원격 push 아님.
 - Android PII test AVD shutdown, 데이터 보존. Android source a42a8b2 및 iOS source 6d82338은 각각 tracked-clean. 두 test-only synthetic PII 결과를 정제 증거에 기록하며 자동 strict lane·실 provider·다른 개인정보 형식은 미완료다.
 - 양 Player synthetic PII 정제 evidence 및 원장/diff 검사 PASS. 커밋 전: 결과·수동 안내 조건만 포함하고 raw log·개인정보는 저장하지 않는다. R22 PARTIAL 유지.
+### P09-T07 Unity CI 기본 Player PII probe 연결 시작
+- 기존 baseline Android/iOS Player는 동일 인증·구매 흐름을 유지하는 `--pii-probe`로 실행해 synthetic 개인정보 결과/로그 검사를 포함한다. 별도 AVD는 추가하지 않는다. standalone strict의 독립 PII lane과 GitHub Actions 실제 실행은 아직 없다.
+- mock CI gate의 양 플랫폼 `--pii-probe` 전달 포함 `test_ci_gate.py` 6건 PASS/skip0, shell·원장·diff PASS. 변경된 실제 전체 gate 및 standalone strict의 독립 PII lane은 미완료다. 커밋 전: 설정·fixture·문서만 포함한다.

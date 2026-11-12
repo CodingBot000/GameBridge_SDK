@@ -17,7 +17,7 @@
 
 - 계획 Task 총수: 64
 - 구현: NOT_STARTED 0 / IN_PROGRESS 62 / IMPLEMENTED 2 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 2 / FAIL 1 / PARTIAL 60 / DEFERRED_ENV 1 / REVIEW_ONLY 0
+- 로컬 검증: NOT_RUN 0 / PASS 2 / FAIL 1 / PARTIAL 61 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -78,7 +78,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P08-T01 | Android Maven 산출물·소비 build | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T01 | - |
 | P08-T02 | Swift Package·static XCFramework 산출물 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T02 | - |
 | P08-T03 | UPM staging·멱등 build hook | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T03 | ENV-002 |
-| P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IN_PROGRESS | DEFERRED_ENV | N/A | WORK_LOG P08-T04 | ENV-002 |
+| P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T04 | - |
 | P08-T05 | 기능 개발 기준점 고정 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/feature-baseline.md, WORK_LOG P08-T05 | ENV-002, ENV-STOREKIT-26 |
 | P09-T01 | 후반 하네스 manifest·공통 contract test | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T01 | - |
 | P09-T02 | Core·Bridge 회귀·실패 주입 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T02 | ENV-002 |
@@ -657,3 +657,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 synthetic Google 구매 증빙 HTTP/로그 1건 PASS/skip0 (`artifacts/r22-proof-0bcej9x1`): 성공·거부 응답 및 캡처된 Backend 로그에 증빙·세션 token 비노출 확인. 실제 Play는 미검증.
 - R22 구매 증빙 검사 서식을 정리하고 재컴파일한다. 실제 HTTP 시험 PASS는 서식 정리 전 소스에서 확인했다.
 - 구매 증빙 시험 서식 정리 후 Kotlin 재컴파일·diff 검사 PASS. 전체 로그/실제 provider 미검증으로 R22 PARTIAL 유지; 커밋 준비.
+- P11-T01 작업 원장 정합성 점검 시작: 이미 RESOLVED인 ENV-002를 사유로 P08-T04가 DEFERRED_ENV인 행을 현재 Player 증거와 완료 기준에 맞춰 재평가한다.
+- P08-T04는 독립 staged consumer Android/iOS 실제 Player 증거가 있어 ENV 대기가 아닌 PARTIAL로 정정했다. bootstrap 문서 그대로의 재설치 등 완료 기준은 별도이며 PASS가 아니다.
+- P08-T04 상태·집계 정정 후 원장 및 음성 검사 PASS. 제품 시험이 아니며 커밋 준비.

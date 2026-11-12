@@ -2802,3 +2802,7 @@
 - 전용 sandbox DB에서 `GooglePurchaseHttpIntegrationTest` 1건 PASS/skip0 (`artifacts/r22-proof-0bcej9x1`): synthetic 구매 증빙·거부 증빙·access/refresh token이 성공/실패 HTTP 결과와 캡처된 root logger 메시지·stack에 없는지 확인했다. fake verifier/finalizer이며 실제 Play는 아니다.
 - 성공한 증빙 시험의 try/finally 본문 들여쓰기만 정리했다. 기능 변경 여부 확인을 위해 테스트 컴파일을 재실행한다.
 - 서식 정리 후 `compileTestKotlin` exit 0, diff 검사 PASS. 기존 격리 HTTP 검증은 의미가 변하지 않은 서식 정리 전 실행이다. 커밋 전: fake proof HTTP/log test 및 정제 증거만 포함한다.
+### P11-T01 완료 상태 원장 점검 시작
+- ENV-002는 RESOLVED이고 별도 Android/iOS 소비 프로젝트 빌드·Player 증거가 있지만 P08-T04는 여전히 DEFERRED_ENV다. bootstrap 문서 그대로의 재설치 등 완료 기준과 분리해 현재 상태를 정정한다.
+- R49 실제 신규 staged consumer 양 플랫폼 Player 증거를 확인했고 ENV-002는 RESOLVED다. P08-T04를 DEFERRED_ENV→PARTIAL로 정정하고 blocker를 제거했다. bootstrap 문서 재현 등 남은 기준은 수행하지 않아 PASS/IMPLEMENTED로 변경하지 않았다.
+- `verify-progress.py`, `check-progress-negative.py`, `git diff --check` exit 0. 문서 정합성 검사이며 제품 시험이 아니다. 커밋 전: 행·분모·감사 기록만 포함한다.

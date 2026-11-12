@@ -2572,3 +2572,4 @@
 - 기존 Android Player 인증·구매 E2E를 새 전용 AVD와 DB에서 현재 runner로 재실행한다. 기존 AVD·앱·DB는 보존하고 실행 전 기록을 커밋한다.
 - `harness/run-unity-android-mock-e2e.py --run-local ... --package-cache ...` 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-e2e-7001epc_`). Unity Player 초기화·Mock 로그인·상품·구매·잔액·로그아웃, Native 진단·서버 trace·DB 원장 검사 통과. 최초 전체화면 안내는 수동으로 닫았다. 기존 Android 회귀와 실제 제공자 검증은 별도다.
 - iOS 기존 인증·구매 전체 Runner를 새 Simulator·DB에서 다시 실행한다. 실행 전 진행 기록을 커밋한다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --package-cache ...`를 새 Simulator/DB에서 실행한다. Unity 인증·구매 이전 PASS를 현재 결과로 대체하지 않는다. 시작 기록을 커밋한다.

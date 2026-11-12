@@ -10,7 +10,7 @@
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 최신 로컬 UPM staging: `artifacts/upm-native-sample-fix-20261112`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
+- 최신 로컬 UPM staging: `artifacts/upm-stable-meta-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 바로 다음 행동: R22 전체 로그·입력 변이 검증과 R40 OS 권한 자동 재현, 최신 strict의 Unity 포함 실행 및 GitHub Actions 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
@@ -784,3 +784,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - metadata stage iOS Sample API→Native Demo Simulator LOCAL_MOCK Player PASS (`artifacts/unity-ios-e2e-q9ua_s4_`), tracked-clean·원장 1건/100. Android 재실행 및 sample 최상위 폴더 GUID는 별도.
 - iOS test Simulator shutdown(데이터 보존), 결과 커밋 준비. Android metadata stage Player는 NOT_RUN.
 - P08-T03 metadata stage Android Native Demo Sample API→Player 재검증 시작: 앱 미설치 전용 AVD·격리 DB 사용.
+- metadata stage Android Sample API→Native Demo LOCAL_MOCK Player PASS (`artifacts/unity-android-e2e-2trvul1k`), tracked-clean·원장 1건/100. 최초 전체화면 안내 수동 처리. Sample 최상위 폴더 GUID 차이는 미해결.
+- metadata stage Android/iOS Native Demo Player 양쪽 재검증 PASS. 테스트 AVD shutdown·데이터 보존. Sample 최상위 폴더 GUID 불일치로 P08-T03 PARTIAL 유지, 최신 staging/증거 갱신.
+- 최신 metadata stage·양 Player 결과 문서 정합성/manifest/diff PASS. 최상위 폴더 GUID·실제 provider는 미완료로 커밋 준비.

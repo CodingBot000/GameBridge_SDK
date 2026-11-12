@@ -2950,3 +2950,6 @@
 - metadata stage iOS `--native-demo-probe` exit 0 (`artifacts/unity-ios-e2e-q9ua_s4_`): Sample API import 후 Native Demo Simulator LOCAL_MOCK Player·원장 1건/100 PASS, tracked-clean. Android와 sample 최상위 폴더 GUID는 별도다.
 - iOS test Simulator shutdown, 데이터 보존. 커밋 전: iOS 부분 결과만 포함하며 Android 재실행은 NOT_RUN으로 남긴다.
 - metadata 추가가 Android sample import/export/Player를 깨지 않는지 새 stage에서 재실행한다. 기존 AVD 앱 데이터를 보존하기 위해 빈 전용 기기를 사용하며 시작 기록만 커밋한다.
+- metadata stage Android `--native-demo-probe` exit 0 (`artifacts/unity-android-e2e-2trvul1k`): Sample API import 후 Native Demo Player·원장 1건/100 PASS, tracked-clean. 최초 전체화면 안내는 수동으로 닫았다. Sample 최상위 폴더 GUID 불일치는 별도다.
+- Android test AVD는 삭제 없이 shutdown했다. metadata stage Android/iOS Native Demo Player 재실행 PASS를 증거에 추가하고 최신 stage 경로를 갱신한다. Sample import 최상위 폴더 GUID 불일치는 여전히 별도 미완료다.
+- 원장·manifest·diff 검사 PASS. 커밋 전: metadata stage 최신 경로 및 양 Player 정제 증거만 포함한다. Sample 최상위 폴더 GUID·실제 provider를 완료로 기록하지 않는다.

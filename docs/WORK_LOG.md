@@ -2750,3 +2750,5 @@
 - `test_unity_redaction_marker.py` 2건 PASS/skip0: 실행 중은 대기, 최종 PASS에 marker가 없으면 FAIL, 로그 필터가 marker를 보존한다. Python compile PASS. 실제 수정 Player 재실행은 NOT_RUN. 커밋 전: runner 수정·음성 테스트·실패 이력만 포함.
 - 수정 runner의 실제 Player 재시험을 시작한다. 실패한 기존 AVD의 앱과 데이터는 보존하고 종료 후 새 빈 AVD에서 실행한다. iOS도 해당 실행 source를 기록한다.
 - 커밋 전: 재검증 시작 기록만 포함한다. Player 결과는 미실행이다.
+- 수정 Android runner 재실행 exit 0, `artifacts/unity-android-e2e-m62mfexg`: Unity LOCAL_MOCK 인증·구매·진단 결과에 합성 개발키가 없는 marker PASS, source 7156dac tracked-clean; 최초 전체화면 안내 수동 처리. 이전 e1f83e1 runner 실패는 보존한다. iOS 및 실제 credential 검증은 별도다.
+- 커밋 전: Android 재시험 기록만 포함한다. iOS Player는 미실행이다.

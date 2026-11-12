@@ -614,3 +614,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 Android 실패 원인: runner가 완료 marker 전 새 marker를 검사하고 logcat 필터도 이를 제외했다. Player 결과는 미확정이다. 필터·검사 순서를 수정하고 미완료/누락 음성 시험을 추가한다.
 - Android runner marker 필터·대기 순서 수정 후 단위 2건/Python 문법 PASS. 실제 Player는 재실행 전이며 새 빈 AVD가 필요하다. 커밋 준비.
 - R22 Android/iOS Player 재검증 재시작: 수정된 polling을 적용한 source ffb7842 기준으로 빈 Android AVD와 별도 iOS Simulator를 사용한다. 앞선 실패는 보존한다.
+- R22 Android LOCAL_MOCK Unity Player 재검증 PASS (`artifacts/unity-android-e2e-m62mfexg`): source 7156dac tracked-clean, 인증·구매·진단 결과의 합성 개발키 부재 및 marker 확인. 최초 전체화면 안내 수동 처리. 실제 token·iOS는 별도.

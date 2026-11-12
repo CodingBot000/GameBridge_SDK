@@ -2853,3 +2853,8 @@
 - Native Demo iOS `UNITY_IOS` 조건부 probe managed compile exit 0, 경고·오류 0. Unity Simulator Player는 아직 미실행이다. 커밋 전: test-only probe·runner와 기록만 포함한다.
 - 수정 staged Native Demo iOS LOCAL_MOCK Player를 새 Simulator에서 실행한다. test-only UI callback과 synthetic local DB만 사용하며 clean-source 실행을 위해 시작 기록을 먼저 커밋한다.
 - 커밋 전: 시작 기록만 포함, 실제 결과는 NOT_RUN이다.
+- `run-unity-ios-mock-e2e.py --native-demo-probe` 첫 실행 exit 1, UNITY_EXPORT_FAILED (`artifacts/unity-ios-e2e-kd8mlvys`); Simulator Player는 NOT_RUN. 격리 Unity 로그의 빌드 원인을 확인한다.
+- 격리 Unity Editor 로그의 실제 컴파일 오류는 `NativeDemoIosPush.cs(11,13) CS0246 GameBridgeClient`다. `GameBridge.NativeDemo.iOS.asmdef`가 해당 타입을 가진 `GameBridge.Runtime`을 직접 참조하지 않는다. .NET managed compile의 transitive project reference가 놓친 실제 UPM sample assembly 결함으로 수정 및 재패키징한다.
+- iOS sample asmdef에 `GameBridge.Runtime` 직접 참조를 추가하고 Unity 비전이적 참조 계약 단위 검사를 CI inventory에 추가했다. 실제 Unity export는 아직 재실행 전이다.
+- `test_unity_sample_assemblies.py` 1건 PASS/skip0, YAML·diff 검사 PASS. 수정 asmdef를 반영한 새 staging을 직전 Native payload로 생성하고 실제 Unity iOS export를 재검증한다.
+- `package-sdk.sh`로 기존 f1e12b6 Native payload를 사용해 `upm-native-sample-fix-20261112` 생성, XCFramework/110개 checksum PASS. 수정 소스 tracked-clean에서 iOS Player를 재실행하기 위해 코드 및 회귀 검사를 먼저 커밋한다. 실제 Player는 NOT_RUN이다.

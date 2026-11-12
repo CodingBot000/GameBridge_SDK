@@ -699,3 +699,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Native Demo iOS test-only probe·runner option 초안 작성, Python 문법 및 전문 probe 동시 선택 거부 PASS. 조건부 컴파일과 실제 Player는 미실행이다.
 - Native Demo iOS probe managed compile PASS(경고·오류 0). 실제 Simulator Player는 NOT_RUN; clean-source 실행 전 코드 커밋 준비.
 - P08-T04 Native Demo iOS Simulator Player 실제 검증 시작: source bf1c526 제품/테스트 코드와 최신 staged SDK·격리 DB를 사용한다.
+- Native Demo iOS 첫 검증 FAIL (`artifacts/unity-ios-e2e-kd8mlvys`): UNITY_EXPORT_FAILED, Player 미실행. 격리 Unity 빌드 오류를 확인한다.
+- Native Demo iOS export 원인 확인: `GameBridge.NativeDemo.iOS` asmdef가 `GameBridge.Runtime` 직접 참조를 누락해 `GameBridgeClient` CS0246. test-only가 아닌 실제 sample 패키지 버그로 수정한다.
+- Native Demo iOS asmdef에 Runtime 직접 참조 추가 및 assembly contract 음성 방지 검사 작성. Unity 실제 export는 재실행 전이다.
+- iOS sample asmdef 직접 참조 단위 1건·workflow YAML·diff 검사 PASS. 수정 제품 소스를 포함한 새 staged UPM을 생성한다.
+- 수정 asmdef 포함 새 UPM staging `artifacts/upm-native-sample-fix-20261112` 생성, XCFramework 검증·110개 checksum PASS. 실제 iOS Player 전 수정 코드 커밋 준비.

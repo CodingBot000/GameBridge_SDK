@@ -2625,3 +2625,4 @@
 - static callback으로 수정한 Unity Editor `build-unity.sh --editor-smoke` 종료 0 (`artifacts/unity-consumer.U1ob4f/results.xml`): reload-enabled/disabled 2건 PASS, 각 완료 marker 존재. 두 차례 실패는 test 측 수명/closure 문제로 기록돼 있다. 결과 판정이 실행되지 않은 assertion을 PASS 처리하지 않도록 각 test의 marker를 필수화한다.
 - `scripts/check-unity-test-result.py`가 두 test 이름과 PASS뿐 아니라 각 test의 해당 완료 marker를 개별 검사하도록 변경했다. 기존 실제 XML 및 marker 누락/skip/중복 음성 fixture를 확인한다.
 - 실제 `artifacts/unity-consumer.U1ob4f/results.xml`은 두 marker 검사 PASS. `test_unity_consumer_result.py` 1 test PASS/skip 0(누락·skip·중복 fixture 포함). 커밋 준비: R11 test source·결과 parser·offline 격리 runner 및 원장만 포함한다. 신규 source 재실행 전 manifest는 PARTIAL 유지한다.
+- R11 커밋된 테스트 코드를 동일 버전의 격리 consumer에서 재실행한다. 실행 전 진행 기록을 커밋하며 사용자 Demo 및 다른 Unity 프로젝트는 변경하지 않는다.

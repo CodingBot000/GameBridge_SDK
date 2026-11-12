@@ -507,3 +507,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R11 강화된 Unity Editor test 실제 2건 PASS/skip 0 (`artifacts/unity-consumer.U1ob4f`), reload-enabled/disabled 각각 완료 marker 확인. 결과 parser가 marker 누락도 거부하도록 보강하고 음성 검증한다.
 - R11 Unity XML 결과 판정이 각 domain reload 시험의 완료 marker를 요구하도록 변경했다. 실제 결과와 누락/skip 음성 검증을 시작한다.
 - R11 실제 Unity XML의 두 완료 marker 검사 PASS, 누락·skip·중복 음성 검사 PASS. 테스트 코드 및 exact-version 격리 실행기 변경을 커밋한 뒤 clean source에서 재실행한다. R11은 재검증 전 PARTIAL 유지.
+- R11 커밋된 테스트 소스로 Unity Editor reload-enabled/disabled 및 scene·callback 재검증 시작. 결과는 아직 NOT_RUN이다.

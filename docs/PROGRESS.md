@@ -816,3 +816,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - synthetic PII Player 정제 증거·원장/diff 검사 PASS. 원격 provider·자동 strict lane은 미완료로 커밋 준비.
 - P09-T07 Unity CI 기본 Android/iOS Player에 이미 검증된 synthetic PII probe 연결 시작: 별도 AVD 추가 없이 기존 기본 flow와 함께 실행한다. strict의 독립 PII lane은 여전히 미구현이다.
 - CI baseline 양 플랫폼 PII probe 인자 전달 fixture 포함 6건 PASS, shell/원장/diff PASS. 변경된 실제 전체 gate·standalone strict PII lane은 NOT_RUN/미구현, 커밋 준비.
+- P09-T06/R22 동일 실행 PII Player 증거 집계 시작: Android/iOS 현재 HEAD·tracked-clean·필수 marker·원장 및 실행별 nonce를 검증하고 누락/과거 결과를 strict PASS로 사용하지 않는다.
+- 동일 실행 PII wrapper/검사기 초안 작성, Python 구문 PASS. stale/dirty/marker 누락·nonce 불일치 음성 시험 및 실제 Player는 아직 NOT_RUN이다.
+- 동일 실행 PII 증거의 stale·dirty·nonce·marker·원장 누락 음성 단위 1건 PASS, Python 구문 PASS. CI baseline과 strict 필수 lane을 연결한다.
+- CI/strict PII lane 연결 후 mock CI 6건·증거 음성 1건 및 Python/shell 구문 PASS. strict로 동일 nonce와 evidence 경로가 전달되는지 추가 검증한다.
+- PII 증거/nonce의 CI→strict 전달 fixture 6건, stale 증거 1건, 집계 13건 PASS. 실제 wrapper 및 변경된 전체 gate는 NOT_RUN, clean-source Player 검증 전 커밋 준비.

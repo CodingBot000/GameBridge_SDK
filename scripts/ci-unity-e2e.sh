@@ -24,14 +24,16 @@ bash scripts/build-unity.sh --editor-smoke
 bash scripts/smoke-unity-offline-sample.sh
 bash scripts/smoke-unity-android-hook-repeat.sh
 bash scripts/smoke-unity-ios-hook-repeat.sh
-android_args=(--run-local --pii-probe --staging "$GAMEBRIDGE_UPM_STAGING" --serial "$GAMEBRIDGE_ANDROID_SERIAL" --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME")
-ios_args=(--run-local --adhoc --pii-probe --staging "$GAMEBRIDGE_UPM_STAGING")
-if [[ -n "${GAMEBRIDGE_UNITY_PACKAGE_CACHE:-}" ]]; then
-  android_args+=(--package-cache "$GAMEBRIDGE_UNITY_PACKAGE_CACHE")
-  ios_args+=(--package-cache "$GAMEBRIDGE_UNITY_PACKAGE_CACHE")
-fi
-python3 harness/run-unity-android-mock-e2e.py "${android_args[@]}"
-python3 harness/run-unity-ios-mock-e2e.py "${ios_args[@]}"
+pii_nonce="$(python3 -c 'import secrets; print(secrets.token_hex(16))')"
+set +e
+pii_output="$(python3 harness/run-unity-pii-current.py --run-local --staging "$GAMEBRIDGE_UPM_STAGING" --serial "$GAMEBRIDGE_ANDROID_SERIAL" --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME" --nonce "$pii_nonce" --package-cache "$GAMEBRIDGE_UNITY_PACKAGE_CACHE")"
+pii_code=$?
+set -e
+printf '%s\n' "$pii_output"
+if [[ "$pii_code" != 0 ]]; then exit "$pii_code"; fi
+pii_directory="$(printf '%s\n' "$pii_output" | sed -n 's/^PII gate result: PASS Evidence directory: //p')"
+[[ "$pii_directory" == artifacts/unity-pii-current-* ]] || { echo 'FAIL: PII gate evidence missing' >&2; exit 1; }
+export GAMEBRIDGE_UNITY_PII_EVIDENCE="$pii_directory/result.json" GAMEBRIDGE_UNITY_PII_NONCE="$pii_nonce"
 # The complete strict suite must execute in this run; missing fixtures or
 # remaining PARTIAL scenarios cannot be replaced by prior evidence.
 python3 harness/run-strict-local-isolated.py --run-local

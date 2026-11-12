@@ -2987,3 +2987,9 @@
 ### P09-T07 Unity CI 기본 Player PII probe 연결 시작
 - 기존 baseline Android/iOS Player는 동일 인증·구매 흐름을 유지하는 `--pii-probe`로 실행해 synthetic 개인정보 결과/로그 검사를 포함한다. 별도 AVD는 추가하지 않는다. standalone strict의 독립 PII lane과 GitHub Actions 실제 실행은 아직 없다.
 - mock CI gate의 양 플랫폼 `--pii-probe` 전달 포함 `test_ci_gate.py` 6건 PASS/skip0, shell·원장·diff PASS. 변경된 실제 전체 gate 및 standalone strict의 독립 PII lane은 미완료다. 커밋 전: 설정·fixture·문서만 포함한다.
+### P09-T06/R22 동일 실행 PII Player 증거 집계 시작
+- 기존 Unity CI baseline의 `--pii-probe` 양 플랫폼 결과를 실행별 nonce와 현재 HEAD, tracked-clean, Player/marker/원장 검증으로 묶는다. standalone strict는 해당 실행 증거가 없으면 DEFERRED_ENV여야 한다. 이전 결과 재사용이나 필수 검증 생략을 허용하지 않는다.
+- PII wrapper는 두 Player를 새로 실행하고 현재 HEAD·실행 nonce·tracked-clean·PII marker·DB 원장을 검증한다. 검사기 Python compile만 완료했고 음성 fixture와 실제 wrapper 실행은 아직 미실행이다.
+- `test_unity_pii_current.py` 1건 PASS/skip0: 서로 다른 nonce·HEAD·dirty·미실행·marker 누락·잘못된 원장·플랫폼 누락을 거부했다. 아직 실제 두 Player wrapper는 NOT_RUN이며 CI/strict에 fail-closed로 연결한다.
+- CI gate가 양 PII Player wrapper를 호출하고 fresh evidence/nonce를 strict 필수 lane에 전달하도록 구현했다. mock CI 6건, evidence 음성 1건 PASS; 실제 wrapper/전체 gate는 NOT_RUN이다. evidence/nonce 전달을 fixture에서 확인한다.
+- `test_ci_gate.py` 6건, `test_unity_pii_current.py` 1건, `test_aggregation.py` 13건 PASS/skip0. standalone strict는 동일 실행 PII evidence/nonce 미제공 시 DEFERRED_ENV다. 커밋 전: wrapper·검사기·CI/strict 연결·음성 시험만 포함하며 실제 wrapper/원격 CI는 NOT_RUN이다.

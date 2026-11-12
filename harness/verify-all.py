@@ -41,6 +41,8 @@ def main() -> int:
             match = re.search(r'Ran (\d+) tests?', text); count = int(match.group(1)) if match else 0
         if name == 'unity-editor-runtime':
             match = re.search(r'Unity consumer tests PASS: (\d+) executed', text); count = int(match.group(1)) if match else 0
+        if name == 'unity-pii-e2e':
+            count = 2 if marker in text else 0
         if name == 'purchase-verifier':
             match = re.search(r'Purchase verifier PASS: (\d+) synthetic tests', text); count = int(match.group(1)) if match else 0
         if name == 'lifecycle-stress':
@@ -94,6 +96,12 @@ def main() -> int:
     if env.get('GAMEBRIDGE_LOCAL_TEST_DB_URL'): ledger_env['GAMEBRIDGE_TEST_DB_URL'] = env['GAMEBRIDGE_LOCAL_TEST_DB_URL']
     simple('ledger-mutation',['python3','harness/check-ledger-mutation.py'],'Ledger mutation detected',ledger_env)
     nested('push',['python3','harness/run-push-regression.py'])
+    pii_evidence, pii_nonce = env.get('GAMEBRIDGE_UNITY_PII_EVIDENCE'), env.get('GAMEBRIDGE_UNITY_PII_NONCE')
+    if pii_evidence and pii_nonce:
+        simple('unity-pii-e2e',['python3','harness/check-unity-pii-evidence.py',pii_evidence,pii_nonce],'Unity PII current-run PASS:')
+    else:
+        lanes.append({'name':'unity-pii-e2e','status':'DEFERRED_ENV','required':True,'tests':0,'skipped':0,'exitCode':2,
+                      'command':['python3','harness/check-unity-pii-evidence.py'],'evidence':'docs/PROGRESS.md','reason':'current-run PII Player evidence not supplied'})
     manifest = json.loads((ROOT/'harness/regression-manifest.json').read_text(encoding='utf-8'))
     partial = [entry['id'] for entry in manifest['scenarios'] if entry.get('required') and entry.get('coverage') == 'PARTIAL']
     unimplemented = [entry['id'] for entry in manifest['scenarios'] if entry.get('required') and entry.get('coverage') == 'NOT_IMPLEMENTED']
@@ -120,7 +128,7 @@ def main() -> int:
     required_names = {
         'harness-self', 'progress', 'manifest', 'api-baseline', 'api-baseline-negative', 'csharp-compat',
         'aggregation-self', 'progress-negative', 'manifest-negative', 'contract-negative', 'bridge-mutation',
-        'lifecycle-stress', 'r50-negative', 'purchase-verifier', 'session-replay', 'push-router-scenarios', 'push-ownership', 'android-dependency-negative', 'ios-xcframework-negative', 'ledger-mutation', 'scenario-coverage', 'unity-editor-runtime',
+        'lifecycle-stress', 'r50-negative', 'purchase-verifier', 'session-replay', 'push-router-scenarios', 'push-ownership', 'android-dependency-negative', 'ios-xcframework-negative', 'ledger-mutation', 'scenario-coverage', 'unity-editor-runtime', 'unity-pii-e2e',
         *(f'contracts/{name}' for name in ('kotlin','swift','csharp')),
         *(f'auth/{name}' for name in ('backend-jwt-fake','backend-sandbox-test-key-db','android-native-fake','swift-native-fake')),
         *(f'purchase/{name}' for name in ('local-postgres-fixtures','sandbox-http-fixtures','android-native-fake','swift-native-fake',

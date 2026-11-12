@@ -2930,3 +2930,8 @@
 - `run-unity-ios-mock-e2e.py --native-demo-probe` exit 0 (`artifacts/unity-ios-e2e-7ryle35b`): 같은 신규 프로젝트에서 Unity Sample API로 Offline/Native import 후 Native Demo iOS Simulator Player mock 설정·인증·구매·로그아웃 및 원장 1건/100 PASS. Package Manager GUI 클릭·포인터·실제 Apple 거래는 아니다.
 - iOS Simulator는 삭제 없이 shutdown했다. 커밋 전: iOS import→Player 결과만 기록하고 Android 동일 경로는 NOT_RUN으로 유지한다.
 - 동일 신규 프로젝트의 Sample API import 이후 Native Demo Android LOCAL_MOCK Player를 실행한다. 기존 AVD 앱 데이터를 보존하기 위해 빈 전용 AVD를 사용한다. 시작 기록만 커밋하며 결과는 미실행이다.
+- `run-unity-android-mock-e2e.py --native-demo-probe` exit 0 (`artifacts/unity-android-e2e-8hjon046`): 같은 신규 프로젝트의 Unity Sample API import 후 Native Demo Android LOCAL_MOCK 설정·로그인·mock 구매·로그아웃 및 원장 1건/100 PASS. 최초 전체화면 안내 수동 처리. Package Manager GUI 클릭·포인터·실제 Play 거래는 아니다.
+- Android test AVD는 삭제 없이 shutdown했다. 양 플랫폼 각 신규 프로젝트의 Sample API import→Native Demo LOCAL_MOCK Player 증거를 관련 문서에 반영하며 source가 서로 다름을 보존한다. GUI 클릭·실제 provider는 미검증이다.
+- Android 64cb90b/iOS 083100f 사이 Unity SDK·Android SDK·iOS 제품 source diff exit 0, 두 Player의 staging SHA-256은 동일 `6f966d4b…`. 계획의 `docs/evidence/consumer-install.md`에 import·설정·Player·실제 플랫폼 한계를 정리한다.
+- P08-T04 계획의 신규 staged consumer·Sample API import·Editor mock flow 및 Android/iOS export/build/LOCAL_MOCK Player 실행을 `docs/evidence/consumer-install.md`에 연결했다. 해당 Task만 IMPLEMENTED/로컬 PASS로 갱신한다. GUI 포인터·시각, 실제 계정·스토어·실기기는 별도 미검증이다.
+- P08-T04 갱신 후 `verify-progress.py`, `check-progress-negative.py`, diff 검사 PASS. 커밋 전: 해당 Task의 정제된 설치 증거·상태와 기능 보고서만 포함한다. 다른 P08 Task나 실제 제공자를 완료로 바꾸지 않는다.

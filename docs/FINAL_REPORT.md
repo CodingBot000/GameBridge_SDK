@@ -14,7 +14,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 - 회귀 하네스의 누락·변이 음성 시험과 로컬 Unity gate를 실행했다. 소스 `e703f43`의 기본 Android/iOS Player, Push 양 플랫폼 및 Unity Editor는 PASS했지만 `artifacts/verify-all-4r3l36i6/summary.md` 전체는 R22/R40 PARTIAL과 기존 P05-T03 FAIL로 FAIL이다 ([증거](evidence/p09-unity-ci-local.md)). 두 Android 최초 안내는 수동으로 닫았다. GitHub Actions 및 실제 제공자는 실행하지 않았다.
 - 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
 
-Offline Demo는 별도 staged UPM의 Package Manager Sample API import 후 새 테스트 프로젝트의 Unity Editor Play에서 fake 로그인·상품·구매 callback을 확인했다 ([증거](evidence/p08-offline-sample-editor.md)). Native Demo는 Android/iOS LOCAL_MOCK Player에서 설정·모의 구매 callback을 확인했다 ([Android](evidence/p08-native-demo-android.md), [iOS](evidence/p08-native-demo-ios.md)). iOS 첫 export는 sample asmdef 누락으로 실패했으며 수정 후 통과했다. Package Manager GUI 클릭, 실제 포인터·화면 렌더링은 별도다.
+Offline Demo는 별도 staged UPM의 Package Manager Sample API import 후 새 테스트 프로젝트의 Unity Editor Play에서 fake 로그인·상품·구매 callback을 확인했다 ([증거](evidence/p08-offline-sample-editor.md)). Native Demo는 양 플랫폼별 신규 프로젝트에서 Sample API import 후 Android/iOS LOCAL_MOCK Player의 설정·모의 구매 callback을 확인했다 ([Android](evidence/p08-native-demo-android.md), [iOS](evidence/p08-native-demo-ios.md)). iOS 첫 export는 sample asmdef 누락으로 실패했으며 수정 후 통과했다. Package Manager GUI 클릭, 실제 포인터·화면 렌더링은 별도다.
 
 ## 남은 내부 작업과 실패
 

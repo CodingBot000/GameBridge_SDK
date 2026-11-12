@@ -482,3 +482,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - PX-T17 플랫폼 evidence의 과거 NOT_RUN 표현을 해당 시험 시점의 범위로 명확히 바꾸고 후속 실제 결과를 가리키도록 정리했다. 각 source 결과는 변경하지 않았다.
 - PX-T17 기능 matrix 세부 Push·복구 행과 USER_SETUP의 과거 Unity Push 미검증 표현을 현재 LOCAL_MOCK Player 증거로 정정했다. 실제 알림 클릭·원격 전송·실기기는 미검증이다.
 - PX-T17 최종 문서·원장 검사 PASS. 플랫폼별 실제 Player PASS, 합성 지연 callback 및 iOS test-only TCP fault 한계, 실기기·실제 원격 제공자 NOT_RUN을 유지하며 커밋 준비한다. 자동 push하지 않는다.
+- PX-T18 P09 6개 PARTIAL 및 CI 고도화 시작: 기준 HEAD 058742d, 기존 Android/iOS LOCAL_MOCK Player 결과는 보존한다. 실제 검증이 없는 항목은 PARTIAL 유지하고 사용자 미추적 파일을 건드리지 않는다.
+- P09-T07 CI 작업 시작: Backend·Android·Swift 기본 gate, 명시적인 self-hosted Unity 실제 실행 및 별도 fail-closed Release readiness로 분리한다. Unity 미실행을 PASS로 처리하지 않는다.
+- P09-T07 CI 구조를 독립 inventory/backend/Android/Swift 기본 gate와 명시적 self-hosted Unity Editor+Android/iOS Player·strict gate, 별도 Release readiness로 분리했다. 실제 Actions 실행은 아직 NOT_RUN이다.
+- P09-T07 YAML 검증 첫 시도는 로컬 Python PyYAML 부재로 미실행(exit 2). 내장 Ruby YAML 파서로 구문을 다시 확인한다.
+- P09-T07 Ruby 내장 parser의 workflow YAML 구문 PASS. 필수 시나리오 검사에서 6개 PARTIAL로 exit 1이 확인되어 Release 준비가 아님을 유지한다. CI gate의 미실행/실패 거부를 단위 검증한다.
+- P09-T07 Unity 필수 환경 누락, 미실행 Unity gate 및 PARTIAL 시나리오의 Release 차단 테스트 시작.
+- P09-T07 CI gate 음성 테스트가 현재 PARTIAL 상태에 영구 의존하지 않도록 격리 fixture로 보완했다. 재검증한다.
+- P09-T07 Unity gate에 실제 Editor 실행 전 활성 라이선스 확인을 추가하고 CI 음성 테스트를 기본 inventory gate에 연결했다. 원격 Actions는 NOT_RUN이다.
+- P09-T07 CI gate 로컬 음성 테스트 3건 및 YAML 구조·셸 문법 PASS. strict의 Unity push 집계는 아직 DEFERRED_ENV로 명시되며 우회하지 않는다. Actions 원격 job 결과는 NOT_RUN이다.
+- P09-T07 CI 구조·음성 테스트 및 현재 한계 문서 커밋 준비. 원격 검증 미실행을 PASS로 기록하지 않는다.

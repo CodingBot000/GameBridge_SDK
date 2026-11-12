@@ -12,7 +12,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  linux-backend-android:
+  inventory-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Check progress and scenario inventory
+        run: |
+          python3 scripts/verify-progress.py
+          python3 harness/check-manifest.py
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_aggregation.py' -v
+          python3 -m py_compile harness/run-unity-android-mock-e2e.py harness/run-android-mock-bridge-e2e.py harness/export-mock-e2e-evidence.py
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_export_mock_e2e_evidence.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ci_gate.py' -v
+
+  backend-postgres:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     services:
@@ -36,13 +57,6 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: gradle
-      - name: Check progress and scenario inventory
-        run: |
-          python3 scripts/verify-progress.py
-          python3 harness/check-manifest.py
-          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_aggregation.py' -v
-          python3 -m py_compile harness/run-unity-android-mock-e2e.py harness/run-android-mock-bridge-e2e.py harness/export-mock-e2e-evidence.py
-          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_export_mock_e2e_evidence.py' -v
       - name: Prepare empty local test database
         env:
           GAMEBRIDGE_CI_DISPOSABLE_DB: 'true'
@@ -61,6 +75,19 @@ jobs:
         run: |
           backend/gradlew -p backend test --rerun-tasks --tests com.gamebridge.auth.IdentityVerifierTest --tests com.gamebridge.purchase.LedgerInvariantDatabaseTest --tests com.gamebridge.purchase.GoogleGrantDatabaseTest --tests com.gamebridge.purchase.AppleGrantDatabaseTest --tests com.gamebridge.purchase.FinalizationDatabaseTest --tests com.gamebridge.purchase.PurchaseBindingsDatabaseTest
           python3 harness/check-junit.py backend/build/test-results/test/TEST-com.gamebridge.auth.IdentityVerifierTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.LedgerInvariantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.GoogleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.AppleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.FinalizationDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.PurchaseBindingsDatabaseTest.xml
+
+  android-native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
       - name: Android contract and provider fake tests
         run: |
           android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BridgeProtocolTest --tests com.gamebridge.ModelFixtureTest --tests com.gamebridge.LocalMockRecoveryTest --tests com.gamebridge.PushRouterTest :sdk-android:testDebugUnitTest --tests com.gamebridge.android.auth.GoogleAuthProviderTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest :sdk-unity-bridge:testDebugUnitTest --tests com.gamebridge.bridge.GoogleAuthBridgeHandlerTest --tests com.gamebridge.bridge.HostPushDeliveryTest
@@ -70,7 +97,8 @@ jobs:
           GAMEBRIDGE_MAVEN_REPO: ${{ runner.temp }}/gamebridge-maven
         run: bash scripts/build-android.sh --mock
 
-  ios-simulator:
+
+  swift-ios-simulator:
     runs-on: macos-26
     timeout-minutes: 30
     steps:
@@ -99,32 +127,48 @@ jobs:
           xcodebuild -project "$project" -scheme GameBridgePushTests -destination "platform=iOS Simulator,id=$simulator" -resultBundlePath "$result" CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=YES -only-testing:GameBridgePushTests/PushHostTests test -quiet
           xcrun xcresulttool get test-results summary --path "$result" --format json | python3 -c 'import json,sys; x=json.load(sys.stdin); assert x.get("totalTestCount",0)>0 and x.get("failedTests",0)==0 and x.get("skippedTests",0)==0'
 
-  unity-runtime-required:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - name: Report missing Unity runtime lane
-        run: |
-          echo 'NOT_IMPLEMENTED: Unity Editor/player lane requires an approved license and implemented test execution.' >&2
-          exit 2
-
-  local-gate:
+  basic-ci:
     if: ${{ always() && !cancelled() }}
-    needs: [linux-backend-android, ios-simulator, unity-runtime-required]
+    needs: [inventory-contracts, backend-postgres, android-native, swift-ios-simulator]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require independent hosted checks
+        env:
+          INVENTORY_RESULT: ${{ needs.inventory-contracts.result }}
+          BACKEND_RESULT: ${{ needs.backend-postgres.result }}
+          ANDROID_RESULT: ${{ needs.android-native.result }}
+          SWIFT_RESULT: ${{ needs.swift-ios-simulator.result }}
+        run: |
+          if [[ "$INVENTORY_RESULT" != success || "$BACKEND_RESULT" != success || "$ANDROID_RESULT" != success || "$SWIFT_RESULT" != success ]]; then
+            echo "Basic CI incomplete: inventory=$INVENTORY_RESULT backend=$BACKEND_RESULT android=$ANDROID_RESULT swift=$SWIFT_RESULT" >&2
+            exit 1
+          fi
+          echo 'Basic hosted CI passed. This is not release readiness.'
+
+  unity-e2e:
+    # Avoid running untrusted PR code on a self-hosted runner. Opt-in requires an
+    # explicitly provisioned, licensed isolated host and disposable resources.
+    if: ${{ github.event_name == 'workflow_dispatch' && vars.GAMEBRIDGE_UNITY_E2E_ENABLED == 'true' }}
+    runs-on: [self-hosted, macOS, ARM64, gamebridge-unity-e2e]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Run real Unity Editor and Android/iOS Player gates
+        run: bash scripts/ci-unity-e2e.sh
+
+  release-readiness:
+    if: ${{ always() && !cancelled() }}
+    needs: [basic-ci, unity-e2e]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - name: Require actual lane execution and coverage
+      - name: Require actual Unity E2E and full scenario coverage
         env:
-          LINUX_RESULT: ${{ needs.linux-backend-android.result }}
-          IOS_RESULT: ${{ needs.ios-simulator.result }}
-          UNITY_RESULT: ${{ needs.unity-runtime-required.result }}
-        run: |
-          if [[ "$LINUX_RESULT" != success || "$IOS_RESULT" != success || "$UNITY_RESULT" != success ]]; then
-            echo "Required lane incomplete: Linux=$LINUX_RESULT iOS=$IOS_RESULT Unity=$UNITY_RESULT" >&2
-            exit 1
-          fi
-          python3 harness/check-required-coverage.py
+          BASIC_RESULT: ${{ needs.basic-ci.result }}
+          UNITY_RESULT: ${{ needs.unity-e2e.result }}
+        run: bash scripts/ci-release-gate.sh

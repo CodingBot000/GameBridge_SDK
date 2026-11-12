@@ -2596,3 +2596,15 @@
 - evidence 내 선행 시험의 시점별 NOT_RUN과 후속 PASS가 충돌하지 않도록 과거 범위임을 명시했다. 각 시험 source SHA·실행 결과 및 실제 FCM/APNs 미검증은 보존했다.
 - FEATURE_MATRIX의 push 등록/수신·pending 복구 행 및 USER_SETUP의 오래된 Unity push 미검증 문구를 현재 범위로 정정했다. 실제 알림 클릭·원격 전송·실기기는 PASS로 표시하지 않았다.
 - `python3 scripts/verify-progress.py`, 네 runner `py_compile`, cache/ADB 안전 단위 총 4건 및 `git diff --check` 종료 0. 커밋 준비: README·FEATURE_MATRIX·FINAL_REPORT·USER_SETUP·PROGRESS·WORK_LOG·플랫폼 evidence만 포함한다. Unity Runtime CI 전체 gate 및 실제 FCM/APNs는 성공으로 변경하지 않는다.
+### PX-T18 P09 시나리오 및 CI 고도화 시작
+- 요청된 브랜치·HEAD `058742df270f42d146843c25cdc2bbfc3ec3b341`와 미추적 Demo/cache를 확인했다. manifest의 R09/R11/R22/R40/R43/R49 및 현재 CI gate를 실제 코드/증거와 대조한다. 기본 CI, 라이선스 기반 Unity E2E, fail-closed Release 판정을 분리한다. 실제 검증 전 상태는 변경하지 않는다.
+### P09-T07 CI 게이트 분리 시작
+- 현 `verify.yml`의 결합된 Linux Backend/Android와 의도적 Unity 실패 placeholder를 조사했다. 사용자 요청에 따라 호스팅 기본 검증을 독립 gate로 분리하고 Unity는 라이선스 준비된 명시적 self-hosted workflow_dispatch에서만 실제 실행한다. Release gate는 누락·실패·부분 검증을 거부한다. 원격 Actions 실행은 아직 NOT_RUN이다.
+- `.github/workflows/verify.yml`의 무조건 실패 Unity placeholder를 실제 명시적 self-hosted workflow_dispatch gate로 교체하고, 기본 hosted CI 4개 및 Release readiness를 분리했다. Unity gate는 Editor smoke, Android/iOS Player 및 동일 run의 strict suite가 전부 통과해야 성공한다. Unity job 미실행은 release gate에서 DEFERRED_ENV 비영 종료다. 신뢰되지 않은 PR 코드를 self-hosted에서 자동 실행하지 않는다. 실제 원격 Actions는 아직 미실행이다.
+- `bash -n scripts/ci-unity-e2e.sh` PASS. Python YAML 검사 시 PyYAML 미설치로 exit 2, workflow 구문은 아직 미확인이다. 별도 설치 없이 Ruby 내장 parser로 재검증한다.
+- Ruby YAML 구문 검사 PASS, 새 7개 job 확인. `python3 harness/check-required-coverage.py`는 예상대로 6 PARTIAL / 0 NOT_IMPLEMENTED, exit 1이다. 이는 Release 준비 성공이 아니다. Unity 미실행 및 실패를 별도 gate에서 거부하는 테스트를 추가한다.
+- `scripts/ci-release-gate.sh`를 별도로 만들어 기본 CI 실패, Unity 미실행 및 부분 시나리오가 Release PASS가 되지 않는 음성 테스트를 실행한다.
+- 첫 음성 테스트는 실제 manifest가 완성되면 실패하는 구조여서, 임시 PARTIAL fixture를 사용하도록 수정했다. 향후 시나리오 완료를 막지 않는다.
+- self-hosted Unity job은 필수 환경뿐 아니라 실제 활성 라이선스를 확인한 다음에만 Editor/Player 검사를 실행한다. basic inventory job에 gate 음성 tests를 추가했다. 원격 Actions는 실행하지 않았다.
+- `test_ci_gate.py` 3건 PASS, Ruby YAML 구문/7개 job 구조 및 bash 문법 PASS. `docs/CI.md`에 basic vs Unity vs Release, opt-in self-hosted 보안 경계, 미실행/부분 시나리오 차단 및 현재 strict Unity push 미연결을 명시했다. 원격 CI는 실행하지 않았다.
+- 커밋 준비: CI 분리, 라이선스 확인·fail-closed release script, 격리 음성 테스트 및 CI 문서만 포함한다. 원격 workflow 설정/실행 및 자동 push는 하지 않는다.

@@ -455,3 +455,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T15 기존 Android/iOS 인증·구매 Runner에 격리 consumer용 exact-version package cache 선택 기능을 추가했다. 실제 회귀는 아직 NOT_RUN이다.
 - PX-T15 두 Runner 문법·cache 안전·ADB 안전 단위 각 2건 PASS. cache 누락 오류를 기존 runner 오류 분류로 전달한다. 실제 Android/iOS Player 회귀는 아직 NOT_RUN이다. 커밋 준비.
 - PX-T15 기존 Android Unity 인증·구매 LOCAL_MOCK 전체 회귀 시작: 새 전용 AVD·DB 및 exact-version cache를 사용한다. 결과는 NOT_RUN이다.
+- PX-T15 Android Unity 인증·구매 LOCAL_MOCK 전체 Player 회귀 PASS (`artifacts/unity-android-e2e-7001epc_`, exit 0). 전용 AVD 최초 전체화면 안내는 수동으로 닫았다. 실제 Google/Play는 NOT_RUN. iOS 동일 회귀를 시작한다.

@@ -2521,3 +2521,4 @@
 - 기존 PX-T09 Push 시나리오에 세션 A 종료, 새 세션 B 등록, A 소유권 발송 거부와 B 이벤트 단일 수신을 추가한다. 이전 세션 이벤트가 B에 섞이지 않는지 별도 assertion을 두며 actual Player 실행 전 NOT_RUN이다.
 - 동일 설치의 새 B session에서 이전 A 소유권 발송 403, B Mock 이벤트 및 main-thread·중복·이전 이벤트 미수신을 검증하도록 test/runner를 확장했다. API 제한을 지키도록 재발송 횟수도 조정했다.
 - Android Push scenario managed reference compile 경고·오류 0, runner Python 문법 PASS. 커밋 준비: 세션 A→B 및 늦은 이벤트 관측 test와 미검증 상태를 기록한다.
+- Android Player에서 A→B 전환을 포함한 등록/중복/background/network/로그아웃 경로를 새 전용 AVD와 DB로 재검증한다. 시작 기록을 커밋한다.

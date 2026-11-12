@@ -410,3 +410,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T11 Android 세션 전환·늦은 이벤트 검증 시작: 기존 사용자 A 로그아웃 후 B로 재초기화·동일 설치 등록 시 이전 사용자 발송 차단과 새 사용자 이벤트를 실제 Player에서 확인한다.
 - PX-T11 Android test에 A 로그아웃 후 B 재등록, A 발송 403·B 단일 수신과 기존 이벤트 재유입 차단을 추가했다. 실제 Player 재검증 전이다.
 - PX-T11 확장 테스트 Android managed compile 및 runner 문법 PASS. A→B 세션 전환·이전 소유권 차단의 실제 Unity Player 결과는 아직 NOT_RUN이다. 커밋 후 검증한다.
+- PX-T11 Android Push 세션 전환·lifecycle 재검증 시작: 새 전용 AVD 및 DB를 사용한다. 결과는 NOT_RUN이다.

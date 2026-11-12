@@ -2563,3 +2563,5 @@
 - PX-T14 Android E2E 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-push-n3lvsnkx`). 실제 Player에서 Wi-Fi/data 차단·복원 및 test-only TCP proxy의 재연결 거부 후 복구를 검사했다. 첫 전체화면 안내는 전용 AVD에서 수동으로 닫았다. 실제 FCM은 아니다.
 - Android 결과 source `ea5e17f`, tracked-clean, proxy 재연결 거부 2회, 이후 수신 및 기존 lifecycle/session 통과를 evidence에 추가했다. 커밋 준비: 원본 로그·APK·DB 제외.
 - iOS Unity Simulator에서 test-only TCP proxy 연결 거부 시도 관측과 재연결 후 수신을 새 전용 Simulator/DB로 검증한다. 실행 전 기록을 커밋한다.
+- iOS Push runner 새 전용 Simulator 실행 종료 0 (`artifacts/unity-ios-push-gcmp59n7`). test-only loopback proxy가 SDK의 재연결 시도를 거부한 후 연결을 복구했고 Unity Player의 local mock push/lifecycle/session 검사가 통과했다. OS 전체 네트워크 차단이나 APNs 원격 전달을 의미하지 않는다.
+- iOS source `837c016`, tracked-clean, proxy 재연결 거부 6회 및 후속 수신·기존 lifecycle/session 재검증을 evidence에 기록했다. 커밋 준비: 원시 로그·키·DB·Simulator 산출물은 포함하지 않는다.

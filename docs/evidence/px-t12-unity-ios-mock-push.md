@@ -15,3 +15,9 @@
 - test-only loopback proxy가 서버의 최초 구매 검증 200 commit 응답을 503으로 바꿨다. Unity 앱을 Simulator에서 terminate/relaunch하고 서로 다른 PID, 세션 복원, pending 1회 복구·재sync 0건, DB 원장 1건·100코인 및 Unity main-thread를 확인했다. 단순 background 전환과 다른 시험이다.
 - UnityFramework binary SHA-256 `36e6da9a02d0c49ea7bd6baa0865ed0181f5235ca6388d2308d0ea8061a29225`. Simulator 로컬 ad-hoc 및 exact-version embedded package cache를 사용했다.
 - 임의 지연 Native callback 및 재연결 실패 명시적 주입, 실제 Apple 로그인·StoreKit·APNs와 실기기는 여전히 NOT_RUN이다.
+
+## 재연결 실패 주입 추가 시험
+
+- 소스 `837c016458159e836253998c9f212a50a616fd53`, tracked-clean. 새 전용 iOS 18.6 Simulator에서 Push Runner exit 0 (`artifacts/unity-ios-push-gcmp59n7/result.json`).
+- test-only loopback TCP proxy가 SDK 연결 재시도 6회를 거부한 뒤 연결을 복구했다. Unity Player가 복구 후 새 Mock 이벤트를 받고 기존 중복·background/foreground·A→B 전환·등록 해제 검사도 통과했다. 이는 OS 전체 Wi-Fi 차단이나 실제 APNs 시험이 아니다.
+- UnityFramework SHA-256 `f515a7f71d858e815985d77c9e90fe12566159bdc8ba98ab6ca9f5cf242e486b`. Simulator local ad-hoc 및 exact-version embedded cache를 사용했다.

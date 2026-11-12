@@ -449,3 +449,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T14 Android Unity Player 재연결 실패 주입·복구 PASS (`artifacts/unity-android-push-n3lvsnkx`, exit 0): OS 네트워크 차단·복원 외 test proxy 재연결 거부 관측 후 새 push 수신. 상세 횟수 및 같은 실행의 lifecycle/session을 확인한다.
 - PX-T14 Android 재연결 거부 2회 및 복구 Player PASS를 evidence에 기록했다. iOS의 동일 주입은 아직 NOT_RUN이며 커밋 후 이어서 실행한다.
 - PX-T14 iOS 재연결 실패·복구 Player E2E 시작: 새 전용 Simulator·DB와 test-only TCP proxy 사용. 결과는 NOT_RUN이다.
+- PX-T14 iOS Unity Simulator test-only TCP 재연결 실패 주입 및 복구 PASS (`artifacts/unity-ios-push-gcmp59n7`, exit 0). OS 전체 Wi-Fi 차단과 실제 APNs는 별도다. 결과 횟수·범위를 확인한다.
+- PX-T14 iOS test-only TCP proxy 재연결 거부 6회·복구 Player PASS를 공개 evidence에 기록했다. OS 네트워크 전체 차단 및 실제 APNs는 별도다. 커밋 준비.

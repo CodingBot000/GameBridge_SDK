@@ -2514,3 +2514,4 @@
 - 별도 Android Unity consumer가 실제 GameBridge API로 pending 재시도와 session restore를 검증하도록 작성했다. test-only fault proxy 및 실제 Player 실행은 다음 단계다.
 - Android restart consumer의 Unity managed reference compile 종료 0. 실제 pending 보존과 앱 강제 종료는 아직 NOT_RUN이며, 외부 자격증명 없이 테스트할 로컬 전용 fault proxy를 추가한다.
 - `harness/run-unity-android-mock-restart-e2e.py`는 검증 서버가 200 commit한 최초 응답만 test-only proxy로 503 처리하고, 전용 앱 force-stop 전후 PID·세션 restore·pending 1회 복구·재지급 없음과 DB 원장을 대조한다. proxy는 헤더/본문 로그를 남기지 않는다. Python 문법 PASS. 커밋 준비: 아직 Player 검증은 미실행이다.
+- 새 전용 GameBridge_V2_ AVD에서 Unity 앱 강제 종료와 pending 복구 전체 runner를 실행한다. 기존 AVD 및 앱은 보존한다. 실행 전 기록을 커밋한다.

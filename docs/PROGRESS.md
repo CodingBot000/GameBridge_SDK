@@ -593,3 +593,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T06 동일 실행 Unity Push 집계 PASS(2 Player): source f40f8d5, Android `artifacts/unity-android-push-0b67f62g`, iOS `artifacts/unity-ios-push-ejpifgez`, 양쪽 tracked-clean·필수 marker 확인. Android 최초 전체화면 안내 수동 처리; hosted CI/실제 FCM·APNs는 미검증.
 - 양 플랫폼 결과 파일 재확인 첫 호출은 작업 디렉터리 오타로 실행되지 않았다. 올바른 저장소 경로에서 재확인한다.
 - 양 result JSON 재확인: 두 Player PASS·동일 source f40f8d5·tracked-clean·token 0, iOS network는 LOCAL_TRANSPORT_FAULT로 구분. 사용한 테스트 기기 shutdown 완료, 삭제 없음. 증거·CI 문서 커밋 준비.
+- P09-T05/R40 Mock 거부 회귀 집계 연결 시작: 독립 managed 시험을 strict Push 필수 lane으로 추가한다. 환경 누락·실패·marker 없음은 PASS로 처리하지 않으며 OS 수동시험은 별도 PARTIAL 유지.
+- R40 managed Mock 거부 단독 시험과 집계 단위 13건 PASS, Python 문법 PASS. Push runner 전체에 새 lane이 실제 나타나는지 확인한다.
+- Push 독립 집계 exit 2 (`artifacts/push-regression-0qh7drmi`): 새 mock-permission-denied 1건 PASS, 환경 미제공 lane은 DEFERRED_ENV. 전체 통과가 아니다. R40 OS 자동 재현은 PARTIAL 유지. 커밋 준비.

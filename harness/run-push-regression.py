@@ -62,6 +62,9 @@ def main() -> int:
             except (OSError, ValueError, subprocess.TimeoutExpired): pass
         results.append(common.item('ios-host-simulator-synthetic',code,counts))
     else: results.append(common.item('ios-host-simulator-synthetic',2,(0,0,0)))
+    code, text, _ = common.run(['bash','scripts/smoke-unity-mock-permission.sh'],env,output/'mock-permission.log')
+    marker = 'PASS: mock permission denied, registration blocked, re-request denied (standalone managed test)'
+    results.append(common.item('mock-permission-denied',code,(1 if marker in text else 0,0,0)))
     staging = env.get('GAMEBRIDGE_UPM_STAGING')
     if staging:
         code, text, _ = common.run(['python3','harness/check-staging.py',staging],env,output/'staging.log')

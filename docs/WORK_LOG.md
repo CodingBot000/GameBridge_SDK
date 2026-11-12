@@ -2721,3 +2721,7 @@
 - `GAMEBRIDGE_RUN_UNITY_PUSH_E2E=true ... python3 harness/run-unity-push-current.py` exit 0, 양 플랫폼 실제 Unity LOCAL_MOCK Player 2건 PASS. 소스 f40f8d5, tracked-clean; Android `artifacts/unity-android-push-0b67f62g`, iOS `artifacts/unity-ios-push-ejpifgez`. 중복·foreground/background·연결 복구·late callback·계정 전환·token 삭제와 marker를 각 runner 및 상위 gate가 확인했다. Android 신설 AVD 최초 전체화면 안내는 수동으로 닫았다. 이는 GitHub Actions·실제 FCM/APNs·실기기 검증이 아니다.
 - 결과 파일 요약 재확인 명령의 작업 디렉터리 오타로 프로세스가 시작되지 않았다. Player 통과 결과는 별도이며 올바른 경로로 재확인한다.
 - 양 result JSON의 source·tracked-clean·Player PASS·token 0 및 플랫폼별 network 범위를 재확인했다. 사용자 요청에 따라 실행 종료 후 테스트 iOS Simulator 2개 및 Android emulator를 shutdown했고 데이터는 삭제하지 않았다. 커밋 전: 공개 요약·진행 및 CI 문서만 포함, raw log·APK·DB는 제외.
+### P09-T05/R40 Mock 거부 집계 연결 시작
+- 독립 managed 거부 주입 시험을 `run-push-regression.py`와 strict 필수 lane에 연결한다. 시험이 실행되지 않거나 marker가 없을 때 aggregate가 성공하지 않게 한다. 실제 OS 수동시험은 별도 증거다.
+- Mock 거부 managed 시험 exit 0, 집계 음성 포함 13건 PASS/skip0, Python compile PASS. 다음으로 독립 Push runner에서 새 lane 실제 집계와 누락 환경의 비성공을 확인한다.
+- `UNITY_EDITOR_PATH=<installed Unity> python3 harness/run-push-regression.py` exit 2: 새 mock-permission-denied 1건 PASS, backend/Android/Swift fake 각 PASS, DB·iOS host·staging·Player 등 미제공 lane은 DEFERRED_ENV (`artifacts/push-regression-0qh7drmi/result.json`). 전체 성공이 아니다. 커밋 전: 필수 lane 및 기록만 포함, OS 수동시험 자동 재현은 여전히 미완료.

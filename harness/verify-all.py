@@ -126,7 +126,7 @@ def main() -> int:
         *(f'purchase/{name}' for name in ('local-postgres-fixtures','sandbox-http-fixtures','android-native-fake','swift-native-fake',
                                          'android-local-response-loss','swift-local-response-loss','xcode-storekit-local-db-recovery','xcode-storekit-process-recovery')),
         *(f'push/{name}' for name in ('backend-push-fake','sandbox-push-http-fake','android-push-fake','swift-push-fake',
-                                     'ios-host-simulator-synthetic','upm-staging-integrity','package-negative-fixtures',
+                                     'ios-host-simulator-synthetic','mock-permission-denied','upm-staging-integrity','package-negative-fixtures',
                                      'local-push-native-db-e2e','unity-player-notifications')),
     }
     if failed_rows: required_names.add('recorded-unresolved-failures')

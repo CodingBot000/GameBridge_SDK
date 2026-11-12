@@ -2860,3 +2860,7 @@
 - `package-sdk.sh`로 기존 f1e12b6 Native payload를 사용해 `upm-native-sample-fix-20261112` 생성, XCFramework/110개 checksum PASS. 수정 소스 tracked-clean에서 iOS Player를 재실행하기 위해 코드 및 회귀 검사를 먼저 커밋한다. 실제 Player는 NOT_RUN이다.
 - iOS Native Demo의 수정 asmdef를 새 stage에 반영해 실제 Unity export·Simulator Player·LOCAL_MOCK flow를 재실행한다. 첫 CS0246 실패는 기록 그대로 보존한다.
 - 커밋 전: 재검증 시작 기록만 포함한다.
+- asmdef 수정 후 `run-unity-ios-mock-e2e.py --native-demo-probe --adhoc` exit 0 (`artifacts/unity-ios-e2e-56e5wx05`): staged Native Demo iOS Simulator LOCAL_MOCK 설정·인증·상품·100코인 mock 구매·로그아웃 callback, main-thread·키 삭제, DB 원장 1건/100 PASS. 첫 CS0246 실패는 보존한다. 실제 포인터·렌더링, Apple 거래·APNs·실기기는 아니다.
+- source aa9c155 tracked-clean과 새 stage Native payload 81개 byte 동일성을 확인했고 전용 Simulator를 shutdown했다. asmdef 수정 stage로 Offline/Native Editor sample도 다시 실행해 최신 evidence를 갱신한다.
+- `upm-native-sample-fix-20261112`로 격리 Editor sample test 1건 PASS/skip0 (`artifacts/offline-sample.GHbI58/results.xml`): Offline fake flow와 Native Editor guard. iOS Native Player PASS 및 첫 asmdef FAIL을 별도 증거에 기록한다.
+- `verify-progress.py`, `check-manifest.py`, diff 검사 exit 0. 커밋 전: iOS 수정 후 실제 Player·Editor sample·staging provenance와 첫 실패만 정제 기록한다. raw log·키·빌드 산출물은 제외한다.

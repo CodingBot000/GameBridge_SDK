@@ -14,7 +14,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 - 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. 양 플랫폼 Unity LOCAL_MOCK Push는 별도 Player에서 통과했으나 미완성 시나리오와 실패가 남아 전체 검증은 통과하지 않았다. 최신 strict 집계 `artifacts/verify-all-r1ely80_/summary.md`는 구매 하위 및 Mock 권한은 PASS했으나 Unity Editor 미실행, Unity Push 환경 대기, 부분 시나리오 및 기존 실패로 전체 FAIL이다. 직전 strict의 Xcode local StoreKit signal TERM은 후속 단독 및 최신 strict에서 PASS했으며 원인은 미확정이다. 이후 소스 f40f8d5의 양 플랫폼 Unity Push 동일 실행은 별도로 PASS했다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
 - 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
 
-Offline Demo는 별도 staged UPM을 새 테스트 프로젝트에 복사해 Unity Editor Play에서 fake 로그인·상품·구매 callback을 확인했다 ([증거](evidence/p08-offline-sample-editor.md)). Native Demo는 Android LOCAL_MOCK Player에서 설정·모의 구매 callback을 확인했다 ([증거](evidence/p08-native-demo-android.md)). Package Manager UI import, 실제 포인터·화면 렌더링 및 iOS Native Demo Player는 별도다.
+Offline Demo는 별도 staged UPM을 새 테스트 프로젝트에 복사해 Unity Editor Play에서 fake 로그인·상품·구매 callback을 확인했다 ([증거](evidence/p08-offline-sample-editor.md)). Native Demo는 Android/iOS LOCAL_MOCK Player에서 설정·모의 구매 callback을 확인했다 ([Android](evidence/p08-native-demo-android.md), [iOS](evidence/p08-native-demo-ios.md)). iOS 첫 export는 sample asmdef 누락으로 실패했으며 수정 후 통과했다. Package Manager UI import, 실제 포인터·화면 렌더링은 별도다.
 
 ## 남은 내부 작업과 실패
 

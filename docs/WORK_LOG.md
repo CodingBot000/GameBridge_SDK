@@ -2851,3 +2851,5 @@
 - Android에서 검증한 동일 staged Native Demo의 iOS Simulator probe를 추가한다. 런타임 입력·mock 구매 callback 및 main-thread, key 삭제, DB 원장 검사만 수행하며 실 Apple 계정·APNs·실기기 검증은 아니다.
 - iOS Native Demo test-only consumer와 격리 runner option을 추가했다. Python compile 및 host/native 전문 probe 동시 선택 exit 2 확인. Unity managed compile과 Simulator Player는 별도다.
 - Native Demo iOS `UNITY_IOS` 조건부 probe managed compile exit 0, 경고·오류 0. Unity Simulator Player는 아직 미실행이다. 커밋 전: test-only probe·runner와 기록만 포함한다.
+- 수정 staged Native Demo iOS LOCAL_MOCK Player를 새 Simulator에서 실행한다. test-only UI callback과 synthetic local DB만 사용하며 clean-source 실행을 위해 시작 기록을 먼저 커밋한다.
+- 커밋 전: 시작 기록만 포함, 실제 결과는 NOT_RUN이다.

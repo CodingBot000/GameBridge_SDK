@@ -2752,3 +2752,5 @@
 - 커밋 전: 재검증 시작 기록만 포함한다. Player 결과는 미실행이다.
 - 수정 Android runner 재실행 exit 0, `artifacts/unity-android-e2e-m62mfexg`: Unity LOCAL_MOCK 인증·구매·진단 결과에 합성 개발키가 없는 marker PASS, source 7156dac tracked-clean; 최초 전체화면 안내 수동 처리. 이전 e1f83e1 runner 실패는 보존한다. iOS 및 실제 credential 검증은 별도다.
 - 커밋 전: Android 재시험 기록만 포함한다. iOS Player는 미실행이다.
+- iOS Unity LOCAL_MOCK consumer의 인증·구매·진단 결과에 synthetic 개발키가 없는지 실제 Simulator Player에서 새로 확인한다. 실행 전이며 실 Apple/APNs는 사용하지 않는다.
+- 커밋 전: iOS 실행 시작 기록만 포함한다.

@@ -211,6 +211,14 @@
       ],
       "mode": "UNITY_ANDROID_PLAYER_AND_IOS_SIMULATOR",
       "platform": "Android JNI/iOS C ABI"
+    },
+    "ios-host-unity-e2e": {
+      "command": [
+        "python3",
+        "harness/run-r43-host.py"
+      ],
+      "mode": "IOS_SIMULATOR_SYNTHETIC_HOST_AND_UNITY",
+      "platform": "iOS simulator Unity/Swift"
     }
   },
   "scenarios": [
@@ -1555,17 +1563,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R43"
       ],
       "candidateSuites": [
-        "push-regression"
+        "ios-host-unity-e2e"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r43-ios-host-unity-boundary.md",
+      "note": "Separate synthetic iOS host delegate XCTest and Unity Player host callback; real remote APNs and devices are not verified.",
+      "assertions": [
+        {
+          "suite": "ios-host-unity-e2e",
+          "testFile": "ios/PushTests/PushHostTests.swift",
+          "testCase": "testSyntheticHostCallbacksAndCompletion"
+        },
+        {
+          "suite": "ios-host-unity-e2e",
+          "testFile": "tests/UnityIosHostCallbackConsumer/MockIosPlayerScenario.cs",
+          "testCase": "GB_MOCK_HOST_CALLBACK PASS"
+        }
+      ]
     },
     {
       "id": "R44",

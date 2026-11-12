@@ -2651,3 +2651,8 @@
 - Unity Editor.log `Assets/MockIosPlayerScenario.cs(9,18) CS0234`: `GameBridge.iOSHost`는 iOS 전용 assembly인데 using이 Editor에도 노출됐다. test-only consumer에 `UNITY_IOS && !UNITY_EDITOR` 조건을 추가한다. 제품 SDK 자체의 변경은 없다.
 - 커밋 준비: iOS 전용 using 조건 및 실제 compile 실패 원인만 기록한다. 새 test source의 Player 검증은 미실행이다.
 - iOS host callback probe를 새 Simulator·DB에서 다시 실행한다. 실행 전 기록을 커밋한다.
+- `GameBridgePushTests/PushHostTests.testSyntheticHostCallbacksAndCompletion`를 새 Simulator에서 별도로 실행하여 기존 delegate 보존 및 host completion을 재검증한다. 실제 APNs 발송은 아니다.
+- `GameBridgePushTests/PushHostTests.testSyntheticHostCallbacksAndCompletion` 새 Simulator XCTest 종료 0, 1건 PASS/skip 0 (`artifacts/r43-ios-20261112204204.xcresult`). 기존 notification delegate 보존과 sample host completion을 합성 입력으로 확인했다. APNs 원격 수신 및 Unity host는 이 결과에 포함하지 않는다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe ...` 새 iOS Simulator 실행 종료 0 (`artifacts/unity-ios-e2e-f7bwumjl`): test-only synthetic iOSNotification host adapter→Swift C ABI→Unity PushReceived, 동일 이벤트 중복 억제·main-thread 및 기존 LOCAL_MOCK 인증/구매 흐름 확인. 이는 실제 APNs 전달이 아니다.
+- `docs/evidence/r43-ios-host-unity-boundary.md`에 Swift host Simulator XCTest와 Unity iOS Player의 분리된 synthetic host callback 실측을 정리했다. 신규 `harness/run-r43-host.py`는 현재 source의 새 두 실행을 요구한다. manifest·runner 문법을 검증한다.
+- R43 `py_compile`, manifest/음성 및 진행 원장 검사 종료 0. 커밋 준비: 실제 Simulator host XCTest·Unity Player evidence, 두 새 실행을 요구하는 wrapper 및 manifest만 포함한다.

@@ -531,3 +531,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R43 원인: Editor compile에서 iOS 전용 `GameBridge.iOSHost` 네임스페이스를 무조건 참조해 CS0234가 발생했다. 테스트 consumer의 iOS 전용 using을 platform 조건으로 감싸 재빌드한다.
 - R43 테스트 전용 조건부 using 수정 커밋 준비. 실제 iOS Player 성공은 재검증 후에만 기록한다.
 - R43 조건부 using 수정 후 실제 iOS Simulator Player host callback 재검증 시작. 새 Simulator·DB 사용.
+- R43 Swift host delegate·completion synthetic XCTest 최신 source 재검증 시작: 새 iOS 18.6 Simulator 사용. Unity host Player와 결과를 분리한다.
+- R43 전용 iOS 18.6 Simulator의 Swift host delegate 보존·completion 합성 XCTest 1건 PASS/skip 0 (`artifacts/r43-ios-20261112204204.xcresult`). Unity host callback Player 검증은 별도 진행 중이다.
+- R43 Unity iOS Simulator 실제 Player의 synthetic host callback→Swift bridge→Unity 이벤트·중복 억제·main-thread PASS (`artifacts/unity-ios-e2e-f7bwumjl`, exit 0). Swift delegate/completion XCTest와 별도 근거를 대조한다. 실제 APNs 원격 수신은 NOT_RUN이다.
+- R43 Swift host delegate/completion Simulator XCTest와 Unity iOS Player synthetic host→Swift→Unity 전달을 각각 실제 PASS해 IMPLEMENTED로 매핑했다. 실제 APNs 원격/실기기는 NOT_RUN이며 새 wrapper 전체 재실행은 별도다.
+- R43 재현 runner 문법·manifest·누락 음성·원장 검사 PASS. 두 실제 synthetic 시험의 source와 범위를 구분해 커밋한다.

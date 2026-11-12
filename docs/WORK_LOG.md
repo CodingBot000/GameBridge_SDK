@@ -2529,3 +2529,4 @@
 - `tests/UnityIosPushConsumer/MockIosPlayerScenario.cs`를 추가했다. 실제 Unity SDK API/PushReceived를 호출하며 loopback만 사용하고 key를 로그·에셋에 저장하지 않는다. iOS Player 검증은 미실행이다.
 - iOS Push consumer `UNITY_IOS` managed compile 종료 0, 경고·오류 0. 실제 iOS Player, Swift C ABI 및 서버 수신은 미실행. 다른 사용자 네트워크를 변경하지 않도록 test 전용 loopback TCP proxy에서 SDK 연결만 차단·복구하는 방식을 준비한다.
 - iOS Push runner는 신규 Simulator·DB, local ad-hoc, 개발 서버 allowlist, 중복·main-thread·세션 전환, Simulator background/foreground 및 테스트 전용 TCP 연결 차단/복구를 검사한다. OS 전체 네트워크와 실제 APNs는 건드리지 않는다. Python 문법 종료 0, Player 실행 전이므로 커밋 준비한다.
+- `harness/run-unity-ios-mock-push-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6`를 신규 Simulator/DB에서 실행한다. 실제 Unity Player·Swift·Backend·DB 결과 확인 전 PASS가 아니다. 실행 전 이 기록을 커밋한다.

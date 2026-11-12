@@ -4,7 +4,7 @@
 
 **BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. Unity Android 및 iOS Simulator LOCAL_MOCK 전체 흐름은 검증했으나 전체 제품, 실제 기기와 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미완료도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
 
-P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 44개 IMPLEMENTED, 6개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
+P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 48개 IMPLEMENTED, 2개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
 
 ## 확인한 범위
 
@@ -22,7 +22,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 | BUG-014 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle을 확인했다. 실제 기기·FCM/APNs와 iOS OS 전체 네트워크 차단은 미검증이다. |
 | BUG-015 | Native 진단 ring의 Unity 비동기 조회는 Android 및 iOS Simulator LOCAL_MOCK Player에서 확인했다. 다른 모드와 실제 기기는 미검증이다. |
 | BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |
-| P09 | 6개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor runner는 구현했으나 실행 결과가 없다. strict 전체 gate는 성공이 아니다. |
+| P09 | 2개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor runner는 구현했으나 실행 결과가 없다. strict 전체 gate는 성공이 아니다. |
 
 ## 환경 및 사용자 설정
 

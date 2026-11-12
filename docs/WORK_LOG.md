@@ -2656,3 +2656,22 @@
 - `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe ...` 새 iOS Simulator 실행 종료 0 (`artifacts/unity-ios-e2e-f7bwumjl`): test-only synthetic iOSNotification host adapter→Swift C ABI→Unity PushReceived, 동일 이벤트 중복 억제·main-thread 및 기존 LOCAL_MOCK 인증/구매 흐름 확인. 이는 실제 APNs 전달이 아니다.
 - `docs/evidence/r43-ios-host-unity-boundary.md`에 Swift host Simulator XCTest와 Unity iOS Player의 분리된 synthetic host callback 실측을 정리했다. 신규 `harness/run-r43-host.py`는 현재 source의 새 두 실행을 요구한다. manifest·runner 문법을 검증한다.
 - R43 `py_compile`, manifest/음성 및 진행 원장 검사 종료 0. 커밋 준비: 실제 Simulator host XCTest·Unity Player evidence, 두 새 실행을 요구하는 wrapper 및 manifest만 포함한다.
+### P09 R40 실제 Android 권한 거부 검증 시작
+- Android 13+ 전용 테스트 Player에서 OS 알림 권한을 명시 요청하고 거부한 후 SDK 등록 차단 및 재요청 상태를 확인한다. Firebase/실제 Google 로그인 또는 원격 발송은 사용하지 않는다. iOS/Mock 거부 및 Android 실제 결과를 혼동하지 않는다.
+- `tests/UnityAndroidPermissionConsumer/MockPlayerScenario.cs`는 합성 sandbox 설정으로 알림 권한만 요청하며 계정 로그인/외부 network를 사용하지 않는다. 실제 Android permission dialog와 재요청은 별도 에뮬레이터 실행 전이다.
+- Android test-only permission 시나리오 managed compile 종료 0. 격리 소비 프로젝트에만 POST_NOTIFICATIONS 및 Unity 자동 권한창 생략 설정을 추가하고 명시적 SDK 요청으로 실제 OS dialog를 검증한다.
+- `regression-manifest.json` 현재 48 IMPLEMENTED, 2 PARTIAL(R22/R40). `docs/CI.md`와 `docs/FINAL_REPORT.md`의 이전 44/6 집계를 갱신했고, 실제 실행 중인 R40은 아직 승격하지 않았다.
+- 격리 Unity 소비 프로젝트의 Android OS 권한 test APK 빌드 `bash scripts/build-unity-android-mock.sh ...` 종료 0 (`artifacts/r40-android-permission.apk`). 실제 권한 거부/재요청은 새 AVD에서 수행한다.
+- 전용 Android 36 AVD의 실제 OS 알림 dialog에서 거부 후 Unity `GB_PERMISSION_FIRST_DENIED PASS`를 확인했다. 이어 `GB_PERMISSION_RESULT FAIL stage=registration type=InvalidOperationException`으로 test FAIL. 현재 test가 다른 SdkException code를 숨겨 root cause를 특정할 수 없어 오류 코드만 안전하게 출력하도록 보강한다. Player 종료·재요청은 미확인이다.
+- R40 test-only consumer가 등록 성공 여부 또는 SdkException의 허용된 code만 출력하도록 변경한다. 새 APK 빌드 후 전용 AVD에서 동일 실제 OS 거부를 재현한다.
+- R40 test-only consumer에 code 진단을 추가한 Unity Android APK 두 번째 빌드 종료 0 (`artifacts/r40-android-permission-2.apk`). 기존 전용 AVD를 종료만 하고 새 AVD에서 권한 dialog를 다시 검증한다.
+- 두 번째 전용 Android AVD의 OS dialog 거부 후 `GB_PERMISSION_REGISTRATION_CODE CONFIG_REQUIRED`. 코드상 Firebase host class linkage 실패가 permission check보다 앞설 수 있어 해당 결과만으로 PERMISSION_DENIED 차단을 주장하지 않는다. 실제 Firebase 설정·계정·원격 발송 없이 테스트 앱에 SDK dependency만 제공해 재시험한다.
+- 격리 테스트 프로젝트의 Gradle postprocess에 `firebase-messaging:26.0.1` runtime dependency만 추가했다. 앱 계정/서비스 설정은 하지 않으며 permission 거부 시 token 획득이나 network 전에 차단되는지 확인한다. 이 문제에 대한 세 번째 원인 기반 시도다.
+- R40 test-only Firebase dependency를 포함한 Unity Android APK 빌드 종료 0 (`artifacts/r40-android-permission-3.apk`). 서비스 키나 Firebase 프로젝트는 추가하지 않았다. 새 전용 AVD에서 세 번째 원인 기반 재검증을 수행한다.
+- R40 세 번째 원인 기반 재시험: 격리 Unity Android Player와 새 Android 36 AVD에서 OS 알림 dialog를 두 번 수동 거부. 첫 요청 DENIED, Firebase SDK dependency가 존재할 때 등록 `PERMISSION_DENIED`, 두 번째 요청 DENIED, `GB_PERMISSION_RESULT PASS ANDROID_OS_DENIED` 확인 (`artifacts/r40-android-os-denial-20261112/markers.log`). test-only Firebase 앱 설정·계정·원격 연결 없음. 초기 전체화면 안내도 수동으로 닫았다. 이전 두 시도는 Firebase dependency 부재로 CONFIG_REQUIRED가 우선되어 권한별 차단을 증명하지 못했다. iOS OS 및 Mock 거부 주입은 NOT_RUN이며 R40은 PARTIAL이다.
+### P09 사용자 요청 일시 중단 및 재개 지점
+- 현재까지 R49(양 플랫폼 신규 Unity consumer 실제 기존 근거), R11(Unity Editor domain reload 두 설정 및 scene/재생성/합성 callback), R09(Android JNI Player 및 iOS Simulator C ABI UTF-8), R43(iOS synthetic host delegate + Unity Player 경계)를 검증하고 IMPLEMENTED로 매핑했다. manifest 총 50개 중 48 IMPLEMENTED, 2 PARTIAL(R22/R40), NOT_IMPLEMENTED 0.
+- CI는 inventory/backend/Android/Swift hosted 기본 gate, opt-in self-hosted Unity 실제 실행 gate, fail-closed Release readiness로 분리했다. Ruby YAML 구문 및 로컬 음성 unit 3건은 PASS이나 GitHub Actions 실제 실행은 NOT_RUN. strict-local 이번 변경 후 NOT_RUN; `push/unity-player-notifications`의 실제 Player 집계 연결도 아직 미구현/DEFERRED_ENV이므로 release PASS로 주장하지 않는다.
+- R40 Android 36 OS 두 차례 권한 거부·등록 차단은 실제 Player에서 부분 확인했다. iOS OS 권한·Mock 거부 주입과 R22의 SDK 로그/Unity 결과/Backend 오류 민감정보 검사 완료가 남았다. R40 test-only Firebase dependency/consumer는 이번 커밋에 포함하며 서비스 인증 및 원격 발송은 하지 않았다.
+- 네트워크 중단을 앞둔 사용자 요청에 따라 새 작업을 시작하지 않고 여기서 중단한다. 재개 시 문서와 Git 상태를 읽고 남은 R22/R40, strict-local 전체, CI Unity push 결과의 fresh-source 집계 및 README/FEATURE_MATRIX/FINAL_REPORT 일관성 감사를 계속한다. 기존 미추적 Demo/cache와 모든 테스트 artifacts·DB·AVD를 보존하고 push하지 않는다.
+- 중단 전 `python3 scripts/verify-progress.py`, `python3 harness/check-manifest.py`, `git diff --check` 종료 0. 커밋 준비: R40 test-only 코드/부분 증거, CI/FINAL_REPORT 현재 집계와 재개 기록만 포함한다. Unity Player 전체 또는 CI 성공을 새로 주장하지 않는다.

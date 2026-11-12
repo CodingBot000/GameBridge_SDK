@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: PX-T17 / Unity Android·iOS LOCAL_MOCK Push/Lifecycle 결과 정리
+- 현재 Phase / Task: P09 / R22·R40 및 CI 실행 검증 대기 (사용자 요청으로 일시 중단)
 - 마지막 갱신 시각: 2026-11-12 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: Push/Lifecycle 증거와 미검증 범위를 정리하고 실제 기기·Google/Apple 인증·스토어·FCM/APNs는 별도 검증
+- 바로 다음 행동: 네트워크 복구 후 R40 iOS OS/Mock 거부 주입 및 R22 민감정보 검증, strict-local 전체 실행, Unity push 결과를 CI strict 집계에 실제 연결하고 CI 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -536,3 +536,23 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R43 Unity iOS Simulator 실제 Player의 synthetic host callback→Swift bridge→Unity 이벤트·중복 억제·main-thread PASS (`artifacts/unity-ios-e2e-f7bwumjl`, exit 0). Swift delegate/completion XCTest와 별도 근거를 대조한다. 실제 APNs 원격 수신은 NOT_RUN이다.
 - R43 Swift host delegate/completion Simulator XCTest와 Unity iOS Player synthetic host→Swift→Unity 전달을 각각 실제 PASS해 IMPLEMENTED로 매핑했다. 실제 APNs 원격/실기기는 NOT_RUN이며 새 wrapper 전체 재실행은 별도다.
 - R43 재현 runner 문법·manifest·누락 음성·원장 검사 PASS. 두 실제 synthetic 시험의 source와 범위를 구분해 커밋한다.
+- P09-T05/R40 실제 OS 권한 거부 검증 시작: 새 Android Player에서 명시적 알림 권한 거부·재요청·등록 차단을 확인한다. iOS 및 Mock 경로는 별도이며 아직 PARTIAL이다.
+- R40 Android OS test-only Player 소스 작성: 권한 거부 → 등록 차단 → 재요청 거부 순서를 검사한다. 실제 OS 동작은 미실행이다.
+- R40 Android OS permission test managed compile PASS(경고·오류 0). 새 전용 Unity test project를 생성해 Android 권한 선언 후 실제 Player 빌드를 시작한다.
+- P09 manifest 현재 48개 IMPLEMENTED, 2개 PARTIAL(R22/R40). CI·최종 보고서의 과거 44/6 표기를 현재 근거로 정정했다. R40 실제 OS 검증은 진행 중이다.
+- R40 Android 실제 OS 권한 test APK 빌드 PASS. 새 전용 AVD에서 알림 거부·등록 차단·재요청을 검증한다. 아직 OS 실행은 NOT_RUN이다.
+- R40 Android 실제 OS 첫 알림 권한 거부는 DENIED로 반환됐지만 이어진 등록 차단 test가 기대한 PERMISSION_DENIED와 일치하지 않아 FAIL. 정확한 허용된 오류 코드를 식별한다. iOS/Mock 거부는 미실행이다.
+- R40 test-only Player에 등록 오류 코드만 출력하는 진단을 추가했다. credential·provider 결과 본문은 출력하지 않으며 실제 재검증 전이다.
+- R40 등록 오류 코드 진단을 추가한 두 번째 테스트 APK 빌드 PASS. 이전 AVD/app은 보존하고 새 AVD에서 실제 권한 거부를 재검증한다.
+- R40 실제 Android 재시험: OS 권한은 DENIED였으나 등록 API가 Firebase host 미설정 `CONFIG_REQUIRED`를 우선 반환했다. 등록 자체는 차단됐지만 권한 거부에 의한 차단을 증명하지 못해 PARTIAL 유지한다. 테스트 전용 Firebase SDK 의존성만 제공해 재검증한다.
+- R40 test-only Firebase SDK dependency 추가 후 실제 Android OS 거부·등록 차단을 세 번째 검증한다. Firebase 앱 설정 및 원격 발송은 하지 않는다.
+- R40 test-only Firebase SDK dependency가 포함된 세 번째 Android Player build PASS. Firebase 설정/계정 없이 새 전용 AVD의 OS 거부·등록 차단을 검증한다.
+- R40 세 번째 Android OS 검증 부분 PASS (`artifacts/r40-android-os-denial-20261112/markers.log`): 실제 Android 36 알림 권한 두 차례 거부, SDK 등록 `PERMISSION_DENIED` 차단, 재요청 후 DENIED 확인. test-only Firebase SDK dependency만 제공했으며 실 Firebase 연결은 없음. iOS OS 권한 및 Mock 거부 주입은 미실행이므로 R40 전체 PARTIAL 유지.
+
+### P09 작업 일시 중단 체크포인트 (사용자 요청)
+
+- 완료: R09/R11/R43/R49 실제 증거 및 manifest 매핑, 기본 CI/Unity/Release gate 분리와 로컬 음성 검사. 전체 50개 중 IMPLEMENTED 48, PARTIAL 2(R22/R40), NOT_IMPLEMENTED 0.
+- R40은 Android 실제 OS 거부/재요청·등록 PERMISSION_DENIED만 부분 PASS, iOS OS/Mock 거부는 NOT_RUN. R22는 PARTIAL. 기존 iOS 26.5 StoreKit local 실패는 별도다.
+- `scripts/verify-all.sh --strict-local`은 이번 변경 후 **NOT_RUN**. 원격 GitHub Actions도 NOT_RUN. `harness/run-push-regression.py`의 Unity push 집계는 여전히 DEFERRED_ENV이므로 Release readiness가 PASS될 수 없다. 이 gate를 지우거나 기존 Player 증거를 현재 실행으로 속이지 말고 actual run 검증을 연결할 것.
+- 재개: 이 브랜치와 `git status` 확인 후 AGENTS·현재 파일을 읽고 R40 iOS/Mock 및 R22를 계속한다. staging `artifacts/upm-v2-20261112-f1e12b6`, package cache `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`. 기존 Demo·cache·AVD·DB 보존, 자동 push 없음.
+- 사용자 요청 중단 전 최종 원장·manifest 검사 PASS. Android 권한 부분 증거, 미완료 CI/strict 및 재개 지점을 로컬 커밋한다. push는 하지 않는다.

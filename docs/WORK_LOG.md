@@ -2499,3 +2499,5 @@
 - Unity 6000.5.8f1 managed reference의 `UNITY_ANDROID` 조건에서 푸시 시나리오 compile 종료 0, 경고·오류 0. Player 실행이 아니므로 Push PASS로 기록하지 않는다. 기존 Android E2E의 전용 기기·DB 안전검사를 재사용하는 runner를 작성한다.
 - `harness/run-unity-android-mock-push-e2e.py`는 기존 전용 AVD/DB·staging 검사를 재사용해 합성 발송 3회, Unity 수신 중복 제거/메인 스레드, unregister 후 403·DB token 삭제를 확인한다. background/network/restart는 명시적으로 NOT_RUN이며 실제 FCM이 아니다. `python3 -m py_compile` 종료 0. 커밋 준비: 테스트 코드와 현 상태만 저장한다.
 - 전용 AVD와 DB를 신규 생성해 `harness/run-unity-android-mock-push-e2e.py --run-local`을 실행한다. 기존 AVD·앱·데이터는 수정하지 않는다. 실행 전 이 기록을 커밋한다.
+- `python3 harness/run-unity-android-mock-push-e2e.py --run-local --staging ... --serial emulator-5582 --expected-avd GameBridge_V2_20261112_162817` 종료 0, `artifacts/unity-android-push-z1lufhpv/result.json`: 실제 Unity Android Player에서 LOCAL_MOCK 등록·3회 중복 발송의 단일 수신 및 main-thread, unregister·logout 이후 이벤트 미전달, 서버 token 0개와 unregister 후 403 확인. 전용 AVD의 첫 전체화면 안내를 수동으로 닫았다. FCM 및 background/network/process restart는 확인하지 않았다.
+- Android Push 기본 E2E PASS에 한정해 공개용 evidence를 작성했다. 커밋 준비: 실제 확인한 범위·수동 에뮬레이터 안내와 미검증 항목을 명시하며, 원본 로그·합성 키·APK는 포함하지 않는다.

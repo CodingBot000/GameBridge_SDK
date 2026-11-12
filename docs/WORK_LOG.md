@@ -2768,3 +2768,5 @@
 - 결과 source 4744035 tracked-clean을 확인하고 테스트 Simulator를 삭제 없이 shutdown했다. 커밋 전: 해당 결과 기록만 포함한다.
 - 수정된 Android UTF-8 consumer를 빈 전용 AVD에서 실제 Unity JNI LOCAL_MOCK 흐름으로 실행한다. 이전 AVD 앱을 덮어쓰지 않으며 테스트 시작 기록만 먼저 커밋한다.
 - 커밋 전: 시작 기록만 포함한다. 실제 시험은 NOT_RUN이다.
+- `run-unity-android-mock-e2e.py --run-local --utf8-probe` exit 0 (`artifacts/unity-android-e2e-jtraqi0j`): 수정 소비자의 JNI 한글/emoji round-trip과 합성 개발키 결과 비노출 및 기존 LOCAL_MOCK 흐름 PASS. 최초 전체화면 안내는 수동으로 닫았다. 실기기·실제 제공자는 미검증이다.
+- 사용한 전용 AVD를 shutdown만 하고 데이터를 보존했다. 커밋 전: R09 실제 재시험 결과와 수동 조작 조건만 기록한다.

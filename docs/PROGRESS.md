@@ -627,3 +627,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R43 수정 iOS host callback Unity Player 재실행 PASS (`artifacts/unity-ios-e2e-fj2ddrvp`): 합성 callback·중복·main-thread와 합성 개발키 결과 비노출 확인. 실제 APNs는 미검증.
 - R43 test Simulator shutdown 완료(데이터 보존), tracked-clean 재확인. 결과 기록 커밋 준비.
 - P09-T02/R09 UTF-8 전용 Android consumer 실제 Player 재검증 시작: 빈 전용 AVD에서 JNI 문자열·개발키 결과 비노출과 기존 흐름을 확인한다.
+- R09 수정 UTF-8 Unity Android Player 재실행 PASS (`artifacts/unity-android-e2e-jtraqi0j`): JNI 한글/emoji 및 합성 개발키 결과 비노출; 최초 전체화면 안내 수동 처리. 실제 기기·제공자는 별도.
+- R09 전용 AVD를 데이터 삭제 없이 shutdown했다. tracked-clean 및 검증 결과 기록 커밋 준비.

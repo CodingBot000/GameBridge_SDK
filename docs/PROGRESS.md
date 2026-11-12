@@ -413,3 +413,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T11 Android Push 세션 전환·lifecycle 재검증 시작: 새 전용 AVD 및 DB를 사용한다. 결과는 NOT_RUN이다.
 - PX-T11 Android Unity LOCAL_MOCK 세션 A→B 전환 E2E PASS (`artifacts/unity-android-push-h9oyrtjy`, exit 0): A 소유권 발송 403, B 단일 이벤트 및 이전 메시지 미관측, 메인 스레드, 기존 lifecycle/network도 재통과. 전용 AVD의 최초 전체화면 안내 수동 처리. 재연결 실패 주입/임의 지연 Native callback 주입은 별도다.
 - PX-T11 Android 실제 Player session 전환 PASS와 별도 미검증 범위를 evidence에 기록했다. 커밋 후 iOS Simulator의 동등 경로 개발을 이어간다.
+- PX-T12 Unity iOS Simulator LOCAL_MOCK Push/Lifecycle 검증 시작: Android에서 확인한 등록·수신·중복·세션 전환과 별도로 iOS Swift C ABI·Player 경로를 검증한다. 실제 APNs는 NOT_RUN이다.
+- PX-T12 iOS Simulator 전용 Unity Push 시나리오 초안 작성: Simulator 환경 변수로 합성 key·설치 ID를 받고 Android 동일 이벤트·메인 스레드·세션 전환을 검사한다. iOS Player 실행은 NOT_RUN이다.
+- PX-T12 iOS Push 시나리오 Unity managed reference 컴파일 PASS(경고·오류 0). 전용 Simulator에서 Swift bridge·백그라운드·연결 중단/복구를 검증할 runner를 구현한다. 실제 iOS Player는 아직 NOT_RUN이다.
+- PX-T12 iOS Simulator Push runner 작성 및 Python 문법 PASS. 격리 loopback TCP fault로 SDK 연결만 끊어 offline drop/복구를 검사하며 OS 전체 네트워크 차단으로 주장하지 않는다. 실제 Player 결과는 NOT_RUN이다.

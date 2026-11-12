@@ -2524,3 +2524,8 @@
 - Android Player에서 A→B 전환을 포함한 등록/중복/background/network/로그아웃 경로를 새 전용 AVD와 DB로 재검증한다. 시작 기록을 커밋한다.
 - `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본 새 AVD 실행 종료 0 (`artifacts/unity-android-push-h9oyrtjy`): Unity Player의 Mock 등록·중복·main-thread, background/foreground, offline drop·복구, A 로그아웃 후 B 등록, 이전 A 소유권 발송 403, B 단일 수신 및 이전 이벤트 미관측 통과. 전용 AVD 첫 전체화면 안내는 수동으로 닫았다. 임의 지연 callback 및 재연결 실패 자체의 주입·iOS·실 FCM은 미검증이다.
 - Android 공개 evidence에 새 source의 A→B 전환·이전 소유권 403·B 이벤트·기존 lifecycle/network 회귀 결과를 추가했다. 커밋 준비: 원본 로그·APK·DB를 제외하고 사실 확인된 범위만 기록한다.
+### PX-T12 Unity iOS LOCAL_MOCK Push/Lifecycle 시작
+- Android의 실제 Player 시나리오를 토대로 별도 iOS Simulator consumer 및 안전한 local Backend/DB runner를 작성한다. iOS push, lifecycle 및 실제 APNs를 Android PASS로 대체하지 않는다.
+- `tests/UnityIosPushConsumer/MockIosPlayerScenario.cs`를 추가했다. 실제 Unity SDK API/PushReceived를 호출하며 loopback만 사용하고 key를 로그·에셋에 저장하지 않는다. iOS Player 검증은 미실행이다.
+- iOS Push consumer `UNITY_IOS` managed compile 종료 0, 경고·오류 0. 실제 iOS Player, Swift C ABI 및 서버 수신은 미실행. 다른 사용자 네트워크를 변경하지 않도록 test 전용 loopback TCP proxy에서 SDK 연결만 차단·복구하는 방식을 준비한다.
+- iOS Push runner는 신규 Simulator·DB, local ad-hoc, 개발 서버 allowlist, 중복·main-thread·세션 전환, Simulator background/foreground 및 테스트 전용 TCP 연결 차단/복구를 검사한다. OS 전체 네트워크와 실제 APNs는 건드리지 않는다. Python 문법 종료 0, Player 실행 전이므로 커밋 준비한다.

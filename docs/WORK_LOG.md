@@ -2635,3 +2635,8 @@
 - `swift test --package-path ios --filter CBridgeTests.testHostPushEventRoutingAndDedup` 종료 0, XCTest 1건 PASS/skip 0: 실제 GB_Dispatch 입력을 반환 직후 덮어쓴 뒤 복사된 callback의 한국어·emoji 동일성 확인. macOS host ABI 시험이며 iOS 실제 기기는 아니다.
 - Android UTF-8 Player probe managed compile 종료 0, 경고·오류 0. 커밋 준비: iOS C ABI의 명시적 버퍼 복사 시험과 Android JNI probe/run option만 포함하며 Android 실제 JNI 검증은 재실행 전이다.
 - `harness/run-unity-android-mock-e2e.py --utf8-probe`를 새 전용 AVD에서 실행한다. Java→AndroidJavaProxy callback 이후 문자열 및 main-thread가 일치해야 PASS다. 실행 전 기록을 커밋한다.
+- R09 iOS C ABI 한국어·emoji/입력 버퍼 덮어쓰기의 macOS host test는 통과했으나 iOS Simulator 실행은 별도다. 기존 CBridgeTests를 Swift Package product와 연결하는 전용 simulator XCTest target을 생성한다.
+- XcodeGen에 GameBridgeCBridgeTests target/scheme을 추가하고 Swift package의 GameBridgeUnityBridge·Core를 연결했다. 사용자 기존 Xcode project는 변경하지 않는다. 새 전용 iOS 18.6 Simulator에서 UTF-8 C ABI test를 실행한다.
+- `xcodebuild ... -scheme GameBridgeCBridge -only-testing:GameBridgeCBridgeTests/CBridgeTests/testHostPushEventRoutingAndDedup test -quiet` 종료 0, `artifacts/r09-ios-20261112203456.xcresult`: 1 test PASS/failed 0/skipped 0. iOS 18.6 전용 Simulator에서 C ABI 원시 UTF-8 입력 buffer 덮어쓰기와 callback 한국어·emoji 동일성을 확인했다. Android JNI는 별도 진행 중.
+- `harness/run-unity-android-mock-e2e.py --run-local --utf8-probe ...` 전용 Android 36 AVD 실행 종료 0 (`artifacts/unity-android-e2e-c26jgz32`): Unity C#→AndroidJavaClass→Kotlin bridge→AndroidJavaProxy callback→Unity 이벤트에서 `한글 🎮🚀` 동일성 및 main-thread 확인. 최초 전체화면 안내는 수동으로 닫았다. iOS Simulator의 C ABI test 1건 PASS와 별도로 기록한다.
+- Android source `11dcde9`, tracked-clean 결과 PASS; iOS Simulator는 동일 기반에 당시 미커밋 `ios/Framework/project.yml`의 CBridge XCTest target을 추가한 working diff에서 test 1건 PASS. 커밋 준비: XcodeGen test-only target과 검증 기록을 저장하며 제품 SDK binary 변경은 없다.

@@ -516,3 +516,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R09 iOS C ABI 원시 UTF-8·입력 buffer 덮어쓰기·비동기 callback 동일성 Swift test 1건 PASS/skip 0(로컬 macOS host). Android JNI Player 테스트 소스 컴파일을 시작한다.
 - R09 Android JNI probe managed compile PASS(경고·오류 0), 실제 Unity AndroidJavaProxy/JNI 실행은 아직 NOT_RUN. 수정 테스트와 runner를 커밋 후 새 전용 AVD에서 확인한다.
 - R09 Android JNI UTF-8 실제 Player 검증 시작: 새로운 전용 AVD·DB, 원시 한국어/emoji 및 callback 큐 경계를 확인한다.
+- R09 iOS C ABI UTF-8 시험을 macOS host에 그치지 않고 실제 iOS Simulator XCTest에서도 실행하도록 전용 Xcode test target을 추가한다. 검증 전이다.
+- R09 iOS Simulator CBridge XCTest target 추가 후 전용 새 Simulator 실행 시작. 기존 macOS host 결과와 구분한다.
+- R09 전용 iOS 18.6 Simulator C ABI UTF-8 및 dispatch 입력 buffer 즉시 덮어쓰기·callback 복사 test PASS (`artifacts/r09-ios-20261112203456.xcresult`): 1건, 실패·skip 0. Android JNI Player는 진행 중이다.
+- R09 Android Unity Player 실제 JNI 한국어·emoji 왕복 및 callback 지연 처리 PASS (`artifacts/unity-android-e2e-c26jgz32`, exit 0). 전용 AVD 최초 전체화면 안내는 수동으로 닫았다. iOS Simulator C ABI 시험과 함께 근거를 정리한다.
+- R09 Android JNI Player 및 iOS Simulator C ABI 실측 모두 PASS. iOS Simulator test target 추가 당시 test-only project 설정이 미커밋이었으므로 명확히 기록하고 해당 target을 커밋한다. 재현 runner·manifest 연결은 별도다.

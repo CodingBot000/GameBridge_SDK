@@ -72,6 +72,21 @@ targets:
         BUILD_LIBRARY_FOR_DISTRIBUTION: YES
         SWIFT_INSTALL_OBJC_HEADER: NO
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) GAMEBRIDGE_CORE_EMBEDDED
+  GameBridgeCBridgeTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - ../Tests/GameBridgeCoreTests/CBridgeTests.swift
+    dependencies:
+      - target: GameBridgeSample
+      - package: GameBridge
+        product: GameBridgeCore
+      - package: GameBridge
+        product: GameBridgeUnityBridge
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: '5.0'
   GameBridgePushTests:
     type: bundle.unit-test
     platform: iOS
@@ -143,6 +158,14 @@ schemes:
     test:
       targets:
         - GameBridgeStoreKitTests
+  GameBridgeCBridge:
+    build:
+      targets:
+        GameBridgeSample: all
+        GameBridgeCBridgeTests: [test]
+    test:
+      targets:
+        - GameBridgeCBridgeTests
   GameBridgePushTests:
     build:
       targets:

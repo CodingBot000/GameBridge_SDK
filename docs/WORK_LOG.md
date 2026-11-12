@@ -2745,3 +2745,6 @@
 ### P09-T03/R22 Player 실제 재검증 시작
 - source cc3cc60 test-only 결과 검사를 새 Android/iOS Player에서 실행한다. Android는 기존 설치된 테스트 앱을 보존하므로 빈 전용 AVD를 만든다. 기존 Player 결과를 새 실행으로 재사용하지 않는다.
 - 커밋 전: 실제 실행 시작 기록만 포함한다. 실행 결과는 NOT_RUN이다.
+- `run-unity-android-mock-e2e.py` exit 1 `UNITY_RESULT_REDACTION_MISSING` (`artifacts/unity-android-e2e-419abzrk`). 새 marker 부재를 정확히 분류하며 Player 통과를 주장하지 않는다. iOS는 NOT_RUN.
+- Android runner 검토에서 두 원인을 확인했다: logcat allowlist에 REDACTION이 없고, Player 최종 PASS 전에 새 marker 부재를 즉시 실패시켰다. 조기 실패이므로 Player 성공·노출 여부는 미확정. 두 문제와 marker 누락 거부·미완료 대기를 검증한다.
+- `test_unity_redaction_marker.py` 2건 PASS/skip0: 실행 중은 대기, 최종 PASS에 marker가 없으면 FAIL, 로그 필터가 marker를 보존한다. Python compile PASS. 실제 수정 Player 재실행은 NOT_RUN. 커밋 전: runner 수정·음성 테스트·실패 이력만 포함.

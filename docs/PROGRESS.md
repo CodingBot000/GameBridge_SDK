@@ -610,3 +610,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 Android consumer managed compile PASS(경고·오류 0), Python runner 문법 PASS. iOS 조건부 managed compile을 확인한다. 실제 Player는 미실행.
 - R22 양 플랫폼 test-only consumer managed compile PASS(각 경고·오류 0). 실제 Unity Player 재실행은 NOT_RUN이며 clean-source 실행을 위해 테스트 코드를 먼저 커밋한다.
 - R22 양 플랫폼 실제 LOCAL_MOCK Player 재검증 시작: source cc3cc60과 빈 Android 전용 AVD·격리 iOS Simulator를 사용한다. 합성 개발키 검사이며 실 provider token 검증은 별도다.
+- R22 Android Player 재검증 FAIL (`artifacts/unity-android-e2e-419abzrk`): `UNITY_RESULT_REDACTION_MISSING`. 검사 자체 실패와 로그 필터 누락 중 원인을 조사한다. iOS는 아직 NOT_RUN.
+- R22 Android 실패 원인: runner가 완료 marker 전 새 marker를 검사하고 logcat 필터도 이를 제외했다. Player 결과는 미확정이다. 필터·검사 순서를 수정하고 미완료/누락 음성 시험을 추가한다.
+- Android runner marker 필터·대기 순서 수정 후 단위 2건/Python 문법 PASS. 실제 Player는 재실행 전이며 새 빈 AVD가 필요하다. 커밋 준비.

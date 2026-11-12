@@ -208,16 +208,16 @@ def scan_unity_log(adb, serial, key, password):
     if key in result or password in result:
         raise GateError("SYNTHETIC_SECRET_IN_PLAYER_LOG")
     return [line for line in result.splitlines()
-            if re.search(r"\b(?:GB_MOCK_(?:STEP|RESULT|NATIVE)|GB_UTF8_JNI_ROUNDTRIP)\b", line)]
+            if re.search(r"\b(?:GB_MOCK_(?:STEP|RESULT|NATIVE|REDACTION)|GB_UTF8_JNI_ROUNDTRIP)\b", line)]
 
 
 def check_player_markers(lines):
     combined = "\n".join(lines)
     if "GB_MOCK_RESULT FAIL" in combined:
         raise GateError("UNITY_PLAYER_REPORTED_FAILURE")
-    if "GB_MOCK_REDACTION PASS" not in combined: raise GateError("UNITY_RESULT_REDACTION_MISSING")
     if "GB_MOCK_RESULT PASS LOCAL_MOCK" not in combined:
         return False
+    if "GB_MOCK_REDACTION PASS" not in combined: raise GateError("UNITY_RESULT_REDACTION_MISSING")
     for stage in STEPS:
         if not re.search(r"GB_MOCK_STEP " + stage + r" PASS", combined):
             raise GateError("UNITY_STEP_MISSING_" + stage.upper())

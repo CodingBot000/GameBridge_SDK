@@ -2650,3 +2650,4 @@
 - `harness/run-unity-ios-mock-e2e.py --host-callback-probe` 새 Simulator E2E는 Unity export 단계에서 exit 1 (`artifacts/unity-ios-e2e-429_2_xw`). C ABI/Player 실행 전이므로 원인을 조사한다.
 - Unity Editor.log `Assets/MockIosPlayerScenario.cs(9,18) CS0234`: `GameBridge.iOSHost`는 iOS 전용 assembly인데 using이 Editor에도 노출됐다. test-only consumer에 `UNITY_IOS && !UNITY_EDITOR` 조건을 추가한다. 제품 SDK 자체의 변경은 없다.
 - 커밋 준비: iOS 전용 using 조건 및 실제 compile 실패 원인만 기록한다. 새 test source의 Player 검증은 미실행이다.
+- iOS host callback probe를 새 Simulator·DB에서 다시 실행한다. 실행 전 기록을 커밋한다.

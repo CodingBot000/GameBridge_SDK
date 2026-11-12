@@ -530,3 +530,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R43 iOS host callback Player 첫 실행 FAIL (`artifacts/unity-ios-e2e-429_2_xw`, UNITY_EXPORT_FAILED). Unity 프로젝트 compile 오류를 확인한다. 실제 APNs 및 Unity host 전달은 아직 미검증이다.
 - R43 원인: Editor compile에서 iOS 전용 `GameBridge.iOSHost` 네임스페이스를 무조건 참조해 CS0234가 발생했다. 테스트 consumer의 iOS 전용 using을 platform 조건으로 감싸 재빌드한다.
 - R43 테스트 전용 조건부 using 수정 커밋 준비. 실제 iOS Player 성공은 재검증 후에만 기록한다.
+- R43 조건부 using 수정 후 실제 iOS Simulator Player host callback 재검증 시작. 새 Simulator·DB 사용.

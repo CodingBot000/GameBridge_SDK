@@ -3,10 +3,11 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
-for name in GAMEBRIDGE_UPM_STAGING GAMEBRIDGE_ANDROID_SERIAL GAMEBRIDGE_TEST_AVD_NAME GAMEBRIDGE_PUSH_ANDROID_SERIAL GAMEBRIDGE_PUSH_TEST_AVD_NAME; do
+for name in UNITY_EDITOR_PATH GAMEBRIDGE_UPM_STAGING GAMEBRIDGE_ANDROID_SERIAL GAMEBRIDGE_TEST_AVD_NAME GAMEBRIDGE_PUSH_ANDROID_SERIAL GAMEBRIDGE_PUSH_TEST_AVD_NAME; do
   if [[ -z "${!name:-}" ]]; then echo "DEFERRED_ENV: $name is required" >&2; exit 2; fi
 done
 if [[ "${GAMEBRIDGE_TEST_AVD_NAME}" != GameBridge_V2_* || "${GAMEBRIDGE_PUSH_TEST_AVD_NAME}" != GameBridge_V2_* || "$GAMEBRIDGE_ANDROID_SERIAL" == "$GAMEBRIDGE_PUSH_ANDROID_SERIAL" ]]; then echo 'DEFERRED_ENV: dedicated GameBridge_V2_ AVD required' >&2; exit 2; fi
+if [[ ! -f "$UNITY_EDITOR_PATH" ]]; then echo 'DEFERRED_ENV: UNITY_EDITOR_PATH must be an installed Unity Editor executable' >&2; exit 2; fi
 if ! command -v unity >/dev/null 2>&1; then echo 'DEFERRED_ENV: Unity CLI missing' >&2; exit 2; fi
 set +e
 license_json="$(UNITY_NO_UPDATE_CHECK=1 unity license status --format json)"

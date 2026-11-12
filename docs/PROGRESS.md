@@ -596,3 +596,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T05/R40 Mock 거부 회귀 집계 연결 시작: 독립 managed 시험을 strict Push 필수 lane으로 추가한다. 환경 누락·실패·marker 없음은 PASS로 처리하지 않으며 OS 수동시험은 별도 PARTIAL 유지.
 - R40 managed Mock 거부 단독 시험과 집계 단위 13건 PASS, Python 문법 PASS. Push runner 전체에 새 lane이 실제 나타나는지 확인한다.
 - Push 독립 집계 exit 2 (`artifacts/push-regression-0qh7drmi`): 새 mock-permission-denied 1건 PASS, 환경 미제공 lane은 DEFERRED_ENV. 전체 통과가 아니다. R40 OS 자동 재현은 PARTIAL 유지. 커밋 준비.
+- P09-T07 Unity self-hosted preflight 보완 시작: 새 필수 Mock 권한 시험과 기존 managed 검증에 필요한 UNITY_EDITOR_PATH를 조기에 확인하고 환경 요구를 문서화한다.
+- CI preflight shell 문법과 기존 음성 3건 PASS. 존재하지 않는 Editor 경로도 실제 실행 전 DEFERRED_ENV로 거부하는 별도 음성 시험을 추가한다.
+- CI preflight 음성 시험 4건 및 shell 문법 PASS; GitHub Actions 실행은 NOT_RUN. 변경 커밋 준비.

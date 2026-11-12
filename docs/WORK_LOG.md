@@ -2725,3 +2725,7 @@
 - 독립 managed 거부 주입 시험을 `run-push-regression.py`와 strict 필수 lane에 연결한다. 시험이 실행되지 않거나 marker가 없을 때 aggregate가 성공하지 않게 한다. 실제 OS 수동시험은 별도 증거다.
 - Mock 거부 managed 시험 exit 0, 집계 음성 포함 13건 PASS/skip0, Python compile PASS. 다음으로 독립 Push runner에서 새 lane 실제 집계와 누락 환경의 비성공을 확인한다.
 - `UNITY_EDITOR_PATH=<installed Unity> python3 harness/run-push-regression.py` exit 2: 새 mock-permission-denied 1건 PASS, backend/Android/Swift fake 각 PASS, DB·iOS host·staging·Player 등 미제공 lane은 DEFERRED_ENV (`artifacts/push-regression-0qh7drmi/result.json`). 전체 성공이 아니다. 커밋 전: 필수 lane 및 기록만 포함, OS 수동시험 자동 재현은 여전히 미완료.
+### P09-T07 self-hosted 환경 사전검사 보완
+- strict의 managed 검증이 UNITY_EDITOR_PATH를 요구하지만 CI preflight와 문서에서 이를 빠뜨린 점을 확인했다. build 전에 명시적으로 확인해 환경 누락이 늦게 드러나지 않도록 한다.
+- `bash -n scripts/ci-unity-e2e.sh` 및 CI gate 단위 3건 PASS/skip0. 잘못된 UNITY_EDITOR_PATH가 실제 build 실행 전 거부되는지 별도 음성 시험을 추가한다.
+- 잘못된 Unity 실행 파일 경로를 조기에 DEFERRED_ENV로 거부하는 시험 포함 `test_ci_gate.py` 4건 PASS/skip0, shell 문법 PASS. GitHub Actions 실제 실행은 NOT_RUN. 커밋 전: 사전검사·음성 시험·문서만 포함한다.

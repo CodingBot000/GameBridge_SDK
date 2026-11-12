@@ -13,3 +13,10 @@
 - 실제 HOME→앱 재개에서 Unity pause/resume callback 및 메인 스레드 확인. 전용 에뮬레이터의 Wi-Fi/data를 차단해 host 접속 실패를 확인한 뒤 Mock 메시지를 발송하고 연결 복구 후 기존 메시지가 전달되지 않음을 확인했다. 이후 연결된 상태에서 새 메시지가 Unity에 전달됐다.
 - 재시험의 APK SHA-256 `3a05e5d7894a3fafec1b75b436ee4c9bfba34ca66efbbb0e889e68e070770b86`. 전용 에뮬레이터 최초 전체화면 안내는 수동으로 닫았다.
 - 프로세스 강제 종료·재시작 및 pending, 세션 변경·늦은 callback 주입, iOS Player, 실제 원격 FCM/APNs는 여전히 NOT_RUN이다.
+
+## 강제 종료 및 pending 복구 추가 시험
+
+- 소스 `c15550d8efa614914ed8350a3167c0da93bf45eb`, tracked-clean. `harness/run-unity-android-mock-restart-e2e.py --run-local` 전용 Android 36 에뮬레이터 실행 exit 0, `artifacts/unity-android-restart-r3p6hl0d/result.json` PASS.
+- 테스트 전용 loopback proxy가 서버의 최초 구매 검증 성공 응답을 503으로 바꾼 뒤 서버 원장 1건·100코인을 확인했다. Unity 앱을 force-stop하고 서로 다른 프로세스로 재실행해 세션 복원, pending 1회 복구, 두 번째 sync의 pending 0건, 원장 불변과 Unity 메인 스레드를 확인했다. 단순 background 전환과 별도 시험이다.
+- APK SHA-256 `56af04cd869115f80907f7009b67c20c6dfa4273d9d1edc798f33ebf8448c13c`. 전용 AVD의 최초 전체화면 안내는 수동으로 닫았다. 실제 Play Billing 거래 또는 오프라인 원격 푸시를 뜻하지 않는다.
+- 세션 변경·늦은 callback 주입, 재연결 실패 검증과 iOS Player, 실제 FCM/APNs는 별도 미완료다.

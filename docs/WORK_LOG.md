@@ -2515,3 +2515,5 @@
 - Android restart consumer의 Unity managed reference compile 종료 0. 실제 pending 보존과 앱 강제 종료는 아직 NOT_RUN이며, 외부 자격증명 없이 테스트할 로컬 전용 fault proxy를 추가한다.
 - `harness/run-unity-android-mock-restart-e2e.py`는 검증 서버가 200 commit한 최초 응답만 test-only proxy로 503 처리하고, 전용 앱 force-stop 전후 PID·세션 restore·pending 1회 복구·재지급 없음과 DB 원장을 대조한다. proxy는 헤더/본문 로그를 남기지 않는다. Python 문법 PASS. 커밋 준비: 아직 Player 검증은 미실행이다.
 - 새 전용 GameBridge_V2_ AVD에서 Unity 앱 강제 종료와 pending 복구 전체 runner를 실행한다. 기존 AVD 및 앱은 보존한다. 실행 전 기록을 커밋한다.
+- `python3 harness/run-unity-android-mock-restart-e2e.py --run-local --staging ... --serial emulator-5580 --expected-avd GameBridge_V2_20261112_163957` 종료 0, `artifacts/unity-android-restart-r3p6hl0d/result.json`: test-only proxy로 첫 구매 검증 서버 commit 이후 응답을 503으로 주입, Unity 앱 강제 종료 및 다른 PID 재실행, session restore, pending 1회 복구·재sync 0·원장 1건/100·main-thread 확인. 전용 AVD의 최초 전체화면 안내 수동 처리. 실제 Play Billing과 구분한다.
+- Android evidence에 강제 종료 전 서버 commit·응답 유실, 서로 다른 PID, pending 복구·재sync 및 원장 불변, main-thread 범위를 기록했다. 커밋 준비: 공개 증거·원장만 포함하고 test APK·원본 로그는 보존하되 Git에 넣지 않는다.

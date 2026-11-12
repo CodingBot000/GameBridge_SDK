@@ -251,6 +251,15 @@
       "mode": "LOCAL_MOCK",
       "platform": "Unity Android/iOS",
       "timeoutSeconds": 3300
+    },
+    "r40-permission-e2e": {
+      "command": [
+        "python3",
+        "harness/run-r40-permission-optin.py"
+      ],
+      "mode": "OS_AND_FAKE",
+      "platform": "Android/iOS",
+      "timeoutSeconds": 3600
     }
   },
   "scenarios": [
@@ -1542,17 +1551,40 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R40"
       ],
       "candidateSuites": [
-        "push-regression"
+        "push-regression",
+        "r40-permission-e2e"
       ],
-      "evidence": "docs/evidence/r40-android-os-permission-partial.md",
-      "note": "Android/iOS OS denial and managed mock denial have separate evidence; unattended OS reproduction remains partial."
+      "evidence": "docs/evidence/r40-os-and-mock.md",
+      "note": "Actual Android and iOS OS denial and managed mock denial separately executed; iOS GUI denial was externally assisted, remote push remains unverified.",
+      "assertions": [
+        {
+          "suite": "r40-permission-e2e",
+          "testFile": "tests/UnityAndroidPermissionConsumer/MockPlayerScenario.cs",
+          "testCase": "GB_PERMISSION_RESULT PASS ANDROID_OS_DENIED"
+        },
+        {
+          "suite": "r40-permission-e2e",
+          "testFile": "tests/UnityIosPermissionConsumer/MockIosPlayerScenario.cs",
+          "testCase": "GB_IOS_PERMISSION_RESULT PASS IOS_OS_DENIED"
+        },
+        {
+          "suite": "r40-permission-e2e",
+          "testFile": "tests/UnityMockPermission/Program.cs",
+          "testCase": "PERMISSION_DENIED"
+        },
+        {
+          "suite": "push-regression",
+          "testFile": "harness/run-push-regression.py",
+          "testCase": "mock-permission-denied"
+        }
+      ]
     },
     {
       "id": "R41",

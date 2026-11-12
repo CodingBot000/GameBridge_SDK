@@ -3029,3 +3029,8 @@
 - Android denial tap 횟수/interaction mode 및 iOS 외부 GUI 입력 표시를 보강했고 Android 단위 3건, iOS 2건 PASS/skip0. 양 OS 및 managed Mock을 각각 새 실행하는 opt-in R40 entry를 추가한다. iOS GUI 입력이 없으면 성공하지 않는다.
 - `test_r40_permission_optin.py` 2건 PASS/skip0: opt-in 없으면 실행하지 않고 DEFERRED, Android/iOS/Mock 중 어느 하나가 대기/실패면 전체 성공하지 않는다. 세 경로 합친 실제 wrapper 및 새 interaction 기록은 아직 미실행이다. 커밋 전: test-only runner·fixture·기록만 포함한다.
 - `run-r40-permission-optin.py`에서 Android 실제 OS, iOS 실제 OS, managed Mock 세 경로를 순차 실행한다. iOS OS 거부는 외부 GUI 도구 조작이며 무인 CI로 간주하지 않는다. 시작 기록을 먼저 커밋한다.
+- `GAMEBRIDGE_RUN_OS_PERMISSION_E2E=true ... python3 harness/run-r40-permission-optin.py` exit 0: Android 실제 OS denial 자동 처리 (`artifacts/unity-android-permission-ube13ah7`), iOS 실제 OS denial GUI 도구 처리 (`artifacts/unity-ios-permission-hk912uou`), standalone managed Mock denial 각각 PASS. 양 OS source ef9405b tracked-clean; 실제 FCM/APNs·실기기 검증은 아니다. 첫 결과 정리 명령은 작업 디렉터리 오타로 프로세스 미시작, 올바른 경로로 재실행했다.
+- R40 실제 통합 결과: Android `AUTOMATED_RESOURCE_ID` denial tap 2회, iOS `EXTERNAL_GUI_REQUIRED`이며 도구로 거부, managed Mock 별도 PASS. 양 test 기기는 shutdown했고 데이터 보존. 실행된 세 범위를 manifest assertion 및 opt-in 재현 경로에 매핑한다.
+- R40의 실제 Android 자동 OS, iOS GUI 보조 OS, managed Mock 결과를 `r40-os-and-mock.md`에 연결했다. `check-manifest`, 음성 검사 PASS 및 required coverage 50개 기록 완료. 이는 현재 CI에서 모든 시나리오가 실행됐다는 뜻이 아니며 iOS GUI·실제 provider는 별도다.
+- R40 실제 Android OS·iOS OS·Mock 및 opt-in 재현 wrapper를 연결해 50/50 local/fake coverage evidence를 기록했다. iOS GUI 수동 및 실제 provider 미검증을 명시하고 최종 manifest/runner 음성 검사를 실행한다.
+- R40 opt-in 2건, Android OS selector 3건, iOS OS marker 2건, CI gate 6건 단위 PASS/skip0. manifest·음성·coverage·원장 PASS. 커밋 전: 실제 OS/Mock별 evidence와 local/fake coverage만 갱신하며 GUI 보조·실 provider/전체 strict 미완료를 명시한다.

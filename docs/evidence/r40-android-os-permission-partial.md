@@ -6,3 +6,5 @@
 - 테스트 APK SHA-256 `b5bf927fade13886332199d87bd2990ae142bfd29d415cc3dcc88f0af7e53dcf`. APK·원본 로그·AVD는 Git에 포함하지 않는다. 전용 AVD의 최초 전체화면 안내 및 권한 dialog는 수동으로 조작했다.
 - 선행 두 번의 시도는 Firebase runtime dependency가 없어 등록 단계가 CONFIG_REQUIRED였으므로 권한별 차단 PASS가 아니었다.
 - **R40 전체 상태 PARTIAL:** 이 Android 시험 당시 iOS OS 및 Mock 거부는 미검증이었다. 이후 [iOS Simulator 부분 검증](r40-ios-os-permission-partial.md)과 독립 managed Mock 거부 시험을 확인했다. OS 시험의 무인 재현 및 전체 시나리오 집계는 남았다. 실제 FCM/APNs 원격 전달이나 실기기 검증을 뜻하지 않는다.
+
+이 문서의 PARTIAL 표기는 해당 시험 당시 상태다. 이후 Android OS·iOS OS·Mock을 구분해 재현한 현재 범위는 [R40 통합 증거](r40-os-and-mock.md)를 참조한다. 실제 provider/실기기는 여전히 미검증이다.

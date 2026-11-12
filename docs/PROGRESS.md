@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / R22·R40 및 CI 실행 검증 진행 중
+- 현재 Phase / Task: P09 / 전체 회귀 및 CI 실행 검증, P11 정합성 감사 진행 중
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-stable-meta-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: R22 전체 로그·입력 변이 검증과 R40 OS 권한 자동 재현, 최신 strict의 Unity 포함 실행 및 GitHub Actions 검증
+- 바로 다음 행동: 최신 소스 strict 재검증, iOS 26.5 StoreKit 실패 감사 및 CI 실행 상태 확인; R40 iOS GUI 보조·실제 provider는 별도
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -853,3 +853,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R40 OS dialog 처리 방식 분류 단위 Android 3건/iOS 2건 PASS, Python 구문 PASS. 양 OS와 Mock을 분리 실행하는 명시적 opt-in scenario entry를 추가한다.
 - R40 통합 opt-in entry의 누락 시 대기·세 경로 순차 실행·중간 대기 전파 단위 2건 PASS. 실제 통합 wrapper 및 변경된 interaction metadata는 NOT_RUN, clean-source 실행 전 커밋 준비.
 - P09-T05/R40 OS Android·iOS 및 managed Mock 통합 opt-in 실제 검증 시작: source dc8d9f9 코드, 최신 stage와 권한 이력 없는 전용 기기 사용. iOS GUI 거부는 도구로 처리한다.
+- R40 통합 opt-in 실제 실행 PASS: Android OS 자동 denial (`artifacts/unity-android-permission-ube13ah7`), iOS OS GUI 거부 (`artifacts/unity-ios-permission-hk912uou`), managed Mock 각각 실행. 동일 source ef9405b tracked-clean; 실제 FCM/APNs 아님. 첫 결과 정리 호출은 작업 경로 오타로 실행되지 않아 재실행했다.
+- R40 통합 실제 결과 재확인: Android OS 자동 denial 2회, iOS OS 외부 GUI denial, managed Mock 별도 PASS. 두 test 기기 shutdown·데이터 보존. 시나리오 범위에 맞춰 재현 suite와 증거 매핑을 검증한다.
+- R40 Android OS·iOS OS·Mock 실제 통합 결과와 재현 suite를 assertion별로 매핑했다. 50개 시나리오 local/fake coverage 기록 완료, 단 iOS GUI 수동 처리 및 현재 CI 미실행·실 provider 미검증은 유지한다.
+- R40 완료 매핑 후 시나리오 50/50 local/fake coverage 기록. 전체 CI/strict·실 provider의 현재 실행 성공은 별도이며 최종 음성/원장 검증을 수행한다.
+- R40 OS/Mock 통합 opt-in 실제 PASS 후 marker/환경/CI 음성 13건, manifest/coverage/원장 검사 PASS. local/fake 시나리오 50/50 evidence 기록; 전체 strict·실 provider는 별도 미완료. 커밋 준비.

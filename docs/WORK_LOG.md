@@ -2584,3 +2584,5 @@
 - test-only `LateCallbackProbe`와 link.xml을 격리 소비 프로젝트에 복사해 B session에서 A session 이벤트를 Android callback queue 또는 iOS C ABI callback 입력에 합성 주입한다. 메시지가 구독자에 전달되지 않고 ignored counter가 증가해야 한다. Android는 JNI를 통하지 않는 합성 callback 메서드 호출이며 iOS는 합성 C ABI 입력이다. 실제 Player 검증은 아직 미실행이다.
 - Unity wire registry의 timeout 후 이중 응답·이전 session·dispose 이후 이벤트 합성 단위는 DLL 직접 실행 PASS. Player probe를 포함한 Android/iOS 조건부 managed compile 각각 0 warning/0 error. JNI나 C ABI의 실제 지연 callback을 이미 통과한 것은 아니다. 커밋 준비: test-only probe·검사와 실제 오류 이력을 포함한다.
 - Android Unity Player의 B session에서 A session 합성 메시지를 Android callback queue에 주입하고 무시되는지 확인한다. 새로운 전용 AVD/DB에서 기존 Push/Lifecycle도 재검증하며 시작 기록을 커밋한다.
+- Android 실제 Player에서 test-only로 이전 A session 메시지를 B의 Android transport callback 메서드/큐에 지연 합성 주입하고 ignored counter 증가·구독자 미전달을 확인했다 (`artifacts/unity-android-push-3n9bo6qw`, exit 0). 기존 Mock push/background/network/session도 통과, 최초 전체화면 안내는 수동으로 닫았다. 합성 메서드 호출이므로 실제 JNI/FCM 지연 발생을 의미하지 않는다.
+- Android evidence에 최신 source의 Player test-only 지연 callback 주입 PASS, 제한된 회귀 범위 및 합성 주입/JNI 차이를 추가했다. 커밋 준비: 원본 로그·APK·DB 제외.

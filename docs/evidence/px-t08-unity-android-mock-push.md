@@ -37,3 +37,9 @@
 ## 기존 인증·구매 회귀
 
 소스 `8afe5d07551d639d6510af7b736f60dec0b475cc`, tracked-clean에서 기존 Unity Android LOCAL_MOCK 인증·구매 전체 Runner를 새 전용 AVD·DB로 재실행해 exit 0, `artifacts/unity-android-e2e-7001epc_/result.json` PASS. exact-version embedded Unity package cache를 사용했고 첫 전체화면 안내는 수동으로 닫았다. Google 로그인·Play 실결제는 미실행이다.
+
+## 지연된 이전 세션 callback 합성 주입
+
+- 소스 `d2146add76095b7c74b333796732893331659dce`, tracked-clean. 새 전용 Android 36 에뮬레이터의 확장 Push Runner exit 0 (`artifacts/unity-android-push-3n9bo6qw/result.json`).
+- 실제 Unity Player에서 B 세션 활성 후 A 세션 이벤트를 **테스트 코드가 합성해** Android transport callback 메서드/큐에 주입했다. Unity ignored counter 증가와 구독자 미전달을 확인했다. 이 주입은 실제 JNI 또는 FCM이 늦게 callback한 사례는 아니다. timeout 후 늦은 응답과 dispose 후 메시지는 별도 managed 단위 시험으로 확인했다.
+- 같은 실행에서 background/foreground·실제 AVD 연결 차단/복원·test proxy 재연결 거부 2회·복구·중복 제거·session 전환도 통과했다. 최초 전체화면 안내는 수동으로 닫았다. 테스트 probe 반영 APK SHA-256 `05ef751b06e50044120b27361b0cbb17055bfc57f81c873c13df8d24d3858162`.

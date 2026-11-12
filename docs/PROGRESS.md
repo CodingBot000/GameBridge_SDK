@@ -467,3 +467,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T16 이전 session 이벤트를 플랫폼 transport callback 큐에 test-only로 합성 주입하는 Player probe를 추가했다. iOS는 입력 버퍼를 즉시 해제해 복사 경계도 검사한다. 실제 테스트는 NOT_RUN이며 실제 APNs/FCM callback으로 주장하지 않는다.
 - PX-T16 managed wire 합성 단위 테스트 PASS(초기 `dotnet run` 경로 오류는 명시 DLL 실행으로 해결). Android/iOS Player 지연 callback probe managed compile은 각각 경고·오류 0이다. 실제 Player 주입 결과는 NOT_RUN이며 커밋 후 재검증한다.
 - PX-T16 Android Unity Player 합성 지연 callback·session 검증 시작: 새 전용 AVD/DB에서 실행하며 실제 FCM 지연 전달과 구분한다. 결과는 NOT_RUN이다.
+- PX-T16 Android Unity Player 합성 지연 callback 폐기 PASS (`artifacts/unity-android-push-3n9bo6qw`, exit 0): B 활성 후 A session 메시지를 Android callback 큐 경로에 합성 주입해 무시됨을 확인했다. 실제 FCM/JNI 지연 전달로 주장하지 않는다. iOS 동일 검증은 NOT_RUN이다.
+- PX-T16 Android Player 합성 이전-session callback 시험 범위와 JNI/FCM 비해당 한계를 공개 evidence에 기록했다. iOS 같은 검증은 NOT_RUN이며 커밋 후 실행한다.

@@ -530,7 +530,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -539,8 +539,20 @@
       "candidateSuites": [
         "unity-editor"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Isolated consumer Editor runner and test sources exist; Unity Editor execution and fresh player build remain unverified."
+      "evidence": "docs/evidence/r11-unity-scene-domain-reload.md",
+      "note": "Actual isolated Unity Editor play mode with domain reload enabled and disabled; synthetic callback injection, not OS push.",
+      "assertions": [
+        {
+          "suite": "unity-editor",
+          "testFile": "tests/UnityConsumer/Editor/ConsumerLifecycleTests.cs",
+          "testCase": "GB_CONSUMER_"
+        },
+        {
+          "suite": "unity-editor",
+          "testFile": "scripts/check-unity-test-result.py",
+          "testCase": "required lifecycle completion marker missing"
+        }
+      ]
     },
     {
       "id": "R12",

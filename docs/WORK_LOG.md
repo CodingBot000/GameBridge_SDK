@@ -2626,3 +2626,6 @@
 - `scripts/check-unity-test-result.py`가 두 test 이름과 PASS뿐 아니라 각 test의 해당 완료 marker를 개별 검사하도록 변경했다. 기존 실제 XML 및 marker 누락/skip/중복 음성 fixture를 확인한다.
 - 실제 `artifacts/unity-consumer.U1ob4f/results.xml`은 두 marker 검사 PASS. `test_unity_consumer_result.py` 1 test PASS/skip 0(누락·skip·중복 fixture 포함). 커밋 준비: R11 test source·결과 parser·offline 격리 runner 및 원장만 포함한다. 신규 source 재실행 전 manifest는 PARTIAL 유지한다.
 - R11 커밋된 테스트 코드를 동일 버전의 격리 consumer에서 재실행한다. 실행 전 진행 기록을 커밋하며 사용자 Demo 및 다른 Unity 프로젝트는 변경하지 않는다.
+- clean tracked source `a0ba7a5`의 `scripts/build-unity.sh --editor-smoke` 종료 0 (`artifacts/unity-consumer.EfzZEr/results.xml`): Unity 6000.5.8f1 Editor에서 domain reload enabled/disabled 2건 PASS/skip 0, 각 완료 marker, scene 전환·client dispose/recreate·이전 session synthetic callback 차단·dispatcher 1→0 확인. 실제 OS callback이나 Player 대체가 아닌 Editor 범위다.
+- 실제 Editor 테스트·marker 및 격리 package 조건을 `docs/evidence/r11-unity-scene-domain-reload.md`에 기록하고 R11을 해당 범위로 매핑했다. manifest 및 진행 원장을 검증한다.
+- `harness/check-manifest.py`, `harness/check-manifest-negative.py`, `scripts/verify-progress.py` 종료 0. 커밋 준비: R11 실제 Editor 결과의 요약·manifest 및 원장만 저장한다. 원본 로그·Unity project는 Git에 넣지 않는다.

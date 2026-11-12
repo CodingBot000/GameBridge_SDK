@@ -2733,3 +2733,7 @@
 - 기존 Android R40 증거가 당시 iOS/Mock NOT_RUN이라고 적고 있어 현재 증거에 대한 오해를 막을 현재 상태 연결 문장을 추가한다. 개별 시험 당시 사실과 전체 PARTIAL/실플랫폼 미검증은 보존한다.
 - R40 과거 시점별 증거와 USER_SETUP·FEATURE_MATRIX·FINAL_REPORT 주요 항목의 현재 결과를 정정하고 `verify-progress.py` PASS. 각 문서의 나머지 과거 Unity 미실행 표현은 당시 산출물과 현재 결과를 구분해 추가 점검한다.
 - `python3 scripts/verify-progress.py`, `python3 harness/check-manifest.py`, `git diff --check` exit 0. 문서 검사는 제품 시험이 아니다. 커밋 전: R40 시점별 증거와 사용자 설정·기능 matrix·보고서의 오류 표현만 정정하며 strict FAIL과 실연동 미검증을 유지한다.
+### P09-T06 격리 strict 실행 시간 제한 점검
+- Push runner 내부는 양 Player 합산 최대 3300초인데 isolated orchestration은 전체 strict를 900초로 제한한다. 명시적 Unity Push opt-in에서 긴 실행을 중간에 끊을 수 있어 외부 timeout 일관성을 검토한다.
+- isolated 전체 900초는 opt-in Unity Push의 3600초 상위 timeout보다 짧아 양 Player가 진행 중이어도 잘릴 수 있다. opt-in true에만 전체 5400초를 적용하고 기본 900초는 유지한다.
+- `test_strict_timeout.py` 1건, `test_aggregation.py` 13건 PASS/skip0 및 Python compile PASS. opt-in에서 장시간 전체 strict 실행은 아직 NOT_RUN이다. 커밋 전: timeout 조정·단위 검사·CI 등록만 포함한다.

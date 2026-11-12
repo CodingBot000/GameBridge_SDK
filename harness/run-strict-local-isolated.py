@@ -14,6 +14,9 @@ import urllib.request
 ROOT = Path(__file__).resolve().parent.parent
 CONTAINER = 'gamebridge-sdk-local-postgres-1'
 
+def strict_timeout(env):
+    return 5400 if env.get("GAMEBRIDGE_RUN_UNITY_PUSH_E2E") == "true" else 900
+
 def wait_health(base, process):
     deadline = time.monotonic() + 45
     while time.monotonic() < deadline:
@@ -82,7 +85,7 @@ def main():
         else: print('iOS synthetic host lane unavailable; it remains deferred.',flush=True)
         print('Running strict local aggregation; Unity Editor and external services remain separate...',flush=True)
         try:
-            result=subprocess.run(['bash','scripts/verify-all.sh','--strict-local'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=900)
+            result=subprocess.run(['bash','scripts/verify-all.sh','--strict-local'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=strict_timeout(env))
             (output/'aggregate.log').write_text(result.stdout); print(result.stdout,flush=True)
             return result.returncode
         except subprocess.TimeoutExpired:

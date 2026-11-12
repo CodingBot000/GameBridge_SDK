@@ -602,3 +602,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P11 진행 증거 정합성 점검 시작: R40 기존 Android/iOS 부분 증거와 현재 Mock 실행 상태, CI·최종 보고서의 과거 미검증 표현을 대조한다.
 - 문서 정합성 1차 수정 및 원장 검사 PASS: 최신 iOS/Android OS 권한, Mock 거부, strict 실패 및 단독 재시험을 반영했다. 나머지 기능 matrix의 이전 Unity 미실행 표현도 증거와 대조한다.
 - P11 문서 정합성 검사: 원장·50개 manifest 구문 검사와 diff 공백 검사 PASS. 과거 산출물 결과는 당시 상태로 명시하고 최신 LOCAL_MOCK·실제 플랫폼 범위를 구분했다. 커밋 준비.
+- P09-T06 strict 격리 orchestration timeout 점검 시작: 실제 Unity 양 플랫폼 opt-in 시 내부 실행 제한과 외부 900초 제한 충돌 가능성을 검토한다.
+- P09-T06 제한 충돌 확인: opt-in Push에 내부 3600초를 허용하면서 격리 전체는 900초에서 중단한다. opt-in 때만 외부 여유를 늘리고 환경별 단위 검증을 추가한다.
+- strict timeout 환경별 단위 1건·집계 13건 PASS, Python 문법 PASS. 실제 긴 전체 실행은 NOT_RUN; CI 기본 검사에 새 단위를 포함하고 커밋 준비.

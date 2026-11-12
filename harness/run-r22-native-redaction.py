@@ -18,11 +18,9 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 
 
-MOCK_CREDENTIAL = re.compile(r'(?<![A-Za-z0-9_])mock:[0-9a-fA-F-]{36}(?![A-Za-z0-9-])')
-
-
-def has_mock_credential(text):
-    return MOCK_CREDENTIAL.search(text) is not None
+_redaction_spec = importlib.util.spec_from_file_location('local_mock_redaction', ROOT/'harness/local_mock_redaction.py')
+_redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.loader.exec_module(_redaction)
+has_mock_credential = _redaction.contains_mock_credential
 
 
 def error_status(error):

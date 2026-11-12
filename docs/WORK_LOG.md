@@ -2899,3 +2899,8 @@
 - `test_r22_native_redaction.py` 3건 PASS/skip0 및 Python compile PASS. pattern 검사 추가 후 격리 Android/Swift integration을 새로 실행한다.
 - 강화한 R22 격리 runner exit 0 (`artifacts/r22-native-7r45s8ui`): Android/Swift bridge 각 1건과 서버 로그 synthetic session key/push token·purchase proof 형태 검사 PASS. 이는 로컬 mock 형식에 한정하며 실제 provider·모든 로그 포맷 보장이 아니다.
 - 결과 JSON의 양 test PASS 및 mockCredentialServerLog PASS, 원장/diff 검사 확인. 커밋 전: pattern 탐지·음성 test·정제 증거만 포함하며 raw 로그와 synthetic token 값은 제외한다.
+### P09-T03/R22 Unity 로그 synthetic credential 검사 시작
+- 기존 gate는 개발키 등 알려진 일부 값만 Unity/server 로그에서 검사한다. LOCAL_MOCK push token·구매 proof 형식 `mock:<UUID>`을 공통 검사해 누출 시 marker 저장·PASS를 막는다. 실제 credential이나 다른 형식은 별도다.
+- Android/iOS 기본·Push runner에 test-only mock credential 패턴 검사 추가, Python compile 및 marker 4건 PASS/skip0. Android 원시 logcat 유출이 marker 필터 전에 거부되는지 음성 fixture를 추가한다.
+- `test_unity_redaction_marker.py` 5건, `test_unity_push_current.py` 1건 PASS/skip0, 원장/diff PASS. R22 전용 runner의 동일 패턴을 공통 helper로 통일해 검사 기준의 차이를 방지한다.
+- 공통 helper 연결 후 R22 단위 3건/skip0과 격리 Native runner exit 0 (`artifacts/r22-native-7__7z_m1`). Unity 기본·Push runner의 변경 후 실제 Player는 아직 NOT_RUN이다. 커밋 전: synthetic 패턴 검사·음성 test·기록만 포함한다.

@@ -738,3 +738,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 합성 token/proof 패턴 탐지·marker·환경 대기 단위 3건 PASS, Python 문법 PASS. 격리 Native/Backend 실제 검증을 재실행한다.
 - R22 전용 격리 재실행 PASS (`artifacts/r22-native-7r45s8ui`): Android·Swift 합성 session token, 개발키 및 mock push/proof 형태 서버 로그 검사. 실제 provider·다른 형식·전체 Player 로그는 별도, PARTIAL 유지.
 - R22 synthetic mock credential 검사·결과 JSON·원장/diff PASS. 커밋 준비; 전체 로그·실제 provider 상태는 미완료로 둔다.
+- P09-T03/R22 Unity LOCAL_MOCK runner 로그 검사 보강 시작: Android/iOS 기본·Push의 원시 Unity/server 로그에서 synthetic mock token/proof 형태를 검사한다. 실제 provider 및 다른 형식은 별도다.
+- Unity 네 runner의 synthetic mock credential 검사 추가 후 Python 문법·기존 marker 4건 PASS. 유출된 가상 token이 필터되기 전에 실패하는 음성 시험을 추가한다.
+- Unity raw log mock credential 주입 거부 포함 단위 5건·Push 증거 단위 1건 PASS. 중복 정규식을 공통 helper로 통일하고 재검증한다.
+- 공통 synthetic credential 패턴의 R22 단위 3건 및 격리 Native 재실행 PASS (`artifacts/r22-native-7__7z_m1`). Unity runner 추가 검사는 아직 실제 Player 재실행 전, 커밋 준비.

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Opt-in fresh Unity iOS Simulator -> Swift -> LOCAL_MOCK Backend/DB test."""
-import argparse, base64, hashlib, json, os, re, secrets, socket, subprocess, sys, tempfile, threading, time, urllib.request
+import argparse, base64, hashlib, importlib.util, json, os, re, secrets, socket, subprocess, sys, tempfile, threading, time, urllib.request
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
+_redaction_spec = importlib.util.spec_from_file_location('local_mock_redaction', ROOT/'harness/local_mock_redaction.py')
+_redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.loader.exec_module(_redaction)
+
 BUNDLE='com.gamebridge.sdk.mockiosconsumer'
 STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
@@ -96,7 +99,7 @@ def main():
         result['unityPlayer']='LAUNCHED_PENDING'
         def read_player():
             for line in player.stdout:
-                if key in line or password in line: leaks.append(True); continue
+                if key in line or password in line or _redaction.contains_mock_credential(line): leaks.append(True); continue
                 if 'GB_MOCK_' in line or 'GB_NATIVE_DEMO_FLOW' in line: markers.append(line.strip())
         thread=threading.Thread(target=read_player,daemon=True);thread.start()
         for _ in range(180):
@@ -118,7 +121,7 @@ def main():
         for kind in ('INITIALIZE','AUTH','PURCHASE'):
             if not re.search(r'GB_MOCK_NATIVE kind='+kind+r' outcome=SUCCEEDED requestId=[0-9a-fA-F-]{36}',text): raise RuntimeError('NATIVE_DIAGNOSTIC_MISSING_'+kind)
         serverlog.flush(); trace=(out/'server.log').read_text()
-        if key in trace or password in trace: raise RuntimeError('SYNTHETIC_SECRET_IN_SERVER_LOG')
+        if key in trace or password in trace or _redaction.contains_mock_credential(trace): raise RuntimeError('SYNTHETIC_SECRET_IN_SERVER_LOG')
         counts={op:len(re.findall(r'LOCAL_MOCK_TRACE operation='+re.escape(op)+r' method=(?:GET|POST) requestId=[0-9a-fA-F-]{36} status=200',trace)) for op in OPS}
         if any(n<1 for n in counts.values()): raise RuntimeError('BACKEND_TRACE_MISSING')
         ledger=must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'LEDGER_QUERY_FAILED',input='SELECT count(*),coalesce(sum(delta),0) FROM wallet_ledger;\n')

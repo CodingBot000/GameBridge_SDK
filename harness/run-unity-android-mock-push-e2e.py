@@ -50,7 +50,7 @@ def main():
         if launch.returncode or not re.search(r'^Status:\s*ok\s*$',launch.stdout,re.M):raise common.GateError('LAUNCH_FAILED')
         def logs():
             text=must([adb,'-s',serial,'logcat','-d','-v','brief','-s','Unity:I','*:S'],'LOGCAT_FAILED',timeout=20)
-            if key in text or password in text or admin in text or bearer in text:raise common.GateError('SYNTHETIC_SECRET_IN_PLAYER_LOG')
+            if key in text or password in text or admin in text or bearer in text or common._redaction.contains_mock_credential(text):raise common.GateError('SYNTHETIC_SECRET_IN_PLAYER_LOG')
             return '\n'.join(line for line in text.splitlines() if 'GB_PUSH_' in line)
         def wait(marker,seconds=90):
             deadline=time.monotonic()+seconds
@@ -113,7 +113,7 @@ def main():
         text=wait('GB_PUSH_RESULT PASS LOCAL_MOCK');(out/'unity-push-markers.log').write_text(text+'\n')
         if text.count('GB_PUSH_RECEIVED 1')!=1 or 'GB_PUSH_RECEIVED 2' in text or 'GB_PUSH_STEP receive-deduplicate-main-thread PASS' not in text or 'GB_PUSH_STEP unregister-logout-no-late-event PASS' not in text or 'GB_PUSH_STEP background-foreground-main-thread PASS' not in text or 'GB_PUSH_STEP network-recovery-online-only PASS' not in text or 'GB_PUSH_STEP session-switch-no-stale-event PASS' not in text or 'GB_PUSH_STEP synthetic-late-callback-rejected PASS' not in text:raise common.GateError('PUSH_ASSERTIONS_MISSING')
         log.flush();trace=(out/'server.log').read_text()
-        if any(secret in trace for secret in (key,password,admin,bearer,bearer_b)):raise common.GateError('SYNTHETIC_SECRET_IN_SERVER_LOG')
+        if any(secret in trace for secret in (key,password,admin,bearer,bearer_b)) or common._redaction.contains_mock_credential(trace):raise common.GateError('SYNTHETIC_SECRET_IN_SERVER_LOG')
         dbcheck=must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'PUSH_DB_QUERY',input_text='SELECT count(*) FROM device_tokens;\n')
         if dbcheck.strip()!='0':raise common.GateError('PUSH_TOKEN_NOT_DELETED')
         result.update(status='PASS',player='PASS',mockPush='PASS',deduplication='PASS',mainThread='PASS',unregisterLogout='PASS',background='PASS',networkRecovery='PASS',reconnectFailure='PASS',sessionSwitch='PASS',deviceTokens=0)

@@ -9,6 +9,7 @@ The created DB, emulator installation and raw local artifacts are retained.
 import argparse
 import base64
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -23,6 +24,9 @@ import time
 import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
+_redaction_spec = importlib.util.spec_from_file_location('local_mock_redaction', ROOT/'harness/local_mock_redaction.py')
+_redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.loader.exec_module(_redaction)
+
 PACKAGE = "com.gamebridge.sdk.mockconsumer"
 STEPS = ("initialize", "login", "products", "purchase", "wallet", "logout")
 HTTP_OPS = ("mock-auth", "catalog", "entitlements", "verify", "logout")
@@ -190,7 +194,7 @@ def start_backend(jar, output, database, password, dbport):
 
 def server_trace_status(log, key, password):
     trace = Path(log).read_text(encoding="utf-8", errors="replace")
-    if key in trace or password in trace:
+    if key in trace or password in trace or _redaction.contains_mock_credential(trace):
         raise GateError("SYNTHETIC_SECRET_IN_SERVER_LOG")
     counts = {}
     for operation in HTTP_OPS:
@@ -205,7 +209,7 @@ def server_trace_status(log, key, password):
 def scan_unity_log(adb, serial, key, password):
     result = must([adb, "-s", serial, "logcat", "-d", "-v", "brief", "-s", "Unity:I", "*:S"],
                   "UNITY_LOGCAT_UNAVAILABLE", timeout=20)
-    if key in result or password in result:
+    if key in result or password in result or _redaction.contains_mock_credential(result):
         raise GateError("SYNTHETIC_SECRET_IN_PLAYER_LOG")
     return [line for line in result.splitlines()
             if re.search(r"\b(?:GB_MOCK_(?:STEP|RESULT|NATIVE|REDACTION)|GB_UTF8_JNI_ROUNDTRIP|GB_NATIVE_DEMO_FLOW)\b", line)]

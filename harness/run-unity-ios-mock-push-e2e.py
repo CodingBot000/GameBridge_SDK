@@ -3,6 +3,9 @@
 import argparse, importlib.util, json, os, re, secrets, select, shutil, socket, socketserver, subprocess, tempfile, threading, time, urllib.error, urllib.request, uuid
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
+_redaction_spec = importlib.util.spec_from_file_location('local_mock_redaction', ROOT/'harness/local_mock_redaction.py')
+_redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.loader.exec_module(_redaction)
+
 BUNDLE='com.gamebridge.sdk.mockiosconsumer'
 spec=importlib.util.spec_from_file_location('android_e2e',ROOT/'harness/run-unity-android-mock-e2e.py');common=importlib.util.module_from_spec(spec);spec.loader.exec_module(common)
 
@@ -105,7 +108,7 @@ def main():
         player=subprocess.Popen(['xcrun','simctl','launch','--console',sim,BUNDLE],cwd=ROOT,env=launch_env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)
         def capture():
             for line in player.stdout:
-                if any(secret in line for secret in (key,password,admin,bearer)):leaks.append(True);continue
+                if any(secret in line for secret in (key,password,admin,bearer)) or _redaction.contains_mock_credential(line):leaks.append(True);continue
                 if 'GB_PUSH_' in line:markers.append(line.strip())
         threading.Thread(target=capture,daemon=True).start()
         def wait(marker,seconds=90):
@@ -153,7 +156,7 @@ def main():
             if required not in text:raise common.GateError('PUSH_ASSERTIONS_MISSING')
         if text.count('GB_PUSH_RECEIVED 1')!=1 or 'GB_PUSH_RECEIVED 2' in text:raise common.GateError('PUSH_DUPLICATE')
         log.flush();trace=(out/'server.log').read_text()
-        if any(secret in trace for secret in (key,password,admin,bearer,bearer_b)):raise common.GateError('SECRET_IN_SERVER_LOG')
+        if any(secret in trace for secret in (key,password,admin,bearer,bearer_b)) or _redaction.contains_mock_credential(trace):raise common.GateError('SECRET_IN_SERVER_LOG')
         dbcheck=must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'PUSH_DB_QUERY',input_text='SELECT count(*) FROM device_tokens;\n')
         if dbcheck.strip()!='0':raise common.GateError('PUSH_TOKEN_NOT_DELETED')
         result.update(status='PASS',player='PASS',mockPush='PASS',deduplication='PASS',mainThread='PASS',background='PASS',networkRecovery='PASS_LOCAL_TRANSPORT_FAULT',reconnectFailure='PASS',sessionSwitch='PASS',deviceTokens=0)

@@ -9,9 +9,9 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 ## 확인한 범위
 
 - Android Kotlin, iOS Swift 및 Unity C# 경계의 계약·fake 테스트와 일부 local-mock HTTP/PostgreSQL 시험을 실행했다. 인증, 구매 중복 지급 방지 및 응답 유실 복구, 푸시 토큰 등록·삭제의 제한된 경로를 확인했다. 실제 제공자 테스트와 구분한다.
-- Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성 복구를 확인했지만 실제 기기 프로세스 종료·Unity player 복구는 확인하지 않았다.
-- Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. 이후 Unity 6000.5.8f1 신규 소비 프로젝트 import·Android IL2CPP APK 및 local-mock Player 전체 경로는 전용 에뮬레이터에서 PASS했다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS와 실제 스토어는 미검증이다.
-- 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. Unity 푸시 전달 미검증과 미완성 시나리오 때문에 전체 검증은 통과하지 않았다. 최근 strict 집계는 `artifacts/verify-all-k8z14qqw/summary.md`이며 실행된 Native synthetic·local DB 검사는 통과했지만 Unity Editor 미실행, Unity push 환경 대기, 부분 시나리오와 기존 실패로 전체 FAIL이다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
+- Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성 복구를 확인했지만 Unity Android emulator와 iOS Simulator의 LOCAL_MOCK 프로세스 재시작 구매 복구도 확인했다. 실제 기기 복구는 미검증이다.
+- Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. 이후 Unity 6000.5.8f1 신규 소비 프로젝트 import·Android IL2CPP APK 및 local-mock Player 전체 경로는 전용 에뮬레이터에서 PASS했다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS Simulator의 LOCAL_MOCK 전체 흐름도 확인했으며 실제 스토어는 미검증이다.
+- 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. 양 플랫폼 Unity LOCAL_MOCK Push는 별도 Player에서 통과했으나 미완성 시나리오와 실패가 남아 전체 검증은 통과하지 않았다. strict 집계 `artifacts/verify-all-n8ajxtoz/summary.md`는 Xcode local StoreKit의 signal TERM 실패, Unity Editor 미실행, Unity Push 환경 대기, 부분 시나리오 및 기존 실패로 전체 FAIL이다. 해당 StoreKit 시험은 이후 단독 재실행에서 PASS했으며 원인은 미확정이다. 이후 소스 f40f8d5의 양 플랫폼 Unity Push 동일 실행은 별도로 PASS했다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
 - 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
 
 ## 남은 내부 작업과 실패
@@ -21,12 +21,12 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 | BUG-013 | XCODE_STOREKIT 격리 fake 서버 지급 및 Native/Unity bridge를 구현했다. iOS 18.6 상품 조회와 일회성 synthetic 지급·finish를 확인했으나, 추가 시험에서 동일 미완료 거래의 JWS가 바뀌어 중복 지급 위험을 발견했다. 완료 후 연속 구매의 고정 필드는 한 시험에서 구분됐지만 재시작 복구의 유일성은 미확인이다. iOS 18 이상과 host 소모품 이력 설정, 거래 후보 단일성 및 durable attempt를 요구하도록 보강했다. local DB 응답 유실과 Keychain 인스턴스 재생성 복구는 통과했으며 전용 iOS 18.6 simulator 앱 재시작 시험에서 journal 재생성 실패를 재현한 뒤 중복 거래 방지 수정으로 재시험 PASS (`artifacts/xcode-process-recovery-f_w2fsya`). 실제 기기·Unity 실행은 미검증이다. iOS 26.5 StoreKit 시험은 Code 3으로 실패했다. |
 | BUG-014 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle을 확인했다. 실제 기기·FCM/APNs와 iOS OS 전체 네트워크 차단은 미검증이다. |
 | BUG-015 | Native 진단 ring의 Unity 비동기 조회는 Android 및 iOS Simulator LOCAL_MOCK Player에서 확인했다. 다른 모드와 실제 기기는 미검증이다. |
-| BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |
-| P09 | 2개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor runner는 구현했으나 실행 결과가 없다. strict 전체 gate는 성공이 아니다. |
+| BUG-009 | LOCAL_MOCK Unity Android emulator와 iOS Simulator에서 응답 유실 후 프로세스 재시작 복구를 확인했다. 실제 스토어 및 실기기 복구는 남았다. |
+| P09 | 2개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor scene/domain reload 시험과 양 플랫폼 LOCAL_MOCK Player를 별도로 실행했다. 최신 strict 집계에서는 Editor가 NOT_RUN이었다. strict 전체 gate는 성공이 아니다. |
 
 ## 환경 및 사용자 설정
 
-과거 Unity 라이선스 오류(ENV-002)는 활성화 후 해소됐고 Android local-mock Player는 통과했다. 계획된 6.3 LTS 확인(ENV-001), Unity iOS 및 나머지 Unity 시나리오는 별도다. iOS 26.5 simulator의 StoreKit local 시험은 실패(ENV-STOREKIT-26)했다. 이후 별도 앱 재시험도 SKTestSession 생성에서 timeout (`artifacts/xcode-process-recovery-p8qyld6o`)이었으며 동일 계측의 iOS 18.6 대조는 PASS였다. 실제 Google/Apple 인증, 스토어, FCM/APNs의 계정·앱 등록·서명 및 기기 준비는 [USER_SETUP](USER_SETUP.md)에 정리했다. `bash scripts/verify-external.sh --check-config`는 설정 형태만 확인하며 실연동 테스트가 아니다.
+과거 Unity 라이선스 오류(ENV-002)는 활성화 후 해소됐고 Android local-mock Player는 통과했다. 계획된 6.3 LTS 확인(ENV-001), 실제 기기 및 나머지 Unity 시나리오는 별도다. iOS 26.5 simulator의 StoreKit local 시험은 실패(ENV-STOREKIT-26)했다. 이후 별도 앱 재시험도 SKTestSession 생성에서 timeout (`artifacts/xcode-process-recovery-p8qyld6o`)이었으며 동일 계측의 iOS 18.6 대조는 PASS였다. 실제 Google/Apple 인증, 스토어, FCM/APNs의 계정·앱 등록·서명 및 기기 준비는 [USER_SETUP](USER_SETUP.md)에 정리했다. `bash scripts/verify-external.sh --check-config`는 설정 형태만 확인하며 실연동 테스트가 아니다.
 
 ## 로컬 산출물
 
@@ -63,7 +63,7 @@ P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912
 
 기존 PX-T03 Kotlin Bridge → 로컬 Backend 1건/100코인 시험은 별도의 이전 실행 결과다. 변경된 코드를 clean checkout에서 재실행한 성공 근거 없이 그 결과를 새로운 코드의 PASS로 이전하지 않는다. 실제 실연동 대상 13건의 WAITING_USER 및 프로젝트 BLOCKED_INTERNAL 판정은 유지한다.
 
-2026-11-12 최신 Android Maven·iOS XCFramework·UPM staging은 `f1e12b6` 제품 소스로 새로 생성했다. UPM 110개 파일 checksum, Android 독립 R8 consumer, iOS arch/C ABI 및 0.1.0-dev 버전을 확인했다. Unity Android Player E2E는 source `c58b4a6`의 clean tracked tree와 동일한 staged Unity SDK 소스로 실행해 PASS했으며 첫 전체화면 안내는 수동으로 닫았다. 실제 Google 로그인·스토어 및 Unity iOS는 NOT_RUN이다.
+당시 2026-11-12 Android Maven·iOS XCFramework·UPM staging은 `f1e12b6` 제품 소스로 새로 생성했다. UPM 110개 파일 checksum, Android 독립 R8 consumer, iOS arch/C ABI 및 0.1.0-dev 버전을 확인했다. Unity Android Player E2E는 source `c58b4a6`의 clean tracked tree와 동일한 staged Unity SDK 소스로 실행해 PASS했으며 첫 전체화면 안내는 수동으로 닫았다. 해당 Android 실행 당시 실제 Google 로그인·스토어 및 Unity iOS는 NOT_RUN이었다. 이후 iOS LOCAL_MOCK 결과는 다음 항목에 기록한다.
 
 2026-11-12 Unity iOS 18.6 Simulator ARM64에서 Unity C# → Swift C ABI → LOCAL_MOCK Backend/PostgreSQL 전체 흐름이 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). 무서명 실행은 로그인에서 실패했고 성공 실행은 로컬 ad-hoc Simulator 서명을 사용했다. 실제 Apple 로그인·스토어 결제·APNs 및 실기기는 미검증이다.
 

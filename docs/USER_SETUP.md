@@ -234,7 +234,7 @@ local-mock 개발 push endpoint를 사용하려면 `GAMEBRIDGE_DEV_PUSH_ADMIN_KE
 
 서버 점검 상태가 명시되지 않으면 신규 구매를 차단하기로 사용자가 결정했다. 로컬 시험에서 구매를 허용하려면 `GAMEBRIDGE_MAINTENANCE_ENABLED=false`를 명시하며 실제 운영 상태는 운영자가 결정한다.
 
-Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상으로 작성했다. 알림 권한/등록은 host가 명시적으로 요청한다. Unity의 `OnRemoteNotificationReceived` 구독은 foreground 기본 알림 표시를 억제한다. Swift bridge의 `host.pushReceived`/`host.pushOpened`는 synthetic route·중복 제거 시험을 통과했으나 `host.pushToken`은 Native Backend 등록에 연결했고 fake 경계만 확인했다. Unity public permission/register facade는 host driver에 연결했지만 Unity coroutine과 실제 APNs는 미검증이다. Unity Editor/IL2CPP 및 실제 APNs는 미검증이다.
+Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상으로 작성했다. 알림 권한/등록은 host가 명시적으로 요청한다. Unity의 `OnRemoteNotificationReceived` 구독은 foreground 기본 알림 표시를 억제한다. Swift bridge의 `host.pushReceived`/`host.pushOpened`는 synthetic route·중복 제거 시험을 통과했으나 `host.pushToken`은 Native Backend 등록에 연결했고 fake 경계만 확인했다. Unity public permission/register facade는 host driver에 연결했지만 Unity iOS Simulator의 실제 OS 권한 거부 coroutine과 등록 차단은 확인했다. 실제 APNs 및 실기기는 미검증이다.
 
 ### Unity Android 개발 전용 LOCAL_MOCK
 
@@ -262,7 +262,7 @@ Unity iOS host-managed APNs를 사용하려면 `GameBridgeConfig` 10인자 생�
 
 Unity iOS에서는 활성 `IosPushHostAdapter`를 SDK client에 `Attach`한 후 `RequestPushPermissionAsync()` 또는 `RegisterPushAsync()`를 사용한다. adapter 연결만으로 권한 창은 열리지 않는다. 등록 결과의 시각은 Backend 등록 응답을 받은 클라이언트 시각이다. 등록 도중 호출자 취소는 이미 시작된 OS/네트워크 작업의 취소를 보장하지 않는다.
 
-Unity Android sandbox는 host가 초기화한 Firebase Messaging과 10인자 `GameBridgeConfig`의 installation UUID를 사용한다. host manifest에 `android.permission.POST_NOTIFICATIONS`를 선언하고 `RequestPushPermissionAsync()`로 OS 권한을 명시적으로 요청한 뒤 `RegisterPushAsync()`를 호출하면 Native가 FCM token을 가져와 인증된 Backend에 등록한다. Firebase 미설정·권한 거부는 오류이며 token 원문은 공개하지 않는다. Unity Android 권한 경로는 공식 managed reference compile과 fake facade만 확인했으며 실제 dialog는 미검증이다. 기존 FirebaseMessagingService 및 Activity에 `android/host-examples/UnityPushForwarding.kt.example`의 token rotation/수신/열기 호출을 직접 연결해야 한다. FID 전환 및 실제 FCM 시험은 미완료다. 등록 응답 시각은 클라이언트 시각이다.
+Unity Android sandbox는 host가 초기화한 Firebase Messaging과 10인자 `GameBridgeConfig`의 installation UUID를 사용한다. host manifest에 `android.permission.POST_NOTIFICATIONS`를 선언하고 `RequestPushPermissionAsync()`로 OS 권한을 명시적으로 요청한 뒤 `RegisterPushAsync()`를 호출하면 Native가 FCM token을 가져와 인증된 Backend에 등록한다. Firebase 미설정·권한 거부는 오류이며 token 원문은 공개하지 않는다. Unity Android emulator에서 실제 OS 권한 dialog 거부·등록 차단·재요청을 확인했다. 실기기 권한과 실제 FCM은 미검증이다. 기존 FirebaseMessagingService 및 Activity에 `android/host-examples/UnityPushForwarding.kt.example`의 token rotation/수신/열기 호출을 직접 연결해야 한다. FID 전환 및 실제 FCM 시험은 미완료다. 등록 응답 시각은 클라이언트 시각이다.
 
 Android host callback의 `forwardFcmToken` 반환값 true는 큐 접수이며 Backend 등록 성공이 아니다. 결과는 `PushTokenChanged`의 fingerprint 또는 오류로 확인한다. SDK session이 없을 때 token은 저장하지 않으므로 로그인 후 명시적 `RegisterPushAsync()`로 현재 token을 다시 가져온다. 알림 route는 home/store만 허용하며 cold-start queue는 프로세스 메모리에서 최대 100건이다.
 

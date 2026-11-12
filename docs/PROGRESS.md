@@ -599,3 +599,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 Unity self-hosted preflight 보완 시작: 새 필수 Mock 권한 시험과 기존 managed 검증에 필요한 UNITY_EDITOR_PATH를 조기에 확인하고 환경 요구를 문서화한다.
 - CI preflight shell 문법과 기존 음성 3건 PASS. 존재하지 않는 Editor 경로도 실제 실행 전 DEFERRED_ENV로 거부하는 별도 음성 시험을 추가한다.
 - CI preflight 음성 시험 4건 및 shell 문법 PASS; GitHub Actions 실행은 NOT_RUN. 변경 커밋 준비.
+- P11 진행 증거 정합성 점검 시작: R40 기존 Android/iOS 부분 증거와 현재 Mock 실행 상태, CI·최종 보고서의 과거 미검증 표현을 대조한다.
+- 문서 정합성 1차 수정 및 원장 검사 PASS: 최신 iOS/Android OS 권한, Mock 거부, strict 실패 및 단독 재시험을 반영했다. 나머지 기능 matrix의 이전 Unity 미실행 표현도 증거와 대조한다.
+- P11 문서 정합성 검사: 원장·50개 manifest 구문 검사와 diff 공백 검사 PASS. 과거 산출물 결과는 당시 상태로 명시하고 최신 LOCAL_MOCK·실제 플랫폼 범위를 구분했다. 커밋 준비.

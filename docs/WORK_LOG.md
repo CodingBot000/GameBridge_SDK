@@ -2729,3 +2729,7 @@
 - strict의 managed 검증이 UNITY_EDITOR_PATH를 요구하지만 CI preflight와 문서에서 이를 빠뜨린 점을 확인했다. build 전에 명시적으로 확인해 환경 누락이 늦게 드러나지 않도록 한다.
 - `bash -n scripts/ci-unity-e2e.sh` 및 CI gate 단위 3건 PASS/skip0. 잘못된 UNITY_EDITOR_PATH가 실제 build 실행 전 거부되는지 별도 음성 시험을 추가한다.
 - 잘못된 Unity 실행 파일 경로를 조기에 DEFERRED_ENV로 거부하는 시험 포함 `test_ci_gate.py` 4건 PASS/skip0, shell 문법 PASS. GitHub Actions 실제 실행은 NOT_RUN. 커밋 전: 사전검사·음성 시험·문서만 포함한다.
+### P11 현재 증거 문구 정합성 점검 시작
+- 기존 Android R40 증거가 당시 iOS/Mock NOT_RUN이라고 적고 있어 현재 증거에 대한 오해를 막을 현재 상태 연결 문장을 추가한다. 개별 시험 당시 사실과 전체 PARTIAL/실플랫폼 미검증은 보존한다.
+- R40 과거 시점별 증거와 USER_SETUP·FEATURE_MATRIX·FINAL_REPORT 주요 항목의 현재 결과를 정정하고 `verify-progress.py` PASS. 각 문서의 나머지 과거 Unity 미실행 표현은 당시 산출물과 현재 결과를 구분해 추가 점검한다.
+- `python3 scripts/verify-progress.py`, `python3 harness/check-manifest.py`, `git diff --check` exit 0. 문서 검사는 제품 시험이 아니다. 커밋 전: R40 시점별 증거와 사용자 설정·기능 matrix·보고서의 오류 표현만 정정하며 strict FAIL과 실연동 미검증을 유지한다.

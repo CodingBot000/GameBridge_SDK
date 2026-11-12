@@ -78,7 +78,7 @@ def main():
         if not match:raise common.GateError('CONSUMER_PATH')
         project=Path(match.group(1))
         if args.package_cache:result['embeddedCachedPackages']=embed_cached_packages(args.package_cache.resolve(),project)
-        shutil.copy2(ROOT/'tests/UnityIosPushConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs');xcode=out/'xcode'
+        shutil.copy2(ROOT/'tests/UnityIosPushConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/LateCallbackProbe.cs',project/'Assets/LateCallbackProbe.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml');xcode=out/'xcode'
         export=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],timeout=1200,env=env);(out/'unity-export.log').write_text(export.stdout)
         if export.returncode:raise common.GateError('UNITY_EXPORT_FAILED')
         derived=out/'Derived';build=run(['xcodebuild','-project',xcode/'Unity-iPhone.xcodeproj','-scheme','Unity-iPhone','-configuration','Debug','-sdk','iphonesimulator','-derivedDataPath',derived,'ARCHS=arm64','CODE_SIGN_IDENTITY=-','CODE_SIGNING_REQUIRED=YES','build','-quiet'],timeout=600);(out/'xcodebuild.log').write_text(build.stdout)
@@ -149,7 +149,7 @@ def main():
             if status!=200 or reply.get('delivery')!='SIMULATED':raise common.GateError('SESSION_B_SEND_FAILED')
             time.sleep(.4)
         text=wait('GB_PUSH_RESULT PASS LOCAL_MOCK')
-        for required in ('GB_PUSH_STEP receive-deduplicate-main-thread PASS','GB_PUSH_STEP background-foreground-main-thread PASS','GB_PUSH_STEP network-recovery-online-only PASS','GB_PUSH_STEP unregister-logout-no-late-event PASS','GB_PUSH_STEP session-switch-no-stale-event PASS'):
+        for required in ('GB_PUSH_STEP receive-deduplicate-main-thread PASS','GB_PUSH_STEP background-foreground-main-thread PASS','GB_PUSH_STEP network-recovery-online-only PASS','GB_PUSH_STEP unregister-logout-no-late-event PASS','GB_PUSH_STEP session-switch-no-stale-event PASS','GB_PUSH_STEP synthetic-late-callback-rejected PASS'):
             if required not in text:raise common.GateError('PUSH_ASSERTIONS_MISSING')
         if text.count('GB_PUSH_RECEIVED 1')!=1 or 'GB_PUSH_RECEIVED 2' in text:raise common.GateError('PUSH_DUPLICATE')
         log.flush();trace=(out/'server.log').read_text()

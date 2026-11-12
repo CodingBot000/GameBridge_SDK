@@ -37,6 +37,7 @@ public sealed class MockPlayerScenario : MonoBehaviour
             client = GameBridgeSdk.Create(config);
             client.PushReceived += item => { if (Thread.CurrentThread.ManagedThreadId != thread) wrongThread = true; if (item.MessageId == "unity-push-test") { deliveries++; Debug.Log("GB_PUSH_RECEIVED " + deliveries); received.TrySetResult(true); } if (item.MessageId == "unity-offline-test") offlineDeliveries++; if (item.MessageId == "unity-reconnected-test") { Debug.Log("GB_PUSH_RECONNECTED_RECEIVED"); reconnected.TrySetResult(true); } if (item.MessageId == "unity-session-b") { bDeliveries++; Debug.Log("GB_PUSH_B_RECEIVED " + bDeliveries); bReceived.TrySetResult(true); } };
             stage = "initialize"; await client.InitializeAsync(config); CheckThread(thread); Log("initialize");
+            var sessionA = LateCallbackProbe.Session(client);
             stage = "login"; await client.SignInAsync(AuthProvider.MOCK); CheckThread(thread); Log("login");
             stage = "register"; var registered = await client.RegisterPushAsync(); CheckThread(thread);
             if (!registered.registered || registered.provider != "MOCK") throw new InvalidOperationException("REGISTER_FAILED");
@@ -65,10 +66,11 @@ public sealed class MockPlayerScenario : MonoBehaviour
             client = GameBridgeSdk.Create(configB);
             client.PushReceived += item => {
                 if (Thread.CurrentThread.ManagedThreadId != thread) wrongThread = true;
-                if (item.MessageId == "unity-push-test" || item.MessageId == "unity-offline-test") deliveries++;
+                if (item.MessageId == "unity-push-test" || item.MessageId == "unity-offline-test" || item.MessageId == "unity-late-a") deliveries++;
                 if (item.MessageId == "unity-session-b") { bDeliveries++; Debug.Log("GB_PUSH_B_RECEIVED " + bDeliveries); bReceived.TrySetResult(true); }
             };
             await client.InitializeAsync(configB); await client.SignInAsync(AuthProvider.MOCK); await client.RegisterPushAsync(); CheckThread(thread);
+            stage = "synthetic-late-callback"; await LateCallbackProbe.InjectAndVerify(client, sessionA); CheckThread(thread);
             Debug.Log("GB_PUSH_B_READY");
             if (await Task.WhenAny(bReceived.Task, Task.Delay(60000)) != bReceived.Task) throw new InvalidOperationException("SESSION_B_TIMEOUT");
             await Task.Delay(4000); CheckThread(thread);

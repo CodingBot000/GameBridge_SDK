@@ -2575,3 +2575,11 @@
 - `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --package-cache ...`를 새 Simulator/DB에서 실행한다. Unity 인증·구매 이전 PASS를 현재 결과로 대체하지 않는다. 시작 기록을 커밋한다.
 - `harness/run-unity-ios-mock-e2e.py --run-local --adhoc ... --package-cache ...` 새 전용 Simulator·DB 실행 종료 0 (`artifacts/unity-ios-e2e-zizcrlvt`): Unity C#→Swift C ABI→Backend/DB의 Mock 로그인·상품·구매·잔액·로그아웃 및 main-thread/Native 진단 통과. Apple 계정·StoreKit 실거래는 사용하지 않았다.
 - Android source `8afe5d0`, iOS source `9031124`의 새 tracked-clean 전체 회귀 PASS를 플랫폼 evidence에 추가했다. 커밋 준비: 검증 요약과 원장만 포함하며 원본 로그·APK·키는 제외한다.
+### PX-T16 지연 콜백 및 이전 세션 이벤트 검증 시작
+- 기존 실제 Android/iOS Player의 session A→B 전환·이전 사용자 발송 거부는 확인했다. 지연된 Native callback 자체를 실제 Player에 주입한 적은 없으므로, 우선 SDK wire registry의 timeout 이후 응답·다른 세션 이벤트 및 dispose 이후 이벤트를 격리 .NET 테스트로 확인한다. 이를 Player 주입 PASS로 대체하지 않는다.
+- `tests/UnityLateCallback`은 timeout 후 동일 응답 두 번, 이전 session push, 현재 session 정상 push, dispose 이후 push를 SDK의 실제 RequestRegistry에 합성 주입한다. 이는 C#/managed 단위 시험이며 JNI/C ABI Player 지연 callback 직접 주입은 아니다.
+- `dotnet run`은 custom OutputPath로 빌드한 뒤 기본 경로 실행파일을 찾다가 exit 1 (`Win32Exception`); 테스트는 실행되지 않았다. 생성된 명시적 DLL 경로로 다시 실행한다.
+- 동일한 테스트를 Unity 동봉 dotnet으로 명시적 출력 DLL에서 실행한다.
+- managed wire 단위의 timeout 후 응답·이전 session·dispose 이후 이벤트 테스트는 DLL 직접 실행 PASS. 여기에 더해 각 실제 Player의 platform transport callback 수신 경로에 이전 session 메시지를 test-only 합성 주입해 큐/main-thread에서 폐기되는지 확인한다. 이는 실제 원격 FCM/APNs 발송이 아니다.
+- test-only `LateCallbackProbe`와 link.xml을 격리 소비 프로젝트에 복사해 B session에서 A session 이벤트를 Android callback queue 또는 iOS C ABI callback 입력에 합성 주입한다. 메시지가 구독자에 전달되지 않고 ignored counter가 증가해야 한다. Android는 JNI를 통하지 않는 합성 callback 메서드 호출이며 iOS는 합성 C ABI 입력이다. 실제 Player 검증은 아직 미실행이다.
+- Unity wire registry의 timeout 후 이중 응답·이전 session·dispose 이후 이벤트 합성 단위는 DLL 직접 실행 PASS. Player probe를 포함한 Android/iOS 조건부 managed compile 각각 0 warning/0 error. JNI나 C ABI의 실제 지연 callback을 이미 통과한 것은 아니다. 커밋 준비: test-only probe·검사와 실제 오류 이력을 포함한다.

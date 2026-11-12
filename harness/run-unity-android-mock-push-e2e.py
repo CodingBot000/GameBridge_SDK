@@ -18,7 +18,7 @@ def main():
         env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage)
         prepared=must(['bash','scripts/prepare-unity-android-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
         if not match:raise common.GateError('CONSUMER_PATH')
-        project=Path(match.group(1));shutil.copy2(ROOT/'tests/UnityAndroidPushConsumer/MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs')
+        project=Path(match.group(1));shutil.copy2(ROOT/'tests/UnityAndroidPushConsumer/MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/LateCallbackProbe.cs',project/'Assets/LateCallbackProbe.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
         apk=out/'push-consumer.apk';build=run(['bash','scripts/build-unity-android-mock.sh',project,apk],timeout=1200,env=env);(out/'unity-build.log').write_text(build.stdout)
         if build.returncode: raise common.GateError('UNITY_BUILD_FAILED')
         result['apkSha256']=common.sha256(apk);result['player']='BUILT_NOT_RUN'
@@ -107,7 +107,7 @@ def main():
             if status!=200 or reply.get('delivery')!='SIMULATED':raise common.GateError('SESSION_B_SEND_FAILED')
             time.sleep(.4)
         text=wait('GB_PUSH_RESULT PASS LOCAL_MOCK');(out/'unity-push-markers.log').write_text(text+'\n')
-        if text.count('GB_PUSH_RECEIVED 1')!=1 or 'GB_PUSH_RECEIVED 2' in text or 'GB_PUSH_STEP receive-deduplicate-main-thread PASS' not in text or 'GB_PUSH_STEP unregister-logout-no-late-event PASS' not in text or 'GB_PUSH_STEP background-foreground-main-thread PASS' not in text or 'GB_PUSH_STEP network-recovery-online-only PASS' not in text or 'GB_PUSH_STEP session-switch-no-stale-event PASS' not in text:raise common.GateError('PUSH_ASSERTIONS_MISSING')
+        if text.count('GB_PUSH_RECEIVED 1')!=1 or 'GB_PUSH_RECEIVED 2' in text or 'GB_PUSH_STEP receive-deduplicate-main-thread PASS' not in text or 'GB_PUSH_STEP unregister-logout-no-late-event PASS' not in text or 'GB_PUSH_STEP background-foreground-main-thread PASS' not in text or 'GB_PUSH_STEP network-recovery-online-only PASS' not in text or 'GB_PUSH_STEP session-switch-no-stale-event PASS' not in text or 'GB_PUSH_STEP synthetic-late-callback-rejected PASS' not in text:raise common.GateError('PUSH_ASSERTIONS_MISSING')
         log.flush();trace=(out/'server.log').read_text()
         if any(secret in trace for secret in (key,password,admin,bearer,bearer_b)):raise common.GateError('SYNTHETIC_SECRET_IN_SERVER_LOG')
         dbcheck=must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'PUSH_DB_QUERY',input_text='SELECT count(*) FROM device_tokens;\n')

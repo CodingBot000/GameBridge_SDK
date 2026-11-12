@@ -2906,3 +2906,5 @@
 - 공통 helper 연결 후 R22 단위 3건/skip0과 격리 Native runner exit 0 (`artifacts/r22-native-7__7z_m1`). Unity 기본·Push runner의 변경 후 실제 Player는 아직 NOT_RUN이다. 커밋 전: synthetic 패턴 검사·음성 test·기록만 포함한다.
 - synthetic mock token/proof 원시 로그 검사 추가 후 실제 iOS LOCAL_MOCK Player 기본 경로를 새로 실행한다. 실 provider·다른 포맷을 검사하는 것이 아니다. clean-source 실행 시작 기록만 먼저 커밋한다.
 - 커밋 전: 시작 기록만 포함하며 실제 재검증은 NOT_RUN이다.
+- 강화 로그 검사 적용 `run-unity-ios-mock-e2e.py --run-local --adhoc` exit 0 (`artifacts/unity-ios-e2e-o2mypwsg`): synthetic mock token/proof 형태와 알려진 개발키가 iOS Unity 원시 console 및 local Backend log에서 발견되지 않았고 기본 LOCAL_MOCK flow PASS. 실제 provider·다른 포맷은 미검증이다.
+- iOS Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 부분 검증과 사용된 source만 포함한다. 다른 세 runner의 변경 후 실제 실행은 NOT_RUN이다.

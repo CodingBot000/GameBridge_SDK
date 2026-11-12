@@ -7,3 +7,4 @@
 - 격리 sandbox HTTP/DB와 fake Google verifier 시험 1건에서 합성 구매 증빙·세션 token이 성공/거부 응답과 캡처된 Backend 로그에 노출되지 않음을 확인했다 (`artifacts/r22-proof-0bcej9x1`). 실제 Play 거래는 아니다.
 - 독립 managed fixture는 합성 access/refresh token, 구매 증빙, push token 추가 필드가 typed 결과에서 제거되는지 확인했다. Backend MockMvc는 예외 메시지·요청의 합성 secret이 오류 응답 및 ApiErrors 로거에 나타나지 않는지 확인했다. Kotlin/Swift Native의 typed diagnostics와 bridge 합성 시험도 별도로 통과했다.
 - 첫 Android 실행은 runner의 marker polling·필터 오류로 FAIL했고 수정 후 재실행했다. 전체 로그·모든 입력 변이·실제 제공자의 credential은 시험 범위 밖이며 R22는 PARTIAL이다. 원본 로그·키·빌드 산출물은 커밋하지 않는다.
+- 강화 로그 검사 후 Android/iOS 기본 Player 각각 PASS (`artifacts/unity-android-e2e-j9tb9ven`, `artifacts/unity-ios-e2e-o2mypwsg`), Android/iOS Push Player 동일 실행도 PASS (`artifacts/unity-android-push-918elqj3`, `artifacts/unity-ios-push-anrcrvlm`). raw Unity/server 로그에서 알려진 개발키와 LOCAL_MOCK `mock:<UUID>` token/proof 형태를 검사했다. Android 최초 전체화면 안내는 수동 처리했다. 이 패턴은 범용 비밀정보 탐지기가 아니다.

@@ -2912,3 +2912,5 @@
 - 강화 로그 검사 적용 `run-unity-android-mock-e2e.py --run-local` exit 0 (`artifacts/unity-android-e2e-j9tb9ven`): 알려진 개발키 및 synthetic mock token/proof 형태가 Unity 원시 logcat과 Backend log에서 검출되지 않고 기본 LOCAL_MOCK flow PASS. 최초 안내는 수동 처리. 실제 provider·다른 포맷은 미검증.
 - 테스트 AVD는 삭제 없이 shutdown했다. 커밋 전: Android 부분 결과·수동 안내 조건만 포함하고 Push runner 재실행은 미완료로 남긴다.
 - mock token/proof raw 로그 검사 추가 후 양 플랫폼 Push LOCAL_MOCK Player를 같은 실행에서 새로 검증한다. 앱이 설치된 기존 AVD를 보존하기 위해 빈 전용 AVD를 사용한다. 시작 기록만 커밋하고 결과는 아직 NOT_RUN이다.
+- 강화 로그 검사 적용 `run-unity-push-current.py` exit 0, Android/iOS LOCAL_MOCK Player 각 PASS (`artifacts/unity-android-push-918elqj3`, `artifacts/unity-ios-push-anrcrvlm`), 동일 source tracked-clean 및 필수 marker 확인. raw Unity/server 로그에서 알려진 키·synthetic mock token/proof 형태 비노출. Android 최초 안내 수동 처리; 실제 FCM/APNs·다른 형식은 미검증.
+- Push 시험 Simulator/AVD는 삭제 없이 shutdown했다. 커밋 전: 강화 로그 검사 양 플랫폼 검증 요약만 포함하고 raw 로그·빌드·키는 제외한다. R22 전체·실제 provider는 미완료다.

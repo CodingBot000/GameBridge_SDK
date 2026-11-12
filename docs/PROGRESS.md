@@ -749,3 +749,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 강화 synthetic mock 로그 검사의 Android 기본 LOCAL_MOCK Player PASS (`artifacts/unity-android-e2e-j9tb9ven`), 최초 전체화면 안내 수동 처리. 양 Push runner 변경 후 실제 실행은 별도다.
 - 테스트 AVD shutdown·데이터 보존. Android 부분 결과 커밋 준비, 양 Push 재검증은 아직 NOT_RUN.
 - P09-T03/R22 강화 mock credential 로그 검사의 Android/iOS Push Player 동일 실행 시작: 최신 stage와 빈 전용 AVD를 사용한다. 기존 E2E 결과는 대체하지 않는다.
+- R22 강화 synthetic mock 로그 검사의 Android/iOS Push 동일 실행 2건 PASS (`artifacts/unity-android-push-918elqj3`, `artifacts/unity-ios-push-anrcrvlm`). Android 최초 안내 수동 처리; 실제 provider·다른 비밀 형식은 미검증.
+- Push 시험 Simulator·AVD shutdown(데이터 보존), 강화 로그 부분 증거 정리·커밋 준비. R22 전체는 다른 credential 형식·나머지 로그 범위가 남아 PARTIAL.

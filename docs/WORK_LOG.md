@@ -2882,3 +2882,6 @@
 - `run-strict-local-isolated.py`의 하드코딩 Editor와 과거 Maven/XCFramework 기본값을 확인했다. 지정 Editor/Newtonsoft를 존중하고 기본 artifact는 제공된 stage에서 가져오며 CI gate는 stage 경로를 명시한다.
 - 선택 Editor 경로·timeout 단위 2건, CI gate 단위 6건 PASS/skip0, Python/shell syntax PASS. CI stub에 staging Native 경로 전달 assertion을 추가한다.
 - CI mock fixture가 현재 staging의 Maven/XCFramework 경로를 strict로 전달함을 확인했고 gate 6건·Editor/timeout 단위 2건 PASS/skip0, 원장/diff PASS. 실제 self-hosted 전체는 NOT_RUN이다. 커밋 전: 경로 수정·단위 검증·문서만 포함한다.
+### P09-T07 전체 Unity CI gate 로컬 검증 시작
+- `scripts/ci-unity-e2e.sh`를 실제 licensed Unity와 현재 staging, 별도 baseline/push AVD 2개 및 격리 DB로 실행한다. 각각의 최초 전체화면 안내는 수동 처리가 필요할 수 있다. 누락·기존 실패를 그대로 보존하고 GitHub Actions나 실제 provider 검증으로 간주하지 않는다.
+- 커밋 전: 실행 시작 기록만 포함한다. 전체 gate 실제 결과는 NOT_RUN이다.

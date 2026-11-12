@@ -724,3 +724,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - CI 경로 결함 확인: helper가 지정 Editor를 무시하고 독립된 오래된 Native artifact 기본값을 사용한다. 선택 Editor와 staging 내부 산출물을 사용하도록 수정한다.
 - 지정 Editor/Newtonsoft 경로 단위 2건, CI fixture 6건 및 Python/shell 구문 PASS. staged Native 경로가 실제 strict 호출에 전달되는지도 fixture로 확인한다.
 - CI 경로 전달 fixture 6건·Editor/timeout 2건 및 원장/diff PASS. 실제 self-hosted 전체는 NOT_RUN, 커밋 준비.
+- P09-T07 전체 Unity CI gate 로컬 실행 시작: 최신 stage·Editor 및 별도 빈 Android AVD 2개·격리 DB/Simulator를 사용한다. 기존 R22/R40 PARTIAL과 P05-T03 FAIL이 있어 전체 성공을 미리 주장하지 않는다.

@@ -578,3 +578,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R40 iOS 부분 검증의 안전한 marker·환경과 최초 설치 실패를 증거 문서에 기록했다. test-only 소비자와 결과 기록 커밋 준비; Mock 거부 미검증 유지.
 - P09-T05/R40 Mock 거부 주입 검증 시작: EditorOffline 실제 push.register 거부 분기를 사용하고 permission 응답만 test transport에서 거부로 주입해 Unity 공개 API의 오류 전달을 확인한다.
 - R40 managed Mock 거부 주입 PASS: permission DENIED 두 번, 실제 EditorOffline 등록 로직의 PERMISSION_DENIED 확인. Unity Editor/Player 시험은 아니며 OS 수동시험 자동 재현·시나리오 집계가 남아 PARTIAL 유지. 커밋 준비.
+- P09-T06 격리 strict-local 전체 검증 시작: 새 테스트 DB·서버·Simulator를 사용한다. 이번 호출에서 Unity Editor 및 두 Push Player opt-in을 제공하지 않으므로 해당 lane은 NOT_RUN/DEFERRED_ENV로 남는다.
+- 사용자 요청으로 이전 GameBridge 테스트 전용 Simulator만 종료 시작. 현재 strict 시험용은 유지하며 기기·데이터는 삭제하지 않는다. 앞으로 상태 격리가 불필요하면 테스트 전용 Simulator 재사용.
+- Simulator 종료 도중 현재 실행이 새로 만든 기기까지 포함될 가능성을 발견해 일괄 명령을 중단했다(exit 130). 시작 전에 확인한 기존 기기 ID만 지정해 계속하며 현재 시험 기기는 보존한다.
+- 기존에 확인한 GameBridge 테스트용 Simulator를 shutdown 완료(삭제·초기화 없음). 현재 strict 관련 기기는 유지; 사용자가 이후 재사용할 수 있다.
+- P09-T06 격리 strict-local 종료 1 / 전체 FAIL (`artifacts/verify-all-n8ajxtoz/summary.md`); 외부 13개 WAITING_USER. 세부 실패·미실행을 확인하며 Unity 미실행을 PASS로 기록하지 않는다.
+- strict Xcode local StoreKit 실패 상세: 1건이 signal TERM으로 종료(exit 65), 원인은 미확정. 기존 Simulator 종료와 시간대가 겹쳐 영향 가능성을 배제할 수 없어 단독 전용 환경 재검증을 시도한다. Process-recovery는 별도 PASS.
+- Xcode local StoreKit + DB 복구 단독 재시험 PASS (`artifacts/xcode-storekit-e2e-he6ows9_`, 1건). 앞선 strict 실행의 signal TERM FAIL은 그대로 보존하며 원인은 확정하지 않는다. strict 전체는 여전히 FAIL.
+- strict 실행 결과·Simulator 종료·단독 재시험 기록 커밋 준비. 미완료 R22/R40, Unity Player 새 집계와 외부 검증은 그대로 남는다.

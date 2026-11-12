@@ -2701,3 +2701,13 @@
 ### P09-T05/R40 Mock 거부 주입 시작
 - 실제 EditorOfflineTransport를 감싼 test-only transport에서 permission 요청의 DENIED 응답만 주입한다. 로그인 후 실제 EditorOffline 등록 로직이 PERMISSION_DENIED를 반환하고 재요청도 거부되는지 Unity C# 공개 API로 확인한다. 실제 Unity Player/OS 검증과 구분한다.
 - `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-unity-mock-permission.sh` exit 0: test transport가 permission DENIED만 주입하고 Unity C# 공개 API가 실제 EditorOffline 등록의 PERMISSION_DENIED와 재요청 DENIED를 처리했다. 독립 .NET managed fake이며 Unity Editor/Player 실행이 아니다. Android/iOS OS는 별도 부분 증거로 보존하고 R40 자동 scenario 연결 전 PARTIAL 유지. 커밋 준비: 테스트와 문서만 포함한다.
+### P09-T06 현재 소스 strict-local 재검증 시작
+- `harness/run-strict-local-isolated.py --run-local`을 최신 staged UPM으로 실행한다. 새 DB/role과 전용 simulator를 보존하며 외부 제공자 credential을 사용하지 않는다. Unity Editor/Push Player는 이 호출에서 별도 opt-in이 없어 미실행으로 집계한다.
+### 테스트 Simulator 정리 시작
+- 사용자 요청에 따라 부팅된 GameBridge 테스트 전용 Simulator 중 현재 strict 시험용을 제외하고 shutdown한다. 삭제·초기화는 하지 않으며 타 앱·타 Simulator는 건드리지 않는다. 향후 독립 상태가 불필요한 시험은 전용 Simulator를 재사용한다.
+- 부팅된 GameBridge 기기 전체를 열거하는 종료 명령은 strict 구매 검증이 도중에 만든 새 기기를 포함할 가능성이 있어 중단(exit 130). 일부 기존 기기는 종료됐을 수 있다. 작업 시작 전 확인한 기존 Simulator ID만 대상으로 제한해 계속한다. 기기 삭제는 없다.
+- 시작 전에 확인한 기존 GameBridge Simulator만 shutdown했다. 두 번째 제한 목록에서 남아 있던 7개는 exit 0; 앞선 중단된 일괄 명령에서 이미 종료된 기기도 있다. 기기와 데이터는 삭제하지 않았다. strict 검증용 기기는 목록에서 제외했다.
+- `GAMEBRIDGE_UPM_STAGING=<validated stage> python3 harness/run-strict-local-isolated.py --run-local` exit 1, 전체 FAIL; 결과 `artifacts/verify-all-n8ajxtoz/summary.md`, orchestration `artifacts/strict-isolated-okbwk6f6`. 소스 HEAD 9b02b71 + 문서 변경 및 기존 미추적 파일, 외부 13개 WAITING_USER. 세부 lane과 Simulator 종료가 실행에 영향을 주었는지 확인한다.
+- `xcresulttool` 결과 XcodeStoreKitLocalDatabaseTests 1건은 `Test crashed with signal term`, exit 65; 명확한 제품 결함 원인은 확인되지 않았다. 기존 Simulator shutdown과 시간대가 겹치므로 간섭 가능성을 배제하지 않고, 전용 새 DB/Simulator에서 해당 시험을 따로 재실행한다. Process-recovery는 독립 PASS.
+- 동일 `harness/run-xcode-storekit-e2e.py --run-local` 단독 재시험 exit 0, `artifacts/xcode-storekit-e2e-he6ows9_/result.json` PASS 1건/skip0: Xcode local StoreKit 및 합성 DB 복구만 확인. 이전 strict run의 signal TERM FAIL은 변경하지 않고 원인도 확정하지 않는다. 단독 성공을 strict 전체 성공으로 대체하지 않는다.
+- 커밋 전: strict 전체 실패·미실행·재시험 결과와 사용자 요청에 따른 기존 기기 shutdown 기록만 포함한다. Simulator/DB와 미추적 사용자 파일은 삭제하지 않는다.

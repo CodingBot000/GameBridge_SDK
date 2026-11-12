@@ -248,6 +248,7 @@ def main():
                                                                        "gamebridge-sdk-local-postgres-1"))
     parser.add_argument("--postgres-admin", default=os.environ.get("GAMEBRIDGE_TEST_POSTGRES_ADMIN", "gamebridge"))
     parser.add_argument("--postgres-port", type=int, default=int(os.environ.get("GAMEBRIDGE_TEST_POSTGRES_PORT", "54329")))
+    parser.add_argument("--package-cache", type=Path, help="Previously resolved exact-version Unity PackageCache for this isolated consumer")
     parser.add_argument("--timeout-seconds", type=int, default=180)
     args = parser.parse_args()
 
@@ -293,6 +294,14 @@ def main():
         project = Path(match.group(1))
         if not project.is_dir() or not project.is_relative_to((ROOT / "artifacts").resolve()):
             raise GateError("UNEXPECTED_UNITY_CONSUMER_PATH")
+        if args.package_cache:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("ios_push_cache", ROOT / "harness/run-unity-ios-mock-push-e2e.py")
+            cache_module = importlib.util.module_from_spec(spec); spec.loader.exec_module(cache_module)
+            try:
+                summary["embeddedCachedPackages"] = cache_module.embed_cached_packages(args.package_cache.resolve(), project)
+            except cache_module.common.GateError as error:
+                raise GateError(str(error), error.category) from error
         apk = output / "gamebridge-mock-consumer.apk"
         built = run(["bash", "scripts/build-unity-android-mock.sh", project, apk],
                     timeout=1200, env=environment)

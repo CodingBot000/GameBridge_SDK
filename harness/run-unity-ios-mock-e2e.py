@@ -8,7 +8,7 @@ STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
+    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
     out=Path(tempfile.mkdtemp(prefix='unity-ios-e2e-',dir=ROOT/'artifacts'))
     def run(cmd,**kw): return subprocess.run([str(x) for x in cmd],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,**kw)
     def must(cmd,label,**kw):
@@ -31,7 +31,14 @@ def main():
         prepared=must(['bash','scripts/prepare-unity-ios-mock.sh','--prepare'],'prepare',env=env)
         match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
         if not match: raise RuntimeError('consumer path')
-        project=Path(match.group(1)); xcode=out/'xcode'
+        project=Path(match.group(1))
+        if args.package_cache:
+            import importlib.util
+            spec=importlib.util.spec_from_file_location('ios_push_cache',ROOT/'harness/run-unity-ios-mock-push-e2e.py')
+            cache_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(cache_module)
+            try: result['embeddedCachedPackages']=cache_module.embed_cached_packages(args.package_cache.resolve(),project)
+            except cache_module.common.GateError as error: raise RuntimeError(str(error)) from error
+        xcode=out/'xcode'
         exported=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],env=env,timeout=1200)
         (out/'unity-export.log').write_text(exported.stdout)
         if exported.returncode: raise RuntimeError('UNITY_EXPORT_FAILED')

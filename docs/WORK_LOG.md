@@ -2565,3 +2565,7 @@
 - iOS Unity Simulator에서 test-only TCP proxy 연결 거부 시도 관측과 재연결 후 수신을 새 전용 Simulator/DB로 검증한다. 실행 전 기록을 커밋한다.
 - iOS Push runner 새 전용 Simulator 실행 종료 0 (`artifacts/unity-ios-push-gcmp59n7`). test-only loopback proxy가 SDK의 재연결 시도를 거부한 후 연결을 복구했고 Unity Player의 local mock push/lifecycle/session 검사가 통과했다. OS 전체 네트워크 차단이나 APNs 원격 전달을 의미하지 않는다.
 - iOS source `837c016`, tracked-clean, proxy 재연결 거부 6회 및 후속 수신·기존 lifecycle/session 재검증을 evidence에 기록했다. 커밋 준비: 원시 로그·키·DB·Simulator 산출물은 포함하지 않는다.
+### PX-T15 Android/iOS Unity 인증·구매 회귀 시작
+- 사용자 요청에 따라 기존 PX-T04/PX-T07 인증·구매 전체 Runner를 현재 source에서 재실행한다. Unity registry timeout을 고려해 기존 iOS Push test의 exact-version embedded cache 복사 기능을 새 격리 프로젝트에만 선택적으로 적용한다. 이전 PASS를 새 결과로 대신하지 않는다.
+- 기존 두 Runner가 `--package-cache`를 받으면 PX-T12에서 검증한 exact-version embedded copy를 새 소비 프로젝트에만 적용한다. 기존 전역 Unity 환경 및 package 원본은 수정하지 않는다. 재실행 전 문법/안전 단위를 확인한다.
+- 두 Runner Python 문법 및 cache/기기 안전 단위 4건 PASS/skip 0. cache helper의 오류를 해당 runner의 fail-closed 분류로 변환한다. 커밋 준비: 환경 옵션과 진행 기록만 포함한다.

@@ -810,3 +810,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 synthetic 개인정보 callback iOS LOCAL_MOCK Simulator Player 실제 검증 시작: source 48388c7 probe, 최신 stage·격리 DB 사용.
 - R22 iOS Simulator Unity Player synthetic 개인정보 callback PASS (`artifacts/unity-ios-e2e-ehxq_12y`): 허용되지 않은 email/전화번호가 공개 Push 결과 및 raw console에 없음. 실제 개인정보·APNs는 미검증.
 - iOS PII test Simulator shutdown·데이터 보존. iOS 부분 결과 커밋 준비, Android는 NOT_RUN이다.
+- R22 synthetic 개인정보 callback Android LOCAL_MOCK Player 실제 검증 시작: 앱 미설치 전용 AVD·최신 stage·격리 DB 사용.

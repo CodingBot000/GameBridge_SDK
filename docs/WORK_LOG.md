@@ -3006,3 +3006,10 @@
 - opt-in child timeout 3200초, scenario 상위 3300초로 분리해 child의 DEFERRED_ENV 처리가 상위 강제 종료보다 먼저 일어나게 한다. 환경별 단위 및 manifest를 재검증한다.
 - PII opt-in 2건, evidence 1건, manifest/음성/Python/diff PASS. evidence fixture의 플랫폼 누락 검사가 이전 marker 누락 상태와 겹쳐 독립 확인이 아니므로 marker 복원 후 검증하도록 보정한다.
 - 플랫폼 누락 fixture를 독립화 후 evidence 1건·opt-in 2건 PASS/skip0, 원장/diff PASS. 커밋 전: R22의 실행된 synthetic 범위와 suite/timeout·음성 검사만 포함하며 opt-in entry 실제 호출·실 provider는 미실행으로 명시한다.
+### P09-T05/R40 기존 OS 증거 소스 대조 시작
+- 기존 Android/iOS OS 권한 시험 source와 현재 플랫폼/Unity Runtime diff를 조사한다. 첫 stat에서 Unity Runtime 변경은 새 .meta로 보인다. 제품 소스 동일성과 test-only Firebase 의존성 범위를 확인한다. 확인 시작 전에 diff를 먼저 실행한 순서 누락도 기록한다.
+- Android `1fa6c0d` 및 iOS `e0acbd6`와 현재 platform/Unity Runtime 비교에서 `.meta` 외 제품 코드 차이 0. 두 기존 실제 권한 시험의 격리 프로젝트 consumer 파일과 현재 test 소스도 byte 동일하다. Android test-only Firebase dependency, 실제 OS dialog, iOS OS 및 독립 mock을 구분한다.
+### P09-T05/R40 Android 실제 OS 권한 재현 runner 시작
+- 기존 test-only permission consumer와 Firebase runtime dependency를 새 격리 Unity Android 프로젝트에서 빌드한다. 전용 AVD의 실제 권한 dialog를 식별해 거부하고 첫 DENIED·등록 차단·재요청 DENIED marker를 검증한다. 계정·실 Firebase 연결은 없다.
+- Android permission runner는 새 Unity Player 및 전용 AVD에서 OS dialog를 resource id로 식별해 거부하고 허용된 marker만 저장한다. 초안 Python compile만 확인했으며 실제 실행 전이다. dialog 오탭 방지·미실행/중단 분류를 시험한다.
+- Android permission runner 단위 2건 PASS/skip0: 유일한 permission deny resource만 선택, 중복·다른 위젯·잘못된 XML 및 필수 marker 누락 거부. 실제 OS 재실행은 아직 없다. 커밋 전: runner·음성 시험·기록만 포함한다.

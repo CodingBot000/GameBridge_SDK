@@ -833,3 +833,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 opt-in 내부 timeout을 scenario 상위 3300초보다 짧게 두어 자체 timeout 분류를 반환할 여유를 확보한다. 단위·구문 및 manifest를 재검증한다.
 - R22 opt-in/증거 단위 및 manifest 음성 검사 PASS. 플랫폼 누락 음성 fixture가 다른 실패 조건과 겹치지 않도록 독립성을 보강한다.
 - R22 로컬/합성 시나리오 assertion·재현 suite·독립 음성 fixture 검증 PASS. opt-in 진입 wrapper 실제 호출과 실 provider는 NOT_RUN, R40 PARTIAL로 전체 coverage 미완료. 커밋 준비.
+- R40 기존 실제 OS 증거의 현재 소스 유효성 점검 시작: 현재와 비교 시 Unity Runtime 변경은 새 .meta만 보인다. 플랫폼 코드 차이는 경로별로 재확인한다.
+- R40 기존 Android/iOS OS 권한 증거 source와 현재 플랫폼/Unity Runtime의 비-metadata 제품 코드 차이 0, 각 실행에 사용한 test consumer 파일도 현재와 동일함을 확인했다. OS/Mock은 별도이며 재현 runner는 추가한다.
+- P09-T05/R40 Android OS 권한 거부 재현 runner 구현 시작: 빈 전용 AVD·실제 OS dialog·test-only Firebase dependency를 사용하고 mock 권한 시험과 분리한다.
+- Android OS 재现 runner 초안 작성,Python 구문 PASS. 전용 dialog 식별·누락 marker·중단/환경 대기 구분을 음성 검증한다.
+- Android OS permission runner dialog 오선택/중복·marker 누락 음성 단위 2건 및 Python 구문 PASS. 실제 OS 재실행은 NOT_RUN이며 clean-source 실행 전 커밋 준비.

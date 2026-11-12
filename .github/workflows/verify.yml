@@ -42,6 +42,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_offline_sample_result.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_sample_assemblies.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_meta.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_android_permission_os.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_device_rediscovery.py' -v
 
   backend-postgres:

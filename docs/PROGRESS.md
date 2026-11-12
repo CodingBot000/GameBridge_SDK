@@ -400,3 +400,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T09 Android lifecycle/network Player 검증 시작: 새 전용 AVD·DB로 실제 background/foreground 및 네트워크 단절·복구를 실행한다. 아직 결과는 NOT_RUN이다.
 - PX-T09 Android Unity Player background/foreground 및 전용 AVD Wi-Fi/data 차단·복구 LOCAL_MOCK Push E2E PASS (`artifacts/unity-android-push-a82dcn48`, exit 0). 오프라인 발송은 복구 뒤 미수신, 연결 복구 후 새 메시지 수신·main thread 확인. 프로세스 강제 종료·pending 및 iOS는 NOT_RUN이다.
 - PX-T09 Android lifecycle/network PASS 증거를 기존 Android Push evidence에 추가했다. 프로세스 강제 종료·pending·iOS는 NOT_RUN으로 유지하며 커밋한다.
+- PX-T10 Android process 강제 종료·재시작 및 pending 구매 검증 시작: 서버 지급 후 응답만 합성 503으로 대체해 pending을 남긴 뒤 별도 프로세스에서 동일 계정 복구와 중복 지급 방지를 확인한다. background 전환과 별도다.
+- PX-T10 Android Player 테스트 소스에 서버 지급 후 합성 실패 대기, 프로세스 재시작 후 세션 복원·pending sync 1회·재sync 0회·잔액 100 검사를 추가했다. 실제 강제 종료 검증은 NOT_RUN이다.
+- PX-T10 Android process 테스트 consumer managed compile PASS(경고·오류 0). 서버 commit 후 응답 오류를 주입하는 격리 proxy 및 실제 프로세스 재시작 runner를 구현한다.
+- PX-T10 Android restart runner·local fault proxy Python 문법 PASS. 실제 Unity 프로세스 강제 종료 및 pending 복구는 아직 NOT_RUN이며 실행 전 커밋한다.

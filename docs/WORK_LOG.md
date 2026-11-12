@@ -2509,3 +2509,8 @@
 - `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본을 새 전용 AVD에서 재실행한다. 실제 Unity Player 메인 스레드 및 네트워크 차단·복구 검사 전 PASS가 아니다. 실행 전 기록을 커밋한다.
 - 수정된 `harness/run-unity-android-mock-push-e2e.py --run-local` 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-push-a82dcn48`). Unity Player의 실제 background/foreground callback, 에뮬레이터 Wi-Fi/data 차단 및 host TCP 접근 실패, offline 메시지 미관측, 네트워크 복구 후 새 LOCAL_MOCK 메시지 수신·main-thread, 등록 해제/로그아웃·서버 token 제거를 확인했다. 전용 AVD의 첫 전체화면 안내는 수동으로 닫았다. 프로세스 종료·재시작과 pending/실제 FCM은 미검증이다.
 - `docs/evidence/px-t08-unity-android-mock-push.md`에 별도 source·APK hash·실제 background/network 재검증 결과와 수동 안내를 추가했다. 커밋 준비: evidence 및 두 원장만 포함한다.
+### PX-T10 Android Unity process 종료·pending 복구 시작
+- 독립 test-only loopback proxy에서 최초 구매 검증의 서버 commit 응답만 합성 실패로 바꾸고, 전용 AVD에서 Unity 앱을 force-stop한 뒤 세션 복원·pending sync·원장 불변을 검증한다. 실제 Play 스토어 또는 푸시 오프라인 전달로 취급하지 않는다. 아직 NOT_RUN이다.
+- 별도 Android Unity consumer가 실제 GameBridge API로 pending 재시도와 session restore를 검증하도록 작성했다. test-only fault proxy 및 실제 Player 실행은 다음 단계다.
+- Android restart consumer의 Unity managed reference compile 종료 0. 실제 pending 보존과 앱 강제 종료는 아직 NOT_RUN이며, 외부 자격증명 없이 테스트할 로컬 전용 fault proxy를 추가한다.
+- `harness/run-unity-android-mock-restart-e2e.py`는 검증 서버가 200 commit한 최초 응답만 test-only proxy로 503 처리하고, 전용 앱 force-stop 전후 PID·세션 restore·pending 1회 복구·재지급 없음과 DB 원장을 대조한다. proxy는 헤더/본문 로그를 남기지 않는다. Python 문법 PASS. 커밋 준비: 아직 Player 검증은 미실행이다.

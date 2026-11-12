@@ -24,11 +24,13 @@ bash scripts/build-ios.sh --simulator
 ./backend/gradlew -p backend test
 ```
 
-Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh`는 Unity player를 포함한 push 전달·라우팅 검증이 미완료이므로 전체 성공하지 않습니다. 개발 발송 endpoint의 local-mock 응답은 SIMULATED이며 원격 전송이 아닙니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
+Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh` 자체는 Unity push lane을 실행하지 않아 전체 성공하지 않습니다. 별도 Unity LOCAL_MOCK Player 결과는 아래 증거를 참고하세요. 개발 발송 endpoint의 local-mock 응답은 SIMULATED이며 원격 전송이 아닙니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
 
 ## 패키징
 
-`build-android.sh --mock`은 새 `artifacts/maven-build.*` 경로에 SDK를 발행하고 별도 소비 앱의 release 빌드를 검사합니다. `GAMEBRIDGE_MAVEN_REPO`에 존재하지 않는 절대 경로를 지정할 수도 있으며, 기존 출력은 덮어쓰지 않습니다. `generate-ios-project.sh`와 `build-ios.sh`는 기존 프로젝트를 덮어쓰지 않고 `artifacts/ios-project.*`에 격리 Xcode project를 생성합니다. `build-ios.sh --xcframework`는 별도 출력 디렉터리에 무서명 static XCFramework를 만듭니다. 기존 출력 경로는 덮어쓰지 않으며 `GAMEBRIDGE_IOS_OUTPUT_DIR`로 새 경로를 지정할 수 있습니다. `scripts/package-sdk.sh`는 두 산출물을 Unity 패키지 staging에 묶지만 Unity import와 실제 빌드는 아직 검증되지 않았습니다. 생성된 `artifacts/`는 로컬 전용이며 배포하지 않습니다.
+`build-android.sh --mock`은 새 `artifacts/maven-build.*` 경로에 SDK를 발행하고 별도 소비 앱의 release 빌드를 검사합니다. `GAMEBRIDGE_MAVEN_REPO`에 존재하지 않는 절대 경로를 지정할 수도 있으며, 기존 출력은 덮어쓰지 않습니다. `generate-ios-project.sh`와 `build-ios.sh`는 기존 프로젝트를 덮어쓰지 않고 `artifacts/ios-project.*`에 격리 Xcode project를 생성합니다. `build-ios.sh --xcframework`는 별도 출력 디렉터리에 무서명 static XCFramework를 만듭니다. 기존 출력 경로는 덮어쓰지 않으며 `GAMEBRIDGE_IOS_OUTPUT_DIR`로 새 경로를 지정할 수 있습니다. `scripts/package-sdk.sh`는 두 산출물을 Unity 패키지 staging에 묶습니다. 신규 소비 프로젝트에서 Sample API import와 Android/iOS LOCAL_MOCK Player 빌드·실행을 확인했습니다 ([증거](docs/evidence/consumer-install.md)). 생성된 `artifacts/`는 로컬 전용이며 배포하지 않습니다.
+
+Git 저장소의 `unity/Packages/com.gamebridge.sdk`는 소스 패키지이며 생성된 Android Maven과 iOS XCFramework 바이너리를 포함하지 않습니다. Native 기능을 사용하는 소비자는 빌드한 두 산출물로 `scripts/package-sdk.sh`가 만든 staging 패키지를 설치해야 합니다. 소스만 Git으로 설치한 상태를 바이너리 완결 staging과 동일하게 취급하지 않습니다.
 
 현재 API와 통합상의 제한은 [API](docs/API.md), [통합 안내](docs/INTEGRATION.md), [보안 경계](docs/SECURITY.md)를 참고하세요.
 
@@ -43,7 +45,7 @@ Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시
 
 ### 추가 검증 도구 (Unity Android LOCAL_MOCK)
 
-준비가 완료된 Unity 환경에서 전체 Player 흐름을 확인하기 위한 별도 Runner는 harness/run-unity-android-mock-e2e.py이다. 전용 AVD 및 staging 무결성 확인, 격리 소비 프로젝트 생성, APK 빌드·설치·실행, Unity 마커·Backend trace 및 DB 1건/100코인 대조까지 수행하며 하나라도 누락되면 PASS가 아니다. **Unity Android LOCAL_MOCK Player 검증은 PASS다.** 최초 전체화면 안내는 수동으로 닫았으며 Unity iOS와 실제 제공자 검증은 별도다. 명령·비밀정보 분리·전용 환경 준비는 docs/USER_SETUP.md의 PX-T04~PX-T06 절을 따른다.
+준비가 완료된 Unity 환경에서 전체 Player 흐름을 확인하기 위한 별도 Runner는 harness/run-unity-android-mock-e2e.py이다. 전용 AVD 및 staging 무결성 확인, 격리 소비 프로젝트 생성, APK 빌드·설치·실행, Unity 마커·Backend trace 및 DB 1건/100코인 대조까지 수행하며 하나라도 누락되면 PASS가 아니다. **Unity Android LOCAL_MOCK Player 검증은 PASS다.** 최초 전체화면 안내는 수동으로 닫았으며 Unity iOS LOCAL_MOCK 및 실제 제공자는 각각 별도 검증 범위다. 명령·비밀정보 분리·전용 환경 준비는 docs/USER_SETUP.md의 PX-T04~PX-T06 절을 따른다.
 
 Android Native-only 재실행기는 harness/run-android-mock-bridge-e2e.py로, 기존 고정된 adb/에뮬레이터/DB 경로를 환경변수나 실행 옵션으로 변경할 수 있다. 다만 해당 수정본 재실행은 아직 NOT_RUN이다. 실제 PASS를 확보한 뒤 검증 증거의 민감정보를 제거하고 커밋하려면 harness/export-mock-e2e-evidence.py를 사용한다. 원본 로그·APK·로컬 DB는 Git에 올리지 않는다.
 

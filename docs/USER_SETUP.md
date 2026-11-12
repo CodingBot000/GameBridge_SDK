@@ -268,7 +268,7 @@ Android host callback의 `forwardFcmToken` 반환값 true는 큐 접수이며 Ba
 
 LOCAL_MOCK에서도 `GameBridgeConfig` 10인자 생성자에 installation UUID를 제공하면 Native Mock token을 local Backend에 등록·해제할 수 있다. permission은 OS dialog가 없는 simulated 결과이며 등록 해제와 logout은 서버 token을 즉시 삭제한다. 서버에는 local 전용 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하다. Mock send의 SIMULATED 응답은 실제 기기 알림이 아니며 Backend→Android·Swift Native simulated delivery는 전용 로컬 DB에서 확인했으며 Unity player는 미검증이다.
 
-UPM의 `Native Mock and Sandbox Demo`는 Android/iOS player용이다. Unity UI package와 호환 EventSystem을 준비하고 `NativeDemo`를 scene의 빈 GameObject에 붙인다. 사용자가 실행 중 URL·개발키·상품 ID·installation UUID를 입력하며 기존 `unity/Demo`는 변경하지 않았다. iOS host push는 `NativeDemoIosPush`를 명시적으로 추가해야 한다. Editor/실기기 UI는 아직 검증하지 않았다.
+UPM의 `Native Mock and Sandbox Demo`는 Android/iOS player용이다. Unity UI package와 호환 EventSystem을 준비하고 `NativeDemo`를 scene의 빈 GameObject에 붙인다. 사용자가 실행 중 URL·개발키·상품 ID·installation UUID를 입력하며 기존 `unity/Demo`는 변경하지 않았다. iOS host push는 `NativeDemoIosPush`를 명시적으로 추가해야 한다. Editor에서는 Native 사용 차단과 안내를, Android/iOS LOCAL_MOCK Player에서는 프로그램 방식의 설정·구매 callback을 확인했다. 실제 포인터·화면 렌더링과 실기기 UI는 미검증이다.
 
 ## 실연동 준비 상태 확인
 

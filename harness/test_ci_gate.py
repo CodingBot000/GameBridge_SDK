@@ -33,7 +33,7 @@ class CiGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             base=Path(tmp);(base/'scripts').mkdir();(base/'bin').mkdir();(base/'cache').mkdir()
             shutil.copy2(ROOT/'scripts/ci-unity-e2e.sh',base/'scripts/ci-unity-e2e.sh')
-            for name in ('build-unity.sh','smoke-unity-offline-sample.sh'):
+            for name in ('build-unity.sh','smoke-unity-offline-sample.sh','smoke-unity-android-hook-repeat.sh','smoke-unity-ios-hook-repeat.sh'):
                 (base/'scripts'/name).write_text('#!/bin/bash\nexit 0\n')
             unity=base/'bin/unity';unity.write_text('#!/bin/bash\necho mocked\n');unity.chmod(0o755)
             python=base/'bin/python3';python.write_text('#!/bin/bash\nif [[ "$1" == "-c" ]]; then exit 0; fi\nprintf "%s\\n" "$1" >> "$GB_TEST_CALLS"\nif [[ "$1" == "harness/run-strict-local-isolated.py" ]]; then printf "%s\\n%s\\n" "$GAMEBRIDGE_MAVEN_REPO" "$GAMEBRIDGE_IOS_XCFRAMEWORK" >> "$GB_TEST_CALLS"; exit 1; fi\nexit 0\n');python.chmod(0o755)

@@ -787,3 +787,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - metadata stage Android Sample API→Native Demo LOCAL_MOCK Player PASS (`artifacts/unity-android-e2e-2trvul1k`), tracked-clean·원장 1건/100. 최초 전체화면 안내 수동 처리. Sample 최상위 폴더 GUID 차이는 미해결.
 - metadata stage Android/iOS Native Demo Player 양쪽 재검증 PASS. 테스트 AVD shutdown·데이터 보존. Sample 최상위 폴더 GUID 불일치로 P08-T03 PARTIAL 유지, 최신 staging/증거 갱신.
 - 최신 metadata stage·양 Player 결과 문서 정합성/manifest/diff PASS. 최상위 폴더 GUID·실제 provider는 미완료로 커밋 준비.
+- P08-T03 실제 Unity iOS export hook 멱등성 검증 시작: 격리 export 후 hook을 두 번 추가 실행해 PBX·복사된 XCFramework가 중복/변경되지 않는지 확인한다.
+- 실제 iOS hook 반복 시험용 Editor probe 초안 작성·Python 구문 PASS. Unity export 및 hook 재호출은 아직 NOT_RUN이다.
+- P08-T03 실제 Unity iOS export hook 반복 PASS (`artifacts/unity-ios-mock.mWBnyZ`): 자동 hook 후 2회 재호출 시 PBX·XCFramework 전체 hash 동일. 서명·Player 시험은 아님.
+- iOS hook 반복 재현 runner 실제 실행 PASS (`artifacts/unity-ios-mock.yLBxjk`), Unity export 후 2회 동일성 확인. stale staging을 거부하도록 runner 사전검사를 보강한다.
+- iOS hook runner에 이전 stage 투입 음성 시험 exit 1: checksum 정상이나 source 불일치를 거부했다. 의도된 음성이며 현재 metadata stage로 재실행한다.
+- P08-T03 iOS hook runner stale stage 음성 거부 및 현재 stage 실제 export 반복 PASS (`artifacts/unity-ios-mock.ztGwKd`). 이어서 Android 실제 Gradle export hook 반복을 검증한다.
+- P08-T03 Android 실제 Gradle export hook 반복 probe·격리 runner 작성, 실행은 아직 NOT_RUN이다.
+- P08-T03 실제 Unity Android Gradle export hook 반복 PASS (`artifacts/unity-android-mock.mri8OM`): 자동 hook 뒤 2회 재호출 시 Gradle 설정·복사된 Maven 파일 hash 동일. APK/Player는 별도다.
+- P08-T03 실제 Android/iOS export hook 반복 검증 결과를 CI·패키징 문서에 연결한다. Git source와 Native binary 포함 staging을 명확히 구분하며 GUI/실 provider 상태는 그대로 둔다.
+- 실제 Unity export hook Android/iOS 각 2회 반복 PASS 증거 작성, CI gate 연결. CI 음성 6건·shell/원장/diff PASS; 변경된 전체 gate 및 GitHub Actions는 NOT_RUN. 커밋 준비.

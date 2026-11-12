@@ -2953,3 +2953,14 @@
 - metadata stage Android `--native-demo-probe` exit 0 (`artifacts/unity-android-e2e-2trvul1k`): Sample API import 후 Native Demo Player·원장 1건/100 PASS, tracked-clean. 최초 전체화면 안내는 수동으로 닫았다. Sample 최상위 폴더 GUID 불일치는 별도다.
 - Android test AVD는 삭제 없이 shutdown했다. metadata stage Android/iOS Native Demo Player 재실행 PASS를 증거에 추가하고 최신 stage 경로를 갱신한다. Sample import 최상위 폴더 GUID 불일치는 여전히 별도 미완료다.
 - 원장·manifest·diff 검사 PASS. 커밋 전: metadata stage 최신 경로 및 양 Player 정제 증거만 포함한다. Sample 최상위 폴더 GUID·실제 provider를 완료로 기록하지 않는다.
+### P08-T03 실제 Unity iOS hook 반복 실행 시작
+- 기존 PBX 독립 smoke 외에 실제 staged UPM과 Unity iOS export에서 postprocess hook을 다시 두 번 호출해 PBX 및 복사된 XCFramework의 byte hash가 유지되는지 확인한다. 외부 Apple 서명/계정은 사용하지 않는다.
+- `IosHookIdempotence.cs`는 실제 BuildPipeline export 뒤 실제 UPM postprocess를 두 번 재호출하고 PBX/XCFramework 전체 hash를 비교한다. 아직 Unity compile/export는 미실행이다.
+- metadata stage 격리 iOS consumer에서 Unity BuildPipeline export 후 UPM postprocess hook 두 번 재호출 exit 0, `GB_IOS_HOOK_REPEAT PASS` (`artifacts/unity-ios-mock.mWBnyZ/project/Logs/Editor.log`). PBX 및 XCFramework 파일 hash가 초기/1회/2회 동일했다. 실제 서명·Player 검증은 아니다. 재현 가능한 runner로 정리한다.
+- `smoke-unity-ios-hook-repeat.sh` exit 0 (`artifacts/unity-ios-mock.yLBxjk`), 실제 Unity export + iOS hook 재호출 2회 후 PBX/XCFramework byte 동일. 이 runner가 오래된 staging을 현재 소스처럼 검증하지 않도록 source 일치 검사와 CLI preflight를 추가한다.
+- 이전 `upm-native-sample-fix-20261112` 투입 음성 시험 exit 1: checksum 정상·metadata source 불일치 거부. 제품 실패가 아닌 의도된 검출이다. 현재 metadata stage로 양성 실행한다.
+- `smoke-unity-ios-hook-repeat.sh`는 stale stage 음성 거부 후 현재 stage 실제 Unity export·hook 반복 2회 PASS (`artifacts/unity-ios-mock.ztGwKd`). 서명/Player 시험과 구분한다. Android 실제 Gradle export에서도 hook 반복을 확인한다.
+- `AndroidHookIdempotence.cs`와 격리 runner는 실제 Unity Gradle export 후 hook을 2회 재호출하고 settings/build.gradle 및 복사된 Maven 파일 hash를 비교한다. 실제 실행은 아직 NOT_RUN이다.
+- `smoke-unity-android-hook-repeat.sh` exit 0 (`artifacts/unity-android-mock.mri8OM`): staged UPM의 실제 Unity Android Gradle export 후 hook 2회 재호출 시 settings/build.gradle 및 Maven payload hash가 초기/1회/2회 동일했다. APK/Player는 별도 결과다.
+- 두 실제 Unity export hook 반복 검증을 self-hosted CI gate에 연결하고 README의 과거 Unity 미검증·source/staging 구분 누락을 정정한다. 전체 gate 재실행 전이며 실제 provider는 별도다.
+- Android/iOS 실제 export hook 반복 hash 증거 `docs/evidence/p08-export-hooks.md` 작성. CI gate 음성 6건/skip0, shell·원장·diff PASS. 새 gate 전체 및 GitHub Actions는 NOT_RUN이며 커밋 전: hook 테스트/runner·CI·패키징 문서만 포함한다.

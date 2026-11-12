@@ -22,6 +22,8 @@ export GAMEBRIDGE_MAVEN_REPO="$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk/Editor/
 export GAMEBRIDGE_IOS_XCFRAMEWORK="$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework"
 bash scripts/build-unity.sh --editor-smoke
 bash scripts/smoke-unity-offline-sample.sh
+bash scripts/smoke-unity-android-hook-repeat.sh
+bash scripts/smoke-unity-ios-hook-repeat.sh
 android_args=(--run-local --staging "$GAMEBRIDGE_UPM_STAGING" --serial "$GAMEBRIDGE_ANDROID_SERIAL" --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME")
 ios_args=(--run-local --adhoc --staging "$GAMEBRIDGE_UPM_STAGING")
 if [[ -n "${GAMEBRIDGE_UNITY_PACKAGE_CACHE:-}" ]]; then

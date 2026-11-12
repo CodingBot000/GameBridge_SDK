@@ -2554,3 +2554,8 @@
 - `harness/run-unity-ios-mock-restart-e2e.py --run-local`을 새 Simulator/DB 및 local ad-hoc Simulator signing으로 실행한다. 실행 전 진행 기록을 커밋해 tracked-clean 상태를 보존한다.
 - `harness/run-unity-ios-mock-restart-e2e.py --run-local --staging ... --package-cache ...` 종료 0 (`artifacts/unity-ios-restart-vidqoa21/result.json`). Unity iOS Simulator Player에서 서버 commit 응답을 test-only proxy가 503으로 바꾼 뒤 앱 terminate/relaunch, 서로 다른 PID, 세션 복원·pending 1회/재sync 0, Unity main-thread 및 DB 원장 1건·100코인을 확인했다. 로컬 ad-hoc, 실제 StoreKit/기기는 아님.
 - `docs/evidence/px-t12-unity-ios-mock-push.md`에 iOS Player terminate/relaunch, 서버 commit 응답 유실·session/pending 복구 및 원장 불변 결과를 추가했다. 커밋 준비: 합성 키·원본 로그·Simulator·DB는 제외한다.
+### PX-T14 Unity Android/iOS Mock Push 재연결 실패 주입 시작
+- 기존 offline drop/reconnect PASS와 재연결 실패 assertion은 다르므로, test-only loopback TCP proxy에서 연결 시도를 거부한 횟수를 계측하고 복구 후 이벤트 수신을 다시 확인한다. 운영 코드와 사용자 네트워크 설정은 변경하지 않는다.
+- iOS 전용 TCP fault proxy에 차단 상태에서 발생한 실제 수락/즉시 종료 시도 수를 비밀 없이 기록하고, 최소 1회 실패와 복구 후 이벤트 전달을 함께 요구한다. 기존 PX-T12 PASS를 새 테스트 PASS로 대체하지 않는다.
+- Android test는 기존 AVD Wi-Fi/data 차단 확인을 유지하면서 SDK 연결만 받는 loopback proxy의 재연결 거부를 추가했다. 다른 host 네트워크·운영 SDK는 변경하지 않는다. 성공은 각각 새 Player 실행 후에만 기록한다.
+- 양 플랫폼 runner `py_compile` 및 iOS cached-package 안전 단위 2건 PASS. Android server log 검사에 B session 합성 token도 추가했다. 커밋 준비: test 전용 fault 계측만 포함하고 실제 Player 결과는 이전 source에 한정한다.

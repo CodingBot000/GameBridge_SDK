@@ -9,7 +9,7 @@ spec=importlib.util.spec_from_file_location('android_e2e',ROOT/'harness/run-unit
 class LinkProxy(socketserver.ThreadingTCPServer):
     allow_reuse_address=True; daemon_threads=True
     def __init__(self, upstream):
-        super().__init__(('127.0.0.1',0),LinkHandler);self.upstream=upstream;self.online=True;self.lock=threading.Lock();self.connections=set()
+        super().__init__(('127.0.0.1',0),LinkHandler);self.upstream=upstream;self.online=True;self.rejected=0;self.lock=threading.Lock();self.connections=set()
     def disconnect(self):
         with self.lock:
             self.online=False
@@ -22,7 +22,9 @@ class LinkHandler(socketserver.BaseRequestHandler):
     def handle(self):
         proxy=self.server
         with proxy.lock:
-            if not proxy.online:return
+            if not proxy.online:
+                proxy.rejected += 1
+                return
             proxy.connections.add(self.request)
         upstream=None
         try:
@@ -124,10 +126,12 @@ def main():
         wait('GB_PUSH_RECEIVED 1');wait('GB_PUSH_WAIT_BACKGROUND')
         must(['xcrun','simctl','openurl',sim,f'http://127.0.0.1:{port}/health'],'BACKGROUND_FAILED',timeout=30);wait('GB_PUSH_BACKGROUND')
         must(['xcrun','simctl','launch',sim,BUNDLE],'FOREGROUND_FAILED',timeout=30);wait('GB_PUSH_FOREGROUND');wait('GB_PUSH_WAIT_OFFLINE')
-        proxy.disconnect();time.sleep(8)
+        proxy.disconnect();time.sleep(18)
+        if proxy.rejected < 1:raise common.GateError('RECONNECT_FAILURE_NOT_OBSERVED')
         status,reply=send('unity-offline-test')
         if status!=200 or reply.get('delivery')!='SIMULATED':raise common.GateError('OFFLINE_SEND_FAILED')
-        proxy.reconnect();time.sleep(12)
+        result['rejectedReconnectAttempts']=proxy.rejected
+        proxy.reconnect();time.sleep(22)
         for _ in range(2):
             status,reply=send('unity-reconnected-test')
             if status!=200 or reply.get('delivery')!='SIMULATED':raise common.GateError('RECONNECTED_SEND_FAILED')
@@ -152,7 +156,7 @@ def main():
         if any(secret in trace for secret in (key,password,admin,bearer,bearer_b)):raise common.GateError('SECRET_IN_SERVER_LOG')
         dbcheck=must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'PUSH_DB_QUERY',input_text='SELECT count(*) FROM device_tokens;\n')
         if dbcheck.strip()!='0':raise common.GateError('PUSH_TOKEN_NOT_DELETED')
-        result.update(status='PASS',player='PASS',mockPush='PASS',deduplication='PASS',mainThread='PASS',background='PASS',networkRecovery='PASS_LOCAL_TRANSPORT_FAULT',sessionSwitch='PASS',deviceTokens=0)
+        result.update(status='PASS',player='PASS',mockPush='PASS',deduplication='PASS',mainThread='PASS',background='PASS',networkRecovery='PASS_LOCAL_TRANSPORT_FAULT',reconnectFailure='PASS',sessionSwitch='PASS',deviceTokens=0)
     except KeyboardInterrupt:result.update(status='INTERRUPTED',errorCode='USER_OR_ENV_INTERRUPTION')
     except common.GateError as error:result.update(status=error.category,errorCode=str(error))
     except Exception as error:result['errorCode']=type(error).__name__

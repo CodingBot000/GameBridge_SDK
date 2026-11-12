@@ -441,3 +441,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T13 iOS Simulator process 종료·pending 복구 전체 검증 시작: 새 전용 Simulator·DB 및 exact-version test cache 사용. 결과는 NOT_RUN이다.
 - PX-T13 Unity iOS Simulator LOCAL_MOCK 실제 앱 terminate/relaunch 및 pending 복구 PASS (`artifacts/unity-ios-restart-vidqoa21`, exit 0): 서로 다른 PID, session restore·pending 1회 복구·재sync 0, DB 원장 1건/100·main-thread 확인. local ad-hoc이며 실제 StoreKit은 NOT_RUN이다.
 - PX-T13 실제 iOS Simulator process/pending PASS를 iOS Push evidence에 추가했다. 재연결 실패·임의 지연 callback 주입 및 실제 제공자·기기는 NOT_RUN이다. 커밋 준비.
+- PX-T14 재연결 실패 명시 검증 시작: 기존 단절·복구 PASS는 재시도 실패 횟수를 직접 증명하지 않는다. 테스트 전용 loopback proxy로 Android/iOS SDK의 재연결 시도를 거부한 뒤 회복 여부를 별도 검증한다.
+- PX-T14 iOS test proxy가 차단 중 실제 재연결 시도 거부 횟수를 세고 1회 이상을 요구하도록 수정했다. 새 코드의 실제 Player 검증은 NOT_RUN이다.
+- PX-T14 Android runner에도 test 전용 TCP proxy를 추가해 OS 네트워크 복구 후 일시적 재연결 거부와 실제 시도 횟수를 검사한다. 실제 Android/iOS Player 재검증은 아직 NOT_RUN이다.
+- PX-T14 양 runner Python 문법 및 package cache 안전 단위 2건 PASS. 실제 재연결 실패/복구 Player E2E는 재실행 전이며 커밋 준비한다.

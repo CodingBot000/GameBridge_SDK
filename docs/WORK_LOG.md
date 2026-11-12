@@ -2506,3 +2506,4 @@
 - 별도 Unity 시나리오에 background/foreground callback과 온라인 전용 푸시 재연결 assertion을 추가했다. 환경 제어 및 실제 실행 검증은 다음 단계다.
 - runner가 해당 전용 AVD에서 HOME/재개, Wi-Fi·data 비활성 및 loopback host 접근 실패 확인, offline 발송, 연결 복원 후 재발송과 Player callback을 검증하도록 확장했다. 테스트 종료 시 변경한 네트워크는 복원하며 기존 기기를 변경하지 않는다. 실행 검증은 아직이다.
 - `python3 -m py_compile harness/run-unity-android-mock-push-e2e.py` 종료 0. 커밋 준비: Android lifecycle/network test harness와 미실행 범위만 저장한다.
+- `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본을 새 전용 AVD에서 재실행한다. 실제 Unity Player 메인 스레드 및 네트워크 차단·복구 검사 전 PASS가 아니다. 실행 전 기록을 커밋한다.

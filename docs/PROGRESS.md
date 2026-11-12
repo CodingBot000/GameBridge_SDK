@@ -852,3 +852,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - OS runner 결과에 dialog 처리 방식 표시 보강 시작: Android가 실제로 자동 선택한 횟수와 iOS 외부 GUI 거부 필요를 구분한다.
 - R40 OS dialog 처리 방식 분류 단위 Android 3건/iOS 2건 PASS, Python 구문 PASS. 양 OS와 Mock을 분리 실행하는 명시적 opt-in scenario entry를 추가한다.
 - R40 통합 opt-in entry의 누락 시 대기·세 경로 순차 실행·중간 대기 전파 단위 2건 PASS. 실제 통합 wrapper 및 변경된 interaction metadata는 NOT_RUN, clean-source 실행 전 커밋 준비.
+- P09-T05/R40 OS Android·iOS 및 managed Mock 통합 opt-in 실제 검증 시작: source dc8d9f9 코드, 최신 stage와 권한 이력 없는 전용 기기 사용. iOS GUI 거부는 도구로 처리한다.

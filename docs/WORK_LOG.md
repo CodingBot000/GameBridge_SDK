@@ -3028,3 +3028,4 @@
 - Android runner가 실제 denial button을 선택한 횟수와 외부/기존 상태를 구분하고, iOS runner는 외부 GUI 입력 필요를 result에 명시한다. 기존 실제 OS 성공 증거는 별도로 보존한다.
 - Android denial tap 횟수/interaction mode 및 iOS 외부 GUI 입력 표시를 보강했고 Android 단위 3건, iOS 2건 PASS/skip0. 양 OS 및 managed Mock을 각각 새 실행하는 opt-in R40 entry를 추가한다. iOS GUI 입력이 없으면 성공하지 않는다.
 - `test_r40_permission_optin.py` 2건 PASS/skip0: opt-in 없으면 실행하지 않고 DEFERRED, Android/iOS/Mock 중 어느 하나가 대기/실패면 전체 성공하지 않는다. 세 경로 합친 실제 wrapper 및 새 interaction 기록은 아직 미실행이다. 커밋 전: test-only runner·fixture·기록만 포함한다.
+- `run-r40-permission-optin.py`에서 Android 실제 OS, iOS 실제 OS, managed Mock 세 경로를 순차 실행한다. iOS OS 거부는 외부 GUI 도구 조작이며 무인 CI로 간주하지 않는다. 시작 기록을 먼저 커밋한다.

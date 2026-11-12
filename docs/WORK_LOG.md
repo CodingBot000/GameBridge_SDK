@@ -3013,3 +3013,4 @@
 - 기존 test-only permission consumer와 Firebase runtime dependency를 새 격리 Unity Android 프로젝트에서 빌드한다. 전용 AVD의 실제 권한 dialog를 식별해 거부하고 첫 DENIED·등록 차단·재요청 DENIED marker를 검증한다. 계정·실 Firebase 연결은 없다.
 - Android permission runner는 새 Unity Player 및 전용 AVD에서 OS dialog를 resource id로 식별해 거부하고 허용된 marker만 저장한다. 초안 Python compile만 확인했으며 실제 실행 전이다. dialog 오탭 방지·미실행/중단 분류를 시험한다.
 - Android permission runner 단위 2건 PASS/skip0: 유일한 permission deny resource만 선택, 중복·다른 위젯·잘못된 XML 및 필수 marker 누락 거부. 실제 OS 재실행은 아직 없다. 커밋 전: runner·음성 시험·기록만 포함한다.
+- Android OS permission 재현 runner를 새 전용 AVD에서 실행한다. test-only Firebase SDK dependency를 사용하나 계정·서비스 설정·원격 발송은 없다. clean-source 시작 기록을 먼저 커밋한다.

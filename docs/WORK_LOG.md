@@ -2742,3 +2742,6 @@
 - Android/iOS test-only consumer가 profile·purchase·diagnostics를 직렬화해 현재 합성 개발키 부재를 확인하고 marker를 출력한다. 두 E2E runner는 이 marker가 없으면 FAIL이다. 아직 컴파일·실행 전이다.
 - Android consumer `check-unity-android-mock-compile.sh` exit 0, 경고·오류 0; 두 Python runner compile PASS. iOS 조건부 소비자도 같은 격리 참조로 컴파일한다. 이는 Player 실행이 아니다.
 - iOS `UNITY_IOS` 조건부 consumer managed compile exit 0, 경고·오류 0; Android도 동일. 실제 Player는 아직 NOT_RUN. 커밋 전: test-only 결과 검사·runner marker·기록만 포함, R22 PARTIAL 유지.
+### P09-T03/R22 Player 실제 재검증 시작
+- source cc3cc60 test-only 결과 검사를 새 Android/iOS Player에서 실행한다. Android는 기존 설치된 테스트 앱을 보존하므로 빈 전용 AVD를 만든다. 기존 Player 결과를 새 실행으로 재사용하지 않는다.
+- 커밋 전: 실제 실행 시작 기록만 포함한다. 실행 결과는 NOT_RUN이다.

@@ -609,3 +609,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 test-only 양 플랫폼 consumer에 합성 개발키 결과 비노출 검사와 필수 marker를 추가했다. 컴파일 및 Player 실행은 아직 NOT_RUN.
 - R22 Android consumer managed compile PASS(경고·오류 0), Python runner 문법 PASS. iOS 조건부 managed compile을 확인한다. 실제 Player는 미실행.
 - R22 양 플랫폼 test-only consumer managed compile PASS(각 경고·오류 0). 실제 Unity Player 재실행은 NOT_RUN이며 clean-source 실행을 위해 테스트 코드를 먼저 커밋한다.
+- R22 양 플랫폼 실제 LOCAL_MOCK Player 재검증 시작: source cc3cc60과 빈 Android 전용 AVD·격리 iOS Simulator를 사용한다. 합성 개발키 검사이며 실 provider token 검증은 별도다.

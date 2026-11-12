@@ -283,7 +283,7 @@ def main():
         marker = ROOT / "artifacts/v2-test-avd-name.txt"
         if not expected_avd and marker.is_file():
             expected_avd = marker.read_text(encoding="utf-8").strip()
-        serial, avd = find_dedicated_device(adb, args.serial, expected_avd)
+        serial, avd = wait_for_dedicated_device(adb, args.serial, expected_avd)
         summary["emulatorAvd"] = avd
         summary["emulatorSerial"] = serial
 

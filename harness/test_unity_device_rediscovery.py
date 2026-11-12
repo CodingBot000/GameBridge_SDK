@@ -11,6 +11,11 @@ class DeviceRediscoveryTests(unittest.TestCase):
         with patch.object(module, "find_dedicated_device", side_effect=[module.GateError("TARGET_NOT_AN_ONLINE_EMULATOR", "DEFERRED_ENV"), ("emulator-5584", "GameBridge_V2_test")]) as probe, patch.object(module.time, "sleep"):
             self.assertEqual(module.wait_for_dedicated_device("adb", "emulator-5584", "GameBridge_V2_test"), ("emulator-5584", "GameBridge_V2_test"))
             self.assertEqual(probe.call_count, 2)
+    def test_offline_deadline_stays_deferred(self):
+        with patch.object(module, "find_dedicated_device", side_effect=module.GateError("TARGET_NOT_AN_ONLINE_EMULATOR", "DEFERRED_ENV")), patch.object(module.time, "monotonic", side_effect=[0,46]):
+            with self.assertRaises(module.GateError) as error: module.wait_for_dedicated_device("adb", "emulator-5584", "GameBridge_V2_test")
+            self.assertEqual(error.exception.category,"DEFERRED_ENV")
+            self.assertEqual(str(error.exception),"DEDICATED_EMULATOR_REDISCOVERY_TIMEOUT")
     def test_does_not_retry_wrong_device_or_existing_app(self):
         for code in ("NOT_THE_DEDICATED_GAMEBRIDGE_AVD", "TEST_APP_ALREADY_INSTALLED_PRESERVE_EXISTING"):
             with patch.object(module, "find_dedicated_device", side_effect=module.GateError(code, "DEFERRED_ENV")) as probe:

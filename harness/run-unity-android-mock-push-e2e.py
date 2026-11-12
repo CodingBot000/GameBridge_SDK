@@ -14,7 +14,7 @@ def main():
         stage=args.staging.resolve();must(['python3','harness/check-staging.py',stage],'STAGING_INVALID');common.verify_staged_source_matches_checkout(stage)
         adb=common.locate_adb(None)
         if not adb: raise common.GateError('ADB_MISSING','DEFERRED_ENV')
-        serial,avd=common.find_dedicated_device(adb,args.serial,args.expected_avd);result['avd']=avd
+        serial,avd=common.wait_for_dedicated_device(adb,args.serial,args.expected_avd);result['avd']=avd
         env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage)
         prepared=must(['bash','scripts/prepare-unity-android-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
         if not match:raise common.GateError('CONSUMER_PATH')

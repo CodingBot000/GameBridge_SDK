@@ -725,3 +725,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 지정 Editor/Newtonsoft 경로 단위 2건, CI fixture 6건 및 Python/shell 구문 PASS. staged Native 경로가 실제 strict 호출에 전달되는지도 fixture로 확인한다.
 - CI 경로 전달 fixture 6건·Editor/timeout 2건 및 원장/diff PASS. 실제 self-hosted 전체는 NOT_RUN, 커밋 준비.
 - P09-T07 전체 Unity CI gate 로컬 실행 시작: 최신 stage·Editor 및 별도 빈 Android AVD 2개·격리 DB/Simulator를 사용한다. 기존 R22/R40 PARTIAL과 P05-T03 FAIL이 있어 전체 성공을 미리 주장하지 않는다.
+- P09-T07 첫 전체 Unity CI gate exit 2: Editor 2건·sample 1건 PASS 후 Android baseline `TARGET_NOT_AN_ONLINE_EMULATOR` DEFERRED_ENV (`artifacts/unity-android-e2e-ds3m3hkh`). Unity의 ADB 재시작 후 기기 재검색을 확인한다. 후속 Player/strict는 NOT_RUN.
+- Android baseline의 최초 기기 조회는 재시작 직후 바로 실패하고 후반 설치 전 조회만 재시도한다. Push runner도 동일 패턴이어서 두 최초 조회에 기존 안전한 재검색을 적용한다.
+- ADB 재검색 단위 3건 PASS: offline 복구, 시간 초과 환경 대기, 다른 기기/기존 앱 즉시 거부. Python/원장/diff PASS; clean-source 전체 gate 재시도 전 커밋 준비.

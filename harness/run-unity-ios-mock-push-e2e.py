@@ -45,15 +45,36 @@ class LinkHandler(socketserver.BaseRequestHandler):
                 if upstream:proxy.connections.discard(upstream)
             if upstream:upstream.close()
 
+def embed_cached_packages(cache, project):
+    """Copy exact previously resolved Unity packages into this disposable consumer only."""
+    required={'com.unity.mobile.notifications':'2.5.0','com.unity.nuget.newtonsoft-json':'3.2.2'}
+    resolved={}
+    for name,version in required.items():
+        candidates=[]
+        for directory in cache.glob(name+'@*'):
+            try:
+                info=json.loads((directory/'package.json').read_text())
+                if info.get('name')==name and info.get('version')==version: candidates.append(directory)
+            except (OSError,ValueError): pass
+        if len(candidates)!=1: raise common.GateError('CACHED_PACKAGE_MISSING_OR_AMBIGUOUS','DEFERRED_ENV')
+        destination=project/'Packages'/name
+        if destination.exists(): raise common.GateError('CACHED_PACKAGE_DESTINATION_EXISTS')
+        shutil.copytree(candidates[0],destination)
+        if json.loads((destination/'package.json').read_text()).get('version')!=version: raise common.GateError('CACHED_PACKAGE_COPY_INVALID')
+        resolved[name]=version
+    return resolved
+
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--run-local',required=True,action='store_true');ap.add_argument('--staging',required=True,type=Path);args=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--run-local',required=True,action='store_true');ap.add_argument('--staging',required=True,type=Path);ap.add_argument('--package-cache',type=Path,help='Existing exact-version Unity PackageCache to copy into isolated project');args=ap.parse_args()
     out=Path(tempfile.mkdtemp(prefix='unity-ios-push-',dir=ROOT/'artifacts'));must=common.must;run=common.run;server=log=proxy=player=None;markers=[];leaks=[]
     head=must(['git','rev-parse','HEAD'],'GIT_HEAD').strip();dirty=bool(must(['git','status','--porcelain','--untracked-files=no'],'GIT_STATUS').strip());result={'status':'FAIL','scope':'Unity iOS Simulator LOCAL_MOCK push; not APNs','sourceHead':head,'sourceTrackedDirty':dirty,'player':'NOT_RUN','background':'NOT_RUN','networkRecovery':'NOT_RUN','processRestart':'NOT_RUN'}
     try:
         stage=args.staging.resolve();must(['python3','harness/check-staging.py',stage],'STAGING_INVALID');common.verify_staged_source_matches_checkout(stage)
         env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage);prepared=must(['bash','scripts/prepare-unity-ios-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
         if not match:raise common.GateError('CONSUMER_PATH')
-        project=Path(match.group(1));shutil.copy2(ROOT/'tests/UnityIosPushConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs');xcode=out/'xcode'
+        project=Path(match.group(1))
+        if args.package_cache:result['embeddedCachedPackages']=embed_cached_packages(args.package_cache.resolve(),project)
+        shutil.copy2(ROOT/'tests/UnityIosPushConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs');xcode=out/'xcode'
         export=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],timeout=1200,env=env);(out/'unity-export.log').write_text(export.stdout)
         if export.returncode:raise common.GateError('UNITY_EXPORT_FAILED')
         derived=out/'Derived';build=run(['xcodebuild','-project',xcode/'Unity-iPhone.xcodeproj','-scheme','Unity-iPhone','-configuration','Debug','-sdk','iphonesimulator','-derivedDataPath',derived,'ARCHS=arm64','CODE_SIGN_IDENTITY=-','CODE_SIGNING_REQUIRED=YES','build','-quiet'],timeout=600);(out/'xcodebuild.log').write_text(build.stdout)
@@ -130,6 +151,7 @@ def main():
         dbcheck=must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'PUSH_DB_QUERY',input_text='SELECT count(*) FROM device_tokens;\n')
         if dbcheck.strip()!='0':raise common.GateError('PUSH_TOKEN_NOT_DELETED')
         result.update(status='PASS',player='PASS',mockPush='PASS',deduplication='PASS',mainThread='PASS',background='PASS',networkRecovery='PASS_LOCAL_TRANSPORT_FAULT',sessionSwitch='PASS',deviceTokens=0)
+    except KeyboardInterrupt:result.update(status='INTERRUPTED',errorCode='USER_OR_ENV_INTERRUPTION')
     except common.GateError as error:result.update(status=error.category,errorCode=str(error))
     except Exception as error:result['errorCode']=type(error).__name__
     finally:

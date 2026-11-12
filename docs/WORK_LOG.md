@@ -2530,3 +2530,8 @@
 - iOS Push consumer `UNITY_IOS` managed compile 종료 0, 경고·오류 0. 실제 iOS Player, Swift C ABI 및 서버 수신은 미실행. 다른 사용자 네트워크를 변경하지 않도록 test 전용 loopback TCP proxy에서 SDK 연결만 차단·복구하는 방식을 준비한다.
 - iOS Push runner는 신규 Simulator·DB, local ad-hoc, 개발 서버 allowlist, 중복·main-thread·세션 전환, Simulator background/foreground 및 테스트 전용 TCP 연결 차단/복구를 검사한다. OS 전체 네트워크와 실제 APNs는 건드리지 않는다. Python 문법 종료 0, Player 실행 전이므로 커밋 준비한다.
 - `harness/run-unity-ios-mock-push-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6`를 신규 Simulator/DB에서 실행한다. 실제 Unity Player·Swift·Backend·DB 결과 확인 전 PASS가 아니다. 실행 전 이 기록을 커밋한다.
+- `artifacts/unity-ios-mock.6cWqlO/project/Logs/upm.log`: Unity Package Manager가 `packages.unity.com` 연결 ETIMEDOUT. 기존 Unity 설치/네트워크 설정을 변경하지 않고 이전 격리 프로젝트의 동일 버전 package cache로 새 소비 프로젝트를 구성할 수 있는지 조사한다. 현재 Player 성공은 아니다.
+- 첫 iOS Push 실행 `artifacts/unity-ios-push-*`는 UPM registry 연속 timeout으로 자체 Unity 프로세스를 중단(exit 130). 기존 runner가 KeyboardInterrupt를 별도 처리하지 않아 결과 JSON은 FAIL로 남았으며 실제 Player는 NOT_RUN이었다. 이전에 성공한 격리 프로젝트의 notifications 2.5.0 / Newtonsoft 3.2.2 cache를 확인했고, 원본과 전역 설정을 수정하지 않는 새 프로젝트 한정 embedded 복사 경로를 검토한다.
+- iOS test runner의 `--package-cache`는 별도 저장된 기존 PackageCache에서 mobile notifications 2.5.0 및 Newtonsoft 3.2.2만 검사·복사하고 새 격리 소비 프로젝트의 embedded package로 사용한다. 전역 Unity 설정·원본 cache는 수정하지 않는다. 실제 resolver/Player는 아직 검증 전이다.
+- embedded package 선택 경로가 정확한 2.5.0/3.2.2만 복사하고 source 보존 및 누락 실패를 수행하는지 isolated unit test를 실행한다.
+- `python3 -m unittest discover -s harness -p test_unity_ios_push_cache.py -v` 2건 PASS/skip 0. 커밋 준비: 격리 embedded cache 경로, interrupted 분류 및 registry timeout 기록을 저장한다. 네트워크 우회나 전역 설정 변경은 없다.

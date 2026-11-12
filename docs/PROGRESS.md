@@ -418,3 +418,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T12 iOS Push 시나리오 Unity managed reference 컴파일 PASS(경고·오류 0). 전용 Simulator에서 Swift bridge·백그라운드·연결 중단/복구를 검증할 runner를 구현한다. 실제 iOS Player는 아직 NOT_RUN이다.
 - PX-T12 iOS Simulator Push runner 작성 및 Python 문법 PASS. 격리 loopback TCP fault로 SDK 연결만 끊어 offline drop/복구를 검사하며 OS 전체 네트워크 차단으로 주장하지 않는다. 실제 Player 결과는 NOT_RUN이다.
 - PX-T12 iOS Simulator LOCAL_MOCK Push/Lifecycle 첫 실제 E2E 시작: 신규 전용 Simulator·DB, local ad-hoc 및 테스트 전용 TCP fault 사용. 결과는 NOT_RUN이다.
+- PX-T12 iOS Unity import 환경 블로커: 격리 프로젝트의 UPM resolve가 `packages.unity.com` ETIMEDOUT을 보고했다. 현재 실행 결과는 아직 미확정이며 이전에 확인한 패키지 캐시의 안전한 재사용 가능성을 조사한다.
+- PX-T12 첫 iOS Push runner는 UPM registry timeout이 반복돼 작업 소유 프로세스를 중단했다(exit 130). Unity Player는 NOT_RUN이다. runner의 interrupted 상태 분류 및 검증된 동일 버전 캐시를 새 테스트 프로젝트에만 복사하는 경로를 보강한다.
+- PX-T12 iOS runner에 exact package version 확인 후 새 테스트 프로젝트에만 embedded 복사하는 선택 경로와 INTERRUPTED 구분을 추가했다. Unity package resolver·실제 Player 검증은 재실행 전이다.
+- PX-T12 격리 package cache 경로의 정확한 버전 복사 및 누락 시 fail-closed 단위 검증 시작. 실제 Unity import/Player는 미실행이다.
+- PX-T12 exact-version cache 복사·누락 차단 단위 테스트 2건 PASS/skip 0. 실제 iOS Player는 NOT_RUN이며 수정 runner를 커밋한 뒤 새 Simulator로 재실행한다.

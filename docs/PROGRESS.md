@@ -646,3 +646,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 Android token 존재 사전조건 테스트 컴파일 PASS. 격리 Native token 회귀 재현 runner를 추가해 실제 실행과 skip/0건 거부를 확인한다.
 - R22 격리 재현 runner 실행 PASS: Android/Swift 합성 세션 token 비교 각 1건, skip 0 (`artifacts/r22-native-vdwala6w`). 실제 provider는 별도. opt-in 누락 음성 검사를 확인한다.
 - R22 전용 runner opt-in 누락 exit 2·Python/원장/diff 검사 PASS. 부분 manifest와 증거에 재현 명령을 연결하고 커밋 준비한다.
+- P09-T03/R22 합성 세션 token의 Backend 로그 노출 검증 시작: 전용 격리 runner에서만 테스트가 서버 로그와 access/refresh token을 메모리로 비교하고 결과 marker를 요구한다.
+- R22 전용 격리 실행 PASS (`artifacts/r22-native-37ca4aes`): Android/Swift 각 합성 access/refresh token·개발키의 bridge 결과 및 Backend 로그 비노출 marker 확인. 실제 제공자·전체 로그 범위는 별도다.
+- R22 로그 marker 누락·잘못된 값 거부 단위 1건과 Python/원장 검사 PASS. helper 보완 후 격리 실행을 다시 확인한다.
+- R22 marker helper 적용 후 격리 양 Native 재실행 PASS (`artifacts/r22-native-bpyoimew`), 각 1건/skip0 및 synthetic token·개발키 서버 로그 비노출 marker 확인. R22 전체 PARTIAL 유지, 커밋 준비.

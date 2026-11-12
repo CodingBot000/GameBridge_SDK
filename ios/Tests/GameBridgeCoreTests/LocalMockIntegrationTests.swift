@@ -115,6 +115,12 @@ final class LocalMockIntegrationTests: XCTestCase {
         XCTAssertEqual(restored["sessionRestored"] as? Bool, true)
         _ = try await handler.invoke("auth.signOut", payload: [:]); XCTAssertNil(storage.value)
         _ = try await handler.invoke("sdk.shutdown", payload: [:])
+        if let path = ProcessInfo.processInfo.environment["GAMEBRIDGE_R22_SERVER_LOG"] {
+            let serverLog = try String(contentsOfFile: path, encoding: .utf8)
+            for secret in syntheticTokens + [key] { XCTAssertFalse(serverLog.contains(secret), "synthetic credential leaked in server log") }
+            let marker = try XCTUnwrap(ProcessInfo.processInfo.environment["GAMEBRIDGE_R22_SWIFT_MARKER"])
+            try "PASS\n".write(toFile: marker, atomically: true, encoding: .utf8)
+        }
     }
 
     func testPersistedMockTransactionRecoversAfterCommittedResponseIsLost() async throws {

@@ -18,6 +18,11 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def marker_pass(path):
+    try: return path.read_text() == 'PASS\n'
+    except OSError: return False
+
+
 def main():
     if sys.argv[1:] != ['--run-local']:
         print('Usage: run-r22-native-redaction.py --run-local (retains isolated test DB)')
@@ -38,7 +43,10 @@ def main():
                    DATABASE_USERNAME=database, DATABASE_PASSWORD=password, GAMEBRIDGE_PORT='18080',
                    GAMEBRIDGE_DEV_AUTH_KEY='r22-test-'+secrets.token_hex(24),
                    SERVER_TOKEN_ENCRYPTION_KEY=base64.b64encode(secrets.token_bytes(32)).decode(),
-                   GAMEBRIDGE_MAINTENANCE_ENABLED='false', GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST='true')
+                   GAMEBRIDGE_MAINTENANCE_ENABLED='false', GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST='true',
+                   GAMEBRIDGE_R22_SERVER_LOG=str(output/'server.log'),
+                   GAMEBRIDGE_R22_ANDROID_MARKER=str(output/'android-log-check.txt'),
+                   GAMEBRIDGE_R22_SWIFT_MARKER=str(output/'swift-log-check.txt'))
         build = subprocess.run(['backend/gradlew','-p','backend','bootJar'],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=240)
         (output/'build.log').write_bytes(build.stdout)
         if build.returncode: raise RuntimeError('BACKEND_BUILD_FAILED')
@@ -59,11 +67,11 @@ def main():
         (output/'android.log').write_bytes(android.stdout)
         path=ROOT/'android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockIntegrationTest.xml'
         xml=ET.parse(path).getroot().attrib if path.stat().st_mtime_ns >= started else {}
-        if android.returncode==0 and all(int(xml.get(k,-1))==v for k,v in [('tests',1),('failures',0),('errors',0),('skipped',0)]): result['android']='PASS'
+        if android.returncode==0 and all(int(xml.get(k,-1))==v for k,v in [('tests',1),('failures',0),('errors',0),('skipped',0)]) and marker_pass(output/'android-log-check.txt'): result['android']='PASS'
         swift=subprocess.run(['swift','test','--package-path','ios','--filter','LocalMockIntegrationTests.testBridgeHandlerAgainstLocalBackend'],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=240)
         (output/'swift.log').write_bytes(swift.stdout); text=swift.stdout.decode(errors='replace')
         summaries=re.findall(r'Executed (\d+) tests?, with (\d+) failures?',text)
-        if swift.returncode==0 and summaries and max(int(a) for a,_ in summaries)==1 and all(int(b)==0 for _,b in summaries) and 'test skipped' not in text.lower(): result['swift']='PASS'
+        if swift.returncode==0 and summaries and max(int(a) for a,_ in summaries)==1 and all(int(b)==0 for _,b in summaries) and 'test skipped' not in text.lower() and marker_pass(output/'swift-log-check.txt'): result['swift']='PASS'
         if result['android']==result['swift']=='PASS': result['status']='PASS'
     except (common.GateError, OSError, RuntimeError, ValueError, ET.ParseError, subprocess.TimeoutExpired) as error:
         result['errorCode']=str(error) if isinstance(error,common.GateError) else type(error).__name__

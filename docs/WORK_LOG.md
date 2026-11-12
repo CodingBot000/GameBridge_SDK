@@ -2789,3 +2789,8 @@
 - token 존재 사전조건 추가 후 Android 테스트 컴파일 exit 0. 새 DB·Backend에서 양 Native bridge의 합성 token assertion을 재현하고 JUnit/XCTest 실제 실행·skip을 검증하는 runner를 추가한다.
 - `python3 harness/run-r22-native-redaction.py --run-local` exit 0 (`artifacts/r22-native-vdwala6w`): Android/Swift 각 1건 PASS/skip0 및 token 존재 선행조건 확인. synthetic local DB·Backend만 사용, 원문 token은 출력하지 않았다. opt-in 없는 호출과 문법 검사를 이어간다.
 - `run-r22-native-redaction.py` 인자 없이 exit 2, Python compile·원장·diff PASS. 부분 증거와 candidate suite에 재현 명령을 연결한다. 전체 로그·실제 provider 미검증으로 R22 PARTIAL 유지. 커밋 준비.
+### P09-T03/R22 synthetic 세션 token 서버 로그 검증 시작
+- 전용 격리 Backend 로그에 해당 실행의 synthetic access/refresh token이나 개발키가 들어 있는지 Android/Swift integration에서 메모리로 비교한다. runner는 양쪽 검사 marker가 없으면 PASS를 거부한다. 원문 token이나 로그는 커밋하지 않는다.
+- 강화한 `run-r22-native-redaction.py --run-local` exit 0 (`artifacts/r22-native-37ca4aes`): Android/Swift 각 1건/skip0, 해당 synthetic access/refresh token과 개발키가 지정된 격리 Backend 로그에 없고 bridge 결과에도 노출되지 않음을 검사했다. 실 provider credential·모든 앱 로그는 범위 밖. marker 누락 음성 검사를 추가한다.
+- marker 부재·빈 값·FAIL·불완전 값·추가 데이터 거부 단위 1건 PASS/skip0, Python·원장 검사 PASS. helper 보완 후 격리 양 플랫폼을 재실행한다.
+- `run-r22-native-redaction.py --run-local` 재실행 exit 0 (`artifacts/r22-native-bpyoimew`), 양 플랫폼 각 1건/skip0 및 정확한 server-log 검사 marker 확인. 커밋 전: synthetic 테스트·실행기·음성 검사와 정제 증거만 포함하며 전체 로그 및 실제 provider 결과는 주장하지 않는다.

@@ -18,6 +18,13 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 
 
+MOCK_CREDENTIAL = re.compile(r'(?<![A-Za-z0-9_])mock:[0-9a-fA-F-]{36}(?![A-Za-z0-9-])')
+
+
+def has_mock_credential(text):
+    return MOCK_CREDENTIAL.search(text) is not None
+
+
 def error_status(error):
     return 'DEFERRED_ENV' if getattr(error, 'category', None) == 'DEFERRED_ENV' else 'FAIL'
 
@@ -76,6 +83,9 @@ def main():
         (output/'swift.log').write_bytes(swift.stdout); text=swift.stdout.decode(errors='replace')
         summaries=re.findall(r'Executed (\d+) tests?, with (\d+) failures?',text)
         if swift.returncode==0 and summaries and max(int(a) for a,_ in summaries)==1 and all(int(b)==0 for _,b in summaries) and 'test skipped' not in text.lower() and marker_pass(output/'swift-log-check.txt'): result['swift']='PASS'
+        log.flush()
+        if has_mock_credential((output/'server.log').read_text(encoding='utf-8',errors='replace')): raise RuntimeError('SYNTHETIC_MOCK_CREDENTIAL_IN_SERVER_LOG')
+        result['mockCredentialServerLog']='PASS'
         if result['android']==result['swift']=='PASS': result['status']='PASS'
     except (common.GateError, OSError, RuntimeError, ValueError, ET.ParseError, subprocess.TimeoutExpired) as error:
         result['status']=error_status(error)

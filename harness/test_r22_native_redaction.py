@@ -5,6 +5,9 @@ import unittest
 spec=importlib.util.spec_from_file_location("r22_native",Path(__file__).parent/"run-r22-native-redaction.py")
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class RedactionMarkerTests(unittest.TestCase):
+    def test_mock_credential_pattern_is_detected_without_exposing_values(self):
+        self.assertTrue(module.has_mock_credential("mock:00000000-0000-4000-8000-000000000001"))
+        self.assertFalse(module.has_mock_credential("MOCK provider and ordinary message"))
     def test_environment_deferral_is_not_reported_as_success(self):
         class Deferred(Exception): category="DEFERRED_ENV"
         self.assertEqual(module.error_status(Deferred()),"DEFERRED_ENV")

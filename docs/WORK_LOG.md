@@ -2894,3 +2894,8 @@
 - strict `verify-all-4r3l36i6`: Unity Editor 2건·Push 양 Player 2건 PASS, 구매 포함 실행 suite PASS, scenario PARTIAL과 recorded P05-T03 FAIL로 전체 FAIL. 4개 Player source e703f43 tracked-clean; strict의 sourceDirty는 보존된 미추적 파일 포함. 두 Android 최초 안내 수동 처리. 사용한 AVD 2개·Simulator 3개는 shutdown만 했고 데이터는 보존했다.
 - 실제 gate에서 Editor가 opt-in됐는데 isolated helper 고정 출력은 Editor가 분리된 것처럼 나타났다. 집계 결과와 무관한 안내 문구를 실제 opt-in 상태로 바꾸고 기존 실행 증거는 유지한다.
 - helper 안내 수정 후 Python compile, timeout 단위 2건/skip0, 원장·diff PASS. 전체 gate 결과는 수정 전 e703f43 실행이므로 현재 HEAD의 재실행으로 주장하지 않는다. 커밋 전: 로컬 CI evidence·문서·안내 문구만 포함한다.
+- 최신 gate의 Android/iOS 기본 및 Push 각 server.log 4개에서 `mock:<UUID>` 합성 token/증빙 패턴 검색 결과 모두 없음. 원문 로그·일치값은 출력하지 않았다. 다른 형식·Player 전체 로그를 검사한 것은 아니다. 검증 시작 기록을 먼저 남기지 않은 순서 누락을 즉시 기록했다.
+- `LocalMockClient`의 합성 push token·구매 proof는 `mock:<UUID>` 형태임을 확인했다. R22 전용 runner가 서버 로그 전체에서 이 패턴을 검사하고 실패시키도록 추가하며, 알려지지 않은 형식/실제 provider에 대한 보장으로 확대하지 않는다.
+- `test_r22_native_redaction.py` 3건 PASS/skip0 및 Python compile PASS. pattern 검사 추가 후 격리 Android/Swift integration을 새로 실행한다.
+- 강화한 R22 격리 runner exit 0 (`artifacts/r22-native-7r45s8ui`): Android/Swift bridge 각 1건과 서버 로그 synthetic session key/push token·purchase proof 형태 검사 PASS. 이는 로컬 mock 형식에 한정하며 실제 provider·모든 로그 포맷 보장이 아니다.
+- 결과 JSON의 양 test PASS 및 mockCredentialServerLog PASS, 원장/diff 검사 확인. 커밋 전: pattern 탐지·음성 test·정제 증거만 포함하며 raw 로그와 synthetic token 값은 제외한다.

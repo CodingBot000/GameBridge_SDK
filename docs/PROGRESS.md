@@ -733,3 +733,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 최신 전체 gate 세부: Unity Editor 2건·양 플랫폼 기본/Push Player PASS, strict는 R22/R40 PARTIAL 및 기존 P05-T03 FAIL로 전체 FAIL; 외부 13 WAITING_USER. Player 4개 source e703f43 tracked-clean, strict dirty는 기존 미추적 파일 포함 기준. 테스트 AVD 2·Simulator 3 shutdown, 데이터 보존.
 - P09-T07 로컬 gate 증거 정리 중: isolated helper가 Editor opt-in 상태와 무관하게 Editor 분리 문구를 출력한 점을 실제 선택 상태로 정정한다. 기존 검증 판정에는 영향 없다.
 - helper 안내 문구 수정 후 Python/timeout 단위 2건·원장/diff PASS. 전체 gate는 수정 전 source e703f43에서 FAIL이며 새 source 전체 재실행은 NOT_RUN. 정제 증거 커밋 준비.
+- R22 최신 로컬 gate Backend 로그 4개를 합성 `mock:<UUID>` token/증빙 패턴으로 재검사해 노출 없음. 실제 credential·다른 형식·Player 전체 로그는 범위 밖이다. 사전 검증 기록을 누락해 즉시 보완한다.
+- R22 전용 격리 runner에 LOCAL_MOCK push token/구매 proof 형태의 서버 로그 검사를 추가한다. 다른 형식과 실제 provider 검증을 대신하지 않는다.
+- 합성 token/proof 패턴 탐지·marker·환경 대기 단위 3건 PASS, Python 문법 PASS. 격리 Native/Backend 실제 검증을 재실행한다.
+- R22 전용 격리 재실행 PASS (`artifacts/r22-native-7r45s8ui`): Android·Swift 합성 session token, 개발키 및 mock push/proof 형태 서버 로그 검사. 실제 provider·다른 형식·전체 Player 로그는 별도, PARTIAL 유지.
+- R22 synthetic mock credential 검사·결과 JSON·원장/diff PASS. 커밋 준비; 전체 로그·실제 provider 상태는 미완료로 둔다.

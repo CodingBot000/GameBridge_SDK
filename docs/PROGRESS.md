@@ -521,3 +521,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R09 전용 iOS 18.6 Simulator C ABI UTF-8 및 dispatch 입력 buffer 즉시 덮어쓰기·callback 복사 test PASS (`artifacts/r09-ios-20261112203456.xcresult`): 1건, 실패·skip 0. Android JNI Player는 진행 중이다.
 - R09 Android Unity Player 실제 JNI 한국어·emoji 왕복 및 callback 지연 처리 PASS (`artifacts/unity-android-e2e-c26jgz32`, exit 0). 전용 AVD 최초 전체화면 안내는 수동으로 닫았다. iOS Simulator C ABI 시험과 함께 근거를 정리한다.
 - R09 Android JNI Player 및 iOS Simulator C ABI 실측 모두 PASS. iOS Simulator test target 추가 당시 test-only project 설정이 미커밋이었으므로 명확히 기록하고 해당 target을 커밋한다. 재현 runner·manifest 연결은 별도다.
+- R09 Android 실제 Unity JNI 및 iOS Simulator C ABI의 UTF-8 복사·수명 실측을 evidence에 정리하고 IMPLEMENTED로 매핑했다. wrapper의 전체 재실행은 별도이며 실기기/원격 제공자는 미검증이다. manifest를 검증한다.
+- R09 manifest·누락 음성·원장 검사 및 wrapper 문법 PASS. 실제 Android JNI Player/iOS Simulator C ABI와 wrapper 미실행을区分해 커밋한다.

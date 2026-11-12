@@ -203,6 +203,14 @@
       ],
       "mode": "UNITY_PLAYER_AND_ISOLATED_DB",
       "platform": "Unity Android/iOS simulator"
+    },
+    "native-utf8-e2e": {
+      "command": [
+        "python3",
+        "harness/run-r09-utf8.py"
+      ],
+      "mode": "UNITY_ANDROID_PLAYER_AND_IOS_SIMULATOR",
+      "platform": "Android JNI/iOS C ABI"
     }
   },
   "scenarios": [
@@ -476,19 +484,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R09"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "native-utf8-e2e"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r09-jni-cabi-utf8.md",
+      "note": "Actual Unity Android JNI Player and iOS Simulator C ABI; real devices/remote providers remain separate.",
+      "assertions": [
+        {
+          "suite": "native-utf8-e2e",
+          "testFile": "tests/UnityAndroidUtf8Consumer/MockPlayerScenario.cs",
+          "testCase": "GB_UTF8_JNI_ROUNDTRIP PASS"
+        },
+        {
+          "suite": "native-utf8-e2e",
+          "testFile": "ios/Tests/GameBridgeCoreTests/CBridgeTests.swift",
+          "testCase": "testHostPushEventRoutingAndDedup"
+        }
+      ]
     },
     {
       "id": "R10",

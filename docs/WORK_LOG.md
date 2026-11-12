@@ -2634,3 +2634,4 @@
 - `CBridgeTests.testHostPushEventRoutingAndDedup`이 원시 UTF-8 `한글 🎮🚀`을 포함한 요청을 GB_Dispatch 후 즉시 덮어쓰고 callback이 복사한 메시지 ID 동일성을 검사하도록 강화했다. iOS C ABI test 실행 전이다.
 - `swift test --package-path ios --filter CBridgeTests.testHostPushEventRoutingAndDedup` 종료 0, XCTest 1건 PASS/skip 0: 실제 GB_Dispatch 입력을 반환 직후 덮어쓴 뒤 복사된 callback의 한국어·emoji 동일성 확인. macOS host ABI 시험이며 iOS 실제 기기는 아니다.
 - Android UTF-8 Player probe managed compile 종료 0, 경고·오류 0. 커밋 준비: iOS C ABI의 명시적 버퍼 복사 시험과 Android JNI probe/run option만 포함하며 Android 실제 JNI 검증은 재실행 전이다.
+- `harness/run-unity-android-mock-e2e.py --utf8-probe`를 새 전용 AVD에서 실행한다. Java→AndroidJavaProxy callback 이후 문자열 및 main-thread가 일치해야 PASS다. 실행 전 기록을 커밋한다.

@@ -515,3 +515,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R09 iOS C ABI test에 한국어·emoji 원시 UTF-8 입력, dispatch 반환 직후 입력 버퍼 덮어쓰기 및 비동기 callback 복사 결과 동일성 assertion을 추가했다. Swift test를 실행한다.
 - R09 iOS C ABI 원시 UTF-8·입력 buffer 덮어쓰기·비동기 callback 동일성 Swift test 1건 PASS/skip 0(로컬 macOS host). Android JNI Player 테스트 소스 컴파일을 시작한다.
 - R09 Android JNI probe managed compile PASS(경고·오류 0), 실제 Unity AndroidJavaProxy/JNI 실행은 아직 NOT_RUN. 수정 테스트와 runner를 커밋 후 새 전용 AVD에서 확인한다.
+- R09 Android JNI UTF-8 실제 Player 검증 시작: 새로운 전용 AVD·DB, 원시 한국어/emoji 및 callback 큐 경계를 확인한다.

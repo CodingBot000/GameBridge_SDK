@@ -2871,3 +2871,9 @@
 ### P11-T03 최신 stage·strict 기준 정합성 시작
 - iOS sample asmdef 수정 이후 최신 staged UPM과 package cache를 체크포인트에 명시한다. strict 기존 결과가 새 asmdef 수정 이전 source와 당시 미커밋 test에서 실행됐다는 사실을 최종 보고서에 명시한다.
 - 현재 stage/cache 및 이전 strict source·dirty 범위를 명시하고 `verify-progress.py`, `git diff --check` PASS. 커밋 전: 재개 경로·보고서 정합성 기록만 포함한다.
+### P09-T07 self-hosted strict fixture 준비 점검
+- 현재 Unity CI gate는 strict 집계를 직접 호출하지만 DB/test server opt-in을 준비하지 않아 기본 provisioning에서 필수 lane이 DEFERRED_ENV다. 기존 격리 DB/server orchestration 재사용 가능성을 검토한다.
+- 기존 `run-strict-local-isolated.py`는 전용 local/sandbox DB·서버·synthetic iOS fixture를 만들고 opt-in Unity 환경을 상속한다. self-hosted gate의 direct strict 호출을 이 orchestration으로 교체해 미준비 환경이 PASS되는 것을 막고, 기존 90분 strict timeout과 사전 Player 실행을 수용할 job timeout을 120분으로 설정한다.
+- `test_ci_gate.py` 5건·strict timeout 단위 1건 PASS/skip0, shell/YAML 구문 PASS. 외부 도구를 모사한 격리 fixture로 gate가 isolated orchestration을 호출하고 실패를 숨기지 않는지 추가 검증한다.
+- 새 CI fixture 첫 호출에서 mock unity 문자열의 Python 따옴표 오류(SyntaxError), test import FAIL. 실제 self-hosted CI는 실행되지 않았다. fixture 문자열을 수정해 재시험한다.
+- fixture 문자열 수정 후 `test_ci_gate.py` 6건 PASS/skip0: mock 도구 환경에서 isolated strict 호출 및 실패 전파를 확인했다. 실제 self-hosted/GitHub Actions는 NOT_RUN이다. 커밋 전: CI fixture 준비·timeout·음성 시험·문서만 포함한다.

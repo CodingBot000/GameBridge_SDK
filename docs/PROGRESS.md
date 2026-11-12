@@ -715,3 +715,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - CI preflight 음성 5건·shell/원장/diff PASS. self-hosted 전체 및 GitHub Actions 실행은 NOT_RUN이며 커밋 준비.
 - P11-T03 최신 staging·strict 소스 기준 정합성 확인 시작: 이후 재개 시 과거 staging을 최신 제품으로 사용하지 않도록 체크포인트를 갱신한다.
 - 현재 stage/cache와 strict 실행 source 명시 후 원장/diff 검사 PASS. 새 source의 strict 미실행은 별도로 유지하며 커밋 준비.
+- P09-T07 self-hosted strict 격리 실행 연결 점검 시작: CI gate가 필수 DB·local server fixture를 스스로 준비하는지 확인한다.
+- P09-T07 확인: Unity gate의 direct strict 호출은 test DB·server opt-in을 준비하지 않는다. 기존 격리 orchestration을 연결하고 전체 gate 시간 여유를 반영한다. 실제 self-hosted 실행 전이다.
+- CI 격리 strict 연결 후 preflight 5건·timeout 단위 1건·shell/YAML PASS. mock fixture로 실제 gate가 orchestration 실패를 전파하는지 확인한다.
+- CI 격리 fixture 첫 실행 FAIL: mock unity shell 문자열 따옴표 오류로 Python test import 불가. 실제 CI/Unity는 미실행이며 fixture 문법을 수정한다.
+- CI 격리 fixture 수정 후 6건 PASS/skip0: orchestration 호출 및 실패 전파 확인. 실제 self-hosted/GitHub Actions는 NOT_RUN, 커밋 준비.

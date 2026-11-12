@@ -156,7 +156,7 @@ jobs:
     # explicitly provisioned, licensed isolated host and disposable resources.
     if: ${{ github.event_name == 'workflow_dispatch' && vars.GAMEBRIDGE_UNITY_E2E_ENABLED == 'true' }}
     runs-on: [self-hosted, macOS, ARM64, gamebridge-unity-e2e]
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:

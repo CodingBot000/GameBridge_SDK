@@ -30,4 +30,4 @@ python3 harness/run-unity-android-mock-e2e.py "${android_args[@]}"
 python3 harness/run-unity-ios-mock-e2e.py "${ios_args[@]}"
 # The complete strict suite must execute in this run; missing fixtures or
 # remaining PARTIAL scenarios cannot be replaced by prior evidence.
-bash scripts/verify-all.sh --strict-local
+python3 harness/run-strict-local-isolated.py --run-local

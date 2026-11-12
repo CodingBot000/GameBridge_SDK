@@ -3017,3 +3017,5 @@
 - Android 36 실제 권한 창에서 거부 버튼 resource id가 `permission_deny_and_dont_ask_again_button`임을 관찰했다. runner는 `permission_deny_button`만 허용해 탭하지 않았으며, 오탭 방지를 위해 실행을 중단해 INTERRUPTED/exit 130 (`artifacts/unity-android-permission-ikutzs0w`). OS 거부 결과는 미판정. 명시된 두 거부 ID만 허용하도록 보강한다.
 - Android OS runner selector가 명시적 두 거부 ID만 허용하도록 보완했고 단위 2건 PASS/skip0, Python·원장·diff PASS. 수정 실제 OS 재실행은 아직 없다. 커밋 전: selector·fixture·중단 이력만 포함한다.
 - 실제 관찰된 denial resource ID 지원 후 Android OS runner를 새 전용 AVD에서 재실행한다. 이전 AVD는 shutdown만 했고 시작 기록을 먼저 커밋한다.
+- 수정 `run-unity-android-permission-os.py --run-local` exit 0 (`artifacts/unity-android-permission-j_5q_9e9`): test-only Firebase SDK dependency와 Android 36 전용 AVD에서 실제 OS 거부 버튼을 자동 선택, 첫 DENIED·등록 PERMISSION_DENIED·재요청 DENIED marker PASS. 원격 Firebase 계정/전송은 없다. 초기 첫 실행 INTERRUPTED 기록은 보존한다.
+- Android permission test AVD는 삭제 없이 shutdown했다. 커밋 전: 자동 OS 시험 결과와 수동 미선택/초기 중단 이력만 포함한다. iOS 전용 재현 runner는 아직 없다.

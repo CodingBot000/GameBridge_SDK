@@ -2698,3 +2698,6 @@
 - 전용 Simulator C766DB3F-3D32-499F-AF04-CA3960842487 부팅 PASS. 설치 시 고정한 `Unity-iPhone.app` 경로가 없어 simctl 설치 실패, 앱 실행은 NOT_RUN이다. 결과 명령의 마지막 cat 성공을 설치 성공으로 간주하지 않는다. 실제 산출물 경로를 확인한다.
 - 새 iOS 18.6 Simulator C766DB3F-3D32-499F-AF04-CA3960842487에서 격리 Unity Player를 실행하고 OS 알림 팝업의 허용 안 함을 선택했다. 첫 DENIED, SDK 등록 PERMISSION_DENIED, 재요청 DENIED marker 모두 PASS (`artifacts/unity-ios-mock.PLDU8j/player-console.log`). 현재 HEAD e0acbd6 + 미커밋 test-only 소비자 소스. 합성 sandbox 설정이며 APNs 전송·실기기·Mock 거부 주입은 NOT_RUN, R40 PARTIAL이다.
 - iOS OS 권한 marker만 정제하여 `docs/evidence/r40-ios-os-permission-partial.md`에 기록했다. 커밋 전: 전용 테스트 소비자와 부분 증거·진행 기록만 포함하며 raw 로그·빌드 산출물은 제외한다.
+### P09-T05/R40 Mock 거부 주입 시작
+- 실제 EditorOfflineTransport를 감싼 test-only transport에서 permission 요청의 DENIED 응답만 주입한다. 로그인 후 실제 EditorOffline 등록 로직이 PERMISSION_DENIED를 반환하고 재요청도 거부되는지 Unity C# 공개 API로 확인한다. 실제 Unity Player/OS 검증과 구분한다.
+- `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-unity-mock-permission.sh` exit 0: test transport가 permission DENIED만 주입하고 Unity C# 공개 API가 실제 EditorOffline 등록의 PERMISSION_DENIED와 재요청 DENIED를 처리했다. 독립 .NET managed fake이며 Unity Editor/Player 실행이 아니다. Android/iOS OS는 별도 부분 증거로 보존하고 R40 자동 scenario 연결 전 PARTIAL 유지. 커밋 준비: 테스트와 문서만 포함한다.

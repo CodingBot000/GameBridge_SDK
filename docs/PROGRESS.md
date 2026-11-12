@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / R22·R40 및 CI 실행 검증 대기 (사용자 요청으로 일시 중단)
+- 현재 Phase / Task: P09 / R22·R40 및 CI 실행 검증 진행 중
 - 마지막 갱신 시각: 2026-11-12 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 네트워크 복구 후 R40 iOS OS/Mock 거부 주입 및 R22 민감정보 검증, strict-local 전체 실행, Unity push 결과를 CI strict 집계에 실제 연결하고 CI 검증
+- 바로 다음 행동: R40 Mock 거부 주입 및 R22 민감정보 검증, strict-local 전체 실행, Unity push 집계의 실제 실행과 CI 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -576,3 +576,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R40 iOS 새 Simulator 부팅 PASS이나 첫 설치는 잘못 추정한 앱 경로로 실패(파일 없음); Player/권한은 NOT_RUN. 실제 빌드 산출물 경로를 확인해 재시도한다.
 - R40 iOS 18.6 실제 Simulator Unity Player 부분 PASS (`artifacts/unity-ios-mock.PLDU8j/player-console.log`): OS 알림 거부, SDK 등록 PERMISSION_DENIED, 재요청 DENIED. Mock 거부 주입은 NOT_RUN이므로 R40 PARTIAL 유지. 실제 APNs 전송은 미검증.
 - R40 iOS 부분 검증의 안전한 marker·환경과 최초 설치 실패를 증거 문서에 기록했다. test-only 소비자와 결과 기록 커밋 준비; Mock 거부 미검증 유지.
+- P09-T05/R40 Mock 거부 주입 검증 시작: EditorOffline 실제 push.register 거부 분기를 사용하고 permission 응답만 test transport에서 거부로 주입해 Unity 공개 API의 오류 전달을 확인한다.
+- R40 managed Mock 거부 주입 PASS: permission DENIED 두 번, 실제 EditorOffline 등록 로직의 PERMISSION_DENIED 확인. Unity Editor/Player 시험은 아니며 OS 수동시험 자동 재현·시나리오 집계가 남아 PARTIAL 유지. 커밋 준비.

@@ -2681,3 +2681,10 @@
 - 현재 run source 일치·Player PASS·두 플랫폼 별 네트워크 결과·재연결 관측·token 삭제·필수 marker가 빠지면 false가 되는지 격리 result fixture로 음성 검증한다. 실제 Unity E2E를 테스트 fixture로 대체하지 않는다.
 - `test_unity_push_current.py` 1건, `test_ci_gate.py` 3건 PASS/skip 0. 둘 다 합성 증거 및 gate 검사다. Player 재실행은 NOT_RUN. 두 Player를 순차 실행하는 lane에 기존 600초 제한이 부족할 수 있고 테스트가 기존 artifacts 디렉터리를 가정하는 문제를 발견해 보완한다.
 - 깨끗한 checkout을 가정한 임시 root에서 Push 증거 단위 1건, CI gate 3건, 집계 13건 PASS/skip 0. Python compile, shell 구문 및 Ruby YAML parse PASS. 순차 Player 실행의 외부 timeout을 확장했다. 실제 양 플랫폼 Player 및 GitHub Actions는 이번 변경에서 NOT_RUN이다. 커밋 전: 관련 실행기·CI·검증 문서만 포함한다.
+### P09-T03/R22 민감정보 검증 재개
+- 로그와 Unity 공개 결과에서 synthetic token·secret의 노출을 각각 확인할 기존 경로와 검증을 조사한다. 실제 credential은 사용하지 않는다.
+- Kotlin/Swift diagnostics는 enum·UUID만 수용하고 기존 bridge 시험은 synthetic secret을 주입한다. Unity Player 전체 공개 결과 및 Backend 오류 로그를 포괄하는 시험은 아직 확인되지 않았다. 기존 Android BridgeDispatcher 및 Swift CBridge synthetic 시험을 현재 소스에서 재실행한다.
+- Android 검증 첫 호출 `./gradlew`는 저장소 루트에 파일이 없어 exit 127이며 테스트 NOT_RUN. `./android/gradlew`로 수정해 재실행한다. Swift 시험은 실행 중이다.
+- `./android/gradlew -p android :sdk-core:test --tests com.gamebridge.BridgeDispatcherTest --tests com.gamebridge.DiagnosticsTest` exit 0; synthetic secret 오류·typed diagnostics. `swift test --package-path ios --filter CBridgeTests|DiagnosticsTests` exit 0, XCTest 5건/실패0. 실제 Unity Player 전체 및 Backend 오류 로그는 포함되지 않아 R22 PARTIAL.
+- Backend ApiErrors 예외 로그는 타입만 기록하도록 구현되어 있으나 이를 실제 logger 및 HTTP 응답으로 검증하는 회귀가 없다. MockMvc와 in-memory log appender에서 synthetic secret 노출을 확인한다.
+- `./backend/gradlew -p backend test --tests com.gamebridge.config.HttpInfrastructureTest` exit 0: MockMvc 요청 header/body와 예외 메시지에 합성 secret을 주입하고 500 응답 및 캡처된 ApiErrors logger의 메시지·예외 stack 부재를 확인했다. 실제 계정·전체 서버 로그·Unity Player는 범위 밖. 앞선 Android 4건과 Swift 5건도 PASS. 커밋 전: 테스트와 진행 기록만 포함, R22 PARTIAL 유지.

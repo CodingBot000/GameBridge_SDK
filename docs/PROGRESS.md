@@ -561,3 +561,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T06 Unity push 결과의 stale·dirty·미실행·marker 누락·잘못된 플랫폼 및 잘못된 token 삭제 값 거부를 단위 검증한다.
 - P09-T06 결과 검증: 현재 실행 증거의 음성 단위 시험 1건과 CI gate 음성 시험 3건 PASS. 실제 새 Player 실행은 NOT_RUN이며 CI의 기존 600초 제한과 깨끗한 checkout 테스트 조건을 보완한다.
 - P09-T06 재검증: Push 증거 단위 1건, CI gate 3건, 집계 13건 PASS; Python·shell 문법과 workflow YAML 구문 PASS. 합성 시험이며 실제 Player 및 GitHub Actions 재실행은 NOT_RUN. 커밋 준비.
+- P09-T03/R22 민감정보 노출 검증 재개: 기존 diagnostics 및 Unity 공개 결과 경로와 기존 시험 범위를 조사한다. 전체 경로의 증거가 갖춰지기 전까지 PARTIAL을 유지한다.
+- R22 조사: Kotlin/Swift typed diagnostics와 bridge 오류의 기존 synthetic redaction 시험은 있으나 Unity 실제 Player 공개 결과·Backend 오류 로그의 포괄 증거는 없다. 우선 기존 양 플랫폼 bridge 회귀를 재실행하며 PARTIAL을 유지한다.
+- R22 Android 재검증 첫 호출은 wrapper 경로 오타로 exit 127, 테스트 미실행. 올바른 android/gradlew로 재실행한다. Swift 시험은 진행 중이다.
+- R22 부분 재검증: Android BridgeDispatcher/Diagnostics 및 Swift CBridge/Diagnostics 5건 PASS. synthetic Native 시험이며 Unity Player 전체 및 Backend 오류 로그는 미검증, R22 PARTIAL 유지.
+- R22 Backend 오류 로그 검증 시작: 합성 credential을 예외 메시지와 요청에 넣고 HTTP 응답 및 실제 캡처된 logger가 이를 내보내지 않는지 확인한다.
+- R22 Backend MockMvc 예외 응답·ApiErrors logger의 synthetic secret 비노출 시험 PASS. 전체 로그·Unity Player 검사는 미완료이므로 R22 PARTIAL. 관련 회귀와 결과 커밋 준비.

@@ -407,3 +407,6 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T10 Android Unity force-stop/pending 복구 실검증 시작: 새 전용 AVD·DB와 test-only fault proxy 사용. 결과는 NOT_RUN이다.
 - PX-T10 Android Unity Player process 강제 종료·재시작 LOCAL_MOCK pending 복구 PASS (`artifacts/unity-android-restart-r3p6hl0d`, exit 0): 첫 서버 commit 뒤 응답만 실패시킨 상태에서 별도 PID로 세션 복원·pending 1회 복구·재sync 0회·원장 1건/100 확인. 첫 전체화면 안내 수동 처리. 실제 Play Billing은 NOT_RUN.
 - PX-T10 실제 Android Unity process 강제 종료·pending 복구 증거를 Android Push/Lifecycle evidence에 추가했다. 세션 변경·늦은 callback 및 iOS는 별도다. 커밋 준비.
+- PX-T11 Android 세션 전환·늦은 이벤트 검증 시작: 기존 사용자 A 로그아웃 후 B로 재초기화·동일 설치 등록 시 이전 사용자 발송 차단과 새 사용자 이벤트를 실제 Player에서 확인한다.
+- PX-T11 Android test에 A 로그아웃 후 B 재등록, A 발송 403·B 단일 수신과 기존 이벤트 재유입 차단을 추가했다. 실제 Player 재검증 전이다.
+- PX-T11 확장 테스트 Android managed compile 및 runner 문법 PASS. A→B 세션 전환·이전 소유권 차단의 실제 Unity Player 결과는 아직 NOT_RUN이다. 커밋 후 검증한다.

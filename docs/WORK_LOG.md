@@ -2517,3 +2517,7 @@
 - 새 전용 GameBridge_V2_ AVD에서 Unity 앱 강제 종료와 pending 복구 전체 runner를 실행한다. 기존 AVD 및 앱은 보존한다. 실행 전 기록을 커밋한다.
 - `python3 harness/run-unity-android-mock-restart-e2e.py --run-local --staging ... --serial emulator-5580 --expected-avd GameBridge_V2_20261112_163957` 종료 0, `artifacts/unity-android-restart-r3p6hl0d/result.json`: test-only proxy로 첫 구매 검증 서버 commit 이후 응답을 503으로 주입, Unity 앱 강제 종료 및 다른 PID 재실행, session restore, pending 1회 복구·재sync 0·원장 1건/100·main-thread 확인. 전용 AVD의 최초 전체화면 안내 수동 처리. 실제 Play Billing과 구분한다.
 - Android evidence에 강제 종료 전 서버 commit·응답 유실, 서로 다른 PID, pending 복구·재sync 및 원장 불변, main-thread 범위를 기록했다. 커밋 준비: 공개 증거·원장만 포함하고 test APK·원본 로그는 보존하되 Git에 넣지 않는다.
+### PX-T11 Android Unity 세션 전환·지연 이벤트 검증 시작
+- 기존 PX-T09 Push 시나리오에 세션 A 종료, 새 세션 B 등록, A 소유권 발송 거부와 B 이벤트 단일 수신을 추가한다. 이전 세션 이벤트가 B에 섞이지 않는지 별도 assertion을 두며 actual Player 실행 전 NOT_RUN이다.
+- 동일 설치의 새 B session에서 이전 A 소유권 발송 403, B Mock 이벤트 및 main-thread·중복·이전 이벤트 미수신을 검증하도록 test/runner를 확장했다. API 제한을 지키도록 재발송 횟수도 조정했다.
+- Android Push scenario managed reference compile 경고·오류 0, runner Python 문법 PASS. 커밋 준비: 세션 A→B 및 늦은 이벤트 관측 test와 미검증 상태를 기록한다.

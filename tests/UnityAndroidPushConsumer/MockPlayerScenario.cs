@@ -22,7 +22,8 @@ public sealed class MockPlayerScenario : MonoBehaviour
         var thread = Thread.CurrentThread.ManagedThreadId; int deliveries = 0; bool wrongThread = false;
         var received = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var reconnected = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        int offlineDeliveries = 0;
+        int offlineDeliveries = 0; int bDeliveries = 0;
+        var bReceived = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         try
         {
             using var unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -34,7 +35,7 @@ public sealed class MockPlayerScenario : MonoBehaviour
             if (string.IsNullOrEmpty(url) || !url.StartsWith("http://10.0.2.2:", StringComparison.Ordinal) || string.IsNullOrEmpty(key) || key.Length < 32 || !Guid.TryParse(installation, out _)) throw new InvalidOperationException("CONFIG_REQUIRED");
             var config = new GameBridgeConfig("gamebridge-sample", ProviderMode.LocalMock, url, 30000, key, "A", null, null, null, installation); key = null;
             client = GameBridgeSdk.Create(config);
-            client.PushReceived += item => { if (Thread.CurrentThread.ManagedThreadId != thread) wrongThread = true; if (item.MessageId == "unity-push-test") { deliveries++; Debug.Log("GB_PUSH_RECEIVED " + deliveries); received.TrySetResult(true); } if (item.MessageId == "unity-offline-test") offlineDeliveries++; if (item.MessageId == "unity-reconnected-test") { Debug.Log("GB_PUSH_RECONNECTED_RECEIVED"); reconnected.TrySetResult(true); } };
+            client.PushReceived += item => { if (Thread.CurrentThread.ManagedThreadId != thread) wrongThread = true; if (item.MessageId == "unity-push-test") { deliveries++; Debug.Log("GB_PUSH_RECEIVED " + deliveries); received.TrySetResult(true); } if (item.MessageId == "unity-offline-test") offlineDeliveries++; if (item.MessageId == "unity-reconnected-test") { Debug.Log("GB_PUSH_RECONNECTED_RECEIVED"); reconnected.TrySetResult(true); } if (item.MessageId == "unity-session-b") { bDeliveries++; Debug.Log("GB_PUSH_B_RECEIVED " + bDeliveries); bReceived.TrySetResult(true); } };
             stage = "initialize"; await client.InitializeAsync(config); CheckThread(thread); Log("initialize");
             stage = "login"; await client.SignInAsync(AuthProvider.MOCK); CheckThread(thread); Log("login");
             stage = "register"; var registered = await client.RegisterPushAsync(); CheckThread(thread);
@@ -58,6 +59,22 @@ public sealed class MockPlayerScenario : MonoBehaviour
             await Task.Delay(5000); CheckThread(thread);
             if (deliveries != 1 || wrongThread) throw new InvalidOperationException("LATE_EVENT");
             Log("unregister-logout-no-late-event");
+            stage = "switch-session"; await client.ShutdownAsync(); client.Dispose(); client = null; CheckThread(thread);
+            var configB = new GameBridgeConfig("gamebridge-sample", ProviderMode.LocalMock, url, 30000,
+                intent.Call<string>("getStringExtra", "gamebridge_mock_key"), "B", null, null, null, installation);
+            client = GameBridgeSdk.Create(configB);
+            client.PushReceived += item => {
+                if (Thread.CurrentThread.ManagedThreadId != thread) wrongThread = true;
+                if (item.MessageId == "unity-push-test" || item.MessageId == "unity-offline-test") deliveries++;
+                if (item.MessageId == "unity-session-b") { bDeliveries++; Debug.Log("GB_PUSH_B_RECEIVED " + bDeliveries); bReceived.TrySetResult(true); }
+            };
+            await client.InitializeAsync(configB); await client.SignInAsync(AuthProvider.MOCK); await client.RegisterPushAsync(); CheckThread(thread);
+            Debug.Log("GB_PUSH_B_READY");
+            if (await Task.WhenAny(bReceived.Task, Task.Delay(60000)) != bReceived.Task) throw new InvalidOperationException("SESSION_B_TIMEOUT");
+            await Task.Delay(4000); CheckThread(thread);
+            if (bDeliveries != 1 || deliveries != 1 || wrongThread) throw new InvalidOperationException("SESSION_OR_LATE_EVENT");
+            await client.UnregisterPushAsync(); await client.SignOutAsync(); CheckThread(thread);
+            Log("session-switch-no-stale-event");
             Debug.Log("GB_PUSH_RESULT PASS LOCAL_MOCK");
         }
         catch (SdkException error) { Debug.LogError("GB_PUSH_RESULT FAIL stage=" + stage + " code=" + error.Code); }

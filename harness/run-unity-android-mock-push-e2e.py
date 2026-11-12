@@ -55,7 +55,7 @@ def main():
                 time.sleep(.5)
             raise common.GateError('TIMEOUT_'+marker)
         wait('GB_PUSH_READY');time.sleep(5)
-        for _ in range(3):
+        for _ in range(2):
             status,reply=send()
             if status!=200 or reply.get('delivery')!='SIMULATED':raise common.GateError('MOCK_SEND_FAILED')
             time.sleep(.4)
@@ -82,20 +82,31 @@ def main():
             time.sleep(1)
         else:raise common.GateError('NETWORK_RESTORE_FAILED')
         time.sleep(12)
-        for _ in range(3):
+        for _ in range(2):
             status,reply=send('unity-reconnected-test')
             if status!=200 or reply.get('delivery')!='SIMULATED':raise common.GateError('RECONNECTED_SEND_FAILED')
             time.sleep(.4)
         wait('GB_PUSH_RECONNECTED_RECEIVED');wait('GB_PUSH_UNREGISTERED')
         status,_=send()
         if status!=403:raise common.GateError('UNREGISTERED_SEND_NOT_REJECTED')
+        wait('GB_PUSH_B_READY')
+        status,_=send('unity-push-test')
+        if status!=403:raise common.GateError('PREVIOUS_SESSION_SEND_NOT_REJECTED')
+        status,auth_b=post('/v1/dev/auth',{'subject':'B'},{'X-Development-Key':key})
+        if status!=200 or 'accessToken' not in auth_b:raise common.GateError('HOST_AUTH_B_FAILED')
+        bearer_b=auth_b['accessToken'];time.sleep(5)
+        body['messageId']='unity-session-b'
+        for _ in range(2):
+            status,reply=post('/v1/dev/push/send',body,{'X-Admin-Key':admin,'Authorization':'Bearer '+bearer_b})
+            if status!=200 or reply.get('delivery')!='SIMULATED':raise common.GateError('SESSION_B_SEND_FAILED')
+            time.sleep(.4)
         text=wait('GB_PUSH_RESULT PASS LOCAL_MOCK');(out/'unity-push-markers.log').write_text(text+'\n')
-        if text.count('GB_PUSH_RECEIVED 1')!=1 or 'GB_PUSH_RECEIVED 2' in text or 'GB_PUSH_STEP receive-deduplicate-main-thread PASS' not in text or 'GB_PUSH_STEP unregister-logout-no-late-event PASS' not in text or 'GB_PUSH_STEP background-foreground-main-thread PASS' not in text or 'GB_PUSH_STEP network-recovery-online-only PASS' not in text:raise common.GateError('PUSH_ASSERTIONS_MISSING')
+        if text.count('GB_PUSH_RECEIVED 1')!=1 or 'GB_PUSH_RECEIVED 2' in text or 'GB_PUSH_STEP receive-deduplicate-main-thread PASS' not in text or 'GB_PUSH_STEP unregister-logout-no-late-event PASS' not in text or 'GB_PUSH_STEP background-foreground-main-thread PASS' not in text or 'GB_PUSH_STEP network-recovery-online-only PASS' not in text or 'GB_PUSH_STEP session-switch-no-stale-event PASS' not in text:raise common.GateError('PUSH_ASSERTIONS_MISSING')
         log.flush();trace=(out/'server.log').read_text()
         if any(secret in trace for secret in (key,password,admin,bearer)):raise common.GateError('SYNTHETIC_SECRET_IN_SERVER_LOG')
         dbcheck=must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'PUSH_DB_QUERY',input_text='SELECT count(*) FROM device_tokens;\n')
         if dbcheck.strip()!='0':raise common.GateError('PUSH_TOKEN_NOT_DELETED')
-        result.update(status='PASS',player='PASS',mockPush='PASS',deduplication='PASS',mainThread='PASS',unregisterLogout='PASS',background='PASS',networkRecovery='PASS',deviceTokens=0)
+        result.update(status='PASS',player='PASS',mockPush='PASS',deduplication='PASS',mainThread='PASS',unregisterLogout='PASS',background='PASS',networkRecovery='PASS',sessionSwitch='PASS',deviceTokens=0)
     except common.GateError as error:result.update(status=error.category,errorCode=str(error))
     except Exception as error:result['errorCode']=type(error).__name__
     finally:

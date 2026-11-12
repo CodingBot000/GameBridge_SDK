@@ -3036,3 +3036,6 @@
 - R40 opt-in 2건, Android OS selector 3건, iOS OS marker 2건, CI gate 6건 단위 PASS/skip0. manifest·음성·coverage·원장 PASS. 커밋 전: 실제 OS/Mock별 evidence와 local/fake coverage만 갱신하며 GUI 보조·실 provider/전체 strict 미완료를 명시한다.
 ### P09-T07 최신 전체 Unity CI gate 재검증 시작
 - 50개 local/fake coverage, 최신 metadata stage, Sample API·양 hook·동일 실행 PII/Push lane을 포함한 현재 gate를 전용 baseline/push AVD와 격리 DB/Simulator에서 실제 재실행한다. R40 iOS OS는 앞선 GUI 보조 증거이며 이 gate가 자동 재실행하는 것은 아니다. P05-T03 및 외부 provider 상태는 그대로 유지한다. 시작 기록만 먼저 커밋한다.
+- 최신 `scripts/ci-unity-e2e.sh` 실제 로컬 실행 exit 1, strict `artifacts/verify-all-n3u_5w60/summary.md`, orchestration `artifacts/strict-isolated-hqnpssju`, 외부 13 WAITING_USER. GUI 안내 수동 처리했으며 GitHub Actions·실 provider 실행은 아니다. 세부 lane 및 실패를 확인한다.
+- `verify-all-n3u_5w60`: source 562c75f, 실행 lane 및 coverage 50, Unity PII 2, Push 2, Editor 2 PASS. 유일 비PASS는 기존 P05-T03 FAIL이므로 전체 FAIL/exit1, 외부 13 WAITING_USER. 4 Player는 동일 source tracked-clean; strict sourceDirty는 기존 미추적 Demo/cache 포함 기준. 두 Android 최초 안내 수동 처리. 시험 AVD 2개·Simulator 3개 shutdown, 데이터 보존. R40 iOS 실제 OS는 선행 GUI 보조 증거이며 이 CI에서 자동 재실행하지 않았다.
+- 최신 로컬 gate의 실제 lane·source, Android 안내 수동 및 R40 iOS GUI 보조, P05-T03 FAIL·외부 대기를 evidence/CI/최종 보고에 반영했다. 원장·manifest·diff PASS. 커밋 전: 정제 문서만 포함하며 원본 로그/DB/빌드는 제외한다.

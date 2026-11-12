@@ -859,3 +859,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R40 완료 매핑 후 시나리오 50/50 local/fake coverage 기록. 전체 CI/strict·실 provider의 현재 실행 성공은 별도이며 최종 음성/원장 검증을 수행한다.
 - R40 OS/Mock 통합 opt-in 실제 PASS 후 marker/환경/CI 음성 13건, manifest/coverage/원장 검사 PASS. local/fake 시나리오 50/50 evidence 기록; 전체 strict·실 provider는 별도 미완료. 커밋 준비.
 - P09-T07 50/50 local/fake coverage·최신 metadata/sample/hook/PII gate 반영 후 전체 Unity CI gate 로컬 재검증 시작. 기존 P05-T03 FAIL 및 실 provider 13 WAITING_USER는 그대로 둔다.
+- 최신 전체 Unity CI gate 로컬 실행 종료 1/전체 FAIL (`artifacts/verify-all-n3u_5w60/summary.md`), 외부 13 WAITING_USER. 세부 lane과 기존 실패를 확인하며 실제 GitHub Actions로 간주하지 않는다.
+- 최신 strict 세부: source 562c75f, coverage 50건·Unity PII 2건·Push 2건·Editor 2건 및 실행 suite PASS; 유일한 비PASS는 이전 P05-T03 FAIL, 전체 FAIL. OS R40 iOS GUI 보조는 별도 선행 증거. 테스트 AVD 2·Simulator 3 shutdown, 데이터 보존.
+- 최신 gate source/lane·수동 조작·P05-T03 FAIL·외부 대기를 정제 증거와 문서에 반영, 원장/manifest/diff PASS. 커밋 준비.

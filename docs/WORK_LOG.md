@@ -2981,3 +2981,6 @@
 - `run-unity-ios-mock-e2e.py --pii-probe --adhoc` exit 0 (`artifacts/unity-ios-e2e-ehxq_12y`): synthetic Native callback의 허용되지 않은 email/전화번호가 공개 PushUpdate에 없고 raw Unity console에도 나타나지 않음. LOCAL_MOCK 기본 흐름도 PASS, 실제 개인정보/원격 APNs 아님.
 - iOS PII test Simulator는 삭제 없이 shutdown했다. 커밋 전: iOS 부분 결과만 포함하며 Android PII Player는 미실행이다.
 - test-only synthetic 개인정보 Native callback의 Unity 결과·원시 logcat 비노출을 Android Player에서 실행한다. 기존 AVD 앱 데이터 보존을 위해 빈 전용 AVD 사용, 시작 기록만 먼저 커밋한다.
+- `run-unity-android-mock-e2e.py --pii-probe` exit 0 (`artifacts/unity-android-e2e-rtm39zwn`): synthetic Native callback의 허용되지 않은 email/전화번호가 공개 PushUpdate와 raw Unity logcat에 없음. 기본 LOCAL_MOCK flow PASS, 최초 전체화면 안내 수동 처리. 실제 개인정보/원격 push 아님.
+- Android PII test AVD shutdown, 데이터 보존. Android source a42a8b2 및 iOS source 6d82338은 각각 tracked-clean. 두 test-only synthetic PII 결과를 정제 증거에 기록하며 자동 strict lane·실 provider·다른 개인정보 형식은 미완료다.
+- 양 Player synthetic PII 정제 evidence 및 원장/diff 검사 PASS. 커밋 전: 결과·수동 안내 조건만 포함하고 raw log·개인정보는 저장하지 않는다. R22 PARTIAL 유지.

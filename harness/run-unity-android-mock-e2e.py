@@ -215,6 +215,7 @@ def check_player_markers(lines):
     combined = "\n".join(lines)
     if "GB_MOCK_RESULT FAIL" in combined:
         raise GateError("UNITY_PLAYER_REPORTED_FAILURE")
+    if "GB_MOCK_REDACTION PASS" not in combined: raise GateError("UNITY_RESULT_REDACTION_MISSING")
     if "GB_MOCK_RESULT PASS LOCAL_MOCK" not in combined:
         return False
     for stage in STEPS:

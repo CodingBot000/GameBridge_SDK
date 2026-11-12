@@ -100,6 +100,7 @@ def main():
         for step in STEPS:
             if f'GB_MOCK_STEP {step} PASS' not in text: raise RuntimeError('UNITY_STEP_MISSING_'+step)
         if args.host_callback_probe and 'GB_MOCK_HOST_CALLBACK PASS' not in text: raise RuntimeError('HOST_CALLBACK_MARKER_MISSING')
+        if 'GB_MOCK_REDACTION PASS' not in text: raise RuntimeError('UNITY_RESULT_REDACTION_MISSING')
         if 'GB_MOCK_MAIN_THREAD PASS' not in text: raise RuntimeError('UNITY_MAIN_THREAD_MISSING')
         for kind in ('INITIALIZE','AUTH','PURCHASE'):
             if not re.search(r'GB_MOCK_NATIVE kind='+kind+r' outcome=SUCCEEDED requestId=[0-9a-fA-F-]{36}',text): raise RuntimeError('NATIVE_DIAGNOSTIC_MISSING_'+kind)

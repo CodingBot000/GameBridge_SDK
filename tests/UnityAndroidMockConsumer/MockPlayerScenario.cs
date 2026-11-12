@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GameBridge;
 using GameBridge.Core;
+using Newtonsoft.Json;
 using UnityEngine;
 
 // Dedicated LOCAL_MOCK test consumer, never a production app.
@@ -25,21 +26,22 @@ public sealed class MockPlayerScenario : MonoBehaviour
                 throw new InvalidOperationException("CONFIG_REQUIRED");
             stage = "config-validation";
             var config = new GameBridgeConfig("gamebridge-sample", ProviderMode.LocalMock, url, 30000, key, "A");
-            key = null;
+            var syntheticKey = key; key = null;
             stage = "native-transport";
             client = GameBridgeSdk.Create(config);
             stage = "initialize"; await client.InitializeAsync(config); Log(stage);
-            stage = "login"; await client.SignInAsync(AuthProvider.MOCK); Log(stage);
+            stage = "login"; var profile = await client.SignInAsync(AuthProvider.MOCK); RejectSecret(profile, syntheticKey); Log(stage);
             stage = "initial-wallet"; var before = await client.GetEntitlementsAsync();
             if (!long.TryParse(before.coinBalance, out var oldBalance)) throw new InvalidOperationException("INVALID_BALANCE");
             stage = "products"; var products = await client.GetProductsAsync();
             if (!products.Any(product => product.productId == "coins_100")) throw new InvalidOperationException("PRODUCT_NOT_FOUND"); Log(stage);
-            stage = "purchase"; var purchase = await client.PurchaseAsync("coins_100");
+            stage = "purchase"; var purchase = await client.PurchaseAsync("coins_100"); RejectSecret(purchase, syntheticKey);
             if (purchase.status != PurchaseStatus.PURCHASED || (purchase.fulfillmentStatus != FulfillmentStatus.GRANTED && purchase.fulfillmentStatus != FulfillmentStatus.ALREADY_GRANTED)) throw new InvalidOperationException("PURCHASE_NOT_GRANTED"); Log(stage);
             stage = "wallet"; var after = await client.GetEntitlementsAsync();
             if (!long.TryParse(after.coinBalance, out var newBalance) || newBalance != oldBalance + 100) throw new InvalidOperationException("BALANCE_MISMATCH"); Log(stage);
             stage = "logout"; await client.SignOutAsync(); Log(stage);
-            stage = "diagnostics"; var events = await client.GetNativeDiagnosticsAsync();
+            stage = "diagnostics"; var events = await client.GetNativeDiagnosticsAsync(); RejectSecret(events, syntheticKey);
+            Debug.Log("GB_MOCK_REDACTION PASS"); syntheticKey = null;
             if (!events.Any(item => item.Kind == DiagnosticKind.INITIALIZE && item.Outcome == DiagnosticOutcome.SUCCEEDED && item.RequestId.HasValue) ||
                 !events.Any(item => item.Kind == DiagnosticKind.AUTH && item.Outcome == DiagnosticOutcome.SUCCEEDED && item.RequestId.HasValue) ||
                 !events.Any(item => item.Kind == DiagnosticKind.PURCHASE && item.Outcome == DiagnosticOutcome.SUCCEEDED && item.RequestId.HasValue)) throw new InvalidOperationException("NATIVE_DIAGNOSTICS_MISSING");
@@ -53,6 +55,11 @@ public sealed class MockPlayerScenario : MonoBehaviour
         await Task.Yield();
         Debug.LogError("GB_MOCK_RESULT NOT_RUN requires Android Player");
 #endif
+    }
+    private static void RejectSecret(object value, string secret)
+    {
+        if (string.IsNullOrEmpty(secret) || JsonConvert.SerializeObject(value).Contains(secret))
+            throw new InvalidOperationException("SENSITIVE_RESULT");
     }
     private static void Log(string stage) => Debug.Log("GB_MOCK_STEP " + stage + " PASS");
 }

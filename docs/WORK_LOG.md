@@ -2737,3 +2737,8 @@
 - Push runner 내부는 양 Player 합산 최대 3300초인데 isolated orchestration은 전체 strict를 900초로 제한한다. 명시적 Unity Push opt-in에서 긴 실행을 중간에 끊을 수 있어 외부 timeout 일관성을 검토한다.
 - isolated 전체 900초는 opt-in Unity Push의 3600초 상위 timeout보다 짧아 양 Player가 진행 중이어도 잘릴 수 있다. opt-in true에만 전체 5400초를 적용하고 기본 900초는 유지한다.
 - `test_strict_timeout.py` 1건, `test_aggregation.py` 13건 PASS/skip0 및 Python compile PASS. opt-in에서 장시간 전체 strict 실행은 아직 NOT_RUN이다. 커밋 전: timeout 조정·단위 검사·CI 등록만 포함한다.
+### P09-T03/R22 Unity Player 결과 경계 확장 시작
+- Android/iOS test-only LOCAL_MOCK consumer의 인증·구매·진단 결과를 직렬화해 해당 실행의 합성 개발키가 포함되지 않는지 검사한다. raw token·실제 provider·전체 로그 증거를 대신하지 않는다. 실제 Player 재실행 전까지 NOT_RUN이다.
+- Android/iOS test-only consumer가 profile·purchase·diagnostics를 직렬화해 현재 합성 개발키 부재를 확인하고 marker를 출력한다. 두 E2E runner는 이 marker가 없으면 FAIL이다. 아직 컴파일·실행 전이다.
+- Android consumer `check-unity-android-mock-compile.sh` exit 0, 경고·오류 0; 두 Python runner compile PASS. iOS 조건부 소비자도 같은 격리 참조로 컴파일한다. 이는 Player 실행이 아니다.
+- iOS `UNITY_IOS` 조건부 consumer managed compile exit 0, 경고·오류 0; Android도 동일. 실제 Player는 아직 NOT_RUN. 커밋 전: test-only 결과 검사·runner marker·기록만 포함, R22 PARTIAL 유지.

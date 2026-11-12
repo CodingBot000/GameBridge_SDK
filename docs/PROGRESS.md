@@ -605,3 +605,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T06 strict 격리 orchestration timeout 점검 시작: 실제 Unity 양 플랫폼 opt-in 시 내부 실행 제한과 외부 900초 제한 충돌 가능성을 검토한다.
 - P09-T06 제한 충돌 확인: opt-in Push에 내부 3600초를 허용하면서 격리 전체는 900초에서 중단한다. opt-in 때만 외부 여유를 늘리고 환경별 단위 검증을 추가한다.
 - strict timeout 환경별 단위 1건·집계 13건 PASS, Python 문법 PASS. 실제 긴 전체 실행은 NOT_RUN; CI 기본 검사에 새 단위를 포함하고 커밋 준비.
+- P09-T03/R22 Unity Player 공개 결과 점검 확장 시작: test-only consumer에서 합성 개발키가 인증·구매·진단 공개 결과에 포함되지 않는지 확인한다. 실제 access/refresh token 및 전체 로그 검사는 별도로 유지한다.
+- R22 test-only 양 플랫폼 consumer에 합성 개발키 결과 비노출 검사와 필수 marker를 추가했다. 컴파일 및 Player 실행은 아직 NOT_RUN.
+- R22 Android consumer managed compile PASS(경고·오류 0), Python runner 문법 PASS. iOS 조건부 managed compile을 확인한다. 실제 Player는 미실행.
+- R22 양 플랫폼 test-only consumer managed compile PASS(각 경고·오류 0). 실제 Unity Player 재실행은 NOT_RUN이며 clean-source 실행을 위해 테스트 코드를 먼저 커밋한다.

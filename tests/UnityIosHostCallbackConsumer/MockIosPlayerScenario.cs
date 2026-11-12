@@ -5,9 +5,11 @@ using System.Threading;
 using GameBridge;
 using GameBridge.Core;
 using UnityEngine;
+#if UNITY_IOS && !UNITY_EDITOR
 using Unity.Notifications.iOS;
 using GameBridge.iOSHost;
 using System.Reflection;
+#endif
 
 // Dedicated LOCAL_MOCK test consumer, never a production app.
 public sealed class MockIosPlayerScenario : MonoBehaviour

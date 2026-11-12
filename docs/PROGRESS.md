@@ -527,3 +527,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R43 iOS Unity Player test-only host callback probe 및 runner 옵션 작성. 정상 Player 이벤트·중복 억제·main-thread 확인 전에는 PARTIAL 유지한다.
 - R43 host callback probe runner 문법 검사 PASS. Unity iOS Simulator Player 및 기존 host XCTest는 새 실행으로 검증한다. 수정 사항 커밋 준비.
 - R43 Unity iOS Simulator synthetic host callback 실제 Player 검증 시작. 신규 Simulator·DB·local ad-hoc 및 격리 package cache 사용.
+- R43 iOS host callback Player 첫 실행 FAIL (`artifacts/unity-ios-e2e-429_2_xw`, UNITY_EXPORT_FAILED). Unity 프로젝트 compile 오류를 확인한다. 실제 APNs 및 Unity host 전달은 아직 미검증이다.
+- R43 원인: Editor compile에서 iOS 전용 `GameBridge.iOSHost` 네임스페이스를 무조건 참조해 CS0234가 발생했다. 테스트 consumer의 iOS 전용 using을 platform 조건으로 감싸 재빌드한다.
+- R43 테스트 전용 조건부 using 수정 커밋 준비. 실제 iOS Player 성공은 재검증 후에만 기록한다.

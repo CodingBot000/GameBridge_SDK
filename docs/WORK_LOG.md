@@ -2647,3 +2647,6 @@
 - 테스트 소비 앱은 synthetic `iOSNotificationPushTrigger`를 Unity host adapter에 전달하고 Swift bridge가 되돌린 `PushReceived` 이벤트의 단일 전달과 main-thread를 검증한다. SDK 또는 실제 APNs provider를 수정하지 않으며 실제 Player 실행 전이다.
 - iOS Runner Python 문법 검사 종료 0. 커밋 준비: test-only Unity host probe, 제한적인 linker 보존 설정 및 runner 옵션만 포함한다. 실행 결과는 아직 없다.
 - `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe ...`를 새 Simulator/DB에서 실행한다. 실제 remote APNs가 아니다. 시작 기록을 커밋한다.
+- `harness/run-unity-ios-mock-e2e.py --host-callback-probe` 새 Simulator E2E는 Unity export 단계에서 exit 1 (`artifacts/unity-ios-e2e-429_2_xw`). C ABI/Player 실행 전이므로 원인을 조사한다.
+- Unity Editor.log `Assets/MockIosPlayerScenario.cs(9,18) CS0234`: `GameBridge.iOSHost`는 iOS 전용 assembly인데 using이 Editor에도 노출됐다. test-only consumer에 `UNITY_IOS && !UNITY_EDITOR` 조건을 추가한다. 제품 SDK 자체의 변경은 없다.
+- 커밋 준비: iOS 전용 using 조건 및 실제 compile 실패 원인만 기록한다. 새 test source의 Player 검증은 미실행이다.

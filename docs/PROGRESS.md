@@ -423,3 +423,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T12 iOS runner에 exact package version 확인 후 새 테스트 프로젝트에만 embedded 복사하는 선택 경로와 INTERRUPTED 구분을 추가했다. Unity package resolver·실제 Player 검증은 재실행 전이다.
 - PX-T12 격리 package cache 경로의 정확한 버전 복사 및 누락 시 fail-closed 단위 검증 시작. 실제 Unity import/Player는 미실행이다.
 - PX-T12 exact-version cache 복사·누락 차단 단위 테스트 2건 PASS/skip 0. 실제 iOS Player는 NOT_RUN이며 수정 runner를 커밋한 뒤 새 Simulator로 재실행한다.
+- PX-T12 검증된 동일 버전 로컬 패키지 cache를 새 소비 프로젝트에 복사해 iOS Player E2E 재검증 시작. 현재 Player 결과는 NOT_RUN이다.

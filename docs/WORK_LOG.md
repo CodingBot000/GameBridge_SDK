@@ -2535,3 +2535,4 @@
 - iOS test runner의 `--package-cache`는 별도 저장된 기존 PackageCache에서 mobile notifications 2.5.0 및 Newtonsoft 3.2.2만 검사·복사하고 새 격리 소비 프로젝트의 embedded package로 사용한다. 전역 Unity 설정·원본 cache는 수정하지 않는다. 실제 resolver/Player는 아직 검증 전이다.
 - embedded package 선택 경로가 정확한 2.5.0/3.2.2만 복사하고 source 보존 및 누락 실패를 수행하는지 isolated unit test를 실행한다.
 - `python3 -m unittest discover -s harness -p test_unity_ios_push_cache.py -v` 2건 PASS/skip 0. 커밋 준비: 격리 embedded cache 경로, interrupted 분류 및 registry timeout 기록을 저장한다. 네트워크 우회나 전역 설정 변경은 없다.
+- 기존 Unity 성공 프로젝트의 package cache를 읽기 전용 원본으로 사용하여 새 격리 소비 프로젝트에 exact-version embedded package를 복사하고 iOS Player E2E를 재실행한다. 성공 전에는 PASS로 기록하지 않는다. 실행 전 진행 문서를 커밋한다.

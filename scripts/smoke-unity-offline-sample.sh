@@ -18,6 +18,7 @@ mkdir -p "$root/artifacts"; output="$(mktemp -d "$root/artifacts/offline-sample.
 mkdir -p "$project/Assets/Tests/Editor" "$project/Assets/Samples" "$project/Packages" "$project/ProjectSettings"
 cp -R "$stage/com.gamebridge.sdk" "$project/Packages/com.gamebridge.sdk"
 cp -R "$stage/com.gamebridge.sdk/Samples~/Offline Demo" "$project/Assets/Samples/Offline Demo"
+cp -R "$stage/com.gamebridge.sdk/Samples~/Native Demo" "$project/Assets/Samples/Native Demo"
 cp "$root/tests/UnityOfflineSample/Editor/"* "$project/Assets/Tests/Editor/"
 python3 - "$root" "$project" "$cache" <<'PY'
 import importlib.util,json,os,shutil,sys

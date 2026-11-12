@@ -26,6 +26,15 @@ public sealed class OfflineSampleTests
         UnityEngine.Object.Destroy(owner);
         yield return null;
         Debug.Log("GB_OFFLINE_SAMPLE_FLOW PASS");
+        var nativeOwner = new GameObject("GameBridgeNativeSample"); nativeOwner.AddComponent<NativeDemo>();
+        yield return null;
+        var nativeCanvas = GameObject.Find("GameBridgeNativeCanvas");
+        Assert.IsNotNull(nativeCanvas, "native sample canvas missing");
+        Assert.IsTrue(nativeCanvas.GetComponentsInChildren<Text>(true).Any(item => item.text.Contains("Native demo requires an Android or iOS player")));
+        var nativeButtons = nativeCanvas.GetComponentsInChildren<Button>(true);
+        Assert.Greater(nativeButtons.Length, 0); Assert.IsTrue(nativeButtons.All(item => !item.interactable));
+        UnityEngine.Object.Destroy(nativeOwner); yield return null;
+        Debug.Log("GB_NATIVE_SAMPLE_EDITOR_GUARD PASS");
         yield return new ExitPlayMode();
     }
     private static string[] Texts() => UnityEngine.Object.FindObjectsByType<Text>(FindObjectsInactive.Include, FindObjectsSortMode.None)

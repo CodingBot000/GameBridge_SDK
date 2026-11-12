@@ -683,3 +683,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T04 sample runner의 staging 소스 일치 강제 시작: checksum만 맞는 오래된 패키지가 현재 checkout 테스트로 오인되지 않게 한다.
 - sample runner에 이전 stage 투입 음성 시험 exit 1: checksum이 정상이어도 checkout source 불일치를 거부했다. 의도된 음성 결과이며 새 stage 양성 시험을 실행한다.
 - 현재 source 일치 stage의 sample runner 양성 재실행 1건 PASS/skip0 (`artifacts/offline-sample.k1uWmY/results.xml`). 과거 stage 거부와 분리해 기록, 커밋 준비.
+- P08-T04 Native Demo Editor 안전 경계 시험 시작: staged sample을 격리 프로젝트에 추가해 Editor에서 Native 동작이 차단되고 안내·버튼 상태가 명확한지 확인한다. Native Player 실제 흐름은 별도다.
+- Native Demo Editor guard test 초안·두 marker fail-closed 음성 단위 1건·Python/shell 구문 PASS. 실제 Editor 실행은 아직 NOT_RUN이다.
+- Native Demo Editor guard와 Offline fake flow를 함께 Unity Editor에서 1건 PASS/skip0 (`artifacts/offline-sample.TwukI1/results.xml`): Native 사용 안내·버튼 비활성 확인. Native Player 흐름 및 실제 렌더링은 미검증.
+- 양 sample 결과 음성 단위·실제 XML 재검사·원장 PASS이나 diff 공백 검사 1건 FAIL(후행 공백). 공백만 제거하고 재검사한다.
+- 공백 수정 후 sample 음성·실제 XML·원장/diff 검사 PASS. Native Demo Player·실제 화면은 계속 미검증, 커밋 준비.

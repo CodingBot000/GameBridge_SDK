@@ -1,6 +1,6 @@
 {
   "name": "GameBridge.OfflineSampleTests",
-  "references": ["GameBridge.OfflineDemo", "UnityEngine.UI"],
+  "references": ["GameBridge.OfflineDemo", "GameBridge.NativeDemo", "UnityEngine.UI"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"],
   "autoReferenced": false

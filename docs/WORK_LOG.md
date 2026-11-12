@@ -2832,3 +2832,9 @@
 - sample runner는 현재 staging 자체 checksum만 확인해 소스가 오래된 패키지도 실행할 수 있다. 기존 Android E2E와 같은 checkout 소스 일치 확인을 선행해 stale stage를 거부한다. Native artifact provenance는 별도로 기록한다.
 - `smoke-unity-offline-sample.sh`에 기존 `upm-v2-20261112-f1e12b6`를 제공한 음성 시험 exit 1, checksum 정상·source 불일치 거부. 의도된 검출이며 제품 실패가 아니다. 현재 stage로 양성 실행한다.
 - `upm-offline-sample-current-20261112`로 source 일치 검사 후 Unity Editor sample test exit 0, 1건 PASS/skip0 (`artifacts/offline-sample.k1uWmY/results.xml`). 커밋 전: stale stage 거부·재실행 증거만 포함한다. 실제 시각 QA는 아니다.
+### P08-T04 Native Demo Editor guard 검증 시작
+- staged Native Demo를 Editor의 별도 객체로 실행해 실제 Native 호출 대신 안내가 표시되고 동작 버튼이 비활성인지 확인한다. 이는 Native Player의 로그인/결제/실제 UI 검증이 아니다.
+- 양 sample Editor test와 두 marker 누락 거부 단위 1건 PASS, Python/shell 구문 PASS. Native Demo Editor guard 실제 실행은 아직 NOT_RUN이다.
+- staged 양 sample을 격리 프로젝트에서 실행한 `smoke-unity-offline-sample.sh` exit 0, Unity test 1건 PASS/skip0 (`artifacts/offline-sample.TwukI1/results.xml`). Offline fake flow와 Native Demo Editor에서 안내·Native 버튼 비활성을 확인했다. Native Player와 실제 화면/포인터는 시험하지 않았다.
+- sample 음성 단위 1건·실제 XML 판정·원장 PASS. `git diff --check`는 checker 15행 후행 공백으로 exit 2; 공백을 제거한 뒤 재검증한다.
+- 공백 수정 후 sample 결과 음성 1건, 실제 Editor XML, 원장 및 diff 검사 PASS. 커밋 전: Native Demo Editor guard test 및 정확한 한계만 기록한다. Native Player 실행으로 간주하지 않는다.

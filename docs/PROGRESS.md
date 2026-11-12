@@ -435,3 +435,6 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T12 지원되는 loopback background 전환으로 iOS Push/Lifecycle 전체 재검증 시작. 새 Simulator·DB 사용, 결과는 NOT_RUN이다.
 - PX-T12 Unity iOS Simulator LOCAL_MOCK Push/Lifecycle E2E PASS (`artifacts/unity-ios-push-248n_2n2`, exit 0): 등록·중복·main-thread·background/foreground·test TCP 연결 차단/복구·A→B 소유권·등록 해제/로그아웃 및 DB token 삭제 확인. OS 전체 네트워크 차단·process restart·실제 APNs는 미검증이다.
 - PX-T12 실제 iOS Simulator 부분 PASS를 `docs/evidence/px-t12-unity-ios-mock-push.md`에 기록했다. iOS process restart/pending 및 실제 APNs는 NOT_RUN이며 커밋 후 이어서 검증한다.
+- PX-T13 iOS Simulator process 강제 종료·재시작 및 pending 복구 검증 시작: 서버 commit 후 응답만 합성 503으로 바꾸고 새 프로세스에서 세션·pending·원장 불변을 확인한다. 아직 NOT_RUN이다.
+- PX-T13 iOS Simulator 전용 Unity pending 복구 시나리오 작성: 서로 다른 프로세스 PID, 저장 세션, pending sync 1회·재sync 0회·잔액 100을 검사한다. 실제 실행은 NOT_RUN이다.
+- PX-T13 iOS process restart runner 문법 검사 PASS. 로컬 ad-hoc Simulator와 test-only 응답 손실 proxy를 사용하며 실제 Player 검증은 아직 NOT_RUN이다. 커밋 후 전용 환경에서 실행한다.

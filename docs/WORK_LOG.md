@@ -2547,3 +2547,7 @@
 - iOS Player의 local-mock Push·background/foreground·전용 TCP 연결 중단/복구·세션 전환을 새 전용 Simulator/DB에서 다시 확인한다. 실행 전 기록을 커밋한다.
 - `python3 harness/run-unity-ios-mock-push-e2e.py --run-local --staging ... --package-cache ...` 종료 0 (`artifacts/unity-ios-push-248n_2n2/result.json`): Unity iOS 18.6 Simulator Player→Swift bridge→local Backend/DB에서 Mock 등록·중복 제거·Unity main-thread·background/foreground·test-only loopback TCP 차단/복구·offline 메시지 미전달·A→B 소유권·logout 후 token 0 PASS. OS 전체 네트워크 차단, process force-stop/pending, 실제 APNs는 별도 미검증이다. Local ad-hoc 서명과 exact-version embedded package cache 사용.
 - iOS Push/Lifecycle 실제 통과 범위, local TCP fault와 OS 전체 연결 차단의 차이, registry cache 경로, unsigned/실제 APNs 제외를 공개 evidence에 반영했다. 커밋 준비: 원본 로그·키·DB·Simulator 파일은 제외한다.
+### PX-T13 Unity iOS Simulator process/pending 복구 시작
+- Android PX-T10과 동일하게 test-only loopback proxy로 서버 commit 뒤 응답만 일회 실패시키고 iOS Simulator 앱을 terminate/relaunch해 세션 복원·pending 1회 복구·중복 지급 방지를 확인한다. 별도 Simulator·DB를 사용하며 실제 StoreKit 결제는 포함하지 않는다.
+- `tests/UnityIosRestartConsumer/MockIosPlayerScenario.cs`는 Swift bridge를 통해 실제 SDK API를 호출하고 환경 변수로 합성 key만 공급받는다. libc getpid로 강제 종료 전후 프로세스를 구분한다. Unity build/Simulator 실행은 미검증이다.
+- `harness/run-unity-ios-mock-restart-e2e.py` 및 Simulator consumer 작성. 최초 서버 200 후 합성 503, Simulator terminate/relaunch, 별도 PID, 세션 restore·pending 1회 복구·재sync 0·원장 1건/100을 검사한다. Python 문법 종료 0. 커밋 준비: 실제 E2E는 아직 미실행이다.

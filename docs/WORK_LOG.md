@@ -2544,3 +2544,4 @@
 - `artifacts/unity-ios-push-cggylkb4/unity-push-markers.log`: Unity initialize/login/ready/received 및 deduplicate-main-thread PASS. `simctl openurl ... about:blank`는 -10814로 지원되지 않았으며 동일 전용 Simulator에서 `http://127.0.0.1:1/` 열기는 종료 0. 실제 네트워크 접근 없이 별도 앱 전환으로 local URL을 사용한다.
 - `simctl openurl` 대상은 외부 사이트가 아닌 test Backend의 loopback health URL로 바꿨다. 다른 사용자 기기 및 운영 네트워크는 사용하지 않는다. Python 문법 검사 후 실제 Simulator 전체 흐름을 다시 검증한다.
 - runner Python 문법 검사 종료 0. 커밋 준비: Simulator가 지원하는 loopback URL background 전환 및 실제 부분 PASS/실패 기록을 보존한다.
+- iOS Player의 local-mock Push·background/foreground·전용 TCP 연결 중단/복구·세션 전환을 새 전용 Simulator/DB에서 다시 확인한다. 실행 전 기록을 커밋한다.

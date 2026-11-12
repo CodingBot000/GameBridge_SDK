@@ -432,3 +432,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T12 iOS 첫 실행에서 Unity 초기화·로그인·Mock 푸시 등록, 단일 수신·중복 억제·main-thread 마커를 확인했다. `about:blank`는 Simulator에서 열 수 없었고 로컬 127.0.0.1 URL 열기는 성공했다. background 이후 흐름은 아직 NOT_RUN이다.
 - PX-T12 Simulator background 전환을 로컬 Backend health URL로 변경했다. iOS 실제 lifecycle·연결 복구 결과는 재실행 전 NOT_RUN이다.
 - PX-T12 background 전환 runner 문법 검사 PASS. 수정 사항 커밋 후 전용 새 Simulator에서 재검증한다.
+- PX-T12 지원되는 loopback background 전환으로 iOS Push/Lifecycle 전체 재검증 시작. 새 Simulator·DB 사용, 결과는 NOT_RUN이다.

@@ -2754,3 +2754,5 @@
 - 커밋 전: Android 재시험 기록만 포함한다. iOS Player는 미실행이다.
 - iOS Unity LOCAL_MOCK consumer의 인증·구매·진단 결과에 synthetic 개발키가 없는지 실제 Simulator Player에서 새로 확인한다. 실행 전이며 실 Apple/APNs는 사용하지 않는다.
 - 커밋 전: iOS 실행 시작 기록만 포함한다.
+- `run-unity-ios-mock-e2e.py --run-local --adhoc` exit 0 (`artifacts/unity-ios-e2e-nz5fz8r5`): Unity iOS LOCAL_MOCK 인증·구매·진단 결과에서 합성 개발키 비노출 marker와 기존 흐름 PASS. 실제 Apple 인증·실제 token·전체 로그 범위는 검증하지 않아 R22 PARTIAL이다.
+- Android source 7156dac와 iOS source b2087e1 각각 tracked-clean·Player PASS를 재확인했다. 요청에 따라 사용한 Simulator/AVD는 shutdown만 했고 데이터는 보존했다. 커밋 전: 정제된 부분 증거와 진행 기록만 포함한다.

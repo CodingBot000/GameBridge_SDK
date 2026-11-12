@@ -616,3 +616,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 Android/iOS Player 재검증 재시작: 수정된 polling을 적용한 source ffb7842 기준으로 빈 Android AVD와 별도 iOS Simulator를 사용한다. 앞선 실패는 보존한다.
 - R22 Android LOCAL_MOCK Unity Player 재검증 PASS (`artifacts/unity-android-e2e-m62mfexg`): source 7156dac tracked-clean, 인증·구매·진단 결과의 합성 개발키 부재 및 marker 확인. 최초 전체화면 안내 수동 처리. 실제 token·iOS는 별도.
 - R22 iOS LOCAL_MOCK Player 실제 재검증 시작: source ccec48d, 격리 Simulator에서 합성 개발키 결과 비노출과 기존 인증·구매 흐름을 함께 확인한다.
+- R22 iOS LOCAL_MOCK Unity Simulator Player PASS (`artifacts/unity-ios-e2e-nz5fz8r5`): 인증·구매·진단 결과의 합성 개발키 부재. 실제 provider token 및 전체 로그 누락 여부는 별도이며 R22 PARTIAL 유지.
+- R22 두 Player 실행의 source/clean 결과를 재확인하고 사용한 전용 Simulator·AVD를 shutdown했다(삭제 없음). 부분 증거와 기록 커밋 준비.

@@ -1,0 +1,7 @@
+# R22 합성 민감정보 부분 검증
+
+- Android Unity LOCAL_MOCK Player: source `7156dac`, tracked-clean, `artifacts/unity-android-e2e-m62mfexg/result.json` PASS. 최초 전체화면 안내는 수동으로 닫았다.
+- iOS Unity LOCAL_MOCK Simulator Player: source `b2087e1`, tracked-clean, `artifacts/unity-ios-e2e-nz5fz8r5/result.json` PASS.
+- 두 test-only consumer는 인증 profile, 구매 결과, Native diagnostics를 직렬화해 그 실행에서 생성한 합성 개발키가 들어 있지 않은지 확인한다. 두 runner는 `GB_MOCK_REDACTION PASS`가 없으면 실패한다.
+- 독립 managed fixture는 합성 access/refresh token, 구매 증빙, push token 추가 필드가 typed 결과에서 제거되는지 확인했다. Backend MockMvc는 예외 메시지·요청의 합성 secret이 오류 응답 및 ApiErrors 로거에 나타나지 않는지 확인했다. Kotlin/Swift Native의 typed diagnostics와 bridge 합성 시험도 별도로 통과했다.
+- 첫 Android 실행은 runner의 marker polling·필터 오류로 FAIL했고 수정 후 재실행했다. 전체 로그·모든 입력 변이·실제 제공자의 credential은 시험 범위 밖이며 R22는 PARTIAL이다. 원본 로그·키·빌드 산출물은 커밋하지 않는다.

@@ -14,18 +14,36 @@ project="$output/project"
 mkdir -p "$project/Assets/Tests/Editor" "$project/Packages" "$project/ProjectSettings"
 cp -R "$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk" "$project/Packages/com.gamebridge.sdk"
 cp "$root/tests/UnityConsumer/Editor/"* "$project/Assets/Tests/Editor/"
-cat > "$project/Packages/manifest.json" <<'JSON'
-{"dependencies":{"com.unity.test-framework":"1.4.3"}}
-JSON
+if [[ -n "${GAMEBRIDGE_UNITY_PACKAGE_CACHE:-}" ]]; then
+  # Reuse only previously resolved exact packages, inside this disposable consumer.
+  python3 - "$root" "$project" "$GAMEBRIDGE_UNITY_PACKAGE_CACHE" <<'PYCACHE'
+import importlib.util, json, shutil, sys
+from pathlib import Path
+root, project, cache = map(Path, sys.argv[1:])
+spec=importlib.util.spec_from_file_location('push_cache',root/'harness/run-unity-ios-mock-push-e2e.py')
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+module.embed_cached_packages(cache,project)
+editor=Path('/Applications/Unity/Hub/Editor')/(__import__('os').environ.get('UNITY_EDITOR_VERSION','6000.5.8f1'))/'Unity.app/Contents/Resources/PackageManager/BuiltInPackages'
+for name,version in [('com.unity.test-framework','1.7.0'),('com.unity.ext.nunit','2.1.0')]:
+    source=editor/name
+    if json.loads((source/'package.json').read_text()).get('version') != version: raise SystemExit('CONFIG_REQUIRED: exact Unity Test Framework version unavailable')
+    shutil.copytree(source,project/'Packages'/name,ignore=shutil.ignore_patterns('Tests','Tests.meta'))
+PYCACHE
+  printf '%s\n' '{"dependencies":{"com.unity.test-framework":"1.7.0"}}' > "$project/Packages/manifest.json"
+else
+  printf '%s\n' '{"dependencies":{"com.unity.test-framework":"1.4.3"}}' > "$project/Packages/manifest.json"
+fi
 printf 'm_EditorVersion: %s\n' "${UNITY_EDITOR_VERSION:-6000.5.8f1}" > "$project/ProjectSettings/ProjectVersion.txt"
 printf 'Evidence directory: %s\n' "$output"
 set +e
-UNITY_NO_UPDATE_CHECK=1 UNITY_NO_CONSENT_PROMPT=1 python3 - "$output/unity-cli.log" unity test "$project" --editor-version "${UNITY_EDITOR_VERSION:-6000.5.8f1}" --mode EditMode --filter GameBridgeConsumerTests.ConsumerLifecycleTests --output "$output/results.xml" --timeout 60 --non-interactive <<'PYRUN'
+test_timeout="${GAMEBRIDGE_UNITY_TEST_TIMEOUT_SECONDS:-300}"
+[[ "$test_timeout" =~ ^[0-9]+$ ]] && (( test_timeout > 0 )) || { echo 'Invalid test timeout' >&2; exit 64; }
+UNITY_NO_UPDATE_CHECK=1 UNITY_NO_CONSENT_PROMPT=1 python3 - "$output/unity-cli.log" "$test_timeout" unity test "$project" --editor-version "${UNITY_EDITOR_VERSION:-6000.5.8f1}" --mode EditMode --filter GameBridgeConsumerTests.ConsumerLifecycleTests --output "$output/results.xml" --timeout "$test_timeout" --non-interactive <<'PYRUN'
 import os, signal, subprocess, sys
 with open(sys.argv[1], 'w', encoding='utf-8') as log:
-    process = subprocess.Popen(sys.argv[2:], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+    process = subprocess.Popen(sys.argv[3:], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
     try:
-        sys.exit(process.wait(timeout=65))
+        sys.exit(process.wait(timeout=int(sys.argv[2]) + 30))
     except subprocess.TimeoutExpired:
         log.write('Unity CLI invocation timed out without a test verdict.\n'); log.flush()
         try: os.killpg(process.pid, signal.SIGTERM)

@@ -2613,3 +2613,15 @@
 - Android `8afe5d0` 및 iOS `9031124` 실제 Player 결과는 동일 staging manifest SHA를 사용하며 SDK 제품 디렉터리 diff 없음. 각 prepare 스크립트는 `unity/Demo`가 아닌 별도 소비 프로젝트에 UPM과 테스트 소스만 복사한다. `harness/run-unity-consumer-e2e.py`는 opt-in 시 Android/iOS 실제 새 실행·현재 HEAD·tracked-clean·원장 검증을 요구한다. runner 음성 검사를 실행한다.
 - `docs/evidence/r49-unity-fresh-consumers.md`에 기존 두 Player의 source/staging·새 consumer·서로 동일한 제품 소스 및 한계를 정리했다. R49는 실제 실행된 Android/iOS local-mock 근거로 IMPLEMENTED, 새 wrapper 실제 실행은 NOT_RUN이다. `harness/test_unity_consumer_e2e.py` 2건 PASS/skip 0; manifest·누락 음성 검증을 실행한다.
 - `harness/check-manifest.py`, `harness/check-manifest-negative.py` 종료 0, `test_unity_consumer_e2e.py` 2건 PASS/skip 0. 커밋 준비: R49 실제 선행 증거·매핑 및 fail-closed runner만 포함한다.
+### P09 R11 Unity Editor scene/domain reload 검증 시작
+- 기존 `ConsumerLifecycleTests`는 테스트 소스만 있고 과거 라이선스 미비로 실행되지 않았다. 현재 Unity 6000.5.8f1 활성 환경에서 실제 EditMode test를 실행하고 callback/객체 재생성 검증의 부족 여부를 대조한다. 기존 Unity 프로젝트와 설정은 건드리지 않는다.
+- `scripts/build-unity.sh --editor-smoke`가 선택적 `GAMEBRIDGE_UNITY_PACKAGE_CACHE`에서 정확한 두 Unity package를 격리 소비 프로젝트에 복사하고 Unity 6000.5.8f1의 내장 Test Framework 1.7.0/NUnit 2.1.0을 해당 프로젝트에만 embedded할 수 있게 했다. test timeout은 기본 300초 및 외부 watchdog으로 유지한다. 실제 테스트 결과는 아직 없다.
+- `GAMEBRIDGE_UPM_STAGING=... GAMEBRIDGE_UNITY_PACKAGE_CACHE=... bash scripts/build-unity.sh --editor-smoke` 종료 0, 실제 Unity Editor EditMode tests 2건 PASS/skip 0 (`artifacts/unity-consumer.j4aGtO/results.xml`), play mode/domain reload 및 scene 전환 실행. 기존 test에는 동일 실행 내 재생성·이전 callback 미전달 검사가 없어서 R11 완료로 승격하지 않는다. 격리 테스트를 보강한다.
+- 격리 consumer test에서 동일 play session 내 dispose→재생성, old/new session 합성 event 및 subscriber count, dispatcher 정리를 추가했다. 두 domain reload 경로 각각의 완료 marker도 기록한다. 실제 새로운 Editor 검증을 실행한다.
+- 수정된 `scripts/build-unity.sh --editor-smoke` 실행은 `Unity consumer result invalid`, exit 1 (`artifacts/unity-consumer.upNR5n`). 테스트별 실패 메시지를 조사하며 이전 2건 PASS로 새 assertion을 통과 처리하지 않는다.
+- 실패한 두 Editor 시험 중 첫 오류는 test의 `SessionId(client)`가 dispose 후 null registry를 참조한 것. 두 번째 시험도 이전 실패에서 남은 객체 영향 가능성이 있으므로 session ID를 dispose 전에 캡처하고 finally에 양 client 정리를 추가했다. 제품 버그로 단정하지 않는다.
+- dispose 전 session 캡처 수정 후 강화 Editor 테스트도 exit 1 (`artifacts/unity-consumer.d0MHsU`). 최초 오류 해결 여부 및 남은 assertion을 확인한다.
+- `artifacts/unity-consumer.d0MHsU/results.xml`: reload-disabled PASS, reload-enabled test state machine에서 closure 필드 null. Player 제품 오류로 단정하지 않으며 coroutine/domain reload를 넘는 테스트 closure를 static callback으로 대체한다. 같은 오류에 대한 세 번째 시도다.
+- static callback으로 수정한 Unity Editor `build-unity.sh --editor-smoke` 종료 0 (`artifacts/unity-consumer.U1ob4f/results.xml`): reload-enabled/disabled 2건 PASS, 각 완료 marker 존재. 두 차례 실패는 test 측 수명/closure 문제로 기록돼 있다. 결과 판정이 실행되지 않은 assertion을 PASS 처리하지 않도록 각 test의 marker를 필수화한다.
+- `scripts/check-unity-test-result.py`가 두 test 이름과 PASS뿐 아니라 각 test의 해당 완료 marker를 개별 검사하도록 변경했다. 기존 실제 XML 및 marker 누락/skip/중복 음성 fixture를 확인한다.
+- 실제 `artifacts/unity-consumer.U1ob4f/results.xml`은 두 marker 검사 PASS. `test_unity_consumer_result.py` 1 test PASS/skip 0(누락·skip·중복 fixture 포함). 커밋 준비: R11 test source·결과 parser·offline 격리 runner 및 원장만 포함한다. 신규 source 재실행 전 manifest는 PARTIAL 유지한다.

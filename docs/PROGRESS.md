@@ -496,3 +496,14 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R49 기존 Android/iOS Player 실행은 서로 같은 UPM staging hash, Demo 소스 비참조 격리 consumer, 제품 소스 무차이를 확인했다. 현재-source 양 플랫폼 실제 실행만 통과시키는 새 runner의 fail-closed 단위 검사를 시작한다.
 - R49 기존 두 플랫폼의 새 Unity consumer import·Player 실행 및 동일 staged 제품 source 증거를 확인해 IMPLEMENTED로 매핑했다. 새 통합 wrapper 자체의 실제 재실행은 별도 NOT_RUN이며 real stores/devices는 미검증이다. manifest·음성 테스트를 시작한다.
 - R49 manifest·누락 음성 검사와 새 wrapper fail-closed 단위 2건 PASS. 기존 두 실제 Player 증거와 새 wrapper 자체의 전체 재실행 미실행을 구분해 커밋한다.
+- P09-T02/R11 Unity Editor 실제 검증 시작: 라이선스 활성 환경에서 새 격리 consumer의 scene 전환·domain reload enabled/disabled·dispatcher 정리를 확인한다. 기존 test source만으로 PASS 처리하지 않는다.
+- R11 격리 Unity Editor test runner에 기존 exact-version cache와 설치 Editor 내장 Test Framework/NUnit 사용 옵션을 추가했다. 전역 환경·기존 프로젝트는 수정하지 않으며 실제 Editor test는 아직 NOT_RUN이다.
+- R11 실제 Unity Editor test 2건 PASS/skip 0 (`artifacts/unity-consumer.j4aGtO/results.xml`): scene 전환·domain reload 두 설정과 dispatcher 정리를 실행했다. 다만 기존 test는 객체 재생성·callback 누수 assertion이 없어 R11은 PARTIAL 유지하고 테스트를 강화한다.
+- R11 Unity Editor test에 scene 전환 후 SDK 재생성, 이전 session 합성 이벤트 차단, 단일 callback 및 dispose 후 미전달·dispatcher 0개 assertion을 추가했다. 새 테스트는 아직 미실행이다.
+- R11 강화된 Unity Editor test FAIL (`artifacts/unity-consumer.upNR5n`, exit 1). 실패 원인을 확인하기 전 R11은 PARTIAL 유지한다.
+- R11 실패 원인: 테스트가 dispose 후 이미 해제된 registry에서 이전 session ID를 읽으려 했다. ID를 dispose 전에 캡처하고 실패 시 SDK 객체도 정리하도록 수정해 재검증한다.
+- R11 강화 Editor test 두 번째 실행도 FAIL (`artifacts/unity-consumer.d0MHsU`, exit 1). 구체적 실패 원인을 다시 확인한다.
+- R11 두 번째 시험 결과: reload-disabled 1건 PASS, reload-enabled는 도메인 리로드를 넘는 테스트 람다 캡처 상태의 NullReference로 FAIL. 테스트 callback을 static 메서드로 바꾸어 세 번째 검증한다.
+- R11 강화된 Unity Editor test 실제 2건 PASS/skip 0 (`artifacts/unity-consumer.U1ob4f`), reload-enabled/disabled 각각 완료 marker 확인. 결과 parser가 marker 누락도 거부하도록 보강하고 음성 검증한다.
+- R11 Unity XML 결과 판정이 각 domain reload 시험의 완료 marker를 요구하도록 변경했다. 실제 결과와 누락/skip 음성 검증을 시작한다.
+- R11 실제 Unity XML의 두 완료 marker 검사 PASS, 누락·skip·중복 음성 검사 PASS. 테스트 코드 및 exact-version 격리 실행기 변경을 커밋한 뒤 clean source에서 재실행한다. R11은 재검증 전 PARTIAL 유지.

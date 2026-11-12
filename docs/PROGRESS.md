@@ -424,3 +424,6 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T12 격리 package cache 경로의 정확한 버전 복사 및 누락 시 fail-closed 단위 검증 시작. 실제 Unity import/Player는 미실행이다.
 - PX-T12 exact-version cache 복사·누락 차단 단위 테스트 2건 PASS/skip 0. 실제 iOS Player는 NOT_RUN이며 수정 runner를 커밋한 뒤 새 Simulator로 재실행한다.
 - PX-T12 검증된 동일 버전 로컬 패키지 cache를 새 소비 프로젝트에 복사해 iOS Player E2E 재검증 시작. 현재 Player 결과는 NOT_RUN이다.
+- PX-T12 cache 사용 재시도 FAIL (`artifacts/unity-ios-push-flh6xhkq`, `UNITY_EXPORT_FAILED`): embedded Notifications의 패키지 자체 테스트가 소비 프로젝트에서 컴파일돼 NUnit 참조가 없어 실패했다. Unity Player는 NOT_RUN이며 테스트 전용 복사본의 불필요한 package tests만 제외해 재검증한다.
+- PX-T12 cache 복사에서 test-only `Tests` 디렉터리만 제외하도록 변경했다. 원본 cache와 운영 package는 변경하지 않으며 단위 검사·실제 Unity export로 검증한다.
+- PX-T12 test-only package 제외·원본 보존 unit 2건 PASS/skip 0. Unity export/Player는 다시 검증해야 한다. 커밋 준비.

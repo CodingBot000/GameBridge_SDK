@@ -10,10 +10,12 @@ class EmbeddedPackageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);cache=root/'cache';project=root/'project';(project/'Packages').mkdir(parents=True)
             for name,version in (('com.unity.mobile.notifications','2.5.0'),('com.unity.nuget.newtonsoft-json','3.2.2')):
-                item=cache/(name+'@abc');item.mkdir(parents=True);(item/'package.json').write_text(json.dumps({'name':name,'version':version}))
+                item=cache/(name+'@abc');item.mkdir(parents=True);(item/'package.json').write_text(json.dumps({'name':name,'version':version})); (item/'Tests').mkdir(); (item/'Tests/fixture.cs').write_text('test-only')
             result=module.embed_cached_packages(cache,project)
             self.assertEqual(result['com.unity.mobile.notifications'],'2.5.0')
             self.assertTrue((project/'Packages/com.unity.nuget.newtonsoft-json/package.json').is_file())
+            self.assertFalse((project/'Packages/com.unity.mobile.notifications/Tests').exists())
+            self.assertTrue((cache/'com.unity.mobile.notifications@abc/Tests/fixture.cs').exists())
             self.assertTrue((cache/'com.unity.mobile.notifications@abc/package.json').is_file())
     def test_missing_or_wrong_version_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:

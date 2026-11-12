@@ -59,7 +59,9 @@ def embed_cached_packages(cache, project):
         if len(candidates)!=1: raise common.GateError('CACHED_PACKAGE_MISSING_OR_AMBIGUOUS','DEFERRED_ENV')
         destination=project/'Packages'/name
         if destination.exists(): raise common.GateError('CACHED_PACKAGE_DESTINATION_EXISTS')
-        shutil.copytree(candidates[0],destination)
+        # Package tests are not runtime dependencies; embedded test assemblies otherwise
+        # become visible to the consumer without the Unity Test Framework.
+        shutil.copytree(candidates[0],destination,ignore=shutil.ignore_patterns("Tests", "Tests.meta"))
         if json.loads((destination/'package.json').read_text()).get('version')!=version: raise common.GateError('CACHED_PACKAGE_COPY_INVALID')
         resolved[name]=version
     return resolved

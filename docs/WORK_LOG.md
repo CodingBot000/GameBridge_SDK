@@ -2545,3 +2545,5 @@
 - `simctl openurl` 대상은 외부 사이트가 아닌 test Backend의 loopback health URL로 바꿨다. 다른 사용자 기기 및 운영 네트워크는 사용하지 않는다. Python 문법 검사 후 실제 Simulator 전체 흐름을 다시 검증한다.
 - runner Python 문법 검사 종료 0. 커밋 준비: Simulator가 지원하는 loopback URL background 전환 및 실제 부분 PASS/실패 기록을 보존한다.
 - iOS Player의 local-mock Push·background/foreground·전용 TCP 연결 중단/복구·세션 전환을 새 전용 Simulator/DB에서 다시 확인한다. 실행 전 기록을 커밋한다.
+- `python3 harness/run-unity-ios-mock-push-e2e.py --run-local --staging ... --package-cache ...` 종료 0 (`artifacts/unity-ios-push-248n_2n2/result.json`): Unity iOS 18.6 Simulator Player→Swift bridge→local Backend/DB에서 Mock 등록·중복 제거·Unity main-thread·background/foreground·test-only loopback TCP 차단/복구·offline 메시지 미전달·A→B 소유권·logout 후 token 0 PASS. OS 전체 네트워크 차단, process force-stop/pending, 실제 APNs는 별도 미검증이다. Local ad-hoc 서명과 exact-version embedded package cache 사용.
+- iOS Push/Lifecycle 실제 통과 범위, local TCP fault와 OS 전체 연결 차단의 차이, registry cache 경로, unsigned/실제 APNs 제외를 공개 evidence에 반영했다. 커밋 준비: 원본 로그·키·DB·Simulator 파일은 제외한다.

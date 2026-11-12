@@ -433,3 +433,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T12 Simulator background 전환을 로컬 Backend health URL로 변경했다. iOS 실제 lifecycle·연결 복구 결과는 재실행 전 NOT_RUN이다.
 - PX-T12 background 전환 runner 문법 검사 PASS. 수정 사항 커밋 후 전용 새 Simulator에서 재검증한다.
 - PX-T12 지원되는 loopback background 전환으로 iOS Push/Lifecycle 전체 재검증 시작. 새 Simulator·DB 사용, 결과는 NOT_RUN이다.
+- PX-T12 Unity iOS Simulator LOCAL_MOCK Push/Lifecycle E2E PASS (`artifacts/unity-ios-push-248n_2n2`, exit 0): 등록·중복·main-thread·background/foreground·test TCP 연결 차단/복구·A→B 소유권·등록 해제/로그아웃 및 DB token 삭제 확인. OS 전체 네트워크 차단·process restart·실제 APNs는 미검증이다.
+- PX-T12 실제 iOS Simulator 부분 PASS를 `docs/evidence/px-t12-unity-ios-mock-push.md`에 기록했다. iOS process restart/pending 및 실제 APNs는 NOT_RUN이며 커밋 후 이어서 검증한다.

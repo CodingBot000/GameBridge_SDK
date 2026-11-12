@@ -1,0 +1,9 @@
+# PX-T12 Unity iOS Simulator LOCAL_MOCK Push 부분 검증
+
+- 결과: **Mock 등록·수신·동일 ID 중복 억제·Unity 메인 스레드·background/foreground·테스트 연결 단절/복구·A→B 세션 전환·등록 해제/로그아웃 PASS**. 실제 APNs 및 Push/Lifecycle 전체 완료를 뜻하지 않는다.
+- 소스 `5d3993423f1e56fdf3a2c28d75dc2e6f64142de2`, 실행 당시 tracked-clean. Unity 6000.5.8f1, Xcode 26.6, iOS 18.6 ARM64 Simulator, Unity IL2CPP 개발 빌드, 별도 local-mock PostgreSQL DB. Apple 계정·개인키 없는 Simulator 로컬 ad-hoc 서명.
+- 실행: `python3 harness/run-unity-ios-mock-push-e2e.py --run-local --staging <검증된 staging> --package-cache <동일 버전 Unity cache>`, exit 0. Unity registry timeout 때문에 기존에 내려받은 notifications 2.5.0/Newtonsoft 3.2.2를 새 격리 프로젝트에 embedded 복사했고 패키지 자체 테스트만 제외했다. 원본 cache·전역 설정은 수정하지 않았다.
+- Unity Player → Swift C ABI → local Backend에서 동일 메시지 중복은 한 번 전달됐다. 실제 Simulator background/foreground 전환 뒤 test-only loopback TCP 경로의 연결을 끊어 오프라인 메시지가 전달되지 않음을 확인했고, 재연결 뒤 새 메시지가 전달됐다. OS 전체 Wi-Fi 차단 시험은 아니다.
+- A 로그아웃 및 B 전환 후 A의 발송은 403, B 이벤트는 한 번 전달됐다. 등록 해제/로그아웃 후 device_tokens row 0개. Swift Native event callback의 Unity 전달 및 API 완료는 main-thread assertion을 통과했다.
+- UnityFramework binary SHA-256 `187cdfc7c052ae6124bb8c75879c01cab5eecbaae3114c5a5c2b61dc2aebfeb3`. 원본 로그·기기 식별자·합성 키·DB·빌드는 Git에 넣지 않는다.
+- **NOT_RUN:** iOS 프로세스 강제 종료·재시작 및 pending, 임의 지연 Native callback 및 재연결 실패 명시적 주입, 실제 Apple 로그인·StoreKit·APNs, 실제 기기.

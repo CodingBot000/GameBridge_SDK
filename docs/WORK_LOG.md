@@ -2977,3 +2977,4 @@
 - `PiiProbe`는 test-only Native callback 경로에 합성 email/전화번호를 추가하고 Unity 공개 PushUpdate에서 제거되는지 확인한다. Android/iOS Player consumer와 raw 로그 감시 연결·컴파일은 아직 남았다.
 - `--pii-probe`는 양 플랫폼에서 test-only callback·link 보존·필수 marker를 적용하고 합성 email/전화번호가 원시 Unity 로그에 나오면 실패한다. Python compile PASS, Player 실행 전 managed compile을 확인한다.
 - Android/iOS PII probe 조건부 managed compile 각각 경고·오류 0, `test_unity_redaction_marker.py` 6건 PASS/skip0. 실제 Player callback/log는 미실행이다. 커밋 전: test-only probe·runner·음성 시험만 포함한다.
+- test-only synthetic 개인정보 Native callback이 Unity 공개 결과에서 제거되고 raw log에 남지 않는지 iOS Simulator Player에서 검증한다. 시작 기록만 먼저 커밋하며 실제 provider는 사용하지 않는다.

@@ -807,3 +807,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 test-only synthetic 개인정보 callback probe 작성. Native callback에 허용되지 않은 합성 필드를 주입하며 실제 빌드·실행은 아직 NOT_RUN이다.
 - synthetic 개인정보 전용 Android/iOS runner 연결과 Python 문법 PASS. 두 조건부 managed compile 및 raw 로그 누출 음성 시험을 실행한다.
 - synthetic 개인정보 probe Android/iOS managed compile 각 경고·오류 0, raw 로그 주입 거부 포함 단위 6건 PASS. 실제 Player는 NOT_RUN이며 clean-source 실행 전 커밋 준비.
+- R22 synthetic 개인정보 callback iOS LOCAL_MOCK Simulator Player 실제 검증 시작: source 48388c7 probe, 최신 stage·격리 DB 사용.

@@ -2764,3 +2764,5 @@
 - `test_unity_redaction_marker.py` 3건 PASS/skip0, 원장 및 diff 검사 PASS. R09/R43 전용 consumer의 실제 수정 후 Player는 미실행이며 이전 source의 성공과 구분한다. 커밋 전: 전용 test consumer·inventory 검사·기록만 포함한다.
 - 수정된 iOS host callback 전용 Unity LOCAL_MOCK consumer를 새 Simulator에서 실행한다. host callback은 합성 주입이며 실제 APNs가 아니다. 실행 시작 기록을 먼저 커밋한다.
 - 커밋 전: 시작 기록만 포함하고 실제 시험은 NOT_RUN이다.
+- `run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe` exit 0 (`artifacts/unity-ios-e2e-fj2ddrvp`): 수정 host consumer에서 기존 합성 callback·중복 억제·main-thread와 결과 개발키 비노출을 함께 확인했다. 실제 APNs·실기기는 범위 밖이다.
+- 결과 source 4744035 tracked-clean을 확인하고 테스트 Simulator를 삭제 없이 shutdown했다. 커밋 전: 해당 결과 기록만 포함한다.

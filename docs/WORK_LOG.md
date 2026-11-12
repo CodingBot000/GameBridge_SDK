@@ -3019,3 +3019,7 @@
 - 실제 관찰된 denial resource ID 지원 후 Android OS runner를 새 전용 AVD에서 재실행한다. 이전 AVD는 shutdown만 했고 시작 기록을 먼저 커밋한다.
 - 수정 `run-unity-android-permission-os.py --run-local` exit 0 (`artifacts/unity-android-permission-j_5q_9e9`): test-only Firebase SDK dependency와 Android 36 전용 AVD에서 실제 OS 거부 버튼을 자동 선택, 첫 DENIED·등록 PERMISSION_DENIED·재요청 DENIED marker PASS. 원격 Firebase 계정/전송은 없다. 초기 첫 실행 INTERRUPTED 기록은 보존한다.
 - Android permission test AVD는 삭제 없이 shutdown했다. 커밋 전: 자동 OS 시험 결과와 수동 미선택/초기 중단 이력만 포함한다. iOS 전용 재현 runner는 아직 없다.
+### P09-T05/R40 iOS 실제 OS 권한 재현 runner 시작
+- 격리 Unity iOS Simulator Player의 실제 알림 권한 dialog를 요청하고, 거부 후 첫 DENIED·등록 차단·재요청 DENIED를 검증하는 runner를 만든다. GUI 거부 입력이 없으면 환경 대기로 처리하며 원격 APNs/Apple 계정은 사용하지 않는다.
+- iOS permission runner 초안 compile PASS. Simulator 생성 호출의 환경 대기 category 인자와 필수 marker/명시적 opt-in을 확인하며 아직 실제 export/OS 시험은 미실행이다.
+- `test_unity_ios_permission_os.py` 2건 PASS/skip0, Python·원장·diff PASS. iOS GUI denial 없이는 성공하지 않는다. 실제 runner 실행 전 커밋: test-only runner·음성 검사·기록만 포함한다.

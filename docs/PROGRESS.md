@@ -844,3 +844,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R40 Android OS runner 수정 후 재시험 시작: 중단된 AVD는 데이터 보존 종료하고 권한 이력 없는 별도 전용 AVD를 사용한다.
 - R40 Android OS permission runner 자동 재실행 PASS (`artifacts/unity-android-permission-j_5q_9e9`): 실제 OS 거부·등록 PERMISSION_DENIED·재요청 DENIED, tracked-clean. 실제 FCM은 아님.
 - Android permission test AVD shutdown·데이터 보존. 실제 자동 재시험 및 초기 중단 이력 커밋 준비. iOS 별도 runner는 미구현이다.
+- P09-T05/R40 iOS OS 권한 거부 재현 runner 구현 시작: 새 전용 Simulator·실제 권한 dialog를 사용한다. GUI 거부가 처리되지 않으면 DEFERRED_ENV이며 자동 성공하지 않는다.
+- iOS OS 재현 runner 초안 Python 구문 PASS. Simulator 생성 환경 대기 인자와 필수 marker·미설정 거부를 단위 확인한다. 실제 실행은 아직 NOT_RUN.
+- iOS OS marker·명시적 opt-in 음성 2건, Python/원장/diff PASS. GUI 거부 미처리 시 환경 대기이며 실제 수정 runner 실행은 NOT_RUN; 커밋 준비.

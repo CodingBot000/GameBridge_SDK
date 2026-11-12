@@ -439,3 +439,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T13 iOS Simulator 전용 Unity pending 복구 시나리오 작성: 서로 다른 프로세스 PID, 저장 세션, pending sync 1회·재sync 0회·잔액 100을 검사한다. 실제 실행은 NOT_RUN이다.
 - PX-T13 iOS process restart runner 문법 검사 PASS. 로컬 ad-hoc Simulator와 test-only 응답 손실 proxy를 사용하며 실제 Player 검증은 아직 NOT_RUN이다. 커밋 후 전용 환경에서 실행한다.
 - PX-T13 iOS Simulator process 종료·pending 복구 전체 검증 시작: 새 전용 Simulator·DB 및 exact-version test cache 사용. 결과는 NOT_RUN이다.
+- PX-T13 Unity iOS Simulator LOCAL_MOCK 실제 앱 terminate/relaunch 및 pending 복구 PASS (`artifacts/unity-ios-restart-vidqoa21`, exit 0): 서로 다른 PID, session restore·pending 1회 복구·재sync 0, DB 원장 1건/100·main-thread 확인. local ad-hoc이며 실제 StoreKit은 NOT_RUN이다.
+- PX-T13 실제 iOS Simulator process/pending PASS를 iOS Push evidence에 추가했다. 재연결 실패·임의 지연 callback 주입 및 실제 제공자·기기는 NOT_RUN이다. 커밋 준비.

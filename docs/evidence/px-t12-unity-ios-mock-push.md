@@ -6,4 +6,12 @@
 - Unity Player → Swift C ABI → local Backend에서 동일 메시지 중복은 한 번 전달됐다. 실제 Simulator background/foreground 전환 뒤 test-only loopback TCP 경로의 연결을 끊어 오프라인 메시지가 전달되지 않음을 확인했고, 재연결 뒤 새 메시지가 전달됐다. OS 전체 Wi-Fi 차단 시험은 아니다.
 - A 로그아웃 및 B 전환 후 A의 발송은 403, B 이벤트는 한 번 전달됐다. 등록 해제/로그아웃 후 device_tokens row 0개. Swift Native event callback의 Unity 전달 및 API 완료는 main-thread assertion을 통과했다.
 - UnityFramework binary SHA-256 `187cdfc7c052ae6124bb8c75879c01cab5eecbaae3114c5a5c2b61dc2aebfeb3`. 원본 로그·기기 식별자·합성 키·DB·빌드는 Git에 넣지 않는다.
-- **NOT_RUN:** iOS 프로세스 강제 종료·재시작 및 pending, 임의 지연 Native callback 및 재연결 실패 명시적 주입, 실제 Apple 로그인·StoreKit·APNs, 실제 기기.
+- **초기 시험에서 NOT_RUN:** iOS 프로세스 강제 종료·재시작 및 pending, 임의 지연 Native callback 및 재연결 실패 명시적 주입, 실제 Apple 로그인·StoreKit·APNs, 실제 기기. 후속 시험 결과는 아래에 기록한다.
+
+
+## 강제 종료 및 pending 복구 추가 시험
+
+- 소스 `0b105c3dfbf2681e6c3225fe9a332b5b13d805f3`, 실행 당시 tracked-clean. `harness/run-unity-ios-mock-restart-e2e.py --run-local --staging <staging> --package-cache <동일 버전 cache>` 전용 iOS 18.6 ARM64 Simulator 실행 exit 0, `artifacts/unity-ios-restart-vidqoa21/result.json` PASS.
+- test-only loopback proxy가 서버의 최초 구매 검증 200 commit 응답을 503으로 바꿨다. Unity 앱을 Simulator에서 terminate/relaunch하고 서로 다른 PID, 세션 복원, pending 1회 복구·재sync 0건, DB 원장 1건·100코인 및 Unity main-thread를 확인했다. 단순 background 전환과 다른 시험이다.
+- UnityFramework binary SHA-256 `36e6da9a02d0c49ea7bd6baa0865ed0181f5235ca6388d2308d0ea8061a29225`. Simulator 로컬 ad-hoc 및 exact-version embedded package cache를 사용했다.
+- 임의 지연 Native callback 및 재연결 실패 명시적 주입, 실제 Apple 로그인·StoreKit·APNs와 실기기는 여전히 NOT_RUN이다.

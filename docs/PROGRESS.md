@@ -675,3 +675,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 새 staging Offline Demo 격리 Unity Editor Play 1건 PASS/skip0 (`artifacts/offline-sample.0FsGva/results.xml`). 실제 화면 렌더링·Package Manager UI·실제 결제는 범위 밖이다.
 - 새 staged SDK와 현재 checkout 제품 소스 일치, sample 결과 음성 단위 1건·workflow YAML·diff 검사 PASS. 실제 화면/패키지 관리자 UI는 계속 미검증이다.
 - Offline Demo Editor 부분 증거·새 staging hash·제한 범위를 문서화했다. P08-T04는 Package Manager UI 및 Native Demo 재현이 남아 PARTIAL. 커밋 준비.
+- P08-T03 staging 블로커: `upm-offline-sample-20261112` Native 산출물은 직전 f1e12b6 staging과 81개 중 41개가 달라 최신 Native와 동등하다고 볼 수 없다. 기존 검증본의 Native 산출물로 새 staging을 다시 만든다. 해당 후보는 최신 패키지로 사용하지 않는다.
+- f1e12b6 검증본의 Native payload를 사용한 새 staging `artifacts/upm-offline-sample-current-20261112` 생성·110개 checksum PASS. Native 동일성 및 새 Editor 실행은 아직 미확인.
+- 새 staging Native payload 81개 byte 동일·checkout 소스 일치 PASS. 이 staging의 Offline Demo Editor test를 재실행한다.
+- 올바른 Native payload staging에서 Offline Demo Unity Editor 재검증 1건 PASS/skip0 (`artifacts/offline-sample.Tg04iK/results.xml`). 이전 오래된 Native 후보와 구분해 증거·재개 경로를 수정한다.
+- 재패키징 증거·CI staging 경로 정정 후 원장·manifest·diff 검사 PASS. 이전 후보 오류를 보존하고 관련 기록만 커밋 준비한다.

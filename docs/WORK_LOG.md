@@ -2824,3 +2824,8 @@
 - 새 `artifacts/upm-offline-sample-20261112`를 사용한 `smoke-unity-offline-sample.sh` exit 0, Unity Editor 1건 PASS/skip0 (`artifacts/offline-sample.0FsGva/results.xml`). fake UI callback flow이며 Package Manager UI import·화면 렌더링·실결제는 아니다.
 - `verify_staged_source_matches_checkout` 및 sample 결과 음성 1건/skip0, workflow YAML parse, diff 검사 PASS. staging source는 현재 미커밋 sample README 수정 포함, 기존 Native binary 재사용. 화면 렌더링·Package Manager UI는 아직 미검증이다.
 - `docs/evidence/p08-offline-sample-editor.md`에 staged hash·실제 Unity Editor fake flow 및 미검증 범위를 기록했다. 커밋 전: sample README 정정, 격리 시험/runner, 음성 검사와 정제 문서만 포함한다. 생성 staging·Unity cache는 Git 제외, P08-T04 PARTIAL 유지.
+- 새 sample staging과 직전 `upm-v2-20261112-f1e12b6`의 Native payload hash 비교 결과 81개 파일 중 41개 불일치. 앞선 staging은 오래된 `maven-final`/`ios-final`을 사용했으므로 최신 Native로 간주할 수 없다. 기존 f1e12b6 staging에 포함된 검증된 Maven·XCFramework를 복사해 새 경로로 재패키징하고 비교 및 Editor test를 다시 한다. 앞선 후보·결과는 보존한다.
+- 기존 f1e12b6 UPM의 Maven/XCFramework에서 `artifacts/upm-offline-sample-current-20261112`를 새로 생성하고 XCFramework 검증 및 110개 checksum PASS. Native payload byte 동일성과 Editor 실행을 별도로 확인한다.
+- 새 staging의 Native payload 81개 파일은 f1e12b6 staging과 hash 일치, SDK source도 현재 checkout과 일치. 새 staging으로 Unity Offline Demo Editor 시험을 다시 수행한다.
+- `upm-offline-sample-current-20261112`로 격리 Unity Editor sample 시험 exit 0, 1건 PASS/skip0 (`artifacts/offline-sample.Tg04iK/results.xml`). 직전 f1e12b6 Native payload 81개와 byte 동일한 staging이며 Package Manager UI/실제 렌더링은 미검증이다. 구 staging 후보와 구분해 evidence를 수정한다.
+- `verify-progress.py`, `check-manifest.py`, `git diff --check` exit 0. 커밋 전: 올바른 staging hash·81개 Native byte 일치·새 Editor 결과와 이전 후보 차이만 기록한다. staging 바이너리/캐시는 커밋하지 않는다.

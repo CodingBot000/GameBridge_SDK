@@ -11,3 +11,5 @@
 - `release-readiness`: basic-ci와 실제 unity-e2e가 모두 성공하고 모든 필수 회귀 시나리오가 완료되어야 성공한다. Unity job이 skipped이면 `DEFERRED_ENV` 메시지와 비영 종료를 남긴다. GitHub UI의 failed job은 환경 대기와 제품 테스트 실패를 자동으로 구분하지 않으므로 로그를 확인해야 한다.
 
 현재 50개 중 2개 시나리오가 PARTIAL이며 `harness/check-required-coverage.py`는 비영 종료한다. strict-local의 Unity push lane은 명시적인 `GAMEBRIDGE_RUN_UNITY_PUSH_E2E=true`와 전용 환경이 있을 때 두 Player를 새로 실행하고 현재 HEAD·clean 상태·필수 marker를 확인한다. opt-in이나 환경이 없으면 DEFERRED_ENV다. 로컬에서 소스 `f40f8d5`의 Android/iOS LOCAL_MOCK Player를 한 실행으로 재실행해 두 결과 검증이 PASS했다. Android 최초 전체화면 안내는 수동으로 닫았으며 GitHub Actions 및 실제 원격 푸시는 여전히 NOT_RUN이다. 기존 검증을 삭제하거나 과거 증거로 현재 실행을 대체하지 않는다. 실제 계정, 원격 FCM/APNs, 상용 서명이나 외부 인증키는 사용하지 않는다.
+
+현재 로컬 UPM staging은 `artifacts/upm-offline-sample-current-20261112`다. 이전 `upm-offline-sample-20261112` 후보는 Native payload가 달라 최신 staging으로 사용하지 않는다. 로컬 산출물은 원격 checkout에 자동으로 존재하지 않는다.

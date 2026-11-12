@@ -2493,3 +2493,8 @@
 - PX-T07 공개 evidence와 README/FEATURE_MATRIX/USER_SETUP/FINAL_REPORT/PROGRESS를 갱신했다. Simulator local ad-hoc 서명과 초기 unsigned 실패를 구분하고 Android PASS 기록 및 외부 제공자 미검증 상태를 유지했다.
 - 최초 iOS 테스트 앱의 Unity Notifications 기본 자동 권한 요청과 최종 테스트 전용 plist의 비활성화 사실을 USER_SETUP에 명시했다. 운영 host의 권한·push 동작 검증 결과로 확대하지 않는다.
 - `python3 scripts/verify-progress.py`, iOS runner `py_compile`, Android ADB 안전 단위 테스트 2건 모두 종료 0. 공통 SDK/Android 제품 코드는 수정하지 않아 Android Player E2E는 재실행하지 않았으며, 테스트 안전 단위 결과와 기존 PX-T04 PASS는 별개다. 커밋 준비: 검증 문서와 PASS evidence만 포함하고 원본 로그·키·Simulator 데이터는 제외한다.
+### PX-T08 Unity Android LOCAL_MOCK Push/Lifecycle 시작
+- 요청 문서를 읽고 기존 Android/iOS Player E2E 및 Mock push stream·bridge를 대조한다. Android부터 실제 Player에서 확인하며, 기존 인증·구매 PASS나 Native-only 시험을 Push/Lifecycle 전체 PASS로 취급하지 않는다. 기존 미추적 Demo·캐시 및 데이터는 보존하고 자동 push하지 않는다.
+- `tests/UnityAndroidPushConsumer/MockPlayerScenario.cs`는 실제 Unity SDK API 및 PushReceived를 사용하고 synthetic key는 실행 시 intent로만 받는다. callback의 main-thread·중복·해제 후 이벤트를 검사하며 실제 FCM은 사용하지 않는다. 기기 실행 전이다.
+- Unity 6000.5.8f1 managed reference의 `UNITY_ANDROID` 조건에서 푸시 시나리오 compile 종료 0, 경고·오류 0. Player 실행이 아니므로 Push PASS로 기록하지 않는다. 기존 Android E2E의 전용 기기·DB 안전검사를 재사용하는 runner를 작성한다.
+- `harness/run-unity-android-mock-push-e2e.py`는 기존 전용 AVD/DB·staging 검사를 재사용해 합성 발송 3회, Unity 수신 중복 제거/메인 스레드, unregister 후 403·DB token 삭제를 확인한다. background/network/restart는 명시적으로 NOT_RUN이며 실제 FCM이 아니다. `python3 -m py_compile` 종료 0. 커밋 준비: 테스트 코드와 현 상태만 저장한다.

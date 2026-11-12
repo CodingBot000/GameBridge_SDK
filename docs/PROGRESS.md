@@ -386,3 +386,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T07 README·FEATURE_MATRIX·USER_SETUP·FINAL_REPORT와 기능별 매트릭스에 iOS Simulator LOCAL_MOCK PASS를 반영했다. 실제 Apple 로그인·스토어·APNs·Unity push/lifecycle 및 실제 기기는 NOT_RUN 유지한다.
 - PX-T07 주의: 최초 테스트 소비 프로젝트의 Unity Notifications 기본 설정이 알림 권한 창을 표시했다. 최종 테스트 앱에서 자동 요청을 껐으며 실제 host의 push/권한 수명주기는 별도 미검증이다.
 - PX-T07 최종 원장 검사·iOS runner 문법 및 기존 Android ADB 기기 안전 단위 테스트 2건 PASS. 실제 Android Player 전체 회귀는 이번에 재실행하지 않았고 기존 PX-T04 PASS를 유지한다. 커밋 준비.
+- PX-T08 Unity Android LOCAL_MOCK Push/Lifecycle 검증 시작: 기존 인증·구매 PASS를 보존하며 실제 Player→Kotlin→Backend/DB의 등록·수신·해제와 이벤트 전달을 먼저 구현·검증한다. 아직 Push/Lifecycle Player 결과는 NOT_RUN이다.
+- PX-T08 Android 전용 Player 시나리오 작성: Mock 등록·동일 ID 중복 억제·Unity 메인 스레드·등록 해제/로그아웃 후 이벤트 대기를 분리해 검사한다. 실제 Player 검증은 NOT_RUN이다.
+- PX-T08 Android Push 시나리오 Unity managed reference 컴파일 PASS(경고·오류 0). 실제 Player 푸시 수신은 미검증이며 Backend 발송·원장 확인을 위한 격리 runner를 작성한다.
+- PX-T08 Android Push Player runner 작성 및 Python 문법 검사 PASS. 연결된 경우만 전달·등록 해제 후 서버 거부·DB token 삭제를 검사하도록 했으며 실제 E2E는 아직 NOT_RUN이다. 테스트 실행 전 로컬 커밋한다.

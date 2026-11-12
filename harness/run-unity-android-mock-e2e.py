@@ -206,13 +206,13 @@ def server_trace_status(log, key, password):
     return counts
 
 
-def scan_unity_log(adb, serial, key, password):
+def scan_unity_log(adb, serial, key, password, pii_probe=False):
     result = must([adb, "-s", serial, "logcat", "-d", "-v", "brief", "-s", "Unity:I", "*:S"],
                   "UNITY_LOGCAT_UNAVAILABLE", timeout=20)
-    if key in result or password in result or _redaction.contains_mock_credential(result):
+    if key in result or password in result or _redaction.contains_mock_credential(result) or (pii_probe and any(value in result for value in ("synthetic-person@example.invalid", "+1-202-555-0107"))):
         raise GateError("SYNTHETIC_SECRET_IN_PLAYER_LOG")
     return [line for line in result.splitlines()
-            if re.search(r"\b(?:GB_MOCK_(?:STEP|RESULT|NATIVE|REDACTION)|GB_UTF8_JNI_ROUNDTRIP|GB_NATIVE_DEMO_FLOW)\b", line)]
+            if re.search(r"\b(?:GB_MOCK_(?:STEP|RESULT|NATIVE|REDACTION)|GB_UTF8_JNI_ROUNDTRIP|GB_NATIVE_DEMO_FLOW|GB_PII_PROBE)\b", line)]
 
 
 def check_player_markers(lines):
@@ -256,9 +256,10 @@ def main():
     parser.add_argument("--package-cache", type=Path, help="Previously resolved exact-version Unity PackageCache for this isolated consumer")
     parser.add_argument("--utf8-probe", action="store_true", help="Use test-only JNI UTF-8 round-trip consumer")
     parser.add_argument("--native-demo-probe", action="store_true", help="Use test-only staged Native Demo consumer")
+    parser.add_argument("--pii-probe", action="store_true", help="Use synthetic personal-data callback consumer")
     parser.add_argument("--timeout-seconds", type=int, default=180)
     args = parser.parse_args()
-    if args.utf8_probe and args.native_demo_probe: parser.error("choose one specialized probe")
+    if sum((args.utf8_probe, args.native_demo_probe, args.pii_probe)) > 1: parser.error("choose one specialized probe")
 
     (ROOT / "artifacts").mkdir(exist_ok=True)
     output = Path(tempfile.mkdtemp(prefix="unity-android-e2e-", dir=ROOT / "artifacts"))
@@ -312,6 +313,11 @@ def main():
                 raise GateError(str(error), error.category) from error
         if args.utf8_probe:
             shutil.copy2(ROOT / "tests/UnityAndroidUtf8Consumer/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
+        if args.pii_probe:
+            shutil.copy2(ROOT / "tests/UnityAndroidPiiConsumer/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
+            shutil.copy2(ROOT / "tests/UnityPiiProbe/PiiProbe.cs", project / "Assets/PiiProbe.cs")
+            shutil.copy2(ROOT / "tests/UnityLateCallbackPlayer/link.xml", project / "Assets/link.xml")
+            summary["piiProbe"] = True
         if args.native_demo_probe:
             editor = Path("/Applications/Unity/Hub/Editor") / os.environ.get("UNITY_EDITOR_VERSION", "6000.5.8f1") / "Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui"
             try:
@@ -371,12 +377,14 @@ def main():
         summary["unityPlayer"] = "LAUNCHED_PENDING"
         deadline = time.monotonic() + args.timeout_seconds
         while time.monotonic() < deadline:
-            lines = scan_unity_log(adb, serial, key, password)
+            lines = scan_unity_log(adb, serial, key, password, args.pii_probe)
             if check_player_markers(lines):
                 if args.utf8_probe and not any("GB_UTF8_JNI_ROUNDTRIP PASS" in line for line in lines):
                     raise GateError("JNI_UTF8_MARKER_MISSING")
                 if args.native_demo_probe and not any("GB_NATIVE_DEMO_FLOW PASS" in line for line in lines):
                     raise GateError("NATIVE_DEMO_MARKER_MISSING")
+                if args.pii_probe and not any("GB_PII_PROBE PASS" in line for line in lines):
+                    raise GateError("PII_PROBE_MARKER_MISSING")
                 (output / "unity-test-markers.log").write_text("\n".join(lines) + "\n", encoding="utf-8")
                 summary["unityPlayer"] = "PASS"
                 summary["unityMarkerCount"] = len(lines)

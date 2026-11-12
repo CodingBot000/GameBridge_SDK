@@ -2972,3 +2972,8 @@
 - 합성 email/전화번호가 Backend 예외 응답·trace 및 Android/Swift diagnostics 공개 결과에 나오지 않아야 하는 assertion을 작성했다. 테스트 실행 전이다.
 - Backend `HttpInfrastructureTest`/`LocalMockTraceFilterTest` 각 2건, Android `BridgeDispatcherTest` 3건, Swift `CBridgeTests` 4건 PASS/skip0: synthetic email/전화번호가 시험한 오류·trace/diagnostics 응답에 나오지 않음. 실제 개인정보와 Unity raw log의 개인정보 주입은 미검증이다.
 - 합성 개인정보가 실제 request/exception에 주입되고 응답·로그 검사에 포함됨을 소스에서 재확인했다. 커밋 전: 테스트와 정제 증거만 포함하며 전체 R22/실 provider를 완료로 기록하지 않는다.
+### P09-T03/R22 Unity synthetic 개인정보 callback 검증 시작
+- test-only 합성 Native callback의 허용되지 않은 필드에 synthetic email/전화번호를 넣고 Unity 공개 Push 결과에서 제거되는지 확인한다. 양 Player 원시 로그에서도 해당 synthetic 값이 나오면 실패시킨다. 실제 개인정보·원격 push가 아니다.
+- `PiiProbe`는 test-only Native callback 경로에 합성 email/전화번호를 추가하고 Unity 공개 PushUpdate에서 제거되는지 확인한다. Android/iOS Player consumer와 raw 로그 감시 연결·컴파일은 아직 남았다.
+- `--pii-probe`는 양 플랫폼에서 test-only callback·link 보존·필수 marker를 적용하고 합성 email/전화번호가 원시 Unity 로그에 나오면 실패한다. Python compile PASS, Player 실행 전 managed compile을 확인한다.
+- Android/iOS PII probe 조건부 managed compile 각각 경고·오류 0, `test_unity_redaction_marker.py` 6건 PASS/skip0. 실제 Player callback/log는 미실행이다. 커밋 전: test-only probe·runner·음성 시험만 포함한다.

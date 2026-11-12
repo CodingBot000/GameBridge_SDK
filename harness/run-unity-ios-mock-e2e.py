@@ -11,8 +11,8 @@ STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
-    if args.host_callback_probe and args.native_demo_probe: parser.error('choose one specialized probe')
+    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--pii-probe',action='store_true'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
+    if sum((args.host_callback_probe,args.native_demo_probe,args.pii_probe)) > 1: parser.error('choose one specialized probe')
     out=Path(tempfile.mkdtemp(prefix='unity-ios-e2e-',dir=ROOT/'artifacts'))
     def run(cmd,**kw): return subprocess.run([str(x) for x in cmd],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,**kw)
     def must(cmd,label,**kw):
@@ -59,6 +59,12 @@ def main():
             if imported.returncode: raise RuntimeError('SAMPLE_IMPORT_FAILED')
             shutil.copy2(ROOT/'tests/UnityIosNativeDemo/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
             result['nativeDemoProbe']=True; result['sampleImport']='PASS'
+        if args.pii_probe:
+            import shutil
+            shutil.copy2(ROOT/'tests/UnityIosPiiConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
+            shutil.copy2(ROOT/'tests/UnityPiiProbe/PiiProbe.cs',project/'Assets/PiiProbe.cs')
+            shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
+            result['piiProbe']=True
         xcode=out/'xcode'
         exported=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],env=env,timeout=1200)
         (out/'unity-export.log').write_text(exported.stdout)
@@ -101,8 +107,8 @@ def main():
         result['unityPlayer']='LAUNCHED_PENDING'
         def read_player():
             for line in player.stdout:
-                if key in line or password in line or _redaction.contains_mock_credential(line): leaks.append(True); continue
-                if 'GB_MOCK_' in line or 'GB_NATIVE_DEMO_FLOW' in line: markers.append(line.strip())
+                if key in line or password in line or _redaction.contains_mock_credential(line) or (args.pii_probe and any(value in line for value in ('synthetic-person@example.invalid','+1-202-555-0107'))): leaks.append(True); continue
+                if 'GB_MOCK_' in line or 'GB_NATIVE_DEMO_FLOW' in line or 'GB_PII_PROBE' in line: markers.append(line.strip())
         thread=threading.Thread(target=read_player,daemon=True);thread.start()
         for _ in range(180):
             joined='\n'.join(markers)
@@ -118,6 +124,7 @@ def main():
             if f'GB_MOCK_STEP {step} PASS' not in text: raise RuntimeError('UNITY_STEP_MISSING_'+step)
         if args.host_callback_probe and 'GB_MOCK_HOST_CALLBACK PASS' not in text: raise RuntimeError('HOST_CALLBACK_MARKER_MISSING')
         if args.native_demo_probe and 'GB_NATIVE_DEMO_FLOW PASS' not in text: raise RuntimeError('NATIVE_DEMO_MARKER_MISSING')
+        if args.pii_probe and 'GB_PII_PROBE PASS' not in text: raise RuntimeError('PII_PROBE_MARKER_MISSING')
         if 'GB_MOCK_REDACTION PASS' not in text: raise RuntimeError('UNITY_RESULT_REDACTION_MISSING')
         if 'GB_MOCK_MAIN_THREAD PASS' not in text: raise RuntimeError('UNITY_MAIN_THREAD_MISSING')
         for kind in ('INITIALIZE','AUTH','PURCHASE'):

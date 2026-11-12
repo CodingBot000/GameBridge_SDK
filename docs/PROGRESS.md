@@ -803,3 +803,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 합성 개인정보 입력 assertion을 Backend 오류/trace 및 Android/Swift diagnostics 시험에 추가했다. 실제 검증은 아직 NOT_RUN이다.
 - R22 합성 email/전화번호 비노출: Backend 오류/trace 4건, Android bridge 3건, Swift C bridge 4건 PASS/skip0. 실제 개인정보·Unity raw log 개인정보 주입은 별도 미검증.
 - R22 개인정보 fixture 실제 주입 위치와 assertion 재확인, 원장/diff PASS. 전체 Unity 로그 개인정보·실제 provider 범위는 미검증으로 커밋 준비.
+- P09-T03/R22 Unity Player synthetic 개인정보 callback 주입 검증 시작: 허용 목록 밖 email/전화번호가 Unity 공개 Push 결과·원시 로그에 나오지 않는지 Android/iOS에서 별도로 확인한다.
+- R22 test-only synthetic 개인정보 callback probe 작성. Native callback에 허용되지 않은 합성 필드를 주입하며 실제 빌드·실행은 아직 NOT_RUN이다.
+- synthetic 개인정보 전용 Android/iOS runner 연결과 Python 문법 PASS. 두 조건부 managed compile 및 raw 로그 누출 음성 시험을 실행한다.
+- synthetic 개인정보 probe Android/iOS managed compile 각 경고·오류 0, raw 로그 주입 거부 포함 단위 6건 PASS. 실제 Player는 NOT_RUN이며 clean-source 실행 전 커밋 준비.

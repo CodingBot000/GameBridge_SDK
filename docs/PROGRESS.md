@@ -822,3 +822,14 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - CI/strict PII lane 연결 후 mock CI 6건·증거 음성 1건 및 Python/shell 구문 PASS. strict로 동일 nonce와 evidence 경로가 전달되는지 추가 검증한다.
 - PII 증거/nonce의 CI→strict 전달 fixture 6건, stale 증거 1건, 집계 13건 PASS. 실제 wrapper 및 변경된 전체 gate는 NOT_RUN, clean-source Player 검증 전 커밋 준비.
 - P09-T06/R22 동일 실행 PII wrapper 실제 검증 시작: source b2a000d runner, 최신 stage·실행별 nonce·빈 전용 AVD 및 격리 iOS Simulator 사용.
+- P09-T06/R22 동일 실행 Unity PII wrapper PASS 2건 (`artifacts/unity-pii-current-ml8muq1n`): source 222a2f3, 양 Player tracked-clean·nonce·marker·DB 원장 확인. Android 최초 안내 수동 처리, 실제 개인정보/제공자는 미검증.
+- 동일 PII evidence/nonce의 strict checker 직접 PASS 2건 확인, 시험 AVD·Simulator shutdown(데이터 보존). 같은 논리 실행 증거를 격리 strict에 전달해 필수 lane 집계를 실제 검증한다.
+- PII evidence 전달 격리 strict 종료 1/전체 FAIL (`artifacts/verify-all-p09mpzq9`), 외부 13 WAITING_USER. PII lane과 나머지 실패·미실행을 확인한다.
+- PII evidence 전달 strict에서 `unity-pii-e2e` 2건 PASS; 구매 하위 PASS, Unity Push DEFERRED_ENV·Editor NOT_RUN·R22/R40 PARTIAL·P05-T03 FAIL로 전체 FAIL. test Simulator shutdown·데이터 보존.
+- P09-T01/R22 시나리오 재현 연결 시작: 동일 실행 PII wrapper를 명시적 opt-in suite로 연결하고 느린 양 플랫폼 시험의 timeout·미설정 대기를 검증한다.
+- R22 PII opt-in wrapper 음성/인자 전달 단위 2건·Python 문법 PASS. manifest timeout 경계의 음성 검사와 실제 evidence 매핑을 확인한다.
+- R22의 합성 키/token/proof/PII 요구를 Backend·Native·양 Unity Player 실제 결과와 strict PII lane에 매핑해 local/fake IMPLEMENTED로 갱신했다. 실 provider·모든 가능 입력에 대한 보장은 별도다. 명시적 opt-in 진입 wrapper의 실제 호출은 아직 NOT_RUN이다.
+- R22 assertion mapping·manifest/음성 검사 PASS. 필수 coverage 검사는 예상대로 exit 1: R40 1개 PARTIAL, NOT_IMPLEMENTED 0. 실제 provider 검증은 여전히 별도다.
+- R22 opt-in 내부 timeout을 scenario 상위 3300초보다 짧게 두어 자체 timeout 분류를 반환할 여유를 확보한다. 단위·구문 및 manifest를 재검증한다.
+- R22 opt-in/증거 단위 및 manifest 음성 검사 PASS. 플랫폼 누락 음성 fixture가 다른 실패 조건과 겹치지 않도록 독립성을 보강한다.
+- R22 로컬/합성 시나리오 assertion·재현 suite·독립 음성 fixture 검증 PASS. opt-in 진입 wrapper 실제 호출과 실 provider는 NOT_RUN, R40 PARTIAL로 전체 coverage 미완료. 커밋 준비.

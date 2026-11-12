@@ -15,9 +15,9 @@ def main() -> int:
     if scenario is None: print('Unknown scenario', file=sys.stderr); return 2
     failed = False; missing = False
     for name in scenario['candidateSuites']:
-        command = manifest['suites'][name]['command']
+        suite = manifest['suites'][name]; command = suite['command']
         try:
-            result = subprocess.run(command, cwd=ROOT, timeout=600, check=False)
+            result = subprocess.run(command, cwd=ROOT, timeout=suite.get('timeoutSeconds',600), check=False)
             code = result.returncode
         except (OSError, subprocess.TimeoutExpired): code = 2
         print(f'{args.scenario} / {name}: exit {code}', flush=True)

@@ -46,6 +46,8 @@ def check(root: Path, manifest_path: Path | None = None) -> list[str]:
             for suite in entry.get('candidateSuites', []):
                 if suite not in suites: errors.append(f'{ident}: unknown suite {suite}')
         for ident, suite in suites.items():
+            timeout = suite.get('timeoutSeconds', 600)
+            if type(timeout) is not int or not 1 <= timeout <= 3600: errors.append(f'{ident}: invalid timeout')
             command = suite.get('command')
             if not isinstance(command, list) or not command or not all(isinstance(x, str) and x for x in command):
                 errors.append(f'{ident}: invalid command'); continue

@@ -33,6 +33,13 @@ def main() -> int:
                                      text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
     if coverage_result.returncode == 0 or 'implemented requires assertion mapping' not in coverage_result.stdout:
         print('Unsubstantiated implemented coverage was not detected'); return 1
+    manifest = json.loads((ROOT / 'harness/regression-manifest.json').read_text(encoding='utf-8'))
+    manifest['suites']['contracts']['timeoutSeconds'] = 3601
+    timeout_path = workspace / 'bad-timeout.json'; timeout_path.write_text(json.dumps(manifest), encoding='utf-8')
+    timeout_result = subprocess.run(['python3','harness/check-manifest.py','--manifest',str(timeout_path)], cwd=ROOT,
+                                    text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+    if timeout_result.returncode == 0 or 'invalid timeout' not in timeout_result.stdout:
+        print('Invalid suite timeout was not detected'); return 1
     print('Negative manifest: missing R49 rejected; required suite removal and false coverage rejected; original manifest unchanged.')
     return 0
 

@@ -2994,3 +2994,15 @@
 - CI gate가 양 PII Player wrapper를 호출하고 fresh evidence/nonce를 strict 필수 lane에 전달하도록 구현했다. mock CI 6건, evidence 음성 1건 PASS; 실제 wrapper/전체 gate는 NOT_RUN이다. evidence/nonce 전달을 fixture에서 확인한다.
 - `test_ci_gate.py` 6건, `test_unity_pii_current.py` 1건, `test_aggregation.py` 13건 PASS/skip0. standalone strict는 동일 실행 PII evidence/nonce 미제공 시 DEFERRED_ENV다. 커밋 전: wrapper·검사기·CI/strict 연결·음성 시험만 포함하며 실제 wrapper/원격 CI는 NOT_RUN이다.
 - 실제 `run-unity-pii-current.py`로 양 synthetic PII LOCAL_MOCK Player를 순차 실행하고 HEAD·nonce·원장·marker 검증을 확인한다. 기존 AVD 앱은 보존하고 빈 전용 기기를 사용한다. clean-source 시작 기록만 먼저 커밋한다.
+- `run-unity-pii-current.py --run-local ...` exit 0 (`artifacts/unity-pii-current-ml8muq1n`): source 222a2f3의 Android/iOS PII LOCAL_MOCK Player 각 PASS, tracked-clean·실행 nonce·필수 marker 및 각 원장 1건/100. Android 최초 전체화면 안내 수동 처리. 실제 개인정보/원격 provider는 아니다.
+- `check-unity-pii-evidence.py`에 해당 실행 evidence/nonce를 전달해 양 Player 2건 PASS 확인. AVD·Simulator는 shutdown만 했다. 같은 논리 실행 evidence를 격리 strict로 전달해 lane 집계를 검증한다. Unity Push/Editor opt-in은 별도이며 전체 PASS는 주장하지 않는다.
+- 동일 실행 PII evidence/nonce를 전달한 격리 strict exit 1 (`artifacts/verify-all-p09mpzq9`, orchestration `artifacts/strict-isolated-beow_iyv`), 외부 13 WAITING_USER. PII lane 및 다른 실패·미실행을 확인하며 전체 PASS로 기록하지 않는다.
+- `verify-all-p09mpzq9`: `unity-pii-e2e` 2건 PASS, 구매 하위 PASS, Unity Push DEFERRED_ENV·Editor NOT_RUN·scenario PARTIAL·기록된 P05-T03 FAIL로 전체 FAIL이다. test Simulator는 shutdown만 했다.
+### P09-T01/R22 재현 suite 연결 시작
+- R22의 synthetic credential/PII 범위는 Native·Backend·양 Unity Player에서 실행했고 strict PII lane도 확인했다. 시나리오 entry에서 실제 두 Player wrapper를 명시적 opt-in으로 재현할 수 있게 하며, 미설정은 DEFERRED_ENV로 남긴다.
+- `test_unity_pii_optin.py` 2건 PASS/skip0: 미설정은 exit 2, 명시 설정에서 새 nonce 생성·실제 runner 결과 전달. 새 scenario timeout 경계의 음성 검사 및 R22 assertion/evidence 매핑을 확인한다. opt-in 얇은 entry의 실제 호출은 별도다.
+- R22 요구(합성 인증키·token·개인정보의 SDK 로그/Unity 결과/Backend 오류 비노출)에 대한 실행된 Backend·Native·양 Unity Player 및 strict PII lane을 `docs/evidence/r22-synthetic-redaction.md`에 assertion별로 연결해 local/fake IMPLEMENTED로 갱신한다. 외부 실 provider·모든 가능한 입력을 검증했다는 뜻이 아니며 opt-in 얇은 entry는 실제 호출 전이다.
+- `check-manifest.py`, `check-manifest-negative.py` PASS. `check-required-coverage.py` exit 1: 1 PARTIAL(R40), 0 NOT_IMPLEMENTED. 이는 전체 통과가 아니다.
+- opt-in child timeout 3200초, scenario 상위 3300초로 분리해 child의 DEFERRED_ENV 처리가 상위 강제 종료보다 먼저 일어나게 한다. 환경별 단위 및 manifest를 재검증한다.
+- PII opt-in 2건, evidence 1건, manifest/음성/Python/diff PASS. evidence fixture의 플랫폼 누락 검사가 이전 marker 누락 상태와 겹쳐 독립 확인이 아니므로 marker 복원 후 검증하도록 보정한다.
+- 플랫폼 누락 fixture를 독립화 후 evidence 1건·opt-in 2건 PASS/skip0, 원장/diff PASS. 커밋 전: R22의 실행된 synthetic 범위와 suite/timeout·음성 검사만 포함하며 opt-in entry 실제 호출·실 provider는 미실행으로 명시한다.

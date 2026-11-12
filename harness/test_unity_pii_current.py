@@ -20,5 +20,7 @@ class PiiEvidenceTests(unittest.TestCase):
             for key,value in [('sourceTrackedDirty',True),('sourceHead','old'),('piiProbe',False),('unityPlayer','NOT_RUN'),('ledgerCount',True),('ledgerDelta',0)]:
                 changed=data.copy();changed[key]=value;child.write_text(json.dumps(changed));self.assertFalse(module.check(relative,nonce,head))
             child.write_text(json.dumps(data));(child.parent/'unity-test-markers.log').write_text('GB_MOCK_RESULT PASS LOCAL_MOCK\n');self.assertFalse(module.check(relative,nonce,head))
+            (child.parent/'unity-test-markers.log').write_text('GB_PII_PROBE PASS\nGB_MOCK_RESULT PASS LOCAL_MOCK\n')
+            self.assertTrue(module.check(relative,nonce,head))
             report['suites'].pop('ios');path.write_text(json.dumps(report));self.assertFalse(module.check(relative,nonce,head))
 if __name__=='__main__':unittest.main()

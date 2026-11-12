@@ -4,14 +4,14 @@
 
 **BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. Unity Android 및 iOS Simulator LOCAL_MOCK 전체 흐름은 검증했으나 전체 제품, 실제 기기와 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미완료도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
 
-P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 48개 IMPLEMENTED, 2개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
+P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 49개 IMPLEMENTED, 1개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
 
 ## 확인한 범위
 
 - Android Kotlin, iOS Swift 및 Unity C# 경계의 계약·fake 테스트와 일부 local-mock HTTP/PostgreSQL 시험을 실행했다. 인증, 구매 중복 지급 방지 및 응답 유실 복구, 푸시 토큰 등록·삭제의 제한된 경로를 확인했다. 실제 제공자 테스트와 구분한다.
 - Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성 복구를 확인했지만 Unity Android emulator와 iOS Simulator의 LOCAL_MOCK 프로세스 재시작 구매 복구도 확인했다. 실제 기기 복구는 미검증이다.
 - Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. 이후 Unity 6000.5.8f1 신규 소비 프로젝트 import·Android IL2CPP APK 및 local-mock Player 전체 경로는 전용 에뮬레이터에서 PASS했다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS Simulator의 LOCAL_MOCK 전체 흐름도 확인했으며 실제 스토어는 미검증이다.
-- 회귀 하네스의 누락·변이 음성 시험과 로컬 Unity gate를 실행했다. 소스 `e703f43`의 기본 Android/iOS Player, Push 양 플랫폼 및 Unity Editor는 PASS했지만 `artifacts/verify-all-4r3l36i6/summary.md` 전체는 R22/R40 PARTIAL과 기존 P05-T03 FAIL로 FAIL이다 ([증거](evidence/p09-unity-ci-local.md)). 두 Android 최초 안내는 수동으로 닫았다. GitHub Actions 및 실제 제공자는 실행하지 않았다.
+- 회귀 하네스의 누락·변이 음성 시험과 로컬 Unity gate를 실행했다. 소스 `e703f43`의 기본 Android/iOS Player, Push 양 플랫폼 및 Unity Editor는 PASS했지만 `artifacts/verify-all-4r3l36i6/summary.md` 전체는 당시 R22/R40 PARTIAL과 기존 P05-T03 FAIL로 FAIL이다 ([증거](evidence/p09-unity-ci-local.md)). 두 Android 최초 안내는 수동으로 닫았다. GitHub Actions 및 실제 제공자는 실행하지 않았다.
 - 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
 
 Offline Demo는 별도 staged UPM의 Package Manager Sample API import 후 새 테스트 프로젝트의 Unity Editor Play에서 fake 로그인·상품·구매 callback을 확인했다 ([증거](evidence/p08-offline-sample-editor.md)). Native Demo는 양 플랫폼별 신규 프로젝트에서 Sample API import 후 Android/iOS LOCAL_MOCK Player의 설정·모의 구매 callback을 확인했다 ([Android](evidence/p08-native-demo-android.md), [iOS](evidence/p08-native-demo-ios.md)). iOS 첫 export는 sample asmdef 누락으로 실패했으며 수정 후 통과했다. Package Manager GUI 클릭, 실제 포인터·화면 렌더링은 별도다.
@@ -24,7 +24,7 @@ Offline Demo는 별도 staged UPM의 Package Manager Sample API import 후 새 �
 | BUG-014 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle을 확인했다. 실제 기기·FCM/APNs와 iOS OS 전체 네트워크 차단은 미검증이다. |
 | BUG-015 | Native 진단 ring의 Unity 비동기 조회는 Android 및 iOS Simulator LOCAL_MOCK Player에서 확인했다. 다른 모드와 실제 기기는 미검증이다. |
 | BUG-009 | LOCAL_MOCK Unity Android emulator와 iOS Simulator에서 응답 유실 후 프로세스 재시작 복구를 확인했다. 실제 스토어 및 실기기 복구는 남았다. |
-| P09 | 2개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor scene/domain reload 시험과 양 플랫폼 LOCAL_MOCK Player를 별도로 실행했다. 최신 로컬 strict의 Editor 및 Push 양 Player는 PASS했지만 전체 gate는 실패다. |
+| P09 | 현재 R40 1개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor scene/domain reload 시험과 양 플랫폼 LOCAL_MOCK Player를 별도로 실행했다. 최신 로컬 strict의 Editor 및 Push 양 Player는 PASS했지만 전체 gate는 실패다. |
 
 ## 환경 및 사용자 설정
 

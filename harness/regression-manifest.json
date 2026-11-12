@@ -228,6 +228,29 @@
       ],
       "mode": "LOCAL_MOCK",
       "platform": "Android/iOS Native"
+    },
+    "backend-redaction": {
+      "command": [
+        "backend/gradlew",
+        "-p",
+        "backend",
+        "test",
+        "--tests",
+        "com.gamebridge.config.HttpInfrastructureTest",
+        "--tests",
+        "com.gamebridge.config.LocalMockTraceFilterTest"
+      ],
+      "mode": "SYNTHETIC",
+      "platform": "Backend"
+    },
+    "unity-pii-e2e": {
+      "command": [
+        "python3",
+        "harness/run-unity-pii-optin.py"
+      ],
+      "mode": "LOCAL_MOCK",
+      "platform": "Unity Android/iOS",
+      "timeoutSeconds": 3300
     }
   },
   "scenarios": [
@@ -907,7 +930,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -916,10 +939,44 @@
       "candidateSuites": [
         "auth-regression",
         "purchase-regression",
-        "native-token-redaction"
+        "native-token-redaction",
+        "backend-redaction",
+        "unity-pii-e2e"
       ],
-      "evidence": "docs/evidence/r22-local-redaction-partial.md",
-      "note": "Native synthetic session tokens, typed results and local Player development-key checks passed; full logs and input variants remain partial."
+      "evidence": "docs/evidence/r22-synthetic-redaction.md",
+      "note": "Synthetic local key/token/proof/PII assertions across backend errors/logs, Native bridges and Android/iOS Unity Players; real providers remain separate.",
+      "assertions": [
+        {
+          "suite": "backend-redaction",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/config/HttpInfrastructureTest.kt",
+          "testCase": "unexpected exception never exposes request secret"
+        },
+        {
+          "suite": "purchase-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GooglePurchaseHttpIntegrationTest.kt",
+          "testCase": "synthetic credential leaked in server log"
+        },
+        {
+          "suite": "native-token-redaction",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/LocalMockIntegrationTest.kt",
+          "testCase": "session token leaked in bridge response"
+        },
+        {
+          "suite": "native-token-redaction",
+          "testFile": "ios/Tests/GameBridgeCoreTests/LocalMockIntegrationTests.swift",
+          "testCase": "session token leaked in bridge result"
+        },
+        {
+          "suite": "unity-pii-e2e",
+          "testFile": "tests/UnityPiiProbe/PiiProbe.cs",
+          "testCase": "GB_PII_PROBE PASS"
+        },
+        {
+          "suite": "unity-pii-e2e",
+          "testFile": "harness/check-unity-pii-evidence.py",
+          "testCase": "sourceTrackedDirty"
+        }
+      ]
     },
     {
       "id": "R23",

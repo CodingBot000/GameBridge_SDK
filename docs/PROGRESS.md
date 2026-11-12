@@ -858,3 +858,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R40 Android OS·iOS OS·Mock 실제 통합 결과와 재현 suite를 assertion별로 매핑했다. 50개 시나리오 local/fake coverage 기록 완료, 단 iOS GUI 수동 처리 및 현재 CI 미실행·실 provider 미검증은 유지한다.
 - R40 완료 매핑 후 시나리오 50/50 local/fake coverage 기록. 전체 CI/strict·실 provider의 현재 실행 성공은 별도이며 최종 음성/원장 검증을 수행한다.
 - R40 OS/Mock 통합 opt-in 실제 PASS 후 marker/환경/CI 음성 13건, manifest/coverage/원장 검사 PASS. local/fake 시나리오 50/50 evidence 기록; 전체 strict·실 provider는 별도 미완료. 커밋 준비.
+- P09-T07 50/50 local/fake coverage·최신 metadata/sample/hook/PII gate 반영 후 전체 Unity CI gate 로컬 재검증 시작. 기존 P05-T03 FAIL 및 실 provider 13 WAITING_USER는 그대로 둔다.

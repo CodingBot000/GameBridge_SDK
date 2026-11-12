@@ -3034,3 +3034,5 @@
 - R40의 실제 Android 자동 OS, iOS GUI 보조 OS, managed Mock 결과를 `r40-os-and-mock.md`에 연결했다. `check-manifest`, 음성 검사 PASS 및 required coverage 50개 기록 완료. 이는 현재 CI에서 모든 시나리오가 실행됐다는 뜻이 아니며 iOS GUI·실제 provider는 별도다.
 - R40 실제 Android OS·iOS OS·Mock 및 opt-in 재현 wrapper를 연결해 50/50 local/fake coverage evidence를 기록했다. iOS GUI 수동 및 실제 provider 미검증을 명시하고 최종 manifest/runner 음성 검사를 실행한다.
 - R40 opt-in 2건, Android OS selector 3건, iOS OS marker 2건, CI gate 6건 단위 PASS/skip0. manifest·음성·coverage·원장 PASS. 커밋 전: 실제 OS/Mock별 evidence와 local/fake coverage만 갱신하며 GUI 보조·실 provider/전체 strict 미완료를 명시한다.
+### P09-T07 최신 전체 Unity CI gate 재검증 시작
+- 50개 local/fake coverage, 최신 metadata stage, Sample API·양 hook·동일 실행 PII/Push lane을 포함한 현재 gate를 전용 baseline/push AVD와 격리 DB/Simulator에서 실제 재실행한다. R40 iOS OS는 앞선 GUI 보조 증거이며 이 gate가 자동 재실행하는 것은 아니다. P05-T03 및 외부 provider 상태는 그대로 유지한다. 시작 기록만 먼저 커밋한다.

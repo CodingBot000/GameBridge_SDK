@@ -2766,3 +2766,5 @@
 - 커밋 전: 시작 기록만 포함하고 실제 시험은 NOT_RUN이다.
 - `run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe` exit 0 (`artifacts/unity-ios-e2e-fj2ddrvp`): 수정 host consumer에서 기존 합성 callback·중복 억제·main-thread와 결과 개발키 비노출을 함께 확인했다. 실제 APNs·실기기는 범위 밖이다.
 - 결과 source 4744035 tracked-clean을 확인하고 테스트 Simulator를 삭제 없이 shutdown했다. 커밋 전: 해당 결과 기록만 포함한다.
+- 수정된 Android UTF-8 consumer를 빈 전용 AVD에서 실제 Unity JNI LOCAL_MOCK 흐름으로 실행한다. 이전 AVD 앱을 덮어쓰지 않으며 테스트 시작 기록만 먼저 커밋한다.
+- 커밋 전: 시작 기록만 포함한다. 실제 시험은 NOT_RUN이다.

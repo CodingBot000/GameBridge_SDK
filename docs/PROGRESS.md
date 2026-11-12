@@ -626,3 +626,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T02/R43 host callback 전용 consumer 실제 Player 재검증 시작: 새 redaction 검사와 기존 합성 host callback·중복·main-thread 흐름을 함께 확인한다.
 - R43 수정 iOS host callback Unity Player 재실행 PASS (`artifacts/unity-ios-e2e-fj2ddrvp`): 합성 callback·중복·main-thread와 합성 개발키 결과 비노출 확인. 실제 APNs는 미검증.
 - R43 test Simulator shutdown 완료(데이터 보존), tracked-clean 재확인. 결과 기록 커밋 준비.
+- P09-T02/R09 UTF-8 전용 Android consumer 실제 Player 재검증 시작: 빈 전용 AVD에서 JNI 문자열·개발키 결과 비노출과 기존 흐름을 확인한다.

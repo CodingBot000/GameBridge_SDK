@@ -2914,3 +2914,11 @@
 - mock token/proof raw 로그 검사 추가 후 양 플랫폼 Push LOCAL_MOCK Player를 같은 실행에서 새로 검증한다. 앱이 설치된 기존 AVD를 보존하기 위해 빈 전용 AVD를 사용한다. 시작 기록만 커밋하고 결과는 아직 NOT_RUN이다.
 - 강화 로그 검사 적용 `run-unity-push-current.py` exit 0, Android/iOS LOCAL_MOCK Player 각 PASS (`artifacts/unity-android-push-918elqj3`, `artifacts/unity-ios-push-anrcrvlm`), 동일 source tracked-clean 및 필수 marker 확인. raw Unity/server 로그에서 알려진 키·synthetic mock token/proof 형태 비노출. Android 최초 안내 수동 처리; 실제 FCM/APNs·다른 형식은 미검증.
 - Push 시험 Simulator/AVD는 삭제 없이 shutdown했다. 커밋 전: 강화 로그 검사 양 플랫폼 검증 요약만 포함하고 raw 로그·빌드·키는 제외한다. R22 전체·실제 provider는 미완료다.
+### P08-T04 Package Manager sample import 검증 시작
+- 기존 sample Editor runner는 staged sample을 직접 복사했다. 새 격리 프로젝트에서 Unity Package Manager의 Sample API로 Offline/Native sample metadata를 찾아 import한 다음 같은 Play-mode 테스트를 실행하도록 개선한다. Package Manager GUI 클릭 및 시각 QA는 별도다.
+- Package Manager Sample.FindByPackage/Import로 두 sample을 가져오는 Editor setup을 작성하고, import 완료 marker 뒤에만 Play-mode test를 컴파일하도록 runner를 조정했다. shell 구문만 PASS, 실제 import는 아직 미실행이다.
+- 강화 `smoke-unity-offline-sample.sh` exit 0 (`artifacts/offline-sample.wdb0LN`): Unity Package Manager Sample API가 staged UPM의 Offline/Native sample을 각각 import한 marker와, 이후 Editor Play fake 로그인/구매·Native Editor guard 1건 PASS/skip0를 확인했다. Package Manager GUI 클릭·시각 렌더링·실제 포인터는 검증하지 않았다.
+- 첫 import API 시험은 runner가 import 직후 marker를 확인했지만 다음 Unity test가 같은 Editor.log를 덮어써 사후 재확인 가능한 marker 파일이 없다. 안전한 두 marker만 별도 보존하고 재실행한다. 첫 결과는 제품 실패가 아니다.
+- 보완 runner 재실행 exit 0 (`artifacts/offline-sample.FAkiaR`): 별도 `import-markers.log`에 두 Sample API import PASS marker 보존, Editor test 1건 PASS/skip0. GUI import 클릭·실제 시각/포인터 QA와 실제 provider는 별도다.
+- sample result 음성 1건 PASS, 원장·shell·diff PASS. import marker 중복이나 한쪽 누락을 허용하지 않도록 marker 각각 정확히 1건을 요구한다.
+- 강화 runner `artifacts/offline-sample.Afsqij`: sample import marker 각각 정확히 1건, Editor Play test 1건 PASS/skip0. 커밋 전: Unity Sample API setup·runner·정제 증거만 포함하며 Package Manager GUI·시각 QA로 기록하지 않는다.

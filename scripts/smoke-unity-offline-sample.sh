@@ -15,11 +15,9 @@ except module.GateError: raise SystemExit('FAIL: staged SDK source differs from 
 print('Staged SDK source matches checkout')
 PYMATCH
 mkdir -p "$root/artifacts"; output="$(mktemp -d "$root/artifacts/offline-sample.XXXXXX")"; project="$output/project"
-mkdir -p "$project/Assets/Tests/Editor" "$project/Assets/Samples" "$project/Packages" "$project/ProjectSettings"
+mkdir -p "$project/Assets/Editor" "$project/Assets/Tests/Editor" "$project/Packages" "$project/ProjectSettings"
 cp -R "$stage/com.gamebridge.sdk" "$project/Packages/com.gamebridge.sdk"
-cp -R "$stage/com.gamebridge.sdk/Samples~/Offline Demo" "$project/Assets/Samples/Offline Demo"
-cp -R "$stage/com.gamebridge.sdk/Samples~/Native Demo" "$project/Assets/Samples/Native Demo"
-cp "$root/tests/UnityOfflineSample/Editor/"* "$project/Assets/Tests/Editor/"
+cp "$root/tests/UnityOfflineSample/Setup/ImportSamples.cs" "$project/Assets/Editor/ImportSamples.cs"
 python3 - "$root" "$project" "$cache" <<'PY'
 import importlib.util,json,os,shutil,sys
 from pathlib import Path
@@ -33,6 +31,18 @@ PY
 printf '%s\n' '{"dependencies":{"com.unity.test-framework":"1.7.0","com.unity.ugui":"2.5.0"}}' > "$project/Packages/manifest.json"
 printf 'm_EditorVersion: %s\n' "${UNITY_EDITOR_VERSION:-6000.5.8f1}" > "$project/ProjectSettings/ProjectVersion.txt"
 echo "Evidence directory: $output"
+set +e
+UNITY_NO_UPDATE_CHECK=1 UNITY_NO_CONSENT_PROMPT=1 unity run "$project" --editor-version "${UNITY_EDITOR_VERSION:-6000.5.8f1}" --timeout 300 --non-interactive -- -executeMethod GameBridgeSampleImporter.Import > "$output/import-cli.log" 2>&1
+import_code=$?
+set -e
+if [[ "$import_code" != 0 ]] || ! grep -q 'GB_SAMPLE_IMPORT PASS Editor Offline Demo' "$project/Logs/Editor.log" || ! grep -q 'GB_SAMPLE_IMPORT PASS Native Mock and Sandbox Demo' "$project/Logs/Editor.log"; then
+  echo 'FAIL: Unity Package Manager sample import incomplete' >&2; exit 1
+fi
+grep -E '^GB_SAMPLE_IMPORT PASS (Editor Offline Demo|Native Mock and Sandbox Demo)$' "$project/Logs/Editor.log" > "$output/import-markers.log"
+if [[ "$(grep -Fxc 'GB_SAMPLE_IMPORT PASS Editor Offline Demo' "$output/import-markers.log")" != 1 || "$(grep -Fxc 'GB_SAMPLE_IMPORT PASS Native Mock and Sandbox Demo' "$output/import-markers.log")" != 1 ]]; then
+  echo 'FAIL: Unity sample import markers missing or duplicated' >&2; exit 1
+fi
+cp "$root/tests/UnityOfflineSample/Editor/"* "$project/Assets/Tests/Editor/"
 set +e
 UNITY_NO_UPDATE_CHECK=1 UNITY_NO_CONSENT_PROMPT=1 unity test "$project" --editor-version "${UNITY_EDITOR_VERSION:-6000.5.8f1}" --mode EditMode --filter OfflineSampleTests --output "$output/results.xml" --timeout 300 --non-interactive > "$output/unity-cli.log" 2>&1
 code=$?

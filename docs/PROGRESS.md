@@ -6,7 +6,7 @@
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
 - 현재 Phase / Task: P09 / R22·R40 및 CI 실행 검증 진행 중
-- 마지막 갱신 시각: 2026-11-12 (Asia/Seoul)
+- 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
@@ -751,3 +751,10 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T03/R22 강화 mock credential 로그 검사의 Android/iOS Push Player 동일 실행 시작: 최신 stage와 빈 전용 AVD를 사용한다. 기존 E2E 결과는 대체하지 않는다.
 - R22 강화 synthetic mock 로그 검사의 Android/iOS Push 동일 실행 2건 PASS (`artifacts/unity-android-push-918elqj3`, `artifacts/unity-ios-push-anrcrvlm`). Android 최초 안내 수동 처리; 실제 provider·다른 비밀 형식은 미검증.
 - Push 시험 Simulator·AVD shutdown(데이터 보존), 강화 로그 부분 증거 정리·커밋 준비. R22 전체는 다른 credential 형식·나머지 로그 범위가 남아 PARTIAL.
+- P08-T04 staged sample의 Unity Package Manager import API 검증 시작: 수동 파일 복사를 실제 sample metadata import로 대체해 격리 Editor flow를 재확인한다. GUI 클릭·시각 QA는 별도다.
+- sample import API 전용 Editor setup 및 격리 runner 변경 초안 작성, shell 구문 PASS. 실제 Unity import·Player test는 아직 NOT_RUN이다.
+- P08-T04 Unity Package Manager Sample API로 Offline/Native 두 sample import 및 격리 Editor fake flow/Native guard 1건 PASS (`artifacts/offline-sample.wdb0LN`). GUI import 클릭·실제 렌더링은 미검증이다.
+- sample import 성공 marker는 이어지는 Unity test가 Editor.log를 덮어써 사후 증거로 남지 않는 문제를 발견했다. import 직후 두 marker만 별도 저장하도록 보완한다.
+- P08-T04 Package Manager Sample API 두 sample import marker 보존 및 새 Editor fake flow/Native guard PASS (`artifacts/offline-sample.FAkiaR`). GUI 클릭·시각/포인터와 실제 provider는 미검증.
+- sample import marker 보존 후 결과 음성·원장/shell/diff PASS. 두 marker가 정확히 한 번씩 존재해야 통과하도록 판정을 강화한다.
+- marker 정확성 강화 후 Sample API import 양쪽 및 Editor Play 1건 PASS/skip0 (`artifacts/offline-sample.Afsqij`). GUI 클릭·실제 렌더링은 미검증, 커밋 준비.

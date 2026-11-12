@@ -21,3 +21,7 @@
 - 소스 `837c016458159e836253998c9f212a50a616fd53`, tracked-clean. 새 전용 iOS 18.6 Simulator에서 Push Runner exit 0 (`artifacts/unity-ios-push-gcmp59n7/result.json`).
 - test-only loopback TCP proxy가 SDK 연결 재시도 6회를 거부한 뒤 연결을 복구했다. Unity Player가 복구 후 새 Mock 이벤트를 받고 기존 중복·background/foreground·A→B 전환·등록 해제 검사도 통과했다. 이는 OS 전체 Wi-Fi 차단이나 실제 APNs 시험이 아니다.
 - UnityFramework SHA-256 `f515a7f71d858e815985d77c9e90fe12566159bdc8ba98ab6ca9f5cf242e486b`. Simulator local ad-hoc 및 exact-version embedded cache를 사용했다.
+
+## 기존 인증·구매 회귀
+
+소스 `90311242becb02c649eea29844237875d3a0b8cd`, tracked-clean에서 기존 Unity iOS LOCAL_MOCK 인증·구매 전체 Runner를 새 전용 iOS 18.6 Simulator·DB로 재실행해 exit 0, `artifacts/unity-ios-e2e-zizcrlvt/result.json` PASS. local ad-hoc Simulator signing 및 exact-version embedded Unity package cache를 사용했다. 실제 Apple 로그인·StoreKit 결제는 미실행이다.

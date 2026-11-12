@@ -33,3 +33,7 @@
 - 소스 `ea5e17fcc726f9944ec5e7348d8c26cd8dd473ec`, tracked-clean. 새 전용 Android 에뮬레이터에서 Runner exit 0 (`artifacts/unity-android-push-n3lvsnkx/result.json`).
 - 전용 AVD의 Wi-Fi/data 차단·복원 외에도 test-only loopback proxy가 SDK 재연결 시도를 2회 거부했고, 이후 연결 복원과 새 Mock 푸시 수신이 통과했다. background/foreground, 중복·세션 전환·등록 해제도 같은 실행에서 통과했다. 첫 전체화면 안내는 수동으로 닫았다.
 - APK SHA-256 `76a5e5f123cea694cc1153a193e01e82cefd620e771f88b6da57312eb7a6121d`. 실제 FCM, 임의 지연 Native callback 주입은 아니다. 강제 종료/pending은 위 PX-T10 별도 실행에서 확인했다.
+
+## 기존 인증·구매 회귀
+
+소스 `8afe5d07551d639d6510af7b736f60dec0b475cc`, tracked-clean에서 기존 Unity Android LOCAL_MOCK 인증·구매 전체 Runner를 새 전용 AVD·DB로 재실행해 exit 0, `artifacts/unity-android-e2e-7001epc_/result.json` PASS. exact-version embedded Unity package cache를 사용했고 첫 전체화면 안내는 수동으로 닫았다. Google 로그인·Play 실결제는 미실행이다.

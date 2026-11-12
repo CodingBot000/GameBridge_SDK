@@ -457,3 +457,5 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T15 기존 Android Unity 인증·구매 LOCAL_MOCK 전체 회귀 시작: 새 전용 AVD·DB 및 exact-version cache를 사용한다. 결과는 NOT_RUN이다.
 - PX-T15 Android Unity 인증·구매 LOCAL_MOCK 전체 Player 회귀 PASS (`artifacts/unity-android-e2e-7001epc_`, exit 0). 전용 AVD 최초 전체화면 안내는 수동으로 닫았다. 실제 Google/Play는 NOT_RUN. iOS 동일 회귀를 시작한다.
 - PX-T15 iOS Unity Simulator 인증·구매 LOCAL_MOCK 전체 회귀 시작: 새 Simulator·DB, 로컬 ad-hoc 및 exact-version cache. 결과는 NOT_RUN이다.
+- PX-T15 기존 iOS Unity Simulator 인증·구매 LOCAL_MOCK 전체 회귀 PASS (`artifacts/unity-ios-e2e-zizcrlvt`, exit 0). local ad-hoc 서명·exact-version embedded cache 사용. 실제 Apple 로그인/StoreKit은 NOT_RUN이다.
+- PX-T15 Android/iOS 인증·구매 LOCAL_MOCK 전체 Player 회귀 PASS를 각 플랫폼 evidence에 별도 source와 함께 기록했다. 실제 외부 제공자 및 스토어는 미검증이다. 커밋 준비.

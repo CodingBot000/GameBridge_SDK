@@ -839,3 +839,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Android OS 재现 runner 초안 작성,Python 구문 PASS. 전용 dialog 식별·누락 marker·중단/환경 대기 구분을 음성 검증한다.
 - Android OS permission runner dialog 오선택/중복·marker 누락 음성 단위 2건 및 Python 구문 PASS. 실제 OS 재실행은 NOT_RUN이며 clean-source 실행 전 커밋 준비.
 - R40 Android OS permission 재현 runner 실제 실행 시작: source 3279dc2 코드, 최신 stage·권한 이력 없는 전용 AVD. Firebase test dependency만 사용.
+- R40 Android runner 첫 실제 실행 INTERRUPTED/exit 130 (`artifacts/unity-android-permission-ikutzs0w`): OS 거부 버튼 실제 ID는 `permission_deny_and_dont_ask_again_button`으로 기존 허용 목록에 없어 안전하게 중단했다. 권한 시험 PASS/FAIL은 미판정이다.
+- 실제 관찰된 두 명시적 거부 ID에 대한 selector 음성/양성 단위 2건·Python/원장/diff PASS. 수정 runner의 실제 OS 재시험은 NOT_RUN, 커밋 준비.

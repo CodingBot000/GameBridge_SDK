@@ -6,6 +6,8 @@ class PermissionOsTests(unittest.TestCase):
     def test_only_unique_explicit_deny_button_is_selected(self):
         node='<node resource-id="com.android.permissioncontroller:id/permission_deny_button" text="deny" bounds="[10,20][50,60]"/>'
         self.assertEqual(module.button_center('<?xml version="1.0"?><hierarchy>'+node+'</hierarchy>'),(30,40))
+        alternate=node.replace('permission_deny_button','permission_deny_and_dont_ask_again_button')
+        self.assertEqual(module.button_center('<?xml version="1.0"?><hierarchy>'+alternate+'</hierarchy>'),(30,40))
         self.assertIsNone(module.button_center('<?xml version="1.0"?><hierarchy>'+node+node+'</hierarchy>'))
         self.assertIsNone(module.button_center('<?xml version="1.0"?><hierarchy><node text="deny" bounds="[1,2][3,4]"/></hierarchy>'))
         self.assertIsNone(module.button_center('not xml'))

@@ -23,7 +23,7 @@ def button_center(xml, tutorial=False):
     matches=[]
     for node in root.iter('node'):
         resource=node.get('resource-id','');text=node.get('text','')
-        allowed=(tutorial and text=='Got it') or (not tutorial and resource.endswith(':id/permission_deny_button'))
+        allowed=(tutorial and text=='Got it') or (not tutorial and any(resource.endswith(':id/'+name) for name in ('permission_deny_button','permission_deny_and_dont_ask_again_button')))
         bounds=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',node.get('bounds',''))
         if allowed and bounds:
             x1,y1,x2,y2=map(int,bounds.groups());matches.append(((x1+x2)//2,(y1+y2)//2))

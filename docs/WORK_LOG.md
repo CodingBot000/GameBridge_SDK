@@ -3014,3 +3014,5 @@
 - Android permission runner는 새 Unity Player 및 전용 AVD에서 OS dialog를 resource id로 식별해 거부하고 허용된 marker만 저장한다. 초안 Python compile만 확인했으며 실제 실행 전이다. dialog 오탭 방지·미실행/중단 분류를 시험한다.
 - Android permission runner 단위 2건 PASS/skip0: 유일한 permission deny resource만 선택, 중복·다른 위젯·잘못된 XML 및 필수 marker 누락 거부. 실제 OS 재실행은 아직 없다. 커밋 전: runner·음성 시험·기록만 포함한다.
 - Android OS permission 재현 runner를 새 전용 AVD에서 실행한다. test-only Firebase SDK dependency를 사용하나 계정·서비스 설정·원격 발송은 없다. clean-source 시작 기록을 먼저 커밋한다.
+- Android 36 실제 권한 창에서 거부 버튼 resource id가 `permission_deny_and_dont_ask_again_button`임을 관찰했다. runner는 `permission_deny_button`만 허용해 탭하지 않았으며, 오탭 방지를 위해 실행을 중단해 INTERRUPTED/exit 130 (`artifacts/unity-android-permission-ikutzs0w`). OS 거부 결과는 미판정. 명시된 두 거부 ID만 허용하도록 보강한다.
+- Android OS runner selector가 명시적 두 거부 ID만 허용하도록 보완했고 단위 2건 PASS/skip0, Python·원장·diff PASS. 수정 실제 OS 재실행은 아직 없다. 커밋 전: selector·fixture·중단 이력만 포함한다.

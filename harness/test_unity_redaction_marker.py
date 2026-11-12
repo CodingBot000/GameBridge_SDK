@@ -9,6 +9,14 @@ class UnityRedactionMarkerTests(unittest.TestCase):
         self.assertFalse(module.check_player_markers(["GB_MOCK_STEP initialize PASS"]))
         with self.assertRaisesRegex(module.GateError,"UNITY_RESULT_REDACTION_MISSING"):
             module.check_player_markers(["GB_MOCK_RESULT PASS LOCAL_MOCK"])
+    def test_shared_runner_consumers_have_redaction_probe(self):
+        root=Path(__file__).resolve().parent.parent
+        for name in ("UnityAndroidMockConsumer/MockPlayerScenario.cs", "UnityAndroidUtf8Consumer/MockPlayerScenario.cs",
+                     "UnityIosMockConsumer/MockIosPlayerScenario.cs", "UnityIosHostCallbackConsumer/MockIosPlayerScenario.cs"):
+            source=(root/"tests"/name).read_text()
+            for assertion in ("RejectSecret(profile, syntheticKey)", "RejectSecret(purchase, syntheticKey)",
+                              "RejectSecret(events, syntheticKey)", "GB_MOCK_REDACTION PASS"):
+                with self.subTest(consumer=name, assertion=assertion): self.assertIn(assertion,source)
     def test_log_filter_keeps_redaction_marker(self):
         with patch.object(module,"must",return_value="I/Unity: GB_MOCK_REDACTION PASS\n"):
             self.assertEqual(len(module.scan_unity_log("adb","serial","synthetic-key","synthetic-password")),1)

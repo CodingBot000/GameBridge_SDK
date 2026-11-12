@@ -618,3 +618,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 iOS LOCAL_MOCK Player 실제 재검증 시작: source ccec48d, 격리 Simulator에서 합성 개발키 결과 비노출과 기존 인증·구매 흐름을 함께 확인한다.
 - R22 iOS LOCAL_MOCK Unity Simulator Player PASS (`artifacts/unity-ios-e2e-nz5fz8r5`): 인증·구매·진단 결과의 합성 개발키 부재. 실제 provider token 및 전체 로그 누락 여부는 별도이며 R22 PARTIAL 유지.
 - R22 두 Player 실행의 source/clean 결과를 재확인하고 사용한 전용 Simulator·AVD를 shutdown했다(삭제 없음). 부분 증거와 기록 커밋 준비.
+- R22 기존 R09/R43 회귀 호환성 조사 시작: 공유 runner의 새 필수 marker가 별도 UTF-8/host consumer에도 적용되는지 확인한다.
+- 공유 consumer 호환성 문제 확인: R09 Android UTF-8 및 R43 iOS host 전용 consumer에 새 필수 marker가 없어 현재 runner가 최종 성공을 거부한다. 두 consumer에도 실제 결과 검사를 적용한다.
+- R09/R43 전용 consumer에도동일한 합성 개발키 검사와 marker를 추가했다. marker 단위 2건 PASS; 두 조건부 managed compile 및 실제 Player는 아직 미확인이다.
+- R09 UTF-8·R43 host consumer 조건부 managed compile 양쪽 PASS(각 경고·오류 0). 변경 후 실제 Player 재실행은 NOT_RUN. 공유 consumer marker 누락을 막는 inventory 검사를 추가한다.
+- 네 consumer marker inventory 포함 단위 3건과 원장 검사 PASS. R09/R43 변경 후 실제 Player 재실행은 NOT_RUN이며 기존 증거는 보존한다. 커밋 준비.

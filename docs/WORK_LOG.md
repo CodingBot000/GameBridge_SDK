@@ -2756,3 +2756,9 @@
 - 커밋 전: iOS 실행 시작 기록만 포함한다.
 - `run-unity-ios-mock-e2e.py --run-local --adhoc` exit 0 (`artifacts/unity-ios-e2e-nz5fz8r5`): Unity iOS LOCAL_MOCK 인증·구매·진단 결과에서 합성 개발키 비노출 marker와 기존 흐름 PASS. 실제 Apple 인증·실제 token·전체 로그 범위는 검증하지 않아 R22 PARTIAL이다.
 - Android source 7156dac와 iOS source b2087e1 각각 tracked-clean·Player PASS를 재확인했다. 요청에 따라 사용한 Simulator/AVD는 shutdown만 했고 데이터는 보존했다. 커밋 전: 정제된 부분 증거와 진행 기록만 포함한다.
+### P09-T02/R22 공유 consumer 회귀 호환성 점검 시작
+- Android UTF-8 및 iOS host callback 전용 소비자가 동일 runner를 사용한다. 새 필수 redaction marker가 해당 소비자에 없어 회귀 시험이 잘못 실패할 가능성을 확인해 수정한다.
+- R09/R43 전용 test consumer에는 합성 개발키 결과 검사가 없는데 공유 runner는 marker를 필수로 요구한다. 제품 결함이 아닌 시험 호환성 결함이며 실제 R09/R43 재실행은 아직 NOT_RUN. 같은 profile/purchase/diagnostics 검사를 양 consumer에 추가한다.
+- R09 Android UTF-8 및 R43 iOS host consumer에 같은 개발키 결과 비노출 검사를 추가했고 marker 단위 2건 PASS. 이제 양 조건부 managed compile을 검증한다. 실제 Player 재실행은 별도다.
+- Android UTF-8 `UNITY_ANDROID`, iOS host `UNITY_IOS` consumer 각각 managed compile exit 0, 경고·오류 0. 이는 실제 Player 재실행이 아니다. 향후 네 소비자 중 marker 누락을 방지할 inventory 검사를 추가한다.
+- `test_unity_redaction_marker.py` 3건 PASS/skip0, 원장 및 diff 검사 PASS. R09/R43 전용 consumer의 실제 수정 후 Player는 미실행이며 이전 source의 성공과 구분한다. 커밋 전: 전용 test consumer·inventory 검사·기록만 포함한다.

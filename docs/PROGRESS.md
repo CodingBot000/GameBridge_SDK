@@ -427,3 +427,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T12 cache 사용 재시도 FAIL (`artifacts/unity-ios-push-flh6xhkq`, `UNITY_EXPORT_FAILED`): embedded Notifications의 패키지 자체 테스트가 소비 프로젝트에서 컴파일돼 NUnit 참조가 없어 실패했다. Unity Player는 NOT_RUN이며 테스트 전용 복사본의 불필요한 package tests만 제외해 재검증한다.
 - PX-T12 cache 복사에서 test-only `Tests` 디렉터리만 제외하도록 변경했다. 원본 cache와 운영 package는 변경하지 않으며 단위 검사·실제 Unity export로 검증한다.
 - PX-T12 test-only package 제외·원본 보존 unit 2건 PASS/skip 0. Unity export/Player는 다시 검증해야 한다. 커밋 준비.
+- PX-T12 iOS Push 재검증 시작: Unity test-only package 제외본으로 새 Simulator·DB에서 Player 경로를 실행한다. 결과는 NOT_RUN이다.

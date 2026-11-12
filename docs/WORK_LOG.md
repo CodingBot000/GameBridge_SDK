@@ -2539,3 +2539,4 @@
 - exact-version cached packages를 embedded로 복사한 재시도는 Unity export FAIL exit 1. `artifacts/unity-ios-mock.Y0BHBq/project/Logs/Editor.log`에 Notifications package의 Tests/Runtime이 NUnit/Test Framework 미참조로 CS0246을 발생시켰다. SDK/runtime 소스의 실패로 단정하지 않는다. 새 임시 복사본에서 해당 패키지의 test-only 디렉터리만 제외하고 resolver/build를 재검증한다.
 - 임시 embedded package의 Tests/Tests.meta만 제외해 runtime/editor 코드는 보존하고 source cache test 디렉터리는 그대로 유지한다. 누락·원본 보존 unit test를 재실행한다.
 - `python3 -m unittest discover -s harness -p test_unity_ios_push_cache.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: 임시 embedded test 제외와 원인 기록만 포함한다.
+- exact-version embedded cache의 test-only 디렉터리를 제외한 새 소비 프로젝트로 전체 iOS Push runner를 재실행한다. 전역 환경과 이전 artifacts는 보존하며 실행 전 기록을 커밋한다.

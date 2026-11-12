@@ -2927,3 +2927,5 @@
 - 양 Native Player runner가 sample을 직접 복사하지 않고 Unity Sample API import marker를 요구하도록 변경했다. Python/shell 구문 및 marker 단위 5건 PASS. importer는 실제 Player 실행 전이며 격리 artifacts 경로 보호를 추가한다.
 - Sample import helper의 artifacts 외부 consumer 거부 fixture 및 shell syntax PASS. 기존 사용자 프로젝트를 대상으로 하지 않으며 실제 양 플랫폼 Player 재실행은 아직 없다. 커밋 전: helper·runner 연결·기록만 포함한다.
 - 동일 신규 프로젝트의 Sample API import 이후 Native Demo iOS LOCAL_MOCK Player를 실행한다. 현재 source 기록을 먼저 커밋하며 결과는 미실행이다.
+- `run-unity-ios-mock-e2e.py --native-demo-probe` exit 0 (`artifacts/unity-ios-e2e-7ryle35b`): 같은 신규 프로젝트에서 Unity Sample API로 Offline/Native import 후 Native Demo iOS Simulator Player mock 설정·인증·구매·로그아웃 및 원장 1건/100 PASS. Package Manager GUI 클릭·포인터·실제 Apple 거래는 아니다.
+- iOS Simulator는 삭제 없이 shutdown했다. 커밋 전: iOS import→Player 결과만 기록하고 Android 동일 경로는 NOT_RUN으로 유지한다.

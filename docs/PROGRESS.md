@@ -762,3 +762,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Native Player runner의 Sample API import 연결·Python/shell 및 marker 단위 5건 PASS. 격리 경로 보호를 추가한 뒤 실제 Player에서 검증한다.
 - Sample import helper가 artifacts 외부 프로젝트를 거부하는 음성 시험과 shell 문법 PASS. 실제 양 플랫폼 Player는 NOT_RUN; clean-source 실행 전 커밋 준비.
 - P08-T04 Sample API import→Native Demo iOS Simulator Player 실제 검증 시작: 최신 stage·격리 DB·ad-hoc Simulator 서명 사용.
+- P08-T04 동일 신규 프로젝트 Sample API import→Native Demo iOS Simulator LOCAL_MOCK Player PASS (`artifacts/unity-ios-e2e-7ryle35b`), 원장 1건/100. GUI 클릭·실제 Apple 거래는 별도다.
+- iOS test Simulator shutdown·데이터 보존. iOS 결과 커밋 준비, Android Sample API→Player는 미실행이다.

@@ -692,3 +692,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T04 Native Demo Android test-only probe와 격리 runner option 작성, Python 문법 PASS. 실제 Unity 컴파일·Player는 미실행이며 managed compile을 확인한다.
 - Native Demo Android test-only probe managed compile PASS(경고·오류 0). marker 필터 및 혼합 probe 거부를 확인한 뒤 clean-source Player를 실행한다.
 - Native Demo marker/filter 포함 단위 4건 PASS, UTF-8/Native probe 동시 선택 exit 2 확인. 실제 Android Player는 NOT_RUN; clean-source 시험 전 코드 커밋 준비.
+- P08-T04 Native Demo Android Player 실제 검증 시작: source 337d4ec 제품/테스트 코드와 최신 staged SDK, 빈 전용 AVD·격리 DB를 사용한다. 시작 기록을 커밋한 뒤 실행한다.

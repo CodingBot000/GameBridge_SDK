@@ -2843,3 +2843,5 @@
 - staged Native Demo에 runtime 설정을 입력하고 실제 UI callback으로 mock 로그인·상품·구매·로그아웃 및 합성키 결과 검사를 실행하는 Android probe를 추가했다. runner는 별도 marker·정확한 uGUI 2.5.0을 요구한다. 아직 Unity/Player 미실행이다.
 - `UNITY_ANDROID` 조건부 Native Demo probe managed compile exit 0, 경고·오류 0. 실제 Player는 NOT_RUN. marker 수집·서로 다른 probe 동시 설정 거부를 확인한다.
 - `test_unity_redaction_marker.py` 4건 PASS/skip0 및 두 전문 probe 동시 선택의 argparse exit 2 확인. 커밋 전: test-only sample probe·격리 runner와 기록만 포함한다. 실제 Player·시각 QA는 미실행이다.
+- staged Native Demo sample의 Android LOCAL_MOCK Player를 실제로 빌드·실행한다. 새 빈 AVD는 기존 시험 앱 덮어쓰기를 막기 위해 필요하며 사용자 데이터는 보존한다. 최초 전체화면 안내 수동 처리 가능성을 별도 기록한다.
+- 커밋 전: 실행 시작 기록만 포함, 실제 결과는 NOT_RUN이다.

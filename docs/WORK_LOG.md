@@ -2782,3 +2782,6 @@
 - 합성 토큰 검사 추가 후 격리 strict exit 1, `artifacts/verify-all-r1ely80_/summary.md`; 구매 하위 전체 PASS, 외부 13 WAITING_USER. 실행 당시 HEAD 150a013 + 미커밋 테스트/하네스/문서, 미추적 파일 보존. 나머지 실패·미실행을 확인한다.
 - `verify-all-r1ely80_`에서 구매 하위 및 `push/mock-permission-denied` PASS; `push/unity-player-notifications` DEFERRED_ENV, `unity-editor-runtime` NOT_RUN, scenario coverage PARTIAL 및 기록된 P05-T03 FAIL로 전체 FAIL. 이전 별도 Player PASS를 이 실행의 lane PASS로 대체하지 않는다. 실행 후 전용 Simulator shutdown, 데이터 보존.
 - `verify-progress.py`, purchase runner Python compile 및 diff 검사 PASS. 커밋 전: Android/Swift 합성 token assertion, regression 필수 3건, 정제 증거·strict/보고서만 포함한다. 외부 token 및 전체 로그 안전은 주장하지 않는다.
+### P09-T01 부분 시나리오 증거 연결 시작
+- R22의 local token bridge 시험은 purchase regression에, R40 Mock 거부는 push regression에 추가됐다. manifest의 부분 증거 경로와 후보 suite를 현재 상태에 맞게 연결하되 전체 검증 미완료 상태는 그대로 유지한다.
+- `check-manifest.py`, `check-manifest-negative.py`, `verify-progress.py`, `git diff --check` exit 0. 파일 연결 검사이며 제품 통과를 뜻하지 않는다. 커밋 전: PARTIAL 유지한 증거·후보 suite 및 진행 기록만 포함한다.

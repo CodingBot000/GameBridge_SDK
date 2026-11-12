@@ -10,7 +10,7 @@
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: R40 Mock 거부 주입 및 R22 민감정보 검증, strict-local 전체 실행, Unity push 집계의 실제 실행과 CI 검증
+- 바로 다음 행동: R22 전체 로그·입력 변이 검증과 R40 OS 권한 자동 재현, 최신 strict의 Unity 포함 실행 및 GitHub Actions 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -640,3 +640,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 최신 strict 전체 FAIL/exit 1 (`artifacts/verify-all-r1ely80_/summary.md`), 외부 13 WAITING_USER. 구매 하위는 모두 PASS이나 전체 실패·미실행 원인을 확인한다.
 - 최신 strict 세부: 구매 전체와 mock-permission PASS, Unity Push DEFERRED_ENV, Editor NOT_RUN, R22/R40 PARTIAL 및 기존 P05-T03 FAIL. 사용한 테스트 Simulator shutdown(데이터 보존).
 - Native token assertion과 regression 3건 필수 집계, 최신 strict 결과·최종 보고서 반영 및 원장/Python/diff 검사 PASS. 커밋 준비. 실제 제공자·전체 로그는 미검증.
+- P09-T01 시나리오 manifest 증거 연결 시작: R22의 새 Native token 및 Unity 결과 부분 증거와 R40 OS/Mock 부분 증거를 후보 suite에 연결하되 PARTIAL 유지.
+- R22/R40 부분 증거 연결 후 manifest·음성·원장/diff 검사 PASS. 제품 시험 재실행이 아니며 두 시나리오 PARTIAL 유지. 커밋 준비.

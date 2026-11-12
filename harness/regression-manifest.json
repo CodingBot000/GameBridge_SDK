@@ -905,10 +905,11 @@
         "R22"
       ],
       "candidateSuites": [
-        "auth-regression"
+        "auth-regression",
+        "purchase-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r22-local-redaction-partial.md",
+      "note": "Native synthetic session tokens, typed results and local Player development-key checks passed; full logs and input variants remain partial."
     },
     {
       "id": "R23",
@@ -1483,8 +1484,8 @@
       "candidateSuites": [
         "push-regression"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r40-android-os-permission-partial.md",
+      "note": "Android/iOS OS denial and managed mock denial have separate evidence; unattended OS reproduction remains partial."
     },
     {
       "id": "R41",

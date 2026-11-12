@@ -2608,3 +2608,8 @@
 - self-hosted Unity job은 필수 환경뿐 아니라 실제 활성 라이선스를 확인한 다음에만 Editor/Player 검사를 실행한다. basic inventory job에 gate 음성 tests를 추가했다. 원격 Actions는 실행하지 않았다.
 - `test_ci_gate.py` 3건 PASS, Ruby YAML 구문/7개 job 구조 및 bash 문법 PASS. `docs/CI.md`에 basic vs Unity vs Release, opt-in self-hosted 보안 경계, 미실행/부분 시나리오 차단 및 현재 strict Unity push 미연결을 명시했다. 원격 CI는 실행하지 않았다.
 - 커밋 준비: CI 분리, 라이선스 확인·fail-closed release script, 격리 음성 테스트 및 CI 문서만 포함한다. 원격 workflow 설정/실행 및 자동 push는 하지 않는다.
+### P09 R49 신규 Unity 소비 프로젝트 근거 대조 시작
+- PX-T04/PX-T07 및 후속 Android/iOS Player 회귀의 새 소비 프로젝트·Unity package copy·APK/Xcode build를 기존 Demo 의존 여부와 대조한다. 재현 가능한 양 플랫폼 runner를 추가하며 근거 확인 전 manifest를 완료로 변경하지 않는다.
+- Android `8afe5d0` 및 iOS `9031124` 실제 Player 결과는 동일 staging manifest SHA를 사용하며 SDK 제품 디렉터리 diff 없음. 각 prepare 스크립트는 `unity/Demo`가 아닌 별도 소비 프로젝트에 UPM과 테스트 소스만 복사한다. `harness/run-unity-consumer-e2e.py`는 opt-in 시 Android/iOS 실제 새 실행·현재 HEAD·tracked-clean·원장 검증을 요구한다. runner 음성 검사를 실행한다.
+- `docs/evidence/r49-unity-fresh-consumers.md`에 기존 두 Player의 source/staging·새 consumer·서로 동일한 제품 소스 및 한계를 정리했다. R49는 실제 실행된 Android/iOS local-mock 근거로 IMPLEMENTED, 새 wrapper 실제 실행은 NOT_RUN이다. `harness/test_unity_consumer_e2e.py` 2건 PASS/skip 0; manifest·누락 음성 검증을 실행한다.
+- `harness/check-manifest.py`, `harness/check-manifest-negative.py` 종료 0, `test_unity_consumer_e2e.py` 2건 PASS/skip 0. 커밋 준비: R49 실제 선행 증거·매핑 및 fail-closed runner만 포함한다.

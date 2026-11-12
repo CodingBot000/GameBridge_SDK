@@ -492,3 +492,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 Unity gate에 실제 Editor 실행 전 활성 라이선스 확인을 추가하고 CI 음성 테스트를 기본 inventory gate에 연결했다. 원격 Actions는 NOT_RUN이다.
 - P09-T07 CI gate 로컬 음성 테스트 3건 및 YAML 구조·셸 문법 PASS. strict의 Unity push 집계는 아직 DEFERRED_ENV로 명시되며 우회하지 않는다. Actions 원격 job 결과는 NOT_RUN이다.
 - P09-T07 CI 구조·음성 테스트 및 현재 한계 문서 커밋 준비. 원격 검증 미실행을 PASS로 기록하지 않는다.
+- P09-T01/R49 근거 대조 시작: 기존 Android·iOS Unity LOCAL_MOCK Player 실행이 각각 새 소비 프로젝트·embedded UPM·독립 빌드인지, 제품 소스와 staging이 일치하는지 확인한다. 실행 가능한 현재-source 시나리오 runner도 연결한다.
+- R49 기존 Android/iOS Player 실행은 서로 같은 UPM staging hash, Demo 소스 비참조 격리 consumer, 제품 소스 무차이를 확인했다. 현재-source 양 플랫폼 실제 실행만 통과시키는 새 runner의 fail-closed 단위 검사를 시작한다.
+- R49 기존 두 플랫폼의 새 Unity consumer import·Player 실행 및 동일 staged 제품 source 증거를 확인해 IMPLEMENTED로 매핑했다. 새 통합 wrapper 자체의 실제 재실행은 별도 NOT_RUN이며 real stores/devices는 미검증이다. manifest·음성 테스트를 시작한다.
+- R49 manifest·누락 음성 검사와 새 wrapper fail-closed 단위 2건 PASS. 기존 두 실제 Player 증거와 새 wrapper 자체의 전체 재실행 미실행을 구분해 커밋한다.

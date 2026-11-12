@@ -195,6 +195,14 @@
       ],
       "mode": "ISOLATED_LOCAL_DB_AND_FAKE",
       "platform": "Backend/Android"
+    },
+    "unity-consumer-e2e": {
+      "command": [
+        "python3",
+        "harness/run-unity-consumer-e2e.py"
+      ],
+      "mode": "UNITY_PLAYER_AND_ISOLATED_DB",
+      "platform": "Unity Android/iOS simulator"
     }
   },
   "scenarios": [
@@ -1697,18 +1705,34 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R49"
       ],
       "candidateSuites": [
-        "unity-editor",
-        "package"
+        "unity-consumer-e2e"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Isolated consumer Editor runner and test sources exist; Unity Editor execution and fresh player build remain unverified."
+      "evidence": "docs/evidence/r49-unity-fresh-consumers.md",
+      "note": "Existing Android and iOS fresh Unity LOCAL_MOCK Player evidence; wrapper requires fresh current-source runs, external stores and real devices remain separate.",
+      "assertions": [
+        {
+          "suite": "unity-consumer-e2e",
+          "testFile": "scripts/prepare-unity-android-mock.sh",
+          "testCase": "cp -R \"$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk\""
+        },
+        {
+          "suite": "unity-consumer-e2e",
+          "testFile": "scripts/prepare-unity-ios-mock.sh",
+          "testCase": "cp -R \"$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk\""
+        },
+        {
+          "suite": "unity-consumer-e2e",
+          "testFile": "harness/run-unity-consumer-e2e.py",
+          "testCase": "data.get('unityPlayer')=='PASS'"
+        }
+      ]
     },
     {
       "id": "R50",

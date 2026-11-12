@@ -2949,3 +2949,4 @@
 - metadata 추가가 실제 iOS sample import/export/Player를 깨지 않는지 새 stage에서 재실행한다. Sample 최상위 폴더 GUID 불일치는 이 시험과 별도 미완료다. clean-source 시작 기록만 커밋한다.
 - metadata stage iOS `--native-demo-probe` exit 0 (`artifacts/unity-ios-e2e-q9ua_s4_`): Sample API import 후 Native Demo Simulator LOCAL_MOCK Player·원장 1건/100 PASS, tracked-clean. Android와 sample 최상위 폴더 GUID는 별도다.
 - iOS test Simulator shutdown, 데이터 보존. 커밋 전: iOS 부분 결과만 포함하며 Android 재실행은 NOT_RUN으로 남긴다.
+- metadata 추가가 Android sample import/export/Player를 깨지 않는지 새 stage에서 재실행한다. 기존 AVD 앱 데이터를 보존하기 위해 빈 전용 기기를 사용하며 시작 기록만 커밋한다.

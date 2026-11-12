@@ -783,3 +783,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T03 metadata stage iOS Native Demo Sample API→Simulator Player 재검증 시작: source e33a2bd와 147파일 stage, 격리 DB를 사용한다. 최상위 sample 폴더 GUID 불일치는 별도 유지.
 - metadata stage iOS Sample API→Native Demo Simulator LOCAL_MOCK Player PASS (`artifacts/unity-ios-e2e-q9ua_s4_`), tracked-clean·원장 1건/100. Android 재실행 및 sample 최상위 폴더 GUID는 별도.
 - iOS test Simulator shutdown(데이터 보존), 결과 커밋 준비. Android metadata stage Player는 NOT_RUN.
+- P08-T03 metadata stage Android Native Demo Sample API→Player 재검증 시작: 앱 미설치 전용 AVD·격리 DB 사용.

@@ -51,7 +51,7 @@ class BridgeDispatcherTest {
         val fixture = File("../../contracts/fixtures/bridge/request.json").readText()
         val initialized = fixture.replace("store.purchase", "sdk.initialize")
         val working = BridgeDispatcher(BridgeOperationHandler { operation, _ ->
-            if (operation == "sdk.initialize" || operation == "sdk.shutdown") buildJsonObject {} else throw IllegalStateException("sensitive token")
+            if (operation == "sdk.initialize" || operation == "sdk.shutdown") buildJsonObject {} else throw IllegalStateException("sensitive token synthetic-person@example.invalid +1-202-555-0107")
         })
         working.dispatch(initialized.toByteArray())
         repeat(101) { working.dispatch(fixture.toByteArray()) }
@@ -62,6 +62,7 @@ class BridgeDispatcherTest {
         assertEquals("PURCHASE", events.last().jsonObject["kind"]!!.jsonPrimitive.content)
         assertEquals("FAILED", events.last().jsonObject["outcome"]!!.jsonPrimitive.content)
         assertFalse(response.json.contains("sensitive"))
+        assertFalse(response.json.contains("synthetic-person@example.invalid")); assertFalse(response.json.contains("+1-202-555-0107"))
         assertFalse(response.json.contains("payload"))
         working.dispatch(fixture.replace("store.purchase", "sdk.shutdown").toByteArray())
         val after = working.dispatch(query.toByteArray()) as BridgeDispatchResult.Message

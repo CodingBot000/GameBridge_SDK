@@ -799,3 +799,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 실제 Unity export hook Android/iOS 각 2회 반복 PASS 증거 작성, CI gate 연결. CI 음성 6건·shell/원장/diff PASS; 변경된 전체 gate 및 GitHub Actions는 NOT_RUN. 커밋 준비.
 - P09-T08 Unity CI mock gate가 sample 및 양 export hook 실행을 빠뜨리지 않는지 음성 방지 시험을 보강한다.
 - CI mock gate의 sample·Android/iOS hook 호출 및 strict 실패 전파 포함 단위 6건 PASS, 원장/diff PASS. 실제 새 gate 전체는 NOT_RUN, 커밋 준비.
+- P09-T03/R22 개인정보 형태 입력의 Backend 오류/trace 및 Native diagnostics 비노출 검증 시작: 합성 email·전화번호만 사용한다.
+- 합성 개인정보 입력 assertion을 Backend 오류/trace 및 Android/Swift diagnostics 시험에 추가했다. 실제 검증은 아직 NOT_RUN이다.
+- R22 합성 email/전화번호 비노출: Backend 오류/trace 4건, Android bridge 3건, Swift C bridge 4건 PASS/skip0. 실제 개인정보·Unity raw log 개인정보 주입은 별도 미검증.
+- R22 개인정보 fixture 실제 주입 위치와 assertion 재확인, 원장/diff PASS. 전체 Unity 로그 개인정보·실제 provider 범위는 미검증으로 커밋 준비.

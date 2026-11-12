@@ -61,6 +61,7 @@ final class CBridgeTests: XCTestCase {
         GB_SetCallback(bridgeCallback)
         let session = UUID().uuidString.lowercased()
         let key = "development-test-key-0123456789abcdef"
+        let syntheticEmail = "synthetic-person@example.invalid", syntheticPhone = "+1-202-555-0107"
         func call(_ operation: String, _ payload: [String: Any], _ sessionId: String) throws -> [String: Any] {
             let request: [String: Any] = ["protocolVersion": 1, "sdkSessionId": sessionId, "kind": "request",
                 "requestId": UUID().uuidString.lowercased(), "operation": operation, "payload": payload]
@@ -69,7 +70,7 @@ final class CBridgeTests: XCTestCase {
             XCTAssertEqual(callbackSignal.wait(timeout: .now() + 3), .success)
             callbackLock.lock(); let response = callbackData; callbackLock.unlock()
             let raw = try XCTUnwrap(response)
-            XCTAssertFalse(String(decoding: raw, as: UTF8.self).contains(key))
+            for sensitive in [key, syntheticEmail, syntheticPhone] { XCTAssertFalse(String(decoding: raw, as: UTF8.self).contains(sensitive)) }
             return try XCTUnwrap(JSONSerialization.jsonObject(with: raw) as? [String: Any])
         }
         let payload: [String: Any] = ["providerMode": "LOCAL_MOCK", "appId": "gamebridge-sample",
@@ -78,7 +79,7 @@ final class CBridgeTests: XCTestCase {
         XCTAssertEqual(initialized["ok"] as? Bool, true)
         let result = try XCTUnwrap(initialized["result"] as? [String: Any])
         XCTAssertEqual(result["mode"] as? String, "LOCAL_MOCK")
-        let diagnostics = try call("diagnostics.get", ["secret": key], session)
+        let diagnostics = try call("diagnostics.get", ["secret": key, "email": syntheticEmail, "phone": syntheticPhone], session)
         let events = try XCTUnwrap((diagnostics["result"] as? [String: Any])?["events"] as? [[String: Any]])
         XCTAssertTrue(events.contains { $0["kind"] as? String == "INITIALIZE" && $0["outcome"] as? String == "SUCCEEDED" })
         let other = try call("auth.restore", [:], UUID().uuidString.lowercased())

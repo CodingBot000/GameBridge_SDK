@@ -36,6 +36,8 @@ class HttpInfrastructureTest {
     }
     @Test fun `unexpected exception never exposes request secret in response or application error log`() {
         val secret = "synthetic-error-secret-93f4"
+        val syntheticEmail = "synthetic-person@example.invalid"
+        val syntheticPhone = "+1-202-555-0107"
         val logger = LoggerFactory.getLogger(ApiErrors::class.java) as Logger
         val appender = ListAppender<ILoggingEvent>().apply { start() }
         logger.addAppender(appender)
@@ -43,12 +45,13 @@ class HttpInfrastructureTest {
             val mvc = MockMvcBuilders.standaloneSetup(ValidationController()).setControllerAdvice(ApiErrors())
                 .addFilters<org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder>(RequestIdFilter()).build()
             val result = mvc.perform(post("/error-test").contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer $secret").content("{\"value\":\"$secret\"}"))
+                .header("Authorization", "Bearer $secret").content("{\"value\":\"$secret $syntheticEmail $syntheticPhone\"}"))
                 .andExpect(status().isInternalServerError).andExpect(jsonPath("$.code").value("INTERNAL_ERROR"))
                 .andReturn()
-            check(!result.response.contentAsString.contains(secret))
+            val sensitive = listOf(secret, syntheticEmail, syntheticPhone)
+            for (value in sensitive) check(!result.response.contentAsString.contains(value))
             check(appender.list.isNotEmpty())
-            check(appender.list.all { !it.formattedMessage.contains(secret) && it.throwableProxy == null })
+            check(appender.list.all { event -> sensitive.none { event.formattedMessage.contains(it) } && event.throwableProxy == null })
         } finally {
             logger.detachAppender(appender)
             appender.stop()

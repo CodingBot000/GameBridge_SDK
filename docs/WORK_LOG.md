@@ -2967,3 +2967,8 @@
 ### P09-T08 CI 필수 sample/hook 호출 검증 시작
 - self-hosted gate에 새로 연결한 sample 및 Android/iOS export hook이 실제 순서에서 호출되는지 mock command fixture에 assertion을 추가한다. Unity 실제 hook 시험은 별도 증거다.
 - `test_ci_gate.py` 6건 PASS/skip0: mock gate에서 Editor·sample·양 hook·isolated strict 호출과 실패 전파 확인. 원장/diff PASS; 실제 새 전체 gate 및 GitHub Actions는 NOT_RUN. 커밋 전: fixture·기록만 포함한다.
+### P09-T03/R22 합성 개인정보 redaction 시험 시작
+- R22는 token뿐 아니라 개인정보 형태 입력도 포함한다. 합성 email/전화번호를 Backend 오류·trace 및 Android/Swift diagnostics 요청/예외에 주입해 응답과 캡처 로그에서 비노출을 확인한다. 실제 개인정보는 사용하지 않는다.
+- 합성 email/전화번호가 Backend 예외 응답·trace 및 Android/Swift diagnostics 공개 결과에 나오지 않아야 하는 assertion을 작성했다. 테스트 실행 전이다.
+- Backend `HttpInfrastructureTest`/`LocalMockTraceFilterTest` 각 2건, Android `BridgeDispatcherTest` 3건, Swift `CBridgeTests` 4건 PASS/skip0: synthetic email/전화번호가 시험한 오류·trace/diagnostics 응답에 나오지 않음. 실제 개인정보와 Unity raw log의 개인정보 주입은 미검증이다.
+- 합성 개인정보가 실제 request/exception에 주입되고 응답·로그 검사에 포함됨을 소스에서 재확인했다. 커밋 전: 테스트와 정제 증거만 포함하며 전체 R22/실 provider를 완료로 기록하지 않는다.

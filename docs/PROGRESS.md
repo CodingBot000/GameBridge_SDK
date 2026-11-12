@@ -758,3 +758,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T04 Package Manager Sample API 두 sample import marker 보존 및 새 Editor fake flow/Native guard PASS (`artifacts/offline-sample.FAkiaR`). GUI 클릭·시각/포인터와 실제 provider는 미검증.
 - sample import marker 보존 후 결과 음성·원장/shell/diff PASS. 두 marker가 정확히 한 번씩 존재해야 통과하도록 판정을 강화한다.
 - marker 정확성 강화 후 Sample API import 양쪽 및 Editor Play 1건 PASS/skip0 (`artifacts/offline-sample.Afsqij`). GUI 클릭·실제 렌더링은 미검증, 커밋 준비.
+- P08-T04 Native Demo 양 플랫폼 probe의 Sample API import 연결 시작: 직접 sample 복사 대신 격리 Package Manager import 후 Player 빌드·LOCAL_MOCK 실행을 확인한다.
+- Native Player runner의 Sample API import 연결·Python/shell 및 marker 단위 5건 PASS. 격리 경로 보호를 추가한 뒤 실제 Player에서 검증한다.
+- Sample import helper가 artifacts 외부 프로젝트를 거부하는 음성 시험과 shell 문법 PASS. 실제 양 플랫폼 Player는 NOT_RUN; clean-source 실행 전 커밋 준비.

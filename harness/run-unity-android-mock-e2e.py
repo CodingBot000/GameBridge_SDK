@@ -313,15 +313,17 @@ def main():
         if args.utf8_probe:
             shutil.copy2(ROOT / "tests/UnityAndroidUtf8Consumer/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
         if args.native_demo_probe:
-            shutil.copy2(ROOT / "tests/UnityAndroidNativeDemo/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
-            shutil.copytree(staging / "com.gamebridge.sdk/Samples~/Native Demo", project / "Assets/Native Demo")
             editor = Path("/Applications/Unity/Hub/Editor") / os.environ.get("UNITY_EDITOR_VERSION", "6000.5.8f1") / "Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui"
             try:
                 if json.loads((editor / "package.json").read_text()).get("version") != "2.5.0": raise ValueError()
                 shutil.copytree(editor, project / "Packages/com.unity.ugui", ignore=shutil.ignore_patterns("Tests", "Tests.meta"))
             except (OSError, ValueError): raise GateError("UNITY_UGUI_REQUIRED", "DEFERRED_ENV")
             (project / "Packages/manifest.json").write_text('{"dependencies":{"com.unity.ugui":"2.5.0"}}\n')
-            summary["nativeDemoProbe"] = True
+            imported = run(["bash", "scripts/import-unity-samples.sh", project, output / "sample-import-markers.log"], timeout=360, env=environment)
+            (output / "sample-import.log").write_text(imported.stdout, encoding="utf-8")
+            if imported.returncode: raise GateError("SAMPLE_IMPORT_FAILED")
+            shutil.copy2(ROOT / "tests/UnityAndroidNativeDemo/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
+            summary["nativeDemoProbe"] = True; summary["sampleImport"] = "PASS"
         apk = output / "gamebridge-mock-consumer.apk"
         built = run(["bash", "scripts/build-unity-android-mock.sh", project, apk],
                     timeout=1200, env=environment)

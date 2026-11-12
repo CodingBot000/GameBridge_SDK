@@ -48,15 +48,17 @@ def main():
             shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/link.xml',project/'Assets/link.xml')
         if args.native_demo_probe:
             import shutil
-            shutil.copy2(ROOT/'tests/UnityIosNativeDemo/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
-            shutil.copytree(stage/'com.gamebridge.sdk/Samples~/Native Demo',project/'Assets/Native Demo')
             editor=Path('/Applications/Unity/Hub/Editor')/os.environ.get('UNITY_EDITOR_VERSION','6000.5.8f1')/'Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui'
             try:
                 if json.loads((editor/'package.json').read_text()).get('version')!='2.5.0': raise ValueError()
                 shutil.copytree(editor,project/'Packages/com.unity.ugui',ignore=shutil.ignore_patterns('Tests','Tests.meta'))
             except (OSError,ValueError): raise RuntimeError('UNITY_UGUI_REQUIRED')
             (project/'Packages/manifest.json').write_text('{"dependencies":{"com.unity.ugui":"2.5.0"}}\n')
-            result['nativeDemoProbe']=True
+            imported=run(['bash','scripts/import-unity-samples.sh',project,out/'sample-import-markers.log'],env=env,timeout=360)
+            (out/'sample-import.log').write_text(imported.stdout)
+            if imported.returncode: raise RuntimeError('SAMPLE_IMPORT_FAILED')
+            shutil.copy2(ROOT/'tests/UnityIosNativeDemo/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
+            result['nativeDemoProbe']=True; result['sampleImport']='PASS'
         xcode=out/'xcode'
         exported=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],env=env,timeout=1200)
         (out/'unity-export.log').write_text(exported.stdout)

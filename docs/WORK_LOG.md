@@ -2922,3 +2922,7 @@
 - 보완 runner 재실행 exit 0 (`artifacts/offline-sample.FAkiaR`): 별도 `import-markers.log`에 두 Sample API import PASS marker 보존, Editor test 1건 PASS/skip0. GUI import 클릭·실제 시각/포인터 QA와 실제 provider는 별도다.
 - sample result 음성 1건 PASS, 원장·shell·diff PASS. import marker 중복이나 한쪽 누락을 허용하지 않도록 marker 각각 정확히 1건을 요구한다.
 - 강화 runner `artifacts/offline-sample.Afsqij`: sample import marker 각각 정확히 1건, Editor Play test 1건 PASS/skip0. 커밋 전: Unity Sample API setup·runner·정제 증거만 포함하며 Package Manager GUI·시각 QA로 기록하지 않는다.
+### P08-T04 Native Demo Sample API → Player 연결 시작
+- 기존 Android/iOS Native Demo Player는 sample 파일을 직접 복사했고 Sample API import는 별도 Editor 시험이었다. 동일 격리 소비 프로젝트에서 실제 Sample API import 후 Native Player를 빌드·실행하는 경로로 연결한다. GUI 클릭·시각 QA 및 실제 provider는 별도다.
+- 양 Native Player runner가 sample을 직접 복사하지 않고 Unity Sample API import marker를 요구하도록 변경했다. Python/shell 구문 및 marker 단위 5건 PASS. importer는 실제 Player 실행 전이며 격리 artifacts 경로 보호를 추가한다.
+- Sample import helper의 artifacts 외부 consumer 거부 fixture 및 shell syntax PASS. 기존 사용자 프로젝트를 대상으로 하지 않으며 실제 양 플랫폼 Player 재실행은 아직 없다. 커밋 전: helper·runner 연결·기록만 포함한다.

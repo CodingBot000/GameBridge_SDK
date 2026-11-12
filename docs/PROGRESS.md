@@ -5,12 +5,12 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: PX-T01 / Unity Android LOCAL_MOCK 소비 실행
-- 마지막 갱신 시각: 2026-11-11 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: e9b64fb (격리 strict aggregate 전체 FAIL; Unity·외부 서비스는 미검증)
+- 현재 Phase / Task: PX-T17 / Unity Android·iOS LOCAL_MOCK Push/Lifecycle 결과 정리
+- 마지막 갱신 시각: 2026-11-12 (Asia/Seoul)
+- 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 바로 다음 행동: 사용자 Unity 라이선스 활성화와 Android Build Support 준비 후 격리 소비 프로젝트 import·Android Player 빌드·에뮬레이터의 LOCAL_MOCK 전체 흐름을 실행하고 Native/Backend 요청 ID 및 DB 지급을 확인
+- 바로 다음 행동: Push/Lifecycle 증거와 미검증 범위를 정리하고 실제 기기·Google/Apple 인증·스토어·FCM/APNs는 별도 검증
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -104,8 +104,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | USER-PUSH-CONCURRENCY | USER | P06-T04 | 기본 동시 1건 사용자 선택 | scheduler 설정·검증 진행 | 실제 원격 발송은 별도 | RESOLVED |
 | USER-CONFIG-TTL | USER | P07-T01 | 기본 유효기간 5분 사용자 선택 | 서버 설정·local-mock 통합 진행 | 실제 플랫폼 검증은 별도 | RESOLVED |
 | BUG-016 | BUG | P04-T04, P09-T03 | Native 실제 Provider의 profile 확인 이후 요청 401에서 refresh 누락 | Android/iOS 단일 refresh·1회 재시도 및 proof idempotency 유지 구현 | fake 동시 요청·계정 변경·반복 401·증빙 멱등키 검증 | RESOLVED |
-| BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring의 Unity 공개 조회 구현 및 fake 확인; 실제 Unity player 미검증 | Native typed snapshot과 C# 제한 검사 유지 | 실제 Unity player에서 Native 진단 경계·redaction 확인 | OPEN |
-| BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과; Unity player·재연결 실제 수명주기 미검증 | 인증·소유권·heartbeat 회귀 유지 | Unity player 전달 및 lifecycle 검증 | OPEN |
+| BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring의 Unity 공개 조회: Android 및 iOS Simulator LOCAL_MOCK Player 확인 | Native typed snapshot과 C# 제한 검사 유지 | 다른 모드·실제 기기 redaction 별도 | OPEN |
+| BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle 확인 | 인증·소유권·heartbeat 회귀 유지 | 실제 기기·FCM/APNs 및 iOS OS 전체 네트워크 차단 별도 | OPEN |
 | BUG-013 | BUG | P05-T03, P05-T07 | XCODE_STOREKIT iOS 18.6 local DB 및 프로세스 재시작 복구 PASS; Unity·실기기 미검증 | 전용 DB fake 지급과 분리 검증 유지 | Unity player·실기기 및 iOS 26.5 실패 재검증 | OPEN |
 | BUG-012 | BUG | P04-T04, P10-T02 | Unity가 Native logout의 REVOCATION_UNCONFIRMED를 버려 서버 revoke 불확실성 표시 불가 | 허용된 값만 오류에 보존 | Native/C# fake logout 및 redaction 확인 | RESOLVED |
 | BUG-011 | BUG | P08-T01 | Firebase optional dependency가 없는 독립 R8 consumer에서 missing class 실패 | 선택적 runtime 경계 및 consumer shrink 규칙 보강 | Firebase 없는 R8 build와 debug emulator CONFIG_REQUIRED 확인 | RESOLVED |
@@ -128,7 +128,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | ENV-005 | ENV | P03-T02 | Simulator UI snapshot 대상 0개, 수동 대체 입력으로도 흐름 미확인 | XCTest 기반 독립 UI 검증 시도 | iOS local-mock UI smoke 실행 확인 | RESOLVED |
 | ENV-004 | ENV | P03-T01 | 전용 emulator 복원 시험에서 화면 준비 전 입력 실패 | UI 준비 후 재시도 | Keystore 복원 확인 | RESOLVED |
 | ENV-003 | ENV | P00-T03 | XcodeGen 최초 부재 | 로컬 도구 2.46.0 확보 후 프로젝트 생성·빌드 확인 | 실제 스토어 및 Unity 검증 별도 | RESOLVED |
-| ENV-002 | ENV | P00-T03 및 Unity 검증 | Unity Editor 생성 시 라이선스 확인 실패, 종료 198 | 프로젝트 생성 안내 스크립트 제공, 다른 플랫폼 계속 | 사용자 라이선스 및 Editor 재확인 | OPEN |
+| ENV-002 | ENV | P00-T03 및 Unity 검증 | 과거 Unity 라이선스 비활성 및 Android 모듈 부재 | Unity 6000.5.8f1 라이선스·Android 모듈 준비 확인, Unity Android local-mock Player 실행 | Unity iOS 및 나머지 테스트 별도 | RESOLVED |
 | ENV-001 | ENV | P00-T02 | Unity 6.3 LTS 미설치; 설치 버전의 모듈·라이선스 미확인 | 설치된 Editor로 검증 시도 | 호환 Editor와 모듈·라이선스 확인 | OPEN |
 
 유형: USER=사용자 계정·서명·콘솔, ENV=설치/실행환경, BUG=내부 버그, DEP=선행 구현 미해결. 같은 사건은 중복 ID를 만들지 않고 영향 Task를 추가한다. 사용자 인증 필요성은 USER_SETUP에 이미 계획되어 있지만 실제 구현 준비 여부는 개발 중 갱신한다.
@@ -137,21 +137,21 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 | 기능 | Android 코드/빌드 | iOS 코드/빌드 | Unity Editor | Unity Android | Unity iOS | 실제 외부 서비스 |
 |---|---|---|---|---|---|---|
-| Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | N/A |
-| 인증 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 결제 | BUILD:PASS / MOCK:PARTIAL | BUILD:PASS / MOCK:PARTIAL / STOREKIT_LOCAL:FAIL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 푸시 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 세션·복구 | EMULATOR:PARTIAL | SIMULATOR:PARTIAL | NOT_RUN | NOT_RUN | NOT_RUN | WAITING_USER |
-| 배포·신규 소비 | MAVEN_CONSUMER:PASS | XCFRAMEWORK_CONSUMER:PASS | UPM_IMPORT:NOT_RUN | NOT_RUN | NOT_RUN | N/A |
+| Core·Bridge | BUILD:PASS / LOCAL_MOCK:PARTIAL | BUILD:PASS / LOCAL_MOCK:PARTIAL | IMPORT:PASS / TEST:NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | N/A |
+| 인증 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | WAITING_USER |
+| 결제 | BUILD:PASS / MOCK:PARTIAL | BUILD:PASS / MOCK:PARTIAL / STOREKIT_LOCAL:FAIL | NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | WAITING_USER |
+| 푸시 | BUILD:PASS / FAKE:PARTIAL | BUILD:PASS / FAKE:PARTIAL | NOT_RUN | LOCAL_MOCK:PASS | SIM_LOCAL_MOCK:PASS | WAITING_USER |
+| 세션·복구 | EMULATOR:PARTIAL | SIMULATOR:PARTIAL | NOT_RUN | LOCAL_MOCK_RESTART:PASS | SIM_LOCAL_MOCK_RESTART:PASS | WAITING_USER |
+| 배포·신규 소비 | MAVEN_CONSUMER:PASS | XCFRAMEWORK_CONSUMER:PASS | UPM_IMPORT:PASS | IL2CPP:PASS | SIM_IL2CPP:PASS | N/A |
 
 각 칸은 가능한 경우 `BUILD:PASS / RUN:WAITING_USER`처럼 분리한다. “Android 완료” 한마디로 Native standalone과 Unity Android를 합치지 않는다.
 
 ## 완료/미완료 요약
 
 - 일부 계약·빌드·가짜 Provider·로컬 DB 회귀 및 독립 패키지 소비 검증 통과. 개별 범위와 명령은 WORK_LOG 참조.
-- 인증·결제·푸시·복구의 실제 플랫폼 및 Unity 통합 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
-- 내부 미완료: Xcode StoreKit 실제 기기 및 Unity 복구 검증, Mock 푸시의 실제 Unity 전달 검증, Native 진단의 실제 Unity 검증. BUG-009 실제 기기 재시작 검증도 미완료.
-- 환경 대기: Unity 라이선스 및 호환 Editor, StoreKit local simulator 실패. P09 하네스에는 미구현·부분 시나리오가 남아 전체 검증은 실패 상태.
+- Unity Android 및 iOS Simulator LOCAL_MOCK 인증·구매·푸시/lifecycle 및 별도 프로세스 재시작 복구는 통과했으나 실제 플랫폼·실기기·원격 푸시·복구 전체 검증은 미완료. 외부 인증·서명·콘솔 설정은 USER_SETUP 참조.
+- 내부 미완료: Xcode StoreKit 실제 기기 및 Unity 복구 검증, 실제 기기의 Unity push/lifecycle 검증, LOCAL_MOCK 외 Native 진단의 Unity 검증. BUG-009 실제 기기 재시작 검증도 미완료.
+- 환경 대기: 계획된 Unity 6.3 LTS 및 Unity iOS 등 잔여 환경, StoreKit local simulator 실패. P09 하네스에는 미구현·부분 시나리오가 남아 전체 검증은 실패 상태.
 - 범위 제외: Windows/C++·Unreal/Godot·구독·환불 자동화·RTDN/Server Notifications 운영·관리자 웹·Kubernetes·상용 배포.
 
 ## 최근 체크포인트 이력
@@ -286,3 +286,199 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T03 커밋 준비: Android Native instrumentation·격리 실행기와 증거를 저장한다. Unity 실행 대기는 유지한다.
 - PX-T01 재개 대기: 로그인은 돼 있으나 Unity 활성 라이선스 0개이고 Android Build Support가 없어 Unity import·Player 빌드가 불가하다. 사용자 준비 이후 `docs/USER_SETUP.md`의 PX-T01 절차로 재실행한다. Android Native 대조 시험은 통과했지만 목표인 Unity Player는 NOT_RUN이다.
 - PX-T01 문서 재개 지점 커밋 준비: Android Native 대조 결과와 Unity Player NOT_RUN을 분리한다.
+
+
+### 추가 Task PX-T04 — Unity Android Player E2E 검증 Runner (현재 브랜치)
+
+- 구현: IMPLEMENTED / 실제 Unity Android LOCAL_MOCK Player 검증: PASS ([공개 증거](evidence/px-t04-unity-android-local-mock.md)). 실제 제공자·Unity iOS는 NOT_RUN.
+- harness/run-unity-android-mock-e2e.py를 추가했다. 기존 전용 AVD를 확인하고, 새 격리 Unity 소비 프로젝트를 생성하여 UPM staging을 검사한 후 APK를 빌드한다.
+- 빌드 이후 별도의 랜덤 local-mock DB 및 Backend를 기동하고 Player를 실행한다. Unity 로그의 initialize/login/products/purchase/wallet/logout PASS, Native 진단 초기화·인증·구매 이벤트, Backend HTTP trace와 DB wallet_ledger 1건·100코인을 **모두** 확인해야 PASS다.
+- Unity 6000.5.8f1 import·Android IL2CPP APK 및 전용 Android 36 에뮬레이터에서 LOCAL_MOCK 전체 경로를 검증했다. 첫 전체화면 안내는 수동으로 닫았다. 실제 Provider/스토어와 Unity iOS는 NOT_RUN 유지.
+- 원본 로그와 생성 APK는 로컬 artifacts에만 남기며, 전용 AVD·DB를 삭제하지 않는다.
+
+### 추가 Task PX-T05 — Native-only Runner 환경 가변화
+
+- 구현: IMPLEMENTED / 로컬 재실행: NOT_RUN (변경 후).
+- 기존 harness/run-android-mock-bridge-e2e.py의 emulator-5598, 사용자 홈 Android SDK 경로, Docker 컨테이너·포트 가정을 CLI/환경변수로 대체했다.
+- adb로 현재 연결된 emulator와 GameBridge_V2_ 전용 AVD 이름을 확인하며 기존 com.gamebridge.sample 설치 앱을 보존한다. 재검증 전에는 이전 PX-T03 PASS 증거만 유효하며, 변경 후 재현성은 미검증이다.
+
+### 추가 Task PX-T06 — 공개용 증거 요약과 CI 정적/오프라인 검사
+
+- 구현: IMPLEMENTED / 테스트 실행: NOT_RUN (신규 브랜치).
+- harness/export-mock-e2e-evidence.py는 result.json PASS, 소스 HEAD 일치, tracked-clean, 지급 원장 1건·100코인, Unity Player 또는 Native-only 증거를 구분하여 허용된 요약만 생성한다.
+- harness/test_export_mock_e2e_evidence.py에 dirty/stale/NOT_RUN/원본 누락·Mock-as-Unity를 거부하는 단위 테스트를 추가하고 .github/workflows/verify.yml의 Linux lane에 Python 문법/해당 테스트를 추가했다. 원격 CI는 아직 실행하지 않았다.
+- 실제 새로운 PASS 증거는 존재하지 않는다. docs/evidence/px-t03-android-mock-bridge.md의 기존 실험은 원래 소스/미커밋 상태 그대로 기록하며 새 HEAD의 재현성 PASS로 바꾸지 않는다.
+- 최신 공개 증거는 Unity Player 시험 및 Kotlin-only 시험을 각각 다시 실제로 실행한 뒤에만 생성하고 PROGRESS/WORK_LOG/FINAL_REPORT에 반영한다.
+- PX-T04 재개 (2026-11-12): origin/fix/unity-android-mock-e2e-evidence 기반 브랜치에서 Unity Android LOCAL_MOCK 전체 검증을 진행한다. 기존 미추적 Demo·캐시는 보존하고 자동 push는 하지 않는다. 현재 Player 결과는 NOT_RUN이다.
+- PX-T04 환경 확인(2026-11-12): Unity 6000.5.8f1 활성 라이선스 확인, Android Build Support·SDK·NDK·OpenJDK 및 iOS Build Support 설치 확인. 모듈은 Editor 버전 디렉터리의 `PlaybackEngines`에 있으며, 기존 Android 빌드 스크립트가 `Unity.app/Contents` 아래만 검사하는 경로 오류를 발견해 수정한다. 아직 Player 결과는 NOT_RUN이다.
+- PX-T04 빌드 preflight 경로 수정: Unity.app 내부와 Hub 버전 디렉터리 양쪽의 AndroidPlayer를 확인하도록 변경했다. 문법·실제 Player 빌드로 검증할 예정이다.
+- PX-T04 preflight 셸 문법 검사 PASS; PX-T06 evidence exporter 단위 테스트 4건 PASS/skip 0. 실제 Unity 빌드는 아직 NOT_RUN. 최신 소스 기준 산출물 및 E2E에 앞서 경로 수정 사항을 로컬 커밋한다.
+- P08/PX-T04 최신 소스 패키징 검증 시작: 별도 새 경로에서 Android Maven·iOS XCFramework·UPM staging을 생성하고 버전·무결성을 검사한다. 기존 산출물은 보존한다.
+- P08 Android 최신 로컬 Maven·별도 R8 consumer build 종료 0. iOS XCFramework 새 경로 빌드를 시작한다.
+- P08 iOS XCFramework device/simulator archive 종료 0. UPM staging·플랫폼 arch/symbol·checksum과 0.1.0-dev 버전 정합성을 확인한다.
+- P08 最新 staging `artifacts/upm-v2-20261112-f1e12b6`: Android Maven・独立 R8 consumer、iOS XCFramework device/simulator arch・C ABI、UPM 110개 checksum 및 Maven/UPM 0.1.0-dev 버전 검사 PASS. Unity import/Player는 아직 NOT_RUN이다.
+- P08 패키징 기록 커밋 준비: 생성물은 artifacts에 보존하며 Unity Player 실행 전이다.
+- PX-T04 실제 Unity Android LOCAL_MOCK E2E 검증 시작: 새 전용 GameBridge_V2_ AVD와 f1e12b6 제품 소스의 검증된 staging을 사용한다. Unity 실행·서버 원장 결과는 아직 NOT_RUN이다.
+- PX-T04 첫 전체 실행 FAIL (`artifacts/unity-android-e2e-9qhef6ni`): Unity Android APK 빌드 후 전용 에뮬레이터 설치 단계에서 실패해 Player 및 DB 지급은 미검증이다. 설치 오류 원인을 조사한다.
+- PX-T04 설치 원인 확인: 같은 전용 AVD에서 최초 APK의 독립 adb install 재시도는 성공했다. 최초 실패의 상세 출력이 없어 원인은 미확정이며, 기존 설치 앱을 보존하고 다음 시도는 새 전용 AVD에서 수행한다.
+- PX-T04 runner의 APK 설치 오류 출력 보존 및 성공 표시 검사 추가. Python 문법 확인 후 새 전용 AVD에서 검증한다.
+- PX-T04 runner Python 문법 검사 PASS. 설치 출력 보강과 첫 실패를 기록해 커밋한다. Unity Player 전체 결과는 아직 미검증이다.
+- PX-T04 두 번째 전체 검증 시작: 새 전용 AVD에서 수정 runner와 동일한 최신 제품 패키지로 재실행한다. Player 및 원장 결과는 아직 NOT_RUN이다.
+- PX-T04 두 번째 전체 실행 FAIL (`artifacts/unity-android-e2e-usi585vl`): 새 전용 AVD에서도 Unity APK 설치 실패. 저장된 adb 설치 로그로 원인을 확인한다. Player 전체 경로는 NOT_RUN이다.
+- PX-T04 두 번째 설치 실패 원인 확인: adb 설치 로그에 daemon 재시작 직후 `device emulator-5584 not found`; 이후 같은 AVD는 다시 online으로 확인됐다. 빌드 후 전용 AVD 재확인과 재검색 대기를 추가한다.
+- PX-T04 ADB 재검색 대기 및 전용 AVD·기존 앱 재검사 추가. 오프라인→온라인과 잘못된 기기·기존 앱 차단을 단위 검증한다.
+- PX-T04 ADB 재검색 단위 검증 2건 PASS/skip 0. 실제 수정 runner의 새 Player 전체 실행 전이며 로컬 커밋한다.
+- PX-T04 세 번째 전체 검증 시작: ADB 재검색 수정본을 또 다른 새 전용 AVD와 최신 staging으로 실행한다. 통합 결과는 아직 NOT_RUN이다.
+- PX-T04 세 번째 전체 실행 FAIL (`artifacts/unity-android-e2e-8t7go26x`): 새 Unity APK 설치는 진행됐으나 앱 launch 명령에서 실패해 전체 Player 흐름은 미검증이다. 실행 명령과 기기 상태를 조사한다.
+- PX-T04 launch 실패 원인: 테스트용 AndroidManifest가 Unity 기본 launcher activity를 덮어써 APK에 MAIN/LAUNCHER가 없었다. 생성된 Unity 6000.5.8f1 GameActivity 템플릿과 대조해 격리 테스트 manifest를 수정한다.
+- PX-T04 테스트 소비 프로젝트의 GameActivity launcher 및 Unity metadata를 복원했다. 생성 manifest의 구조 검증 후 새 AVD의 실제 APK·Player로 재검증한다.
+- PX-T04 새 소비 프로젝트 manifest 구조 검사 PASS: GameActivity·exported MAIN/LAUNCHER·Unity metadata 존재. 실제 APK 및 Player 검증은 아직 미실행이다. 커밋 후 새 전용 AVD에서 다시 실행한다.
+- PX-T04 launcher 수정 후 전체 검증 시작: 새 전용 AVD와 현재 제품 staging을 사용한다. Player 결과는 아직 NOT_RUN이다.
+- PX-T04 launcher 수정 후 전체 실행도 launch 단계 FAIL (`artifacts/unity-android-e2e-o8r7vzj4`). APK 설치는 통과했으나 Player 흐름은 미검증이다. APK launcher 및 명령 문법을 확인한다.
+- PX-T04 APK 검사 결과 launcher GameActivity 존재. 암시적 `am start`는 intent 해석 실패했으나 같은 전용 앱의 명시적 component 실행은 종료 0·Status ok. harness를 명시적 component 및 실패 로그 redaction으로 수정한다.
+- PX-T04 runner를 테스트 APK의 명시적 GameActivity 실행 및 redacted launch 진단으로 수정했다. 문법 검사 후 새 전용 AVD에서 전체 경로를 재검증한다.
+- PX-T04 runner 문법 및 ADB 안전 테스트 2건 PASS. 실제 전체 Player 재검증 전 수정 사항을 커밋한다.
+- PX-T04 명시적 launcher 수정 후 전체 검증 시작: 별도 새 AVD에서 Unity Player→Kotlin→Backend→DB 경로를 다시 실행한다. 결과는 아직 NOT_RUN이다.
+- PX-T04 앱 실행은 성공했으나 전용 에뮬레이터 최초 전체화면 안내가 Player를 일시 정지했다. 안내를 닫은 뒤 Player 자체 FAIL을 보고해 전체 검증은 실패(`artifacts/unity-android-e2e-sapxskap`); 오류 단계를 조사한다.
+- PX-T04 Player가 configuration 단계에서 FAIL. 생성 Gradle의 settings·unityLibrary build 파일에 GameBridge Maven 연결이 없고 Editor hook은 `UNITY_ANDROID` 조건부다. Unity Editor 활성 build target이 Android로 지정되지 않아 hook이 누락된 가능성을 확인했다. 수정 후 실제 Player로 재검증한다.
+- PX-T04 Unity batch에 `-buildTarget Android`를 명시하고 테스트 앱 실패 stage·오류 타입만 출력하도록 보강했다. credential 값과 예외 메시지는 출력하지 않는다. 실제 Gradle 의존성 및 Player 재검증 전이다.
+- PX-T04 Android target 지정 스크립트 문법 및 테스트 앱 managed compile PASS(경고 0·오류 0). Unity Editor hook과 Player 실동작은 재검증 전이다. 수정 사항 커밋 준비.
+- PX-T04 Android active target 수정 후 전체 검증 시작: 새 전용 AVD에서 Gradle SDK 의존성과 Unity Player→Backend→DB 경로를 확인한다. 결과는 아직 NOT_RUN이다.
+- PX-T04 실제 Unity Android Player LOCAL_MOCK 전체 검증 PASS (`artifacts/unity-android-e2e-zbdkbnnl/result.json`, source c58b4a6, tracked clean): initialize/login/products/purchase/wallet/logout, Native 진단, Backend HTTP trace와 DB 원장 1건·100코인 확인. 전용 AVD의 Android 전체화면 안내는 수동으로 닫았다. Google 로그인·실제 스토어 및 Unity iOS는 NOT_RUN. 공개 요약: `docs/evidence/px-t04-unity-android-local-mock.md`.
+- PX-T04 README·USER_SETUP·FINAL_REPORT 및 기능 매트릭스의 현재 상태를 Unity Android LOCAL_MOCK PASS로 정리했다. 과거 실패 기록은 이력으로 보존하고 Unity iOS·실제 제공자는 NOT_RUN 유지한다.
+- PX-T04 공개 evidence에 실제 실행 명령 형태·종료 코드·도구 버전·staging hash 및 최초 전체화면 안내 수동 처리를 명시했다. 전체 strict suite 및 Unity iOS는 별도로 미실행이다.
+- PX-T04 기능별 매트릭스에 Unity Android LOCAL_MOCK 및 신규 UPM import·IL2CPP PASS를 반영했다. Unity Editor test suite, push·복구, iOS 및 외부 플랫폼 결과는 승격하지 않았다.
+- PX-T04 USER_SETUP의 과거 라이선스 부재 기록을 당시 상태로 명시하고, 현재 6000.5.8f1 활성 라이선스·Android/iOS 모듈 설치 사실을 추가했다.
+- PX-T04 PASS evidence·문서 커밋 준비: 검증된 Unity Android LOCAL_MOCK 범위만 기록하고 원본 로그·APK·DB 및 미추적 사용자 파일은 포함하지 않는다. 자동 push하지 않는다.
+- PX-T04 최종 원장 검사 PASS 및 ADB 재검색 안전 테스트 2건 PASS/skip 0. Unity Player PASS 증거는 별도 source c58b4a6 결과이며 자동 push하지 않는다.
+- PX-T07 Unity iOS LOCAL_MOCK 통합 개발 시작: source `2a116c2`, 추적 파일 clean, 기존 미추적 Demo·캐시 보존. Unity 6000.5.8f1 라이선스 활성·iOS 모듈 설치, Xcode 26.6/Swift 6.3.3 및 iOS 18.6·26.5 simulator runtime을 확인했다. Unity iOS Player는 NOT_RUN이다.
+- PX-T07 기존 UPM staging 110개 checksum 및 XCFramework device/simulator arch·C ABI 4종 검사 PASS. Unity iOS Simulator 소비 프로젝트·실행 하네스 구현을 시작한다. 실제 Unity iOS 실행은 NOT_RUN이다.
+- PX-T07 iOS 전용 소비 시나리오·Simulator export 스크립트 작성. 개발키는 Simulator 프로세스 환경에서만 읽고 127.0.0.1 테스트 앱 ATS 예외만 적용한다. 코드·Player 검증은 아직 미실행이다.
+- PX-T07 소비 프로젝트 생성 및 staging checksum PASS (`artifacts/unity-ios-mock.8xjMY7`), 스크립트 문법 PASS. Unity iOS Simulator Xcode 프로젝트 생성을 시작한다.
+- PX-T07 Unity 6000.5.8f1 iOS Simulator Xcode 프로젝트 export PASS (`artifacts/unity-ios-mock.8xjMY7/xcode`). Simulator용 Xcode 링크·빌드와 ATS 범위를 확인한다. Player 실행은 NOT_RUN이다.
+- PX-T07 Unity iOS Simulator arm64 Xcode build/link PASS (`artifacts/unity-ios-mock.8xjMY7/Derived`, code signing 비활성). XCFramework 프로젝트 포함 확인. 실제 Simulator Player·Backend 통합은 아직 NOT_RUN이다.
+- PX-T07 UnityFramework 실제 Simulator binary에서 C ABI 심볼 4종 확인, 테스트 Info.plist의 loopback 127.0.0.1 예외만 확인했다. 격리 Simulator·DB 전체 E2E runner를 구현한다.
+- PX-T07 Simulator 전용 E2E runner 초안과 Python 문법 검사를 작성했다. 실제 Unity Player·Swift callback·DB 지급은 아직 NOT_RUN이며 실행으로 검증한다.
+- PX-T07 iOS consumer·runner 1차 구현 커밋 준비: Unity Simulator export와 Xcode build·ABI 검증까지만 PASS, 전체 Player 실행은 NOT_RUN이다.
+- PX-T07 Unity iOS LOCAL_MOCK 전체 E2E 검증 시작: 신규 Simulator·전용 DB와 checksum 검증된 staging을 사용한다. 결과는 아직 NOT_RUN이다.
+- PX-T07 전용 iOS Simulator 앱 실행 중 예상하지 않은 알림 권한 창이 표시돼 Player 진행이 막혔다. Unity notifications 설정 또는 Host 동작을 조사하며 아직 E2E 결과는 미확정이다.
+- PX-T07 첫 전체 실행 FAIL (`artifacts/unity-ios-e2e-sbwq4jn5`, exit 1 `UNITY_PLAYER_REPORTED_FAILURE`). 실제 Xcode build·Simulator 앱 launch는 진행됐지만 Player가 실패를 보고했다. 알림 권한 창은 전용 Simulator에서 거부했으며 정확한 실패 단계와 예상치 못한 권한 요청을 조사한다.
+- PX-T07 원인 조사: Unity Notifications 기본 plist에 시작 시 알림 요청이 true이며 첫 local-mock 인증은 Backend HTTP 200까지 도달했다. 전체 실패 stage는 runner가 기록하지 않아 미확정; 테스트 앱에서 자동 알림 요청을 끄고 실패 시 안전한 단계 마커를 저장한다.
+- PX-T07 테스트 전용 앱의 자동 알림 요청 비활성화와 실패 단계 마커 보존을 추가했다. 실제 결과는 재검증 전이다.
+- PX-T07 알림 설정 및 실패 마커 runner 문법 검사 PASS. 실제 전체 흐름은 미검증이며 수정 사항을 로컬 커밋 후 전용 새 Simulator에서 재검증한다.
+- PX-T07 수정 후 전체 E2E 재검증 시작: 새 전용 Simulator·DB를 사용하며 최신 source 기준 Player 결과는 아직 NOT_RUN이다.
+- PX-T07 두 번째 전체 E2E FAIL (`artifacts/unity-ios-e2e-rfz6jnz2`, `UNITY_PLAYER_REPORTED_FAILURE`). 저장된 Unity 단계 마커와 Backend trace를 대조해 원인을 확인한다.
+- PX-T07 失敗段階: Unity initialize PASS、Backend mock-auth HTTP 200 後 login INTERNAL_ERROR。テスト用 unsigned Simulator app の Keychain/コード署名を切り分ける。外部 Apple 認証は使用しない。
+- PX-T07 대조용 Simulator ad-hoc Xcode 빌드 PASS: 무료 로컬 서명으로 bundle identifier가 보존됐으며 Apple 계정·인증서는 사용하지 않았다. Keychain 원인 여부는 실제 Player 재검증 전 미확정이다.
+- PX-T07 runner에 명시적 Simulator local ad-hoc 대조 옵션을 추가한다. 기존 무서명 경로와 구분해 실제 전체 흐름을 재검증한다.
+- PX-T07 ad-hoc 대조 runner 문법 검사 PASS. 커밋 후 새 Simulator에서 실제 로그인·구매·원장을 재검증한다.
+- PX-T07 local ad-hoc Simulator 전체 E2E 대조 실행 시작. 새 전용 Simulator·DB를 사용하며 현재 결과는 NOT_RUN이다.
+- PX-T07 local ad-hoc 대조 E2E PASS (`artifacts/unity-ios-e2e-f5r4zwvp`, source e2a7138, tracked clean): Unity initialize/login/products/purchase/wallet/logout, Swift Native 진단, Backend HTTP 및 DB 원장 1건·100코인. Apple 계정·실제 스토어 미사용. Main Thread 확인을 명시적으로 강화한 뒤 재검증한다.
+- PX-T07 검증 강화: Unity API 각 단계와 Native diagnostics 복귀가 시작 시 Unity 메인 스레드와 같은지 명시적으로 검사하고 runner가 marker를 필수로 요구한다. 새 코드의 실제 Player 결과는 아직 NOT_RUN이다.
+- PX-T07 메인 스레드 검증 강화 runner 문법 PASS. 테스트 코드 변경 후 실제 Player·callback 검증은 재실행 전이며 커밋 준비한다.
+- PX-T07 메인 스레드 assertion 포함 전체 E2E 재검증 시작: 별도 Simulator·DB에서 현재 source로 실행한다. 결과는 NOT_RUN이다.
+- PX-T07 최신 테스트 코드의 Unity iOS LOCAL_MOCK 전체 E2E PASS (`artifacts/unity-ios-e2e-29s8tvel`, exit 0): Unity 메인 스레드 확인, Swift C ABI diagnostics, Backend HTTP 및 DB 원장 1건·100코인. 로컬 ad-hoc Simulator signing 사용, 실제 Apple 계정·스토어는 NOT_RUN이다. 공개 evidence 작성에 앞서 결과와 해시를 대조한다.
+- PX-T07 실제 PASS 결과에서 검증된 source·Unity/Xcode/runtime·UPM/iOS binary hash·실행 명령·local ad-hoc 및 실패/수동 조작 한계를 공개 evidence에 기록했다. 원본 로그와 비밀은 포함하지 않았다.
+
+### 추가 Task PX-T07 — Unity iOS Simulator LOCAL_MOCK E2E
+
+구현 IMPLEMENTED / iOS 18.6 ARM64 Simulator LOCAL_MOCK E2E PASS / 실제 Apple 로그인·App Store 결제·APNs NOT_RUN. [검증 evidence](evidence/px-t07-unity-ios-local-mock.md). 로컬 ad-hoc Simulator signing을 사용했으며 최초 무서명 시도는 로그인 INTERNAL_ERROR로 실패했다. Android 기존 PASS는 그대로 유지한다.
+- PX-T07 README·FEATURE_MATRIX·USER_SETUP·FINAL_REPORT와 기능별 매트릭스에 iOS Simulator LOCAL_MOCK PASS를 반영했다. 실제 Apple 로그인·스토어·APNs·Unity push/lifecycle 및 실제 기기는 NOT_RUN 유지한다.
+- PX-T07 주의: 최초 테스트 소비 프로젝트의 Unity Notifications 기본 설정이 알림 권한 창을 표시했다. 최종 테스트 앱에서 자동 요청을 껐으며 실제 host의 push/권한 수명주기는 별도 미검증이다.
+- PX-T07 최종 원장 검사·iOS runner 문법 및 기존 Android ADB 기기 안전 단위 테스트 2건 PASS. 실제 Android Player 전체 회귀는 이번에 재실행하지 않았고 기존 PX-T04 PASS를 유지한다. 커밋 준비.
+- PX-T08 Unity Android LOCAL_MOCK Push/Lifecycle 검증 시작: 기존 인증·구매 PASS를 보존하며 실제 Player→Kotlin→Backend/DB의 등록·수신·해제와 이벤트 전달을 먼저 구현·검증한다. 아직 Push/Lifecycle Player 결과는 NOT_RUN이다.
+- PX-T08 Android 전용 Player 시나리오 작성: Mock 등록·동일 ID 중복 억제·Unity 메인 스레드·등록 해제/로그아웃 후 이벤트 대기를 분리해 검사한다. 실제 Player 검증은 NOT_RUN이다.
+- PX-T08 Android Push 시나리오 Unity managed reference 컴파일 PASS(경고·오류 0). 실제 Player 푸시 수신은 미검증이며 Backend 발송·원장 확인을 위한 격리 runner를 작성한다.
+- PX-T08 Android Push Player runner 작성 및 Python 문법 검사 PASS. 연결된 경우만 전달·등록 해제 후 서버 거부·DB token 삭제를 검사하도록 했으며 실제 E2E는 아직 NOT_RUN이다. 테스트 실행 전 로컬 커밋한다.
+- PX-T08 Android LOCAL_MOCK Push Player E2E 시작: 새 전용 AVD·DB와 검증된 staging을 사용한다. 결과는 아직 NOT_RUN이다.
+- PX-T08 Android Unity Player LOCAL_MOCK Push 부분 PASS (`artifacts/unity-android-push-z1lufhpv`, exit 0): 등록·동일 ID 3회 발송 중복 억제·Unity main-thread 수신·등록 해제/로그아웃 후 이벤트 미전달·token 삭제 확인. 최초 전체화면 안내는 전용 AVD에서 수동으로 닫았다. background/network/restart 및 iOS는 NOT_RUN이다.
+- PX-T08 Android Push 부분 PASS만 `docs/evidence/px-t08-unity-android-mock-push.md`에 기록했다. Lifecycle·네트워크·프로세스 재시작과 iOS는 NOT_RUN이며 전체 완료가 아니다. 커밋 후 별도 검증을 계속한다.
+- PX-T09 Android lifecycle·네트워크 복구 검증 시작: 앱 background/foreground와 전용 에뮬레이터의 네트워크 단절·복구를 실제로 조작해 이벤트·재연결을 확인한다. 프로세스 강제 종료는 별도다.
+- PX-T09 Player 시나리오에 실제 pause/resume과 오프라인 메시지 미관측·재연결 후 새 메시지 수신 검사를 추가했다. 실제 Player 실행은 아직 NOT_RUN이다.
+- PX-T09 Android managed compile PASS(경고·오류 0). runner에 실제 HOME→foreground, 전용 AVD의 Wi-Fi/data 차단·복구 및 offline/online 발송을 추가했다. 실제 실행은 아직 NOT_RUN이다.
+- PX-T09 runner 문법 검사 PASS. 수정 시나리오와 진행 기록을 커밋한 뒤 새 AVD의 실제 Player에서 검증한다.
+- PX-T09 Android lifecycle/network Player 검증 시작: 새 전용 AVD·DB로 실제 background/foreground 및 네트워크 단절·복구를 실행한다. 아직 결과는 NOT_RUN이다.
+- PX-T09 Android Unity Player background/foreground 및 전용 AVD Wi-Fi/data 차단·복구 LOCAL_MOCK Push E2E PASS (`artifacts/unity-android-push-a82dcn48`, exit 0). 오프라인 발송은 복구 뒤 미수신, 연결 복구 후 새 메시지 수신·main thread 확인. 프로세스 강제 종료·pending 및 iOS는 NOT_RUN이다.
+- PX-T09 Android lifecycle/network PASS 증거를 기존 Android Push evidence에 추가했다. 프로세스 강제 종료·pending·iOS는 NOT_RUN으로 유지하며 커밋한다.
+- PX-T10 Android process 강제 종료·재시작 및 pending 구매 검증 시작: 서버 지급 후 응답만 합성 503으로 대체해 pending을 남긴 뒤 별도 프로세스에서 동일 계정 복구와 중복 지급 방지를 확인한다. background 전환과 별도다.
+- PX-T10 Android Player 테스트 소스에 서버 지급 후 합성 실패 대기, 프로세스 재시작 후 세션 복원·pending sync 1회·재sync 0회·잔액 100 검사를 추가했다. 실제 강제 종료 검증은 NOT_RUN이다.
+- PX-T10 Android process 테스트 consumer managed compile PASS(경고·오류 0). 서버 commit 후 응답 오류를 주입하는 격리 proxy 및 실제 프로세스 재시작 runner를 구현한다.
+- PX-T10 Android restart runner·local fault proxy Python 문법 PASS. 실제 Unity 프로세스 강제 종료 및 pending 복구는 아직 NOT_RUN이며 실행 전 커밋한다.
+- PX-T10 Android Unity force-stop/pending 복구 실검증 시작: 새 전용 AVD·DB와 test-only fault proxy 사용. 결과는 NOT_RUN이다.
+- PX-T10 Android Unity Player process 강제 종료·재시작 LOCAL_MOCK pending 복구 PASS (`artifacts/unity-android-restart-r3p6hl0d`, exit 0): 첫 서버 commit 뒤 응답만 실패시킨 상태에서 별도 PID로 세션 복원·pending 1회 복구·재sync 0회·원장 1건/100 확인. 첫 전체화면 안내 수동 처리. 실제 Play Billing은 NOT_RUN.
+- PX-T10 실제 Android Unity process 강제 종료·pending 복구 증거를 Android Push/Lifecycle evidence에 추가했다. 세션 변경·늦은 callback 및 iOS는 별도다. 커밋 준비.
+- PX-T11 Android 세션 전환·늦은 이벤트 검증 시작: 기존 사용자 A 로그아웃 후 B로 재초기화·동일 설치 등록 시 이전 사용자 발송 차단과 새 사용자 이벤트를 실제 Player에서 확인한다.
+- PX-T11 Android test에 A 로그아웃 후 B 재등록, A 발송 403·B 단일 수신과 기존 이벤트 재유입 차단을 추가했다. 실제 Player 재검증 전이다.
+- PX-T11 확장 테스트 Android managed compile 및 runner 문법 PASS. A→B 세션 전환·이전 소유권 차단의 실제 Unity Player 결과는 아직 NOT_RUN이다. 커밋 후 검증한다.
+- PX-T11 Android Push 세션 전환·lifecycle 재검증 시작: 새 전용 AVD 및 DB를 사용한다. 결과는 NOT_RUN이다.
+- PX-T11 Android Unity LOCAL_MOCK 세션 A→B 전환 E2E PASS (`artifacts/unity-android-push-h9oyrtjy`, exit 0): A 소유권 발송 403, B 단일 이벤트 및 이전 메시지 미관측, 메인 스레드, 기존 lifecycle/network도 재통과. 전용 AVD의 최초 전체화면 안내 수동 처리. 재연결 실패 주입/임의 지연 Native callback 주입은 별도다.
+- PX-T11 Android 실제 Player session 전환 PASS와 별도 미검증 범위를 evidence에 기록했다. 커밋 후 iOS Simulator의 동등 경로 개발을 이어간다.
+- PX-T12 Unity iOS Simulator LOCAL_MOCK Push/Lifecycle 검증 시작: Android에서 확인한 등록·수신·중복·세션 전환과 별도로 iOS Swift C ABI·Player 경로를 검증한다. 실제 APNs는 NOT_RUN이다.
+- PX-T12 iOS Simulator 전용 Unity Push 시나리오 초안 작성: Simulator 환경 변수로 합성 key·설치 ID를 받고 Android 동일 이벤트·메인 스레드·세션 전환을 검사한다. iOS Player 실행은 NOT_RUN이다.
+- PX-T12 iOS Push 시나리오 Unity managed reference 컴파일 PASS(경고·오류 0). 전용 Simulator에서 Swift bridge·백그라운드·연결 중단/복구를 검증할 runner를 구현한다. 실제 iOS Player는 아직 NOT_RUN이다.
+- PX-T12 iOS Simulator Push runner 작성 및 Python 문법 PASS. 격리 loopback TCP fault로 SDK 연결만 끊어 offline drop/복구를 검사하며 OS 전체 네트워크 차단으로 주장하지 않는다. 실제 Player 결과는 NOT_RUN이다.
+- PX-T12 iOS Simulator LOCAL_MOCK Push/Lifecycle 첫 실제 E2E 시작: 신규 전용 Simulator·DB, local ad-hoc 및 테스트 전용 TCP fault 사용. 결과는 NOT_RUN이다.
+- PX-T12 iOS Unity import 환경 블로커: 격리 프로젝트의 UPM resolve가 `packages.unity.com` ETIMEDOUT을 보고했다. 현재 실행 결과는 아직 미확정이며 이전에 확인한 패키지 캐시의 안전한 재사용 가능성을 조사한다.
+- PX-T12 첫 iOS Push runner는 UPM registry timeout이 반복돼 작업 소유 프로세스를 중단했다(exit 130). Unity Player는 NOT_RUN이다. runner의 interrupted 상태 분류 및 검증된 동일 버전 캐시를 새 테스트 프로젝트에만 복사하는 경로를 보강한다.
+- PX-T12 iOS runner에 exact package version 확인 후 새 테스트 프로젝트에만 embedded 복사하는 선택 경로와 INTERRUPTED 구분을 추가했다. Unity package resolver·실제 Player 검증은 재실행 전이다.
+- PX-T12 격리 package cache 경로의 정확한 버전 복사 및 누락 시 fail-closed 단위 검증 시작. 실제 Unity import/Player는 미실행이다.
+- PX-T12 exact-version cache 복사·누락 차단 단위 테스트 2건 PASS/skip 0. 실제 iOS Player는 NOT_RUN이며 수정 runner를 커밋한 뒤 새 Simulator로 재실행한다.
+- PX-T12 검증된 동일 버전 로컬 패키지 cache를 새 소비 프로젝트에 복사해 iOS Player E2E 재검증 시작. 현재 Player 결과는 NOT_RUN이다.
+- PX-T12 cache 사용 재시도 FAIL (`artifacts/unity-ios-push-flh6xhkq`, `UNITY_EXPORT_FAILED`): embedded Notifications의 패키지 자체 테스트가 소비 프로젝트에서 컴파일돼 NUnit 참조가 없어 실패했다. Unity Player는 NOT_RUN이며 테스트 전용 복사본의 불필요한 package tests만 제외해 재검증한다.
+- PX-T12 cache 복사에서 test-only `Tests` 디렉터리만 제외하도록 변경했다. 원본 cache와 운영 package는 변경하지 않으며 단위 검사·실제 Unity export로 검증한다.
+- PX-T12 test-only package 제외·원본 보존 unit 2건 PASS/skip 0. Unity export/Player는 다시 검증해야 한다. 커밋 준비.
+- PX-T12 iOS Push 재검증 시작: Unity test-only package 제외본으로 새 Simulator·DB에서 Player 경로를 실행한다. 결과는 NOT_RUN이다.
+- PX-T12 iOS Push 전체 재시도 FAIL (`artifacts/unity-ios-push-cggylkb4`, `BACKGROUND_FAILED`, exit 1). Unity export·Simulator build/실행은 진행됐지만 background 전환 명령에서 실패했으며 전체 통과가 아니다. 실제 수신 단계와 원인을 조사한다.
+- PX-T12 iOS 첫 실행에서 Unity 초기화·로그인·Mock 푸시 등록, 단일 수신·중복 억제·main-thread 마커를 확인했다. `about:blank`는 Simulator에서 열 수 없었고 로컬 127.0.0.1 URL 열기는 성공했다. background 이후 흐름은 아직 NOT_RUN이다.
+- PX-T12 Simulator background 전환을 로컬 Backend health URL로 변경했다. iOS 실제 lifecycle·연결 복구 결과는 재실행 전 NOT_RUN이다.
+- PX-T12 background 전환 runner 문법 검사 PASS. 수정 사항 커밋 후 전용 새 Simulator에서 재검증한다.
+- PX-T12 지원되는 loopback background 전환으로 iOS Push/Lifecycle 전체 재검증 시작. 새 Simulator·DB 사용, 결과는 NOT_RUN이다.
+- PX-T12 Unity iOS Simulator LOCAL_MOCK Push/Lifecycle E2E PASS (`artifacts/unity-ios-push-248n_2n2`, exit 0): 등록·중복·main-thread·background/foreground·test TCP 연결 차단/복구·A→B 소유권·등록 해제/로그아웃 및 DB token 삭제 확인. OS 전체 네트워크 차단·process restart·실제 APNs는 미검증이다.
+- PX-T12 실제 iOS Simulator 부분 PASS를 `docs/evidence/px-t12-unity-ios-mock-push.md`에 기록했다. iOS process restart/pending 및 실제 APNs는 NOT_RUN이며 커밋 후 이어서 검증한다.
+- PX-T13 iOS Simulator process 강제 종료·재시작 및 pending 복구 검증 시작: 서버 commit 후 응답만 합성 503으로 바꾸고 새 프로세스에서 세션·pending·원장 불변을 확인한다. 아직 NOT_RUN이다.
+- PX-T13 iOS Simulator 전용 Unity pending 복구 시나리오 작성: 서로 다른 프로세스 PID, 저장 세션, pending sync 1회·재sync 0회·잔액 100을 검사한다. 실제 실행은 NOT_RUN이다.
+- PX-T13 iOS process restart runner 문법 검사 PASS. 로컬 ad-hoc Simulator와 test-only 응답 손실 proxy를 사용하며 실제 Player 검증은 아직 NOT_RUN이다. 커밋 후 전용 환경에서 실행한다.
+- PX-T13 iOS Simulator process 종료·pending 복구 전체 검증 시작: 새 전용 Simulator·DB 및 exact-version test cache 사용. 결과는 NOT_RUN이다.
+- PX-T13 Unity iOS Simulator LOCAL_MOCK 실제 앱 terminate/relaunch 및 pending 복구 PASS (`artifacts/unity-ios-restart-vidqoa21`, exit 0): 서로 다른 PID, session restore·pending 1회 복구·재sync 0, DB 원장 1건/100·main-thread 확인. local ad-hoc이며 실제 StoreKit은 NOT_RUN이다.
+- PX-T13 실제 iOS Simulator process/pending PASS를 iOS Push evidence에 추가했다. 재연결 실패·임의 지연 callback 주입 및 실제 제공자·기기는 NOT_RUN이다. 커밋 준비.
+- PX-T14 재연결 실패 명시 검증 시작: 기존 단절·복구 PASS는 재시도 실패 횟수를 직접 증명하지 않는다. 테스트 전용 loopback proxy로 Android/iOS SDK의 재연결 시도를 거부한 뒤 회복 여부를 별도 검증한다.
+- PX-T14 iOS test proxy가 차단 중 실제 재연결 시도 거부 횟수를 세고 1회 이상을 요구하도록 수정했다. 새 코드의 실제 Player 검증은 NOT_RUN이다.
+- PX-T14 Android runner에도 test 전용 TCP proxy를 추가해 OS 네트워크 복구 후 일시적 재연결 거부와 실제 시도 횟수를 검사한다. 실제 Android/iOS Player 재검증은 아직 NOT_RUN이다.
+- PX-T14 양 runner Python 문법 및 package cache 안전 단위 2건 PASS. 실제 재연결 실패/복구 Player E2E는 재실행 전이며 커밋 준비한다.
+- PX-T14 Android 재연결 실패·복구 실제 Player E2E 시작: 새 전용 AVD/DB와 test-only proxy를 사용한다. 새 결과는 NOT_RUN이다.
+- PX-T14 Android Unity Player 재연결 실패 주입·복구 PASS (`artifacts/unity-android-push-n3lvsnkx`, exit 0): OS 네트워크 차단·복원 외 test proxy 재연결 거부 관측 후 새 push 수신. 상세 횟수 및 같은 실행의 lifecycle/session을 확인한다.
+- PX-T14 Android 재연결 거부 2회 및 복구 Player PASS를 evidence에 기록했다. iOS의 동일 주입은 아직 NOT_RUN이며 커밋 후 이어서 실행한다.
+- PX-T14 iOS 재연결 실패·복구 Player E2E 시작: 새 전용 Simulator·DB와 test-only TCP proxy 사용. 결과는 NOT_RUN이다.
+- PX-T14 iOS Unity Simulator test-only TCP 재연결 실패 주입 및 복구 PASS (`artifacts/unity-ios-push-gcmp59n7`, exit 0). OS 전체 Wi-Fi 차단과 실제 APNs는 별도다. 결과 횟수·범위를 확인한다.
+- PX-T14 iOS test-only TCP proxy 재연결 거부 6회·복구 Player PASS를 공개 evidence에 기록했다. OS 네트워크 전체 차단 및 실제 APNs는 별도다. 커밋 준비.
+- PX-T15 기존 Android/iOS Unity 인증·구매 LOCAL_MOCK 전체 E2E 회귀 검증 시작: 새 Player 및 전용 기기·DB에서 다시 실행한다. 패키지 registry timeout 환경에서 기존 exact-version cache를 test 프로젝트에만 복사하는 옵션을 추가한다.
+- PX-T15 기존 Android/iOS 인증·구매 Runner에 격리 consumer용 exact-version package cache 선택 기능을 추가했다. 실제 회귀는 아직 NOT_RUN이다.
+- PX-T15 두 Runner 문법·cache 안전·ADB 안전 단위 각 2건 PASS. cache 누락 오류를 기존 runner 오류 분류로 전달한다. 실제 Android/iOS Player 회귀는 아직 NOT_RUN이다. 커밋 준비.
+- PX-T15 기존 Android Unity 인증·구매 LOCAL_MOCK 전체 회귀 시작: 새 전용 AVD·DB 및 exact-version cache를 사용한다. 결과는 NOT_RUN이다.
+- PX-T15 Android Unity 인증·구매 LOCAL_MOCK 전체 Player 회귀 PASS (`artifacts/unity-android-e2e-7001epc_`, exit 0). 전용 AVD 최초 전체화면 안내는 수동으로 닫았다. 실제 Google/Play는 NOT_RUN. iOS 동일 회귀를 시작한다.
+- PX-T15 iOS Unity Simulator 인증·구매 LOCAL_MOCK 전체 회귀 시작: 새 Simulator·DB, 로컬 ad-hoc 및 exact-version cache. 결과는 NOT_RUN이다.
+- PX-T15 기존 iOS Unity Simulator 인증·구매 LOCAL_MOCK 전체 회귀 PASS (`artifacts/unity-ios-e2e-zizcrlvt`, exit 0). local ad-hoc 서명·exact-version embedded cache 사용. 실제 Apple 로그인/StoreKit은 NOT_RUN이다.
+- PX-T15 Android/iOS 인증·구매 LOCAL_MOCK 전체 Player 회귀 PASS를 각 플랫폼 evidence에 별도 source와 함께 기록했다. 실제 외부 제공자 및 스토어는 미검증이다. 커밋 준비.
+- PX-T16 늦은 콜백·세션 격리 별도 검증 시작: 실제 Player의 세션 전환 결과와 구분해 Unity wire registry에 timeout 후 응답 및 이전 세션 이벤트를 합성 주입한다. Native 지연 callback 실제 Player 주입은 아직 NOT_RUN이다.
+- PX-T16 Unity wire registry 지연 응답·이전 세션·dispose 이후 event 합성 단위 테스트 작성. 실제 Player Native callback 주입은 NOT_RUN이다. 단위 검증을 시작한다.
+- PX-T16 managed 단위 첫 실행 FAIL: custom output 경로와 `dotnet run`의 기본 실행 경로가 달라 프로세스를 찾지 못했다. 테스트 assertion은 아직 미실행이며 빌드한 DLL을 직접 실행해 재검증한다.
+- PX-T16 managed 단위 DLL 직접 실행 재검증 시작.
+- PX-T16 실제 Unity Player 지연 callback 합성 주입 검증 시작: 이전 A session 이벤트를 B 활성 후 transport callback 경로에 주입해 폐기 여부와 버퍼 복사를 확인한다. 합성 주입과 실제 원격 푸시를 분리한다.
+- PX-T16 이전 session 이벤트를 플랫폼 transport callback 큐에 test-only로 합성 주입하는 Player probe를 추가했다. iOS는 입력 버퍼를 즉시 해제해 복사 경계도 검사한다. 실제 테스트는 NOT_RUN이며 실제 APNs/FCM callback으로 주장하지 않는다.
+- PX-T16 managed wire 합성 단위 테스트 PASS(초기 `dotnet run` 경로 오류는 명시 DLL 실행으로 해결). Android/iOS Player 지연 callback probe managed compile은 각각 경고·오류 0이다. 실제 Player 주입 결과는 NOT_RUN이며 커밋 후 재검증한다.
+- PX-T16 Android Unity Player 합성 지연 callback·session 검증 시작: 새 전용 AVD/DB에서 실행하며 실제 FCM 지연 전달과 구분한다. 결과는 NOT_RUN이다.
+- PX-T16 Android Unity Player 합성 지연 callback 폐기 PASS (`artifacts/unity-android-push-3n9bo6qw`, exit 0): B 활성 후 A session 메시지를 Android callback 큐 경로에 합성 주입해 무시됨을 확인했다. 실제 FCM/JNI 지연 전달로 주장하지 않는다. iOS 동일 검증은 NOT_RUN이다.
+- PX-T16 Android Player 합성 이전-session callback 시험 범위와 JNI/FCM 비해당 한계를 공개 evidence에 기록했다. iOS 같은 검증은 NOT_RUN이며 커밋 후 실행한다.
+- PX-T16 iOS Unity Simulator 합성 지연 callback·session 검증 시작: 새 Simulator/DB와 local ad-hoc, exact-version cache 사용. 실제 결과는 NOT_RUN이다.
+- PX-T16 iOS Unity Simulator 합성 지연 callback 폐기 PASS (`artifacts/unity-ios-push-213zsmr5`, exit 0): 이전 session C# callback 입력 버퍼를 즉시 해제한 뒤 Unity 큐가 폐기했다. 실제 APNs의 지연 전송은 아니다. 같은 실행의 기존 Push/Lifecycle도 통과했다.
+- PX-T16 iOS 실제 Player의 합성 이전-session callback 주입 결과와 Swift/APNs 비해당 한계를 공개 evidence에 기록했다. Android/iOS 공통 product 소스는 변경하지 않았다. 커밋 준비.
+- PX-T17 최종 범위·문서 감사 시작: Android/iOS Player의 각 Push/Lifecycle·강제 종료·재연결·합성 늦은 callback 및 인증/구매 회귀 결과를 별도 source와 함께 정리한다. 실제 원격 푸시·실기기와 혼동하지 않는다.
+
+### 추가 Task PX-T08~PX-T17 — Unity LOCAL_MOCK Push/Lifecycle
+
+Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·background/foreground·연결 복구·session 전환·해제/로그아웃 및 별도 process 종료/pending 복구가 PASS했다. 지연 이벤트는 test-only 합성 callback 주입으로만 검증했다. iOS 연결 차단은 test-only TCP proxy이며 OS 전체 네트워크 차단이 아니다. 실제 FCM/APNs, 실기기 및 실제 원격 지연 callback은 NOT_RUN. [Android evidence](evidence/px-t08-unity-android-mock-push.md), [iOS evidence](evidence/px-t12-unity-ios-mock-push.md).
+- PX-T17 README·FEATURE_MATRIX·FINAL_REPORT와 플랫폼 매트릭스에 Android/iOS Unity LOCAL_MOCK Push/Lifecycle 및 별도 restart/pending 시험을 반영했다. 합성 지연 callback·iOS TCP fault와 실제 원격/실기기 미검증을 명시한다.
+- PX-T17 BUG-014/015의 오래된 Unity 전체 미검증 문구를 실제 local-mock Player 통과 범위와 실기기/외부 미검증으로 갱신했다. 두 항목의 전체 범위는 OPEN 유지한다.
+- PX-T17 플랫폼 evidence의 과거 NOT_RUN 표현을 해당 시험 시점의 범위로 명확히 바꾸고 후속 실제 결과를 가리키도록 정리했다. 각 source 결과는 변경하지 않았다.
+- PX-T17 기능 matrix 세부 Push·복구 행과 USER_SETUP의 과거 Unity Push 미검증 표현을 현재 LOCAL_MOCK Player 증거로 정정했다. 실제 알림 클릭·원격 전송·실기기는 미검증이다.
+- PX-T17 최종 문서·원장 검사 PASS. 플랫폼별 실제 Player PASS, 합성 지연 callback 및 iOS test-only TCP fault 한계, 실기기·실제 원격 제공자 NOT_RUN을 유지하며 커밋 준비한다. 자동 push하지 않는다.

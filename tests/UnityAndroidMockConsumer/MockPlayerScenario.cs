@@ -15,6 +15,7 @@ public sealed class MockPlayerScenario : MonoBehaviour
         string stage = "configuration";
         try
         {
+            stage = "android-intent";
             using var unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             using var activity = unity.GetStatic<AndroidJavaObject>("currentActivity");
             using var intent = activity.Call<AndroidJavaObject>("getIntent");
@@ -22,8 +23,10 @@ public sealed class MockPlayerScenario : MonoBehaviour
             var key = intent.Call<string>("getStringExtra", "gamebridge_mock_key");
             if (string.IsNullOrEmpty(url) || !url.StartsWith("http://10.0.2.2:", StringComparison.Ordinal) || string.IsNullOrEmpty(key) || key.Length < 32)
                 throw new InvalidOperationException("CONFIG_REQUIRED");
+            stage = "config-validation";
             var config = new GameBridgeConfig("gamebridge-sample", ProviderMode.LocalMock, url, 30000, key, "A");
             key = null;
+            stage = "native-transport";
             client = GameBridgeSdk.Create(config);
             stage = "initialize"; await client.InitializeAsync(config); Log(stage);
             stage = "login"; await client.SignInAsync(AuthProvider.MOCK); Log(stage);
@@ -44,7 +47,7 @@ public sealed class MockPlayerScenario : MonoBehaviour
             Debug.Log("GB_MOCK_RESULT PASS LOCAL_MOCK");
         }
         catch (SdkException failure) { Debug.LogError("GB_MOCK_RESULT FAIL stage=" + stage + " code=" + failure.Code); }
-        catch (Exception) { Debug.LogError("GB_MOCK_RESULT FAIL stage=" + stage + " code=INTERNAL_ERROR"); }
+        catch (Exception error) { Debug.LogError("GB_MOCK_RESULT FAIL stage=" + stage + " code=INTERNAL_ERROR type=" + error.GetType().Name); }
         finally { client?.Dispose(); }
 #else
         await Task.Yield();

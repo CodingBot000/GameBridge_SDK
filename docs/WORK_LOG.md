@@ -2398,3 +2398,201 @@
 - 커밋 준비: Android Native bridge 장치 검증과 격리 DB/로그 증거만 포함한다. 설치한 테스트 앱과 전용 DB·AVD는 보존한다. 자동 push하지 않는다.
 - 사용자 조작이 필요한 잔여 블로커: Unity Hub 라이선스 활성화 및 Android Build Support 설치·해당 약관 동의. 6000.5.8f1 설치는 확인했고 전용 Android 36 AVD, 격리 consumer 및 단독 Native/Backend 증거는 준비돼 있다. Unity Player 전체 검증은 수행하지 않았다. 기존 미추적 Demo·캐시 보존, 자동 push 없음.
 - 커밋 준비: USER_SETUP의 Native 대조 결과와 사용자 준비 단계·정확한 재개 위치만 기록한다.
+
+
+### [PX-T04] Unity Android Player LOCAL_MOCK E2E runner 작성 (후속 변경 브랜치)
+- 변경: harness/run-unity-android-mock-e2e.py. 신규 전용 GameBridge_V2_ AVD, 미설치 상태, UPM staging 무결성, 활성 라이선스와 Android 모듈 preflight를 확인한 다음 Unity APK 빌드·설치·실행을 시도하도록 구성했다.
+- 구현: Unity GB_MOCK_STEP·GB_MOCK_NATIVE·GB_MOCK_RESULT, Backend LOCAL_MOCK_TRACE 및 전용 DB wallet_ledger의 1건·100코인까지 대조한 경우만 PASS. 원본 로그는 artifacts 내 격리.
+- 이 대화의 원격 편집에서는 Unity Editor·Android emulator·Backend를 실행하지 않았으므로 Exit Code와 PASS 없음. 코드 확인은 별도 실제 검증을 대체하지 않는다.
+- 현재 환경 블로커: Unity 활성 라이선스 0, Android Build Support 없음. 실제 Unity import·APK·Player 실행은 NOT_RUN이며 이전 PX-T03 Native-only PASS와 구분한다.
+
+### [PX-T05] Android Native-only Runner의 환경 종속성 제거
+- 변경: harness/run-android-mock-bridge-e2e.py. adb 경로·serial·전용 AVD 이름·격리 로컬 PostgreSQL 컨테이너/사용자/포트를 인자/환경변수로 설정하게 했다.
+- 안전 조건: GameBridge_V2_ prefix, 온라인 emulator, 기존 앱 무덮어쓰기, 로컬 Compose PostgreSQL 컨테이너 이름 제한, 무작위 테스트 DB 보존. 테스트 당시 HEAD, tracked dirty 및 backend jar digest를 result.json에 저장하도록 구성했다.
+- 수정본 테스트 명령을 아직 실행하지 않았다 (NOT_RUN). 기존 PX-T03 PASS는 원래 버전의 증거이며 이 버전 재현 성공을 뜻하지 않는다.
+
+### [PX-T06] 공개 검증 증거 및 CI 보강
+- 변경: harness/export-mock-e2e-evidence.py, harness/test_export_mock_e2e_evidence.py, .github/workflows/verify.yml, 관련 사용자 설정·원장.
+- Exporter는 PASS·현재 SHA·추적 파일 clean·1건/100코인 지급과 Unity/Native 근거를 개별적으로 검사한다. 원본 로그와 환경 식별자는 Markdown에 복사하지 않는다. 미실행·실패·stale은 거부한다.
+- GitHub Actions Linux lane에 py_compile 및 오프라인 단위 테스트를 추가했지만 해당 변경에 대한 Actions 실행 결과는 아직 없다 (NOT_RUN). 기존 unity-runtime-required placeholder 및 strict 전체 게이트는 성공으로 주장하지 않는다.
+- 다음 행동: 라이선스·Android 모듈 준비, 새 UPM staging, 별도 전용 AVD에서 실제 Runner 실행, 이후에만 새로운 docs/evidence 결과 생성. 실패 시 명령·exit·오류 코드부터 수집해 원장 갱신.
+### PX-T04 Unity Android 통합 재검증 재개 (2026-11-12)
+- 원격 `origin/fix/unity-android-mock-e2e-evidence`를 fetch해 같은 이름의 로컬 추적 브랜치로 전환했다. 사용자 미추적 Demo 및 Python 캐시는 보존한다. Unity 라이선스·모듈과 PX-T04~T06 기존 구현을 확인하고 새 산출물 및 별도 에뮬레이터로 실제 Player 검증을 진행한다. 아직 결과는 NOT_RUN이다.
+- Unity CLI `license status`는 active=true, signedIn=true, licenseCount=3. `unity modules list 6000.5.8f1`은 android, android-sdk-ndk-tools, android-open-jdk 및 ios Installed. 실제 모듈 디렉터리는 `/Applications/Unity/Hub/Editor/6000.5.8f1/PlaybackEngines` 아래며 SDK/NDK/OpenJDK도 존재한다. 기존 `scripts/build-unity-android-mock.sh`가 `Unity.app/Contents/PlaybackEngines`만 확인하므로 유효한 설치를 거부하는 코드 문제를 발견했다. Player 검증 전 경로를 수정한다.
+- `scripts/build-unity-android-mock.sh`에서 Unity Hub의 버전 디렉터리 및 기존 Unity.app 내부의 AndroidPlayer 양쪽을 확인하도록 수정했다. 실행 검증 전이며 Player PASS가 아니다.
+- `bash -n scripts/build-unity-android-mock.sh` 종료 0, `python3 -m unittest discover -s harness -p test_export_mock_e2e_evidence.py -v` 4건 PASS/skip 0. 실제 Player 빌드 검증은 미실행이다. 커밋 준비: Unity Hub Android 모듈 경로 수정과 환경 확인 기록만 포함한다.
+### P08 / PX-T04 최신 SDK 패키지 재생성 시작 (2026-11-12)
+- 기준 제품 소스 HEAD `f1e12b6`. 새 Android Maven 산출물과 독립 R8 consumer, iOS device/simulator XCFramework 및 UPM staging을 순차 생성·검증한다. 이전 산출물을 덮어쓰지 않으며 Unity Player는 아직 미실행이다.
+- `GAMEBRIDGE_MAVEN_REPO=.../maven-v2-20261112-f1e12b6 bash scripts/build-android.sh --mock` 종료 0: mock sample 및 별도 R8 consumer 포함. 이어 iOS device/simulator XCFramework를 생성한다.
+- `GAMEBRIDGE_IOS_OUTPUT_DIR=.../ios-v2-20261112-f1e12b6 bash scripts/build-ios.sh --xcframework` 종료 0. 새 staging에 Android/iOS 산출물을 결합하고 무결성과 버전을 확인한다.
+- `scripts/package-sdk.sh` 및 `python3 harness/check-staging.py .../upm-v2-20261112-f1e12b6` 종료 0: XCFramework device arm64 / simulator arm64,x86_64와 각 C ABI 4종 검사 PASS, staging 110개 파일 checksum PASS. Android 3개 Maven POM과 UPM package version `0.1.0-dev` 일치. 이 결과는 Unity Player를 증명하지 않는다.
+- 커밋 준비: 최신 산출물 위치·빌드 검사 결과만 기록하고 생성물은 Git에 추가하지 않는다. Unity E2E는 새 전용 AVD에서 후속 실행한다.
+### PX-T04 Unity Android Player 전체 경로 검증 시작
+- `harness/run-unity-android-mock-e2e.py --run-local`을 새 전용 AVD 및 `artifacts/upm-v2-20261112-f1e12b6`로 실행한다. 제품 소스는 f1e12b6 이후 문서 외 변경이 없고 staged source 일치 검사를 수행한다. 합성 개발키·전용 DB를 사용하며 Unity/Native/HTTP/원장을 모두 확인하기 전까지 PASS가 아니다. 실행 전 기록을 커밋해 소스 clean 여부도 확인한다.
+- `python3 harness/run-unity-android-mock-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6 --serial emulator-5584 --expected-avd GameBridge_V2_20261112_011301` 종료 1, `UNITY_APK_INSTALL_FAILED`; Unity APK 생성 이후 설치에서 멈췄고 Player 전체 실행은 수행하지 못했다. runner가 adb 상세 오류를 감춰 전용 AVD에서 원인을 확인한다.
+- 첫 실패 후 같은 전용 AVD에서 APK 재설치 없이 빈 상태를 확인하고 `adb -s emulator-5584 install .../gamebridge-mock-consumer.apk` 재시도 종료 0. 최초 실패 원인은 기록이 없어 불명이다. 앱을 보존하며 runner에 설치 출력 저장을 추가하고 새 AVD로 재실행한다.
+- `harness/run-unity-android-mock-e2e.py`가 adb install 출력과 종료 코드·Success 마커를 검사해 실패 근거를 artifacts에 저장하도록 보완했다. 개발키는 설치 명령에 포함되지 않는다.
+- runner `python3 -m py_compile` 종료 0. 커밋 준비: 설치 진단 보강과 실제 실패·재시도 기록만 포함한다.
+- 최초 전용 AVD와 설치한 APK는 삭제하지 않고 종료만 한다. 새 GameBridge_V2_ AVD에서 `harness/run-unity-android-mock-e2e.py`를 다시 실행한다. 진행 기록을 먼저 커밋해 clean 상태를 확보한다.
+- 두 번째 `harness/run-unity-android-mock-e2e.py`는 Unity APK 빌드 후 `UNITY_APK_INSTALL_FAILED` exit 1. adb 설치 진단이 저장됐으므로 원인을 조사한다. 기존 증거를 PASS로 승격하지 않는다.
+- `artifacts/unity-android-e2e-usi585vl/adb-install.log`: adb daemon 재시작 직후 전용 emulator 미발견. 이후 `adb devices`에서 동일 serial online 확인. Unity 빌드 후 ADB 재검색 지연을 기다리고 AVD 이름·기존 앱 미존재를 다시 확인하는 방향으로 수정한다.
+- Unity 빌드 이후 최대 45초 동안 동일 전용 AVD를 재확인하고, 잘못된 기기나 기존 앱은 즉시 거부하도록 runner를 수정했다. 오프라인 복구와 안전한 거부에 대한 단위 테스트를 실행한다.
+- `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: ADB 재검색·전용 AVD 안전 조건 및 진단 기록만 포함한다.
+- Unity가 재시작한 ADB의 재검색을 기다리는 runner 수정 후 새 전용 AVD에서 전체 경로를 재실행한다. 기존 두 전용 AVD·DB·APK는 보존한다. 실행 전 기록을 커밋해 tracked-clean 검사를 유지한다.
+- ADB 재검색 보강 후 세 번째 runner exit 1, `UNITY_LAUNCH_FAILED` (`artifacts/unity-android-e2e-8t7go26x`). 설치 단계는 통과했으나 앱 실행 요청이 실패했으므로 Native·Backend 전체 시나리오를 PASS로 기록하지 않는다. 원인을 확인한다.
+- `aapt dump badging`에 launchable activity가 없고 `cmd package resolve-activity`도 No activity found. `scripts/prepare-unity-android-mock.sh`의 최소 custom manifest가 Unity 기본 Activity 선언을 대체한 것이 원인이다. 현재 생성 프로젝트의 Android entry는 GameActivity이며 Unity 설치본 템플릿을 기준으로 MAIN/LAUNCHER와 GameActivity metadata를 복원한다.
+- 개발용 cleartext manifest에 `UnityPlayerGameActivity`, exported MAIN/LAUNCHER 및 Unity/lib_name metadata를 추가했다. 사용자 앱 manifest는 변경하지 않으며 실제 빌드·실행은 재검증 전이다.
+- 생성기와 XML 구조 검사 종료 0: GameActivity 및 두 Unity metadata 존재. Unity APK 내부 manifest와 Player 작동은 재빌드·재실행 전이다. 커밋 준비: 테스트 전용 manifest 수정과 실패 원인 기록만 포함한다.
+- launcher GameActivity manifest 수정본을 새 AVD에서 Unity APK 재빌드·설치·실행하고 전체 local Backend·DB 원장을 확인한다. 실행 전 기록 커밋으로 tracked-clean 상태를 확보한다.
+- manifest 수정 후 새 전용 AVD 전체 runner exit 1, `UNITY_LAUNCH_FAILED`. 설치 이후 launch 오류이며 원인을 확인하기 전에는 수정 성공이나 Player PASS를 기록하지 않는다.
+- `aapt dump badging`과 package resolver에서 `com.unity3d.player.UnityPlayerGameActivity` 확인. 기존 `am start -a MAIN -c LAUNCHER -p ...`는 unable to resolve, 동일 APK에 `-n com.gamebridge.sdk.mockconsumer/com.unity3d.player.UnityPlayerGameActivity`는 Status ok. 사용된 key는 합성 placeholder며 Backend 복구 검증이 아니다. runner를 수정한다.
+- 실제 테스트 manifest에 맞춰 명시적 GameActivity를 실행하고 adb 결과의 Status ok와 종료 코드를 함께 확인하도록 변경했다. launch 출력에 개발키가 포함되면 redaction하며 raw argv는 기록하지 않는다.
+- Python 문법 및 ADB 재검색·기기 안전 테스트 2건 PASS/skip 0. 커밋 준비: 명시적 launcher·redacted 진단 및 실패 기록만 포함한다.
+- 수정 runner와 launcher manifest를 새 전용 AVD에서 재검증한다. 기존 AVD·앱·DB·산출물은 삭제하지 않고 실행 전 기록을 커밋한다.
+- 명시적 GameActivity launch는 Status ok. 새 AVD에서 Android 전체화면 안내가 Unity 포커스를 막아 전용 에뮬레이터에서 안내만 닫았고, 이후 runner는 `UNITY_PLAYER_REPORTED_FAILURE` exit 1을 기록했다. 실제 오류 단계와 원인은 미확인이다.
+- `artifacts/unity-android-e2e-sapxskap`: GameActivity launch 후 `GB_MOCK_RESULT FAIL stage=configuration code=INTERNAL_ERROR`. 생성 Gradle의 settings.gradle·unityLibrary/build.gradle에 GameBridge Maven 의존성이 없고 `AndroidGradleBuildHook`은 `#if UNITY_ANDROID`; `unity run`에 Android build target 지정이 빠져 Editor hook이 실행되지 않은 것으로 추정한다. PlayerSettings의 최초 전체화면 시스템 안내로 일시 정지된 것은 전용 AVD에서 안내를 닫아 확인했다. 클래스 로드 실패 여부는 추가 진단 후 판단한다.
+- `scripts/build-unity-android-mock.sh`에서 Editor 시작 시 Android target을 선택하도록 수정. `MockPlayerScenario`의 Android intent·설정·Native transport 오류 단계를 분리하고 오류 타입만 출력한다. 명령·managed compile 검사 후 새 AVD에서 실제 Gradle hook/전체 흐름을 확인한다.
+- `bash -n scripts/build-unity-android-mock.sh` 및 Android scenario managed compile 종료 0, 경고·오류 0. 커밋 준비: Android active target 선택, 비밀 없는 오류 단계 및 실패 근거만 포함한다.
+- Android target을 선택한 Unity import/build 및 새 전용 AVD의 전체 LOCAL_MOCK 재실행을 시작한다. 기존 AVD·DB는 보존하고 실행 전 tracked-clean을 확보한다.
+- PX-T04 `python3 harness/run-unity-android-mock-e2e.py --run-local --staging artifacts/upm-v2-20261112-f1e12b6 --serial emulator-5584 --expected-avd GameBridge_V2_20261112_012825` 종료 0, `artifacts/unity-android-e2e-zbdkbnnl/result.json` PASS. source c58b4a6 및 tracked-clean, Unity 단계 6개, Native 진단 request ID, Backend mock-auth/catalog/entitlements/verify/logout HTTP 200, DB wallet_ledger 1건·100코인 확인. 최초 Android 전체화면 안내는 새 전용 AVD에서 수동으로 닫았으므로 완전 무인 실행으로 주장하지 않는다. Google 로그인·실제 스토어 및 Unity iOS는 미검증이다. `harness/export-mock-e2e-evidence.py --kind unity ...` 종료 0으로 공개 요약만 생성했다.
+- README, USER_SETUP, FINAL_REPORT 및 FEATURE_MATRIX에 Unity Android LOCAL_MOCK 실제 Player 통과와 범위·수동 전체화면 안내를 반영했다. 과거 실패 기록은 지우지 않고 실제 외부 인증/결제, Unity iOS는 미검증으로 유지한다.
+- PASS evidence에 실행 명령 형태·exit 0·Unity 6000.5.8f1/Android 36 ARM64·staging checksum과 전체화면 안내 수동 처리를 추가했다. 합성값·원시 로그는 커밋하지 않는다.
+- 진행 매트릭스의 Unity Android local-mock 및 UPM import/IL2CPP 결과를 갱신하고, Editor 테스트·push·복구 및 iOS/외부 서비스는 별도로 유지했다. README의 오래된 Runner NOT_RUN 문구도 정정했다.
+- USER_SETUP에서 2026-11-11 라이선스·모듈 미비는 과거 상태로 보존하고 2026-11-12 실제 환경과 Android LOCAL_MOCK PASS를 명시했다.
+- 커밋 준비: PX-T04 공개용 검증 요약 및 README/PROGRESS/USER_SETUP/FEATURE_MATRIX/FINAL_REPORT의 현재 상태만 포함한다. source c58b4a6에서 실제 PASS, Unity iOS·실제 Google/스토어는 NOT_RUN, 최초 전체화면 안내는 수동으로 닫았음을 보존한다. 원본 로그·APK·DB 및 사용자 미추적 파일은 추가하지 않는다.
+- PX-T04 결과 정리 후 `python3 scripts/verify-progress.py` 종료 0, `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 2건 PASS/skip 0. 이는 Player E2E 결과와 별도다. 커밋 준비: 최종 검사 기록만 저장한다.
+### PX-T07 Unity iOS LOCAL_MOCK 통합 시작 (2026-11-12)
+- 요청된 `fix/unity-android-mock-e2e-evidence` HEAD `2a116c22aa8a8d79b95f3a55e516f1325c8d53d8` 및 작업 트리를 확인했다. Unity 라이선스 active=true, 6000.5.8f1 iOS 모듈 Installed, Xcode 26.6 build 17F113, Swift 6.3.3, iOS simulator 18.6/26.5 확인. 기존 Android PASS와 사용자 미추적 데이터 보존. 실제 Unity iOS 빌드·실행은 NOT_RUN.
+- `python3 harness/check-staging.py artifacts/upm-v2-20261112-f1e12b6`, `python3 scripts/verify-xcframework.py .../GameBridgeNative.xcframework` 종료 0. 기존 패키지 무결성과 심볼 검사이며 Unity iOS 링크·실행 PASS가 아니다.
+- `tests/UnityIosMockConsumer`, `scripts/prepare-unity-ios-mock.sh`, `scripts/build-unity-ios-mock.sh` 작성. Unity C#이 실제 SDK API를 사용하고 process environment로 임시 local key를 전달하며, 테스트 Xcode plist에 loopback HTTP 예외를 적용한다. Simulator 프로젝트 생성과 링크·실행은 아직 검증 전이다.
+- `bash -n` 및 `GAMEBRIDGE_UPM_STAGING=.../upm-v2-20261112-f1e12b6 bash scripts/prepare-unity-ios-mock.sh --prepare` 종료 0. 110개 checksum 및 별도 소비 프로젝트 생성만 확인했다. Unity iOS Simulator export 검증을 실행한다.
+- `bash scripts/build-unity-ios-mock.sh .../project .../xcode` 종료 0: Unity iOS Simulator Xcode export 완료. 아직 Xcode 링크·실행 검증은 아니다. arm64 Simulator 및 code signing 비활성으로 빌드한다.
+- `xcodebuild -project .../Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Debug -sdk iphonesimulator -derivedDataPath .../Derived ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. GameBridgeNative.xcframework가 UnityFramework target에 연결됨을 project.pbxproj에서 확인했다. libtool의 빈 object 경고가 있었으며 Player 동작은 아직 확인하지 않았다.
+- 생성된 UnityFramework arm64 Simulator binary `nm -g`에서 GB_ProtocolVersion/SetCallback/Dispatch/Shutdown 확인. Info.plist에는 테스트 전용 127.0.0.1 도메인 예외만 있다. 실제 Unity callback 및 서버 거래는 미실행이다. 전용 Simulator·DB runner 구현을 시작한다.
+- `harness/run-unity-ios-mock-e2e.py`에 checksum/source 대조, Unity iOS export, arm64 무서명 Simulator build, XCFramework/C ABI, 전용 Simulator·DB, Unity/Native diagnostics·HTTP trace·원장 확인을 작성했다. runner 전체 실행은 아직 미실행이다.
+- 커밋 준비: iOS consumer, 테스트 전용 loopback ATS, Unity iOS Simulator export와 E2E runner 초안. Unity export/Xcode arm64 Simulator link·C ABI만 실제 확인했으며 Player/Backend 전체 통합은 재실행한다.
+- `python3 harness/run-unity-ios-mock-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6`를 실행할 준비를 한다. 새로운 Simulator·DB를 만들고 기존 데이터는 보존한다. Player·Native callback·Backend·원장 대조가 끝나기 전에는 PASS가 아니다. 실행 전 이 기록을 커밋한다.
+- Unity iOS Simulator 앱 최초 실행에서 테스트 시나리오가 명시적으로 push 권한을 요청하지 않았는데 알림 허용 dialog가 표시됐다. 전용 Simulator 화면에서 확인했으며 원인을 조사한다. 실행은 진행 중이고 아직 Player/Backend PASS는 아니다.
+- 첫 `harness/run-unity-ios-mock-e2e.py` 실행 결과 FAIL `UNITY_PLAYER_REPORTED_FAILURE`, evidence `artifacts/unity-ios-e2e-sbwq4jn5`. 전용 Simulator의 예기치 않은 알림 창은 ‘허용 안 함’으로 닫았다. runner가 실패 시 Player markers를 보존하지 않는 결함이 있어 원인 추적을 보강하고 권한 요청도 조사한다. 전체 경로는 PASS가 아니다.
+- 실패 결과의 서버 trace에서 mock-auth HTTP 200 확인. 별도 합성 placeholder 실행에서는 Unity initialize 뒤 로그인 NETWORK_UNAVAILABLE이 관찰됐으나 서버를 연결하지 않은 음성 시험이므로 최초 실패 원인 증거는 아니다. Unity Notifications 기본 plist `UnityNotificationRequestAuthorizationOnAppLaunch=true`가 예상치 못한 알림 창을 유발해 테스트 전용 앱에서 비활성화하고, 실패 시 `GB_MOCK_` 마커를 남기도록 보강한다.
+- 테스트 소비 앱 post-build plist에서 Unity Notifications 시작 시 로컬/원격 권한 요청을 모두 false로 설정했다. Player 실패 시에도 credential 없는 GB_MOCK 마커를 artifacts에 남긴다. 운영 SDK/사용자 앱 설정은 변경하지 않는다.
+- Python 및 셸 문법 검사 종료 0. 커밋 준비: 테스트 앱의 불필요한 알림 자동 요청 억제, 실패 마커 보존 및 실제 FAIL 기록만 포함한다.
+- 알림 자동 요청 억제와 실패 마커 보존 후 `harness/run-unity-ios-mock-e2e.py`를 새로운 Simulator·DB에서 재실행한다. 실행 전 기록을 커밋해 tracked-clean 상태를 확보한다.
+- 알림 자동 요청 억제 후 새 Simulator의 runner 재실행 종료 1, `UNITY_PLAYER_REPORTED_FAILURE`. 실패 마커와 서버 trace가 보존됐으며 실제 실패 단계는 조사한다. 전체 통과는 아니다.
+- `artifacts/unity-ios-e2e-rfz6jnz2/unity-test-markers.log`: initialize PASS、login INTERNAL_ERROR。Backend mock-auth 200。初期化後の Keychain 保存などを調査する。現在の app は linker ad-hoc signature・entitlement 無し。Apple Developer 登録を必要としない local ad-hoc Xcode build との違いを検証する。
+- 같은 Unity Xcode 프로젝트에서 `CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=YES` Simulator build 종료 0. `codesign`은 ad-hoc 서명 및 올바른 bundle identifier를 보고했다. 이는 키·유료 계정을 사용하지 않는 로컬 대조이며 아직 Keychain 및 E2E 성공을 뜻하지 않는다.
+- `--adhoc`은 요청 시에만 로컬 코드 서명을 선택하며 기본 무서명 경로는 유지한다. result.json에 signing 방식을 기록한다. 두 방식 모두 실제 Apple 계정·상용 서명은 아니다.
+- runner 문법 검사 종료 0. 커밋 준비: local ad-hoc Simulator 선택 경로 및 첫 실패·대조 빌드 사실만 저장한다. 전체 E2E는 아직 FAIL이다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6`를 새 전용 Simulator/DB에서 실행해 unsigned 실패와 구분한다. 실행 전 tracked-clean 기록을 커밋한다.
+- `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6` 종료 0, `artifacts/unity-ios-e2e-f5r4zwvp/result.json` PASS. 무서명 Simulator에서는 login INTERNAL_ERROR였고 로컬 ad-hoc Simulator 빌드로 전체 요청/DB 원장 1건·100코인을 확인했다. Apple Developer 계정이나 실키는 사용하지 않았다. Unity main thread 조건을 명시적으로 검사하고 최신 코드에서 다시 실행한다.
+- iOS 테스트 consumer에 각 await 후 managed thread ID와 시작 시 Unity 메인 thread 일치를 검사하고 `GB_MOCK_MAIN_THREAD PASS`를 출력하도록 추가했다. runner가 해당 마커를 필수 검사한다. 기존 PASS는 이전 테스트 코드의 결과로 보존한다.
+- iOS test scenario main-thread assertion 및 runner marker 조건, Python/셸 문법 검사 종료 0. 커밋 준비: 테스트 전용 강화와 기존 PASS의 범위·새 코드 미검증 상태만 기록한다.
+- 메인 스레드 확인 marker를 필수로 하는 Unity iOS LOCAL_MOCK 전체 runner를 새로운 전용 Simulator/DB에서 재실행한다. 실행 전 기록을 커밋하여 tracked-clean 상태를 확보한다.
+- `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6` 종료 0, `artifacts/unity-ios-e2e-29s8tvel/result.json` PASS. 소스 tracked-clean에서 Unity iOS Player의 메인 스레드·SDK 전체 단계, Swift Native diagnostics, Backend HTTP trace 및 PostgreSQL 원장 1건/100코인을 확인했다. Simulator local ad-hoc signing만 사용했고 Apple 계정·실결제는 미실행. 공개 evidence 생성 전 원본 결과를 대조한다.
+- `docs/evidence/px-t07-unity-ios-local-mock.md`를 실제 `artifacts/unity-ios-e2e-29s8tvel/result.json` PASS, source SHA 일치·tracked-clean·원장 1건/100 및 메인 스레드 marker 대조 후 작성했다. 최초 unsigned FAIL, local ad-hoc 성공 및 과거 알림 창 조작을 명확히 구분했다.
+- PX-T07 공개 evidence와 README/FEATURE_MATRIX/USER_SETUP/FINAL_REPORT/PROGRESS를 갱신했다. Simulator local ad-hoc 서명과 초기 unsigned 실패를 구분하고 Android PASS 기록 및 외부 제공자 미검증 상태를 유지했다.
+- 최초 iOS 테스트 앱의 Unity Notifications 기본 자동 권한 요청과 최종 테스트 전용 plist의 비활성화 사실을 USER_SETUP에 명시했다. 운영 host의 권한·push 동작 검증 결과로 확대하지 않는다.
+- `python3 scripts/verify-progress.py`, iOS runner `py_compile`, Android ADB 안전 단위 테스트 2건 모두 종료 0. 공통 SDK/Android 제품 코드는 수정하지 않아 Android Player E2E는 재실행하지 않았으며, 테스트 안전 단위 결과와 기존 PX-T04 PASS는 별개다. 커밋 준비: 검증 문서와 PASS evidence만 포함하고 원본 로그·키·Simulator 데이터는 제외한다.
+### PX-T08 Unity Android LOCAL_MOCK Push/Lifecycle 시작
+- 요청 문서를 읽고 기존 Android/iOS Player E2E 및 Mock push stream·bridge를 대조한다. Android부터 실제 Player에서 확인하며, 기존 인증·구매 PASS나 Native-only 시험을 Push/Lifecycle 전체 PASS로 취급하지 않는다. 기존 미추적 Demo·캐시 및 데이터는 보존하고 자동 push하지 않는다.
+- `tests/UnityAndroidPushConsumer/MockPlayerScenario.cs`는 실제 Unity SDK API 및 PushReceived를 사용하고 synthetic key는 실행 시 intent로만 받는다. callback의 main-thread·중복·해제 후 이벤트를 검사하며 실제 FCM은 사용하지 않는다. 기기 실행 전이다.
+- Unity 6000.5.8f1 managed reference의 `UNITY_ANDROID` 조건에서 푸시 시나리오 compile 종료 0, 경고·오류 0. Player 실행이 아니므로 Push PASS로 기록하지 않는다. 기존 Android E2E의 전용 기기·DB 안전검사를 재사용하는 runner를 작성한다.
+- `harness/run-unity-android-mock-push-e2e.py`는 기존 전용 AVD/DB·staging 검사를 재사용해 합성 발송 3회, Unity 수신 중복 제거/메인 스레드, unregister 후 403·DB token 삭제를 확인한다. background/network/restart는 명시적으로 NOT_RUN이며 실제 FCM이 아니다. `python3 -m py_compile` 종료 0. 커밋 준비: 테스트 코드와 현 상태만 저장한다.
+- 전용 AVD와 DB를 신규 생성해 `harness/run-unity-android-mock-push-e2e.py --run-local`을 실행한다. 기존 AVD·앱·데이터는 수정하지 않는다. 실행 전 이 기록을 커밋한다.
+- `python3 harness/run-unity-android-mock-push-e2e.py --run-local --staging ... --serial emulator-5582 --expected-avd GameBridge_V2_20261112_162817` 종료 0, `artifacts/unity-android-push-z1lufhpv/result.json`: 실제 Unity Android Player에서 LOCAL_MOCK 등록·3회 중복 발송의 단일 수신 및 main-thread, unregister·logout 이후 이벤트 미전달, 서버 token 0개와 unregister 후 403 확인. 전용 AVD의 첫 전체화면 안내를 수동으로 닫았다. FCM 및 background/network/process restart는 확인하지 않았다.
+- Android Push 기본 E2E PASS에 한정해 공개용 evidence를 작성했다. 커밋 준비: 실제 확인한 범위·수동 에뮬레이터 안내와 미검증 항목을 명시하며, 원본 로그·합성 키·APK는 포함하지 않는다.
+### PX-T09 Android Unity lifecycle·연결 복구 시작
+- PX-T08 Player 시나리오를 확장해 OnApplicationPause의 background/foreground, test AVD의 연결 중단 및 복구 후 재수신·오프라인 미전달을 실제 검증한다. 로그아웃/프로세스 강제 종료와 구분한다. 아직 NOT_RUN이다.
+- 별도 Unity 시나리오에 background/foreground callback과 온라인 전용 푸시 재연결 assertion을 추가했다. 환경 제어 및 실제 실행 검증은 다음 단계다.
+- runner가 해당 전용 AVD에서 HOME/재개, Wi-Fi·data 비활성 및 loopback host 접근 실패 확인, offline 발송, 연결 복원 후 재발송과 Player callback을 검증하도록 확장했다. 테스트 종료 시 변경한 네트워크는 복원하며 기존 기기를 변경하지 않는다. 실행 검증은 아직이다.
+- `python3 -m py_compile harness/run-unity-android-mock-push-e2e.py` 종료 0. 커밋 준비: Android lifecycle/network test harness와 미실행 범위만 저장한다.
+- `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본을 새 전용 AVD에서 재실행한다. 실제 Unity Player 메인 스레드 및 네트워크 차단·복구 검사 전 PASS가 아니다. 실행 전 기록을 커밋한다.
+- 수정된 `harness/run-unity-android-mock-push-e2e.py --run-local` 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-push-a82dcn48`). Unity Player의 실제 background/foreground callback, 에뮬레이터 Wi-Fi/data 차단 및 host TCP 접근 실패, offline 메시지 미관측, 네트워크 복구 후 새 LOCAL_MOCK 메시지 수신·main-thread, 등록 해제/로그아웃·서버 token 제거를 확인했다. 전용 AVD의 첫 전체화면 안내는 수동으로 닫았다. 프로세스 종료·재시작과 pending/실제 FCM은 미검증이다.
+- `docs/evidence/px-t08-unity-android-mock-push.md`에 별도 source·APK hash·실제 background/network 재검증 결과와 수동 안내를 추가했다. 커밋 준비: evidence 및 두 원장만 포함한다.
+### PX-T10 Android Unity process 종료·pending 복구 시작
+- 독립 test-only loopback proxy에서 최초 구매 검증의 서버 commit 응답만 합성 실패로 바꾸고, 전용 AVD에서 Unity 앱을 force-stop한 뒤 세션 복원·pending sync·원장 불변을 검증한다. 실제 Play 스토어 또는 푸시 오프라인 전달로 취급하지 않는다. 아직 NOT_RUN이다.
+- 별도 Android Unity consumer가 실제 GameBridge API로 pending 재시도와 session restore를 검증하도록 작성했다. test-only fault proxy 및 실제 Player 실행은 다음 단계다.
+- Android restart consumer의 Unity managed reference compile 종료 0. 실제 pending 보존과 앱 강제 종료는 아직 NOT_RUN이며, 외부 자격증명 없이 테스트할 로컬 전용 fault proxy를 추가한다.
+- `harness/run-unity-android-mock-restart-e2e.py`는 검증 서버가 200 commit한 최초 응답만 test-only proxy로 503 처리하고, 전용 앱 force-stop 전후 PID·세션 restore·pending 1회 복구·재지급 없음과 DB 원장을 대조한다. proxy는 헤더/본문 로그를 남기지 않는다. Python 문법 PASS. 커밋 준비: 아직 Player 검증은 미실행이다.
+- 새 전용 GameBridge_V2_ AVD에서 Unity 앱 강제 종료와 pending 복구 전체 runner를 실행한다. 기존 AVD 및 앱은 보존한다. 실행 전 기록을 커밋한다.
+- `python3 harness/run-unity-android-mock-restart-e2e.py --run-local --staging ... --serial emulator-5580 --expected-avd GameBridge_V2_20261112_163957` 종료 0, `artifacts/unity-android-restart-r3p6hl0d/result.json`: test-only proxy로 첫 구매 검증 서버 commit 이후 응답을 503으로 주입, Unity 앱 강제 종료 및 다른 PID 재실행, session restore, pending 1회 복구·재sync 0·원장 1건/100·main-thread 확인. 전용 AVD의 최초 전체화면 안내 수동 처리. 실제 Play Billing과 구분한다.
+- Android evidence에 강제 종료 전 서버 commit·응답 유실, 서로 다른 PID, pending 복구·재sync 및 원장 불변, main-thread 범위를 기록했다. 커밋 준비: 공개 증거·원장만 포함하고 test APK·원본 로그는 보존하되 Git에 넣지 않는다.
+### PX-T11 Android Unity 세션 전환·지연 이벤트 검증 시작
+- 기존 PX-T09 Push 시나리오에 세션 A 종료, 새 세션 B 등록, A 소유권 발송 거부와 B 이벤트 단일 수신을 추가한다. 이전 세션 이벤트가 B에 섞이지 않는지 별도 assertion을 두며 actual Player 실행 전 NOT_RUN이다.
+- 동일 설치의 새 B session에서 이전 A 소유권 발송 403, B Mock 이벤트 및 main-thread·중복·이전 이벤트 미수신을 검증하도록 test/runner를 확장했다. API 제한을 지키도록 재발송 횟수도 조정했다.
+- Android Push scenario managed reference compile 경고·오류 0, runner Python 문법 PASS. 커밋 준비: 세션 A→B 및 늦은 이벤트 관측 test와 미검증 상태를 기록한다.
+- Android Player에서 A→B 전환을 포함한 등록/중복/background/network/로그아웃 경로를 새 전용 AVD와 DB로 재검증한다. 시작 기록을 커밋한다.
+- `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본 새 AVD 실행 종료 0 (`artifacts/unity-android-push-h9oyrtjy`): Unity Player의 Mock 등록·중복·main-thread, background/foreground, offline drop·복구, A 로그아웃 후 B 등록, 이전 A 소유권 발송 403, B 단일 수신 및 이전 이벤트 미관측 통과. 전용 AVD 첫 전체화면 안내는 수동으로 닫았다. 임의 지연 callback 및 재연결 실패 자체의 주입·iOS·실 FCM은 미검증이다.
+- Android 공개 evidence에 새 source의 A→B 전환·이전 소유권 403·B 이벤트·기존 lifecycle/network 회귀 결과를 추가했다. 커밋 준비: 원본 로그·APK·DB를 제외하고 사실 확인된 범위만 기록한다.
+### PX-T12 Unity iOS LOCAL_MOCK Push/Lifecycle 시작
+- Android의 실제 Player 시나리오를 토대로 별도 iOS Simulator consumer 및 안전한 local Backend/DB runner를 작성한다. iOS push, lifecycle 및 실제 APNs를 Android PASS로 대체하지 않는다.
+- `tests/UnityIosPushConsumer/MockIosPlayerScenario.cs`를 추가했다. 실제 Unity SDK API/PushReceived를 호출하며 loopback만 사용하고 key를 로그·에셋에 저장하지 않는다. iOS Player 검증은 미실행이다.
+- iOS Push consumer `UNITY_IOS` managed compile 종료 0, 경고·오류 0. 실제 iOS Player, Swift C ABI 및 서버 수신은 미실행. 다른 사용자 네트워크를 변경하지 않도록 test 전용 loopback TCP proxy에서 SDK 연결만 차단·복구하는 방식을 준비한다.
+- iOS Push runner는 신규 Simulator·DB, local ad-hoc, 개발 서버 allowlist, 중복·main-thread·세션 전환, Simulator background/foreground 및 테스트 전용 TCP 연결 차단/복구를 검사한다. OS 전체 네트워크와 실제 APNs는 건드리지 않는다. Python 문법 종료 0, Player 실행 전이므로 커밋 준비한다.
+- `harness/run-unity-ios-mock-push-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6`를 신규 Simulator/DB에서 실행한다. 실제 Unity Player·Swift·Backend·DB 결과 확인 전 PASS가 아니다. 실행 전 이 기록을 커밋한다.
+- `artifacts/unity-ios-mock.6cWqlO/project/Logs/upm.log`: Unity Package Manager가 `packages.unity.com` 연결 ETIMEDOUT. 기존 Unity 설치/네트워크 설정을 변경하지 않고 이전 격리 프로젝트의 동일 버전 package cache로 새 소비 프로젝트를 구성할 수 있는지 조사한다. 현재 Player 성공은 아니다.
+- 첫 iOS Push 실행 `artifacts/unity-ios-push-*`는 UPM registry 연속 timeout으로 자체 Unity 프로세스를 중단(exit 130). 기존 runner가 KeyboardInterrupt를 별도 처리하지 않아 결과 JSON은 FAIL로 남았으며 실제 Player는 NOT_RUN이었다. 이전에 성공한 격리 프로젝트의 notifications 2.5.0 / Newtonsoft 3.2.2 cache를 확인했고, 원본과 전역 설정을 수정하지 않는 새 프로젝트 한정 embedded 복사 경로를 검토한다.
+- iOS test runner의 `--package-cache`는 별도 저장된 기존 PackageCache에서 mobile notifications 2.5.0 및 Newtonsoft 3.2.2만 검사·복사하고 새 격리 소비 프로젝트의 embedded package로 사용한다. 전역 Unity 설정·원본 cache는 수정하지 않는다. 실제 resolver/Player는 아직 검증 전이다.
+- embedded package 선택 경로가 정확한 2.5.0/3.2.2만 복사하고 source 보존 및 누락 실패를 수행하는지 isolated unit test를 실행한다.
+- `python3 -m unittest discover -s harness -p test_unity_ios_push_cache.py -v` 2건 PASS/skip 0. 커밋 준비: 격리 embedded cache 경로, interrupted 분류 및 registry timeout 기록을 저장한다. 네트워크 우회나 전역 설정 변경은 없다.
+- 기존 Unity 성공 프로젝트의 package cache를 읽기 전용 원본으로 사용하여 새 격리 소비 프로젝트에 exact-version embedded package를 복사하고 iOS Player E2E를 재실행한다. 성공 전에는 PASS로 기록하지 않는다. 실행 전 진행 문서를 커밋한다.
+- exact-version cached packages를 embedded로 복사한 재시도는 Unity export FAIL exit 1. `artifacts/unity-ios-mock.Y0BHBq/project/Logs/Editor.log`에 Notifications package의 Tests/Runtime이 NUnit/Test Framework 미참조로 CS0246을 발생시켰다. SDK/runtime 소스의 실패로 단정하지 않는다. 새 임시 복사본에서 해당 패키지의 test-only 디렉터리만 제외하고 resolver/build를 재검증한다.
+- 임시 embedded package의 Tests/Tests.meta만 제외해 runtime/editor 코드는 보존하고 source cache test 디렉터리는 그대로 유지한다. 누락·원본 보존 unit test를 재실행한다.
+- `python3 -m unittest discover -s harness -p test_unity_ios_push_cache.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: 임시 embedded test 제외와 원인 기록만 포함한다.
+- exact-version embedded cache의 test-only 디렉터리를 제외한 새 소비 프로젝트로 전체 iOS Push runner를 재실행한다. 전역 환경과 이전 artifacts는 보존하며 실행 전 기록을 커밋한다.
+- cached package 적용 iOS runner는 Unity export/Xcode build 및 Simulator 앱 실행 후 `BACKGROUND_FAILED`로 종료 1 (`artifacts/unity-ios-push-cggylkb4`). `simctl openurl about:blank`의 실패 원인과 이미 수행된 Player 마커를 확인한다. iOS 전체 Push/Lifecycle은 FAIL 상태다.
+- `artifacts/unity-ios-push-cggylkb4/unity-push-markers.log`: Unity initialize/login/ready/received 및 deduplicate-main-thread PASS. `simctl openurl ... about:blank`는 -10814로 지원되지 않았으며 동일 전용 Simulator에서 `http://127.0.0.1:1/` 열기는 종료 0. 실제 네트워크 접근 없이 별도 앱 전환으로 local URL을 사용한다.
+- `simctl openurl` 대상은 외부 사이트가 아닌 test Backend의 loopback health URL로 바꿨다. 다른 사용자 기기 및 운영 네트워크는 사용하지 않는다. Python 문법 검사 후 실제 Simulator 전체 흐름을 다시 검증한다.
+- runner Python 문법 검사 종료 0. 커밋 준비: Simulator가 지원하는 loopback URL background 전환 및 실제 부분 PASS/실패 기록을 보존한다.
+- iOS Player의 local-mock Push·background/foreground·전용 TCP 연결 중단/복구·세션 전환을 새 전용 Simulator/DB에서 다시 확인한다. 실행 전 기록을 커밋한다.
+- `python3 harness/run-unity-ios-mock-push-e2e.py --run-local --staging ... --package-cache ...` 종료 0 (`artifacts/unity-ios-push-248n_2n2/result.json`): Unity iOS 18.6 Simulator Player→Swift bridge→local Backend/DB에서 Mock 등록·중복 제거·Unity main-thread·background/foreground·test-only loopback TCP 차단/복구·offline 메시지 미전달·A→B 소유권·logout 후 token 0 PASS. OS 전체 네트워크 차단, process force-stop/pending, 실제 APNs는 별도 미검증이다. Local ad-hoc 서명과 exact-version embedded package cache 사용.
+- iOS Push/Lifecycle 실제 통과 범위, local TCP fault와 OS 전체 연결 차단의 차이, registry cache 경로, unsigned/실제 APNs 제외를 공개 evidence에 반영했다. 커밋 준비: 원본 로그·키·DB·Simulator 파일은 제외한다.
+### PX-T13 Unity iOS Simulator process/pending 복구 시작
+- Android PX-T10과 동일하게 test-only loopback proxy로 서버 commit 뒤 응답만 일회 실패시키고 iOS Simulator 앱을 terminate/relaunch해 세션 복원·pending 1회 복구·중복 지급 방지를 확인한다. 별도 Simulator·DB를 사용하며 실제 StoreKit 결제는 포함하지 않는다.
+- `tests/UnityIosRestartConsumer/MockIosPlayerScenario.cs`는 Swift bridge를 통해 실제 SDK API를 호출하고 환경 변수로 합성 key만 공급받는다. libc getpid로 강제 종료 전후 프로세스를 구분한다. Unity build/Simulator 실행은 미검증이다.
+- `harness/run-unity-ios-mock-restart-e2e.py` 및 Simulator consumer 작성. 최초 서버 200 후 합성 503, Simulator terminate/relaunch, 별도 PID, 세션 restore·pending 1회 복구·재sync 0·원장 1건/100을 검사한다. Python 문법 종료 0. 커밋 준비: 실제 E2E는 아직 미실행이다.
+- `harness/run-unity-ios-mock-restart-e2e.py --run-local`을 새 Simulator/DB 및 local ad-hoc Simulator signing으로 실행한다. 실행 전 진행 기록을 커밋해 tracked-clean 상태를 보존한다.
+- `harness/run-unity-ios-mock-restart-e2e.py --run-local --staging ... --package-cache ...` 종료 0 (`artifacts/unity-ios-restart-vidqoa21/result.json`). Unity iOS Simulator Player에서 서버 commit 응답을 test-only proxy가 503으로 바꾼 뒤 앱 terminate/relaunch, 서로 다른 PID, 세션 복원·pending 1회/재sync 0, Unity main-thread 및 DB 원장 1건·100코인을 확인했다. 로컬 ad-hoc, 실제 StoreKit/기기는 아님.
+- `docs/evidence/px-t12-unity-ios-mock-push.md`에 iOS Player terminate/relaunch, 서버 commit 응답 유실·session/pending 복구 및 원장 불변 결과를 추가했다. 커밋 준비: 합성 키·원본 로그·Simulator·DB는 제외한다.
+### PX-T14 Unity Android/iOS Mock Push 재연결 실패 주입 시작
+- 기존 offline drop/reconnect PASS와 재연결 실패 assertion은 다르므로, test-only loopback TCP proxy에서 연결 시도를 거부한 횟수를 계측하고 복구 후 이벤트 수신을 다시 확인한다. 운영 코드와 사용자 네트워크 설정은 변경하지 않는다.
+- iOS 전용 TCP fault proxy에 차단 상태에서 발생한 실제 수락/즉시 종료 시도 수를 비밀 없이 기록하고, 최소 1회 실패와 복구 후 이벤트 전달을 함께 요구한다. 기존 PX-T12 PASS를 새 테스트 PASS로 대체하지 않는다.
+- Android test는 기존 AVD Wi-Fi/data 차단 확인을 유지하면서 SDK 연결만 받는 loopback proxy의 재연결 거부를 추가했다. 다른 host 네트워크·운영 SDK는 변경하지 않는다. 성공은 각각 새 Player 실행 후에만 기록한다.
+- 양 플랫폼 runner `py_compile` 및 iOS cached-package 안전 단위 2건 PASS. Android server log 검사에 B session 합성 token도 추가했다. 커밋 준비: test 전용 fault 계측만 포함하고 실제 Player 결과는 이전 source에 한정한다.
+- Android Unity Player에서 OS 네트워크 차단·복원 뒤 test-only proxy의 연결 거부 시도 관측과 재연결 후 전달을 새 전용 AVD/DB로 실행한다. 실행 전 이 기록을 커밋한다.
+- PX-T14 Android E2E 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-push-n3lvsnkx`). 실제 Player에서 Wi-Fi/data 차단·복원 및 test-only TCP proxy의 재연결 거부 후 복구를 검사했다. 첫 전체화면 안내는 전용 AVD에서 수동으로 닫았다. 실제 FCM은 아니다.
+- Android 결과 source `ea5e17f`, tracked-clean, proxy 재연결 거부 2회, 이후 수신 및 기존 lifecycle/session 통과를 evidence에 추가했다. 커밋 준비: 원본 로그·APK·DB 제외.
+- iOS Unity Simulator에서 test-only TCP proxy 연결 거부 시도 관측과 재연결 후 수신을 새 전용 Simulator/DB로 검증한다. 실행 전 기록을 커밋한다.
+- iOS Push runner 새 전용 Simulator 실행 종료 0 (`artifacts/unity-ios-push-gcmp59n7`). test-only loopback proxy가 SDK의 재연결 시도를 거부한 후 연결을 복구했고 Unity Player의 local mock push/lifecycle/session 검사가 통과했다. OS 전체 네트워크 차단이나 APNs 원격 전달을 의미하지 않는다.
+- iOS source `837c016`, tracked-clean, proxy 재연결 거부 6회 및 후속 수신·기존 lifecycle/session 재검증을 evidence에 기록했다. 커밋 준비: 원시 로그·키·DB·Simulator 산출물은 포함하지 않는다.
+### PX-T15 Android/iOS Unity 인증·구매 회귀 시작
+- 사용자 요청에 따라 기존 PX-T04/PX-T07 인증·구매 전체 Runner를 현재 source에서 재실행한다. Unity registry timeout을 고려해 기존 iOS Push test의 exact-version embedded cache 복사 기능을 새 격리 프로젝트에만 선택적으로 적용한다. 이전 PASS를 새 결과로 대신하지 않는다.
+- 기존 두 Runner가 `--package-cache`를 받으면 PX-T12에서 검증한 exact-version embedded copy를 새 소비 프로젝트에만 적용한다. 기존 전역 Unity 환경 및 package 원본은 수정하지 않는다. 재실행 전 문법/안전 단위를 확인한다.
+- 두 Runner Python 문법 및 cache/기기 안전 단위 4건 PASS/skip 0. cache helper의 오류를 해당 runner의 fail-closed 분류로 변환한다. 커밋 준비: 환경 옵션과 진행 기록만 포함한다.
+- 기존 Android Player 인증·구매 E2E를 새 전용 AVD와 DB에서 현재 runner로 재실행한다. 기존 AVD·앱·DB는 보존하고 실행 전 기록을 커밋한다.
+- `harness/run-unity-android-mock-e2e.py --run-local ... --package-cache ...` 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-e2e-7001epc_`). Unity Player 초기화·Mock 로그인·상품·구매·잔액·로그아웃, Native 진단·서버 trace·DB 원장 검사 통과. 최초 전체화면 안내는 수동으로 닫았다. 기존 Android 회귀와 실제 제공자 검증은 별도다.
+- iOS 기존 인증·구매 전체 Runner를 새 Simulator·DB에서 다시 실행한다. 실행 전 진행 기록을 커밋한다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --package-cache ...`를 새 Simulator/DB에서 실행한다. Unity 인증·구매 이전 PASS를 현재 결과로 대체하지 않는다. 시작 기록을 커밋한다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc ... --package-cache ...` 새 전용 Simulator·DB 실행 종료 0 (`artifacts/unity-ios-e2e-zizcrlvt`): Unity C#→Swift C ABI→Backend/DB의 Mock 로그인·상품·구매·잔액·로그아웃 및 main-thread/Native 진단 통과. Apple 계정·StoreKit 실거래는 사용하지 않았다.
+- Android source `8afe5d0`, iOS source `9031124`의 새 tracked-clean 전체 회귀 PASS를 플랫폼 evidence에 추가했다. 커밋 준비: 검증 요약과 원장만 포함하며 원본 로그·APK·키는 제외한다.
+### PX-T16 지연 콜백 및 이전 세션 이벤트 검증 시작
+- 기존 실제 Android/iOS Player의 session A→B 전환·이전 사용자 발송 거부는 확인했다. 지연된 Native callback 자체를 실제 Player에 주입한 적은 없으므로, 우선 SDK wire registry의 timeout 이후 응답·다른 세션 이벤트 및 dispose 이후 이벤트를 격리 .NET 테스트로 확인한다. 이를 Player 주입 PASS로 대체하지 않는다.
+- `tests/UnityLateCallback`은 timeout 후 동일 응답 두 번, 이전 session push, 현재 session 정상 push, dispose 이후 push를 SDK의 실제 RequestRegistry에 합성 주입한다. 이는 C#/managed 단위 시험이며 JNI/C ABI Player 지연 callback 직접 주입은 아니다.
+- `dotnet run`은 custom OutputPath로 빌드한 뒤 기본 경로 실행파일을 찾다가 exit 1 (`Win32Exception`); 테스트는 실행되지 않았다. 생성된 명시적 DLL 경로로 다시 실행한다.
+- 동일한 테스트를 Unity 동봉 dotnet으로 명시적 출력 DLL에서 실행한다.
+- managed wire 단위의 timeout 후 응답·이전 session·dispose 이후 이벤트 테스트는 DLL 직접 실행 PASS. 여기에 더해 각 실제 Player의 platform transport callback 수신 경로에 이전 session 메시지를 test-only 합성 주입해 큐/main-thread에서 폐기되는지 확인한다. 이는 실제 원격 FCM/APNs 발송이 아니다.
+- test-only `LateCallbackProbe`와 link.xml을 격리 소비 프로젝트에 복사해 B session에서 A session 이벤트를 Android callback queue 또는 iOS C ABI callback 입력에 합성 주입한다. 메시지가 구독자에 전달되지 않고 ignored counter가 증가해야 한다. Android는 JNI를 통하지 않는 합성 callback 메서드 호출이며 iOS는 합성 C ABI 입력이다. 실제 Player 검증은 아직 미실행이다.
+- Unity wire registry의 timeout 후 이중 응답·이전 session·dispose 이후 이벤트 합성 단위는 DLL 직접 실행 PASS. Player probe를 포함한 Android/iOS 조건부 managed compile 각각 0 warning/0 error. JNI나 C ABI의 실제 지연 callback을 이미 통과한 것은 아니다. 커밋 준비: test-only probe·검사와 실제 오류 이력을 포함한다.
+- Android Unity Player의 B session에서 A session 합성 메시지를 Android callback queue에 주입하고 무시되는지 확인한다. 새로운 전용 AVD/DB에서 기존 Push/Lifecycle도 재검증하며 시작 기록을 커밋한다.
+- Android 실제 Player에서 test-only로 이전 A session 메시지를 B의 Android transport callback 메서드/큐에 지연 합성 주입하고 ignored counter 증가·구독자 미전달을 확인했다 (`artifacts/unity-android-push-3n9bo6qw`, exit 0). 기존 Mock push/background/network/session도 통과, 최초 전체화면 안내는 수동으로 닫았다. 합성 메서드 호출이므로 실제 JNI/FCM 지연 발생을 의미하지 않는다.
+- Android evidence에 최신 source의 Player test-only 지연 callback 주입 PASS, 제한된 회귀 범위 및 합성 주입/JNI 차이를 추가했다. 커밋 준비: 원본 로그·APK·DB 제외.
+- iOS Unity Player의 B session에 A session 메시지를 Swift C ABI callback 입력과 동일한 C# callback 경로로 합성 주입하고 버퍼 해제 후 폐기 여부를 확인한다. 실제 APNs callback이 아니며 새 Simulator·DB를 사용한다. 실행 전 기록을 커밋한다.
+- iOS 실제 Simulator Player에서 test-only 합성 A session 메시지를 B의 C ABI callback 수신 경로에 주입하고 입력 버퍼를 즉시 해제한 뒤 ignored counter 증가·구독자 미전달을 확인했다 (`artifacts/unity-ios-push-213zsmr5`, exit 0). 기존 Mock push/background/test TCP 재연결 실패·session 전환도 통과. 실제 APNs 지연 callback은 아니다.
+- iOS evidence에 최신 source Player의 C# callback 수신 메서드 합성 입력·즉시 버퍼 해제·이전 session 폐기 및 test-only scope를 추가했다. 커밋 준비: 원시 로그·키·DB·Simulator 산출물은 제외한다.
+### PX-T17 Push/Lifecycle 결과 및 문서 감사 시작
+- Android/iOS 실제 Unity Player의 LOCAL_MOCK 시험별 PASS, test-only fault·합성 callback·수동 안내 및 미실행 실제 제공자/실기기 범위를 README, FEATURE_MATRIX, FINAL_REPORT 및 evidence에 정리한다. 과거 결과와 source SHA를 보존한다.
+- 현재 Push/Lifecycle 결과를 주요 문서와 플랫폼별 matrix에 반영했다. Android/iOS Player 실험, force-stop 별도 실행, 합성 callback 및 iOS test proxy 범위를 분리하고 FCM/APNs·실기기 미실행을 유지했다.
+- BUG-014/015 및 FINAL_REPORT의 오래된 Unity Player 미검증 표현을 Android emulator/iOS Simulator local-mock PASS 범위로 정정했다. 실제 기기·FCM/APNs·다른 모드는 미검증이므로 OPEN 유지한다.
+- evidence 내 선행 시험의 시점별 NOT_RUN과 후속 PASS가 충돌하지 않도록 과거 범위임을 명시했다. 각 시험 source SHA·실행 결과 및 실제 FCM/APNs 미검증은 보존했다.
+- FEATURE_MATRIX의 push 등록/수신·pending 복구 행 및 USER_SETUP의 오래된 Unity push 미검증 문구를 현재 범위로 정정했다. 실제 알림 클릭·원격 전송·실기기는 PASS로 표시하지 않았다.
+- `python3 scripts/verify-progress.py`, 네 runner `py_compile`, cache/ADB 안전 단위 총 4건 및 `git diff --check` 종료 0. 커밋 준비: README·FEATURE_MATRIX·FINAL_REPORT·USER_SETUP·PROGRESS·WORK_LOG·플랫폼 evidence만 포함한다. Unity Runtime CI 전체 gate 및 실제 FCM/APNs는 성공으로 변경하지 않는다.

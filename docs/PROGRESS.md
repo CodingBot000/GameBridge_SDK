@@ -693,3 +693,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Native Demo Android test-only probe managed compile PASS(경고·오류 0). marker 필터 및 혼합 probe 거부를 확인한 뒤 clean-source Player를 실행한다.
 - Native Demo marker/filter 포함 단위 4건 PASS, UTF-8/Native probe 동시 선택 exit 2 확인. 실제 Android Player는 NOT_RUN; clean-source 시험 전 코드 커밋 준비.
 - P08-T04 Native Demo Android Player 실제 검증 시작: source 337d4ec 제품/테스트 코드와 최신 staged SDK, 빈 전용 AVD·격리 DB를 사용한다. 시작 기록을 커밋한 뒤 실행한다.
+- P08-T04 Native Demo Android Unity LOCAL_MOCK Player PASS (`artifacts/unity-android-e2e-j7ir0wt8`): staged sample 설정·초기화·로그인·상품·모의 구매·로그아웃 callback 및 DB 원장 1건/100, 개발키 입력 삭제 확인. 최초 전체화면 안내는 수동 처리; 화면 터치·실제 Play 미검증.
+- Native Demo test AVD는 데이터 삭제 없이 shutdown했다. Android 부분 증거·기능 matrix 및 최종 보고 반영, iOS Player/시각 QA는 미검증으로 커밋 준비.

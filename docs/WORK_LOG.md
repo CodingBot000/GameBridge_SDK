@@ -2845,3 +2845,5 @@
 - `test_unity_redaction_marker.py` 4건 PASS/skip0 및 두 전문 probe 동시 선택의 argparse exit 2 확인. 커밋 전: test-only sample probe·격리 runner와 기록만 포함한다. 실제 Player·시각 QA는 미실행이다.
 - staged Native Demo sample의 Android LOCAL_MOCK Player를 실제로 빌드·실행한다. 새 빈 AVD는 기존 시험 앱 덮어쓰기를 막기 위해 필요하며 사용자 데이터는 보존한다. 최초 전체화면 안내 수동 처리 가능성을 별도 기록한다.
 - 커밋 전: 실행 시작 기록만 포함, 실제 결과는 NOT_RUN이다.
+- `run-unity-android-mock-e2e.py --run-local --native-demo-probe` exit 0 (`artifacts/unity-android-e2e-j7ir0wt8`): staged Native Demo의 runtime 설정·초기화·로그인·상품·100코인 mock 구매·로그아웃 callback 및 DB 원장 1건/100 확인, 입력 개발키 삭제·결과 비노출 검사 포함. 전용 AVD 최초 전체화면 안내는 수동으로 닫았다. 실제 터치/시각 QA, Play 결제·실기기는 아니다.
+- Native Demo test AVD shutdown, 데이터 보존. 커밋 전: `docs/evidence/p08-native-demo-android.md`와 기능 문서에 Android LOCAL_MOCK 범위·수동 안내·미검증 항목만 반영한다. iOS Native Demo Player와 실제 UI는 미실행이다.

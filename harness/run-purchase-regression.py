@@ -60,12 +60,15 @@ def main() -> int:
     if env.get('GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST') == 'true' and env.get('GAMEBRIDGE_DEV_AUTH_KEY'):
         command = ['android/gradlew','-p','android',':sdk-core:test','--rerun-tasks','--tests',
                    'com.gamebridge.LocalMockIntegrationTest.persisted mock transaction recovers after committed response is lost', '--tests',
-                   'com.gamebridge.LocalMockIntegrationTest.native client uses server authoritative wallet and restores session']
+                   'com.gamebridge.LocalMockIntegrationTest.native client uses server authoritative wallet and restores session', '--tests',
+                   'com.gamebridge.LocalMockIntegrationTest.bridge uses real local backend for mock purchase and restore']
         code, _, started = common.run(command, env, output/'android-loss.log')
-        results.append(common.item('android-local-response-loss', code, common.junit_counts([ROOT/'android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockIntegrationTest.xml'], started)))
+        counts = common.junit_counts([ROOT/'android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockIntegrationTest.xml'], started)
+        results.append(common.item('android-local-response-loss', code, counts if counts[0] == 3 else (0,counts[1],counts[2])))
         if shutil.which('swift'):
-            code, text, _ = common.run(['swift','test','--package-path','ios','--filter','LocalMockIntegrationTests.testPersistedMockTransactionRecoversAfterCommittedResponseIsLost|LocalMockIntegrationTests.testLocalServerWalletAndRestore'], env, output/'swift-loss.log')
-            results.append(common.item('swift-local-response-loss', code, swift_counts(text)))
+            code, text, _ = common.run(['swift','test','--package-path','ios','--filter','LocalMockIntegrationTests.testPersistedMockTransactionRecoversAfterCommittedResponseIsLost|LocalMockIntegrationTests.testLocalServerWalletAndRestore|LocalMockIntegrationTests.testBridgeHandlerAgainstLocalBackend'], env, output/'swift-loss.log')
+            counts = swift_counts(text)
+            results.append(common.item('swift-local-response-loss', code, counts if counts[0] == 3 else (0,counts[1],counts[2])))
         else: results.append(common.item('swift-local-response-loss', 2, (0,0,0)))
     else:
         results.extend([common.item('android-local-response-loss', 2, (0,0,0)), common.item('swift-local-response-loss', 2, (0,0,0))])

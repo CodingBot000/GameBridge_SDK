@@ -629,3 +629,14 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T02/R09 UTF-8 전용 Android consumer 실제 Player 재검증 시작: 빈 전용 AVD에서 JNI 문자열·개발키 결과 비노출과 기존 흐름을 확인한다.
 - R09 수정 UTF-8 Unity Android Player 재실행 PASS (`artifacts/unity-android-e2e-jtraqi0j`): JNI 한글/emoji 및 합성 개발키 결과 비노출; 최초 전체화면 안내 수동 처리. 실제 기기·제공자는 별도.
 - R09 전용 AVD를 데이터 삭제 없이 shutdown했다. tracked-clean 및 검증 결과 기록 커밋 준비.
+- P09-T03/R22 Native LOCAL_MOCK 세션 토큰 결과 검사 확장 시작: 테스트 전용 메모리 저장소에서 해당 실행의 synthetic access/refresh token을 읽어 실제 bridge 응답·결과에 포함되지 않는지 확인한다. 토큰 값은 출력하지 않는다.
+- R22 Native 테스트 컴파일 PASS; Swift 대상은 로컬 Backend opt-in이 없어 1건 SKIP이며 검증 PASS가 아니다. 격리 테스트 DB/서버에서 양 플랫폼 대상 시험을 실제 실행한다.
+- R22 Native LOCAL_MOCK 합성 access/refresh token 값 자체의 bridge 결과 비노출 검증: Android 1건·Swift 1건 PASS (`artifacts/r22-native-9f0p4b_t`), skip 0. 실제 provider credential과 전체 로그는 미검증, R22 PARTIAL 유지.
+- R22 토큰 비교 시험을 기존 local purchase regression의 Android/iOS 실행 대상에 연결해 재실행 가능하게 한다. 별도 synthetic 결과와 실제 제공자 검증을 혼동하지 않는다.
+- R22 회귀 filter 연결 후 Python/원장 검사 PASS. 한 개만 실행되고도 세 시험 묶음이 PASS되는 것을 막기 위해 각 언어의 필수 3건 수를 확인하도록 보강한다.
+- P09-T06 새 Native token 회귀 포함 격리 strict 재검증 시작: Android/Swift 각 3건 필수 집계를 확인한다. Unity Player opt-in은 제공하지 않아 해당 lane은 DEFERRED_ENV로 남는다.
+- strict 진행 중 local integration 중간 결과: Android JUnit 3건·Swift 3건, 실패/skip 0 (`artifacts/purchase-regression-n4qmg2ka`). 전체 집계는 아직 진행 중이다.
+- strict 구매 하위 집계 전 항목 PASS: Android/Swift local integration 각 3건, Xcode local DB 및 process recovery 각 1건. 전체 strict와 별개이며 아직 진행 중.
+- 최신 strict 전체 FAIL/exit 1 (`artifacts/verify-all-r1ely80_/summary.md`), 외부 13 WAITING_USER. 구매 하위는 모두 PASS이나 전체 실패·미실행 원인을 확인한다.
+- 최신 strict 세부: 구매 전체와 mock-permission PASS, Unity Push DEFERRED_ENV, Editor NOT_RUN, R22/R40 PARTIAL 및 기존 P05-T03 FAIL. 사용한 테스트 Simulator shutdown(데이터 보존).
+- Native token assertion과 regression 3건 필수 집계, 최신 strict 결과·최종 보고서 반영 및 원장/Python/diff 검사 PASS. 커밋 준비. 실제 제공자·전체 로그는 미검증.

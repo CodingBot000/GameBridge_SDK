@@ -2770,3 +2770,15 @@
 - 커밋 전: 시작 기록만 포함한다. 실제 시험은 NOT_RUN이다.
 - `run-unity-android-mock-e2e.py --run-local --utf8-probe` exit 0 (`artifacts/unity-android-e2e-jtraqi0j`): 수정 소비자의 JNI 한글/emoji round-trip과 합성 개발키 결과 비노출 및 기존 LOCAL_MOCK 흐름 PASS. 최초 전체화면 안내는 수동으로 닫았다. 실기기·실제 제공자는 미검증이다.
 - 사용한 전용 AVD를 shutdown만 하고 데이터를 보존했다. 커밋 전: R09 실제 재시험 결과와 수동 조작 조건만 기록한다.
+### P09-T03/R22 Native 실제 합성 세션 토큰 경계 시작
+- Native LOCAL_MOCK bridge 통합시험의 임시 memory token store에서 해당 실행의 access/refresh token을 확인해 공개 응답에서 값 자체가 없는지 검증한다. 값은 로그·문서에 쓰지 않으며 외부 계정 토큰이 아니다.
+- Android `:sdk-core:compileTestKotlin` PASS. Swift 대상은 컴파일됐으나 opt-in 미설정으로 1건 SKIP이므로 토큰 assertion은 미실행이다. 새 전용 local DB·서버를 사용해 Android/Swift 대상만 실행하며 synthetic token은 출력하지 않는다.
+- 새 격리 local DB·Backend에서 Android `LocalMockIntegrationTest.bridge uses real local backend for mock purchase and restore` 1건 및 Swift `LocalMockIntegrationTests.testBridgeHandlerAgainstLocalBackend` 1건 PASS/skip0 (`artifacts/r22-native-9f0p4b_t`). 실행 중 발급한 synthetic access/refresh token 원문과 bridge 결과를 메모리에서 비교했으며 값을 출력하지 않았다. 실제 provider token·전체 로그는 미검증이다.
+- 실제 synthetic 세션 토큰 비노출 assertion이 향후 빠지지 않도록 기존 local Android/Swift integration regression filter에 양 bridge 시험을 추가한다. 기존 테스트의 최소 실행 여부도 함께 확인한다.
+- 기존 local integration lane은 실행 건수 1건 이상만 확인하므로 세 filter 중 하나가 누락돼도 통과할 수 있다. Android/Swift 각 3건 실행을 요구해 누락을 FAIL로 처리하고 실행 결과를 재확인한다.
+- 새 Native bridge token 검사를 포함한 Android/Swift local integration 세 시험 묶음과 전체 집계 재검증을 시작한다. 새로운 DB/role만 사용하며 Unity Player opt-in 및 외부 provider는 실행하지 않는다.
+- 진행 중 `artifacts/purchase-regression-n4qmg2ka`에서 Android local integration XML 3건/실패0/error0/skip0, Swift 3건/실패0/skip0을 확인했다. 새 synthetic session token 결과 검사 포함. strict 전체 결과는 아직 없다.
+- `artifacts/purchase-regression-n4qmg2ka/result.json`: 구매 하위 항목 모두 PASS/skip0; Android/Swift local integration 각 3건, Xcode local DB 및 process recovery 각 1건. 이는 전체 strict 통과가 아니다.
+- 합성 토큰 검사 추가 후 격리 strict exit 1, `artifacts/verify-all-r1ely80_/summary.md`; 구매 하위 전체 PASS, 외부 13 WAITING_USER. 실행 당시 HEAD 150a013 + 미커밋 테스트/하네스/문서, 미추적 파일 보존. 나머지 실패·미실행을 확인한다.
+- `verify-all-r1ely80_`에서 구매 하위 및 `push/mock-permission-denied` PASS; `push/unity-player-notifications` DEFERRED_ENV, `unity-editor-runtime` NOT_RUN, scenario coverage PARTIAL 및 기록된 P05-T03 FAIL로 전체 FAIL. 이전 별도 Player PASS를 이 실행의 lane PASS로 대체하지 않는다. 실행 후 전용 Simulator shutdown, 데이터 보존.
+- `verify-progress.py`, purchase runner Python compile 및 diff 검사 PASS. 커밋 전: Android/Swift 합성 token assertion, regression 필수 3건, 정제 증거·strict/보고서만 포함한다. 외부 token 및 전체 로그 안전은 주장하지 않는다.

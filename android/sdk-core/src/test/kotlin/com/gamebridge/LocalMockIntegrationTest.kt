@@ -87,6 +87,13 @@ class LocalMockIntegrationTest {
             }
             val encoded = (dispatcher.dispatch(request.toString().toByteArray()) as BridgeDispatchResult.Message).json
             assertFalse(encoded.contains(key)); assertFalse(encoded.contains("accessToken")); assertFalse(encoded.contains("refreshToken"))
+            store.value?.let { stored ->
+                val sessionTokens = Json.parseToJsonElement(stored).jsonObject
+                for (field in listOf("accessToken", "refreshToken")) {
+                    val raw = sessionTokens[field]?.jsonPrimitive?.content
+                    if (!raw.isNullOrEmpty()) assertFalse(encoded.contains(raw), "session token leaked in bridge response")
+                }
+            }
             val response = BridgeProtocol.parse(encoded.toByteArray())
             assertEquals(kotlinx.serialization.json.JsonPrimitive(true), response["ok"], "operation $operation failed")
             return response.getValue("result").jsonObject

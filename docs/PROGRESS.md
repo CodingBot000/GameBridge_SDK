@@ -586,3 +586,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - strict Xcode local StoreKit 실패 상세: 1건이 signal TERM으로 종료(exit 65), 원인은 미확정. 기존 Simulator 종료와 시간대가 겹쳐 영향 가능성을 배제할 수 없어 단독 전용 환경 재검증을 시도한다. Process-recovery는 별도 PASS.
 - Xcode local StoreKit + DB 복구 단독 재시험 PASS (`artifacts/xcode-storekit-e2e-he6ows9_`, 1건). 앞선 strict 실행의 signal TERM FAIL은 그대로 보존하며 원인은 확정하지 않는다. strict 전체는 여전히 FAIL.
 - strict 실행 결과·Simulator 종료·단독 재시험 기록 커밋 준비. 미완료 R22/R40, Unity Player 새 집계와 외부 검증은 그대로 남는다.
+- P09-T03/R22 Unity 공개 결과 합성 비밀값 시험 시작: profile·purchase·push 응답의 미허용 credential 필드가 typed 결과로 유출되지 않는지 기존 managed registry smoke에 추가한다. 실제 Player 검사는 별도 유지.
+- R22 managed smoke 첫 실행 컴파일 FAIL: JsonConvert namespace 누락(CS0103), 테스트 미실행. 정규화된 이름으로 수정해 재검증한다.
+- R22 managed registry 재시험 PASS: 합성 access/refresh token, purchase proof/receipt, push token이 typed 공개 결과로 나오지 않음을 확인. Player·전체 로그는 미검증이므로 R22 PARTIAL 유지. 커밋 준비.

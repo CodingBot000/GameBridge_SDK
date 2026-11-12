@@ -2711,3 +2711,7 @@
 - `xcresulttool` 결과 XcodeStoreKitLocalDatabaseTests 1건은 `Test crashed with signal term`, exit 65; 명확한 제품 결함 원인은 확인되지 않았다. 기존 Simulator shutdown과 시간대가 겹치므로 간섭 가능성을 배제하지 않고, 전용 새 DB/Simulator에서 해당 시험을 따로 재실행한다. Process-recovery는 독립 PASS.
 - 동일 `harness/run-xcode-storekit-e2e.py --run-local` 단독 재시험 exit 0, `artifacts/xcode-storekit-e2e-he6ows9_/result.json` PASS 1건/skip0: Xcode local StoreKit 및 합성 DB 복구만 확인. 이전 strict run의 signal TERM FAIL은 변경하지 않고 원인도 확정하지 않는다. 단독 성공을 strict 전체 성공으로 대체하지 않는다.
 - 커밋 전: strict 전체 실패·미실행·재시험 결과와 사용자 요청에 따른 기존 기기 shutdown 기록만 포함한다. Simulator/DB와 미추적 사용자 파일은 삭제하지 않는다.
+### P09-T03/R22 Unity typed 결과 경계 재검증 시작
+- 기존 purchase error·fingerprint 검사 외에 profile/purchase/push 응답에 synthetic access token·receipt·push token 필드를 주입하고 typed 결과 직렬화에서 사라지는지 확인한다. 독립 managed test이며 Player 전체 로그를 대체하지 않는다.
+- 새 결과 redaction smoke의 첫 빌드는 `JsonConvert` namespace 누락 3건(CS0103)으로 실패했고 시험은 미실행이다. 참조 이름을 수정해 재실행한다.
+- namespace 수정 후 `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-csharp-registry.sh` exit 0. 합성 credential 추가 필드가 profile·purchase·push typed 결과의 직렬화에서 제거됨을 확인했다. standalone managed test이며 Unity Player나 실제 credential 시험이 아니다. R22 PARTIAL 유지. 커밋 전: 시험 및 기록만 포함.

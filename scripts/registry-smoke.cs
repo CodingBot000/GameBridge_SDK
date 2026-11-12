@@ -166,6 +166,14 @@ internal static class Program
             ["requestId"] = JValue.CreateNull(), ["nativeCode"] = "sensitive-token", ["details"] = new JObject { ["token"] = "sensitive-token" } };
         var safeError = WireModels.Decode<GameBridge.PurchaseResult>(secretError).error;
         Check(safeError.message == "Operation failed" && safeError.nativeCode == null && safeError.details.Count == 0, "public error redaction");
+        const string syntheticSecret = "synthetic-sensitive-fixture-2026";
+        var secretProfile = (JObject)fixture["profile"].DeepClone();
+        secretProfile["accessToken"] = syntheticSecret; secretProfile["refreshToken"] = syntheticSecret;
+        Check(!Newtonsoft.Json.JsonConvert.SerializeObject(WireModels.Decode<GameBridge.UserProfile>(secretProfile)).Contains(syntheticSecret), "profile credential field redaction");
+        var secretPurchase = (JObject)fixture["purchase"].DeepClone(); secretPurchase["purchaseToken"] = syntheticSecret; secretPurchase["receipt"] = syntheticSecret;
+        Check(!Newtonsoft.Json.JsonConvert.SerializeObject(WireModels.Decode<GameBridge.PurchaseResult>(secretPurchase)).Contains(syntheticSecret), "purchase credential field redaction");
+        var secretPush = new JObject { ["provider"] = "MOCK", ["registered"] = true, ["permission"] = "GRANTED", ["tokenFingerprint"] = "mock-fingerprint", ["updatedAt"] = "2026-01-01T00:00:00Z", ["token"] = syntheticSecret };
+        Check(!Newtonsoft.Json.JsonConvert.SerializeObject(WireModels.Decode<GameBridge.PushRegistration>(secretPush)).Contains(syntheticSecret), "push credential field redaction");
         var badPush = new JObject { ["provider"] = "MOCK", ["registered"] = true, ["permission"] = "GRANTED", ["tokenFingerprint"] = new string('a', 64), ["updatedAt"] = "2026-01-01T00:00:00Z" };
         try { WireModels.Decode<GameBridge.PushRegistration>(badPush); throw new Exception("raw token-sized fingerprint accepted"); }
         catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "fingerprint redaction"); }

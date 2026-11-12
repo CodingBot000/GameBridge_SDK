@@ -2569,3 +2569,4 @@
 - 사용자 요청에 따라 기존 PX-T04/PX-T07 인증·구매 전체 Runner를 현재 source에서 재실행한다. Unity registry timeout을 고려해 기존 iOS Push test의 exact-version embedded cache 복사 기능을 새 격리 프로젝트에만 선택적으로 적용한다. 이전 PASS를 새 결과로 대신하지 않는다.
 - 기존 두 Runner가 `--package-cache`를 받으면 PX-T12에서 검증한 exact-version embedded copy를 새 소비 프로젝트에만 적용한다. 기존 전역 Unity 환경 및 package 원본은 수정하지 않는다. 재실행 전 문법/안전 단위를 확인한다.
 - 두 Runner Python 문법 및 cache/기기 안전 단위 4건 PASS/skip 0. cache helper의 오류를 해당 runner의 fail-closed 분류로 변환한다. 커밋 준비: 환경 옵션과 진행 기록만 포함한다.
+- 기존 Android Player 인증·구매 E2E를 새 전용 AVD와 DB에서 현재 runner로 재실행한다. 기존 AVD·앱·DB는 보존하고 실행 전 기록을 커밋한다.

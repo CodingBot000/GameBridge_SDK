@@ -454,3 +454,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T15 기존 Android/iOS Unity 인증·구매 LOCAL_MOCK 전체 E2E 회귀 검증 시작: 새 Player 및 전용 기기·DB에서 다시 실행한다. 패키지 registry timeout 환경에서 기존 exact-version cache를 test 프로젝트에만 복사하는 옵션을 추가한다.
 - PX-T15 기존 Android/iOS 인증·구매 Runner에 격리 consumer용 exact-version package cache 선택 기능을 추가했다. 실제 회귀는 아직 NOT_RUN이다.
 - PX-T15 두 Runner 문법·cache 안전·ADB 안전 단위 각 2건 PASS. cache 누락 오류를 기존 runner 오류 분류로 전달한다. 실제 Android/iOS Player 회귀는 아직 NOT_RUN이다. 커밋 준비.
+- PX-T15 기존 Android Unity 인증·구매 LOCAL_MOCK 전체 회귀 시작: 새 전용 AVD·DB 및 exact-version cache를 사용한다. 결과는 NOT_RUN이다.

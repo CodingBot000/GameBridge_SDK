@@ -2904,3 +2904,5 @@
 - Android/iOS 기본·Push runner에 test-only mock credential 패턴 검사 추가, Python compile 및 marker 4건 PASS/skip0. Android 원시 logcat 유출이 marker 필터 전에 거부되는지 음성 fixture를 추가한다.
 - `test_unity_redaction_marker.py` 5건, `test_unity_push_current.py` 1건 PASS/skip0, 원장/diff PASS. R22 전용 runner의 동일 패턴을 공통 helper로 통일해 검사 기준의 차이를 방지한다.
 - 공통 helper 연결 후 R22 단위 3건/skip0과 격리 Native runner exit 0 (`artifacts/r22-native-7__7z_m1`). Unity 기본·Push runner의 변경 후 실제 Player는 아직 NOT_RUN이다. 커밋 전: synthetic 패턴 검사·음성 test·기록만 포함한다.
+- synthetic mock token/proof 원시 로그 검사 추가 후 실제 iOS LOCAL_MOCK Player 기본 경로를 새로 실행한다. 실 provider·다른 포맷을 검사하는 것이 아니다. clean-source 실행 시작 기록만 먼저 커밋한다.
+- 커밋 전: 시작 기록만 포함하며 실제 재검증은 NOT_RUN이다.

@@ -742,3 +742,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Unity 네 runner의 synthetic mock credential 검사 추가 후 Python 문법·기존 marker 4건 PASS. 유출된 가상 token이 필터되기 전에 실패하는 음성 시험을 추가한다.
 - Unity raw log mock credential 주입 거부 포함 단위 5건·Push 증거 단위 1건 PASS. 중복 정규식을 공통 helper로 통일하고 재검증한다.
 - 공통 synthetic credential 패턴의 R22 단위 3건 및 격리 Native 재실행 PASS (`artifacts/r22-native-7__7z_m1`). Unity runner 추가 검사는 아직 실제 Player 재실행 전, 커밋 준비.
+- P09-T03/R22 강화 로그 검사 iOS 기본 LOCAL_MOCK Player 재검증 시작: source 4e10efc runner와 최신 stage를 사용한다. synthetic mock 패턴에 한정한다.

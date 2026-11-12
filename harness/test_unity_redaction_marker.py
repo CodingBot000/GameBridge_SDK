@@ -17,6 +17,9 @@ class UnityRedactionMarkerTests(unittest.TestCase):
             for assertion in ("RejectSecret(profile, syntheticKey)", "RejectSecret(purchase, syntheticKey)",
                               "RejectSecret(events, syntheticKey)", "GB_MOCK_REDACTION PASS"):
                 with self.subTest(consumer=name, assertion=assertion): self.assertIn(assertion,source)
+    def test_log_filter_keeps_native_demo_marker(self):
+        with patch.object(module,"must",return_value="I/Unity: GB_NATIVE_DEMO_FLOW PASS\n"):
+            self.assertEqual(len(module.scan_unity_log("adb","serial","synthetic-key","synthetic-password")),1)
     def test_log_filter_keeps_redaction_marker(self):
         with patch.object(module,"must",return_value="I/Unity: GB_MOCK_REDACTION PASS\n"):
             self.assertEqual(len(module.scan_unity_log("adb","serial","synthetic-key","synthetic-password")),1)

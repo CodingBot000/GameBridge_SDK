@@ -688,3 +688,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Native Demo Editor guard와 Offline fake flow를 함께 Unity Editor에서 1건 PASS/skip0 (`artifacts/offline-sample.TwukI1/results.xml`): Native 사용 안내·버튼 비활성 확인. Native Player 흐름 및 실제 렌더링은 미검증.
 - 양 sample 결과 음성 단위·실제 XML 재검사·원장 PASS이나 diff 공백 검사 1건 FAIL(후행 공백). 공백만 제거하고 재검사한다.
 - 공백 수정 후 sample 음성·실제 XML·원장/diff 검사 PASS. Native Demo Player·실제 화면은 계속 미검증, 커밋 준비.
+- P08-T04 Native Demo Android LOCAL_MOCK Player 시험 시작: staged sample을 빈 소비 프로젝트에 가져와 runtime 입력·버튼 callback·mock Backend/DB 흐름을 검증한다. 실제 화면 터치·결제는 별도다.
+- P08-T04 Native Demo Android test-only probe와 격리 runner option 작성, Python 문법 PASS. 실제 Unity 컴파일·Player는 미실행이며 managed compile을 확인한다.
+- Native Demo Android test-only probe managed compile PASS(경고·오류 0). marker 필터 및 혼합 probe 거부를 확인한 뒤 clean-source Player를 실행한다.
+- Native Demo marker/filter 포함 단위 4건 PASS, UTF-8/Native probe 동시 선택 exit 2 확인. 실제 Android Player는 NOT_RUN; clean-source 시험 전 코드 커밋 준비.

@@ -2838,3 +2838,8 @@
 - staged 양 sample을 격리 프로젝트에서 실행한 `smoke-unity-offline-sample.sh` exit 0, Unity test 1건 PASS/skip0 (`artifacts/offline-sample.TwukI1/results.xml`). Offline fake flow와 Native Demo Editor에서 안내·Native 버튼 비활성을 확인했다. Native Player와 실제 화면/포인터는 시험하지 않았다.
 - sample 음성 단위 1건·실제 XML 판정·원장 PASS. `git diff --check`는 checker 15행 후행 공백으로 exit 2; 공백을 제거한 뒤 재검증한다.
 - 공백 수정 후 sample 결과 음성 1건, 실제 Editor XML, 원장 및 diff 검사 PASS. 커밋 전: Native Demo Editor guard test 및 정확한 한계만 기록한다. Native Player 실행으로 간주하지 않는다.
+### P08-T04 Native Demo Android Player 검증 시작
+- 문서의 staged Native Demo와 uGUI를 새 소비 프로젝트에 복사하고 runtime 설정을 입력해 초기화·로그인·상품·모의 구매·로그아웃 버튼 callback을 실제 Android Unity Player에서 실행할 전용 probe를 추가한다. 포인터·화면 QA와 실 Play 거래는 별도다.
+- staged Native Demo에 runtime 설정을 입력하고 실제 UI callback으로 mock 로그인·상품·구매·로그아웃 및 합성키 결과 검사를 실행하는 Android probe를 추가했다. runner는 별도 marker·정확한 uGUI 2.5.0을 요구한다. 아직 Unity/Player 미실행이다.
+- `UNITY_ANDROID` 조건부 Native Demo probe managed compile exit 0, 경고·오류 0. 실제 Player는 NOT_RUN. marker 수집·서로 다른 probe 동시 설정 거부를 확인한다.
+- `test_unity_redaction_marker.py` 4건 PASS/skip0 및 두 전문 probe 동시 선택의 argparse exit 2 확인. 커밋 전: test-only sample probe·격리 runner와 기록만 포함한다. 실제 Player·시각 QA는 미실행이다.

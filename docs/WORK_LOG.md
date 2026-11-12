@@ -2888,3 +2888,5 @@
 - 실제 `scripts/ci-unity-e2e.sh` 첫 호출은 Editor consumer 2건과 sample Editor 1건 PASS 뒤 Android baseline `TARGET_NOT_AN_ONLINE_EMULATOR`/exit 2 (`artifacts/unity-android-e2e-ds3m3hkh`). Android Player 이후 및 strict는 NOT_RUN이다. Unity의 ADB 재시작·두 AVD online 복구를 조사한다.
 - 최초 `find_dedicated_device` 호출은 ADB 재시작 순간 offline을 즉시 환경 대기로 반환한다. 기존 `wait_for_dedicated_device`는 동일 serial/전용 AVD/기존 앱 보존 검사를 유지하며 offline만 재시도하므로 baseline 및 push의 최초 조회에도 적용한다.
 - `test_unity_device_rediscovery.py` 3건 PASS/skip0, 양 runner Python compile·원장/diff PASS. offline은 제한 시간 내 재시도하며 다른 AVD와 설치된 앱은 즉시 거부한다. 실제 수정 gate 재실행은 NOT_RUN. 커밋 전: runner·음성 검증·기록만 포함한다.
+- 두 전용 AVD에 테스트 패키지가 설치되지 않은 것을 확인했다. 기존 기기 데이터 삭제 없이 동일 AVD를 재사용해 수정된 Unity 전체 gate를 재실행한다. 시작 기록을 먼저 커밋한다.
+- 커밋 전: 재실행 시작 기록만 포함, 전체 결과는 NOT_RUN이다.

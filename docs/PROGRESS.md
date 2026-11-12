@@ -728,3 +728,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 첫 전체 Unity CI gate exit 2: Editor 2건·sample 1건 PASS 후 Android baseline `TARGET_NOT_AN_ONLINE_EMULATOR` DEFERRED_ENV (`artifacts/unity-android-e2e-ds3m3hkh`). Unity의 ADB 재시작 후 기기 재검색을 확인한다. 후속 Player/strict는 NOT_RUN.
 - Android baseline의 최초 기기 조회는 재시작 직후 바로 실패하고 후반 설치 전 조회만 재시도한다. Push runner도 동일 패턴이어서 두 최초 조회에 기존 안전한 재검색을 적용한다.
 - ADB 재검색 단위 3건 PASS: offline 복구, 시간 초과 환경 대기, 다른 기기/기존 앱 즉시 거부. Python/원장/diff PASS; clean-source 전체 gate 재시도 전 커밋 준비.
+- P09-T07 전체 Unity gate 재실행 시작: 최초 실패에서 앱이 설치되지 않은 동일 전용 AVD 두 개를 재사용한다. 이전 DEFERRED_ENV는 보존한다.

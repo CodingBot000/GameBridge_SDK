@@ -5,6 +5,9 @@ import unittest
 spec=importlib.util.spec_from_file_location('strict_isolated',Path(__file__).parent/'run-strict-local-isolated.py')
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class StrictTimeoutTests(unittest.TestCase):
+    def test_explicit_editor_and_newtonsoft_paths_are_preserved(self):
+        editor,managed=module.editor_paths({'UNITY_EDITOR_PATH':'/custom/Editor/Unity','NEWTONSOFT_DLL':'/custom/Newtonsoft.dll'})
+        self.assertEqual(str(editor),'/custom/Editor/Unity');self.assertEqual(str(managed),'/custom/Newtonsoft.dll')
     def test_only_explicit_unity_push_opt_in_extends_outer_limit(self):
         self.assertEqual(module.strict_timeout({}),900)
         self.assertEqual(module.strict_timeout({'GAMEBRIDGE_RUN_UNITY_PUSH_E2E':'false'}),900)

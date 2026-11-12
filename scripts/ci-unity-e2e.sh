@@ -18,6 +18,8 @@ if [[ "$license_exit" != 0 ]] || ! python3 -c 'import json,sys; x=json.load(sys.
   echo 'DEFERRED_ENV: active Unity license required' >&2; exit 2
 fi
 export GAMEBRIDGE_RUN_UNITY_EDITOR=true GAMEBRIDGE_RUN_UNITY_PUSH_E2E=true
+export GAMEBRIDGE_MAVEN_REPO="$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo"
+export GAMEBRIDGE_IOS_XCFRAMEWORK="$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework"
 bash scripts/build-unity.sh --editor-smoke
 bash scripts/smoke-unity-offline-sample.sh
 android_args=(--run-local --staging "$GAMEBRIDGE_UPM_STAGING" --serial "$GAMEBRIDGE_ANDROID_SERIAL" --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME")

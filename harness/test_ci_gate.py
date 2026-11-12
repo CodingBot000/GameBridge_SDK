@@ -36,14 +36,17 @@ class CiGateTests(unittest.TestCase):
             for name in ('build-unity.sh','smoke-unity-offline-sample.sh'):
                 (base/'scripts'/name).write_text('#!/bin/bash\nexit 0\n')
             unity=base/'bin/unity';unity.write_text('#!/bin/bash\necho mocked\n');unity.chmod(0o755)
-            python=base/'bin/python3';python.write_text('#!/bin/bash\nif [[ "$1" == "-c" ]]; then exit 0; fi\nprintf "%s\\n" "$1" >> "$GB_TEST_CALLS"\nif [[ "$1" == "harness/run-strict-local-isolated.py" ]]; then exit 1; fi\nexit 0\n');python.chmod(0o755)
+            python=base/'bin/python3';python.write_text('#!/bin/bash\nif [[ "$1" == "-c" ]]; then exit 0; fi\nprintf "%s\\n" "$1" >> "$GB_TEST_CALLS"\nif [[ "$1" == "harness/run-strict-local-isolated.py" ]]; then printf "%s\\n%s\\n" "$GAMEBRIDGE_MAVEN_REPO" "$GAMEBRIDGE_IOS_XCFRAMEWORK" >> "$GB_TEST_CALLS"; exit 1; fi\nexit 0\n');python.chmod(0o755)
             editor=base/'editor';editor.touch();calls=base/'calls'
             env=os.environ.copy();env.update(PATH=str(base/'bin')+os.pathsep+env['PATH'],GB_TEST_CALLS=str(calls),
                 UNITY_EDITOR_PATH=str(editor),GAMEBRIDGE_UPM_STAGING=str(base),GAMEBRIDGE_UNITY_PACKAGE_CACHE=str(base/'cache'),
                 GAMEBRIDGE_ANDROID_SERIAL='emulator-5580',GAMEBRIDGE_TEST_AVD_NAME='GameBridge_V2_baseline',
                 GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push')
             result=subprocess.run(['bash',str(base/'scripts/ci-unity-e2e.sh')],cwd=base,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-            self.assertEqual(result.returncode,1);self.assertIn('harness/run-strict-local-isolated.py',calls.read_text())
+            self.assertEqual(result.returncode,1);captured=calls.read_text()
+            self.assertIn('harness/run-strict-local-isolated.py',captured)
+            self.assertIn(str(base/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo'),captured)
+            self.assertIn(str(base/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework'),captured)
     def test_release_gate_never_accepts_skipped_or_failed_unity(self):
         for status in ('skipped','failure','cancelled',''):
             result=self.invoke('ci-release-gate.sh',BASIC_RESULT='success',UNITY_RESULT=status)

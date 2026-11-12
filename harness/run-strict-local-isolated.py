@@ -17,6 +17,11 @@ CONTAINER = 'gamebridge-sdk-local-postgres-1'
 def strict_timeout(env):
     return 5400 if env.get("GAMEBRIDGE_RUN_UNITY_PUSH_E2E") == "true" else 900
 
+def editor_paths(env):
+    editor = Path(env.get('UNITY_EDITOR_PATH', '/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/MacOS/Unity'))
+    managed = Path(env.get('NEWTONSOFT_DLL', str(editor.parent.parent/'Resources/Scripting/Managed/Newtonsoft.Json.dll')))
+    return editor, managed
+
 def wait_health(base, process):
     deadline = time.monotonic() + 45
     while time.monotonic() < deadline:
@@ -65,14 +70,13 @@ def main():
         sandbox_server=start('sandbox',sandbox,sandbox_port)
         if not wait_health(f'http://127.0.0.1:{sandbox_port}',sandbox_server): print('Sandbox fixture server unavailable; evidence:',output.relative_to(ROOT)); return 1
         sandbox_server.terminate(); sandbox_server.wait(timeout=10)
-        editor=Path('/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/MacOS/Unity')
-        managed=editor.parent.parent/'Resources/Scripting/Managed/Newtonsoft.Json.dll'
+        editor,managed=editor_paths(os.environ)
         env=shared.copy(); env.update(GAMEBRIDGE_RUN_DB_TESTS='true',GAMEBRIDGE_RUN_AUTH_DB_TESTS='true',GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST='true',
             GAMEBRIDGE_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_LOCAL_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{local}',
             GAMEBRIDGE_SANDBOX_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_TEST_DB_USER=role,GAMEBRIDGE_TEST_DB_PASSWORD=password,
             GAMEBRIDGE_RUN_MOCK_PUSH_HARNESS='true',GAMEBRIDGE_RUN_XCODE_STOREKIT_HARNESS='true',GAMEBRIDGE_UPM_STAGING=str(staging),
-            GAMEBRIDGE_MAVEN_REPO=os.environ.get('GAMEBRIDGE_MAVEN_REPO', str(ROOT/'artifacts/maven-final-20261111')),
-            GAMEBRIDGE_IOS_XCFRAMEWORK=os.environ.get('GAMEBRIDGE_IOS_XCFRAMEWORK', str(ROOT/'artifacts/ios-final-20261111/GameBridgeNative.xcframework')),
+            GAMEBRIDGE_MAVEN_REPO=os.environ.get('GAMEBRIDGE_MAVEN_REPO', str(staging/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo')),
+            GAMEBRIDGE_IOS_XCFRAMEWORK=os.environ.get('GAMEBRIDGE_IOS_XCFRAMEWORK', str(staging/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework')),
             UNITY_EDITOR_PATH=str(editor),NEWTONSOFT_DLL=str(managed),GAMEBRIDGE_NEWTONSOFT_DLL=str(managed))
         generated=subprocess.run(['bash','scripts/generate-ios-project.sh'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         (output/'ios-project.log').write_text(generated.stderr)

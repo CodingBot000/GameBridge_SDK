@@ -720,3 +720,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - CI 격리 strict 연결 후 preflight 5건·timeout 단위 1건·shell/YAML PASS. mock fixture로 실제 gate가 orchestration 실패를 전파하는지 확인한다.
 - CI 격리 fixture 첫 실행 FAIL: mock unity shell 문자열 따옴표 오류로 Python test import 불가. 실제 CI/Unity는 미실행이며 fixture 문법을 수정한다.
 - CI 격리 fixture 수정 후 6건 PASS/skip0: orchestration 호출 및 실패 전파 확인. 실제 self-hosted/GitHub Actions는 NOT_RUN, 커밋 준비.
+- P09-T07 격리 CI의 Editor·Native artifact 경로 일치 점검 시작: 선택한 Editor와 현재 staging이 strict의 내부 경로에서도 유지되는지 확인한다.
+- CI 경로 결함 확인: helper가 지정 Editor를 무시하고 독립된 오래된 Native artifact 기본값을 사용한다. 선택 Editor와 staging 내부 산출물을 사용하도록 수정한다.
+- 지정 Editor/Newtonsoft 경로 단위 2건, CI fixture 6건 및 Python/shell 구문 PASS. staged Native 경로가 실제 strict 호출에 전달되는지도 fixture로 확인한다.
+- CI 경로 전달 fixture 6건·Editor/timeout 2건 및 원장/diff PASS. 실제 self-hosted 전체는 NOT_RUN, 커밋 준비.

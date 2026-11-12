@@ -2877,3 +2877,8 @@
 - `test_ci_gate.py` 5건·strict timeout 단위 1건 PASS/skip0, shell/YAML 구문 PASS. 외부 도구를 모사한 격리 fixture로 gate가 isolated orchestration을 호출하고 실패를 숨기지 않는지 추가 검증한다.
 - 새 CI fixture 첫 호출에서 mock unity 문자열의 Python 따옴표 오류(SyntaxError), test import FAIL. 실제 self-hosted CI는 실행되지 않았다. fixture 문자열을 수정해 재시험한다.
 - fixture 문자열 수정 후 `test_ci_gate.py` 6건 PASS/skip0: mock 도구 환경에서 isolated strict 호출 및 실패 전파를 확인했다. 실제 self-hosted/GitHub Actions는 NOT_RUN이다. 커밋 전: CI fixture 준비·timeout·음성 시험·문서만 포함한다.
+### P09-T07 선택 환경 경로 일치 점검
+- isolated strict helper가 CI에서 지정한 UNITY_EDITOR_PATH를 하드코딩된 버전으로 덮고, Maven/XCFramework가 별도 오래된 기본 경로를 사용할 수 있다. 선택 Editor와 현재 staged Native 산출물을 일관되게 쓰도록 보강한다.
+- `run-strict-local-isolated.py`의 하드코딩 Editor와 과거 Maven/XCFramework 기본값을 확인했다. 지정 Editor/Newtonsoft를 존중하고 기본 artifact는 제공된 stage에서 가져오며 CI gate는 stage 경로를 명시한다.
+- 선택 Editor 경로·timeout 단위 2건, CI gate 단위 6건 PASS/skip0, Python/shell syntax PASS. CI stub에 staging Native 경로 전달 assertion을 추가한다.
+- CI mock fixture가 현재 staging의 Maven/XCFramework 경로를 strict로 전달함을 확인했고 gate 6건·Editor/timeout 단위 2건 PASS/skip0, 원장/diff PASS. 실제 self-hosted 전체는 NOT_RUN이다. 커밋 전: 경로 수정·단위 검증·문서만 포함한다.

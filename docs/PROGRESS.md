@@ -652,3 +652,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 marker helper 적용 후 격리 양 Native 재실행 PASS (`artifacts/r22-native-bpyoimew`), 각 1건/skip0 및 synthetic token·개발키 서버 로그 비노출 marker 확인. R22 전체 PARTIAL 유지, 커밋 준비.
 - P09 전체 coverage 재확인: `check-required-coverage.py` exit 1, PARTIAL 2·NOT_IMPLEMENTED 0. 예상된 미완료이며 통과가 아니다. 미추적 Demo와 Python cache만 남아 있다.
 - 부분 coverage 검사 및 미추적 파일 보존 결과 기록 커밋 준비.
+- P09-T03/R22 synthetic 구매 증빙의 HTTP 응답·Backend 로그 검증 시작: 실제 구매 없이 fake verifier와 전용 sandbox DB에서 실패 및 성공 응답을 검사한다.
+- R22 구매 증빙 테스트 Kotlin 컴파일 PASS. 전용 sandbox DB에서 실제 fake HTTP 시험 1건과 로그 수집을 실행한다.
+- R22 synthetic Google 구매 증빙 HTTP/로그 1건 PASS/skip0 (`artifacts/r22-proof-0bcej9x1`): 성공·거부 응답 및 캡처된 Backend 로그에 증빙·세션 token 비노출 확인. 실제 Play는 미검증.
+- R22 구매 증빙 검사 서식을 정리하고 재컴파일한다. 실제 HTTP 시험 PASS는 서식 정리 전 소스에서 확인했다.
+- 구매 증빙 시험 서식 정리 후 Kotlin 재컴파일·diff 검사 PASS. 전체 로그/실제 provider 미검증으로 R22 PARTIAL 유지; 커밋 준비.

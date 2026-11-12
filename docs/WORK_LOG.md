@@ -2796,3 +2796,9 @@
 - `run-r22-native-redaction.py --run-local` 재실행 exit 0 (`artifacts/r22-native-bpyoimew`), 양 플랫폼 각 1건/skip0 및 정확한 server-log 검사 marker 확인. 커밋 전: synthetic 테스트·실행기·음성 검사와 정제 증거만 포함하며 전체 로그 및 실제 provider 결과는 주장하지 않는다.
 - `check-required-coverage.py` exit 1: R22/R40 포함 required 시나리오 2개 PARTIAL, 0개 NOT_IMPLEMENTED. 기존 미추적 `unity/Demo`, `harness/__pycache__`, `scripts/__pycache__`는 보존한다. 검사 직전 별도 검증 시작 기록을 빠뜨려 이 결과와 누락을 즉시 기록했다.
 - 커밋 전: coverage 검사 결과와 검증 시작 기록 누락의 정정만 포함한다. 제품 상태·원격은 변경하지 않는다.
+### P09-T03/R22 합성 구매 증빙 노출 시험 시작
+- 기존 Google fake verifier·전용 sandbox DB HTTP 통합시험에서 synthetic 구매 증빙 및 access token이 응답과 수집된 서버 로그에 노출되지 않는지 추가한다. 실제 Google Play 거래는 수행하지 않는다.
+- `backend/gradlew -p backend compileTestKotlin` exit 0. 실제 fake verifier·HTTP·DB 시험은 아직 미실행이므로 새 전용 sandbox DB에서 실행한다.
+- 전용 sandbox DB에서 `GooglePurchaseHttpIntegrationTest` 1건 PASS/skip0 (`artifacts/r22-proof-0bcej9x1`): synthetic 구매 증빙·거부 증빙·access/refresh token이 성공/실패 HTTP 결과와 캡처된 root logger 메시지·stack에 없는지 확인했다. fake verifier/finalizer이며 실제 Play는 아니다.
+- 성공한 증빙 시험의 try/finally 본문 들여쓰기만 정리했다. 기능 변경 여부 확인을 위해 테스트 컴파일을 재실행한다.
+- 서식 정리 후 `compileTestKotlin` exit 0, diff 검사 PASS. 기존 격리 HTTP 검증은 의미가 변하지 않은 서식 정리 전 실행이다. 커밋 전: fake proof HTTP/log test 및 정제 증거만 포함한다.

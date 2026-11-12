@@ -1,5 +1,10 @@
 package com.gamebridge.purchase
 
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.classic.spi.ThrowableProxyUtil
+import ch.qos.logback.core.read.ListAppender
+import org.slf4j.LoggerFactory
 import com.gamebridge.auth.IdentityProvider
 import com.gamebridge.auth.VerifiedIdentity
 import com.gamebridge.session.SessionService
@@ -63,38 +68,56 @@ class GooglePurchaseHttpIntegrationTest {
         }
     }
     @Test fun `google verified fixture grants once and deletes proof after fake completion`() {
-        val app = "test-" + UUID.randomUUID(); val finished = CountDownLatch(1); FakeGoogleFinalizerProbe.latches[app] = finished
-        val tokens = sessions.createVerified(VerifiedIdentity(IdentityProvider.GOOGLE, "https://accounts.google.com", UUID.randomUUID().toString(), "test"), app, null)
-        val principal = sessions.authenticate(tokens.accessToken)!!
-        val binding = bindings.forUser(principal.userId, app).googleObfuscatedAccountId.toString()
-        db.update("INSERT INTO products(app_id,logical_id,platform,store_id,type,grant_amount) VALUES (?, 'coins_100','GOOGLE','coins.play','CONSUMABLE',100)", app)
-        val response = ProductPurchaseV2().setPurchaseStateContext(PurchaseStateContext().setPurchaseState("PURCHASED"))
-            .setObfuscatedExternalAccountId(binding).setTestPurchaseContext(TestPurchaseContext())
-            .setProductLineItem(listOf(ProductLineItem().setProductId("coins.play").setProductOfferDetails(ProductOfferDetails().setQuantity(1))))
-        val verifier = GooglePurchaseVerifier("test.package", setOf("coins.play"), true, GooglePurchaseLookup { _, token -> if (token == "synthetic-google-proof") response else ProductPurchaseV2().setPurchaseStateContext(PurchaseStateContext().setPurchaseState("PENDING")) })
-        Mockito.`when`(registry.verifier(app, StoreEnvironment.SANDBOX)).thenReturn(verifier)
-        val headers = HttpHeaders().apply { setBearerAuth(tokens.accessToken); set("Idempotency-Key", UUID.randomUUID().toString()) }
-        val ready = rest.exchange("/v1/purchases/google/readiness", HttpMethod.POST, HttpEntity(mapOf("storeProductId" to "coins.play"), headers), Map::class.java)
-        assertEquals(200, ready.statusCode.value()); assertEquals(true, ready.body!!["ready"])
-        val rejected = rest.exchange("/v1/purchases/google/verify", HttpMethod.POST,
-            HttpEntity(mapOf("storeProductId" to "coins.play", "purchaseToken" to "synthetic-pending"), headers), Map::class.java)
-        assertEquals(400, rejected.statusCode.value()); assertEquals("VERIFICATION_FAILED", rejected.body!!["code"])
-        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger WHERE user_id=?", Int::class.java, principal.userId))
-        val entity = HttpEntity(mapOf("storeProductId" to "coins.play", "purchaseToken" to "synthetic-google-proof"), headers)
-        val pool = Executors.newFixedThreadPool(10)
-        val responses = try { (1..10).map { pool.submit<org.springframework.http.ResponseEntity<Map<*, *>>> {
-            @Suppress("UNCHECKED_CAST")
-            rest.exchange("/v1/purchases/google/verify", HttpMethod.POST, entity, Map::class.java) as org.springframework.http.ResponseEntity<Map<*, *>>
-        } }.map { it.get(30, TimeUnit.SECONDS) } } finally { pool.shutdownNow() }
-        assertTrue(responses.all { it.statusCode.value() == 200 }); assertEquals(1, responses.count { it.body!!["fulfillmentStatus"] == "GRANTED" })
-        assertEquals(1, responses.map { it.body!!["serverPurchaseId"] }.toSet().size)
-        assertFalse(responses.first().body?.toString().orEmpty().contains("synthetic-google-proof"))
-        val id = UUID.fromString(responses.first().body!!["serverPurchaseId"] as String)
-        assertTrue(finished.await(8, TimeUnit.SECONDS))
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted {
-            assertEquals("FINALIZED", db.queryForObject("SELECT finalization_state FROM purchases WHERE id=?", String::class.java, id))
-            assertNull(db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, id))
+        val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
+        val capture = ListAppender<ILoggingEvent>().apply { list = java.util.concurrent.CopyOnWriteArrayList(); start() }
+        rootLogger.addAppender(capture)
+        try {
+            val app = "test-" + UUID.randomUUID(); val finished = CountDownLatch(1); FakeGoogleFinalizerProbe.latches[app] = finished
+            val tokens = sessions.createVerified(VerifiedIdentity(IdentityProvider.GOOGLE, "https://accounts.google.com", UUID.randomUUID().toString(), "test"), app, null)
+            val principal = sessions.authenticate(tokens.accessToken)!!
+            val binding = bindings.forUser(principal.userId, app).googleObfuscatedAccountId.toString()
+            db.update("INSERT INTO products(app_id,logical_id,platform,store_id,type,grant_amount) VALUES (?, 'coins_100','GOOGLE','coins.play','CONSUMABLE',100)", app)
+            val response = ProductPurchaseV2().setPurchaseStateContext(PurchaseStateContext().setPurchaseState("PURCHASED"))
+                .setObfuscatedExternalAccountId(binding).setTestPurchaseContext(TestPurchaseContext())
+                .setProductLineItem(listOf(ProductLineItem().setProductId("coins.play").setProductOfferDetails(ProductOfferDetails().setQuantity(1))))
+            val verifier = GooglePurchaseVerifier("test.package", setOf("coins.play"), true, GooglePurchaseLookup { _, token -> if (token == "synthetic-google-proof") response else ProductPurchaseV2().setPurchaseStateContext(PurchaseStateContext().setPurchaseState("PENDING")) })
+            Mockito.`when`(registry.verifier(app, StoreEnvironment.SANDBOX)).thenReturn(verifier)
+            val headers = HttpHeaders().apply { setBearerAuth(tokens.accessToken); set("Idempotency-Key", UUID.randomUUID().toString()) }
+            val ready = rest.exchange("/v1/purchases/google/readiness", HttpMethod.POST, HttpEntity(mapOf("storeProductId" to "coins.play"), headers), Map::class.java)
+            assertEquals(200, ready.statusCode.value()); assertEquals(true, ready.body!!["ready"])
+            val rejected = rest.exchange("/v1/purchases/google/verify", HttpMethod.POST,
+                HttpEntity(mapOf("storeProductId" to "coins.play", "purchaseToken" to "synthetic-pending"), headers), Map::class.java)
+            assertEquals(400, rejected.statusCode.value()); assertEquals("VERIFICATION_FAILED", rejected.body!!["code"])
+            assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM wallet_ledger WHERE user_id=?", Int::class.java, principal.userId))
+            val entity = HttpEntity(mapOf("storeProductId" to "coins.play", "purchaseToken" to "synthetic-google-proof"), headers)
+            val pool = Executors.newFixedThreadPool(10)
+            val responses = try { (1..10).map { pool.submit<org.springframework.http.ResponseEntity<Map<*, *>>> {
+                @Suppress("UNCHECKED_CAST")
+                rest.exchange("/v1/purchases/google/verify", HttpMethod.POST, entity, Map::class.java) as org.springframework.http.ResponseEntity<Map<*, *>>
+            } }.map { it.get(30, TimeUnit.SECONDS) } } finally { pool.shutdownNow() }
+            assertTrue(responses.all { it.statusCode.value() == 200 }); assertEquals(1, responses.count { it.body!!["fulfillmentStatus"] == "GRANTED" })
+            assertEquals(1, responses.map { it.body!!["serverPurchaseId"] }.toSet().size)
+            assertFalse(responses.first().body?.toString().orEmpty().contains("synthetic-google-proof"))
+            val id = UUID.fromString(responses.first().body!!["serverPurchaseId"] as String)
+            assertTrue(finished.await(8, TimeUnit.SECONDS))
+            await().atMost(5, TimeUnit.SECONDS).untilAsserted {
+                assertEquals("FINALIZED", db.queryForObject("SELECT finalization_state FROM purchases WHERE id=?", String::class.java, id))
+                assertNull(db.queryForObject("SELECT evidence_encrypted FROM purchases WHERE id=?", ByteArray::class.java, id))
+            }
+            assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
+            val syntheticSecrets = listOf("synthetic-google-proof", "synthetic-pending", tokens.accessToken, tokens.refreshToken)
+            val outputBodies = listOf(ready.body, rejected.body) + responses.map { it.body }
+            for (body in outputBodies) for (secret in syntheticSecrets)
+                assertFalse(body.toString().contains(secret), "synthetic credential leaked in HTTP response")
+            LoggerFactory.getLogger(GooglePurchaseHttpIntegrationTest::class.java).info("R22 synthetic proof fixture log capture")
+            assertTrue(capture.list.isNotEmpty(), "expected captured server logs")
+            for (event in capture.list) {
+                val captured = event.formattedMessage + (event.throwableProxy?.let { ThrowableProxyUtil.asString(it) } ?: "")
+                for (secret in syntheticSecrets) assertFalse(captured.contains(secret), "synthetic credential leaked in server log")
+            }
+        } finally {
+            rootLogger.detachAppender(capture)
+            capture.stop()
         }
-        assertEquals(100L, db.queryForObject("SELECT SUM(delta) FROM wallet_ledger WHERE user_id=?", Long::class.java, principal.userId))
     }
 }

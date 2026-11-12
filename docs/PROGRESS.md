@@ -660,3 +660,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P11-T01 작업 원장 정합성 점검 시작: 이미 RESOLVED인 ENV-002를 사유로 P08-T04가 DEFERRED_ENV인 행을 현재 Player 증거와 완료 기준에 맞춰 재평가한다.
 - P08-T04는 독립 staged consumer Android/iOS 실제 Player 증거가 있어 ENV 대기가 아닌 PARTIAL로 정정했다. bootstrap 문서 그대로의 재설치 등 완료 기준은 별도이며 PASS가 아니다.
 - P08-T04 상태·집계 정정 후 원장 및 음성 검사 PASS. 제품 시험이 아니며 커밋 준비.
+- P09-T08 R22 runner fail-closed 상태 점검 시작: 전용 DB 부재를 제품 FAIL로 잘못 분류하지 않고 DEFERRED_ENV로 보존하는지 확인한다.
+- R22 runner 환경 대기·marker 음성 단위 2건 및 Python 문법 PASS. 실제 포트 점유 시 exit 2를 확인하고 정상 격리 재실행한다.
+- R22 runner 포트 점유 시 DEFERRED_ENV/exit 2, 정상 격리 실행 Android·Swift PASS (`artifacts/r22-native-b5e3facc`). 환경 대기와 제품 실패를 구분했다. 커밋 준비.

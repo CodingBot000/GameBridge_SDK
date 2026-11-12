@@ -18,6 +18,10 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def error_status(error):
+    return 'DEFERRED_ENV' if getattr(error, 'category', None) == 'DEFERRED_ENV' else 'FAIL'
+
+
 def marker_pass(path):
     try: return path.read_text() == 'PASS\n'
     except OSError: return False
@@ -74,6 +78,7 @@ def main():
         if swift.returncode==0 and summaries and max(int(a) for a,_ in summaries)==1 and all(int(b)==0 for _,b in summaries) and 'test skipped' not in text.lower() and marker_pass(output/'swift-log-check.txt'): result['swift']='PASS'
         if result['android']==result['swift']=='PASS': result['status']='PASS'
     except (common.GateError, OSError, RuntimeError, ValueError, ET.ParseError, subprocess.TimeoutExpired) as error:
+        result['status']=error_status(error)
         result['errorCode']=str(error) if isinstance(error,common.GateError) else type(error).__name__
     finally:
         if server and server.poll() is None:
@@ -84,6 +89,6 @@ def main():
     result['sourceHead']=subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,check=False).stdout.strip()
     (output/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     print('R22 native synthetic token:',result['status'],'Android:',result['android'],'Swift:',result['swift'],'Evidence:',output.relative_to(ROOT))
-    return 0 if result['status']=='PASS' else 1
+    return 0 if result['status']=='PASS' else 2 if result['status']=='DEFERRED_ENV' else 1
 
 if __name__=='__main__': raise SystemExit(main())

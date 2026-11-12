@@ -2806,3 +2806,7 @@
 - ENV-002는 RESOLVED이고 별도 Android/iOS 소비 프로젝트 빌드·Player 증거가 있지만 P08-T04는 여전히 DEFERRED_ENV다. bootstrap 문서 그대로의 재설치 등 완료 기준과 분리해 현재 상태를 정정한다.
 - R49 실제 신규 staged consumer 양 플랫폼 Player 증거를 확인했고 ENV-002는 RESOLVED다. P08-T04를 DEFERRED_ENV→PARTIAL로 정정하고 blocker를 제거했다. bootstrap 문서 재현 등 남은 기준은 수행하지 않아 PASS/IMPLEMENTED로 변경하지 않았다.
 - `verify-progress.py`, `check-progress-negative.py`, `git diff --check` exit 0. 문서 정합성 검사이며 제품 시험이 아니다. 커밋 전: 행·분모·감사 기록만 포함한다.
+### P09-T08 R22 runner 환경 실패 분류 점검
+- isolated DB helper의 DEFERRED_ENV 예외를 신규 R22 runner가 무조건 FAIL로 기록하는 경계 결함을 발견했다. 환경 대기와 시험 실패를 구분하되 성공으로 바꾸지 않는다.
+- `test_r22_native_redaction.py` 2건 PASS/skip0, Python compile PASS. 실제 포트 점유 대기와 정상 격리 실행을 검증한다.
+- 실제 18080 포트 점유 fixture에서 R22 runner exit 2/DEFERRED_ENV, 정상 격리 실행 exit 0 Android·Swift PASS (`artifacts/r22-native-b5e3facc`). 커밋 전: 상태 분류·음성 시험·기록만 포함한다.

@@ -5,6 +5,10 @@ import unittest
 spec=importlib.util.spec_from_file_location("r22_native",Path(__file__).parent/"run-r22-native-redaction.py")
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class RedactionMarkerTests(unittest.TestCase):
+    def test_environment_deferral_is_not_reported_as_success(self):
+        class Deferred(Exception): category="DEFERRED_ENV"
+        self.assertEqual(module.error_status(Deferred()),"DEFERRED_ENV")
+        self.assertEqual(module.error_status(RuntimeError()),"FAIL")
     def test_requires_exact_current_marker(self):
         with tempfile.TemporaryDirectory() as temp:
             path=Path(temp)/"marker"

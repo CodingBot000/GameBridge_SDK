@@ -780,3 +780,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 신규 Unity 두 프로젝트 GUID 비교 FAIL: 74개 중 4개 불일치가 Sample API가 새로 만드는 Offline/Native sample 최상위 폴더 GUID에 집중됐다. 내부 asset 70개 결과는 별도 검증하며 최상위 폴더 안정성은 미완료다.
 - package/sample 내부 asset GUID 70회 비교 불일치 0, Sample API 생성 최상위 폴더 GUID 4회 불일치 유지. metadata stage checksum 147개·Native payload 81개 동일성 PASS; 전체 metadata 안정성은 PARTIAL.
 - metadata 정적·음성·YAML·원장/diff 검사 PASS. Sample 최상위 폴더 GUID 불일치와 최신 Player 미실행을 PARTIAL로 보존하며 커밋 준비.
+- P08-T03 metadata stage iOS Native Demo Sample API→Simulator Player 재검증 시작: source e33a2bd와 147파일 stage, 격리 DB를 사용한다. 최상위 sample 폴더 GUID 불일치는 별도 유지.

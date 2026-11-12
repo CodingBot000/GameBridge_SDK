@@ -2946,3 +2946,4 @@
 - 원본과 두 신규 프로젝트 74개 GUID 비교 exit 1: mismatch 4개는 각 프로젝트의 `Samples~/Offline Demo`, `Samples~/Native Demo` import 대상 최상위 폴더다. Sample API가 target 폴더를 생성하면서 package 경로의 폴더 metadata를 복사하지 않는다. 내부 asset과 target 폴더를 구분해 추가 검증하며 전체 GUID 안정성을 PASS로 주장하지 않는다.
 - 최상위 sample 폴더를 제외한 package/sample 내부 asset GUID 70회 비교 불일치 0. Sample API 생성 최상위 두 폴더는 각 프로젝트에서 서로 다른 GUID를 만들어 4회 불일치하며 전체 안정성은 미완료다. stage 147개 checksum 및 Native payload 81개 byte 동일성 확인. 정제 증거를 저장한다.
 - `test_unity_meta.py` 2건/skip0, workflow YAML·원장·diff PASS. 커밋 전: Unity 생성 metadata·누락/중복 검사·정제 증거만 포함한다. Sample 최상위 폴더 GUID와 최신 Player 재시험은 미완료다.
+- metadata 추가가 실제 iOS sample import/export/Player를 깨지 않는지 새 stage에서 재실행한다. Sample 최상위 폴더 GUID 불일치는 이 시험과 별도 미완료다. clean-source 시작 기록만 커밋한다.

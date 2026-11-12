@@ -11,7 +11,7 @@ P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 �
 - Android Kotlin, iOS Swift 및 Unity C# 경계의 계약·fake 테스트와 일부 local-mock HTTP/PostgreSQL 시험을 실행했다. 인증, 구매 중복 지급 방지 및 응답 유실 복구, 푸시 토큰 등록·삭제의 제한된 경로를 확인했다. 실제 제공자 테스트와 구분한다.
 - Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성 복구를 확인했지만 Unity Android emulator와 iOS Simulator의 LOCAL_MOCK 프로세스 재시작 구매 복구도 확인했다. 실제 기기 복구는 미검증이다.
 - Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. 이후 Unity 6000.5.8f1 신규 소비 프로젝트 import·Android IL2CPP APK 및 local-mock Player 전체 경로는 전용 에뮬레이터에서 PASS했다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS Simulator의 LOCAL_MOCK 전체 흐름도 확인했으며 실제 스토어는 미검증이다.
-- 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. 양 플랫폼 Unity LOCAL_MOCK Push는 별도 Player에서 통과했으나 미완성 시나리오와 실패가 남아 전체 검증은 통과하지 않았다. 최신 strict 집계 `artifacts/verify-all-r1ely80_/summary.md`는 소스 `150a013`과 당시 미커밋 test 변경에서 실행했으며, 구매 하위 및 Mock 권한은 PASS했으나 Unity Editor 미실행, Unity Push 환경 대기, 부분 시나리오 및 기존 실패로 전체 FAIL이다. 직전 strict의 Xcode local StoreKit signal TERM은 후속 단독 및 최신 strict에서 PASS했으며 원인은 미확정이다. 이후 소스 f40f8d5의 양 플랫폼 Unity Push 동일 실행은 별도로 PASS했다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
+- 회귀 하네스의 누락·변이 음성 시험과 로컬 Unity gate를 실행했다. 소스 `e703f43`의 기본 Android/iOS Player, Push 양 플랫폼 및 Unity Editor는 PASS했지만 `artifacts/verify-all-4r3l36i6/summary.md` 전체는 R22/R40 PARTIAL과 기존 P05-T03 FAIL로 FAIL이다 ([증거](evidence/p09-unity-ci-local.md)). 두 Android 최초 안내는 수동으로 닫았다. GitHub Actions 및 실제 제공자는 실행하지 않았다.
 - 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
 
 Offline Demo는 별도 staged UPM을 새 테스트 프로젝트에 복사해 Unity Editor Play에서 fake 로그인·상품·구매 callback을 확인했다 ([증거](evidence/p08-offline-sample-editor.md)). Native Demo는 Android/iOS LOCAL_MOCK Player에서 설정·모의 구매 callback을 확인했다 ([Android](evidence/p08-native-demo-android.md), [iOS](evidence/p08-native-demo-ios.md)). iOS 첫 export는 sample asmdef 누락으로 실패했으며 수정 후 통과했다. Package Manager UI import, 실제 포인터·화면 렌더링은 별도다.
@@ -24,7 +24,7 @@ Offline Demo는 별도 staged UPM을 새 테스트 프로젝트에 복사해 Uni
 | BUG-014 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle을 확인했다. 실제 기기·FCM/APNs와 iOS OS 전체 네트워크 차단은 미검증이다. |
 | BUG-015 | Native 진단 ring의 Unity 비동기 조회는 Android 및 iOS Simulator LOCAL_MOCK Player에서 확인했다. 다른 모드와 실제 기기는 미검증이다. |
 | BUG-009 | LOCAL_MOCK Unity Android emulator와 iOS Simulator에서 응답 유실 후 프로세스 재시작 복구를 확인했다. 실제 스토어 및 실기기 복구는 남았다. |
-| P09 | 2개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor scene/domain reload 시험과 양 플랫폼 LOCAL_MOCK Player를 별도로 실행했다. 최신 strict 집계에서는 Editor가 NOT_RUN이었다. strict 전체 gate는 성공이 아니다. |
+| P09 | 2개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor scene/domain reload 시험과 양 플랫폼 LOCAL_MOCK Player를 별도로 실행했다. 최신 로컬 strict의 Editor 및 Push 양 Player는 PASS했지만 전체 gate는 실패다. |
 
 ## 환경 및 사용자 설정
 
@@ -61,7 +61,7 @@ P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912
 
 ## 후속 변경 — Unity Android LOCAL_MOCK E2E 재검증 준비
 
-후속 브랜치에서 PX-T04 Unity Android Player 검증 Runner, PX-T05 Native-only 실행 환경 가변화, PX-T06 공개용 증거 Exporter 및 오프라인 검사 코드를 추가했다. 이 변경은 기존 P00~P11 전체 완료 또는 실연동 완료를 의미하지 않는다. 변경된 Runner의 실제 Unity 실행·Android 기기 시험 및 GitHub Actions 결과는 **NOT_RUN**이며, Unity 활성 라이선스·Android Build Support가 준비된 후 실행해야 한다.
+후속 브랜치에서 PX-T04 Unity Android Player 검증 Runner, PX-T05 Native-only 실행 환경 가변화, PX-T06 공개용 증거 Exporter 및 오프라인 검사 코드를 추가했다. 이 변경은 기존 P00~P11 전체 완료 또는 실연동 완료를 의미하지 않는다. 그 후속 브랜치 작업 당시 변경된 Runner의 Unity 실행·Android 기기 시험 및 GitHub Actions는 **NOT_RUN**이었다. 이후 로컬 Unity Player 검증은 위에 별도 기록했으며 GitHub Actions는 여전히 NOT_RUN이다.
 
 기존 PX-T03 Kotlin Bridge → 로컬 Backend 1건/100코인 시험은 별도의 이전 실행 결과다. 변경된 코드를 clean checkout에서 재실행한 성공 근거 없이 그 결과를 새로운 코드의 PASS로 이전하지 않는다. 실제 실연동 대상 13건의 WAITING_USER 및 프로젝트 BLOCKED_INTERNAL 판정은 유지한다.
 

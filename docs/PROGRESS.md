@@ -729,3 +729,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Android baseline의 최초 기기 조회는 재시작 직후 바로 실패하고 후반 설치 전 조회만 재시도한다. Push runner도 동일 패턴이어서 두 최초 조회에 기존 안전한 재검색을 적용한다.
 - ADB 재검색 단위 3건 PASS: offline 복구, 시간 초과 환경 대기, 다른 기기/기존 앱 즉시 거부. Python/원장/diff PASS; clean-source 전체 gate 재시도 전 커밋 준비.
 - P09-T07 전체 Unity gate 재실행 시작: 최초 실패에서 앱이 설치되지 않은 동일 전용 AVD 두 개를 재사용한다. 이전 DEFERRED_ENV는 보존한다.
+- P09-T07 전체 Unity CI gate 로컬 재실행 종료 1/전체 FAIL (`artifacts/verify-all-4r3l36i6/summary.md`). 기본 Android/iOS Player와 Push 양 플랫폼 실행 뒤 strict 결과를 확인한다. 두 Android 최초 안내 수동 처리, GitHub Actions/실제 provider 아님.
+- 최신 전체 gate 세부: Unity Editor 2건·양 플랫폼 기본/Push Player PASS, strict는 R22/R40 PARTIAL 및 기존 P05-T03 FAIL로 전체 FAIL; 외부 13 WAITING_USER. Player 4개 source e703f43 tracked-clean, strict dirty는 기존 미추적 파일 포함 기준. 테스트 AVD 2·Simulator 3 shutdown, 데이터 보존.
+- P09-T07 로컬 gate 증거 정리 중: isolated helper가 Editor opt-in 상태와 무관하게 Editor 분리 문구를 출력한 점을 실제 선택 상태로 정정한다. 기존 검증 판정에는 영향 없다.
+- helper 안내 문구 수정 후 Python/timeout 단위 2건·원장/diff PASS. 전체 gate는 수정 전 source e703f43에서 FAIL이며 새 source 전체 재실행은 NOT_RUN. 정제 증거 커밋 준비.

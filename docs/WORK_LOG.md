@@ -2890,3 +2890,7 @@
 - `test_unity_device_rediscovery.py` 3건 PASS/skip0, 양 runner Python compile·원장/diff PASS. offline은 제한 시간 내 재시도하며 다른 AVD와 설치된 앱은 즉시 거부한다. 실제 수정 gate 재실행은 NOT_RUN. 커밋 전: runner·음성 검증·기록만 포함한다.
 - 두 전용 AVD에 테스트 패키지가 설치되지 않은 것을 확인했다. 기존 기기 데이터 삭제 없이 동일 AVD를 재사용해 수정된 Unity 전체 gate를 재실행한다. 시작 기록을 먼저 커밋한다.
 - 커밋 전: 재실행 시작 기록만 포함, 전체 결과는 NOT_RUN이다.
+- `scripts/ci-unity-e2e.sh` 실제 로컬 재실행 exit 1, strict `artifacts/verify-all-4r3l36i6/summary.md`, orchestration `artifacts/strict-isolated-8vglqxoq`. Editor 소비자·sample, Android/iOS 기본 Player 후 strict가 완료됐으나 전체 FAIL. 두 AVD 최초 전체화면 안내는 수동으로 닫았으며 GitHub Actions/실제 provider 검증은 아니다. 세부 lane을 확인한다.
+- strict `verify-all-4r3l36i6`: Unity Editor 2건·Push 양 Player 2건 PASS, 구매 포함 실행 suite PASS, scenario PARTIAL과 recorded P05-T03 FAIL로 전체 FAIL. 4개 Player source e703f43 tracked-clean; strict의 sourceDirty는 보존된 미추적 파일 포함. 두 Android 최초 안내 수동 처리. 사용한 AVD 2개·Simulator 3개는 shutdown만 했고 데이터는 보존했다.
+- 실제 gate에서 Editor가 opt-in됐는데 isolated helper 고정 출력은 Editor가 분리된 것처럼 나타났다. 집계 결과와 무관한 안내 문구를 실제 opt-in 상태로 바꾸고 기존 실행 증거는 유지한다.
+- helper 안내 수정 후 Python compile, timeout 단위 2건/skip0, 원장·diff PASS. 전체 gate 결과는 수정 전 e703f43 실행이므로 현재 HEAD의 재실행으로 주장하지 않는다. 커밋 전: 로컬 CI evidence·문서·안내 문구만 포함한다.

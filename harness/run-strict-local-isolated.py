@@ -87,7 +87,7 @@ def main():
             env['GAMEBRIDGE_IOS_SIMULATOR_ID']=sim.stdout.strip()
             print('Retained synthetic host test simulator:',sim.stdout.strip(),flush=True)
         else: print('iOS synthetic host lane unavailable; it remains deferred.',flush=True)
-        print('Running strict local aggregation; Unity Editor and external services remain separate...',flush=True)
+        print('Running strict local aggregation; Unity Editor:', 'enabled' if env.get('GAMEBRIDGE_RUN_UNITY_EDITOR') == 'true' else 'not opted in', '; external services remain separate.', flush=True)
         try:
             result=subprocess.run(['bash','scripts/verify-all.sh','--strict-local'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=strict_timeout(env))
             (output/'aggregate.log').write_text(result.stdout); print(result.stdout,flush=True)

@@ -428,3 +428,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T12 cache 복사에서 test-only `Tests` 디렉터리만 제외하도록 변경했다. 원본 cache와 운영 package는 변경하지 않으며 단위 검사·실제 Unity export로 검증한다.
 - PX-T12 test-only package 제외·원본 보존 unit 2건 PASS/skip 0. Unity export/Player는 다시 검증해야 한다. 커밋 준비.
 - PX-T12 iOS Push 재검증 시작: Unity test-only package 제외본으로 새 Simulator·DB에서 Player 경로를 실행한다. 결과는 NOT_RUN이다.
+- PX-T12 iOS Push 전체 재시도 FAIL (`artifacts/unity-ios-push-cggylkb4`, `BACKGROUND_FAILED`, exit 1). Unity export·Simulator build/실행은 진행됐지만 background 전환 명령에서 실패했으며 전체 통과가 아니다. 실제 수신 단계와 원인을 조사한다.
+- PX-T12 iOS 첫 실행에서 Unity 초기화·로그인·Mock 푸시 등록, 단일 수신·중복 억제·main-thread 마커를 확인했다. `about:blank`는 Simulator에서 열 수 없었고 로컬 127.0.0.1 URL 열기는 성공했다. background 이후 흐름은 아직 NOT_RUN이다.
+- PX-T12 Simulator background 전환을 로컬 Backend health URL로 변경했다. iOS 실제 lifecycle·연결 복구 결과는 재실행 전 NOT_RUN이다.
+- PX-T12 background 전환 runner 문법 검사 PASS. 수정 사항 커밋 후 전용 새 Simulator에서 재검증한다.

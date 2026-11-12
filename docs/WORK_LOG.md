@@ -2540,3 +2540,7 @@
 - 임시 embedded package의 Tests/Tests.meta만 제외해 runtime/editor 코드는 보존하고 source cache test 디렉터리는 그대로 유지한다. 누락·원본 보존 unit test를 재실행한다.
 - `python3 -m unittest discover -s harness -p test_unity_ios_push_cache.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: 임시 embedded test 제외와 원인 기록만 포함한다.
 - exact-version embedded cache의 test-only 디렉터리를 제외한 새 소비 프로젝트로 전체 iOS Push runner를 재실행한다. 전역 환경과 이전 artifacts는 보존하며 실행 전 기록을 커밋한다.
+- cached package 적용 iOS runner는 Unity export/Xcode build 및 Simulator 앱 실행 후 `BACKGROUND_FAILED`로 종료 1 (`artifacts/unity-ios-push-cggylkb4`). `simctl openurl about:blank`의 실패 원인과 이미 수행된 Player 마커를 확인한다. iOS 전체 Push/Lifecycle은 FAIL 상태다.
+- `artifacts/unity-ios-push-cggylkb4/unity-push-markers.log`: Unity initialize/login/ready/received 및 deduplicate-main-thread PASS. `simctl openurl ... about:blank`는 -10814로 지원되지 않았으며 동일 전용 Simulator에서 `http://127.0.0.1:1/` 열기는 종료 0. 실제 네트워크 접근 없이 별도 앱 전환으로 local URL을 사용한다.
+- `simctl openurl` 대상은 외부 사이트가 아닌 test Backend의 loopback health URL로 바꿨다. 다른 사용자 기기 및 운영 네트워크는 사용하지 않는다. Python 문법 검사 후 실제 Simulator 전체 흐름을 다시 검증한다.
+- runner Python 문법 검사 종료 0. 커밋 준비: Simulator가 지원하는 loopback URL background 전환 및 실제 부분 PASS/실패 기록을 보존한다.

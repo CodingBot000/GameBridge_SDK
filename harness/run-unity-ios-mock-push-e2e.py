@@ -122,7 +122,7 @@ def main():
             if status!=200 or reply.get('delivery')!='SIMULATED':raise common.GateError('MOCK_SEND_FAILED')
             time.sleep(.4)
         wait('GB_PUSH_RECEIVED 1');wait('GB_PUSH_WAIT_BACKGROUND')
-        must(['xcrun','simctl','openurl',sim,'about:blank'],'BACKGROUND_FAILED',timeout=30);wait('GB_PUSH_BACKGROUND')
+        must(['xcrun','simctl','openurl',sim,f'http://127.0.0.1:{port}/health'],'BACKGROUND_FAILED',timeout=30);wait('GB_PUSH_BACKGROUND')
         must(['xcrun','simctl','launch',sim,BUNDLE],'FOREGROUND_FAILED',timeout=30);wait('GB_PUSH_FOREGROUND');wait('GB_PUSH_WAIT_OFFLINE')
         proxy.disconnect();time.sleep(8)
         status,reply=send('unity-offline-test')

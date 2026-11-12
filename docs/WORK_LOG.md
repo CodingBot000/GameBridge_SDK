@@ -2858,3 +2858,5 @@
 - iOS sample asmdef에 `GameBridge.Runtime` 직접 참조를 추가하고 Unity 비전이적 참조 계약 단위 검사를 CI inventory에 추가했다. 실제 Unity export는 아직 재실행 전이다.
 - `test_unity_sample_assemblies.py` 1건 PASS/skip0, YAML·diff 검사 PASS. 수정 asmdef를 반영한 새 staging을 직전 Native payload로 생성하고 실제 Unity iOS export를 재검증한다.
 - `package-sdk.sh`로 기존 f1e12b6 Native payload를 사용해 `upm-native-sample-fix-20261112` 생성, XCFramework/110개 checksum PASS. 수정 소스 tracked-clean에서 iOS Player를 재실행하기 위해 코드 및 회귀 검사를 먼저 커밋한다. 실제 Player는 NOT_RUN이다.
+- iOS Native Demo의 수정 asmdef를 새 stage에 반영해 실제 Unity export·Simulator Player·LOCAL_MOCK flow를 재실행한다. 첫 CS0246 실패는 기록 그대로 보존한다.
+- 커밋 전: 재검증 시작 기록만 포함한다.

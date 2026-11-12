@@ -704,3 +704,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Native Demo iOS asmdef에 Runtime 직접 참조 추가 및 assembly contract 음성 방지 검사 작성. Unity 실제 export는 재실행 전이다.
 - iOS sample asmdef 직접 참조 단위 1건·workflow YAML·diff 검사 PASS. 수정 제품 소스를 포함한 새 staged UPM을 생성한다.
 - 수정 asmdef 포함 새 UPM staging `artifacts/upm-native-sample-fix-20261112` 생성, XCFramework 검증·110개 checksum PASS. 실제 iOS Player 전 수정 코드 커밋 준비.
+- P08-T04 Native Demo iOS Simulator 재검증 시작: Runtime asmdef 수정 source a761007 및 새 stage를 사용한다. 첫 export FAIL은 보존한다.

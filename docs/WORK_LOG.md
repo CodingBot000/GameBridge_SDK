@@ -2559,3 +2559,4 @@
 - iOS 전용 TCP fault proxy에 차단 상태에서 발생한 실제 수락/즉시 종료 시도 수를 비밀 없이 기록하고, 최소 1회 실패와 복구 후 이벤트 전달을 함께 요구한다. 기존 PX-T12 PASS를 새 테스트 PASS로 대체하지 않는다.
 - Android test는 기존 AVD Wi-Fi/data 차단 확인을 유지하면서 SDK 연결만 받는 loopback proxy의 재연결 거부를 추가했다. 다른 host 네트워크·운영 SDK는 변경하지 않는다. 성공은 각각 새 Player 실행 후에만 기록한다.
 - 양 플랫폼 runner `py_compile` 및 iOS cached-package 안전 단위 2건 PASS. Android server log 검사에 B session 합성 token도 추가했다. 커밋 준비: test 전용 fault 계측만 포함하고 실제 Player 결과는 이전 source에 한정한다.
+- Android Unity Player에서 OS 네트워크 차단·복원 뒤 test-only proxy의 연결 거부 시도 관측과 재연결 후 전달을 새 전용 AVD/DB로 실행한다. 실행 전 이 기록을 커밋한다.

@@ -445,3 +445,4 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T14 iOS test proxy가 차단 중 실제 재연결 시도 거부 횟수를 세고 1회 이상을 요구하도록 수정했다. 새 코드의 실제 Player 검증은 NOT_RUN이다.
 - PX-T14 Android runner에도 test 전용 TCP proxy를 추가해 OS 네트워크 복구 후 일시적 재연결 거부와 실제 시도 횟수를 검사한다. 실제 Android/iOS Player 재검증은 아직 NOT_RUN이다.
 - PX-T14 양 runner Python 문법 및 package cache 안전 단위 2건 PASS. 실제 재연결 실패/복구 Player E2E는 재실행 전이며 커밋 준비한다.
+- PX-T14 Android 재연결 실패·복구 실제 Player E2E 시작: 새 전용 AVD/DB와 test-only proxy를 사용한다. 새 결과는 NOT_RUN이다.

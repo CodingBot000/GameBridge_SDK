@@ -2629,3 +2629,8 @@
 - clean tracked source `a0ba7a5`의 `scripts/build-unity.sh --editor-smoke` 종료 0 (`artifacts/unity-consumer.EfzZEr/results.xml`): Unity 6000.5.8f1 Editor에서 domain reload enabled/disabled 2건 PASS/skip 0, 각 완료 marker, scene 전환·client dispose/recreate·이전 session synthetic callback 차단·dispatcher 1→0 확인. 실제 OS callback이나 Player 대체가 아닌 Editor 범위다.
 - 실제 Editor 테스트·marker 및 격리 package 조건을 `docs/evidence/r11-unity-scene-domain-reload.md`에 기록하고 R11을 해당 범위로 매핑했다. manifest 및 진행 원장을 검증한다.
 - `harness/check-manifest.py`, `harness/check-manifest-negative.py`, `scripts/verify-progress.py` 종료 0. 커밋 준비: R11 실제 Editor 결과의 요약·manifest 및 원장만 저장한다. 원본 로그·Unity project는 Git에 넣지 않는다.
+### P09 R09 UTF-8 JNI 및 C ABI 검증 시작
+- Android Unity Player에서 C#→AndroidJavaClass→Kotlin→AndroidJavaProxy→Unity 이벤트의 한국어/emoji를 확인하고, iOS C ABI 입력 buffer 재사용과 callback 데이터 복사 후 문자열 동일성을 직접 검증한다. 단순 JSON parser나 링크 성공을 ABI PASS로 대신하지 않는다.
+- `CBridgeTests.testHostPushEventRoutingAndDedup`이 원시 UTF-8 `한글 🎮🚀`을 포함한 요청을 GB_Dispatch 후 즉시 덮어쓰고 callback이 복사한 메시지 ID 동일성을 검사하도록 강화했다. iOS C ABI test 실행 전이다.
+- `swift test --package-path ios --filter CBridgeTests.testHostPushEventRoutingAndDedup` 종료 0, XCTest 1건 PASS/skip 0: 실제 GB_Dispatch 입력을 반환 직후 덮어쓴 뒤 복사된 callback의 한국어·emoji 동일성 확인. macOS host ABI 시험이며 iOS 실제 기기는 아니다.
+- Android UTF-8 Player probe managed compile 종료 0, 경고·오류 0. 커밋 준비: iOS C ABI의 명시적 버퍼 복사 시험과 Android JNI probe/run option만 포함하며 Android 실제 JNI 검증은 재실행 전이다.

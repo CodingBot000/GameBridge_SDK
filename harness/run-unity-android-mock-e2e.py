@@ -208,7 +208,7 @@ def scan_unity_log(adb, serial, key, password):
     if key in result or password in result:
         raise GateError("SYNTHETIC_SECRET_IN_PLAYER_LOG")
     return [line for line in result.splitlines()
-            if re.search(r"\bGB_MOCK_(?:STEP|RESULT|NATIVE)\b", line)]
+            if re.search(r"\b(?:GB_MOCK_(?:STEP|RESULT|NATIVE)|GB_UTF8_JNI_ROUNDTRIP)\b", line)]
 
 
 def check_player_markers(lines):
@@ -249,6 +249,7 @@ def main():
     parser.add_argument("--postgres-admin", default=os.environ.get("GAMEBRIDGE_TEST_POSTGRES_ADMIN", "gamebridge"))
     parser.add_argument("--postgres-port", type=int, default=int(os.environ.get("GAMEBRIDGE_TEST_POSTGRES_PORT", "54329")))
     parser.add_argument("--package-cache", type=Path, help="Previously resolved exact-version Unity PackageCache for this isolated consumer")
+    parser.add_argument("--utf8-probe", action="store_true", help="Use test-only JNI UTF-8 round-trip consumer")
     parser.add_argument("--timeout-seconds", type=int, default=180)
     args = parser.parse_args()
 
@@ -302,6 +303,8 @@ def main():
                 summary["embeddedCachedPackages"] = cache_module.embed_cached_packages(args.package_cache.resolve(), project)
             except cache_module.common.GateError as error:
                 raise GateError(str(error), error.category) from error
+        if args.utf8_probe:
+            shutil.copy2(ROOT / "tests/UnityAndroidUtf8Consumer/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
         apk = output / "gamebridge-mock-consumer.apk"
         built = run(["bash", "scripts/build-unity-android-mock.sh", project, apk],
                     timeout=1200, env=environment)
@@ -351,6 +354,8 @@ def main():
         while time.monotonic() < deadline:
             lines = scan_unity_log(adb, serial, key, password)
             if check_player_markers(lines):
+                if args.utf8_probe and not any("GB_UTF8_JNI_ROUNDTRIP PASS" in line for line in lines):
+                    raise GateError("JNI_UTF8_MARKER_MISSING")
                 (output / "unity-test-markers.log").write_text("\n".join(lines) + "\n", encoding="utf-8")
                 summary["unityPlayer"] = "PASS"
                 summary["unityMarkerCount"] = len(lines)

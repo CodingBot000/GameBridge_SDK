@@ -511,3 +511,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R11 커밋된 source a0ba7a5에서 실제 Unity Editor reload-enabled/disabled 2건 PASS/skip 0 (`artifacts/unity-consumer.EfzZEr/results.xml`), 완료 marker 모두 확인. scene·dispose/재생성·이전 session callback 차단 및 dispatcher 1→0 검사 범위로 evidence를 정리한다.
 - R11 실제 Unity Editor의 두 reload 경로와 scene·객체·합성 callback 검증을 바탕으로 IMPLEMENTED로 매핑했다. 원격 push·실기기와 구분하고 manifest·원장 검사를 수행한다.
 - R11 manifest·누락 음성·원장 검사 PASS. 실제 Editor 2건 및 합성 callback 범위를 evidence와 함께 커밋한다.
+- P09-T02/R09 Android JNI·iOS C ABI UTF-8 실제 경계 검증 시작: 한국어·emoji payload가 비동기 callback 이후 동일하게 남는지 확인한다. 실제 검증 전 R09은 PARTIAL이다.
+- R09 iOS C ABI test에 한국어·emoji 원시 UTF-8 입력, dispatch 반환 직후 입력 버퍼 덮어쓰기 및 비동기 callback 복사 결과 동일성 assertion을 추가했다. Swift test를 실행한다.
+- R09 iOS C ABI 원시 UTF-8·입력 buffer 덮어쓰기·비동기 callback 동일성 Swift test 1건 PASS/skip 0(로컬 macOS host). Android JNI Player 테스트 소스 컴파일을 시작한다.
+- R09 Android JNI probe managed compile PASS(경고·오류 0), 실제 Unity AndroidJavaProxy/JNI 실행은 아직 NOT_RUN. 수정 테스트와 runner를 커밋 후 새 전용 AVD에서 확인한다.

@@ -102,8 +102,10 @@ final class CBridgeTests: XCTestCase {
         func send(_ operation: String, _ payload: [String: Any]) throws {
             let request: [String: Any] = ["protocolVersion": 1, "sdkSessionId": session, "kind": "request",
                 "requestId": UUID().uuidString.lowercased(), "operation": operation, "payload": payload]
-            let data = try JSONSerialization.data(withJSONObject: request)
+            var data = try JSONSerialization.data(withJSONObject: request)
+            if operation == "host.pushOpened" { XCTAssertNotNil(data.range(of: Data("한글 🎮🚀".utf8)), "test must send UTF-8 bytes, not escaped text") }
             data.withUnsafeBytes { bytes in GB_Dispatch(bytes.bindMemory(to: UInt8.self).baseAddress, Int32(bytes.count)) }
+            data.resetBytes(in: 0..<data.count)
         }
         func receive() throws -> [String: Any] {
             XCTAssertEqual(pushCallbackSignal.wait(timeout: .now() + 3), .success)
@@ -113,11 +115,12 @@ final class CBridgeTests: XCTestCase {
         try send("sdk.initialize", ["providerMode": "LOCAL_MOCK", "appId": "demo", "backendBaseUrl": "http://127.0.0.1:18080",
             "requestTimeoutMs": 30000, "developmentKey": String(repeating: "x", count: 32), "mockSubject": "A"])
         XCTAssertEqual(try receive()["ok"] as? Bool, true)
-        let payload: [String: Any] = ["messageId": "test-id", "route": "store", "campaignId": NSNull(), "url": "https://ignored.invalid"]
+        let payload: [String: Any] = ["messageId": "한글 🎮🚀", "route": "store", "campaignId": NSNull(), "url": "https://ignored.invalid"]
         try send("host.pushOpened", payload)
         let event = try receive(), response = try receive()
         XCTAssertEqual(event["type"] as? String, "PushOpened")
         XCTAssertEqual((event["payload"] as? [String: Any])?["route"] as? String, "store")
+        XCTAssertEqual((event["payload"] as? [String: Any])?["messageId"] as? String, "한글 🎮🚀")
         XCTAssertNil((event["payload"] as? [String: Any])?["url"])
         XCTAssertEqual(response["ok"] as? Bool, true)
         try send("host.pushOpened", payload); XCTAssertEqual(try receive()["ok"] as? Bool, true)

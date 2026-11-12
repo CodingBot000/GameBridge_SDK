@@ -2794,3 +2794,5 @@
 - 강화한 `run-r22-native-redaction.py --run-local` exit 0 (`artifacts/r22-native-37ca4aes`): Android/Swift 각 1건/skip0, 해당 synthetic access/refresh token과 개발키가 지정된 격리 Backend 로그에 없고 bridge 결과에도 노출되지 않음을 검사했다. 실 provider credential·모든 앱 로그는 범위 밖. marker 누락 음성 검사를 추가한다.
 - marker 부재·빈 값·FAIL·불완전 값·추가 데이터 거부 단위 1건 PASS/skip0, Python·원장 검사 PASS. helper 보완 후 격리 양 플랫폼을 재실행한다.
 - `run-r22-native-redaction.py --run-local` 재실행 exit 0 (`artifacts/r22-native-bpyoimew`), 양 플랫폼 각 1건/skip0 및 정확한 server-log 검사 marker 확인. 커밋 전: synthetic 테스트·실행기·음성 검사와 정제 증거만 포함하며 전체 로그 및 실제 provider 결과는 주장하지 않는다.
+- `check-required-coverage.py` exit 1: R22/R40 포함 required 시나리오 2개 PARTIAL, 0개 NOT_IMPLEMENTED. 기존 미추적 `unity/Demo`, `harness/__pycache__`, `scripts/__pycache__`는 보존한다. 검사 직전 별도 검증 시작 기록을 빠뜨려 이 결과와 누락을 즉시 기록했다.
+- 커밋 전: coverage 검사 결과와 검증 시작 기록 누락의 정정만 포함한다. 제품 상태·원격은 변경하지 않는다.

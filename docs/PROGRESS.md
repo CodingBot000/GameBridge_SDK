@@ -650,3 +650,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - R22 전용 격리 실행 PASS (`artifacts/r22-native-37ca4aes`): Android/Swift 각 합성 access/refresh token·개발키의 bridge 결과 및 Backend 로그 비노출 marker 확인. 실제 제공자·전체 로그 범위는 별도다.
 - R22 로그 marker 누락·잘못된 값 거부 단위 1건과 Python/원장 검사 PASS. helper 보완 후 격리 실행을 다시 확인한다.
 - R22 marker helper 적용 후 격리 양 Native 재실행 PASS (`artifacts/r22-native-bpyoimew`), 각 1건/skip0 및 synthetic token·개발키 서버 로그 비노출 marker 확인. R22 전체 PARTIAL 유지, 커밋 준비.
+- P09 전체 coverage 재확인: `check-required-coverage.py` exit 1, PARTIAL 2·NOT_IMPLEMENTED 0. 예상된 미완료이며 통과가 아니다. 미추적 Demo와 Python cache만 남아 있다.
+- 부분 coverage 검사 및 미추적 파일 보존 결과 기록 커밋 준비.

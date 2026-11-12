@@ -219,6 +219,15 @@
       ],
       "mode": "IOS_SIMULATOR_SYNTHETIC_HOST_AND_UNITY",
       "platform": "iOS simulator Unity/Swift"
+    },
+    "native-token-redaction": {
+      "command": [
+        "python3",
+        "harness/run-r22-native-redaction.py",
+        "--run-local"
+      ],
+      "mode": "LOCAL_MOCK",
+      "platform": "Android/iOS Native"
     }
   },
   "scenarios": [
@@ -906,7 +915,8 @@
       ],
       "candidateSuites": [
         "auth-regression",
-        "purchase-regression"
+        "purchase-regression",
+        "native-token-redaction"
       ],
       "evidence": "docs/evidence/r22-local-redaction-partial.md",
       "note": "Native synthetic session tokens, typed results and local Player development-key checks passed; full logs and input variants remain partial."

@@ -105,6 +105,9 @@ class LocalMockIntegrationTest {
             put("installationId", kotlinx.serialization.json.JsonPrimitive(installation))
         })
         send("auth.signIn", kotlinx.serialization.json.buildJsonObject { put("provider", kotlinx.serialization.json.JsonPrimitive("MOCK")) })
+        val storedTokens = Json.parseToJsonElement(assertNotNull(store.value)).jsonObject
+        for (field in listOf("accessToken", "refreshToken"))
+            assertTrue(storedTokens.getValue(field).jsonPrimitive.content.isNotBlank(), "synthetic session token missing")
         assertEquals("MOCK", send("push.permission").getValue("provider").jsonPrimitive.content)
         assertTrue(send("push.register").getValue("registered").jsonPrimitive.content.toBoolean())
         send("push.unregister")

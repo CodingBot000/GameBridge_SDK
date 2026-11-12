@@ -642,3 +642,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Native token assertion과 regression 3건 필수 집계, 최신 strict 결과·최종 보고서 반영 및 원장/Python/diff 검사 PASS. 커밋 준비. 실제 제공자·전체 로그는 미검증.
 - P09-T01 시나리오 manifest 증거 연결 시작: R22의 새 Native token 및 Unity 결과 부분 증거와 R40 OS/Mock 부분 증거를 후보 suite에 연결하되 PARTIAL 유지.
 - R22/R40 부분 증거 연결 후 manifest·음성·원장/diff 검사 PASS. 제품 시험 재실행이 아니며 두 시나리오 PARTIAL 유지. 커밋 준비.
+- R22 Android 세션 token 음성 시험의 사전조건 보강 시작: 토큰 저장소가 비어 있을 때 비교가 조용히 생략되는 경우를 방지한다.
+- R22 Android token 존재 사전조건 테스트 컴파일 PASS. 격리 Native token 회귀 재현 runner를 추가해 실제 실행과 skip/0건 거부를 확인한다.
+- R22 격리 재현 runner 실행 PASS: Android/Swift 합성 세션 token 비교 각 1건, skip 0 (`artifacts/r22-native-vdwala6w`). 실제 provider는 별도. opt-in 누락 음성 검사를 확인한다.
+- R22 전용 runner opt-in 누락 exit 2·Python/원장/diff 검사 PASS. 부분 manifest와 증거에 재현 명령을 연결하고 커밋 준비한다.

@@ -2785,3 +2785,7 @@
 ### P09-T01 부분 시나리오 증거 연결 시작
 - R22의 local token bridge 시험은 purchase regression에, R40 Mock 거부는 push regression에 추가됐다. manifest의 부분 증거 경로와 후보 suite를 현재 상태에 맞게 연결하되 전체 검증 미완료 상태는 그대로 유지한다.
 - `check-manifest.py`, `check-manifest-negative.py`, `verify-progress.py`, `git diff --check` exit 0. 파일 연결 검사이며 제품 통과를 뜻하지 않는다. 커밋 전: PARTIAL 유지한 증거·후보 suite 및 진행 기록만 포함한다.
+- Android synthetic token 검사에서 저장소가 비어 있으면 token 비교가 생략되는 결함을 확인했다. sign-in 직후 실제 합성 access/refresh token이 모두 존재하고 비어 있지 않아야 통과하도록 한다.
+- token 존재 사전조건 추가 후 Android 테스트 컴파일 exit 0. 새 DB·Backend에서 양 Native bridge의 합성 token assertion을 재현하고 JUnit/XCTest 실제 실행·skip을 검증하는 runner를 추가한다.
+- `python3 harness/run-r22-native-redaction.py --run-local` exit 0 (`artifacts/r22-native-vdwala6w`): Android/Swift 각 1건 PASS/skip0 및 token 존재 선행조건 확인. synthetic local DB·Backend만 사용, 원문 token은 출력하지 않았다. opt-in 없는 호출과 문법 검사를 이어간다.
+- `run-r22-native-redaction.py` 인자 없이 exit 2, Python compile·원장·diff PASS. 부분 증거와 candidate suite에 재현 명령을 연결한다. 전체 로그·실제 provider 미검증으로 R22 PARTIAL 유지. 커밋 준비.

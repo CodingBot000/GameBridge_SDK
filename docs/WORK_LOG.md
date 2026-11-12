@@ -2810,3 +2810,17 @@
 - isolated DB helper의 DEFERRED_ENV 예외를 신규 R22 runner가 무조건 FAIL로 기록하는 경계 결함을 발견했다. 환경 대기와 시험 실패를 구분하되 성공으로 바꾸지 않는다.
 - `test_r22_native_redaction.py` 2건 PASS/skip0, Python compile PASS. 실제 포트 점유 대기와 정상 격리 실행을 검증한다.
 - 실제 18080 포트 점유 fixture에서 R22 runner exit 2/DEFERRED_ENV, 정상 격리 실행 exit 0 Android·Swift PASS (`artifacts/r22-native-b5e3facc`). 커밋 전: 상태 분류·음성 시험·기록만 포함한다.
+### P08-T04 문서 기준 샘플 설치 점검 시작
+- 사용자 문서의 Offline Demo import·uGUI·빈 scene 실행 절차를 실제 검증할 조건을 조사한다. `unity status --format json`은 Pipeline 연결 Editor 0건/exit 6이며 Unity 미설치나 라이선스 실패를 뜻하지 않는다. 상태 명령을 시작 원장보다 먼저 실행한 순서 누락을 기록한다. 사용자 프로젝트는 변경하지 않는다.
+- Offline Demo 문서의 staged sample, uGUI, EventSystem 및 빈 GameObject 조건을 격리 소비 프로젝트에 구성해 Unity Editor Play에서 실제 UI 컴포넌트 callback·fake 로그인/구매를 확인할 테스트를 작성한다. sample 복사는 패키지 관리자 UI의 Import 버튼 동작을 검증하지 않으며 화면 렌더링도 별도다.
+- staged sample 복사·정확한 cached dependency·EventSystem·mock 로그인/상품/구매 UI callback을 검사하는 Editor test와 격리 runner를 작성했다. `bash -n` PASS이나 아직 Unity 실행은 NOT_RUN이다.
+- `GAMEBRIDGE_UPM_STAGING=<stage> GAMEBRIDGE_UNITY_PACKAGE_CACHE=<cache> bash scripts/smoke-unity-offline-sample.sh` exit 0, Unity Editor Test Framework 1건 PASS (`artifacts/offline-sample.wpOk2c/results.xml`): 샘플 객체·EventSystem 생성 후 mock 로그인/상품/100코인 구매 UI callback을 실행했다. sample은 Assets로 복사했으며 Package Manager UI import, 화면 렌더링/포인터 및 실제 기기·결제 검증은 아니다.
+- 실제 Unity NUnit 보고서에서 1건 Passed/skip0 및 `GB_OFFLINE_SAMPLE_FLOW PASS` marker를 확인했다. 향후 빈 보고서·skip·실패·marker 누락이 허위 성공되지 않도록 결과 판정과 음성 시험을 보강한다.
+- `test_unity_offline_sample_result.py` 1건 PASS/skip0, 실제 기존 NUnit 결과 재검사 PASS, shell 구문 PASS. 판정 강화 후 새 Unity Editor 실행을 다시 수행한다.
+- 강화된 `smoke-unity-offline-sample.sh` exit 0, 새 격리 Unity Editor test 1건 PASS/skip0 (`artifacts/offline-sample.JGRMHJ/results.xml`). 샘플 callback을 프로그램으로 호출한 fake flow이며 시각 QA·패키지 관리자 UI가 아니다. 샘플 README의 현재 라이선스 실패 문구를 당시 이력과 현재 범위로 정정한다.
+### P08-T03 sample 문서 반영 staging 시작
+- Offline Demo README 수정으로 기존 UPM staging은 현재 checkout과 달라졌다. 기존 Maven/XCFramework를 사용해 새 staging에만 패키징하고 checksum 및 sample Editor test를 재실행한다. 제품 Native binary 재빌드는 아니다.
+- `package-sdk.sh <existing Maven> <existing XCFramework> artifacts/upm-offline-sample-20261112` exit 0, XCFramework arch/C ABI 및 staging 110개 checksum PASS. Native binary 재빌드는 아니며 새 staging Editor test는 별도다.
+- 새 `artifacts/upm-offline-sample-20261112`를 사용한 `smoke-unity-offline-sample.sh` exit 0, Unity Editor 1건 PASS/skip0 (`artifacts/offline-sample.0FsGva/results.xml`). fake UI callback flow이며 Package Manager UI import·화면 렌더링·실결제는 아니다.
+- `verify_staged_source_matches_checkout` 및 sample 결과 음성 1건/skip0, workflow YAML parse, diff 검사 PASS. staging source는 현재 미커밋 sample README 수정 포함, 기존 Native binary 재사용. 화면 렌더링·Package Manager UI는 아직 미검증이다.
+- `docs/evidence/p08-offline-sample-editor.md`에 staged hash·실제 Unity Editor fake flow 및 미검증 범위를 기록했다. 커밋 전: sample README 정정, 격리 시험/runner, 음성 검사와 정제 문서만 포함한다. 생성 staging·Unity cache는 Git 제외, P08-T04 PARTIAL 유지.

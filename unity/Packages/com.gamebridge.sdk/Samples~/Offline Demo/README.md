@@ -4,4 +4,4 @@ Import this sample from the package manager, install Unity uGUI (`com.unity.ugui
 
 The Home and Store panels use only the in-memory `EDITOR_OFFLINE` fake. Mock balances and purchases are not stored on the Backend and never represent real money. Player builds are intentionally disabled. Existing canvases and EventSystems are not replaced or removed.
 
-This sample was independently compiled against Unity managed assemblies but has not yet been rendered or interacted with in Unity Editor because the current Editor license check failed. Actual device, store and network flows are not covered.
+An isolated Unity Editor test has run the sample initialization, mock sign-in, product listing, and mock purchase through programmatic UI callbacks. Package Manager UI import, visual rendering and pointer interaction have not been verified by that test. Actual device, store and network flows are not covered.

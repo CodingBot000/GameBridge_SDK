@@ -663,3 +663,15 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T08 R22 runner fail-closed 상태 점검 시작: 전용 DB 부재를 제품 FAIL로 잘못 분류하지 않고 DEFERRED_ENV로 보존하는지 확인한다.
 - R22 runner 환경 대기·marker 음성 단위 2건 및 Python 문법 PASS. 실제 포트 점유 시 exit 2를 확인하고 정상 격리 재실행한다.
 - R22 runner 포트 점유 시 DEFERRED_ENV/exit 2, 정상 격리 실행 Android·Swift PASS (`artifacts/r22-native-b5e3facc`). 환경 대기와 제품 실패를 구분했다. 커밋 준비.
+- P08-T04 샘플 설치 절차 점검 시작: Unity CLI status는 Pipeline 연결 Editor 0건(exit 6); 해당 명령을 원장 기록보다 먼저 실행한 순서 누락을 기록한다. 격리 프로젝트에서 sample과 의존성을 확인한다.
+- P08-T04 Offline Demo 격리 Editor 검증 시작: staged UPM sample·uGUI를 새 소비 프로젝트에 복사하고 EventSystem·빈 GameObject를 구성해 Editor Play의 초기화·모의 구매를 확인한다. Package Manager UI import/렌더링은 별도다.
+- P08-T04 staged Offline Demo Editor test 및 격리 runner 초안 작성, shell 구문 PASS. 실제 Unity Editor 실행은 아직 NOT_RUN이다.
+- P08-T04 staged Offline Demo Unity Editor Play fake 흐름 1건 PASS (`artifacts/offline-sample.wpOk2c/results.xml`): 초기화·모의 로그인·상품 목록·100코인 구매 callback. package-manager UI import 및 실제 화면 렌더링 검사는 아님.
+- P08-T04 sample 실행 보고서 1건 PASS·skip0 및 완료 marker 재확인. 빈 결과·skip·실패·marker 누락을 거부하는 runner 판정 검사를 보강한다.
+- sample 보고서 판정 음성 단위 1건 PASS, 실제 기존 NUnit 결과 재검사 PASS, shell 구문 PASS. 강화 runner로 새 격리 Editor 실행을 재확인한다.
+- 강화된 Offline Demo 격리 Unity Editor Play 재실행 1건 PASS/skip0 (`artifacts/offline-sample.JGRMHJ/results.xml`); 화면 렌더링·Package Manager UI는 미검증. 샘플/기능 문서의 과거 라이선스 표현을 수정한다.
+- P08-T03 sample README 변경을 포함한 새 UPM staging 생성 시작: 기존 검증된 Native 산출물을 사용하고 기존 staging은 보존한다. 새 staging의 Editor 실행은 별도다.
+- 새 UPM staging `artifacts/upm-offline-sample-20261112`의 XCFramework arch/C ABI·110개 파일 checksum PASS. 기존 Native 산출물 재사용이며 새 staging Editor 실행은 아직 NOT_RUN.
+- 새 staging Offline Demo 격리 Unity Editor Play 1건 PASS/skip0 (`artifacts/offline-sample.0FsGva/results.xml`). 실제 화면 렌더링·Package Manager UI·실제 결제는 범위 밖이다.
+- 새 staged SDK와 현재 checkout 제품 소스 일치, sample 결과 음성 단위 1건·workflow YAML·diff 검사 PASS. 실제 화면/패키지 관리자 UI는 계속 미검증이다.
+- Offline Demo Editor 부분 증거·새 staging hash·제한 범위를 문서화했다. P08-T04는 Package Manager UI 및 Native Demo 재현이 남아 PARTIAL. 커밋 준비.

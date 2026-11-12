@@ -28,7 +28,7 @@ Offline Demo는 별도 staged UPM의 Package Manager Sample API import 후 새 �
 
 ## 환경 및 사용자 설정
 
-과거 Unity 라이선스 오류(ENV-002)는 활성화 후 해소됐고 Android local-mock Player는 통과했다. 계획된 6.3 LTS 확인(ENV-001), 실제 기기 및 나머지 Unity 시나리오는 별도다. iOS 26.5 simulator의 StoreKit local 시험은 실패(ENV-STOREKIT-26)했다. 이후 별도 앱 재시험도 SKTestSession 생성에서 timeout (`artifacts/xcode-process-recovery-p8qyld6o`)이었으며 동일 계측의 iOS 18.6 대조는 PASS였다. 실제 Google/Apple 인증, 스토어, FCM/APNs의 계정·앱 등록·서명 및 기기 준비는 [USER_SETUP](USER_SETUP.md)에 정리했다. `bash scripts/verify-external.sh --check-config`는 설정 형태만 확인하며 실연동 테스트가 아니다.
+과거 Unity 라이선스 오류(ENV-002)는 활성화 후 해소됐고 Android local-mock Player는 통과했다. 계획된 6.3 LTS 확인(ENV-001), 실제 기기 및 나머지 Unity 시나리오는 별도다. iOS 26.5 simulator의 StoreKit local 시험은 실패(ENV-STOREKIT-26)했다. 이후 별도 앱 재시험도 SKTestSession 생성에서 timeout (`artifacts/xcode-process-recovery-p8qyld6o`)이었으며 동일 계측의 iOS 18.6 대조는 PASS였다. 이후 test-only URL initializer도 iOS 26.5에서 세션 생성 단계 timeout (`artifacts/xcode-process-recovery-97a0wg1_`), 같은 URL 경로의 iOS 18.6 대조는 PASS (`artifacts/xcode-process-recovery-xbadp2tm`)였다. 두 실패의 동일 원인은 미확정이다. 실제 Google/Apple 인증, 스토어, FCM/APNs의 계정·앱 등록·서명 및 기기 준비는 [USER_SETUP](USER_SETUP.md)에 정리했다. `bash scripts/verify-external.sh --check-config`는 설정 형태만 확인하며 실연동 테스트가 아니다.
 
 ## 로컬 산출물
 

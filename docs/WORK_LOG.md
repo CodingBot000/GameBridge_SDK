@@ -3039,3 +3039,18 @@
 - 최신 `scripts/ci-unity-e2e.sh` 실제 로컬 실행 exit 1, strict `artifacts/verify-all-n3u_5w60/summary.md`, orchestration `artifacts/strict-isolated-hqnpssju`, 외부 13 WAITING_USER. GUI 안내 수동 처리했으며 GitHub Actions·실 provider 실행은 아니다. 세부 lane 및 실패를 확인한다.
 - `verify-all-n3u_5w60`: source 562c75f, 실행 lane 및 coverage 50, Unity PII 2, Push 2, Editor 2 PASS. 유일 비PASS는 기존 P05-T03 FAIL이므로 전체 FAIL/exit1, 외부 13 WAITING_USER. 4 Player는 동일 source tracked-clean; strict sourceDirty는 기존 미추적 Demo/cache 포함 기준. 두 Android 최초 안내 수동 처리. 시험 AVD 2개·Simulator 3개 shutdown, 데이터 보존. R40 iOS 실제 OS는 선행 GUI 보조 증거이며 이 CI에서 자동 재실행하지 않았다.
 - 최신 로컬 gate의 실제 lane·source, Android 안내 수동 및 R40 iOS GUI 보조, P05-T03 FAIL·외부 대기를 evidence/CI/최종 보고에 반영했다. 원장·manifest·diff PASS. 커밋 전: 정제 문서만 포함하며 원본 로그/DB/빌드는 제외한다.
+### P05-T03 iOS 26.5 StoreKit 실패 조사 시작
+- 기존 26.5 SKTestSession 생성 timeout 및 Code 3 기록을 보존한 채 Apple 공개 문서·설치 runtime을 확인한다. 외부 보고의 유사성을 현재 환경 원인으로 단정하지 않는다. 문서 조회를 시작 기록보다 먼저 실행한 순서 누락을 기록한다.
+- Apple [SKTestSession 문서](https://developer.apple.com/documentation/storekittest/sktestsession)는 named/URL 초기화 경로를 제공한다. [iOS 26.5 release notes](https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-26_5-release-notes)는 선택된 설정 관련 수정을 기록하고 [Apple Developer Forums](https://developer.apple.com/forums/thread/826971)에는 유사 Code 3 보고와 DTS 답변이 있다. 현재 우리 앱의 init timeout과 동일 원인인지는 미확정이다. 설치된 runtime은 18.6/26.5, Xcode 26.6이며 test-only URL initializer 대조를 추가한다.
+- RecoveryHarness는 기본 named 동작을 유지하며 opt-in URL initializer를 선택한다. runner Python compile PASS. 잘못된 선택을 DB 생성 전에 차단하도록 조정하고 음성 시험한다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_INIT=invalid ... --run-local` exit 2를 DB 생성 전 확인, Python/diff PASS. 먼저 iOS 18.6에서 URL initializer의 빌드·local process recovery 양성 대조를 실행한다. 실제 Apple sandbox는 아니다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_INIT=url ... --run-local` iOS 18.6 exit 0 (`artifacts/xcode-process-recovery-xbadp2tm`): URL initializer, synthetic local DB 구매 응답 유실 및 프로세스 재시작 복구 PASS. 당시 미커밋 test-only 변경이며 26.5/실 Apple sandbox 결과는 아니다.
+- 동일 URL initializer를 별도 iOS 26.5 Simulator·local DB에서 실행한다. 이전 named init timeout/Code 3은 결과와 관계없이 이력으로 보존하고 성공 시에도 동일 원인인지 추정하지 않는다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_INIT=url GAMEBRIDGE_PROCESS_SIM_RUNTIME=...iOS-26-5 ... --run-local` exit 1 (`artifacts/xcode-process-recovery-97a0wg1_`): prepare 단계 `storekit-session` timeout. 같은 URL initializer의 iOS 18.6 대조는 PASS (`artifacts/xcode-process-recovery-xbadp2tm`). 두 테스트는 당시 미커밋 test-only diagnostic이며 이전 named timeout/Code 3과 같은 원인이라고 단정하지 않는다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN 유지.
+
+### 사용자 요청 안정 중단 — 2026-11-13
+- 진행 중이던 iOS 26.5 URL initializer 대조 종료 후 중단한다. 18.6 URL local recovery PASS (`artifacts/xcode-process-recovery-xbadp2tm`), 26.5 URL init 단계 timeout FAIL (`artifacts/xcode-process-recovery-97a0wg1_`); named 경로와 같은 원인 여부 미확정이다. `P05-T03` FAIL/`ENV-STOREKIT-26` OPEN을 유지한다.
+- R09/R11/R22/R40/R43/R49 포함 50개 local/fake 시나리오 evidence 기록. `verify-all-n3u_5w60`는 해당 실행 suite와 coverage PASS이지만 기존 P05-T03 FAIL로 전체 FAIL, 외부 13 WAITING_USER. R40 iOS GUI 및 두 Android 초기 안내는 수동 처리, 원격 GitHub Actions/실 provider 미실행이다.
+- 새 staging `artifacts/upm-stable-meta-20261113`; Sample 최상위 폴더 GUID 차이는 P08-T03 PARTIAL. 테스트 Simulator/AVD를 shutdown했으며 DB/기기 데이터, 기존 미추적 Demo/cache를 보존한다.
+- 재개: P05-T03 named/URL과 26.5 runtime 원인을 계속 조사하고 필요 시 최신 source의 격리 strict 및 문서 감사를 재실행한다. 제품 Provider와 test-only 진단을 구분하고 실패·미실행을 PASS로 바꾸지 않는다. 자동 push/공개 배포는 하지 않는다.
+- 커밋 전: test-only URL initializer 옵션, 18.6 대조/26.5 실패 및 이 중단 기록만 포함한다. 실제 Apple sandbox는 미검증이다.

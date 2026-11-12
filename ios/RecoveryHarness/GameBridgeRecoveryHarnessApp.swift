@@ -54,7 +54,15 @@ private final class CountingStore: TokenStore {
             guard ["prepare", "recover"].contains(phase), let base = env["GAMEBRIDGE_PROCESS_TEST_BASE_URL"], base.hasPrefix("http://127.0.0.1:"),
                   let key = env["GAMEBRIDGE_PROCESS_TEST_AUTH_KEY"], key.count >= 32 else { throw SdkFailure("CONFIG_REQUIRED") }
             checkpoint("storekit-session")
-            let testSession = try SKTestSession(configurationFileNamed:"GameBridge"); testSession.disableDialogs = true
+            let initializer = env["GAMEBRIDGE_PROCESS_STOREKIT_INIT"] ?? "named"
+            let testSession: SKTestSession
+            if initializer == "url" {
+                guard let configuration = Bundle.main.url(forResource: "GameBridge", withExtension: "storekit") else { throw SdkFailure("CONFIG_REQUIRED") }
+                testSession = try SKTestSession(contentsOf: configuration)
+            } else if initializer == "named" {
+                testSession = try SKTestSession(configurationFileNamed: "GameBridge")
+            } else { throw SdkFailure("CONFIG_REQUIRED") }
+            testSession.disableDialogs = true
             let network = URLSessionConfiguration.ephemeral
             if phase == "prepare" { network.protocolClasses = [RecoveryFaultProtocol.self] }
             let sessionStore = KeychainTokenStore(service:"com.gamebridge.process-test.session")

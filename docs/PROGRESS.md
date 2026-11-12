@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / 전체 회귀 및 CI 실행 검증, P11 정합성 감사 진행 중
+- 현재 Phase / Task: 사용자 요청 일시 중단 / P05-T03 StoreKit 26.5 진단 재개 대기
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
-- 현재 작업 트리 상태: 진행 문서 갱신 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
+- 현재 작업 트리 상태: 중단 기록 커밋 준비; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-stable-meta-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 최신 소스 strict 재검증, iOS 26.5 StoreKit 실패 감사 및 CI 실행 상태 확인; R40 iOS GUI 보조·실제 provider는 별도
+- 바로 다음 행동: P05-T03 iOS 26.5 StoreKit named/URL 초기화 실패를 보존하고 진단·대조 조건을 검토한다. 필요 시 최신 소스 strict를 재실행한다. 실제 provider 및 R40 iOS GUI 보조는 별도다.
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -862,3 +862,18 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 최신 전체 Unity CI gate 로컬 실행 종료 1/전체 FAIL (`artifacts/verify-all-n3u_5w60/summary.md`), 외부 13 WAITING_USER. 세부 lane과 기존 실패를 확인하며 실제 GitHub Actions로 간주하지 않는다.
 - 최신 strict 세부: source 562c75f, coverage 50건·Unity PII 2건·Push 2건·Editor 2건 및 실행 suite PASS; 유일한 비PASS는 이전 P05-T03 FAIL, 전체 FAIL. OS R40 iOS GUI 보조는 별도 선행 증거. 테스트 AVD 2·Simulator 3 shutdown, 데이터 보존.
 - 최신 gate source/lane·수동 조작·P05-T03 FAIL·외부 대기를 정제 증거와 문서에 반영, 원장/manifest/diff PASS. 커밋 준비.
+- P05-T03 iOS 26.5 StoreKit 실패 원인 조사 시작: Apple 공식 문서와 설치된 runtime을 확인한다. 이전 실패와 외부 보고가 같다고 단정하지 않는다.
+- Apple 공식 문서는 SKTestSession의 named/URL 초기화 경로를 제공하며, iOS 26.5 관련 별도 문제는 공개 포럼에서도 보고됐다. 로컬 원인과 동일하다고 단정하지 않고 test-only URL 초기화 대조를 추가한다.
+- StoreKit test-only URL 초기화 선택 경로 초안 및 Python 문법 PASS. 잘못된 선택이 DB 생성 전에 거부되는지 보강·확인한다.
+- 잘못된 StoreKit initializer는 DB 생성 전 exit 2, Python/diff PASS. iOS 18.6 전용 Simulator에서 URL initializer 양성 대조를 먼저 실행한다.
+- iOS 18.6 test-only URL initializer·local process recovery 양성 대조 PASS (`artifacts/xcode-process-recovery-xbadp2tm`). 26.5 및 기존 named 실패는 별도다.
+- P05-T03 iOS 26.5 test-only URL initializer 대조 시작: 18.6 양성 대조 후 별도 Simulator/DB에서 실행, 기존 named 실패는 보존한다.
+- P05-T03 iOS 26.5 URL initializer 대조 FAIL (`artifacts/xcode-process-recovery-97a0wg1_`): prepare `storekit-session` timeout. 18.6 URL 양성 대조는 PASS. 기존 named 실패와 동일 원인 여부는 미확정이며 P05-T03 FAIL 유지.
+
+### 2026-11-13 사용자 요청 중단 체크포인트
+
+- 브랜치 `fix/unity-android-mock-e2e-evidence`; 자동 push·main 병합·Release 없음. 기존 미추적 `unity/Demo`, `harness/__pycache__`, `scripts/__pycache__`와 테스트 DB/AVD/Simulator 데이터는 보존했다. 실행 중인 테스트 기기는 종료했다.
+- P09 시나리오 local/fake coverage 50/50 기록, 실제 제공자 13개 WAITING_USER. R40 Android OS 자동·iOS OS GUI 보조·Mock을 별도로 확인했다. 최신 전체 Unity gate `artifacts/verify-all-n3u_5w60/summary.md`는 해당 실행 suite/50개 coverage PASS이나 기록된 P05-T03 FAIL 때문에 전체 FAIL이다. 두 Android 최초 안내는 수동 처리했고 GitHub Actions는 NOT_RUN이다.
+- P05-T03: iOS 18.6 URL initializer의 local process recovery PASS `artifacts/xcode-process-recovery-xbadp2tm`; iOS 26.5 URL initializer는 `storekit-session` timeout FAIL `artifacts/xcode-process-recovery-97a0wg1_`. 기존 named timeout/Code 3과 동일 원인은 미확정; `ENV-STOREKIT-26` OPEN 및 P05-T03 FAIL 유지. 두 결과는 이 커밋의 당시 미커밋 test-only 진단 변경에서 실행했다.
+- 최신 로컬 staging `artifacts/upm-stable-meta-20261113`, cache `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`. 내부 asset GUID 70회 비교 일치, Sample API가 생성하는 최상위 폴더 GUID 4회 불일치로 P08-T03 PARTIAL 유지.
+- 재개 시 AGENTS.md·START_HERE.md·이 원장·WORK_LOG 및 Git 상태를 읽고 P05-T03 원인과 named/URL 차이를 계속 조사한다. test-only `GAMEBRIDGE_PROCESS_STOREKIT_INIT`의 기본은 `named`, `url`은 명시 선택이다. 최신 source 전체 gate는 마지막 문서/진단 커밋 이후 재실행하지 않았고, 실제 계정·스토어·원격 push는 USER_SETUP에 남는다.

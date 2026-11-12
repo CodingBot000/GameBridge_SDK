@@ -2507,3 +2507,5 @@
 - runner가 해당 전용 AVD에서 HOME/재개, Wi-Fi·data 비활성 및 loopback host 접근 실패 확인, offline 발송, 연결 복원 후 재발송과 Player callback을 검증하도록 확장했다. 테스트 종료 시 변경한 네트워크는 복원하며 기존 기기를 변경하지 않는다. 실행 검증은 아직이다.
 - `python3 -m py_compile harness/run-unity-android-mock-push-e2e.py` 종료 0. 커밋 준비: Android lifecycle/network test harness와 미실행 범위만 저장한다.
 - `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본을 새 전용 AVD에서 재실행한다. 실제 Unity Player 메인 스레드 및 네트워크 차단·복구 검사 전 PASS가 아니다. 실행 전 기록을 커밋한다.
+- 수정된 `harness/run-unity-android-mock-push-e2e.py --run-local` 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-push-a82dcn48`). Unity Player의 실제 background/foreground callback, 에뮬레이터 Wi-Fi/data 차단 및 host TCP 접근 실패, offline 메시지 미관측, 네트워크 복구 후 새 LOCAL_MOCK 메시지 수신·main-thread, 등록 해제/로그아웃·서버 token 제거를 확인했다. 전용 AVD의 첫 전체화면 안내는 수동으로 닫았다. 프로세스 종료·재시작과 pending/실제 FCM은 미검증이다.
+- `docs/evidence/px-t08-unity-android-mock-push.md`에 별도 source·APK hash·실제 background/network 재검증 결과와 수동 안내를 추가했다. 커밋 준비: evidence 및 두 원장만 포함한다.

@@ -2675,3 +2675,9 @@
 - R40 Android 36 OS 두 차례 권한 거부·등록 차단은 실제 Player에서 부분 확인했다. iOS OS 권한·Mock 거부 주입과 R22의 SDK 로그/Unity 결과/Backend 오류 민감정보 검사 완료가 남았다. R40 test-only Firebase dependency/consumer는 이번 커밋에 포함하며 서비스 인증 및 원격 발송은 하지 않았다.
 - 네트워크 중단을 앞둔 사용자 요청에 따라 새 작업을 시작하지 않고 여기서 중단한다. 재개 시 문서와 Git 상태를 읽고 남은 R22/R40, strict-local 전체, CI Unity push 결과의 fresh-source 집계 및 README/FEATURE_MATRIX/FINAL_REPORT 일관성 감사를 계속한다. 기존 미추적 Demo/cache와 모든 테스트 artifacts·DB·AVD를 보존하고 push하지 않는다.
 - 중단 전 `python3 scripts/verify-progress.py`, `python3 harness/check-manifest.py`, `git diff --check` 종료 0. 커밋 준비: R40 test-only 코드/부분 증거, CI/FINAL_REPORT 현재 집계와 재개 기록만 포함한다. Unity Player 전체 또는 CI 성공을 새로 주장하지 않는다.
+### P09-T06 Unity Push 실측 집계 연결 시작
+- strict의 `unity-player-notifications`는 이전 Player PASS 이후에도 무조건 DEFERRED_ENV다. 명시적 opt-in과 별도 전용 Android AVD가 제공될 때만 현재 source의 Android/iOS Push Player runner를 새로 실행하고 각 result·marker를 검증해 집계하는 경로를 추가한다. 이전 결과 재사용, 누락·실패를 PASS로 바꾸는 것을 금지한다.
+- `harness/run-unity-push-current.py`는 별도 전용 Android AVD와 iOS 신규 Simulator에서 두 실제 Runner를 실행하며 정확한 source·clean·status·marker·재연결 거부·token 삭제를 확인한다. 미지정 시 strict lane은 계속 DEFERRED_ENV다. self-hosted CI는 인증/구매 AVD와 서로 다른 push AVD를 요구한다. 현재 구현은 아직 실제 재실행 전이다.
+- 현재 run source 일치·Player PASS·두 플랫폼 별 네트워크 결과·재연결 관측·token 삭제·필수 marker가 빠지면 false가 되는지 격리 result fixture로 음성 검증한다. 실제 Unity E2E를 테스트 fixture로 대체하지 않는다.
+- `test_unity_push_current.py` 1건, `test_ci_gate.py` 3건 PASS/skip 0. 둘 다 합성 증거 및 gate 검사다. Player 재실행은 NOT_RUN. 두 Player를 순차 실행하는 lane에 기존 600초 제한이 부족할 수 있고 테스트가 기존 artifacts 디렉터리를 가정하는 문제를 발견해 보완한다.
+- 깨끗한 checkout을 가정한 임시 root에서 Push 증거 단위 1건, CI gate 3건, 집계 13건 PASS/skip 0. Python compile, shell 구문 및 Ruby YAML parse PASS. 순차 Player 실행의 외부 timeout을 확장했다. 실제 양 플랫폼 Player 및 GitHub Actions는 이번 변경에서 NOT_RUN이다. 커밋 전: 관련 실행기·CI·검증 문서만 포함한다.

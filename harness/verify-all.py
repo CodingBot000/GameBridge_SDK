@@ -28,7 +28,7 @@ def main() -> int:
         print(f'Running {name}...', flush=True)
         try:
             result = subprocess.run(command,cwd=ROOT,env=environment or env,text=True,errors='replace',stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,timeout=1200,check=False)
+                                    stderr=subprocess.STDOUT,timeout=3600 if name == 'push' and env.get('GAMEBRIDGE_RUN_UNITY_PUSH_E2E') == 'true' else 1200,check=False)
             code, text = result.returncode, result.stdout
         except (OSError,subprocess.TimeoutExpired) as exc:
             code, text = 2, f'{type(exc).__name__}: suite unavailable or timed out\n'

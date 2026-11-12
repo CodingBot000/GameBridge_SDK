@@ -556,3 +556,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - `scripts/verify-all.sh --strict-local`은 이번 변경 후 **NOT_RUN**. 원격 GitHub Actions도 NOT_RUN. `harness/run-push-regression.py`의 Unity push 집계는 여전히 DEFERRED_ENV이므로 Release readiness가 PASS될 수 없다. 이 gate를 지우거나 기존 Player 증거를 현재 실행으로 속이지 말고 actual run 검증을 연결할 것.
 - 재개: 이 브랜치와 `git status` 확인 후 AGENTS·현재 파일을 읽고 R40 iOS/Mock 및 R22를 계속한다. staging `artifacts/upm-v2-20261112-f1e12b6`, package cache `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`. 기존 Demo·cache·AVD·DB 보존, 자동 push 없음.
 - 사용자 요청 중단 전 최종 원장·manifest 검사 PASS. Android 권한 부분 증거, 미완료 CI/strict 및 재개 지점을 로컬 커밋한다. push는 하지 않는다.
+- P09-T06 Unity Push 실제 실행 집계 연결 시작: 현재 run에서 Android/iOS Player runner를 각각 새로 실행하고 source·clean 상태·필수 marker를 검증해야만 해당 lane을 PASS로 집계한다. 기존 DEFERRED_ENV를 무조건 성공으로 바꾸지 않는다.
+- P09-T06 Unity push lane opt-in 실행기를 추가했다. 같은 실행에서 Android/iOS Player를 새로 실행하고 현재 HEAD·tracked-clean·7개 marker·재연결 거부 및 token 삭제를 확인한다. 실제 새 Player 실행은 아직 NOT_RUN이다.
+- P09-T06 Unity push 결과의 stale·dirty·미실행·marker 누락·잘못된 플랫폼 및 잘못된 token 삭제 값 거부를 단위 검증한다.
+- P09-T06 결과 검증: 현재 실행 증거의 음성 단위 시험 1건과 CI gate 음성 시험 3건 PASS. 실제 새 Player 실행은 NOT_RUN이며 CI의 기존 600초 제한과 깨끗한 checkout 테스트 조건을 보완한다.
+- P09-T06 재검증: Push 증거 단위 1건, CI gate 3건, 집계 13건 PASS; Python·shell 문법과 workflow YAML 구문 PASS. 합성 시험이며 실제 Player 및 GitHub Actions 재실행은 NOT_RUN. 커밋 준비.

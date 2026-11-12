@@ -3,10 +3,10 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
-for name in GAMEBRIDGE_UPM_STAGING GAMEBRIDGE_ANDROID_SERIAL GAMEBRIDGE_TEST_AVD_NAME; do
+for name in GAMEBRIDGE_UPM_STAGING GAMEBRIDGE_ANDROID_SERIAL GAMEBRIDGE_TEST_AVD_NAME GAMEBRIDGE_PUSH_ANDROID_SERIAL GAMEBRIDGE_PUSH_TEST_AVD_NAME; do
   if [[ -z "${!name:-}" ]]; then echo "DEFERRED_ENV: $name is required" >&2; exit 2; fi
 done
-if [[ "${GAMEBRIDGE_TEST_AVD_NAME}" != GameBridge_V2_* ]]; then echo 'DEFERRED_ENV: dedicated GameBridge_V2_ AVD required' >&2; exit 2; fi
+if [[ "${GAMEBRIDGE_TEST_AVD_NAME}" != GameBridge_V2_* || "${GAMEBRIDGE_PUSH_TEST_AVD_NAME}" != GameBridge_V2_* || "$GAMEBRIDGE_ANDROID_SERIAL" == "$GAMEBRIDGE_PUSH_ANDROID_SERIAL" ]]; then echo 'DEFERRED_ENV: dedicated GameBridge_V2_ AVD required' >&2; exit 2; fi
 if ! command -v unity >/dev/null 2>&1; then echo 'DEFERRED_ENV: Unity CLI missing' >&2; exit 2; fi
 set +e
 license_json="$(UNITY_NO_UPDATE_CHECK=1 unity license status --format json)"
@@ -15,7 +15,7 @@ set -e
 if [[ "$license_exit" != 0 ]] || ! python3 -c 'import json,sys; x=json.load(sys.stdin); sys.exit(0 if x.get("success") and (x.get("data") or {}).get("active") is True else 1)' <<< "$license_json"; then
   echo 'DEFERRED_ENV: active Unity license required' >&2; exit 2
 fi
-export GAMEBRIDGE_RUN_UNITY_EDITOR=true
+export GAMEBRIDGE_RUN_UNITY_EDITOR=true GAMEBRIDGE_RUN_UNITY_PUSH_E2E=true
 bash scripts/build-unity.sh --editor-smoke
 android_args=(--run-local --staging "$GAMEBRIDGE_UPM_STAGING" --serial "$GAMEBRIDGE_ANDROID_SERIAL" --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME")
 ios_args=(--run-local --adhoc --staging "$GAMEBRIDGE_UPM_STAGING")

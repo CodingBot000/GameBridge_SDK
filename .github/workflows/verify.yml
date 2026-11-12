@@ -32,6 +32,7 @@ jobs:
           python3 -m py_compile harness/run-unity-android-mock-e2e.py harness/run-android-mock-bridge-e2e.py harness/export-mock-e2e-evidence.py
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_export_mock_e2e_evidence.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ci_gate.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_push_current.py' -v
 
   backend-postgres:
     runs-on: ubuntu-24.04

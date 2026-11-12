@@ -18,7 +18,11 @@ def main():
         env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage)
         prepared=must(['bash','scripts/prepare-unity-android-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
         if not match:raise common.GateError('CONSUMER_PATH')
-        project=Path(match.group(1));shutil.copy2(ROOT/'tests/UnityAndroidPushConsumer/MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/LateCallbackProbe.cs',project/'Assets/LateCallbackProbe.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
+        project=Path(match.group(1))
+        if env.get('GAMEBRIDGE_UNITY_PACKAGE_CACHE'):
+            try: result['embeddedCachedPackages']=proxy_module.embed_cached_packages(Path(env['GAMEBRIDGE_UNITY_PACKAGE_CACHE']).resolve(),project)
+            except proxy_module.common.GateError as error: raise common.GateError(str(error),error.category) from error
+        shutil.copy2(ROOT/'tests/UnityAndroidPushConsumer/MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/LateCallbackProbe.cs',project/'Assets/LateCallbackProbe.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
         apk=out/'push-consumer.apk';build=run(['bash','scripts/build-unity-android-mock.sh',project,apk],timeout=1200,env=env);(out/'unity-build.log').write_text(build.stdout)
         if build.returncode: raise common.GateError('UNITY_BUILD_FAILED')
         result['apkSha256']=common.sha256(apk);result['player']='BUILT_NOT_RUN'

@@ -12,11 +12,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-def run(command, env, log):
+def run(command, env, log, timeout=600):
     started = time.time_ns()
     try:
         process = subprocess.run(command, cwd=ROOT, env=env, text=True, errors='replace',
-                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=600, check=False)
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=False)
         code, output = process.returncode, process.stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
         code, output = 2, f'{type(exc).__name__}: suite unavailable or timed out\n'

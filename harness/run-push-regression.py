@@ -83,7 +83,12 @@ def main() -> int:
             except (OSError,ValueError,subprocess.CalledProcessError): pass
         results.append(common.item('local-push-native-db-e2e',code,counts))
     else: results.append(common.item('local-push-native-db-e2e',2,(0,0,0)))
-    results.append({'suite':'unity-player-notifications','status':'DEFERRED_ENV','exitCode':2,'tests':0,'failures':0,'skipped':0})
+    if env.get('GAMEBRIDGE_RUN_UNITY_PUSH_E2E') == 'true':
+        code, text, _ = common.run(['python3','harness/run-unity-push-current.py'], env, output/'unity-push.log', timeout=3300)
+        counts = (2 if 'Unity push current-run PASS: Android and iOS LOCAL_MOCK Players, 2 tests' in text else 0,0,0)
+        results.append(common.item('unity-player-notifications',code,counts))
+    else:
+        results.append({'suite':'unity-player-notifications','status':'DEFERRED_ENV','exitCode':2,'tests':0,'failures':0,'skipped':0})
     head = subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()
     report = {'scope':'push-and-package-partial','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'suites':results}

@@ -8,12 +8,21 @@ using UnityEngine;
 // Dedicated local-mock test: no remote FCM and no credentials in logs.
 public sealed class MockPlayerScenario : MonoBehaviour
 {
+    private bool paused;
+    private readonly TaskCompletionSource<bool> resumed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    private void OnApplicationPause(bool value)
+    {
+        if (value) { paused = true; Debug.Log("GB_PUSH_BACKGROUND"); }
+        else if (paused) { Debug.Log("GB_PUSH_FOREGROUND"); resumed.TrySetResult(true); }
+    }
     private async void Start()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
         GameBridgeClient client = null; var stage = "configuration";
         var thread = Thread.CurrentThread.ManagedThreadId; int deliveries = 0; bool wrongThread = false;
         var received = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var reconnected = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        int offlineDeliveries = 0;
         try
         {
             using var unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -25,7 +34,7 @@ public sealed class MockPlayerScenario : MonoBehaviour
             if (string.IsNullOrEmpty(url) || !url.StartsWith("http://10.0.2.2:", StringComparison.Ordinal) || string.IsNullOrEmpty(key) || key.Length < 32 || !Guid.TryParse(installation, out _)) throw new InvalidOperationException("CONFIG_REQUIRED");
             var config = new GameBridgeConfig("gamebridge-sample", ProviderMode.LocalMock, url, 30000, key, "A", null, null, null, installation); key = null;
             client = GameBridgeSdk.Create(config);
-            client.PushReceived += item => { if (Thread.CurrentThread.ManagedThreadId != thread) wrongThread = true; if (item.MessageId == "unity-push-test") { deliveries++; Debug.Log("GB_PUSH_RECEIVED " + deliveries); received.TrySetResult(true); } };
+            client.PushReceived += item => { if (Thread.CurrentThread.ManagedThreadId != thread) wrongThread = true; if (item.MessageId == "unity-push-test") { deliveries++; Debug.Log("GB_PUSH_RECEIVED " + deliveries); received.TrySetResult(true); } if (item.MessageId == "unity-offline-test") offlineDeliveries++; if (item.MessageId == "unity-reconnected-test") { Debug.Log("GB_PUSH_RECONNECTED_RECEIVED"); reconnected.TrySetResult(true); } };
             stage = "initialize"; await client.InitializeAsync(config); CheckThread(thread); Log("initialize");
             stage = "login"; await client.SignInAsync(AuthProvider.MOCK); CheckThread(thread); Log("login");
             stage = "register"; var registered = await client.RegisterPushAsync(); CheckThread(thread);
@@ -36,6 +45,14 @@ public sealed class MockPlayerScenario : MonoBehaviour
             await Task.Delay(5000); CheckThread(thread);
             if (deliveries != 1 || wrongThread) throw new InvalidOperationException("DUPLICATE_OR_THREAD");
             Log("receive-deduplicate-main-thread");
+            stage = "background"; Debug.Log("GB_PUSH_WAIT_BACKGROUND");
+            if (await Task.WhenAny(resumed.Task, Task.Delay(60000)) != resumed.Task) throw new InvalidOperationException("LIFECYCLE_TIMEOUT");
+            CheckThread(thread); Log("background-foreground-main-thread");
+            stage = "network"; Debug.Log("GB_PUSH_WAIT_OFFLINE");
+            if (await Task.WhenAny(reconnected.Task, Task.Delay(90000)) != reconnected.Task) throw new InvalidOperationException("RECONNECT_TIMEOUT");
+            await Task.Delay(2000); CheckThread(thread);
+            if (offlineDeliveries != 0 || wrongThread) throw new InvalidOperationException("OFFLINE_DELIVERY_OR_THREAD");
+            Log("network-recovery-online-only");
             stage = "unregister"; await client.UnregisterPushAsync(); CheckThread(thread); Debug.Log("GB_PUSH_UNREGISTERED");
             stage = "logout"; await client.SignOutAsync(); CheckThread(thread); Debug.Log("GB_PUSH_LOGGED_OUT");
             await Task.Delay(5000); CheckThread(thread);

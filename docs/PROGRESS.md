@@ -393,3 +393,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 - PX-T08 Android LOCAL_MOCK Push Player E2E 시작: 새 전용 AVD·DB와 검증된 staging을 사용한다. 결과는 아직 NOT_RUN이다.
 - PX-T08 Android Unity Player LOCAL_MOCK Push 부분 PASS (`artifacts/unity-android-push-z1lufhpv`, exit 0): 등록·동일 ID 3회 발송 중복 억제·Unity main-thread 수신·등록 해제/로그아웃 후 이벤트 미전달·token 삭제 확인. 최초 전체화면 안내는 전용 AVD에서 수동으로 닫았다. background/network/restart 및 iOS는 NOT_RUN이다.
 - PX-T08 Android Push 부분 PASS만 `docs/evidence/px-t08-unity-android-mock-push.md`에 기록했다. Lifecycle·네트워크·프로세스 재시작과 iOS는 NOT_RUN이며 전체 완료가 아니다. 커밋 후 별도 검증을 계속한다.
+- PX-T09 Android lifecycle·네트워크 복구 검증 시작: 앱 background/foreground와 전용 에뮬레이터의 네트워크 단절·복구를 실제로 조작해 이벤트·재연결을 확인한다. 프로세스 강제 종료는 별도다.
+- PX-T09 Player 시나리오에 실제 pause/resume과 오프라인 메시지 미관측·재연결 후 새 메시지 수신 검사를 추가했다. 실제 Player 실행은 아직 NOT_RUN이다.
+- PX-T09 Android managed compile PASS(경고·오류 0). runner에 실제 HOME→foreground, 전용 AVD의 Wi-Fi/data 차단·복구 및 offline/online 발송을 추가했다. 실제 실행은 아직 NOT_RUN이다.
+- PX-T09 runner 문법 검사 PASS. 수정 시나리오와 진행 기록을 커밋한 뒤 새 AVD의 실제 Player에서 검증한다.

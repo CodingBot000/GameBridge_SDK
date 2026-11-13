@@ -951,3 +951,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P00-T05 iOS sandbox 누락 설정 Unity Simulator Player 실제 검증 시작: 최신 stage, example.invalid 및 test-only consumer 사용. Apple 계정 UI/원격 호출은 의도하지 않는다.
 - iOS Unity sandbox 설정 누락 경계 PASS (`artifacts/unity-sandbox-config-ios-c9m2245o`): store/installation key reason 및 products CONFIG_REQUIRED, tracked-clean. 실제 Apple 계정·서버·스토어 호출은 아님.
 - iOS sandbox config test Simulator shutdown·데이터 보존. iOS 결과 커밋 준비, Android Player는 미실행이다.
+- P00-T05 Android sandbox 누락 client ID Unity Player 실제 검증 시작: 앱 미설치 전용 AVD, example.invalid. Google 계정 UI/원격 호출은 수행하지 않는다.

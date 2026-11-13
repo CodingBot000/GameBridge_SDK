@@ -3143,3 +3143,4 @@
 - `run-unity-sandbox-config.py --platform ios`에서 실제 Unity iOS bridge가 store/installation 누락 key capability와 products CONFIG_REQUIRED를 반환하는지 확인한다. 시작 기록을 먼저 커밋한다. 실 Apple 인증/스토어 UI는 실행하지 않는다.
 - `run-unity-sandbox-config.py --platform ios` exit 0 (`artifacts/unity-sandbox-config-ios-c9m2245o`): 새 iOS Simulator Unity Player에서 store/installation 누락 key capability와 products CONFIG_REQUIRED/no-fallback marker PASS, tracked-clean. Apple 계정/스토어·서버는 호출하지 않았다.
 - iOS sandbox config test Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 부분 결과만 기록하며 Android Player와 실제 provider는 미실행이다.
+- `run-unity-sandbox-config.py --platform android`에서 실제 Unity Android bridge의 누락 key capability 및 Google sign-in CONFIG_REQUIRED/no-fallback를 확인한다. 새 전용 AVD를 사용하며 시작 기록만 먼저 커밋한다.

@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05-T03 / iOS 26.5 StoreKit 독립 원인 분리
+- 현재 Phase / Task: P05-T03 / StoreKit 독립 앱 simctl launch 비교
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 독립 XCTest 비교 결과를 커밋·인계한다. 다음에는 SDK 없는 독립 앱과 XCTest의 launch 환경 차이를 조사한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 재현 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: 독립 앱 비교 결과를 커밋·인계한다. 다음에는 XCTest host 의존성의 지원 범위를 공식 자료 또는 정적 진단으로 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
@@ -1216,3 +1216,31 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P05-T03 커밋 전 원장·diff PASS, 신규 Simulator 2대 shutdown 확인. 독립 test fixture/runner 및 정제 evidence·진행 문서만 stage한다. 제품 StoreKit Provider·원본 xcresult·로그·사용자 미추적 파일은 제외한다.
 
 - P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 독립 재현 코드와 정제 문서만 커밋한다.
+
+- P05-T03 독립 앱 비교 시작: HEAD/원격 b4b4c37 일치, 이전 XCTest 양 runtime PASS. SDK·Backend 없이 기존 설정의 app bundle URL과 simctl launch를 비교한다.
+
+- P05-T03 독립 앱 경로 작성: 명시 opt-in일 때만 app bundle `Current.storekit` URL을 사용하며 started·생성 전·생성 후·예외를 각각 별도 파일로 기록한다. 테스트 build·runtime 실행 전이다.
+
+- P05-T03 독립 앱 runner 문법·원장·diff PASS. 동일 app을 build한 뒤 18.6/26.5 새 simulator에서 각각 한 번 launch하고 각 75초 checkpoint를 대기한다. 빌드·framework 실패는 session 실패와 분리한다.
+
+- P05-T03 독립 UIKit app build exit 0, app bundle 설정 파일 존재 확인. iOS 18.6 전용 Simulator를 새로 생성했고 앱 실행 결과는 아직 미확정이다.
+
+- P05-T03 iOS 18.6 독립 앱 simctl launch exit 0, 시작·세션 생성 전·생성 후 checkpoint 확인 PASS, timeout 없음. XCTest 없는 standalone이며 실제 스토어는 아니다.
+
+- P05-T03 독립 앱 iOS 26.5 `simctl launch` exit 0, started·session-create-before checkpoint 뒤 75초 동안 생성 후/예외 미기록으로 FAIL timeout (`artifacts/storekit-standalone-zu6etuhp`). 18.6은 생성 후 checkpoint PASS. timeout과 앱 조기 종료를 분리하기 위해 보존된 launch/terminate 및 결과를 대조한다. 기존 P05-T03 FAIL을 유지한다.
+
+- P05-T03 블로커: 26.5 종료 확인 로그는 대상 프로세스가 이미 없다고 보고하고, 해당 PID의 Simulator 진단 보고서는 SIGABRT를 기록했다. 따라서 최초 runner의 `session-create-timeout` 표기는 부정확하며 앱이 checkpoint 이후 종료된 사실과 종료 원인을 별도로 분석한다. 기존 P05-T03 FAIL 유지.
+
+- P05-T03 원인 분리: 신규 26.5 독립 앱 PID 87401의 crash report는 SIGABRT이며 StoreKitTest `XCTestLibrary` → `__getXCTestConfigurationClass_block_invoke` → `SKTestSession` stack이다. 기존 통합 앱의 17:00:37 crash report도 같은 함수 경로를 보여주지만 정확한 실행 매칭을 추가 확인한다. XCTest 프레임워크를 주입하거나 우회하지 않는다.
+
+- P05-T03 기존 crash report의 simulator UUID `481932FB-...`가 `artifacts/xcode-process-recovery-na8yq85t/result.json`과 일치한다. 기존 통합 앱도 해당 시도에 SIGABRT 및 동일 StoreKitTest XCTestLibrary 호출 경로를 보였다. 당시 runner는 앱 종료를 감지하지 못해 75초 checkpoint timeout으로 보고했다. 새 독립 앱도 같은 유형이지만 Apple 내부 원인이나 수정법은 미확정이다.
+
+- P05-T03 기존 통합 앱 crash UUID는 이전 timeout 결과의 simulator UUID와 일치하며 SIGABRT stack의 StoreKitTest `XCTestLibrary` 경로가 신규 독립 앱과 동일하다. 새 진단 runner에 앱 조기 종료와 timeout 구분을 추가했고 단위 1건 PASS/skip 0. 분류 보강을 확인하기 위해 26.5 신규 Simulator에서 제한적 진단 1회를 추가한다.
+
+- P05-T03 진단 보강 후 26.5 신규 Simulator 1회: launch exit 0, 생성 전 checkpoint 이후 프로세스 종료를 `app-exited-during-session-create` FAIL로 감지 (`artifacts/storekit-standalone-6ieup1xl`, 전체 exit 1). 초기 결과의 timeout 오분류는 그대로 보존하고 crash 근거로 정정한다.
+
+- P05-T03 독립 앱: 18.6 PASS, 26.5 세션 생성 중 SIGABRT FAIL(재대조 1회 동일). XCTest 양 runtime PASS와 구분하며 기존 FAIL/ENV-STOREKIT-26 OPEN을 유지한다. [비교 evidence](evidence/p05-storekit-26-isolation.md).
+
+- P05-T03 커밋 전: standalone 분류 단위 1건 PASS, 원장·diff PASS, 전용 Simulator 3대 shutdown 확인. 실제 실행 앱·runner·정제 evidence만 stage하며 기존 통합 앱, 제품 Provider, 원본 crash report·사용자 파일은 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 재현 코드와 정제 문서만 커밋한다.

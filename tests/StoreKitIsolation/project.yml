@@ -8,11 +8,15 @@ targets:
     platform: iOS
     sources:
       - App.swift
+      - path: Current.storekit
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: invalid.gamebridge.storekit.isolation
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: '5.0'
+        FRAMEWORK_SEARCH_PATHS: "$(inherited) $(SDKROOT)/Developer/Library/Frameworks"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks $(PLATFORM_DIR)/Developer/Library/Frameworks"
   IsolationTests:
     type: bundle.unit-test
     platform: iOS

@@ -1027,3 +1027,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P01-T04 CI Swift 필터와 동일한 host 실행은 필수 6개 class, XCTest 16건 PASS/skip 0 (`artifacts/p01-fake-swift-ci.log`); Android Fake는 직전 JUnit 1건 PASS. GitHub Actions/macOS CI 자체는 NOT_RUN이며 원본 로그는 커밋하지 않는다.
 
 - P01-T04 CI YAML 파싱·원장·diff 검사 PASS. 커밋 전: 테스트 필터 및 기록만 포함하며 원격 CI와 실제 플랫폼을 완료로 표시하지 않는다.
+
+- P01-T05 시작: Native BackendClient의 mock HTTP 200/401/timeout/invalid JSON, token 저장·redaction 및 개발 HTTP 제한에 대한 현행 코드와 테스트를 대조한다. 실제 provider·실기기 보안 저장소는 구분한다.
+
+- P01-T05 양 Native `BackendClientTest(s)`에 200/401/timeout/invalid JSON·오류 redaction 검사가 있으나 현재 원격 workflow 필수 필터에서 빠져 있다. 분리된 CI 명령 및 비어 있는 테스트 방지 검사를 연결하고 로컬 실행한다.
+
+- P01-T05 Android local loopback `BackendClientTest` JUnit 1건과 Swift URLProtocol stub `BackendClientTests` XCTest 1건 PASS/skip 0: HTTP 상태/timeout/invalid JSON 및 합성 오류 redaction. Kotlin 별도 파일 deprecated URL 경고 1건; 실제 원격 서버·TLS·실기기 저장소 검증이 아니다. CI remote NOT_RUN.
+
+- P01-T05 커밋 전 CI YAML 파싱·원장·diff PASS. 필수 테스트 CI 연결과 로컬 실행 증거만 포함하고 Task 및 실플랫폼 검증은 PARTIAL로 유지한다.

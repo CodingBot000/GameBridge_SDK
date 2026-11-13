@@ -57,3 +57,7 @@ P09-T08에서 현재 source의 격리 DB를 사용하는 ledger mutation과 정�
 - `python3 harness/check-manifest.py`, `python3 harness/check-manifest-negative.py`, `python3 scripts/verify-progress.py` 및 CI YAML 파싱 PASS. GitHub Actions 실행은 NOT_RUN.
 
 P09 전체 및 P09-T08은 PARTIAL을 유지한다. 다음 P09-T08 작업은 격리 DB ledger mutation과 정상 suite다. 해당 DB 시험은 이번 범위에서 실행하지 않았다.
+
+## P09-T08 원장 mutation — 2026-11-13
+
+새 전용 PostgreSQL DB와 각각 독립된 두 schema에서 mutation 및 정상 원장 테스트를 실행했다. mutation Gradle exit 1은 의도한 중복 UNIQUE 제약 assertion 실패 1건이며 정상 Gradle exit 0은 1건 PASS/skip 0이다. 최종 하네스 exit 0과 두 JUnit XML·제약 대조는 [원장 mutation 증거](p09-ledger-mutation-20261113.md)에 기록했다. 전체 strict와 외부 provider는 이번에 실행하지 않았으며 P09-T08은 PARTIAL이다.

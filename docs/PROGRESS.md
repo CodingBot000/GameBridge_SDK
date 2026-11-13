@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T08 / manifest 실행 경로 및 명령 검증 보완
+- 현재 Phase / Task: P09-T08 / 격리 PostgreSQL 원장 mutation 검증
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 이번 P09-T08 실행 guard 보완은 검증 후 커밋·인계한다. 다음 P09-T08 작업은 격리 DB ledger mutation 및 정상 suite이며 이번에는 실행하지 않는다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md·P09-T08 계획과 원장 및 Git 상태를 확인하고 이번 P09-T08 실행 경로 보완을 검증한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: 원장 mutation 및 정상 대조 결과를 커밋·인계한다. 다음 P09-T08 미완료 자체 시험을 독립적으로 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 재개 행동: AGENTS.md·START_HERE.md·P09-T08 계획과 원장 및 Git 상태를 확인하고 격리 DB ledger mutation 및 정상 회귀를 이어서 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
@@ -1111,3 +1111,23 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T08 재검증 aggregation 13건·CI gate 6건·manifest 음성·diff PASS/skip 0. 커밋 전 실행 guard·명령 allowlist·독립 테스트·CI 연결 및 정제 문서만 개별 stage한다. 원격 CI·실 provider 미실행, P09 전체 PARTIAL 유지.
 
 - P09-T08 stage 검사: gitleaks 8.24.2 staged diff exit 0, 탐지 0건. 커밋 전 검사 결과 기록만 다시 stage하고 diff를 확인한다.
+
+- P09-T08 DB mutation 시작: 로컬·handoff 원격 HEAD 37061d9 일치. 기존 Docker PostgreSQL은 127.0.0.1:54329에서 실행 중이며 새 DB/role·서로 다른 test schema만 사용한다.
+
+- P09-T08 하네스 보강: mutation/정상 JUnit XML을 각각 보존하고 실행 시각·Gradle exit·tests/failures/errors/skipped·예상 assertion을 검사한다. 문법·diff 검사 PASS; DB 실제 실행은 다음 단계다.
+
+- P09-T08 새 전용 DB `gamebridge_ci_4e486cab7f`에서 `check-ledger-mutation.py` exit 0 (`artifacts/ledger-mutation-il0fvfi4`): mutation Gradle exit 1, JUnit 1건 중 예상 실패 1·errors/skip 0; 별도 신규 스키마 정상 Gradle exit 0, 1건 PASS·errors/skip 0. XML 두 파일을 각각 보존했다. 스키마·제약 실상태를 추가 대조한다.
+
+- P09-T08 보존 XML 대조: mutation은 정확히 `DataIntegrityViolationException`이 발생하지 않았다는 assertion 실패, 정상은 동일 testcase PASS. 전용 DB에는 서로 다른 신규 schema 2개가 있고 각각 purchase_id UNIQUE 제약 0개/1개로 확인됐다. 제약 이름·예상 실패 유형을 하네스에서 더 엄격히 판별한다.
+
+- P09-T08 XML 판정 단위 1건 PASS/skip 0: stale report, 무관 실패, skip/error, 다른 testcase를 거부하고 정확한 실패·정상 결과만 허용한다. 이 수정 후 새 DB에서 mutation/정상을 다시 실행한다.
+
+- P09-T08 보강 후 새 DB `gamebridge_ci_54affdf462`에서 하네스 exit 0 (`artifacts/ledger-mutation-1mys19ze`): mutation Gradle exit 1, 정확한 제약 assertion 실패 1/1, errors·skip 0; 정상 Gradle exit 0, 1/1 PASS·errors/skip 0. 두 JUnit XML은 각 별도 파일로 보존됐다. DB별 제약을 재확인한다.
+
+- P09-T08 수정 후 DB 제약 직접 대조 PASS: mutation schema `gb_ledger_invariant_93b32ebcf60f49ed9ad8438b93b46cf8` UNIQUE 0, 정상 schema `gb_ledger_invariant_b0a86827754944719fbca5606f012e75` UNIQUE 1. XML testcase·실행/실패/error/skip 수 일치. DB/role/schema는 보존했다.
+
+- P09-T08 DB mutation·정상 대조 한 단위 PASS: [정제 evidence](evidence/p09-ledger-mutation-20261113.md). P09-T08 전체 IN_PROGRESS/PARTIAL, iOS 26.5 FAIL과 실제 provider WAITING_USER 유지.
+
+- P09-T08 보고서 판정 단위 1건·진행 원장·CI YAML·diff PASS. 커밋 전: 하네스 freshness/정확한 실패 확인, 단위시험, 정제 evidence 및 진행 문서만 개별 stage한다. P09 전체 PARTIAL과 실 provider 미검증 유지.
+
+- P09-T08 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 이 기록만 다시 stage하고 관련 파일만 커밋한다.

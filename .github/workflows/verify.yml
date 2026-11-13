@@ -37,6 +37,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_aggregation.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_manifest_execution_guard.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ledger_mutation_report.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_self_check_report.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_entrypoint_exit_codes.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_smoke_local_exit.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gitignore_secrets.py' -v

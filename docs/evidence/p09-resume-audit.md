@@ -61,3 +61,7 @@ P09 전체 및 P09-T08은 PARTIAL을 유지한다. 다음 P09-T08 작업은 격�
 ## P09-T08 원장 mutation — 2026-11-13
 
 새 전용 PostgreSQL DB와 각각 독립된 두 schema에서 mutation 및 정상 원장 테스트를 실행했다. mutation Gradle exit 1은 의도한 중복 UNIQUE 제약 assertion 실패 1건이며 정상 Gradle exit 0은 1건 PASS/skip 0이다. 최종 하네스 exit 0과 두 JUnit XML·제약 대조는 [원장 mutation 증거](p09-ledger-mutation-20261113.md)에 기록했다. 전체 strict와 외부 provider는 이번에 실행하지 않았으며 P09-T08은 PARTIAL이다.
+
+## P09-T08 통합 자체시험 — 2026-11-13
+
+새 전용 local-mock/sandbox DB에서 9개 lane을 실제 실행해 자체시험 exit 0. 독립 sandbox fake token 401 JUnit, 예상된 계약·원장 mutation 실패, 정상 contract 결과 및 각 lane의 테스트·검사 수는 [통합 자체시험 증거](p09-self-check-20261113.md)에 기록했다. 전체 strict 및 실제 Provider 인증은 실행하지 않았고 P09 전체는 PARTIAL이다.

@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T08 / 격리 PostgreSQL 원장 mutation 검증
+- 현재 Phase / Task: P09-T08 / 통합 하네스 자체시험
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 원장 mutation 및 정상 대조 결과를 커밋·인계한다. 다음 P09-T08 미완료 자체 시험을 독립적으로 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md·P09-T08 계획과 원장 및 Git 상태를 확인하고 격리 DB ledger mutation 및 정상 회귀를 이어서 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: P09-T08 통합 자체시험 9개 lane 결과를 커밋·인계한다. 전체 strict 및 실제 Provider 검증은 별도다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 재개 행동: AGENTS.md·START_HERE.md·P09-T08 계획과 원장 및 Git 상태를 확인하고 통합 하네스 자체시험을 수행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
@@ -1131,3 +1131,29 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T08 보고서 판정 단위 1건·진행 원장·CI YAML·diff PASS. 커밋 전: 하네스 freshness/정확한 실패 확인, 단위시험, 정제 evidence 및 진행 문서만 개별 stage한다. P09 전체 PARTIAL과 실 provider 미검증 유지.
 
 - P09-T08 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 이 기록만 다시 stage하고 관련 파일만 커밋한다.
+
+- P09-T08 통합 자체시험 시작: 시작 및 handoff 원격 HEAD c9f9dfb 일치. 기존 manifest guard·원장 mutation 구현은 재작성하지 않는다.
+
+- P09-T08 자체시험 보강: sandbox에서 별도 challenge 뒤 합성 mock identity에 401을 요구하는 독립 JUnit을 추가하고 해당 testcase만 실제 실행·식별하도록 연결했다. marker 실행은 테스트 건수가 아닌 checker 1회로 기록하고 정상 contract JSON의 Kotlin/Swift 건수를 집계한다. 아직 통합 실행 전이다.
+
+- P09-T08 통합 실행: 전용 DB `gamebridge_ci_575ffbea78_local`·`gamebridge_ci_575ffbea78_sandbox` 및 새 role 생성 후 각 프로필 bootstrap/health 통과. 9개 lane 실제 실행 중이며 전체 결과는 아직 미확정, DB와 role은 보존한다.
+
+- P09-T08 통합 자체시험 첫 실행 exit 0 (`artifacts/harness-self-1wlemrje`): 9/9 lane PASS, checker 6 lane 각 1회·failed/zero 3회, sandbox 독립 JUnit 1건, Kotlin/Swift 22건 및 C# smoke 1회. 위 수치는 7개 checker 실행을 제품 test case로 세지 않는다. 결과 보존·집계 실패 경계 검사를 보강한 뒤 전체를 다시 실행한다.
+
+- P09-T08 보고서 guard 단위 2건 PASS/skip 0: sandbox 지정 testcase·fresh JUnit·실패/skip 및 누락·0건·exit 실패를 거부한다. sandbox JUnit은 실행 증거 디렉터리에 복사하며 최종 수정본의 9개 lane을 새 전용 DB에서 재실행한다.
+
+- P09-T08 최종 수정본 자체시험 exit 0 (`artifacts/harness-self-0wr81lum`), 새 local/sandbox DB `gamebridge_ci_8c603a61f1_*`: 9/9 lane PASS/skip 0. checker 6 lane 각 1회·failed/zero 3회, sandbox 독립 JUnit 1건, Kotlin/Swift 22건 및 C# smoke 1회. 실행별 XML과 음성 실패 원인을 대조한다.
+
+- P09-T08 최종 실행 증거 대조: sandbox 독립 testcase 1건·정상 contract Kotlin/Swift 22건, ledger 내부 mutation 예상 실패 1건 및 정상 1건 확인. 계약 변조 내부 Kotlin/Swift 실행·예상 실패 수도 별도 집계하기 위해 실제 하위 JSON 경로를 연결한다.
+
+- P09-T08 집계 보강: 계약 변조의 Kotlin/Swift 실제 실행·예상 실패 2건과 C# smoke 정상, 원장 mutation·정상 JUnit 각 1건을 하위 결과에서 읽어 기록한다. 예상 실패를 별도 표시하고 무관한 C# 실패·누락은 거부한다. 수정 후 전체 9 lane을 다시 실행한다.
+
+- P09-T08 최종 통합 자체시험 `artifacts/harness-self-_hrkwuit` exit 0, 새 local/sandbox DB `gamebridge_ci_d9834a1423_*`: 9/9 PASS, 무관 실패·errors·skip 0. 계약 변조 Kotlin/Swift 22건(예상 실패 2), 원장 변조/정상 2건(예상 실패 1), sandbox 401 1건, 정상 계약 22건과 별도 checker 수가 보고됐다.
+
+- P09-T08 실행 증거 대조: sandbox 독립 XML testcase 1건·failure/error/skip 0, 정상 contract Kotlin 10·Swift 12·C# smoke 1, ledger JUnit mutation/정상 각 1건과 예상 Gradle exit 1/0을 확인했다. 실제 Provider 인증과 전체 strict 검증은 실행하지 않았다.
+
+- P09-T08 통합 자체시험 9/9 PASS·exit 0: [정제 evidence](evidence/p09-self-check-20261113.md). 테스트·checker 호출과 예상 mutation 실패를 구분한다. 전체 strict 미실행, P09 전체 PARTIAL 유지.
+
+- P09-T08 보고서 guard 2건·원장 및 manifest 검사·CI YAML·diff PASS/skip 0. 커밋 전: 독립 sandbox 401 test, 9 lane 정확한 집계·자체 단위시험·CI 및 정제 evidence/진행 문서만 개별 stage한다. 원본 로그·키·DB는 제외한다.
+
+- P09-T08 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 해당 기록을 stage해 관련 변경만 로컬 커밋한다.

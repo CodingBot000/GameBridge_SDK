@@ -77,3 +77,21 @@ Runner 전체 exit 0, 산출물 `artifacts/storekit-isolation-04skqp6v/result.js
 독립 runner 전체 exit 1; 정제된 결과와 두 xcresult 위치는 `artifacts/storekit-isolation-products-dwknj5y4/result.json`. 26.5 assertion은 예외 없이 반환된 빈 집합과 기대 ID 집합이 달랐다는 실패다. 이전 GameBridge `.xcresult`의 26.5 두 시험은 그 빈 조회 이후 구매 경로가 `SdkFailure(PRODUCT_NOT_FOUND)`를 던졌다. 이전의 일반 앱 `SIGABRT`는 별도 실행 경로이며 이번에 재실행하지 않았다. 새 Simulator 둘은 shutdown했고 삭제하지 않았다. 실제 Apple sandbox 계정·credential이나 원격 결제는 사용하지 않았다. StoreKit의 내부 네트워크 경로는 별도로 캡처하지 않아 외부 요청 발생 여부까지 단정하지 않는다.
 
 **결론:** 같은 기존 설정과 SDK 없는 XCTest에서도 18.6은 두 상품을 반환하고 26.5는 빈 목록을 반환해 런타임별 차이가 재현됐다. 이는 GameBridge SDK의 상품 mapping 코드만으로 설명되지 않는다는 근거다. 그러나 실제 활성 configuration이나 Xcode/StoreKitTest와 runtime의 상호작용은 아직 확인되지 않아 Apple 내부 결함이나 특정 scheme 수정으로 단정하지 않는다. 다음 한 작업은 새 격리 테스트에서 공식 지원되는 설정 활성화 경로와 실제 활성 configuration을 확인하는 것이다. `P05-T03 FAIL`, `ENV-STOREKIT-26 OPEN`, 실제 Apple sandbox `WAITING_USER` 및 P09 PARTIAL을 유지한다. 원본 로그·`.xcresult`·Simulator 데이터는 Git에 포함하지 않는다.
+
+## iOS 26.5 Scheme StoreKit configuration A/B — 2026-11-14
+
+시작 HEAD `b2937ba1f787423a459b48616b6a0623e754a3cd` 위 미커밋 진단 runner로 `python3 harness/run-storekit-scheme-ab.py --run-local`을 실행했다. Xcode 26.6 (17F113), XcodeGen 2.46.0, iOS 26.5 (23F77), 각각 새 iPhone 16 Simulator를 사용했다. 실행 시 `sourceTrackedDirty=true`는 진단 runner·진행 문서 변경이다.
+
+[Apple의 StoreKit Testing 설정 문서](https://developer.apple.com/documentation/Xcode/setting-up-storekit-testing-in-xcode)는 Scheme의 **Run action → Options → StoreKit Configuration**을 설명한다. [XcodeGen ProjectSpec](https://github.com/yonaskolb/XcodeGen/blob/master/Docs/ProjectSpec.md)은 `run.storeKitConfiguration`을 지원한다. 두 자료만으로 RunAction 참조가 `xcodebuild test`의 TestAction에서 활성화된다고 단정하지 않는다. 이 실험에서 TestAction의 실제 활성 configuration은 **NOT_CONFIRMED**이며 내부 네트워크 경로도 측정하지 않았다.
+
+- A는 기존 `Isolation` scheme 그대로, B는 격리 복사본에만 `run.storeKitConfiguration: Current.storekit`을 추가했다. XcodeGen은 명시적 run stanza에서 비어 있는 `CommandLineArguments` 요소도 생성하므로 B의 그 빈 요소만 제거한 뒤 비교했다. 최종 실제 scheme XML은 LaunchAction의 `StoreKitConfigurationFileReference` (`../../Current.storekit`) 한 요소만 달랐다. 비지원 XML 속성은 추가하지 않았다.
+- A/B의 app·test source와 설정 파일 바이트는 각각 동일했다. `SessionTests.swift` SHA-256 `405c8de805a50a376c254ed24465982d7b71dcfcf1d6fb676e0714f91d8288e4`, `Current.storekit` SHA-256 `4ead467555cf567cdbdfed14c7f2b7790123ee9f91ccda4d7053b001b9def19d`. 동일한 `testExistingConfigurationProducts`만 각 1회 실행했으며 구매·pending·지급은 실행하지 않았다.
+
+| 설정 | 신규 26.5 Simulator | SKTestSession | Product ID | XCTest 결과 |
+|---|---|---|---|---|
+| A: 기존 scheme | `5A2D0A3A-2FAB-4F10-AA16-FE4CAD367C7D` | PASS | `[]` | 1건 FAIL, skip 0, exit 65 |
+| B: RunAction StoreKit 참조 | `E8C717F0-0630-4640-A67B-077964E4097B` | PASS | `[]` | 1건 FAIL, skip 0, exit 65 |
+
+두 xcresult 모두 반환된 빈 집합이 `coins_100`, `premium_unlock` 기대 집합과 다르다는 assertion 실패다. 전체 runner exit 1, 로컬 evidence는 `artifacts/storekit-scheme-ab-izz719r6/result.json`과 `A.xcresult`, `B.xcresult`다. 초기 생성 `artifacts/storekit-scheme-ab-2ytgnfm0`은 빈 인자 요소 차이를 감지해 시험 실행 전에 exit 1로 중단했으며 그 이력도 보존한다. 두 새 Simulator는 shutdown했고 삭제하지 않았다. 원본 로그·xcresult·Simulator 데이터는 Git에 포함하지 않는다.
+
+**판정:** 이 환경에서 RunAction 참조를 추가하는 한 가지 변경만으로는 26.5 XCTest의 빈 상품 반환이 해소되지 않았다. 두 TestAction의 활성 설정이 같았는지, 참조가 적용됐는지 확인하지 못했으므로 결과만으로 적용 여부나 Apple 내부 원인을 단정하지 않는다. 추가적인 동일 runtime 우회 실험은 중단하고, 재현 절차는 [Apple Feedback 초안](p05-storekit-26-feedback-draft.md)에 정리했다. 자동 제출하지 않았다. P05-T03 FAIL, ENV-STOREKIT-26 OPEN, 실제 Apple sandbox WAITING_USER 및 P09 PARTIAL을 유지한다.

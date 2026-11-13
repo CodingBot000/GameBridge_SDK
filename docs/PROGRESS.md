@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05-T03 / 독립 XCTest StoreKit 상품 조회 원인 분리
+- 현재 Phase / Task: P05-T03 / StoreKit Scheme configuration A/B 비교
 - 마지막 갱신 시각: 2026-11-14 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 독립 XCTest 상품 조회 결과를 커밋·인계한다. 다음에는 공식 지원되는 활성 configuration 확인 경로를 조사한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: A/B 실패 evidence와 Feedback 초안을 인계한다. 동일 runtime 우회 반복을 중단하고 P09 미완료 항목으로 복귀한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1290,3 +1290,25 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P05-T03 커밋 전: 26.5/18.6 xcresult 각 1건·실패/skip 및 config hash, 원장·diff 검사 확인. 독립 XCTest·runner·정제 evidence와 진행 문서만 stage하며 제품 Provider·원본 로그·xcresult는 제외한다.
 
 - P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 관련 테스트·정제 문서만 커밋한다.
+
+- P05-T03 scheme A/B 시작: 시작 HEAD/원격 b2937ba 일치. 기존 26.5 독립 XCTest 상품 미조회 결과는 유지하며 두 복사본에서 run.storeKitConfiguration 변수만 비교한다.
+
+- P05-T03 A/B runner 문법·원장·diff PASS. 복사본의 앱·test·설정 바이트 및 StoreKit 참조 제거 후 scheme XML 동일성을 검증한 뒤에만 새 26.5 Simulator 각 1회씩 상품 조회한다. 실제 활성 config는 별도 NOT_CONFIRMED다.
+
+- P05-T03 A/B 초기 준비는 scheme 정규화 비교에서 차이를 감지해 exit 1 (`artifacts/storekit-scheme-ab-2ytgnfm0`), Simulator·XCTest는 아직 실행하지 않았다. StoreKit 참조 외 생성 차이의 원인을 확인한다.
+
+- P05-T03 초기 scheme 차이는 XcodeGen이 B의 run stanza에 빈 `CommandLineArguments`를 추가한 것이었다. A 원본은 그대로 두고 B의 빈 요소만 제거해 실제 scheme의 의미 및 요소가 StoreKit 참조 하나만 다르도록 정규화한다. 비지원 설정·우회는 추가하지 않는다.
+
+- P05-T03 A/B 재생성: A 원본 scheme 유지, B의 XcodeGen 빈 인자 요소 제거 후 StoreKit 참조 외 XML 구조 동일 PASS; test/app/config 바이트도 동일. 새 26.5 Simulator A 실행 중이다.
+
+- P05-T03 A(기존 scheme) iOS 26.5: 세션 생성 PASS, 상품 빈 배열 FAIL, XCTest exit 65. B 전용 신규 Simulator 대조 진행 중이다.
+
+- P05-T03 A/B 26.5 결과: A·B 모두 SKTestSession PASS, 상품 조회 빈 배열 FAIL, 각 XCTest 1건 실패/skip 0·exit 65, runner exit 1 (`artifacts/storekit-scheme-ab-izz719r6`). RunAction 참조만으로 문제는 해소되지 않았으며 실제 TestAction 활성 설정은 NOT_CONFIRMED다. 반복 우회 실험은 중단한다.
+
+- P05-T03 A/B 두 xcresult 대조: 각 1건 실패·skip 0, 빈 배열과 두 ID의 XCTAssert 불일치. 앱·test·두 설정 복사본 해시 일치, 실제 scheme diff는 LaunchAction StoreKit 참조뿐이다. 새 Simulator 둘은 shutdown·보존했다.
+
+- P05-T03 scheme A/B: 26.5 세션 각 PASS, 상품 두 시험 모두 빈 배열 FAIL. TestAction 활성 설정 NOT_CONFIRMED, 기존 FAIL/OPEN 유지. [A/B evidence](evidence/p05-storekit-26-isolation.md), [미제출 Feedback 초안](evidence/p05-storekit-26-feedback-draft.md).
+
+- P05-T03 커밋 전: A/B xcresult·원장·diff 확인. A/B test-only runner와 정제 evidence·미제출 Feedback 초안·진행 문서만 stage한다. 원본 로그·xcresult·사용자 파일은 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0·탐지 0건. 비교 코드와 정제 문서만 커밋한다.

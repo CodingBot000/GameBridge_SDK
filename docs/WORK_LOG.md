@@ -3475,3 +3475,25 @@
 - P05-T03 커밋 전: 26.5/18.6 xcresult 각 1건·실패/skip 및 config hash, 원장·diff 검사 확인. 독립 XCTest·runner·정제 evidence와 진행 문서만 stage하며 제품 Provider·원본 로그·xcresult는 제외한다.
 
 - P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 관련 테스트·정제 문서만 커밋한다.
+
+- P05-T03 활성 configuration A/B 시작 (2026-11-14): 시작 HEAD/원격 b2937ba, 원본 scheme에는 run 설정 없음. Apple은 Run action의 StoreKit Configuration 선택을 안내하고 XcodeGen은 run.storeKitConfiguration을 지원한다. TestAction 적용과 실제 활성 상태는 아직 NOT_CONFIRMED다. 두 복사본의 실제 XML과 소스/hash를 먼저 확인한다.
+
+- P05-T03 A/B runner 문법·원장·diff PASS. 복사본의 앱·test·설정 바이트 및 StoreKit 참조 제거 후 scheme XML 동일성을 검증한 뒤에만 새 26.5 Simulator 각 1회씩 상품 조회한다. 실제 활성 config는 별도 NOT_CONFIRMED다.
+
+- P05-T03 A/B 초기 준비는 scheme 정규화 비교에서 차이를 감지해 exit 1 (`artifacts/storekit-scheme-ab-2ytgnfm0`), Simulator·XCTest는 아직 실행하지 않았다. StoreKit 참조 외 생성 차이의 원인을 확인한다.
+
+- P05-T03 초기 scheme 차이는 XcodeGen이 B의 run stanza에 빈 `CommandLineArguments`를 추가한 것이었다. A 원본은 그대로 두고 B의 빈 요소만 제거해 실제 scheme의 의미 및 요소가 StoreKit 참조 하나만 다르도록 정규화한다. 비지원 설정·우회는 추가하지 않는다.
+
+- P05-T03 A/B 재생성: A 원본 scheme 유지, B의 XcodeGen 빈 인자 요소 제거 후 StoreKit 참조 외 XML 구조 동일 PASS; test/app/config 바이트도 동일. 새 26.5 Simulator A 실행 중이다.
+
+- P05-T03 A(기존 scheme) iOS 26.5: 세션 생성 PASS, 상품 빈 배열 FAIL, XCTest exit 65. B 전용 신규 Simulator 대조 진행 중이다.
+
+- P05-T03 A/B 26.5 결과: A·B 모두 SKTestSession PASS, 상품 조회 빈 배열 FAIL, 각 XCTest 1건 실패/skip 0·exit 65, runner exit 1 (`artifacts/storekit-scheme-ab-izz719r6`). RunAction 참조만으로 문제는 해소되지 않았으며 실제 TestAction 활성 설정은 NOT_CONFIRMED다. 반복 우회 실험은 중단한다.
+
+- P05-T03 A/B 두 xcresult 대조: 각 1건 실패·skip 0, 빈 배열과 두 ID의 XCTAssert 불일치. 앱·test·두 설정 복사본 해시 일치, 실제 scheme diff는 LaunchAction StoreKit 참조뿐이다. 새 Simulator 둘은 shutdown·보존했다.
+
+- P05-T03 A/B 정제 evidence와 미제출 Feedback 초안을 작성했다. 원본 scheme A 유지, B의 기능 없는 빈 XML 요소 정규화, 런타임 활성 설정 NOT_CONFIRMED 및 양쪽 FAIL을 명시했다. 다음은 P09의 미완료 항목이며 동일 runtime 우회 반복은 중단한다.
+
+- P05-T03 커밋 전: A/B xcresult·원장·diff 확인. A/B test-only runner와 정제 evidence·미제출 Feedback 초안·진행 문서만 stage한다. 원본 로그·xcresult·사용자 파일은 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0·탐지 0건. 비교 코드와 정제 문서만 커밋한다.

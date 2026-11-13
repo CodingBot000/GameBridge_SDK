@@ -23,6 +23,14 @@ class OfflineFakeTest {
         fake.receivePush("message-1", "store"); fake.receivePush("message-1", "store")
         assertEquals(listOf(FakePushEvent("message-1", "store")), fake.drainPushEvents())
         assertEquals("INVALID_ARGUMENT", assertFailsWith<SdkFailure> { fake.receivePush("message-2", "https://example.com") }.code)
+        assertEquals("INVALID_ARGUMENT", assertFailsWith<SdkFailure> { fake.receivePush("  ", "store") }.code)
+        repeat(200) { fake.receivePush("next-$it", "home") }
+        fake.receivePush("message-1", "store")
+        assertEquals(201, fake.drainPushEvents().size)
+        fake.shutdown()
+        fake.initialize(GameBridgeConfig("demo", ProviderMode.EDITOR_OFFLINE, null)); fake.signIn(); fake.registerPush()
+        fake.receivePush("message-1", "store")
+        assertEquals(1, fake.drainPushEvents().size)
         fake.shutdown()
     }
 }

@@ -1012,3 +1012,12 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P01-T03 Swift host `SdkCoordinatorTests` 4건 PASS/skip 0: 추가된 상호 배제 BUSY 및 재초기화가 통과했다. actor 기반 순서 제어 시험이며 전체 data race 부재를 증명하지 않는다. 공통 provider interface 전체 범위는 미완료/PARTIAL로 유지한다.
 
 - P01-T03 커밋 전 원장 및 diff 검사 PASS. Swift host 테스트와 문서만 커밋하고 P01-T03은 IN_PROGRESS/PARTIAL로 유지한다.
+
+- P01-T03 추가 대조: 각 기능별 공통 Auth/Store/Push/Clock 계약이 계획처럼 Core에 노출되지는 않는다. 단순 미사용 interface 추가를 완료로 오인하지 않고 해당 항목을 미완료로 기록한다. P01-T04 fake 시나리오를 독립적으로 점검한다.
+- P01-T04 시작: Android·iOS·Editor Fake의 결정적 시나리오와 중복 지급 방지의 실제 구현·검증 범위를 대조한다.
+
+- P01-T04 발견: 독립 Native test Fake의 푸시 중복 ID는 무제한 보관되고 shutdown 후 남는다. 승인된 최근 200개·앱 세션 기준과 다르며 Swift는 공백 ID도 허용한다. 두 Fake만 일치시키고 순서·세션 경계를 검증한다. 실제 FCM/APNs 결과는 아니다.
+
+- P01-T04 독립 test Fake 개선 후 Android `OfflineFakeTest` 1건 및 Swift host `OfflineFakeTests` XCTest 1건 PASS/skip 0: 200개 FIFO, 재초기화 세션, 공백 ID, 기존 구매 중복·푸시 흐름 확인. Swift Testing 별도 0건은 XCTest와 구분한다. 실제 provider·Unity Player 시험은 아니다.
+
+- P01-T04 JUnit 결과 1건·원장·diff 검사 PASS. 커밋 전: 별도 테스트용 Native Fake와 그 테스트·진행 문서만 포함한다. 늦은 callback 등 남은 fake 범위가 있어 Task는 IN_PROGRESS/PARTIAL을 유지한다.

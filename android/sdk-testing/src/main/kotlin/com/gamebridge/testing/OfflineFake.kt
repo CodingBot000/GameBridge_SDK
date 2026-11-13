@@ -20,14 +20,14 @@ class OfflineFake : SdkProvider {
     private val grantedTransactions = mutableMapOf<String, String>()
     private var pushPermission = false
     private var pushRegistered = false
-    private val seenMessages = mutableSetOf<String>()
+    private val seenMessages = LinkedHashSet<String>()
     private val events = mutableListOf<FakePushEvent>()
     override suspend fun initialize(config: GameBridgeConfig): InitSnapshot = lock.withLock {
         if (config.mode != ProviderMode.EDITOR_OFFLINE) throw SdkFailure("UNSUPPORTED_PROVIDER")
         ready = true
         InitSnapshot(mapOf("fake" to Capability(true, true, config.mode, "Offline fake only")))
     }
-    override suspend fun shutdown() { lock.withLock { ready = false; signedIn = false; pushRegistered = false; events.clear() } }
+    override suspend fun shutdown() { lock.withLock { ready = false; signedIn = false; pushRegistered = false; events.clear(); seenMessages.clear() } }
     suspend fun signIn(): UserProfile = lock.withLock {
         checkReady(); signedIn = true
         UserProfile("d2719c4e-d533-47ee-9efd-838791ea79c8", "Mock User", "MOCK")
@@ -62,7 +62,10 @@ class OfflineFake : SdkProvider {
     suspend fun receivePush(messageId: String, route: String) = lock.withLock {
         checkReady(); if (!pushRegistered) throw SdkFailure("PERMISSION_DENIED")
         if (messageId.isBlank() || route !in setOf("home", "store")) throw SdkFailure("INVALID_ARGUMENT")
-        if (seenMessages.add(messageId)) events.add(FakePushEvent(messageId, route))
+        if (seenMessages.add(messageId)) {
+            if (seenMessages.size > 200) seenMessages.remove(seenMessages.first())
+            events.add(FakePushEvent(messageId, route))
+        }
     }
     suspend fun drainPushEvents(): List<FakePushEvent> = lock.withLock { checkReady(); events.toList().also { events.clear() } }
     suspend fun wallet(): FakeWallet = lock.withLock { checkReady(); FakeWallet(coins, premium) }

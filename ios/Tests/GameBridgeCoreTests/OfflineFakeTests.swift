@@ -23,6 +23,16 @@ final class OfflineFakeTests: XCTestCase {
         let events = try await fake.drainPushEvents(); XCTAssertEqual(events.count, 1); XCTAssertEqual(events.first?.route, "store")
         do { try await fake.receivePush(messageId: "message-2", route: "https://example.com"); XCTFail("route must be rejected") }
         catch let error as SdkFailure { XCTAssertEqual(error.code, "INVALID_ARGUMENT") }
+        do { try await fake.receivePush(messageId: "  ", route: "store"); XCTFail("blank ID accepted") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "INVALID_ARGUMENT") }
+        for i in 0..<200 { try await fake.receivePush(messageId: "next-\(i)", route: "home") }
+        try await fake.receivePush(messageId: "message-1", route: "store")
+        let aged = try await fake.drainPushEvents(); XCTAssertEqual(aged.count, 201)
+        try await fake.shutdown()
+        _ = try await fake.initialize(GameBridgeConfig(appId: "demo", mode: .editorOffline, backendBaseURL: nil))
+        _ = try await fake.signIn(); _ = try await fake.registerPush()
+        try await fake.receivePush(messageId: "message-1", route: "store")
+        let nextSession = try await fake.drainPushEvents(); XCTAssertEqual(nextSession.count, 1)
         try await fake.shutdown()
     }
 }

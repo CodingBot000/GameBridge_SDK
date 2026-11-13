@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 51 / IMPLEMENTED 13 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 13 / FAIL 1 / PARTIAL 50 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 50 / IMPLEMENTED 14 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 14 / FAIL 1 / PARTIAL 49 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -45,7 +45,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P01-T05 | Native HTTP·저장소·세션 소유권 기반 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T05 | - |
 | P02-T01 | Backend·PostgreSQL·migration 기동 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T01 | - |
 | P02-T02 | Mock 사용자·opaque 세션·갱신 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T02 | - |
-| P02-T03 | 상품·재화·구매 원장 서비스 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T03 | - |
+| P02-T03 | 상품·재화·구매 원장 서비스 | IMPLEMENTED | PASS | N/A | docs/evidence/p02-mock-ledger.md | - |
 | P02-T04 | purchase 재시도·finalization queue | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T04 | - |
 | P02-T05 | device token·config·개발 푸시 API | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T05 | - |
 | P02-T06 | 로컬 Backend 통합 smoke 명령 | IMPLEMENTED | PASS | N/A | docs/evidence/p02-backend-smoke.md | - |
@@ -1055,3 +1055,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P02-T06 전용 새 DB에서 실제 HTTP/DB smoke 및 틀린 기대값 음성을 충족해 IMPLEMENTED/로컬 PASS. 실제 외부 provider와 Unity 결과로 확장 해석하지 않는다.
 
 - P02-T06 커밋 전 aggregate stub 2건·원장 및 원장 음성·diff PASS. 격리 runner/loopback 선택·정제된 증거·문서만 포함하고 생성된 DB·role·로그·키는 커밋하지 않는다.
+
+- P02-T03 시작: 동일 transaction·교차 사용자·premium 중복의 현재 DB 강제 조건과 격리 smoke/DB 회귀 증거를 대조한다. P02-T06은 6e1e95e 로컬 커밋이다.
+
+- P02-T03 격리 smoke에 거래 중복·교차 사용자·premium 재요청은 포함되지만 catalog 응답 확인은 빠져 있다. 두 상품을 명시 검사하고 단위 지급이 클라이언트 금액 필드에 좌우되지 않는지 격리 DB에서 확인한다.
+
+- P02-T03 전용 새 DB `gamebridge_ci_6a1f22d6f1`에서 catalog와 위조 amount/userId/price가 포함된 구매를 더한 smoke exit 0 (`artifacts/backend-smoke-isolated-hbw5kx_k`): auth 16·purchase 14·device 19 assertions 및 잘못된 기대 잔액 음성 PASS. local mock만 검증했으며 실제 스토어는 별도다.
+
+- P02-T03 계획된 mock catalog·중복·타 사용자 거부·premium 재요청을 격리 DB로 확인하고 IMPLEMENTED/로컬 PASS로 갱신했다. 실제 스토어 검증은 포함하지 않는다.
+
+- P02-T03 커밋 전 원장 일관성·원장 음성·diff PASS. 구매 smoke assertion과 정제된 증거 및 진행 문서만 포함한다. 테스트 DB·로그·키는 제외한다.

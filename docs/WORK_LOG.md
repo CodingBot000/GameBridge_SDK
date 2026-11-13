@@ -3245,3 +3245,12 @@
 - P02-T06 계획된 전용 namespace·HTTP/DB assertions·잘못된 잔액 음성 기준을 충족해 IMPLEMENTED/로컬 PASS로 기록했다. 커밋 전 runner 문법·단위·원장·diff 검사를 수행한다.
 
 - P02-T06 커밋 전 aggregate stub 2건·원장 및 원장 음성·diff PASS. 격리 runner/loopback 선택·정제된 증거·문서만 포함하고 생성된 DB·role·로그·키는 커밋하지 않는다.
+
+- P02-T03 시작: 동일 transaction·교차 사용자·premium 중복의 현재 DB 강제 조건과 격리 smoke/DB 회귀 증거를 대조한다. P02-T06은 6e1e95e 로컬 커밋이다.
+
+- P02-T03 격리 smoke에 거래 중복·교차 사용자·premium 재요청은 포함되지만 catalog 응답 확인은 빠져 있다. 두 상품을 명시 검사하고 단위 지급이 클라이언트 금액 필드에 좌우되지 않는지 격리 DB에서 확인한다.
+
+- P02-T03 전용 새 DB `gamebridge_ci_6a1f22d6f1`에서 catalog와 위조 amount/userId/price가 포함된 구매를 더한 smoke exit 0 (`artifacts/backend-smoke-isolated-hbw5kx_k`): auth 16·purchase 14·device 19 assertions 및 잘못된 기대 잔액 음성 PASS. local mock만 검증했으며 실제 스토어는 별도다.
+- P02-T03 격리 smoke 및 DB 제약 확인을 근거로 해당 mock 서비스 완료 기준만 IMPLEMENTED/로컬 PASS 기록했다. 외부 스토어와 나머지 queue Task는 별도다. 커밋 전 원장 및 diff를 검사한다.
+
+- P02-T03 커밋 전 원장 일관성·원장 음성·diff PASS. 구매 smoke assertion과 정제된 증거 및 진행 문서만 포함한다. 테스트 DB·로그·키는 제외한다.

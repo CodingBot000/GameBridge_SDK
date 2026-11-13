@@ -33,11 +33,12 @@ def main():
     status, a = login('A'); check(status == 200, 'login A')
     status, b = login('B'); check(status == 200, 'login B')
     auth_a = {'Authorization': 'Bearer ' + a['accessToken']}; auth_b = {'Authorization': 'Bearer ' + b['accessToken']}
+    status, catalog = call('GET', '/v1/catalog', headers=auth_a); check(status == 200 and {item['productId'] for item in catalog} == {'coins_100', 'premium_unlock'}, 'catalog products')
     status, baseline = call('GET', '/v1/entitlements', headers=auth_a); check(status == 200, 'baseline')
     before = int(baseline['coinBalance']); tx = str(uuid.uuid4()); key = str(uuid.uuid4())
     payload = {'productId': 'coins_100', 'proof': f'mock:{a["userId"]}:coins_100:{tx}', 'quantity': 1}
     def buy(body, k, auth=auth_a): return call('POST', '/v1/purchases/verify', body, {**auth, 'Idempotency-Key': k})
-    status, first = buy(payload, key); check(status == 200 and int(first['entitlements']['coinBalance']) == before + 100 and first['finalizationStatus'] == 'PENDING', 'grant once and finalization pending')
+    status, first = buy({**payload, 'amount': 999999, 'userId': b['userId'], 'price': 0}, key); check(status == 200 and int(first['entitlements']['coinBalance']) == before + 100 and first['finalizationStatus'] == 'PENDING', 'grant once and finalization pending')
     status, repeat = buy(payload, key); check(status == 200 and repeat['serverPurchaseId'] == first['serverPurchaseId'] and int(repeat['entitlements']['coinBalance']) == before + 100, 'same key retry')
     changed = {**payload, 'proof': f'mock:{a["userId"]}:coins_100:{uuid.uuid4()}'}
     status, error = buy(changed, key); check(status == 409 and error['code'] == 'IDEMPOTENCY_CONFLICT', 'key conflict')

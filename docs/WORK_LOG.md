@@ -3144,3 +3144,6 @@
 - `run-unity-sandbox-config.py --platform ios` exit 0 (`artifacts/unity-sandbox-config-ios-c9m2245o`): 새 iOS Simulator Unity Player에서 store/installation 누락 key capability와 products CONFIG_REQUIRED/no-fallback marker PASS, tracked-clean. Apple 계정/스토어·서버는 호출하지 않았다.
 - iOS sandbox config test Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 부분 결과만 기록하며 Android Player와 실제 provider는 미실행이다.
 - `run-unity-sandbox-config.py --platform android`에서 실제 Unity Android bridge의 누락 key capability 및 Google sign-in CONFIG_REQUIRED/no-fallback를 확인한다. 새 전용 AVD를 사용하며 시작 기록만 먼저 커밋한다.
+- `run-unity-sandbox-config.py --platform android` exit 0 (`artifacts/unity-sandbox-config-android-yklqwymu`): 새 Android Player에서 client/store/installation 누락 key capability와 Google sign-in CONFIG_REQUIRED/no-fallback PASS, tracked-clean. 최초 전체화면 안내 수동 처리. 실제 Google 계정/서버는 호출하지 않았다.
+- `docs/evidence/p00-mode-config-isolation.md`에 no-key 빌드·fake 설정·양 Unity sandbox 누락 key/no-fallback·ignore 범위를 연결하고 P00-T05만 IMPLEMENTED/로컬 PASS로 갱신했다. Android/iOS actual provider 인증·entitlement·실기기/원격 서비스는 여전히 별도 대기다.
+- P00-T05 갱신 후 `verify-progress.py`, `check-progress-negative.py`, ignore 단위 2건 PASS/skip0, diff PASS. 커밋 전: 정제된 설정 격리 evidence와 해당 Task 상태만 포함, P08 새 Native Player 회귀 및 실제 provider를 완료로 바꾸지 않는다.

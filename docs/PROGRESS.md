@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 59 / IMPLEMENTED 5 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 5 / FAIL 1 / PARTIAL 58 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 58 / IMPLEMENTED 6 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 6 / FAIL 1 / PARTIAL 57 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -37,7 +37,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P00-T02 | 도구·라이선스·버전 조합 확정 | IMPLEMENTED | PASS | N/A | docs/TOOLCHAIN.md, WORK_LOG P00-T02 | ENV-001 |
 | P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T03 | ENV-002, ENV-003 |
 | P00-T04 | 진행 문서 검사·기본 명령 진입점 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-entrypoints.md | - |
-| P00-T05 | 모드·비밀정보·설정 격리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T05 | - |
+| P00-T05 | 모드·비밀정보·설정 격리 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-mode-config-isolation.md | - |
 | P01-T01 | 공통 모델·오류·상태 schema | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T01 | - |
 | P01-T02 | Bridge wire protocol·공용 fixture | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T02 | - |
 | P01-T03 | SDK 상태기계·Provider interface | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T03 | - |
@@ -952,3 +952,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - iOS Unity sandbox 설정 누락 경계 PASS (`artifacts/unity-sandbox-config-ios-c9m2245o`): store/installation key reason 및 products CONFIG_REQUIRED, tracked-clean. 실제 Apple 계정·서버·스토어 호출은 아님.
 - iOS sandbox config test Simulator shutdown·데이터 보존. iOS 결과 커밋 준비, Android Player는 미실행이다.
 - P00-T05 Android sandbox 누락 client ID Unity Player 실제 검증 시작: 앱 미설치 전용 AVD, example.invalid. Google 계정 UI/원격 호출은 수행하지 않는다.
+- Android Unity sandbox 설정 누락 경계 PASS (`artifacts/unity-sandbox-config-android-yklqwymu`): client/store/installation key reason 및 sign-in CONFIG_REQUIRED, tracked-clean. 최초 전체화면 안내 수동 처리; 실제 Google 인증은 아님.
+- P00-T05 계획의 explicit mode·설정 누락 key/no-fallback·no-key build·비밀 파일 ignore를 local/fake 및 Unity sandbox 설정 경계에서 확인해 해당 Task IMPLEMENTED/로컬 PASS로 갱신했다. 실제 provider/entitlement/실기기는 별도 WAITING_USER다.
+- P00-T05 상태·집계/원장 음성·ignore 단위 2건/diff PASS. 설정 격리 로컬 증거만 커밋 준비; P08 변경 artifact/Player 재검증은 계속 PARTIAL이다.

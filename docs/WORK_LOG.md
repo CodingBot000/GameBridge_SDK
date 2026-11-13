@@ -3140,3 +3140,4 @@
 - Android는 client ID 없음·Google sign-in CONFIG_REQUIRED, iOS는 store ID 없음·products CONFIG_REQUIRED와 양쪽 capability key 이름을 검사하는 test-only consumer를 작성했다. `example.invalid` 사용, 아직 컴파일/Player는 NOT_RUN이다.
 - `run-unity-sandbox-config.py`는 Android/iOS를 명시적으로 선택해 누락 key와 no-fallback marker를 요구한다. opt-in·다른 플랫폼/누락 marker 거부 단위 2건 PASS/skip0. 실제 Provider 계정 호출은 설계상 없다. 양 managed compile을 확인한다.
 - Android `UNITY_ANDROID` 및 iOS `UNITY_IOS` test-only sandbox config consumer managed compile 각각 exit 0, 경고·오류 0. runner 음성 2건 PASS/skip0. 실제 Unity Player·실 provider는 아직 미실행이다. 커밋 전: test-only consumer/runner·검증만 포함한다.
+- `run-unity-sandbox-config.py --platform ios`에서 실제 Unity iOS bridge가 store/installation 누락 key capability와 products CONFIG_REQUIRED를 반환하는지 확인한다. 시작 기록을 먼저 커밋한다. 실 Apple 인증/스토어 UI는 실행하지 않는다.

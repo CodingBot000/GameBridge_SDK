@@ -948,3 +948,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - test-only Android/iOS sandbox 누락 설정 consumer를 작성했다. 실제 account UI/서버 호출 없이 capability key 및 CONFIG_REQUIRED를 확인하며 아직 컴파일/Player 미실행이다.
 - Unity sandbox config 전용 runner 초안과 platform marker/opt-in 음성 단위 2건 PASS. 양 조건부 managed compile 및 실제 Player는 아직 NOT_RUN이다.
 - sandbox config consumer Android/iOS 조건부 managed compile 각각 경고·오류 0, marker/opt-in 음성 2건 PASS. 실제 Player는 NOT_RUN이며 clean-source 실행 전 커밋 준비.
+- P00-T05 iOS sandbox 누락 설정 Unity Simulator Player 실제 검증 시작: 최신 stage, example.invalid 및 test-only consumer 사용. Apple 계정 UI/원격 호출은 의도하지 않는다.

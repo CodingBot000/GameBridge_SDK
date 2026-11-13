@@ -3258,3 +3258,21 @@
 - P02-T04 시작 준비: Mock finalization queue의 재시작·동일 거래 원장 불변과 외부 호출 transaction 경계의 현재 증거를 다음 작업으로 확인한다. 변경 전 진행 상태를 checkpoint에 반영한다.
 
 - 체크포인트 원장·diff 검사 PASS. 커밋 전: 현재 다음 작업과 검증 상태만 기록하고 미추적 Demo·캐시 및 보존 DB를 건드리지 않는다.
+
+- P09-T08 재개: manifest suite 실행 경로의 저장소 이탈·절대 경로·심볼릭 링크를 disposable fixture로 확인하고 fail-closed 검사 한 단위를 보강한다. 시작 HEAD 8cb4003; 기존 미추적 Demo·캐시는 보존한다.
+
+- P09-T08 기존 manifest 정상 검사 및 기존 음성 검사 PASS. suite 명령 경로 이탈을 별도 변조본으로 재현한다.
+
+- P09-T08 블로커 재현: contracts suite를 `python3 /usr/bin/true`로 바꾼 복사 manifest를 기존 `check-manifest.py`가 exit 0으로 승인했다 (`artifacts/p09-manifest-path-0lu14th1`). 제품 테스트를 실행하지 않았고 원본 manifest는 보존했다. 저장소 내부 정규 경로만 허용하도록 고친다.
+
+- P09-T08 수정 후 원본 manifest PASS, 변조 음성 검사 PASS(절대·상대 이탈·외부 symlink·bash·실행파일 5종 포함), 최초 변조본은 예상대로 exit 1. 이 검사는 inventory 경로 검사이며 시나리오 제품 실행 자체는 아니다.
+
+- P09-T08 Push 전 검사 준비: gitleaks 실행 시 지정 모듈 경로와 실제 go.mod 경로가 달라 실행되지 않았다. 정확한 모듈 경로로 재시도하며, 아직 비밀정보 검사 통과로 기록하지 않는다.
+
+- P09 인계 Push 전 이력 검사: gitleaks 8.24.2가 origin 이후 138개 커밋을 검사해 1건을 탐지하고 exit 1을 반환했다. 값은 출력하지 않으며 위치와 허위 탐지 여부를 확인하기 전 Push하지 않는다.
+
+- 이력 비밀정보 검사 1건은 `scripts/registry-smoke.cs`의 공개 redaction 테스트 전용 합성 고정 문자열로 확인했다(커밋 2f0c32e, generic-api-key). 실제 credential이라는 증거는 없으며 스캐너 원본 결과는 제외한다. 다른 파일 형식·개인정보와 최종 diff를 추가 검사한다.
+
+- P09-T08 검증: aggregation 13건, CI gate 6건, manifest 정상 및 음성, 진행 원장, diff 검사 PASS/skip 0. 변경 범위는 manifest 경로 fail-closed 한 단위이며 전체 P09-T08은 PARTIAL이다. Git 이력에서 private key/AWS/GitHub token 패턴과 민감 확장자·캐시 경로는 발견되지 않았고 email 패턴은 합성 example.invalid 1종이다.
+
+- P09-T08 커밋 전: manifest 경로 검사·복사본 음성 시험·P09 재개 감사 및 진행 문서만 개별 stage한다. 전체 P09는 PARTIAL, 실제 provider 및 현재 source strict 미검증을 유지한다.

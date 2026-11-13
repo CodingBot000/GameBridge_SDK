@@ -3236,3 +3236,12 @@
 - P02-T06 격리 stub 단위 시험 2건 PASS/skip 0: opt-in 누락 exit 2, 하위 실패 exit 1, 세 stub 성공 시 Backend 범위 exit 0 및 Unity NOT_RUN 표시. 이 결과는 실제 서버·DB smoke 성공이 아니다.
 
 - P02-T06 CI YAML·shell 구문·원장·diff 검사 PASS. 커밋 전: aggregate 종료 판정, stub 단위 시험, CI와 현재 문서만 포함한다. 고정 DB에 실행하지 않았고 실제 Backend smoke·틀린 잔액 음성 테스트는 NOT_RUN이므로 Task PARTIAL 유지한다.
+
+- P02-T06 전용 PostgreSQL 컨테이너와 loopback DB가 실행 중임을 확인했다. 기존 DB는 사용하지 않고 새 무작위 테스트 DB·role과 새 loopback port를 사용하는 격리 실행 경로를 추가한다. 생성한 테스트 DB는 기존 정책대로 보존한다.
+
+- P02-T06 새 loopback 서버·고유 DB `gamebridge_ci_7805cd13e7`에서 `run-backend-smoke-isolated.py --run-local` exit 0 (`artifacts/backend-smoke-isolated-t07g1q3l`): auth 16·purchase 13·device/config 19 assertions, Backend LOCAL_MOCK만 PASS. Unity/실 provider/원격 push NOT_RUN, DB·role 보존. 잘못된 잔액 기대 음성 시험은 아직 미실행이다.
+
+- P02-T06 재실행 `artifacts/backend-smoke-isolated-he08vjff` exit 0: 새 DB `gamebridge_ci_a6026477d3`에서 auth 16·purchase 13·device/config 19 assertions 및 틀린 잔액 기대 복사본의 예상 실패 확인. local mock Backend 전용이며 Unity/실 provider/원격 push는 NOT_RUN. 임의로 DB·role을 지우지 않았다.
+- P02-T06 계획된 전용 namespace·HTTP/DB assertions·잘못된 잔액 음성 기준을 충족해 IMPLEMENTED/로컬 PASS로 기록했다. 커밋 전 runner 문법·단위·원장·diff 검사를 수행한다.
+
+- P02-T06 커밋 전 aggregate stub 2건·원장 및 원장 음성·diff PASS. 격리 runner/loopback 선택·정제된 증거·문서만 포함하고 생성된 DB·role·로그·키는 커밋하지 않는다.

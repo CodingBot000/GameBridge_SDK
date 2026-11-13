@@ -24,7 +24,7 @@ bash scripts/build-ios.sh --simulator
 ./backend/gradlew -p backend test
 ```
 
-Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh`는 전용 local 서버와 Docker DB를 대상으로 하며 `GAMEBRIDGE_LOCAL_SMOKE_OPT_IN=1`과 개발키가 필요합니다. Backend 하위 검사만 집계하며 Unity Player·실제 provider·원격 푸시는 실행하지 않습니다. 현재 변경 후 실제 서버·DB smoke는 미실행입니다. 별도 Unity LOCAL_MOCK Player 결과는 아래 증거를 참고하세요. 개발 발송 endpoint의 local-mock 응답은 SIMULATED이며 원격 전송이 아닙니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
+Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh`는 전용 local 서버와 Docker DB를 대상으로 하며 `GAMEBRIDGE_LOCAL_SMOKE_OPT_IN=1`과 개발키가 필요합니다. Backend 하위 검사만 집계하며 Unity Player·실제 provider·원격 푸시는 실행하지 않습니다. 격리 실행은 `python3 harness/run-backend-smoke-isolated.py --run-local`을 사용하며 새 테스트 DB와 role을 보존합니다. 별도 Unity LOCAL_MOCK Player 결과는 아래 증거를 참고하세요. 개발 발송 endpoint의 local-mock 응답은 SIMULATED이며 원격 전송이 아닙니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
 
 ## 패키징
 

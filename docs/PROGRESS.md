@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 52 / IMPLEMENTED 12 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 12 / FAIL 1 / PARTIAL 51 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 51 / IMPLEMENTED 13 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 13 / FAIL 1 / PARTIAL 50 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -48,7 +48,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P02-T03 | 상품·재화·구매 원장 서비스 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T03 | - |
 | P02-T04 | purchase 재시도·finalization queue | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T04 | - |
 | P02-T05 | device token·config·개발 푸시 API | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T05 | - |
-| P02-T06 | 로컬 Backend 통합 smoke 명령 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P02-T06 | - |
+| P02-T06 | 로컬 Backend 통합 smoke 명령 | IMPLEMENTED | PASS | N/A | docs/evidence/p02-backend-smoke.md | - |
 | P03-T01 | Kotlin SDK의 LOCAL_MOCK 수직 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T01 | - |
 | P03-T02 | Swift SDK의 LOCAL_MOCK 수직 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T02 | - |
 | P03-T03 | Android JNI 왕복 transport | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T03 | ENV-002 |
@@ -1045,3 +1045,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P02-T06 격리 stub 단위 시험 2건 PASS/skip 0: opt-in 누락 exit 2, 하위 실패 exit 1, 세 stub 성공 시 Backend 범위 exit 0 및 Unity NOT_RUN 표시. 이 결과는 실제 서버·DB smoke 성공이 아니다.
 
 - P02-T06 CI YAML·shell 구문·원장·diff 검사 PASS. 커밋 전: aggregate 종료 판정, stub 단위 시험, CI와 현재 문서만 포함한다. 고정 DB에 실행하지 않았고 실제 Backend smoke·틀린 잔액 음성 테스트는 NOT_RUN이므로 Task PARTIAL 유지한다.
+
+- P02-T06 전용 PostgreSQL 컨테이너와 loopback DB가 실행 중임을 확인했다. 기존 DB는 사용하지 않고 새 무작위 테스트 DB·role과 새 loopback port를 사용하는 격리 실행 경로를 추가한다. 생성한 테스트 DB는 기존 정책대로 보존한다.
+
+- P02-T06 새 loopback 서버·고유 DB `gamebridge_ci_7805cd13e7`에서 `run-backend-smoke-isolated.py --run-local` exit 0 (`artifacts/backend-smoke-isolated-t07g1q3l`): auth 16·purchase 13·device/config 19 assertions, Backend LOCAL_MOCK만 PASS. Unity/실 provider/원격 push NOT_RUN, DB·role 보존. 잘못된 잔액 기대 음성 시험은 아직 미실행이다.
+
+- P02-T06 재실행 `artifacts/backend-smoke-isolated-he08vjff` exit 0: 새 DB `gamebridge_ci_a6026477d3`에서 auth 16·purchase 13·device/config 19 assertions 및 틀린 잔액 기대 복사본의 예상 실패 확인. local mock Backend 전용이며 Unity/실 provider/원격 push는 NOT_RUN. 임의로 DB·role을 지우지 않았다.
+
+- P02-T06 전용 새 DB에서 실제 HTTP/DB smoke 및 틀린 기대값 음성을 충족해 IMPLEMENTED/로컬 PASS. 실제 외부 provider와 Unity 결과로 확장 해석하지 않는다.
+
+- P02-T06 커밋 전 aggregate stub 2건·원장 및 원장 음성·diff PASS. 격리 runner/loopback 선택·정제된 증거·문서만 포함하고 생성된 DB·role·로그·키는 커밋하지 않는다.

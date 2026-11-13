@@ -8,7 +8,9 @@ import urllib.error
 import urllib.request
 import uuid
 
-BASE = 'http://127.0.0.1:18080'
+BASE = os.environ.get('GAMEBRIDGE_SMOKE_BASE_URL', 'http://127.0.0.1:18080')
+if not BASE.startswith('http://127.0.0.1:') or not BASE[len('http://127.0.0.1:'):].isdigit():
+    print('CONFIG_REQUIRED: loopback GAMEBRIDGE_SMOKE_BASE_URL', file=sys.stderr); sys.exit(2)
 KEY = os.environ.get('GAMEBRIDGE_DEV_AUTH_KEY', '')
 if len(KEY) < 32:
     print('CONFIG_REQUIRED: GAMEBRIDGE_DEV_AUTH_KEY', file=sys.stderr); sys.exit(2)

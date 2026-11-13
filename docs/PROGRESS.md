@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 58 / IMPLEMENTED 6 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 6 / FAIL 1 / PARTIAL 57 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 57 / IMPLEMENTED 7 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 7 / FAIL 1 / PARTIAL 56 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -80,7 +80,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P08-T02 | Swift Package·static XCFramework 산출물 | IMPLEMENTED | PASS | N/A | docs/evidence/p08-ios-xcframework-consumer.md | - |
 | P08-T03 | UPM staging·멱등 build hook | IMPLEMENTED | PASS | N/A | docs/evidence/p08-upm-staging.md | - |
 | P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IMPLEMENTED | PASS | N/A | docs/evidence/consumer-install.md | - |
-| P08-T05 | 기능 개발 기준점 고정 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/feature-baseline.md, WORK_LOG P08-T05 | ENV-002, ENV-STOREKIT-26 |
+| P08-T05 | 기능 개발 기준점 고정 | IMPLEMENTED | PASS | N/A | docs/evidence/feature-baseline-current-20261113.md | - |
 | P09-T01 | 후반 하네스 manifest·공통 contract test | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T01 | - |
 | P09-T02 | Core·Bridge 회귀·실패 주입 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T02 | ENV-002 |
 | P09-T03 | 인증·세션·개발모드 차단 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T03 | - |
@@ -904,3 +904,10 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T01/T02 계획의 publication·clean Maven R8 소비 및 SwiftPM source/XCFramework arch·symbol·독립 simulator link를 실제 확인해 해당 Task 로컬 IMPLEMENTED/PASS로 갱신했다. unsigned APK·archive의 실기기 실행/실 provider는 별도다.
 - P08-T01/T02 원장/집계·음성·shell/metadata/diff 검사 PASS. Maven repository 미설정 시 실제 실행 없이 DEFERRED_ENV가 되는지 확인한다.
 - Maven repository 미설정 음성 exit 2/DEFERRED_ENV 및 CI YAML PASS. P08-T01/T02 관련 source consumer·증거·상태 커밋 준비; 원격/실기기 별도.
+- P08-T05 현재 기능·패키징 기준점 재검증 시작: 기존 API/protocol snapshot을 보존하고 P00~P08 원장 행과 미완료/실연동 상태를 다시 대조한다. 기능 전체 완료를 뜻하지 않는다.
+- P08-T05 기존 API baseline 정상·mutation 음성 PASS, 계획 P00~P08 48개 ID와 원장 48개 일치. 당시 로컬 PASS 6/PARTIAL 41/FAIL 1이며 현재 부분 기준점을 별도로 보존한다.
+- P08-T05 기준점 기록 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. 기준점의 P00~P08 snapshot 자체는 FAIL 1·PARTIAL 41이므로 기능 전체 완료나 실 provider PASS가 아니다. 이전 API snapshot과 실패 이력은 보존한다.
+- P08-T05 상태 갱신 후 원장 검사 FAIL: 선언 집계가 실제 행과 불일치. 다른 검사 성공은 이를 상쇄하지 않으며 행/집계를 정정한다.
+- 원인: P08-T05 기존 행의 증거 표기가 예상보다 길어 문자열 교체가 적용되지 않았다. 실제 행과 증거 링크를 갱신하고 집계를 재검증한다.
+- P08-T05 행·집계 정정 후 원장 단독 검사 PASS. snapshot의 과거 P05 FAIL/PARTIAL은 보존하며 기준점 문서 Task만 완료로 기록한다.
+- P08-T05 정정 후 원장·음성·API mutation·manifest/diff PASS. INCOMPLETE 기준점 snapshot과 Task 기록 커밋 준비.

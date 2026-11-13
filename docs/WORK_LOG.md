@@ -3086,3 +3086,12 @@
 - P08-T01/T02의 계획된 로컬 산출물·독립 소비 빌드 기준을 실제 확인하고 각각 `docs/evidence/p08-android-maven-consumer.md`, `docs/evidence/p08-ios-xcframework-consumer.md`에 연결해 IMPLEMENTED/로컬 PASS로 갱신했다. sdk-core는 JAR이며 unsigned APK·archive 실기기 실행, 실제 제공자 검증을 주장하지 않는다.
 - P08-T01/T02 상태 갱신 후 원장·음성·shell·metadata·diff 검사 PASS. clean Maven consumer runner의 repository 미설정 환경 대기 조건도 확인한다.
 - Maven repository 미설정 fixture exit 2/DEFERRED_ENV, CI YAML 및 diff PASS. 커밋 전: 두 독립 소비 runner/source, 정제된 증거, CI source-consumer 연결 및 P08-T01/T02 로컬 상태만 포함한다. APK·XCFramework·원본 로그는 제외한다.
+
+### P08-T05 현재 기능 기준점 감사 시작
+- P08-T01~04 로컬 검증 이후 현재 P00~P08 모든 Task ID·상태와 기존 API/protocol snapshot의 호환성을 대조하고 새로운 부분 기준점을 별도 기록한다. 과거 snapshot을 덮어쓰거나 P05 실패·실 provider 대기를 감추지 않는다.
+- `check-api-baseline.py`와 isolated `check-api-baseline-negative.py` exit 0, 기존 public API snapshot 호환 및 변이 감지 확인(바이너리 호환 보장은 아님). 계획 P00~P08 48개 ID와 원장 48개 일치·누락/중복 0. snapshot 시점 local PASS 6/PARTIAL 41/FAIL 1. P05-T03 FAIL과 외부 대기·미완료 행을 그대로 보존해 별도 evidence를 작성한다.
+- 계획 P00~P08의 48개 행, 현재 산출물·미완료/실 provider 대기, 과거 API snapshot 및 source commit을 `docs/evidence/feature-baseline-current-20261113.md`에 기록하고 P08-T05 기록 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. snapshot 자체는 FAIL 1·PARTIAL 41인 INCOMPLETE이며 제품 완성이 아니다. 기존 기준점과 P05 실패는 보존한다.
+- P08-T05 갱신 직후 `verify-progress.py`는 구현/로컬 집계 불일치로 nonzero였다. 후속 명령이 성공해 전체 shell exit가 0으로 보였으나 원장 검사는 FAIL이다. 원인을 확인해 정정한 뒤 단독 재실행한다.
+- 원인은 기존 P08-T05 행의 추가 WORK_LOG evidence를 교체 문자열이 포함하지 않아 행만 미변경된 것이다. 해당 행을 정확히 갱신하고 선언 집계와 비교한다.
+- P08-T05 정확한 행 교체 후 `python3 scripts/verify-progress.py` 단독 exit 0. 과거 snapshot의 P05 FAIL/미완료 수와 실제 provider 대기를 바꾸지 않는다.
+- `check-progress-negative.py`, `check-api-baseline-negative.py`, `check-manifest.py`, `verify-progress.py`, diff 검사 각각 PASS. 커밋 전: INCOMPLETE 48행 snapshot과 P08-T05 문서화 Task 상태만 포함하며 제품 전체를 완료로 바꾸지 않는다.

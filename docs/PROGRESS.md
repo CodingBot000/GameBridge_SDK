@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P01-T02 / bridge schema 및 fixture 검증
+- 현재 Phase / Task: P02-T04 / finalization queue 재검증 준비
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
-- 현재 작업 트리 상태: 계약 검증 진행 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
+- 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: P01-T02를 커밋하고 P01-T03 상태기계의 실행 증거와 누락을 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: P02-T04의 Mock finalization worker 재시작·원장 불변 증거를 확인하고 남은 항목을 구현한다. P01-T03/T04/T05는 PARTIAL이다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1065,3 +1065,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P02-T03 계획된 mock catalog·중복·타 사용자 거부·premium 재요청을 격리 DB로 확인하고 IMPLEMENTED/로컬 PASS로 갱신했다. 실제 스토어 검증은 포함하지 않는다.
 
 - P02-T03 커밋 전 원장 일관성·원장 음성·diff PASS. 구매 smoke assertion과 정제된 증거 및 진행 문서만 포함한다. 테스트 DB·로그·키는 제외한다.
+
+- 현재 재개 기준: 로컬 HEAD는 직전 커밋 `3d84945` 이후의 체크포인트 커밋이며, 새 Backend 격리 DB·role은 보존한다. P05-T03 iOS 26.5 StoreKit은 FAIL, 실제 provider 13건은 WAITING_USER다.
+
+- 체크포인트 원장·diff 검사 PASS. 커밋 전: 현재 다음 작업과 검증 상태만 기록하고 미추적 Demo·캐시 및 보존 DB를 건드리지 않는다.

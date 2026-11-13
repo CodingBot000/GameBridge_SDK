@@ -3254,3 +3254,7 @@
 - P02-T03 격리 smoke 및 DB 제약 확인을 근거로 해당 mock 서비스 완료 기준만 IMPLEMENTED/로컬 PASS 기록했다. 외부 스토어와 나머지 queue Task는 별도다. 커밋 전 원장 및 diff를 검사한다.
 
 - P02-T03 커밋 전 원장 일관성·원장 음성·diff PASS. 구매 smoke assertion과 정제된 증거 및 진행 문서만 포함한다. 테스트 DB·로그·키는 제외한다.
+
+- P02-T04 시작 준비: Mock finalization queue의 재시작·동일 거래 원장 불변과 외부 호출 transaction 경계의 현재 증거를 다음 작업으로 확인한다. 변경 전 진행 상태를 checkpoint에 반영한다.
+
+- 체크포인트 원장·diff 검사 PASS. 커밋 전: 현재 다음 작업과 검증 상태만 기록하고 미추적 Demo·캐시 및 보존 DB를 건드리지 않는다.

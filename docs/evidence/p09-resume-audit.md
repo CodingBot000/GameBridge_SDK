@@ -47,3 +47,13 @@ P09-T08에서 현재 source의 격리 DB를 사용하는 ledger mutation과 정�
 기존 원격 작업 브랜치 `058742df` 이후 139개 커밋을 gitleaks 8.24.2로 검사했으며 탐지 1건은 `2f0c32e`의 redaction 단위 테스트에서 명시한 합성 고정 문자열이다. 패턴 점검에서 개인키·AWS/GitHub token 형태 및 실제 전화번호는 발견되지 않았고 email 형태는 합성 `example.invalid`뿐이다. 전체 이력 경로에서 서명·인증 파일, APK·IPA, XCFramework 바이너리, 캐시·원본 로그 경로는 발견되지 않았다. 스캐너 결과와 생성물은 커밋하지 않았다. 자동 검사가 모든 비밀정보의 부재를 보증하지는 않는다.
 
 기존 원격 이후 전체 diff의 `--check`는 Unity `.meta` 빈 필드 후행 공백 때문에 exit 2다. `.meta`를 제외한 diff 검사와 이번 변경 자체 diff 검사는 PASS다. Unity가 생성한 기존 metadata를 이번 P09 수정에서 재작성하지 않았다. 최종 신규 handoff 브랜치 생성 여부 및 원격 SHA는 대화의 최종 보고에서 확인한다.
+
+## P09-T08 실행 guard 보완 — 2026-11-13
+
+시작 로컬 및 handoff 원격 HEAD `c862f72382f7db3023c5c151afd8d64775c13540`. 각 suite ID에 대한 현재 30개 명령과 모든 인자를 코드의 명시적 allowlist로 검증한다. 새 suite나 인자를 추가할 때 allowlist도 함께 검토해야 한다. `run-scenario.py`는 읽은 동일 manifest 전체를 실행 전에 검증하며 거부 시 suite를 호출하지 않는다.
+
+- `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p test_manifest_execution_guard.py -v`: 3건 PASS, 0 skip. 복사 manifest의 8개 경로·인터프리터·옵션 변조, 선택하지 않은 suite 변조, 잘못된 JSON/구조를 거부하고 임시 마커가 생성되지 않았다. 정상 R50은 exit 0.
+- `UNITY_EDITOR_PATH=<installed> python3 harness/run-scenario.py R01`: exit 0, Kotlin 10·Swift 12·C# 1 PASS, `artifacts/contracts-y_9ccyrf`. 현재 검증은 host contract이며 Unity Player/실 provider가 아니다.
+- `python3 harness/check-manifest.py`, `python3 harness/check-manifest-negative.py`, `python3 scripts/verify-progress.py` 및 CI YAML 파싱 PASS. GitHub Actions 실행은 NOT_RUN.
+
+P09 전체 및 P09-T08은 PARTIAL을 유지한다. 다음 P09-T08 작업은 격리 DB ledger mutation과 정상 suite다. 해당 DB 시험은 이번 범위에서 실행하지 않았다.

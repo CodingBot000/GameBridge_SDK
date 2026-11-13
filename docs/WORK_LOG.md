@@ -3280,3 +3280,23 @@
 - P09 인계 최종 이력 확인: 139개 커밋 gitleaks 결과는 이전에 확인한 합성 redaction fixture 1건뿐이다. 전체 범위 `git diff --check`는 기존 Unity 생성 .meta의 빈 필드 후행 공백으로 exit 2였다. 이번 P09 커밋 자체 diff는 통과했으며 해당 Unity 파일은 재작성하지 않는다. 최종 원격 브랜치 유무와 이력을 별도로 확인한다.
 
 - P09-T08 인계 기록 커밋 전: origin 이후 diff는 Unity `.meta` 제외 PASS, 원격 기존 브랜치와의 분기 없음(로컬 139개 앞섬), 신규 handoff 브랜치 최초·재확인 시 없음. 정제 감사와 원장만 stage한다.
+
+- P09-T08 보완 시작: 현재 checker는 `sh -c` 등 미허용 명령과 인자를 검증하지 않고 run-scenario는 manifest 확인 없이 실행한다. 현행 suite 명령을 명시적으로 허용하고 동일 manifest 객체를 실행 전 검증한다. 시작 HEAD/원격 c862f723, 기존 미추적 파일 보존.
+
+- P09-T08 현행 suite 30개 명령을 명시 allowlist로 대조하고 scenario 실행 전 동일하게 로드한 manifest 전체를 검증하도록 구현했다. 기존 manifest 정상 및 기존 음성 검사 PASS; 명령 실행 차단·마커 및 정상 scenario 실행은 아직 미검증이다.
+
+- P09-T08 `test_manifest_execution_guard.py` 2건 PASS/skip 0: 격리 manifest 8종(절대·상위·외부 symlink·sh/bash/python 옵션·임의 추가 인자·Gradle 옵션) exit 1 및 마커 미생성, 다른 suite 오염 시 R50 미실행; 정상 R50 exit 0. 이는 하네스 단위이며 제품 전체 검증은 아니다.
+
+- P09-T08 정상 manifest·기존 음성·원장·CI YAML 파싱·diff PASS. marker 검사를 CI에 연결했으나 GitHub Actions 원격 실행은 NOT_RUN. malformed manifest와 suite 실행 차단도 추가 확인한다.
+
+- P09-T08 실행 guard 3건 PASS/skip 0: 8개 변조 명령·다른 suite 오염·잘못된 JSON/자료형/필수값은 실행 전에 거부했고 정상 R50은 실행됐다. 추가로 정상 R01 Kotlin/Swift/C# contract 경로를 실제 실행한다.
+
+- P09-T08 정상 `run-scenario.py R01` exit 0: Kotlin 10·Swift 12·C# 1 PASS/skip 0 (`artifacts/contracts-y_9ccyrf`, 시작 HEAD c862f723 + 미커밋 변경). Unity Player·실 provider는 이 테스트 범위 밖이다.
+
+- P09-T08 재검토 중 JSON `null`은 checker 기본 인자와 혼동될 수 있음을 발견했다. 실행 전에 manifest가 객체인지 명시 검증하고 음성 사례를 추가한다.
+
+- P09-T08 `null`을 포함한 malformed manifest 4종을 거부하도록 수정 후 guard 3건 PASS/skip 0, 정상 manifest·원장·diff PASS. 이후 격리 DB ledger mutation은 이번 요청 범위가 아니므로 실행하지 않는다.
+
+- P09-T08 재검증 aggregation 13건·CI gate 6건·manifest 음성·diff PASS/skip 0. 커밋 전 실행 guard·명령 allowlist·독립 테스트·CI 연결 및 정제 문서만 개별 stage한다. 원격 CI·실 provider 미실행, P09 전체 PARTIAL 유지.
+
+- P09-T08 stage 검사: gitleaks 8.24.2 staged diff exit 0, 탐지 0건. 커밋 전 검사 결과 기록만 다시 stage하고 diff를 확인한다.

@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P02-T04 / finalization queue 재검증 준비
+- 현재 Phase / Task: P09-T08 / manifest 실행 경로 및 명령 검증 보완
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: P02-T04의 Mock finalization worker 재시작·원장 불변 증거를 확인하고 남은 항목을 구현한다. P01-T03/T04/T05는 PARTIAL이다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: 이번 P09-T08 실행 guard 보완은 검증 후 커밋·인계한다. 다음 P09-T08 작업은 격리 DB ledger mutation 및 정상 suite이며 이번에는 실행하지 않는다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 재개 행동: AGENTS.md·START_HERE.md·P09-T08 계획과 원장 및 Git 상태를 확인하고 이번 P09-T08 실행 경로 보완을 검증한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
@@ -1091,3 +1091,23 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09 인계 최종 이력 확인: 139개 커밋 gitleaks 결과는 이전에 확인한 합성 redaction fixture 1건뿐이다. 전체 범위 `git diff --check`는 기존 Unity 생성 .meta의 빈 필드 후행 공백으로 exit 2였다. 이번 P09 커밋 자체 diff는 통과했으며 해당 Unity 파일은 재작성하지 않는다. 최종 원격 브랜치 유무와 이력을 별도로 확인한다.
 
 - P09-T08 인계 기록 커밋 전: origin 이후 diff는 Unity `.meta` 제외 PASS, 원격 기존 브랜치와의 분기 없음(로컬 139개 앞섬), 신규 handoff 브랜치 최초·재확인 시 없음. 정제 감사와 원장만 stage한다.
+
+- P09-T08 시작: manifest suite 명령의 인터프리터·인자 검증과 scenario 실행 전 fail-closed 검사를 보강한다. 시작 HEAD 및 handoff 원격은 c862f723 일치, 미추적 파일 보존. DB mutation은 이번 범위에서 제외한다.
+
+- P09-T08 현행 suite 30개 명령을 명시 allowlist로 대조하고 scenario 실행 전 동일하게 로드한 manifest 전체를 검증하도록 구현했다. 기존 manifest 정상 및 기존 음성 검사 PASS; 명령 실행 차단·마커 및 정상 scenario 실행은 아직 미검증이다.
+
+- P09-T08 `test_manifest_execution_guard.py` 2건 PASS/skip 0: 격리 manifest 8종(절대·상위·외부 symlink·sh/bash/python 옵션·임의 추가 인자·Gradle 옵션) exit 1 및 마커 미생성, 다른 suite 오염 시 R50 미실행; 정상 R50 exit 0. 이는 하네스 단위이며 제품 전체 검증은 아니다.
+
+- P09-T08 정상 manifest·기존 음성·원장·CI YAML 파싱·diff PASS. marker 검사를 CI에 연결했으나 GitHub Actions 원격 실행은 NOT_RUN. malformed manifest와 suite 실행 차단도 추가 확인한다.
+
+- P09-T08 실행 guard 3건 PASS/skip 0: 8개 변조 명령·다른 suite 오염·잘못된 JSON/자료형/필수값은 실행 전에 거부했고 정상 R50은 실행됐다. 추가로 정상 R01 Kotlin/Swift/C# contract 경로를 실제 실행한다.
+
+- P09-T08 정상 `run-scenario.py R01` exit 0: Kotlin 10·Swift 12·C# 1 PASS/skip 0 (`artifacts/contracts-y_9ccyrf`, 시작 HEAD c862f723 + 미커밋 변경). Unity Player·실 provider는 이 테스트 범위 밖이다.
+
+- P09-T08 재검토 중 JSON `null`은 checker 기본 인자와 혼동될 수 있음을 발견했다. 실행 전에 manifest가 객체인지 명시 검증하고 음성 사례를 추가한다.
+
+- P09-T08 `null` 포함 잘못된 manifest 4종과 변조 명령 8종을 차단하고 정상 R50 실행을 확인한 guard 3건 PASS/skip 0. 전체 Task는 PARTIAL, 원격 CI는 NOT_RUN이다.
+
+- P09-T08 재검증 aggregation 13건·CI gate 6건·manifest 음성·diff PASS/skip 0. 커밋 전 실행 guard·명령 allowlist·독립 테스트·CI 연결 및 정제 문서만 개별 stage한다. 원격 CI·실 provider 미실행, P09 전체 PARTIAL 유지.
+
+- P09-T08 stage 검사: gitleaks 8.24.2 staged diff exit 0, 탐지 0건. 커밋 전 검사 결과 기록만 다시 stage하고 diff를 확인한다.

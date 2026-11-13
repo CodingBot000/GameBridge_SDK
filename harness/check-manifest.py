@@ -6,13 +6,15 @@ import re
 import sys
 from pathlib import Path
 
+from manifest_commands import ALLOWED_COMMANDS
+
 ROOT = Path(__file__).resolve().parent.parent
 
-def check(root: Path, manifest_path: Path | None = None) -> list[str]:
+def check(root: Path, manifest_path: Path | None = None, manifest_data=None) -> list[str]:
     errors = []
     try:
         plan = (root / 'docs/DEVELOPMENT_PLAN.md').read_text(encoding='utf-8')
-        manifest = json.loads((manifest_path or root / 'harness/regression-manifest.json').read_text(encoding='utf-8'))
+        manifest = manifest_data if manifest_data is not None else json.loads((manifest_path or root / 'harness/regression-manifest.json').read_text(encoding='utf-8'))
         expected = re.findall(r'^\| (R\d\d) \|', plan, re.M)
         scenarios = manifest['scenarios']; suites = manifest['suites']
         ids = [x['id'] for x in scenarios]
@@ -55,11 +57,12 @@ def check(root: Path, manifest_path: Path | None = None) -> list[str]:
                 path = Path(value)
                 return (not path.is_absolute() and '..' not in path.parts and
                         (root / path).is_file() and (root / path).resolve().is_relative_to(root.resolve()))
+            if tuple(command) != ALLOWED_COMMANDS.get(ident): errors.append(f'{ident}: command not allowed')
             executable = command[0]
             if '/' in executable and not local_file(executable): errors.append(f'{ident}: invalid local command')
             if executable in ('python3', 'bash') and (len(command) < 2 or not local_file(command[1])):
                 errors.append(f'{ident}: invalid local entry')
-    except (OSError, ValueError, KeyError, TypeError) as exc:
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, IndexError) as exc:
         errors.append(f'manifest read/shape error: {exc}')
     return errors
 

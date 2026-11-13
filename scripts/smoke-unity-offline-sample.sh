@@ -52,3 +52,15 @@ if [[ ! -f "$output/results.xml" ]]; then
   echo "INCOMPLETE: no Unity test result; CLI exit $code" >&2; exit 2
 fi
 python3 "$root/harness/check-unity-offline-sample-result.py" "$output/results.xml" "$code"
+cp "$root/tests/UnityOfflineSample/Setup/RepeatImport.cs" "$project/Assets/Editor/RepeatImport.cs"
+set +e
+UNITY_NO_UPDATE_CHECK=1 UNITY_NO_CONSENT_PROMPT=1 unity run "$project" --editor-version "${UNITY_EDITOR_VERSION:-6000.5.8f1}" --timeout 300 --non-interactive -- -executeMethod GameBridgeSampleRepeatImport.Run > "$output/reimport-cli.log" 2>&1
+reimport_code=$?
+set -e
+if [[ ! -f "$project/Logs/Editor.log" ]]; then echo 'INCOMPLETE: no Unity reimport log' >&2; exit 2; fi
+set +e
+grep '^GB_SAMPLE_REIMPORT' "$project/Logs/Editor.log" > "$output/reimport-markers.log"
+grep_code=$?
+set -e
+if [[ "$grep_code" != 0 ]]; then echo 'FAIL: no sample reimport markers' >&2; exit 1; fi
+python3 "$root/harness/check-unity-sample-reimport.py" "$output/reimport-markers.log" "$reimport_code"

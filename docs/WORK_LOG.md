@@ -3065,3 +3065,11 @@
 - 26.5의 named/URL 및 background URL 대조가 실패해 같은 환경 재시도는 중단한다. `P05-T03` FAIL과 `ENV-STOREKIT-26` OPEN 유지. Xcode build에는 StoreKitTest SDK deprecated 경고가 있었고 이 진단 코드의 concurrency 오류는 관찰되지 않았다. 코드 변경의 기본 18.6 named 회귀만 확인한다.
 - 변경된 test-only harness 기본 main/named iOS 18.6 실행 exit 0 (`artifacts/xcode-process-recovery-7v4ybj7y`): local StoreKit process recovery PASS. 26.5 실패와 실제 Apple sandbox는 별도다.
 - 세 테스트 Simulator를 shutdown하고 데이터는 보존했다. 커밋 전: test-only executor/세분화 checkpoint, 18.6 두 PASS·26.5 FAIL 및 SDK 경고/미확정 원인만 기록한다. 제품 StoreKit provider와 실제 sandbox는 변경/검증하지 않았다.
+### P08-T03 Sample 재가져오기 GUID 대조 시작
+- 두 프로젝트의 Sample API 생성 최상위 폴더 GUID가 다르다는 기존 결과는 같은 프로젝트에서 재가져오기 시 GUID가 바뀐다는 증거가 아니다. Unity가 제공하는 OverridePreviousImports를 새 격리 consumer에만 적용해 import 전후 최상위·내부 GUID 보존을 각각 확인한다. 사용자 sample은 덮어쓰지 않는다. [Unity Sample API](https://docs.unity3d.com/ScriptReference/PackageManager.UI.Sample.html)
+- 새로운 `offline-sample.KSrzqt`에서 Sample import와 Editor test 1건 PASS/skip0. 해당 작업 전용 프로젝트에서만 RepeatImport test-only Editor 코드를 실행해 재가져오기 GUID를 비교한다.
+- `unity run ... GameBridgeSampleRepeatImport.Run` exit 0 (`artifacts/offline-sample.KSrzqt/project/Logs/Editor.log`): 두 sample 모두 동일 프로젝트 내 override 재import에서 ROOT=STABLE, INTERNAL=STABLE. 서로 다른 신규 프로젝트의 최상위 대상 폴더 GUID 차이는 그대로이며 내부 asset GUID 비교와 구분한다. 누락·변경 marker를 성공 처리하지 않도록 runner에 fail-closed 검사를 추가한다.
+- 동일 프로젝트 재import의 두 sample ROOT/INTERNAL marker 각각 1건, CLI 성공을 요구하는 checker와 누락·중복·변경/exit 오류 음성 시험 1건 PASS. 신규 consumer 전체 실행은 아직 재확인 전이다.
+- `smoke-unity-offline-sample.sh` 강화 후 exit 0 (`artifacts/offline-sample.PbKuS1`): Sample API import, Editor fake/guard 1건 PASS, 두 sample 동일 프로젝트 override 재import의 root/internal GUID 안정성 PASS. 별도 두 프로젝트의 생성 대상 root GUID가 다른 이전 결과는 유지한다.
+- `docs/evidence/p08-upm-staging.md`에 checksum·실제 양 export hook 2회·package asset GUID/동일 프로젝트 재import·Android/iOS staged consumer 및 README 구분을 연결했다. 계획된 로컬 패키징 범위의 P08-T03만 IMPLEMENTED/PASS로 갱신한다. 프로젝트마다 새 sample 대상 root GUID는 다르며 실제 provider·GUI 시각 검증은 아니다.
+- P08-T03 갱신 후 `verify-progress.py`, `check-progress-negative.py`, `check-unity-meta.py`, `check-manifest.py`, diff 검사 PASS. 커밋 전: sample 재import fail-closed 테스트·정제 evidence·해당 Task 상태만 포함하며 기존 사용자 파일은 제외한다.

@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 61 / IMPLEMENTED 3 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 3 / FAIL 1 / PARTIAL 60 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 60 / IMPLEMENTED 4 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 4 / FAIL 1 / PARTIAL 59 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -78,7 +78,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P07-T04 | 구현 누락 1차 점검 | IN_PROGRESS | PARTIAL | N/A | docs/FEATURE_MATRIX.md, WORK_LOG P07-T04 | - |
 | P08-T01 | Android Maven 산출물·소비 build | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T01 | - |
 | P08-T02 | Swift Package·static XCFramework 산출물 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T02 | - |
-| P08-T03 | UPM staging·멱등 build hook | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T03 | ENV-002 |
+| P08-T03 | UPM staging·멱등 build hook | IMPLEMENTED | PASS | N/A | docs/evidence/p08-upm-staging.md | - |
 | P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IMPLEMENTED | PASS | N/A | docs/evidence/consumer-install.md | - |
 | P08-T05 | 기능 개발 기준점 고정 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/feature-baseline.md, WORK_LOG P08-T05 | ENV-002, ENV-STOREKIT-26 |
 | P09-T01 | 후반 하네스 manifest·공통 contract test | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T01 | - |
@@ -886,3 +886,10 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P05-T03 named/URL 및 background 대조에도 26.5 session 단계 미해결. 동일 오류의 추가 반복 대신 이력·환경 blocker 유지하고, 변경된 test-only 기본 18.6 named 경로 회귀만 확인한 뒤 독립 작업으로 이동한다.
 - P05-T03 변경 후 기본 main/named iOS 18.6 회귀 PASS (`artifacts/xcode-process-recovery-7v4ybj7y`). 26.5 실패와는 별도이며 실 Apple sandbox는 NOT_RUN.
 - P05-T03 대조 결과·blocker·보고서 정리, 세 전용 Simulator shutdown/데이터 보존. test-only 진단과 이력 커밋 준비.
+- P08-T03 Sample API 최상위 폴더 GUID 재가져오기 진단 시작: 프로젝트별 GUID 차이와 같은 프로젝트 내 override import 안정성을 구분해 검증한다.
+- P08-T03 신규 격리 consumer sample import·Editor test 1건 PASS (`artifacts/offline-sample.KSrzqt`). 이 작업에서 생성한 프로젝트에만 override 재import 진단을 실행한다.
+- P08-T03 같은 격리 프로젝트의 Sample API override 재import 결과: Offline/Native 대상 최상위 폴더와 내부 asset GUID가 각각 유지됐다 (`artifacts/offline-sample.KSrzqt`). 서로 다른 프로젝트의 생성 폴더 GUID 차이는 별도 사실이다. 자동 검증에 연결한다.
+- Sample 재import 안정성 fail-closed checker/음성 단위 1건 PASS, shell/Python 문법 PASS. 강화된 신규 consumer 전체 실행을 검증한다.
+- P08-T03 강화 runner에서 새 격리 consumer Sample API import·Editor 1건·동일 프로젝트 override 재import의 두 sample root/internal GUID 안정성 PASS (`artifacts/offline-sample.PbKuS1`). 다른 프로젝트의 생성 root GUID는 다르며 package 내부 asset GUID와 구분한다.
+- P08-T03 계획 범위의 staging checksum·실제 양 export hook 반복·package asset GUID 및 동일 프로젝트 sample 재import 안정성·소비 빌드·README 구분을 확인해 IMPLEMENTED/로컬 PASS로 갱신했다. 프로젝트별 새 sample 대상 root GUID 차이와 실 provider/GUI 시각 미검증은 별도 명시했다.
+- P08-T03 상태/집계 갱신 후 원장·음성·metadata·manifest/diff PASS. 프로젝트별 생성 root GUID 차이, 실 provider/GUI 미검증은 유지하며 커밋 준비.

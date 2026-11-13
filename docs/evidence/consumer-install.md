@@ -7,4 +7,4 @@
 - 재현에는 명시적인 테스트 장비·격리 PostgreSQL 및 로컬 staging/cache가 필요하다. 상세 명령과 제한은 [Android 증거](p08-native-demo-android.md), [iOS 증거](p08-native-demo-ios.md), [Editor 증거](p08-offline-sample-editor.md)를 참조한다.
 - Package Manager GUI 클릭, 화면 포인터·시각 QA, 실기기, 실제 Google/Apple 로그인·스토어·FCM/APNs는 이 검증 범위가 아니다. 원본 로그·키·DB·APK는 Git에 포함하지 않는다.
 
-metadata 추가 후 `artifacts/upm-stable-meta-20261113`에서 동일 Android/iOS Sample API import→Native Demo Player를 재실행했다 ([metadata 부분 증거](p08-unity-metadata-partial.md)). Unity가 생성하는 샘플 최상위 폴더 GUID 차이는 P08-T03의 미완료 항목이다.
+metadata 추가 후 `artifacts/upm-stable-meta-20261113`에서 동일 Android/iOS Sample API import→Native Demo Player를 재실행했다 ([metadata 부분 증거](p08-unity-metadata-partial.md)). Unity가 프로젝트별로 생성하는 샘플 최상위 폴더 GUID 차이와 동일 프로젝트 재import 결과는 별도로 기록한다.

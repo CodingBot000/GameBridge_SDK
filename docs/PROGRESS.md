@@ -1163,3 +1163,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T06 집계 수정 검증: aggregation 단위 14건 PASS/skip 0. 정적 매핑은 tests=0, checks=1, mappedScenarios=50, executionStatus=NOT_RUN이며 실제 manifest checker 로그가 없거나 실행 건수를 50으로 기록하면 실패한다. 현재 source strict 실행 전 변경을 로컬 커밋한다.
 
 - P09-T06 커밋 전 원장·manifest·diff PASS. 수정된 집계 코드·단위시험과 진행 문서만 stage하며 전체 strict 및 외부 provider는 아직 미실행이다.
+
+- P09-T06 strict 시작 준비: 새 local/sandbox DB·role과 새 synthetic iOS simulator를 만드는 기존 runner를 사용한다. 기존 staging 및 package cache는 읽어 새 consumer에 복사하며 Unity Editor lane을 opt-in한다. 사용자 AVD·기존 simulator는 사용하지 않고 PII/Unity push Player lane은 별도 환경 대기다.
+- P09-T06 커밋 전: strict 시작 checkpoint만 기록해 tracked-clean 소스에서 한 차례 실행한다. 기존 26.5 실패는 보존한다.

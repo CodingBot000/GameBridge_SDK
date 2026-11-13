@@ -5,7 +5,7 @@
 - 계획의 P00–P08 Task 48개와 아래 원장 48개가 일치한다. snapshot 로컬 상태는 PASS 6, PARTIAL 41, FAIL 1이며 P05-T03 iOS 26.5 StoreKit 실패를 그대로 보존한다.
 - Android Maven clean coordinate 소비/R8 및 iOS SwiftPM/XCFramework 독립 소비 증거는 [Android](p08-android-maven-consumer.md), [iOS](p08-ios-xcframework-consumer.md), UPM hook·metadata는 [UPM](p08-upm-staging.md), 새 Unity 소비자는 [설치 검증](consumer-install.md)에 있다. unsigned 산출물과 LOCAL_MOCK Player는 실제 제공자 또는 실기기 검증이 아니다.
 - 기존 `contracts/baseline/manifest.json`과 13개 API/protocol snapshot은 보존했다. 현재 source comparison 및 임시 public API mutation 검출은 통과했으나 바이너리 ABI 호환성의 보장은 아니다.
-- 마지막 전체 Unity gate는 `artifacts/verify-all-n3u_5w60`에서 P09 50개 local/fake coverage와 실행한 여러 suite가 통과했으나 기존 P05-T03 FAIL 때문에 전체 FAIL이다. 그 실행의 source는 현재 기준점 commit보다 이전이다.
+- 마지막 전체 Unity gate는 `artifacts/verify-all-n3u_5w60`에서 P09 50개 시나리오 정적 매핑과 실행한 여러 suite가 통과(당시 tests=50은 개별 실행 수가 아님)했으나 기존 P05-T03 FAIL 때문에 전체 FAIL이다. 그 실행의 source는 현재 기준점 commit보다 이전이다.
 - 실제 Google/Apple/스토어/FCM/APNs 등 외부 13개는 WAITING_USER이며 [USER_SETUP](../USER_SETUP.md)에 있다. Sample 대상 root GUID는 프로젝트마다 생성되며 package 내부 asset GUID/동일 프로젝트 재import 안정성과 구분한다. 최신 상태는 [PROGRESS](../PROGRESS.md)를 따른다.
 
 | Task ID | 작업 | 구현 | 로컬 검증 | 실연동 검증 | 증거/로그 | 블로커/설정 |

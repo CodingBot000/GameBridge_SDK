@@ -65,3 +65,7 @@ P09 전체 및 P09-T08은 PARTIAL을 유지한다. 다음 P09-T08 작업은 격�
 ## P09-T08 통합 자체시험 — 2026-11-13
 
 새 전용 local-mock/sandbox DB에서 9개 lane을 실제 실행해 자체시험 exit 0. 독립 sandbox fake token 401 JUnit, 예상된 계약·원장 mutation 실패, 정상 contract 결과 및 각 lane의 테스트·검사 수는 [통합 자체시험 증거](p09-self-check-20261113.md)에 기록했다. 전체 strict 및 실제 Provider 인증은 실행하지 않았고 P09 전체는 PARTIAL이다.
+
+## P09-T06 Strict 기준선 — 2026-11-13
+
+정적 시나리오 매핑 50개와 실제 실행 테스트 수를 분리한 뒤 소스 `d6bbe7c`에서 격리 strict를 한 차례 실행했다. 전체 FAIL / exit 1, PASS 46·FAIL 1·DEFERRED_ENV 2이며 50개 매핑은 실행 0건의 정적 검사다. 기존 P05-T03 iOS 26.5 실패와 두 Player 환경 대기·실제 Provider WAITING_USER를 유지한다. 49개 lane 및 수집하지 않은 항목은 [strict 기준선](p09-strict-baseline-20261113.md)을 따른다.

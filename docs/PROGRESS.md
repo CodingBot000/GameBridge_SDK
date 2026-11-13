@@ -11,7 +11,7 @@
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: scenario 정적 매핑과 실행 수 집계를 분리하고 새 격리 DB에서 현재 소스 strict를 한 차례 실행한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: strict 기준선 결과를 커밋·인계한다. 다음에는 P09-T05의 별도 격리 Player 증거를 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P09-T06 집계 및 strict 기준선의 실행 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1166,3 +1166,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - P09-T06 strict 시작 준비: 새 local/sandbox DB·role과 새 synthetic iOS simulator를 만드는 기존 runner를 사용한다. 기존 staging 및 package cache는 읽어 새 consumer에 복사하며 Unity Editor lane을 opt-in한다. 사용자 AVD·기존 simulator는 사용하지 않고 PII/Unity push Player lane은 별도 환경 대기다.
 - P09-T06 커밋 전: strict 시작 checkpoint만 기록해 tracked-clean 소스에서 한 차례 실행한다. 기존 26.5 실패는 보존한다.
+
+- P09-T06 현재 소스 strict 한 차례 실행 종료: 전체 FAIL / exit 1, 외부 WAITING_USER 13 (`artifacts/verify-all-u2vuk3u_`, orchestration `artifacts/strict-isolated-myjcd44z`, 소스 d6bbe7c). 실패·환경 대기 원인과 lane별 실행 결과를 확인하며 이전 26.5 실패를 유지한다.
+
+- P09-T06 strict 결과 대조: 총 49 lane 중 PASS 46(정적 mapping 검사 1 포함), FAIL 1(이전 P05-T03 기록), DEFERRED_ENV 2(Unity Player 푸시·PII), 외부 13 WAITING_USER. 이번 실행의 iOS 18.6 StoreKit 복구 PASS는 기존 iOS 26.5 실패를 해결하지 않는다. 실행 중 새로 기동된 전용 Process Simulator는 삭제 없이 shutdown했다.
+
+- P09-T06 현재 source strict: PASS 46(정적 매핑 검사 포함) / FAIL 1(기존 P05-T03) / DEFERRED_ENV 2, 전체 exit 1. 시나리오 매핑 50은 실행 0과 구분한다. [기준선 evidence](evidence/p09-strict-baseline-20261113.md).
+
+- P09-T06 기준선 정리 후 aggregation 14건·self-check report 2건 PASS/skip 0, 진행 원장·diff PASS. 커밋 전: lane별 정제 evidence와 과거 정적 mapping 표현 정정 및 진행 문서만 포함한다. P09 전체 PARTIAL 유지.
+
+- P09-T06 커밋 전 staged gitleaks exit 0, 탐지 0건. 정제 기준선 기록을 커밋한다.

@@ -10,6 +10,6 @@
 ## 2026-11-13 최신 로컬 gate
 
 - 소스 `562c75fc70d5fb899bd1534bc1c5dfab71322a8a`, stage `artifacts/upm-stable-meta-20261113`. 같은 실행의 Android/iOS PII 및 Push Player 4개는 tracked-clean PASS; strict의 `sourceDirty`는 보존된 미추적 Demo/cache 포함 기준이다.
-- Sample API Editor, Android/iOS export hook 반복, PII Player 양쪽·Push Player 양쪽·Editor consumer·구매 등 실행된 suite와 50개 시나리오 coverage 기록은 PASS (`artifacts/verify-all-n3u_5w60/summary.md`). 기존 `P05-T03` 실패가 미해결로 기록되어 전체 **FAIL / exit 1**이며 외부 13개는 WAITING_USER다.
+- Sample API Editor, Android/iOS export hook 반복, PII Player 양쪽·Push Player 양쪽·Editor consumer·구매 등 실행된 suite와 50개 시나리오 정적 매핑 기록은 PASS(당시 집계의 tests=50은 실제 개별 실행 수가 아님) (`artifacts/verify-all-n3u_5w60/summary.md`). 기존 `P05-T03` 실패가 미해결로 기록되어 전체 **FAIL / exit 1**이며 외부 13개는 WAITING_USER다.
 - PII Player `artifacts/unity-android-e2e-4j46snrz`, `artifacts/unity-ios-e2e-pze7vw91`; Push Player `artifacts/unity-android-push-g_8tbvxi`, `artifacts/unity-ios-push-pvedjldf`. 두 Android 최초 안내는 수동으로 닫았다.
 - R40 iOS OS denial은 이 gate의 무인 실행이 아니라 별도의 GUI 보조 실제 Simulator 증거다. GitHub Actions, 실제 제공자·실기기는 실행하지 않았다. 사용한 AVD 2개·Simulator 3개는 삭제 없이 shutdown했다.

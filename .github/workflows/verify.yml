@@ -24,6 +24,11 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: gradle
+      - name: Validate bridge JSON Schema
+        run: |
+          python3 -m venv "$RUNNER_TEMP/gamebridge-schema-venv"
+          "$RUNNER_TEMP/gamebridge-schema-venv/bin/pip" install -r harness/requirements-schema.txt
+          "$RUNNER_TEMP/gamebridge-schema-venv/bin/python" -m unittest discover -s harness -p test_bridge_schema.py -v
       - name: Check progress and scenario inventory
         run: |
           python3 scripts/verify-progress.py

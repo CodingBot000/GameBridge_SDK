@@ -2,7 +2,7 @@
 
 `.github/workflows/verify.yml`은 PR과 수동 실행에서 다음 결과를 분리한다. 현재 workflow 수정본의 GitHub Actions 실행은 **NOT_RUN**이며 로컬 정적·음성 시험이 원격 성공을 뜻하지 않는다.
 
-- `inventory-contracts`: 진행 원장·manifest·집계와 fail-closed gate 단위 검사.
+- `inventory-contracts`: 진행 원장·manifest·집계와 fail-closed gate 단위 검사 및 `harness/requirements-schema.txt`의 검증 라이브러리로 bridge Draft 2020-12 schema/fixture 검사. 로컬에서는 가상환경 설치 후 `python -m unittest discover -s harness -p test_bridge_schema.py -v`를 실행한다.
 - `backend-postgres`: GitHub 호스팅 Linux의 전용 PostgreSQL과 Backend fixture. 테스트 전용 자격값이며 외부 서비스 계정이 아니다.
 - `android-native`: GitHub 호스팅 Linux의 Android 단위/fake 검사와 별도 Maven/R8 consumer 빌드.
 - `swift-ios-simulator`: GitHub 호스팅 macOS의 Swift 단위/fake, 독립 SwiftPM source consumer 및 합성 iOS host callback 시험. 실제 Apple 로그인·APNs는 아니다.

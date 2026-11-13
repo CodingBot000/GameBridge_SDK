@@ -5,20 +5,20 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P01-T01 / 공통 모델 fixture 계약 검증
+- 현재 Phase / Task: P01-T02 / bridge schema 및 fixture 검증
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 계약 검증 진행 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: P01-T01 계약 검증을 커밋하고 P01-T02 bridge schema와 fixture의 누락을 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: P01-T02를 커밋하고 P01-T03 상태기계의 실행 증거와 누락을 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 53 / IMPLEMENTED 11 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 11 / FAIL 1 / PARTIAL 52 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 52 / IMPLEMENTED 12 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 12 / FAIL 1 / PARTIAL 51 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -39,7 +39,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P00-T04 | 진행 문서 검사·기본 명령 진입점 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-entrypoints.md | - |
 | P00-T05 | 모드·비밀정보·설정 격리 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-mode-config-isolation.md | - |
 | P01-T01 | 공통 모델·오류·상태 schema | IMPLEMENTED | PASS | N/A | WORK_LOG P01-T01; artifacts/contracts-72sh1hus | - |
-| P01-T02 | Bridge wire protocol·공용 fixture | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T02 | - |
+| P01-T02 | Bridge wire protocol·공용 fixture | IMPLEMENTED | PASS | N/A | WORK_LOG P01-T02; artifacts/contracts-gmjhtcvv | - |
 | P01-T03 | SDK 상태기계·Provider interface | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T03 | - |
 | P01-T04 | 결정적인 Fake Provider | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T04 | - |
 | P01-T05 | Native HTTP·저장소·세션 소유권 기반 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T05 | - |
@@ -980,3 +980,25 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P01-T01 원장 검사는 Task 상태 변경 후 상단 합계 미갱신을 발견해 실패했다. 합계를 원장에 맞춘 뒤 재검증한다.
 
 - P01-T01 원장 합계 수정 후 `scripts/verify-progress.py`, `harness/check-progress-negative.py`, `git diff --check` PASS. 커밋 전: C# contract smoke와 진행 문서만 포함하며 미추적 Demo·캐시는 보존한다.
+
+- P01-T02 시작: bridge schema·정상/오류/구버전 fixture와 각 언어 parser의 requestId 불일치·error 누락 거부 및 실제 schema validation을 대조한다. P01-T01은 1b310fb 로컬 커밋이다.
+
+- P01-T02 스키마 검증기 조사: 현재 Python 환경에 `jsonschema`가 없어 해당 검사는 미실행이다. 의존성 고정 및 CI 설치 경로를 확인한다. 조사 명령 하나는 zsh 미일치 glob으로 실행되지 않았다.
+
+- P01-T02 확인: 기존 Kotlin/Swift parser는 잘못된 version/operation, 실패 error 누락, 다른 requestId, oversized payload를 검사하지만 JSON Schema 자체를 평가하는 CI 단계가 없다. 고정된 검증 의존성과 양성·음성 schema 시험을 추가한다.
+
+- P01-T02 격리 venv에서 Draft 2020-12 schema 자체 검사 및 기존 양성·음성 fixture, event/response 필수 필드·UUID 변조 검사 2건 PASS/skip 0. GitHub Actions 설정은 변경했으나 원격 실행은 NOT_RUN이다. 명시적 성공·일반 실패·event 공유 fixture를 추가한다.
+
+- P01-T02 성공·일반 실패·event fixture 추가 후 schema 2건, `run-contracts.py` Kotlin 10·Swift 11·C# 1 PASS/skip 0 (`artifacts/contracts-wmods2k9`, HEAD 1b310fb + 미커밋 변경). Kotlin/Swift가 공유 양성 fixture를 parse했다. C# registry 음성 검사 및 schema 범위를 별도 확인한다.
+
+- P01-T02 `check-bridge-mutation.py` PASS: 별도 복사본의 중복 응답 guard 제거를 C# standalone 테스트가 감지, 원본 소스 유지. requestId 대조·payload 한도는 Kotlin/Swift parser 및 registry smoke에서 별도 검사했다.
+
+- P01-T02 계획 대조에서 oversize는 각 언어가 독립 생성해 시험하지만 공통 크기 fixture가 없음을 발견했다. 큰 바이너리를 저장하지 않고 byte count를 공유하는 descriptor fixture로 보강한다.
+
+- P01-T02 공통 oversized descriptor 적용 후 `run-contracts.py` Kotlin 10·Swift 11·C# 1 PASS/skip 0 (`artifacts/contracts-gmjhtcvv`, HEAD 1b310fb + 미커밋 변경). Swift와 Kotlin이 동일 262145 byte 경계 fixture를 사용한다.
+
+- P01-T02 최신 schema 양성·음성 2건 및 복사 fixture protocolVersion 변조 검사 PASS. C# registry가 다른 requestId를 격리하는지 명시적 회귀 단언을 추가한다.
+
+- P01-T02 C# standalone smoke에서 불일치 requestId 격리 PASS. Draft schema 양성·음성 및 각 언어 parser/크기 경계 검증을 근거로 IMPLEMENTED/로컬 PASS; 원격 CI·실기기 검증은 미실행이다.
+
+- P01-T02 커밋 전 원장 일관성·원장 음성 검사·`git diff --check` PASS. schema 시험·fixture·CI 설정·진행 문서만 로컬 커밋하며 기존 미추적 파일은 보존한다.

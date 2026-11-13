@@ -3172,3 +3172,24 @@
 - P01-T01 원장 검사는 Task 상태 변경 후 상단 합계 미갱신을 발견해 실패했다. 합계를 원장에 맞춘 뒤 재검증한다.
 
 - P01-T01 원장 합계 수정 후 `scripts/verify-progress.py`, `harness/check-progress-negative.py`, `git diff --check` PASS. 커밋 전: C# contract smoke와 진행 문서만 포함하며 미추적 Demo·캐시는 보존한다.
+
+- P01-T02 시작: bridge schema·정상/오류/구버전 fixture와 각 언어 parser의 requestId 불일치·error 누락 거부 및 실제 schema validation을 대조한다. P01-T01은 1b310fb 로컬 커밋이다.
+
+- P01-T02 스키마 검증기 조사: 현재 Python 환경에 `jsonschema`가 없어 해당 검사는 미실행이다. 의존성 고정 및 CI 설치 경로를 확인한다. 조사 명령 하나는 zsh 미일치 glob으로 실행되지 않았다.
+
+- P01-T02 확인: 기존 Kotlin/Swift parser는 잘못된 version/operation, 실패 error 누락, 다른 requestId, oversized payload를 검사하지만 JSON Schema 자체를 평가하는 CI 단계가 없다. 고정된 검증 의존성과 양성·음성 schema 시험을 추가한다.
+
+- P01-T02 격리 venv에서 Draft 2020-12 schema 자체 검사 및 기존 양성·음성 fixture, event/response 필수 필드·UUID 변조 검사 2건 PASS/skip 0. GitHub Actions 설정은 변경했으나 원격 실행은 NOT_RUN이다. 명시적 성공·일반 실패·event 공유 fixture를 추가한다.
+
+- P01-T02 성공·일반 실패·event fixture 추가 후 schema 2건, `run-contracts.py` Kotlin 10·Swift 11·C# 1 PASS/skip 0 (`artifacts/contracts-wmods2k9`, HEAD 1b310fb + 미커밋 변경). Kotlin/Swift가 공유 양성 fixture를 parse했다. C# registry 음성 검사 및 schema 범위를 별도 확인한다.
+
+- P01-T02 `check-bridge-mutation.py` PASS: 별도 복사본의 중복 응답 guard 제거를 C# standalone 테스트가 감지, 원본 소스 유지. requestId 대조·payload 한도는 Kotlin/Swift parser 및 registry smoke에서 별도 검사했다.
+
+- P01-T02 계획 대조에서 oversize는 각 언어가 독립 생성해 시험하지만 공통 크기 fixture가 없음을 발견했다. 큰 바이너리를 저장하지 않고 byte count를 공유하는 descriptor fixture로 보강한다.
+
+- P01-T02 공통 oversized descriptor 적용 후 `run-contracts.py` Kotlin 10·Swift 11·C# 1 PASS/skip 0 (`artifacts/contracts-gmjhtcvv`, HEAD 1b310fb + 미커밋 변경). Swift와 Kotlin이 동일 262145 byte 경계 fixture를 사용한다.
+
+- P01-T02 최신 schema 양성·음성 2건 및 복사 fixture protocolVersion 변조 검사 PASS. C# registry가 다른 requestId를 격리하는지 명시적 회귀 단언을 추가한다.
+- P01-T02 C# standalone smoke의 불일치 requestId 격리 PASS. schema 검증·공유 fixture·Kotlin/Swift parser 및 C# registry 시험으로 계획된 로컬 완료 기준을 충족해 IMPLEMENTED/PASS 기록했다. CI 구성은 실제 원격 실행 결과가 아니다. 커밋 전 문서·차이 검사를 수행한다.
+
+- P01-T02 커밋 전 원장 일관성·원장 음성 검사·`git diff --check` PASS. schema 시험·fixture·CI 설정·진행 문서만 로컬 커밋하며 기존 미추적 파일은 보존한다.

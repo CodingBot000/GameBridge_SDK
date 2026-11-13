@@ -79,6 +79,9 @@ internal static class Program
         var request = JObject.Parse(sent);
         registry.HandleMessage(Response(request, session: Guid.NewGuid().ToString("D")));
         Check(!one.IsCompleted, "stale session must be ignored");
+        var wrongId = JObject.Parse(Response(request)); wrongId["requestId"] = Guid.NewGuid().ToString("D");
+        registry.HandleMessage(wrongId.ToString());
+        Check(!one.IsCompleted, "unrelated request ID must be ignored");
         registry.HandleMessage(Response(request) + "{}");
         Check(!one.IsCompleted, "trailing JSON must be ignored");
         registry.HandleMessage(Response(request));

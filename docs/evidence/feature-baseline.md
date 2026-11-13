@@ -4,7 +4,7 @@
 
 최신 Android Maven의 독립 R8 consumer, iOS static XCFramework의 slice·symbol·Swift consumer link, UPM staging 체크섬 110개 및 독립 hook 시험은 확인했다. Unity Editor import/export/IL2CPP는 ENV-002로 실행하지 못했다. Mock DB 응답 유실·보안 저장소 인스턴스 재생성은 시험했으나 실제 기기 프로세스 재시작과 Unity player는 미검증이다.
 
-남은 내부 작업: LOCAL_MOCK 개발 push의 Backend→client simulated delivery E2E, XCODE_STOREKIT 전체 검증/지급 경로, Native 진단의 Unity 통합, 실제 Unity demo scene/host 통합 및 전체 회귀 검증. iOS 26.5 StoreKit local 시험은 ENV-STOREKIT-26 실패 이력이 있고 실제 Google/Apple/FCM/APNs는 사용자 설정 대기다. `scripts/smoke-local.sh`는 미구현 push E2E 때문에 계속 실패한다.
+남은 내부 작업: LOCAL_MOCK 개발 push의 Backend→client simulated delivery E2E, XCODE_STOREKIT 전체 검증/지급 경로, Native 진단의 Unity 통합, 실제 Unity demo scene/host 통합 및 전체 회귀 검증. iOS 26.5 StoreKit local 시험은 ENV-STOREKIT-26 실패 이력이 있고 실제 Google/Apple/FCM/APNs는 사용자 설정 대기다. 당시 `scripts/smoke-local.sh`는 미구현 push E2E 때문에 실패했다. 이후 변경 사항과 현재 실행 상태는 진행 원장을 따른다.
 
 다음 표는 snapshot 시점 원장 전체이며 미완료 행을 숨기지 않는다.
 

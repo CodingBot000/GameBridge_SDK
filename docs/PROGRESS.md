@@ -1035,3 +1035,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P01-T05 Android local loopback `BackendClientTest` JUnit 1건과 Swift URLProtocol stub `BackendClientTests` XCTest 1건 PASS/skip 0: HTTP 상태/timeout/invalid JSON 및 합성 오류 redaction. Kotlin 별도 파일 deprecated URL 경고 1건; 실제 원격 서버·TLS·실기기 저장소 검증이 아니다. CI remote NOT_RUN.
 
 - P01-T05 커밋 전 CI YAML 파싱·원장·diff PASS. 필수 테스트 CI 연결과 로컬 실행 증거만 포함하고 Task 및 실플랫폼 검증은 PARTIAL로 유지한다.
+
+- P02-T06 시작: 기존 local smoke의 실제 DB 격리·핵심 시나리오·음성 검증 및 현재 증거를 점검한다. 기존 사용자 DB를 변경·삭제하지 않는다.
+
+- P02-T06 블로커 발견: `smoke-local.sh`는 세 검사 성공 여부와 무관하게 Unity push 미실행을 이유로 무조건 exit 1이며, 하위 스크립트는 고정 서버·Docker DB와 A/B 계정을 사용한다. 현재 환경에서 기존 데이터에 쓰지 않고 독립 서버/DB로 실행할 수 있는 재사용 경로를 확인한다. 기존 DB에는 실행하지 않았다.
+
+- P02-T06은 Backend 전용 smoke가 완료 기준인데 현재 Unity 미실행을 강제 실패 원인으로 삼는다. 고정 DB에 실수로 쓰지 않도록 명시적 격리 환경 opt-in을 요구하고, 하위 검사 실패는 유지하면서 세 검사가 실제 성공할 때만 Backend 범위 성공을 반환하도록 고친다. 격리 테스트를 별도로 추가하며 Unity 통과로 기록하지 않는다.
+
+- P02-T06 격리 stub 단위 시험 2건 PASS/skip 0: opt-in 누락 exit 2, 하위 실패 exit 1, 세 stub 성공 시 Backend 범위 exit 0 및 Unity NOT_RUN 표시. 이 결과는 실제 서버·DB smoke 성공이 아니다.
+
+- P02-T06 CI YAML·shell 구문·원장·diff 검사 PASS. 커밋 전: aggregate 종료 판정, stub 단위 시험, CI와 현재 문서만 포함한다. 고정 DB에 실행하지 않았고 실제 Backend smoke·틀린 잔액 음성 테스트는 NOT_RUN이므로 Task PARTIAL 유지한다.

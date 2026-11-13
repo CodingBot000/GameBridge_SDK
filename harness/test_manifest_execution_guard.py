@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 class ManifestExecutionGuardTests(unittest.TestCase):
     def test_invalid_commands_never_execute(self):
+        (ROOT / 'artifacts').mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(prefix='p09-marker-') as external:
             marker = Path(external) / 'executed'
             program = Path(external) / 'write_marker.py'

@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05-T03 / StoreKit Scheme configuration A/B 비교
+- 현재 Phase / Task: P09-T07 / GitHub Actions hosted CI 검증
 - 마지막 갱신 시각: 2026-11-14 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: A/B 실패 evidence와 Feedback 초안을 인계한다. 동일 runtime 우회 반복을 중단하고 P09 미완료 항목으로 복귀한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: 기본 브랜치 workflow 등록·Unity 실행 조건을 확인하고 안전할 때 handoff ref의 hosted CI를 1회 실행한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1312,3 +1312,33 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P05-T03 커밋 전: A/B xcresult·원장·diff 확인. A/B test-only runner와 정제 evidence·미제출 Feedback 초안·진행 문서만 stage한다. 원본 로그·xcresult·사용자 파일은 제외한다.
 
 - P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0·탐지 0건. 비교 코드와 정제 문서만 커밋한다.
+
+- P09-T07 시작: 로컬·handoff 원격 HEAD c977b24 일치. GitHub CLI 인증됨, default workflow 등록 active, repository Actions 변수 목록 0개. self-hosted 실행 가능성 및 조직·환경 설정을 추가 대조한다.
+
+- P09-T07 확인: owner는 개인 User, repo Actions variable 목록 0개·해당 이름 조회 404, job에 environment 없음. 따라서 현재 `vars.GAMEBRIDGE_UNITY_E2E_ENABLED == true`는 충족되지 않는다. 정적 actionlint v1.7.7은 `macos-26` 및 custom self-hosted label을 구버전 label 목록에서 거부했다. 공식 runner 문서로 macos-26 존재 확인 후 최신 검사기를 검토한다. 원격 dispatch는 아직 NOT_RUN이다.
+
+- P09-T07 static 검증: actionlint 1.7.7은 구버전 label 목록에서 macos-26/custom label을 거부(실제 실패 기록). 1.7.12는 공식 macos-26을 인식하며 격리 설정에 명시한 custom self-hosted label을 포함해 exit 0. owner는 개인 User, repository 변수 0개·해당 변수 404·job environment 없음으로 현재 Unity opt-in 조건 false. default branch workflow_dispatch 등록 active 및 handoff ref c977b24 확인. 이제 원격 hosted run 1회를 시작한다.
+
+- P09-T07 `workflow_dispatch` 1회 요청 성공: run `43481632527`, ref `handoff/p09-resume-20261113`, 예상 SHA c977b24. Hosted/Unity/release job 결과는 아직 미확정이다.
+
+- P09-T07 run 43481632527 확인: 실제 source SHA c977b24, Unity self-hosted job SKIPPED; 네 hosted job 실행 중. skip은 원격 Unity PASS가 아니다.
+
+- P09-T07 원격 inventory-contracts job FAIL, 나머지 hosted jobs 진행 중. 실패한 step과 원인을 원본 로그에서 확인하며 실제 환경/코드 문제를 분리한다.
+
+- P09-T07 원격 inventory 실패 원인 확인: `test_manifest_execution_guard.py`가 fresh checkout에 존재하지 않는 `artifacts/` 아래 임시 디렉터리를 만들려다 FileNotFoundError, 3건 중 error 1. 제품 테스트 실패가 아닌 CI 테스트 환경 초기화 결함이다. 이 경로만 보강한다. 첫 `gh run view --log`는 전체 run 진행 중이라 미제공이었고 job logs API로 해당 job을 확인했다.
+
+- P09-T07 테스트가 artifacts 상위 폴더를 안전하게 생성하도록 한 줄 보강한 뒤 새 `git archive` 격리 checkout(artifacts 없음)에서 manifest guard 3건 PASS/skip 0. 원본 사용자 artifacts는 변경·삭제하지 않았다. 나머지 hosted 결과를 기다린다.
+
+- P09-T07 hosted backend-postgres job 성공. Android는 독립 Maven/R8 소비자, macOS는 synthetic iOS Simulator host 시험 진행 중이다. inventory 결함의 clean checkout 수정은 로컬 3건 PASS이며 원격 재검증은 아직 미실행이다.
+
+- P09-T07 첫 원격 run: Android Native job SUCCESS(계약·fake·clean R8 consumer), Backend SUCCESS, inventory FAIL, Unity SKIPPED. macOS synthetic Simulator host test는 아직 진행 중이다.
+
+- P09-T07 macOS Swift package step은 SUCCESS, synthetic iOS host step 진행 중이다. 원격 inventory 수정 검증을 보강하기 위해 실제 git clone의 빈 artifacts 상태에서 전체 inventory step을 별도 실행한다.
+
+- P09-T07 수정한 clean git clone에서 workflow inventory step 전체 exit 0, Python unittest 24개 suite 68건 PASS. 정적 문서·manifest·metadata 검사도 통과했으며 원격 재실행은 별도다.
+
+- P09-T07 macOS job 진행 중 개별 logs API는 HTTP 404로 아직 제공되지 않았다. job 완료 후 로그를 확인하며 현재 실패로 판정하지 않는다.
+
+- P09-T07 커밋 전: 확인된 fresh checkout artifacts 초기화 결함 1줄과 진행 문서만 포함한다. clean clone 전체 inventory step 24 suite/68건 PASS; 첫 원격 run의 macOS는 계속 진행 중이며 완료 결과는 별도 기록한다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0, 탐지 0건. 수정 1줄과 진행 기록만 로컬 커밋한다.

@@ -60,3 +60,20 @@ Runner 전체 exit 0, 산출물 `artifacts/storekit-isolation-04skqp6v/result.js
 첫 실행 `artifacts/storekit-xctest-comparison-l5tx8137`에서는 추가한 `store.products()`가 두 상품을 모두 요구해 26.5가 추가 전제에서 실패했다. 원래 구매 경로와 분리하기 위해 추가 전제를 제거하고 직접 조회 ID만 관측하도록 좁혀 제한적으로 재비교했다. 두 시도 모두 18.6 구매·pending PASS, 26.5 상품 미조회 FAIL이었다. 총 4대의 신규 Simulator는 shutdown하고 보존했다. 원본 로그·Xcode 생성물·Simulator 데이터는 커밋하지 않는다.
 
 26.5 XCTest에서는 독립 세션 생성에 이어 GameBridge XCTest의 session 생성과 store start에도 도달하지만 이번 상품 조회 이후 실패했다. 기존 `GameBridgeStoreKit` scheme은 LaunchAction에 StoreKit 설정을 선언하고 생성된 TestAction에는 같은 명시 참조가 보이지 않는다. session과 scheme의 상호작용 또는 26.5 runtime 차이 중 무엇이 빈 결과에 기여했는지는 미확정이며 SDK 제품 결함이나 Apple 내부 원인으로 단정하지 않는다. 일반 앱 SIGABRT의 기존 기록을 지우지 않고 P05-T03 FAIL / ENV-STOREKIT-26 OPEN / 실제 Apple sandbox WAITING_USER를 유지한다. 다음 후보는 XCTest TestAction에서 StoreKit configuration 활성 상태를 보호 우회 없이 독립 확인하는 것이다.
+
+## SDK 없는 XCTest 상품 조회 비교 — 2026-11-14
+
+[Apple TN3185](https://developer.apple.com/documentation/technotes/tn3185-troubleshooting-in-app-purchases-availability-in-xcode)는 Xcode 로컬 StoreKit에서 상품 미조회 시 활성 configuration의 product ID와 Load Products 오류 시뮬레이션을 확인하도록 안내한다. 현재 `GameBridge.storekit`의 ID는 `coins_100`, `premium_unlock`이며 독립 XCTest와 기존 GameBridge XCTest의 조회 ID와 일치한다. 설정 JSON에는 Load Products failure를 나타내는 명시적 failure/error 키가 없으나, 이 사실만으로 각 테스트 프로세스의 실제 활성 설정 상태까지 확인한 것은 아니다.
+
+`ios/Framework/project.yml`을 바탕으로 새로 생성한 `GameBridgeStoreKit.xcscheme`을 XML로 대조했다. LaunchAction의 StoreKit 참조는 `../../../StoreKit/GameBridge.storekit`이며 TestAction은 `GameBridgeSample.app`을 host로, `GameBridgeStoreKitTests.xctest`를 테스트 대상으로 지정한다. TestAction에 별도 StoreKit 참조는 없지만, 이것만으로 잘못된 설정이나 미지원 속성이 필요하다고 판단하지 않았다. 직전 GameBridge 테스트 빌드의 `.xctest/GameBridge.storekit` 사본과 원본은 SHA-256이 같았다.
+
+시작 HEAD `49a25469e351661c8ed52225e879427bc1ea28a1` 위 미커밋 test-only 코드를 적용해 `python3 harness/run-storekit-isolation-products.py --run-local`을 실행했다. `SessionTests.swift` SHA-256 `405c8de805a50a376c254ed24465982d7b71dcfcf1d6fb676e0714f91d8288e4`, 기존 설정 원본과 독립 프로젝트 복사본 SHA-256 `4ead467555cf567cdbdfed14c7f2b7790123ee9f91ccda4d7053b001b9def19d`. `sourceTrackedDirty=true`는 test-only 코드와 진행 문서 변경이다. SDK·Unity·Backend·PostgreSQL을 연결하지 않았고 구매·지급·finish·pending은 실행하지 않았다.
+
+| 새 iPhone 16 Simulator | 세션 생성 | `Product.products(for:)` 반환 ID | XCTest / 종료 |
+|---|---|---|---|
+| iOS 26.5 (23F77), `732DC58D-D198-49A8-A2B3-9D28EEAB7331` | PASS | `[]` — 두 상품 미조회 | 1건 실패·skip 0, xcodebuild 65 |
+| iOS 18.6 (22G86), `DA2D5013-6AAD-4548-A0C1-73DC8EFBB84E` | PASS | `coins_100`, `premium_unlock` | 1건 PASS·skip 0, xcodebuild 0 |
+
+독립 runner 전체 exit 1; 정제된 결과와 두 xcresult 위치는 `artifacts/storekit-isolation-products-dwknj5y4/result.json`. 26.5 assertion은 예외 없이 반환된 빈 집합과 기대 ID 집합이 달랐다는 실패다. 이전 GameBridge `.xcresult`의 26.5 두 시험은 그 빈 조회 이후 구매 경로가 `SdkFailure(PRODUCT_NOT_FOUND)`를 던졌다. 이전의 일반 앱 `SIGABRT`는 별도 실행 경로이며 이번에 재실행하지 않았다. 새 Simulator 둘은 shutdown했고 삭제하지 않았다. 실제 Apple sandbox 계정·credential이나 원격 결제는 사용하지 않았다. StoreKit의 내부 네트워크 경로는 별도로 캡처하지 않아 외부 요청 발생 여부까지 단정하지 않는다.
+
+**결론:** 같은 기존 설정과 SDK 없는 XCTest에서도 18.6은 두 상품을 반환하고 26.5는 빈 목록을 반환해 런타임별 차이가 재현됐다. 이는 GameBridge SDK의 상품 mapping 코드만으로 설명되지 않는다는 근거다. 그러나 실제 활성 configuration이나 Xcode/StoreKitTest와 runtime의 상호작용은 아직 확인되지 않아 Apple 내부 결함이나 특정 scheme 수정으로 단정하지 않는다. 다음 한 작업은 새 격리 테스트에서 공식 지원되는 설정 활성화 경로와 실제 활성 configuration을 확인하는 것이다. `P05-T03 FAIL`, `ENV-STOREKIT-26 OPEN`, 실제 Apple sandbox `WAITING_USER` 및 P09 PARTIAL을 유지한다. 원본 로그·`.xcresult`·Simulator 데이터는 Git에 포함하지 않는다.

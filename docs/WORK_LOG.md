@@ -3457,3 +3457,21 @@
 - P05-T03 4개 `.xcresult` 재대조: 26.5 각 1건 실패·skip 0, 18.6 각 1건 PASS·skip 0. 이전 standalone 분류 단위 1건·runner 문법·원장·diff PASS. 커밋 전 test-only 계측·runner와 정제 문서만 stage하며 원본 로그·Simulator 데이터는 제외한다.
 
 - P05-T03 커밋 전 staged gitleaks exit 0, 탐지 0건. test-only 코드와 정제 문서만 커밋한다.
+
+- P05-T03 상품 조회 원인 분리 시작 (2026-11-14): 시작 HEAD/원격 49a2546. Apple TN3185는 활성 설정의 product ID 및 Load Products failure simulation 확인을 안내한다. 기존 설정은 두 product ID 일치, 명시적 failure/error 키 없음; 이전 빌드 test bundle 설정 사본의 해시가 원본과 일치했다. 명시 failure 키 부재만으로 GUI 런타임 활성 상태까지 확정하지 않는다.
+
+- P05-T03 scheme 대조: 생성된 `GameBridgeStoreKit.xcscheme`의 LaunchAction은 원본 .storekit를 참조하고 TestAction은 GameBridgeSample host와 GameBridgeStoreKitTests target을 지정하나 별도 StoreKit 참조는 없다. 이 사실만으로 결함이라 판단하지 않는다. 이전 test bundle 복사본은 원본과 동일하다. 독립 XCTest 상품 조회를 추가한다.
+
+- P05-T03 독립 XCTest 상품 조회 runner 작성·문법·원장·diff PASS. 세션 생성과 상품 조회를 별도 checkpoint로 기록하고 product ID 두 개가 정확히 일치할 때만 PASS한다. 26.5/18.6 신규 Simulator 각 1회, 결제·pending은 실행하지 않는다.
+
+- P05-T03 SDK 없는 독립 XCTest iOS 26.5: SKTestSession 생성 PASS, 상품 조회는 빈 ID 배열로 FAIL, xcodebuild exit 65. 18.6 양성 대조를 진행하며 원인은 확정하지 않는다.
+
+- P05-T03 독립 XCTest iOS 18.6: 세션 PASS, 정확히 coins_100·premium_unlock 조회 PASS, exit 0. 26.5 세션 PASS이나 빈 목록 FAIL/exit 65, runner 전체 exit 1 (`artifacts/storekit-isolation-products-dwknj5y4`). 새 Simulator 2대 종료·보존, 기존 P05 FAIL 유지.
+
+- P05-T03 18.6 `.xcresult` 1 PASS/skip 0 재확인, 26.5 1 FAIL/skip 0의 직접 반환은 빈 배열이었다. 기존 bundle·원본 config hash와 요청 ID 일치. 설정 JSON에 Load Products 오류 주입 필드는 없지만 실제 활성 config·네트워크 경로는 계측하지 않아 단정하지 않는다.
+
+- P05-T03 정제 evidence에 TN3185 근거, scheme 실제 XML·bundle hash, 독립 26.5/18.6 결과 및 이전 GameBridge xcresult 비교를 기록했다. 26.5의 빈 반환은 SDK 없는 XCTest에서도 재현됐지만 활성 설정 및 내부 네트워크 경로는 미확정이며 기존 FAIL/OPEN을 유지한다.
+
+- P05-T03 커밋 전: 26.5/18.6 xcresult 각 1건·실패/skip 및 config hash, 원장·diff 검사 확인. 독립 XCTest·runner·정제 evidence와 진행 문서만 stage하며 제품 Provider·원본 로그·xcresult는 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 관련 테스트·정제 문서만 커밋한다.

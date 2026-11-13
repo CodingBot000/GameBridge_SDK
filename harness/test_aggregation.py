@@ -1,4 +1,7 @@
 import unittest
+import importlib.util
+import tempfile
+from pathlib import Path
 from result_aggregator import summarize, runner_inconsistent
 
 class AggregationTests(unittest.TestCase):
@@ -27,5 +30,24 @@ class AggregationTests(unittest.TestCase):
         self.assertFalse(runner_inconsistent(1, ['PARTIAL']))
         self.assertFalse(runner_inconsistent(2, ['DEFERRED_ENV']))
     def test_duplicate_lane_is_not_pass(self): self.assertEqual(summarize([{'name':'x','status':'PASS','required':True,'tests':1}]*2)['exitCode'],1)
+
+class StaticMappingTests(unittest.TestCase):
+    def test_static_checker_does_not_claim_execution(self):
+        spec = importlib.util.spec_from_file_location('verify_all', Path(__file__).with_name('verify-all.py'))
+        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); (root/'checker.log').write_text('executed')
+            checker = {'name':'manifest','status':'PASS','exitCode':0,'tests':1,'evidence':'checker.log'}
+            manifest = {'scenarios':[{'id':f'R{i:02}', 'required':True, 'coverage':'IMPLEMENTED'} for i in range(1,51)]}
+            lane = module.scenario_mapping_lane(manifest, checker, root)
+            self.assertEqual((lane['status'],lane['tests'],lane['checks'],lane['mappedScenarios'],lane['executionStatus']), ('PASS',0,1,50,'NOT_RUN'))
+            self.assertEqual(summarize([lane])['exitCode'],0)
+            self.assertNotEqual(summarize([{**lane,'tests':50}])['exitCode'],0)
+            self.assertNotEqual(summarize([{**lane,'evidence':''}])['exitCode'],0)
+            self.assertNotEqual(module.scenario_mapping_lane(manifest, {**checker,'evidence':'missing.log'}, root)['status'],'PASS')
+            self.assertNotEqual(module.scenario_mapping_lane(manifest, None, root)['status'],'PASS')
+            self.assertNotEqual(module.scenario_mapping_lane(manifest, {**checker,'status':'FAIL'}, root)['status'],'PASS')
+            manifest['scenarios'][0]['coverage']='PARTIAL'
+            self.assertEqual(module.scenario_mapping_lane(manifest, checker, root)['status'],'PARTIAL')
 
 if __name__ == '__main__': unittest.main()

@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T08 / 통합 하네스 자체시험
+- 현재 Phase / Task: P09-T06 / Strict 검증 기준선
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: P09-T08 통합 자체시험 9개 lane 결과를 커밋·인계한다. 전체 strict 및 실제 Provider 검증은 별도다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md·P09-T08 계획과 원장 및 Git 상태를 확인하고 통합 하네스 자체시험을 수행한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: scenario 정적 매핑과 실행 수 집계를 분리하고 새 격리 DB에서 현재 소스 strict를 한 차례 실행한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 재개 행동: AGENTS.md·START_HERE.md·P09-T06 집계 및 strict 기준선의 실행 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
@@ -1157,3 +1157,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T08 보고서 guard 2건·원장 및 manifest 검사·CI YAML·diff PASS/skip 0. 커밋 전: 독립 sandbox 401 test, 9 lane 정확한 집계·자체 단위시험·CI 및 정제 evidence/진행 문서만 개별 stage한다. 원본 로그·키·DB는 제외한다.
 
 - P09-T08 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 해당 기록을 stage해 관련 변경만 로컬 커밋한다.
+
+- P09-T06 시작: HEAD/원격 f09d1ed 일치. 기존 scenario-coverage는 정적 mapping 50건을 실행 테스트 50건으로 기록하므로 checker 증거와 실제 실행 수를 분리한다. 새 DB 및 독립 simulator만 사용한다.
+
+- P09-T06 집계 수정 검증: aggregation 단위 14건 PASS/skip 0. 정적 매핑은 tests=0, checks=1, mappedScenarios=50, executionStatus=NOT_RUN이며 실제 manifest checker 로그가 없거나 실행 건수를 50으로 기록하면 실패한다. 현재 source strict 실행 전 변경을 로컬 커밋한다.
+
+- P09-T06 커밋 전 원장·manifest·diff PASS. 수정된 집계 코드·단위시험과 진행 문서만 stage하며 전체 strict 및 외부 provider는 아직 미실행이다.

@@ -15,6 +15,23 @@ from result_aggregator import summarize, runner_inconsistent
 
 ROOT = Path(__file__).resolve().parent.parent
 
+def scenario_mapping_lane(manifest, checker, root):
+    scenarios = manifest.get('scenarios', [])
+    partial = [x['id'] for x in scenarios if x.get('required') and x.get('coverage') == 'PARTIAL']
+    unimplemented = [x['id'] for x in scenarios if x.get('required') and x.get('coverage') == 'NOT_IMPLEMENTED']
+    path = Path(checker.get('evidence', '')) if checker else Path()
+    evidence_ok = (checker is not None and checker.get('name') == 'manifest' and checker.get('status') == 'PASS' and
+                   checker.get('exitCode') == 0 and checker.get('tests', 0) > 0 and bool(checker.get('evidence')) and
+                   not path.is_absolute() and '..' not in path.parts and (root/path).is_file() and
+                   (root/path).resolve().is_relative_to(root.resolve()))
+    status = ('FAIL' if not evidence_ok else 'NOT_IMPLEMENTED' if unimplemented else 'PARTIAL' if partial else 'PASS')
+    return {'name':'scenario-coverage','status':status,'required':True,'tests':0,'checks':1 if evidence_ok else 0,
+            'evidenceKind':'static-mapping','executionStatus':'NOT_RUN','mappedScenarios':len(scenarios),
+            'skipped':0,'exitCode':0 if status == 'PASS' else 1,'command':['python3','harness/check-manifest.py'],
+            'evidence':checker.get('evidence','') if checker else '',
+            'partialCount':len(partial),'unimplementedCount':len(unimplemented)}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     mode = parser.add_mutually_exclusive_group(required=True)
@@ -103,14 +120,8 @@ def main() -> int:
         lanes.append({'name':'unity-pii-e2e','status':'DEFERRED_ENV','required':True,'tests':0,'skipped':0,'exitCode':2,
                       'command':['python3','harness/check-unity-pii-evidence.py'],'evidence':'docs/PROGRESS.md','reason':'current-run PII Player evidence not supplied'})
     manifest = json.loads((ROOT/'harness/regression-manifest.json').read_text(encoding='utf-8'))
-    partial = [entry['id'] for entry in manifest['scenarios'] if entry.get('required') and entry.get('coverage') == 'PARTIAL']
-    unimplemented = [entry['id'] for entry in manifest['scenarios'] if entry.get('required') and entry.get('coverage') == 'NOT_IMPLEMENTED']
-    incomplete = partial + unimplemented
-    coverage_status = 'NOT_IMPLEMENTED' if unimplemented else 'PARTIAL' if partial else 'PASS'
-    lanes.append({'name':'scenario-coverage','status':coverage_status,'required':True,
-                  'tests':0 if incomplete else len(manifest['scenarios']),'skipped':0,'exitCode':1 if incomplete else 0,
-                  'command':['python3','harness/check-manifest.py'],'evidence':'harness/regression-manifest.json',
-                  'partialCount':len(partial),'unimplementedCount':len(unimplemented)})
+    checker = next((lane for lane in lanes if lane['name'] == 'manifest'), None)
+    lanes.append(scenario_mapping_lane(manifest, checker, ROOT))
     if env.get('GAMEBRIDGE_RUN_UNITY_EDITOR') == 'true':
         simple('unity-editor-runtime',['bash','scripts/build-unity.sh','--editor-smoke'],'Unity consumer tests PASS:')
     else:
@@ -145,8 +156,8 @@ def main() -> int:
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'environment':{'os':platform.platform()},
               'summary':summary,'lanes':lanes,'external':{'status':'WAITING_USER' if external_waits else 'NOT_RUN','taskCount':external_waits,'tasks':external_tasks}}
     (output/'result.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    lines = ['# Local verification summary','',f"Source: `{head}`; working tree dirty: {dirty}.",f"Overall: **{summary['status']}** (exit {summary['exitCode']}).",'', '| Lane | Status | Tests | Skipped |', '|---|---|---:|---:|']
-    lines += [f"| {lane['name']} | {lane['status']} | {lane['tests']} | {lane['skipped']} |" for lane in lanes]
+    lines = ['# Local verification summary','',f"Source: `{head}`; working tree dirty: {dirty}.",f"Overall: **{summary['status']}** (exit {summary['exitCode']}).",'', '| Lane | Status | Tests | Checks | Skipped |', '|---|---|---:|---:|---:|']
+    lines += [f"| {lane['name']} | {lane['status']} | {lane['tests']} | {lane.get('checks', 0)} | {lane['skipped']} |" for lane in lanes]
     lines += ['',f"External: {report['external']['status']} ({external_waits} tasks); not an external test pass."]
     (output/'summary.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     print(f"Overall: {summary['status']} (exit {summary['exitCode']}); external {report['external']['status']} ({external_waits} tasks)")

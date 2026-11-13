@@ -3342,3 +3342,9 @@
 - P09-T08 보고서 guard 2건·원장 및 manifest 검사·CI YAML·diff PASS/skip 0. 커밋 전: 독립 sandbox 401 test, 9 lane 정확한 집계·자체 단위시험·CI 및 정제 evidence/진행 문서만 개별 stage한다. 원본 로그·키·DB는 제외한다.
 
 - P09-T08 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 해당 기록을 stage해 관련 변경만 로컬 커밋한다.
+
+- P09-T06 시작: scenario-coverage lane은 `check-manifest.py`를 실제로 재호출하지 않으면서 50개 매핑을 tests=50/PASS로 세고 있었다. 검증된 정적 checker lane의 증거를 연결하고 실행 count=0·mapping 수 별도로 표현하며 fail-closed 단위를 보강한다. 시작 HEAD/원격 f09d1ed.
+
+- P09-T06 집계 수정 검증: aggregation 단위 14건 PASS/skip 0. 정적 매핑은 tests=0, checks=1, mappedScenarios=50, executionStatus=NOT_RUN이며 실제 manifest checker 로그가 없거나 실행 건수를 50으로 기록하면 실패한다. 현재 source strict 실행 전 변경을 로컬 커밋한다.
+
+- P09-T06 커밋 전 원장·manifest·diff PASS. 수정된 집계 코드·단위시험과 진행 문서만 stage하며 전체 strict 및 외부 provider는 아직 미실행이다.

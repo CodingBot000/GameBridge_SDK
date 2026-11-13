@@ -38,6 +38,15 @@ private final class CountingStore: TokenStore {
     func clear() throws { clears += 1; do { try backing.clear() } catch { clearErrors += 1; throw error } }
 }
 
+private func makeTestSession(initializer: String) throws -> SKTestSession {
+    if initializer == "url" {
+        guard let configuration = Bundle.main.url(forResource: "GameBridge", withExtension: "storekit") else { throw SdkFailure("CONFIG_REQUIRED") }
+        return try SKTestSession(contentsOf: configuration)
+    }
+    if initializer == "named" { return try SKTestSession(configurationFileNamed: "GameBridge") }
+    throw SdkFailure("CONFIG_REQUIRED")
+}
+
 @main struct GameBridgeRecoveryHarnessApp: App {
     var body: some Scene { WindowGroup { Text("GameBridge local recovery test").task { await run() } } }
     @MainActor private func run() async {
@@ -53,15 +62,16 @@ private final class CountingStore: TokenStore {
         do {
             guard ["prepare", "recover"].contains(phase), let base = env["GAMEBRIDGE_PROCESS_TEST_BASE_URL"], base.hasPrefix("http://127.0.0.1:"),
                   let key = env["GAMEBRIDGE_PROCESS_TEST_AUTH_KEY"], key.count >= 32 else { throw SdkFailure("CONFIG_REQUIRED") }
-            checkpoint("storekit-session")
             let initializer = env["GAMEBRIDGE_PROCESS_STOREKIT_INIT"] ?? "named"
+            let execution = env["GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR"] ?? "main"
+            checkpoint("storekit-session-create")
             let testSession: SKTestSession
-            if initializer == "url" {
-                guard let configuration = Bundle.main.url(forResource: "GameBridge", withExtension: "storekit") else { throw SdkFailure("CONFIG_REQUIRED") }
-                testSession = try SKTestSession(contentsOf: configuration)
-            } else if initializer == "named" {
-                testSession = try SKTestSession(configurationFileNamed: "GameBridge")
+            if execution == "background" {
+                testSession = try await Task.detached { try makeTestSession(initializer: initializer) }.value
+            } else if execution == "main" {
+                testSession = try makeTestSession(initializer: initializer)
             } else { throw SdkFailure("CONFIG_REQUIRED") }
+            checkpoint("storekit-session-configure")
             testSession.disableDialogs = true
             let network = URLSessionConfiguration.ephemeral
             if phase == "prepare" { network.protocolClasses = [RecoveryFaultProtocol.self] }

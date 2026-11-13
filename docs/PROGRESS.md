@@ -5,10 +5,10 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: 사용자 요청 일시 중단 / P05-T03 StoreKit 26.5 진단 재개 대기
+- 현재 Phase / Task: P05-T03 / iOS 26.5 StoreKit 진단 재개
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
-- 현재 작업 트리 상태: 중단 기록 커밋 준비; Unity 미완성 Demo와 Python 캐시 미추적 보존
+- 현재 작업 트리 상태: 진단 진행 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-stable-meta-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 바로 다음 행동: P05-T03 iOS 26.5 StoreKit named/URL 초기화 실패를 보존하고 진단·대조 조건을 검토한다. 필요 시 최신 소스 strict를 재실행한다. 실제 provider 및 R40 iOS GUI 보조는 별도다.
@@ -877,3 +877,12 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P05-T03: iOS 18.6 URL initializer의 local process recovery PASS `artifacts/xcode-process-recovery-xbadp2tm`; iOS 26.5 URL initializer는 `storekit-session` timeout FAIL `artifacts/xcode-process-recovery-97a0wg1_`. 기존 named timeout/Code 3과 동일 원인은 미확정; `ENV-STOREKIT-26` OPEN 및 P05-T03 FAIL 유지. 두 결과는 이 커밋의 당시 미커밋 test-only 진단 변경에서 실행했다.
 - 최신 로컬 staging `artifacts/upm-stable-meta-20261113`, cache `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`. 내부 asset GUID 70회 비교 일치, Sample API가 생성하는 최상위 폴더 GUID 4회 불일치로 P08-T03 PARTIAL 유지.
 - 재개 시 AGENTS.md·START_HERE.md·이 원장·WORK_LOG 및 Git 상태를 읽고 P05-T03 원인과 named/URL 차이를 계속 조사한다. test-only `GAMEBRIDGE_PROCESS_STOREKIT_INIT`의 기본은 `named`, `url`은 명시 선택이다. 최신 source 전체 gate는 마지막 문서/진단 커밋 이후 재실행하지 않았고, 실제 계정·스토어·원격 push는 USER_SETUP에 남는다.
+- P05-T03 재개: 기존 `storekit-session` checkpoint는 생성과 disableDialogs 설정을 함께 포함한다. test-only 단계 분리 및 main/background 대조로 실제 정지 지점을 확인한다.
+- P05-T03 test-only 생성/설정 checkpoint 분리 및 background 선택 경로 작성, Python/diff 검사 PASS. 아직 Swift 빌드·실행은 NOT_RUN이다.
+- P05-T03 잘못된 executor는 DB 생성 전 exit 2. iOS 18.6에서 background initializer 양성 대조를 실행한다.
+- P05-T03 iOS 18.6 background URL initializer·local process recovery PASS (`artifacts/xcode-process-recovery-dhe_8lqh`), Swift test-only 변경은 당시 미커밋. 26.5와 별도다.
+- P05-T03 18.6 background 양성 확인 후 26.5 background URL 대조 시작. 기존 main/named/URL 실패는 보존한다.
+- P05-T03 iOS 26.5 background URL 대조 FAIL (`artifacts/xcode-process-recovery-na8yq85t`): 세분화된 `storekit-session-create` timeout. 같은 test-only 경로 iOS 18.6은 PASS. Apple 내부 원인은 미확정, 기존 FAIL 유지.
+- P05-T03 named/URL 및 background 대조에도 26.5 session 단계 미해결. 동일 오류의 추가 반복 대신 이력·환경 blocker 유지하고, 변경된 test-only 기본 18.6 named 경로 회귀만 확인한 뒤 독립 작업으로 이동한다.
+- P05-T03 변경 후 기본 main/named iOS 18.6 회귀 PASS (`artifacts/xcode-process-recovery-7v4ybj7y`). 26.5 실패와는 별도이며 실 Apple sandbox는 NOT_RUN.
+- P05-T03 대조 결과·blocker·보고서 정리, 세 전용 Simulator shutdown/데이터 보존. test-only 진단과 이력 커밋 준비.

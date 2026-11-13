@@ -10,6 +10,8 @@ def main():
         print('Usage: run-xcode-process-recovery.py --run-local (retains dedicated simulator and DB)'); return 2
     initializer=os.environ.get('GAMEBRIDGE_PROCESS_STOREKIT_INIT','named')
     if initializer not in ('named','url'): print('CONFIG_REQUIRED: StoreKit initializer must be named or url'); return 2
+    executor=os.environ.get('GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR','main')
+    if executor not in ('main','background'): print('CONFIG_REQUIRED: StoreKit executor must be main or background'); return 2
     out = Path(tempfile.mkdtemp(prefix='xcode-process-recovery-', dir=ROOT/'artifacts'))
     suffix = secrets.token_hex(5); name = 'gamebridge_ci_'+suffix; password = secrets.token_hex(24)
     def run(args, **kw):
@@ -30,7 +32,7 @@ def main():
     if sim.returncode: print('Simulator unavailable:',out); return 2
     device=sim.stdout.strip(); print('Retained simulator:',device,flush=True)
     log=(out/'backend.log').open('w'); server=subprocess.Popen(['java','-jar',str(ROOT/'backend/build/libs/gamebridge-backend.jar')],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT)
-    report={'status':'FAIL','database':name,'simulator':device,'runtime':runtime,'storeKitInitializer':initializer,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'limitations':['Xcode local StoreKit and synthetic local database only','not Unity or Apple sandbox']}
+    report={'status':'FAIL','database':name,'simulator':device,'runtime':runtime,'storeKitInitializer':initializer,'storeKitExecutor':executor,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'limitations':['Xcode local StoreKit and synthetic local database only','not Unity or Apple sandbox']}
     try:
         deadline=time.monotonic()+60
         while time.monotonic()<deadline:
@@ -52,7 +54,7 @@ def main():
         if container.returncode: raise RuntimeError('app container unavailable')
         status=Path(container.stdout.strip())/'Documents/gamebridge-recovery-status.json'
         def launch(phase):
-            launch_env=os.environ.copy(); launch_env.update(SIMCTL_CHILD_GAMEBRIDGE_PROCESS_TEST_PHASE=phase,SIMCTL_CHILD_GAMEBRIDGE_PROCESS_TEST_BASE_URL=base,SIMCTL_CHILD_GAMEBRIDGE_PROCESS_TEST_AUTH_KEY=auth,SIMCTL_CHILD_GAMEBRIDGE_PROCESS_STOREKIT_INIT=initializer)
+            launch_env=os.environ.copy(); launch_env.update(SIMCTL_CHILD_GAMEBRIDGE_PROCESS_TEST_PHASE=phase,SIMCTL_CHILD_GAMEBRIDGE_PROCESS_TEST_BASE_URL=base,SIMCTL_CHILD_GAMEBRIDGE_PROCESS_TEST_AUTH_KEY=auth,SIMCTL_CHILD_GAMEBRIDGE_PROCESS_STOREKIT_INIT=initializer,SIMCTL_CHILD_GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR=executor)
             result=run(['xcrun','simctl','launch',device,BUNDLE],env=launch_env,timeout=30)
             if result.returncode: raise RuntimeError('launch failed: '+phase)
             deadline=time.monotonic()+75

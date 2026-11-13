@@ -3054,3 +3054,14 @@
 - 새 staging `artifacts/upm-stable-meta-20261113`; Sample 최상위 폴더 GUID 차이는 P08-T03 PARTIAL. 테스트 Simulator/AVD를 shutdown했으며 DB/기기 데이터, 기존 미추적 Demo/cache를 보존한다.
 - 재개: P05-T03 named/URL과 26.5 runtime 원인을 계속 조사하고 필요 시 최신 source의 격리 strict 및 문서 감사를 재실행한다. 제품 Provider와 test-only 진단을 구분하고 실패·미실행을 PASS로 바꾸지 않는다. 자동 push/공개 배포는 하지 않는다.
 - 커밋 전: test-only URL initializer 옵션, 18.6 대조/26.5 실패 및 이 중단 기록만 포함한다. 실제 Apple sandbox는 미검증이다.
+
+### P05-T03 재개 — StoreKit session 단계 분리
+- `AGENTS.md`, `START_HERE.md`, 기존 진단·Git 상태를 확인했다. 26.5의 기존 `storekit-session` checkpoint는 initializer와 disableDialogs setter를 모두 포함하므로 어느 호출이 멈췄는지 아직 확정할 수 없다. test-only 단계 분리와 background 실행 대조를 추가한다. 메인 스레드 의존성은 가설이며 Apple 공식 확정 원인으로 간주하지 않는다. 기존 사용자 Demo/cache는 보존한다.
+- `GameBridgeRecoveryHarnessApp.swift`에서 session 생성과 설정 checkpoint를 분리하고 명시적 background 생성 옵션을 추가했다. `run-xcode-process-recovery.py`는 실행 경로를 검증·기록한다. Python compile/diff PASS이며 Swift 빌드·실행은 아직 없다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR=invalid ... --run-local` exit 2를 DB 생성 전에 확인했다. iOS 18.6 background initializer로 local process recovery 양성 대조를 실행한다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR=background GAMEBRIDGE_PROCESS_STOREKIT_INIT=url ... --run-local` iOS 18.6 exit 0 (`artifacts/xcode-process-recovery-dhe_8lqh`): staged test-only 코드가 실제 build 및 local purchase/process recovery PASS. 26.5 및 실제 Apple sandbox는 별도다.
+- 양성 대조를 마친 동일 test-only background URL 경로를 별도 iOS 26.5 Simulator·DB에서 실행한다. 세분화된 checkpoint로 생성/설정 중 어느 단계가 멈추는지 구분한다.
+- iOS 26.5에서 `GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR=background ...INIT=url` exit 1 (`artifacts/xcode-process-recovery-na8yq85t`): `storekit-session-create` timeout으로 설정 setter 이전에 멈춤을 확인했다. 동일 변경 iOS 18.6은 PASS (`artifacts/xcode-process-recovery-dhe_8lqh`). background 이동으로 해결되지 않았으나 Apple 내부 원인은 미확정, P05-T03 FAIL 유지.
+- 26.5의 named/URL 및 background URL 대조가 실패해 같은 환경 재시도는 중단한다. `P05-T03` FAIL과 `ENV-STOREKIT-26` OPEN 유지. Xcode build에는 StoreKitTest SDK deprecated 경고가 있었고 이 진단 코드의 concurrency 오류는 관찰되지 않았다. 코드 변경의 기본 18.6 named 회귀만 확인한다.
+- 변경된 test-only harness 기본 main/named iOS 18.6 실행 exit 0 (`artifacts/xcode-process-recovery-7v4ybj7y`): local StoreKit process recovery PASS. 26.5 실패와 실제 Apple sandbox는 별도다.
+- 세 테스트 Simulator를 shutdown하고 데이터는 보존했다. 커밋 전: test-only executor/세분화 checkpoint, 18.6 두 PASS·26.5 FAIL 및 SDK 경고/미확정 원인만 기록한다. 제품 StoreKit provider와 실제 sandbox는 변경/검증하지 않았다.

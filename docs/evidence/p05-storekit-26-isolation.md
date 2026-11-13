@@ -43,3 +43,20 @@ Runner 전체 exit 0, 산출물 `artifacts/storekit-isolation-04skqp6v/result.js
 기존 통합 시험 `artifacts/xcode-process-recovery-na8yq85t/result.json`에 기록된 Simulator `481932FB-B2FD-40EC-826E-701A68B94E41`와 `GameBridgeRecoveryHarness-2026-11-13-170037.ips`의 Simulator UUID가 일치한다. 그 기록도 SIGABRT와 같은 `XCTestLibrary`/`SKTestSession` 함수 경로를 보여준다. 기존 runner의 checkpoint timeout 기록을 삭제하지 않되 해당 시도는 앱 조기 종료를 감지하지 못한 **timeout 보고**였음을 정정한다. 이는 SDK가 없는 독립 앱에서도 같은 유형의 종료가 발생한다는 강한 범위 분리 근거이지, Apple 내부 구현 결함이나 특정 수정법의 증명은 아니다.
 
 직전 독립 XCTest는 18.6·26.5 모두 기존 설정 PASS였고, 이번 앱은 18.6 PASS / 26.5 SIGABRT다. 결과는 **XCTest host와 일반 앱 프로세스에서 StoreKitTest의 XCTest 관련 환경 차이**로 조사 범위를 좁힌다. XCTest 프레임워크나 설정 주입으로 이를 우회하지 않았으며, 해당 지원 여부·구체적인 로딩 실패 원인은 아직 미확정이다. 다음에는 Apple의 StoreKitTest 지원 범위와 XCTest host 의존성을 공식 자료 또는 최소 정적 진단으로 확인한다. P05-T03 FAIL / ENV-STOREKIT-26 OPEN과 실제 Provider WAITING_USER는 유지한다.
+
+## XCTest 구매·pending 비교 — 2026-11-14
+
+시작 HEAD `824fa4d340e3659f09af5824971f3d805de2abab` 위에 test-only checkpoint와 상품 ID 관측을 미커밋 상태로 적용하고 기존 `GameBridgeStoreKit` scheme을 사용했다. 비교에 사용한 `XcodeStoreKitPurchaseTests.swift`의 SHA-256은 `ff11d10179bffdbe9f395a76f8c23879f038be291ca7b6e84feae8473d2294b5`다. 실행 시 `sourceTrackedDirty=true`는 test-only 변경과 진행 문서 때문이며 제품 Provider는 변경하지 않았다. Xcode 26.6 (17F113), 새 iPhone 16 Simulator에서 각 XCTest를 순차 실행하고 `.xcresult`를 보존했다. `SKTestSession`은 XCTest 내부에서 생성하며 실제 Apple sandbox와 외부 결제는 사용하지 않고 Backend는 `URLProtocol` fake 응답이다.
+
+| Runtime | XCTest | xcodebuild | XCTest 결과 | 마지막 단계 |
+|---|---|---:|---|---|
+| 26.5 (23F77) | testLocalVerifiedPurchaseReceivesFakeGrantAndFinishes | 65 | 1건 실패, skip 0 | session·store start 후 직접 상품 조회 빈 목록, 원래 구매에서 `PRODUCT_NOT_FOUND` |
+| 26.5 (23F77) | testAskToBuyPendingNeverRequestsGrant | 65 | 1건 실패, skip 0 | session·store start 후 직접 상품 조회 빈 목록, 원래 구매에서 `PRODUCT_NOT_FOUND` |
+| 18.6 (22G86) | testLocalVerifiedPurchaseReceivesFakeGrantAndFinishes | 0 | 1건 PASS, skip 0 | fake grant, unfinished 0, 재구매·복구 complete |
+| 18.6 (22G86) | testAskToBuyPendingNeverRequestsGrant | 0 | 1건 PASS, skip 0 | pending, fake grant 미호출, complete |
+
+결과 `artifacts/storekit-xctest-comparison-jryw7wv_/result.json` 및 각 `.xcresult`는 로컬에 보존했다. Runner는 26.5 실패로 exit 1이다. 26.5의 두 건은 XCTest에서 포착된 `SdkFailure(PRODUCT_NOT_FOUND)`이며 timeout이나 session SIGABRT는 아니다. 구매, fake grant·finish 또는 pending 후속에 도달하지 못했으므로 해당 단계는 PASS가 아니다. 18.6 최종 checkpoint의 빈 `productIDs`는 후속 checkpoint의 기본값으로 실제 조회 결과를 뜻하지 않는다. 26.5의 `purchase-and-grant-before` / `purchase-before`에 기록된 빈 배열만 직접 조회 실측값이다. Runner의 이후 출력은 다른 단계에서 `null`을 기록해 혼동을 막도록 보정했다.
+
+첫 실행 `artifacts/storekit-xctest-comparison-l5tx8137`에서는 추가한 `store.products()`가 두 상품을 모두 요구해 26.5가 추가 전제에서 실패했다. 원래 구매 경로와 분리하기 위해 추가 전제를 제거하고 직접 조회 ID만 관측하도록 좁혀 제한적으로 재비교했다. 두 시도 모두 18.6 구매·pending PASS, 26.5 상품 미조회 FAIL이었다. 총 4대의 신규 Simulator는 shutdown하고 보존했다. 원본 로그·Xcode 생성물·Simulator 데이터는 커밋하지 않는다.
+
+26.5 XCTest에서는 독립 세션 생성에 이어 GameBridge XCTest의 session 생성과 store start에도 도달하지만 이번 상품 조회 이후 실패했다. 기존 `GameBridgeStoreKit` scheme은 LaunchAction에 StoreKit 설정을 선언하고 생성된 TestAction에는 같은 명시 참조가 보이지 않는다. session과 scheme의 상호작용 또는 26.5 runtime 차이 중 무엇이 빈 결과에 기여했는지는 미확정이며 SDK 제품 결함이나 Apple 내부 원인으로 단정하지 않는다. 일반 앱 SIGABRT의 기존 기록을 지우지 않고 P05-T03 FAIL / ENV-STOREKIT-26 OPEN / 실제 Apple sandbox WAITING_USER를 유지한다. 다음 후보는 XCTest TestAction에서 StoreKit configuration 활성 상태를 보호 우회 없이 독립 확인하는 것이다.

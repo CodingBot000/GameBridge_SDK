@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05-T03 / StoreKit 독립 앱 simctl launch 비교
-- 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
+- 현재 Phase / Task: P05-T03 / iOS 26.5 XCTest 구매·pending 검증
+- 마지막 갱신 시각: 2026-11-14 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 독립 앱 비교 결과를 커밋·인계한다. 다음에는 XCTest host 의존성의 지원 범위를 공식 자료 또는 정적 진단으로 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: 기존 XCTest 구매·pending을 새 iOS 26.5 Simulator에서 순차 실행하고 단계별 결과를 기록한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1244,3 +1244,31 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P05-T03 커밋 전: standalone 분류 단위 1건 PASS, 원장·diff PASS, 전용 Simulator 3대 shutdown 확인. 실제 실행 앱·runner·정제 evidence만 stage하며 기존 통합 앱, 제품 Provider, 원본 crash report·사용자 파일은 제외한다.
 
 - P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 재현 코드와 정제 문서만 커밋한다.
+
+- P05-T03 XCTest 검증 시작: 시작 HEAD/원격 824fa4d 일치. 기존 GameBridgeStoreKit scheme과 구매·Ask-to-Buy 테스트를 재사용하며 새 26.5 Simulator에서 순차 실행한다. 이전 독립 앱 crash는 재실행하지 않는다.
+
+- P05-T03 기존 두 XCTest에 세션·store 시작·상품·구매/가짜 지급·완료/pending checkpoint를 추가했고, 성공 구매의 unfinished 0을 명시 assertion으로 확인하도록 보강했다. 검증 실행 전이며 결과는 NOT_RUN이다.
+
+- P05-T03 기존 StoreKit scheme 순차 실행 runner의 문법·원장·diff 검사 PASS. 테스트별 90초, 명령별 240초 상한과 fresh Simulator 종료를 적용한다. 26.5가 미통과일 때만 18.6 대조를 실행한다. 아직 XCTest 결과는 없다.
+
+- P05-T03 iOS 26.5 구매 XCTest exit 65 / FAIL, 마지막 checkpoint `products-before`; 세션 생성과 store.start는 통과했지만 상품 조회 이후는 미확인이다. 실패가 assertion·예외·환경 중 무엇인지 xcresult를 대조한다. pending 테스트는 순차 실행 중이다.
+
+- P05-T03 iOS 26.5 pending XCTest도 exit 65 / FAIL, 마지막 checkpoint `products-before`. 두 시험 모두 상품 이후 구매·pending·지급 검증은 미실행이며 새 18.6 Simulator 양성 대조를 시작한다.
+
+- P05-T03 18.6 양성 대조 구매 XCTest exit 0, 1건 PASS/skip 0, complete checkpoint 확인. 세션·상품 조회·가짜 지급·finish assertion이 통과했다. 18.6 pending은 이어 실행 중이다.
+
+- P05-T03 18.6 pending 대조 exit 0, 1건 PASS/skip 0, 가짜 grant 미호출 및 complete 확인. 전체 비교 runner exit 1 (`artifacts/storekit-xctest-comparison-l5tx8137`)은 26.5 두 상품 조회 실패 때문이다.
+
+- P05-T03 검토: 추가 계측의 `store.products()`는 기존 구매 테스트보다 범위가 넓어 두 상품 모두를 요구한다. 첫 26.5 실패는 이 추가 사전 조회에서 발생했으므로 기존 coins 구매 경로 자체의 결과와 분리한다. 직접 조회에서 반환된 ID만 기록하고 assertion 범위를 늘리지 않는 계측으로 수정해 제한적으로 재대조한다.
+
+- P05-T03 계측 수정: 공용 store의 두 상품 강제 조회를 제거하고 원래 구매 경로의 동작을 유지하면서 StoreKit 직접 조회의 반환 ID만 기록한다. 26.5 실패 및 18.6 최초 대조는 보존하고 동일 계측으로 26.5 두 테스트와 필요 시 18.6을 다시 비교한다.
+
+- P05-T03 수정 계측 26.5 구매 XCTest exit 65 FAIL: 직접 상품 조회 결과 빈 목록, 원래 coins 구매 호출 이전 checkpoint에 도달했고 구매 호출에서 실패했다. xcresult 오류 종류와 pending 대조를 확인한다.
+
+- P05-T03 수정 계측 26.5 pending XCTest도 exit 65 FAIL, `purchase-before`에 도달 후 상품 미조회 경로를 대조한다. 18.6 동일 계측 양성 대조 시작.
+
+- P05-T03 수정 계측 동일 18.6 대조: 구매·pending 각각 exit 0, 각 XCTest 1건 PASS/skip 0. 26.5 두 테스트는 각각 exit 65·PRODUCT_NOT_FOUND (`artifacts/storekit-xctest-comparison-jryw7wv_`, 전체 exit 1). 기존 P05-T03 FAIL·ENV OPEN 유지.
+
+- P05-T03 4개 `.xcresult` 재대조: 26.5 각 1건 실패·skip 0, 18.6 각 1건 PASS·skip 0. 이전 standalone 분류 단위 1건·runner 문법·원장·diff PASS. 커밋 전 test-only 계측·runner와 정제 문서만 stage하며 원본 로그·Simulator 데이터는 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks exit 0, 탐지 0건. test-only 코드와 정제 문서만 커밋한다.

@@ -57,29 +57,46 @@ private final class StoreKitFakeBackend: URLProtocol {
     override func stopLoading() {}
 }
 final class XcodeStoreKitPurchaseTests: XCTestCase {
+    private func checkpoint(_ test: String, _ stage: String, productIDs: [String] = []) {
+        let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let data = try? JSONSerialization.data(withJSONObject: ["test": test, "stage": stage, "productIDs": productIDs])
+        try? data?.write(to: folder.appendingPathComponent("storekit-xctest-" + test + ".json"), options: .atomic)
+    }
     @MainActor func testLocalVerifiedPurchaseReceivesFakeGrantAndFinishes() async throws {
+        checkpoint("purchase", "session-before")
         let testSession = try SKTestSession(configurationFileNamed: "GameBridge"); testSession.disableDialogs = true
+        checkpoint("purchase", "session-ready")
         let config = URLSessionConfiguration.ephemeral; config.protocolClasses = [StoreKitFakeBackend.self]
         let client = try LocalMockClient(config: GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:"http://127.0.0.1:18080"),
                                          store: StoreKitTestMemoryStore(), developmentKey:String(repeating:"x", count:32), sessionConfiguration:config)
         _ = try await client.signIn(subject:"A")
         let pendingStore = StoreKitTestMemoryStore()
         let store = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore); defer { store.stop() }
+        checkpoint("purchase", "store-start-before")
         try await store.start()
+        checkpoint("purchase", "products-before")
+        let products = try await Product.products(for: ["coins_100", "premium_unlock"])
+        checkpoint("purchase", "purchase-and-grant-before", productIDs: products.map(\.id).sorted())
         let purchase = try await store.purchase("coins_100")
+        checkpoint("purchase", "purchase-and-grant-returned")
         var unfinished: [String] = []
         for await result in Transaction.unfinished {
             if case .verified(let value) = result { unfinished.append("id=\(value.id), env=\(value.environment), token=\(value.appAccountToken != nil)") }
         }
         XCTAssertEqual(purchase.status, .purchased, StoreKitFakeBackend.snapshot() + " unfinished=\(unfinished)"); XCTAssertEqual(purchase.fulfillmentStatus, "GRANTED"); XCTAssertNotNil(purchase.serverPurchaseId)
+        XCTAssertTrue(unfinished.isEmpty, "successful purchase should be finished")
+        checkpoint("purchase", "finish-confirmed")
         let second = try await store.purchase("coins_100")
         XCTAssertEqual(second.status, .purchased); XCTAssertNotNil(second.serverPurchaseId)
         XCTAssertNotEqual(purchase.serverPurchaseId, second.serverPurchaseId, "two local purchases must have distinct stable keys")
         let recovery = try await store.recover(userInitiated:false)
         XCTAssertEqual(recovery.examinedCount, 0); XCTAssertNil(pendingStore.value)
+        checkpoint("purchase", "complete")
     }
     @MainActor func testAskToBuyPendingNeverRequestsGrant() async throws {
+        checkpoint("pending", "session-before")
         let testSession = try SKTestSession(configurationFileNamed:"GameBridge")
+        checkpoint("pending", "session-ready")
         testSession.disableDialogs = true; testSession.askToBuyEnabled = true
         defer { testSession.askToBuyEnabled = false }
         StoreKitFakeBackend.resetPaths()
@@ -88,11 +105,17 @@ final class XcodeStoreKitPurchaseTests: XCTestCase {
                                          store:StoreKitTestMemoryStore(), developmentKey:String(repeating:"x", count:32), sessionConfiguration:config)
         _ = try await client.signIn(subject:"A")
         let store = try await XcodeStoreKitSession(client:client, pendingStore:StoreKitTestMemoryStore()); defer { store.stop() }
+        checkpoint("pending", "store-start-before")
         try await store.start()
+        checkpoint("pending", "products-before")
+        let products = try await Product.products(for: ["coins_100", "premium_unlock"])
+        checkpoint("pending", "purchase-before", productIDs: products.map(\.id).sorted())
         let result = try await store.purchase("coins_100")
+        checkpoint("pending", "purchase-returned")
         XCTAssertEqual(result.status, .pending); XCTAssertNil(result.serverPurchaseId)
         let paths = StoreKitFakeBackend.capturedPaths()
         XCTAssertFalse(paths.contains("/v1/dev/xcode-storekit/grant"))
+        checkpoint("pending", "complete")
     }
 
 }

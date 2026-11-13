@@ -3429,3 +3429,31 @@
 - P05-T03 커밋 전: standalone 분류 단위 1건 PASS, 원장·diff PASS, 전용 Simulator 3대 shutdown 확인. 실제 실행 앱·runner·정제 evidence만 stage하며 기존 통합 앱, 제품 Provider, 원본 crash report·사용자 파일은 제외한다.
 
 - P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 재현 코드와 정제 문서만 커밋한다.
+
+- P05-T03 XCTest 구매·pending 검증 시작 (2026-11-14 Asia/Seoul): 시작 HEAD/원격 824fa4d 일치. 기존 `XcodeStoreKitPurchaseTests` 및 `GameBridgeStoreKit` scheme을 확인했다. 세션·상품·구매/가짜 지급·finish/pending 단계를 test-only checkpoint로 구분하고 신규 26.5 Simulator에서 순차 실행한다. 기존 FAIL/OPEN·실 Apple Sandbox WAITING_USER 유지.
+
+- P05-T03 기존 두 XCTest에 세션·store 시작·상품·구매/가짜 지급·완료/pending checkpoint를 추가했고, 성공 구매의 unfinished 0을 명시 assertion으로 확인하도록 보강했다. 검증 실행 전이며 결과는 NOT_RUN이다.
+
+- P05-T03 기존 StoreKit scheme 순차 실행 runner의 문법·원장·diff 검사 PASS. 테스트별 90초, 명령별 240초 상한과 fresh Simulator 종료를 적용한다. 26.5가 미통과일 때만 18.6 대조를 실행한다. 아직 XCTest 결과는 없다.
+
+- P05-T03 iOS 26.5 구매 XCTest exit 65 / FAIL, 마지막 checkpoint `products-before`; 세션 생성과 store.start는 통과했지만 상품 조회 이후는 미확인이다. 실패가 assertion·예외·환경 중 무엇인지 xcresult를 대조한다. pending 테스트는 순차 실행 중이다.
+
+- P05-T03 iOS 26.5 pending XCTest도 exit 65 / FAIL, 마지막 checkpoint `products-before`. 두 시험 모두 상품 이후 구매·pending·지급 검증은 미실행이며 새 18.6 Simulator 양성 대조를 시작한다.
+
+- P05-T03 18.6 양성 대조 구매 XCTest exit 0, 1건 PASS/skip 0, complete checkpoint 확인. 세션·상품 조회·가짜 지급·finish assertion이 통과했다. 18.6 pending은 이어 실행 중이다.
+
+- P05-T03 18.6 pending 대조 exit 0, 1건 PASS/skip 0, 가짜 grant 미호출 및 complete 확인. 전체 비교 runner exit 1 (`artifacts/storekit-xctest-comparison-l5tx8137`)은 26.5 두 상품 조회 실패 때문이다.
+
+- P05-T03 검토: 추가 계측의 `store.products()`는 기존 구매 테스트보다 범위가 넓어 두 상품 모두를 요구한다. 첫 26.5 실패는 이 추가 사전 조회에서 발생했으므로 기존 coins 구매 경로 자체의 결과와 분리한다. 직접 조회에서 반환된 ID만 기록하고 assertion 범위를 늘리지 않는 계측으로 수정해 제한적으로 재대조한다.
+
+- P05-T03 계측 수정: 공용 store의 두 상품 강제 조회를 제거하고 원래 구매 경로의 동작을 유지하면서 StoreKit 직접 조회의 반환 ID만 기록한다. 26.5 실패 및 18.6 최초 대조는 보존하고 동일 계측으로 26.5 두 테스트와 필요 시 18.6을 다시 비교한다.
+
+- P05-T03 수정 계측 26.5 구매 XCTest exit 65 FAIL: 직접 상품 조회 결과 빈 목록, 원래 coins 구매 호출 이전 checkpoint에 도달했고 구매 호출에서 실패했다. xcresult 오류 종류와 pending 대조를 확인한다.
+
+- P05-T03 수정 계측 26.5 pending XCTest도 exit 65 FAIL, `purchase-before`에 도달 후 상품 미조회 경로를 대조한다. 18.6 동일 계측 양성 대조 시작.
+
+- P05-T03 수정 계측 동일 18.6 대조: 구매·pending 각각 exit 0, 각 XCTest 1건 PASS/skip 0. 26.5 두 테스트는 각각 exit 65·PRODUCT_NOT_FOUND (`artifacts/storekit-xctest-comparison-jryw7wv_`, 전체 exit 1). 기존 P05-T03 FAIL·ENV OPEN 유지.
+
+- P05-T03 4개 `.xcresult` 재대조: 26.5 각 1건 실패·skip 0, 18.6 각 1건 PASS·skip 0. 이전 standalone 분류 단위 1건·runner 문법·원장·diff PASS. 커밋 전 test-only 계측·runner와 정제 문서만 stage하며 원본 로그·Simulator 데이터는 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks exit 0, 탐지 0건. test-only 코드와 정제 문서만 커밋한다.

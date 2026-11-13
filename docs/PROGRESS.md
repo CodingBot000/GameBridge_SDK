@@ -11,7 +11,7 @@
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 기본 브랜치 workflow 등록·Unity 실행 조건을 확인하고 안전할 때 handoff ref의 hosted CI를 1회 실행한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: 원격 hosted CI 재검증 결과를 커밋·인계한다. Unity self-hosted와 release readiness는 미완료다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1348,3 +1348,23 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 첫 run gate 원인 대조: basic-ci는 inventory=failure를 정확히 전파했고 release-readiness는 basic failure에서 먼저 종료했다. Unity SKIPPED는 성공이 아니다. 수정 commit을 검사·push 후 같은 조건에서 재검증한다.
 
 - P09-T07 재검증 전 커밋: 첫 원격 run 상태와 gate 원인만 기록한다. 91228d8 및 이 기록을 비밀정보·원격 이력 검사한 후 push한다.
+
+- P09-T07 수정 및 첫 run 기록 commit `2af863b`를 handoff에 fast-forward push했다. 전체 2개 commit gitleaks exit 0. repository 변수 재확인 후 수정된 hosted 검증을 재실행한다.
+
+- P09-T07 수정 검증용 두 번째 workflow_dispatch 요청: run 43483388390, 예상 SHA 2af863b. Unity 조건은 재확인 시 여전히 비활성이다. hosted 실제 결과는 대기 중이다.
+
+- P09-T07 수정 SHA 2af863b의 원격 재검증 run 43483388390: inventory-contracts SUCCESS, Unity SKIPPED. Backend·Android·macOS와 두 gate는 아직 진행 중이다. 최초 inventory 실패 이력은 보존한다.
+
+- P09-T07 수정 run inventory 원격 job 로그: unittest 요약 25 suite 합계 70건(설정 schema 2 포함), FAILED/skip 표시 없음, SUCCESS. 이는 정적·하네스 검사이며 원격 Unity Player 검증이 아니다.
+
+- P09-T07 재검증 run: inventory SUCCESS(원격 70건), Backend PostgreSQL SUCCESS, Unity SKIPPED. Android 추가 unit 및 macOS synthetic host 단계 진행 중.
+
+- P09-T07 재검증 run 43483388390 완료: inventory·Backend·Android·macOS·basic-ci SUCCESS, unity-e2e SKIPPED, release-readiness FAILURE, 전체 FAILURE. release gate 로그와 hosted 실제 검사 수를 대조한다.
+
+- P09-T07 재검증 최종 로그: Backend JUnit 13, Android JUnit 45+1+1, Swift XCTest 17 모두 실패/skip 0; synthetic iOS host는 검사상 1건 이상 통과(정확한 수 미출력). release gate는 BASIC=success, UNITY=skipped로 `DEFERRED_ENV` exit 2라 GitHub job FAILURE. 전체 workflow failure는 release 미준비를 반영하며 hosted job 실패가 아니다.
+
+- P09-T07 hosted 재검증: 4개 hosted job·basic-ci SUCCESS, Unity SKIPPED, release gate DEFERRED_ENV(exit 2) / GitHub FAILURE, 전체 failure. P09-T07 전체 PARTIAL, 실제 provider 대기 유지. [결과 evidence](evidence/p09-hosted-ci.md).
+
+- P09-T07 커밋 전 원장·diff PASS. 두 hosted run의 정제된 결과와 CI 문서·진행 기록만 stage하며 원본 job 로그·사용자 미추적 파일은 제외한다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 정제된 결과 문서만 커밋한다.

@@ -1087,3 +1087,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T08 검증: aggregation 13건, CI gate 6건, manifest 정상 및 음성, 진행 원장, diff 검사 PASS/skip 0. 변경 범위는 manifest 경로 fail-closed 한 단위이며 전체 P09-T08은 PARTIAL이다. Git 이력에서 private key/AWS/GitHub token 패턴과 민감 확장자·캐시 경로는 발견되지 않았고 email 패턴은 합성 example.invalid 1종이다.
 
 - P09-T08 커밋 전: manifest 경로 검사·복사본 음성 시험·P09 재개 감사 및 진행 문서만 개별 stage한다. 전체 P09는 PARTIAL, 실제 provider 및 현재 source strict 미검증을 유지한다.
+
+- P09 인계 최종 이력 확인: 139개 커밋 gitleaks 결과는 이전에 확인한 합성 redaction fixture 1건뿐이다. 전체 범위 `git diff --check`는 기존 Unity 생성 .meta의 빈 필드 후행 공백으로 exit 2였다. 이번 P09 커밋 자체 diff는 통과했으며 해당 Unity 파일은 재작성하지 않는다. 최종 원격 브랜치 유무와 이력을 별도로 확인한다.
+
+- P09-T08 인계 기록 커밋 전: origin 이후 diff는 Unity `.meta` 제외 PASS, 원격 기존 브랜치와의 분기 없음(로컬 139개 앞섬), 신규 handoff 브랜치 최초·재확인 시 없음. 정제 감사와 원장만 stage한다.

@@ -41,3 +41,9 @@ PX-T01~T17 이력 중 PX-T04/PX-T07의 Android/iOS Unity LOCAL_MOCK Player, PX-T
 ## 다음 한 작업
 
 P09-T08에서 현재 source의 격리 DB를 사용하는 ledger mutation과 정상 원장 suite를 재실행하고, fail-closed 결과·실행 수·원본 복원 및 미실행 항목을 기록한다. iOS 26.5 실패를 덮어쓰지 않는다.
+
+## Push 전 이력 점검
+
+기존 원격 작업 브랜치 `058742df` 이후 139개 커밋을 gitleaks 8.24.2로 검사했으며 탐지 1건은 `2f0c32e`의 redaction 단위 테스트에서 명시한 합성 고정 문자열이다. 패턴 점검에서 개인키·AWS/GitHub token 형태 및 실제 전화번호는 발견되지 않았고 email 형태는 합성 `example.invalid`뿐이다. 전체 이력 경로에서 서명·인증 파일, APK·IPA, XCFramework 바이너리, 캐시·원본 로그 경로는 발견되지 않았다. 스캐너 결과와 생성물은 커밋하지 않았다. 자동 검사가 모든 비밀정보의 부재를 보증하지는 않는다.
+
+기존 원격 이후 전체 diff의 `--check`는 Unity `.meta` 빈 필드 후행 공백 때문에 exit 2다. `.meta`를 제외한 diff 검사와 이번 변경 자체 diff 검사는 PASS다. Unity가 생성한 기존 metadata를 이번 P09 수정에서 재작성하지 않았다. 최종 신규 handoff 브랜치 생성 여부 및 원격 SHA는 대화의 최종 보고에서 확인한다.

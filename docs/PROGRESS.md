@@ -11,7 +11,7 @@
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 두 전용 Android AVD와 새 iOS Simulator에서 현재 소스 PII·Push Player 및 strict 집계를 실행한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: 현재 소스 PII·Push Player 검증 결과를 커밋·인계한다. P05-T03 iOS 26.5 실패의 별도 조사가 남는다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P09-T05 격리 Player 실행 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1184,3 +1184,15 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T05 두 전용 AVD는 부팅 초기 adb offline 상태로 아직 사용할 수 없다. 부팅 완료 및 지정 AVD 이름을 확인한 뒤 진행하며 이 시점 Player 결과는 NOT_RUN이다.
 
 - P09-T05 전용 AVD 부팅 확인: emulator-5580=P09_PII, emulator-5582=P09_PUSH, 각 이름·boot_completed 확인. 다음 `ci-unity-e2e.sh`는 PII·Push·strict를 같은 tracked-clean HEAD에서 수행한다. 커밋 전 시작 기록만 포함한다.
+
+- P09-T05 `ci-unity-e2e.sh` 실행: PII 양 Player gate PASS (`artifacts/unity-pii-current-gh5ksqc3`), strict 전체 FAIL / exit 1 (`artifacts/verify-all-e2d8gd77`, `artifacts/strict-isolated-veycx1cq`). source 5d716bd, 두 Android AVD 최초 전체화면 안내 수동 확인. Push lane 및 기존 실패의 상세를 대조한다.
+
+- P09-T05 strict에서 Push·PII 각 2건 PASS, 나머지 P05-T03 기존 실패로 전체 FAIL(exit 1), 49 lane 중 PASS 48·FAIL 1, 외부 WAITING_USER 13. PII Player 각각 원장 1건/100·동일 HEAD·tracked-clean을 확인했다. 상세 marker 대조 명령은 파일명 착오로 미실행되어 정확한 경로를 확인한다.
+
+- P09-T05 Push 양 Player marker 대조 PASS: receive/dedupe/main thread, background/foreground, network recovery, unregister/logout, synthetic late callback, session switch. Android 실제 AVD 네트워크 전환·iOS 로컬 transport fault injection을 구분한다. 사용한 전용 PII·Push AVD와 Simulator는 삭제 없이 종료했다.
+
+- P09-T05 PII·Push 양 플랫폼 현재 소스 각 2건 PASS, strict 48 PASS/기존 FAIL 1, 전체 exit 1. [Player evidence](evidence/p09-current-unity-player-20261113.md). 실 Provider·실기기 미검증.
+
+- P09-T05 종료 검증: 전용 AVD 프로세스·부팅 Simulator 없음. strict `sourceDirty=true`는 보존한 미추적 Demo/캐시를 포함하며 Player 각 `sourceTrackedDirty=false`와 구분한다. 원장·diff 검사 후 정제 문서만 커밋한다.
+
+- P09-T05 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 정제 evidence·진행 문서만 커밋하고 원본 로그·APK·DB·합성 키는 제외한다.

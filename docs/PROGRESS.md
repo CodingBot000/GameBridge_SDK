@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 55 / IMPLEMENTED 9 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 9 / FAIL 1 / PARTIAL 54 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 54 / IMPLEMENTED 10 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 10 / FAIL 1 / PARTIAL 53 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -79,7 +79,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P08-T01 | Android Maven 산출물·소비 build | IMPLEMENTED | PASS | N/A | docs/evidence/p08-android-maven-consumer.md | - |
 | P08-T02 | Swift Package·static XCFramework 산출물 | IMPLEMENTED | PASS | N/A | docs/evidence/p08-ios-xcframework-consumer.md | - |
 | P08-T03 | UPM staging·멱등 build hook | IMPLEMENTED | PASS | N/A | docs/evidence/p08-upm-staging.md | - |
-| P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/consumer-install.md | - |
+| P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IMPLEMENTED | PASS | N/A | docs/evidence/consumer-install.md | - |
 | P08-T05 | 기능 개발 기준점 고정 | IMPLEMENTED | PASS | N/A | docs/evidence/feature-baseline-current-20261113.md | - |
 | P09-T01 | 후반 하네스 manifest·공통 contract test | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T01 | - |
 | P09-T02 | Core·Bridge 회귀·실패 주입 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T02 | ENV-002 |
@@ -962,3 +962,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 변경 Native 최신 stage의 Sample API→iOS Native Demo LOCAL_MOCK Player PASS (`artifacts/unity-ios-e2e-kobckvqn`), tracked-clean·원장 1건/100. Android 재검증·실 provider는 별도다.
 - iOS test Simulator shutdown·데이터 보존. iOS 부분 결과 커밋 준비, Android는 최신 stage 재실행 전이다.
 - P08-T04 변경 Native 포함 최신 UPM의 Sample API→Native Demo Android LOCAL_MOCK Player 재검증 시작. 앱 미설치 전용 AVD·격리 DB 사용, 실 Google/Play는 별도다.
+- 변경 Native 최신 stage의 Sample API→Android Native Demo LOCAL_MOCK Player PASS (`artifacts/unity-android-e2e-xhb_xrnk`), tracked-clean·원장 1건/100, 최초 안내 수동 처리. 실제 Google/Play는 별도다.
+- 최신 양 Native Demo Player는동일 staging hash·각 tracked-clean이며 두 source 간 Unity/Native 제품 diff 0. AVD shutdown·데이터 보존, P08-T04 증거를 갱신한다.
+- P08-T04 변경 product의 최신 stage에서 Sample API→Android/iOS Native Demo LOCAL_MOCK Player를 각각 재검증해 해당 로컬 PASS를 복원했다. 실제 provider·실기기·시각 QA는 아니다.
+- P08-T04 상태 복원 후 원장·음성·manifest/diff PASS. 최신 양 Player·stage evidence 커밋 준비; 실제 provider/시각 QA는 별도다.

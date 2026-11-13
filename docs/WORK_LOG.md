@@ -3154,3 +3154,7 @@
 - 새 UPM `run-unity-ios-mock-e2e.py --native-demo-probe --adhoc` exit 0 (`artifacts/unity-ios-e2e-kobckvqn`): Sample API import 후 iOS Simulator Native Demo LOCAL_MOCK flow·원장 1건/100 PASS, tracked-clean. 실제 Apple provider·시각 QA는 아니다.
 - iOS test Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 실제 부분 결과만 포함하며 Android 최신 stage Player는 NOT_RUN이다.
 - `upm-config-diagnostic-20261113`의 Android Sample API import→Native Demo Player/DB를 재실행한다. 기존 AVD 앱을 덮어쓰지 않기 위해 빈 전용 AVD를 사용하고 시작 기록을 먼저 커밋한다.
+- 새 UPM `run-unity-android-mock-e2e.py --native-demo-probe` exit 0 (`artifacts/unity-android-e2e-xhb_xrnk`): Sample API import 후 Android Native Demo LOCAL_MOCK flow·원장 1건/100 PASS, tracked-clean. 최초 전체화면 안내 수동 처리, 실제 Google/Play·시각 QA는 아니다.
+- Android 131a4d2/iOS 469a924 Player의 staging hash는 동일 `358be200…`, 각 tracked-clean이고 두 source 사이 Unity/Android/iOS 제품 경로 diff 0. Android AVD는 삭제 없이 shutdown했다. P08-T04 현재 제품 evidence를 갱신한다.
+- `consumer-install.md`에 변경 product 최신 stage의 Android/iOS Sample API→Native Demo Player 재실행을 추가하고 P08-T04 로컬 PASS를 복원했다. 다른 source commit이지만 제품 tree가 같고 각 tracked-clean이다. 실제 provider·실기기·시각 QA는 별도다.
+- `verify-progress.py`, `check-progress-negative.py`, `check-manifest.py`, diff PASS. 커밋 전: 변경 Native 최신 stage의 양 Player 재검증 및 P08-T04 로컬 상태만 포함한다. raw logs·APK·키·DB는 제외한다.

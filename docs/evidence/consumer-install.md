@@ -8,3 +8,5 @@
 - Package Manager GUI 클릭, 화면 포인터·시각 QA, 실기기, 실제 Google/Apple 로그인·스토어·FCM/APNs는 이 검증 범위가 아니다. 원본 로그·키·DB·APK는 Git에 포함하지 않는다.
 
 metadata 추가 후 `artifacts/upm-stable-meta-20261113`에서 동일 Android/iOS Sample API import→Native Demo Player를 재실행했다 ([metadata 부분 증거](p08-unity-metadata-partial.md)). Unity가 프로젝트별로 생성하는 샘플 최상위 폴더 GUID 차이와 동일 프로젝트 재import 결과는 별도로 기록한다.
+
+설정 진단 변경 후 최신 `artifacts/upm-config-diagnostic-20261113`에서도 동일 과정을 재실행했다: Android `artifacts/unity-android-e2e-xhb_xrnk` source `131a4d2`, iOS `artifacts/unity-ios-e2e-kobckvqn` source `469a924`. 양쪽 같은 staging SHA-256 `358be20096ead408552438708504447faa727f2fd78b57d02e602aceacc596a8`, tracked-clean 및 Sample API→Native Demo LOCAL_MOCK Player·원장 각 1건/100 PASS; 두 source 사이 제품 파일 차이 0. Android 최초 안내는 수동 처리했으며 실제 provider/시각 QA는 아니다.

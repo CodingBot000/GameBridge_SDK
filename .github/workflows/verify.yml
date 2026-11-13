@@ -125,6 +125,7 @@ jobs:
           set -o pipefail
           swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|StoreKitBillingProviderTests|PushRouterTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
           python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests StoreKitBillingProviderTests PushRouterTests
+          bash scripts/smoke-ios-source-consumer.sh
       - name: Install pinned XcodeGen locally
         run: |
           mkdir -p "$RUNNER_TEMP/gamebridge-tools"

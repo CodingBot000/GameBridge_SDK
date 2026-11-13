@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 60 / IMPLEMENTED 4 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 4 / FAIL 1 / PARTIAL 59 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 58 / IMPLEMENTED 6 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 6 / FAIL 1 / PARTIAL 57 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -76,8 +76,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P07-T02 | 세 샘플 전체 사용자 흐름 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T02 | ENV-002 |
 | P07-T03 | 연동 문서·오류·소유권 가이드 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T03 | - |
 | P07-T04 | 구현 누락 1차 점검 | IN_PROGRESS | PARTIAL | N/A | docs/FEATURE_MATRIX.md, WORK_LOG P07-T04 | - |
-| P08-T01 | Android Maven 산출물·소비 build | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T01 | - |
-| P08-T02 | Swift Package·static XCFramework 산출물 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P08-T02 | - |
+| P08-T01 | Android Maven 산출물·소비 build | IMPLEMENTED | PASS | N/A | docs/evidence/p08-android-maven-consumer.md | - |
+| P08-T02 | Swift Package·static XCFramework 산출물 | IMPLEMENTED | PASS | N/A | docs/evidence/p08-ios-xcframework-consumer.md | - |
 | P08-T03 | UPM staging·멱등 build hook | IMPLEMENTED | PASS | N/A | docs/evidence/p08-upm-staging.md | - |
 | P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IMPLEMENTED | PASS | N/A | docs/evidence/consumer-install.md | - |
 | P08-T05 | 기능 개발 기준점 고정 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/feature-baseline.md, WORK_LOG P08-T05 | ENV-002, ENV-STOREKIT-26 |
@@ -893,3 +893,14 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P08-T03 강화 runner에서 새 격리 consumer Sample API import·Editor 1건·동일 프로젝트 override 재import의 두 sample root/internal GUID 안정성 PASS (`artifacts/offline-sample.PbKuS1`). 다른 프로젝트의 생성 root GUID는 다르며 package 내부 asset GUID와 구분한다.
 - P08-T03 계획 범위의 staging checksum·실제 양 export hook 반복·package asset GUID 및 동일 프로젝트 sample 재import 안정성·소비 빌드·README 구분을 확인해 IMPLEMENTED/로컬 PASS로 갱신했다. 프로젝트별 새 sample 대상 root GUID 차이와 실 provider/GUI 시각 미검증은 별도 명시했다.
 - P08-T03 상태/집계 갱신 후 원장·음성·metadata·manifest/diff PASS. 프로젝트별 생성 root GUID 차이, 실 provider/GUI 미검증은 유지하며 커밋 준비.
+- P08-T01/T02 최신 Native 산출물 독립 소비 검증 시작: 새 Maven과 iOS XCFramework 경로를 사용해 clean consumer R8 및 source/slice/symbol/link를 확인한다. 실기기·서명·실 provider는 별도다.
+- P08-T02 `swift build --package-path ios` exit 0: Swift package 자체 빌드 PASS. 별도 소비자 링크·XCFramework archive는 아직 진행 중이다.
+- P08-T02 독립 SwiftPM source consumer 초안 추가: Core/Apple 제품을 package dependency로 가져와 host 실행을 확인한다. 실행은 아직 NOT_RUN이다.
+- P08-T01 최신 Android Maven publish·독립 consumer R8 release build exit 0 (`artifacts/maven-p08-reverify-20261113`). P08-T02 무서명 device/simulator XCFramework archive exit 0 (`artifacts/ios-p08-reverify-20261113`), 독립 SwiftPM source consumer host 실행 PASS (`artifacts/ios-source-consumer.UIxcpt`). 실제 기기/스토어는 아님. 세부 산출물 검증은 진행 중.
+- P08-T02 새 XCFramework device/simulator arch 및 C ABI symbol 검사 PASS. P08-T01 consumer는 source project 참조 없이 Maven 좌표·R8 release 설정, POM 전이 의존성 선언 확인; APK 실행은 아님.
+- P08-T02 독립 Swift consumer의 arm64 iOS Simulator 링크 PASS 및 Mach-O IOSSIMULATOR 확인. P08-T01 merged manifest의 BILLING/INTERNET 확인, SDK XML 버전 경고 있음. clean consumer 재현을 별도 디렉터리에서 진행한다.
+- P08-T01 신규 격리 Maven consumer의 unsigned R8 release APK·mapping 및 merged manifest BILLING/INTERNET/consumer activity PASS (`artifacts/android-maven-consumer.cNk7BG`). 기기 실행은 아니다.
+- P08-T01 fresh isolated Maven R8 consumer 및 merged manifest, P08-T02 SwiftPM source host consumer·unsigned XCFramework arch/symbol·독립 iOS Simulator link를 확인했다. 제출된 APK/기기 실행·실 provider는 별도다. 증거를 정리한다.
+- P08-T01/T02 계획의 publication·clean Maven R8 소비 및 SwiftPM source/XCFramework arch·symbol·독립 simulator link를 실제 확인해 해당 Task 로컬 IMPLEMENTED/PASS로 갱신했다. unsigned APK·archive의 실기기 실행/실 provider는 별도다.
+- P08-T01/T02 원장/집계·음성·shell/metadata/diff 검사 PASS. Maven repository 미설정 시 실제 실행 없이 DEFERRED_ENV가 되는지 확인한다.
+- Maven repository 미설정 음성 exit 2/DEFERRED_ENV 및 CI YAML PASS. P08-T01/T02 관련 source consumer·증거·상태 커밋 준비; 원격/실기기 별도.

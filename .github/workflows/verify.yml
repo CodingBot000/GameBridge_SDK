@@ -30,6 +30,7 @@ jobs:
           python3 harness/check-manifest.py
           python3 harness/check-unity-meta.py
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_aggregation.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_entrypoint_exit_codes.py' -v
           python3 -m py_compile harness/run-unity-android-mock-e2e.py harness/run-android-mock-bridge-e2e.py harness/export-mock-e2e-evidence.py
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_export_mock_e2e_evidence.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ci_gate.py' -v

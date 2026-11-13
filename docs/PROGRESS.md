@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 56 / IMPLEMENTED 8 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 8 / FAIL 1 / PARTIAL 55 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 55 / IMPLEMENTED 9 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 9 / FAIL 1 / PARTIAL 54 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -36,7 +36,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P00-T01 | 저장소 보존·작업 원장 초기화 | IMPLEMENTED | PASS | N/A | WORK_LOG P00-T01 | - |
 | P00-T02 | 도구·라이선스·버전 조합 확정 | IMPLEMENTED | PASS | N/A | docs/TOOLCHAIN.md, WORK_LOG P00-T02 | ENV-001 |
 | P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T03 | ENV-002, ENV-003 |
-| P00-T04 | 진행 문서 검사·기본 명령 진입점 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T04 | - |
+| P00-T04 | 진행 문서 검사·기본 명령 진입점 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-entrypoints.md | - |
 | P00-T05 | 모드·비밀정보·설정 격리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T05 | - |
 | P01-T01 | 공통 모델·오류·상태 schema | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T01 | - |
 | P01-T02 | Bridge wire protocol·공용 fixture | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T02 | - |
@@ -916,3 +916,10 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P00-T02 TOOLCHAIN/ENVIRONMENT/USER_SETUP의 현재 설치·실행 범위를 갱신했다. 6000.3 LTS 미설치, 26.5 StoreKit FAIL, 실provider·실기기 대기는 유지한다.
 - P00-T02의 현 설치 버전·라이선스·로컬 검증/미검증 환경 기록 기준을 충족해 문서화 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. Unity 6.3 LTS 미설치 ENV-001 및 26.5/실 provider 실패·대기는 해소한 것이 아니다.
 - P00-T02 행/집계 갱신 후 원장 검사 PASS. ENV-001 OPEN·실 provider/26.5 실패는 그대로이며 음성 검사 후 커밋 준비.
+- P00-T04 문서 검증·명령 종료 코드 재감사 시작: Task 행 누락·증거 없는 PASS·잘못된 상태 음성 및 도구 부재/실행 실패 구분을 격리 사본에서 확인한다.
+- P00-T04 원장 사본의 행 누락·증거 없는 PASS·잘못된 상태 및 기존 음성 사례, 도구 부재 exit 2와 실행 실패 exit 7 분리 2건 PASS. 실제 doctor/Makefile 진입점도 확인한다.
+- `bash scripts/doctor.sh` exit 0: 로컬 명령·Docker·SDK 경로 가용성 확인. 라이선스·기기·실 provider 검증은 이 명령 범위 밖이다. Makefile 라우팅을 확인한다.
+- P00-T04 `make doctor`, `make verify-progress`, 원장 음성 및 종료 코드 격리 단위 2건 PASS. 실제 제품 검증은 아니며 계획 evidence를 정리한다.
+- P00-T04 계획의 정상·행 누락·빈 PASS evidence·잘못된 상태 및 도구 부재/명령 실패 구분을 확인해 해당 문서/진입점 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. 실제 제품 동작/실 provider PASS가 아니다.
+- P00-T04 격리 도구 부재 fixture가 시스템 HOME을 바꾸지 않도록 조정하고 종료 코드 단위를 재검증한다.
+- 격리 fixture 조정 후 종료 코드 2건·원장/diff PASS. P00-T04 진입점 Task 증거와 로컬 상태 커밋 준비.

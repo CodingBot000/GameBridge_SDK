@@ -3102,3 +3102,12 @@
 - `TOOLCHAIN.md`에 2026-11-13 실제 조회 버전·명령·LOCAL_MOCK/외부 한계를 추가하고 `ENVIRONMENT.md`, USER-UNITY 현재 evidence, ENV-001 증상을 정정했다. Unity 공식 지원 정책은 https://unity.com/releases/unity-6/support 참조. 6000.3 LTS를 설치·검증했다고 주장하지 않는다.
 - P00-T02 완료 조건인 실제 버전/명령/출처와 가능한·불가능한 검증 및 미확정 항목 후속 기록을 충족해 도구 감사 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. 6.3 LTS 미설치 ENV-001은 OPEN, 26.5 실패 및 실제 provider 대기는 그대로다.
 - P00-T02 행/집계 반영 후 `verify-progress.py` PASS. 커밋 전: 도구 감사·환경 대기와 당시 결과만 포함하며 6.3 LTS/실 provider 또는 iOS 26.5 실패를 해소했다고 기록하지 않는다.
+
+### P00-T04 원장·명령 진입점 재감사 시작
+- 현재 문서 검사기와 빌드 진입점이 계획의 행 누락·증거 없는 PASS·잘못된 상태 및 도구 부재/명령 실패 구분을 충족하는지 확인한다. 제품/원본 문서에 mutation을 적용하지 않고 artifacts 임시 사본만 사용한다.
+- `check-progress-negative.py`에 3개 격리 mutation(필수 행 삭제, PASS evidence 제거, 잘못된 상태)을 추가해 모두 거부했다. `test_entrypoint_exit_codes.py` 2건 PASS/skip0: 도구 부재는 exit 2, 인위적 build 실패는 exit 7. 원본 문서는 변경하지 않았다. 실제 doctor 및 Makefile 경로를 이어서 확인한다.
+- `bash scripts/doctor.sh` exit 0: 도구·Docker engine·Android SDK 경로가 응답했다. 이 명령은 라이선스·서명·실기기·플랫폼 동작 검증이 아니다. Makefile의 동일 진입점도 확인한다.
+- `make doctor`, `make verify-progress`, 강화 `check-progress-negative.py` 및 종료 코드 격리 단위 2건 PASS/skip0. 도구 가용성/문서 검사는 제품 통과가 아니며 플랫폼 build의 실제 결과는 별도 evidence를 참조한다.
+- P00-T04 완료 조건과 실제 실행을 `docs/evidence/p00-entrypoints.md`에 연결하고 문서/진입점 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. 실제 제품 suite와 외부 provider는 별도다.
+- 도구 부재 fixture는 PATH와 전용 ANDROID_HOME만 격리하고 시스템 HOME은 유지하도록 조정한다. 종료 코드 검증을 재실행한다.
+- HOME 유지 fixture에서 `test_entrypoint_exit_codes.py` 2건 PASS/skip0, 원장/diff PASS. 커밋 전: 음성 검사·CI 단위·해당 Task evidence만 포함한다. 제품/실 provider 완료 선언은 아니다.

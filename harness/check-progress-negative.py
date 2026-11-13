@@ -41,7 +41,24 @@ def main() -> int:
     if number != 1: print('Duplicate count mutation target missing'); return 1
     progress.write_text(changed,encoding='utf-8')
     if not check(duplicate,'declared counts differ'): print('Duplicate count was not detected'); return 1
-    print('Progress negatives PASS: missing document, evidence, external symlink and incorrect counts rejected; originals unchanged.')
+    for name, mutation, expected in (
+        ('missing-row', 'row', 'plan and ledger task IDs differ'),
+        ('empty-pass', 'evidence', 'PASS requires evidence'),
+        ('invalid-state', 'state', 'invalid status'),
+    ):
+        case=workspace/name;case.mkdir();shutil.copytree(ROOT/'docs',case/'docs')
+        progress=case/'docs/PROGRESS.md';text=progress.read_text(encoding='utf-8')
+        match=re.search(r'^\| P00-T01 \|[^\n]+$',text,re.M)
+        if not match: print('Task mutation target missing');return 1
+        if mutation=='row':changed=text[:match.start()]+text[match.end():]
+        else:
+            columns=match.group(0).strip('|').split('|')
+            if len(columns)!=7: print('Task mutation shape invalid');return 1
+            columns[5 if mutation=='evidence' else 3]=' - ' if mutation=='evidence' else ' INVALID_STATE '
+            changed=text[:match.start()]+'|'+'|'.join(columns)+'|'+text[match.end():]
+        progress.write_text(changed,encoding='utf-8')
+        if not check(case,expected):print(name+' mutation was not detected');return 1
+    print('Progress negatives PASS: missing document, evidence, task row, invalid status, external symlink and incorrect counts rejected; originals unchanged.')
     return 0
 
 if __name__ == '__main__': raise SystemExit(main())

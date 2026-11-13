@@ -10,15 +10,15 @@
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 진단 진행 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 이전 검증 UPM staging(현재 Android 변경 전): `artifacts/upm-stable-meta-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
+- 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 바로 다음 행동: P05-T03 iOS 26.5 StoreKit named/URL 초기화 실패를 보존하고 진단·대조 조건을 검토한다. 필요 시 최신 소스 strict를 재실행한다. 실제 provider 및 R40 iOS GUI 보조는 별도다.
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 58 / IMPLEMENTED 6 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 6 / FAIL 1 / PARTIAL 57 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 55 / IMPLEMENTED 9 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 9 / FAIL 1 / PARTIAL 54 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -76,9 +76,9 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P07-T02 | 세 샘플 전체 사용자 흐름 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T02 | ENV-002 |
 | P07-T03 | 연동 문서·오류·소유권 가이드 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T03 | - |
 | P07-T04 | 구현 누락 1차 점검 | IN_PROGRESS | PARTIAL | N/A | docs/FEATURE_MATRIX.md, WORK_LOG P07-T04 | - |
-| P08-T01 | Android Maven 산출물·소비 build | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p08-android-maven-consumer.md | - |
-| P08-T02 | Swift Package·static XCFramework 산출물 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p08-ios-xcframework-consumer.md | - |
-| P08-T03 | UPM staging·멱등 build hook | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p08-upm-staging.md | - |
+| P08-T01 | Android Maven 산출물·소비 build | IMPLEMENTED | PASS | N/A | docs/evidence/p08-android-maven-consumer.md | - |
+| P08-T02 | Swift Package·static XCFramework 산출물 | IMPLEMENTED | PASS | N/A | docs/evidence/p08-ios-xcframework-consumer.md | - |
+| P08-T03 | UPM staging·멱등 build hook | IMPLEMENTED | PASS | N/A | docs/evidence/p08-upm-staging.md | - |
 | P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/consumer-install.md | - |
 | P08-T05 | 기능 개발 기준점 고정 | IMPLEMENTED | PASS | N/A | docs/evidence/feature-baseline-current-20261113.md | - |
 | P09-T01 | 후반 하네스 manifest·공통 contract test | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T01 | - |
@@ -955,3 +955,6 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Android Unity sandbox 설정 누락 경계 PASS (`artifacts/unity-sandbox-config-android-yklqwymu`): client/store/installation key reason 및 sign-in CONFIG_REQUIRED, tracked-clean. 최초 전체화면 안내 수동 처리; 실제 Google 인증은 아님.
 - P00-T05 계획의 explicit mode·설정 누락 key/no-fallback·no-key build·비밀 파일 ignore를 local/fake 및 Unity sandbox 설정 경계에서 확인해 해당 Task IMPLEMENTED/로컬 PASS로 갱신했다. 실제 provider/entitlement/실기기는 별도 WAITING_USER다.
 - P00-T05 상태·집계/원장 음성·ignore 단위 2건/diff PASS. 설정 격리 로컬 증거만 커밋 준비; P08 변경 artifact/Player 재검증은 계속 PARTIAL이다.
+- 새 stage Editor sample·재import 및 실제 Android/iOS export hook 반복 PASS. Native product source는 설정 진단 commit fb48371 이후 변하지 않았다. 변경 Native의 독립 소비/staging 증거를 갱신한다.
+- P08-T01/T02/T03은 변경 Native 재빌드·독립 소비·새 staging/Editor/양 hook 실제 재검증으로 로컬 PASS를 복원했다. P08-T04 변경 Native의 양 Player 재실행은 아직 PARTIAL이며 실 provider는 별도다.
+- 변경 후 P08-T01/T02/T03 로컬 상태 복원 뒤 원장·음성·metadata/diff PASS. P08-T04 양 Player 재검증 전 정제 evidence 커밋 준비.

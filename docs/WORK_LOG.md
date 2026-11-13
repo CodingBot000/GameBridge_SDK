@@ -3147,3 +3147,6 @@
 - `run-unity-sandbox-config.py --platform android` exit 0 (`artifacts/unity-sandbox-config-android-yklqwymu`): 새 Android Player에서 client/store/installation 누락 key capability와 Google sign-in CONFIG_REQUIRED/no-fallback PASS, tracked-clean. 최초 전체화면 안내 수동 처리. 실제 Google 계정/서버는 호출하지 않았다.
 - `docs/evidence/p00-mode-config-isolation.md`에 no-key 빌드·fake 설정·양 Unity sandbox 누락 key/no-fallback·ignore 범위를 연결하고 P00-T05만 IMPLEMENTED/로컬 PASS로 갱신했다. Android/iOS actual provider 인증·entitlement·실기기/원격 서비스는 여전히 별도 대기다.
 - P00-T05 갱신 후 `verify-progress.py`, `check-progress-negative.py`, ignore 단위 2건 PASS/skip0, diff PASS. 커밋 전: 정제된 설정 격리 evidence와 해당 Task 상태만 포함, P08 새 Native Player 회귀 및 실제 provider를 완료로 바꾸지 않는다.
+- 변경 Native를 포함한 stage의 Editor sample/API import·같은 프로젝트 재import, Android/iOS 실제 export hook 반복이 각각 PASS했고 `git diff fb48371 HEAD`의 Android/iOS product 경로 차이 0을 확인했다. 해당 빌드 당시 test/docs 변경은 미커밋이었다. Native artifact/UPM evidence를 갱신하고 Player 재검증은 별도 유지한다.
+- 변경 Native의 fresh Maven/clean R8, iOS unsigned XCFramework/독립 link, 새 147파일 UPM/Editor sample/양 hook evidence를 추가해 P08-T01/T02/T03 로컬 PASS를 복원했다. 이전 실패/경고를 보존하며 P08-T04 양 Player 재검증과 실 provider는 미완료다.
+- 새 product의 P08-T01/T02/T03 상태 복원 후 원장·음성·metadata·diff PASS. 커밋 전: 새 산출물 정제 evidence·경로·해당 Task 상태만 포함한다. Native Demo 양 Player 및 실 provider는 별도 미완료다.

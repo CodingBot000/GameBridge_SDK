@@ -3141,3 +3141,5 @@
 - `run-unity-sandbox-config.py`는 Android/iOS를 명시적으로 선택해 누락 key와 no-fallback marker를 요구한다. opt-in·다른 플랫폼/누락 marker 거부 단위 2건 PASS/skip0. 실제 Provider 계정 호출은 설계상 없다. 양 managed compile을 확인한다.
 - Android `UNITY_ANDROID` 및 iOS `UNITY_IOS` test-only sandbox config consumer managed compile 각각 exit 0, 경고·오류 0. runner 음성 2건 PASS/skip0. 실제 Unity Player·실 provider는 아직 미실행이다. 커밋 전: test-only consumer/runner·검증만 포함한다.
 - `run-unity-sandbox-config.py --platform ios`에서 실제 Unity iOS bridge가 store/installation 누락 key capability와 products CONFIG_REQUIRED를 반환하는지 확인한다. 시작 기록을 먼저 커밋한다. 실 Apple 인증/스토어 UI는 실행하지 않는다.
+- `run-unity-sandbox-config.py --platform ios` exit 0 (`artifacts/unity-sandbox-config-ios-c9m2245o`): 새 iOS Simulator Unity Player에서 store/installation 누락 key capability와 products CONFIG_REQUIRED/no-fallback marker PASS, tracked-clean. Apple 계정/스토어·서버는 호출하지 않았다.
+- iOS sandbox config test Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 부분 결과만 기록하며 Android Player와 실제 provider는 미실행이다.

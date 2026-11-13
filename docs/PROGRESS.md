@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T06 / Strict 검증 기준선
+- 현재 Phase / Task: P09-T05 / Unity Player 현재 실행 검증
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: strict 기준선 결과를 커밋·인계한다. 다음에는 P09-T05의 별도 격리 Player 증거를 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md·P09-T06 집계 및 strict 기준선의 실행 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: 두 전용 Android AVD와 새 iOS Simulator에서 현재 소스 PII·Push Player 및 strict 집계를 실행한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 재개 행동: AGENTS.md·START_HERE.md·P09-T05 격리 Player 실행 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
@@ -1176,3 +1176,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T06 기준선 정리 후 aggregation 14건·self-check report 2건 PASS/skip 0, 진행 원장·diff PASS. 커밋 전: lane별 정제 evidence와 과거 정적 mapping 표현 정정 및 진행 문서만 포함한다. P09 전체 PARTIAL 유지.
 
 - P09-T06 커밋 전 staged gitleaks exit 0, 탐지 0건. 정제 기준선 기록을 커밋한다.
+
+- P09-T05 시작: HEAD/원격 c4269e9 일치, tracked clean. Unity 6000.5.8f1 라이선스 활성·Android/iOS 모듈 확인, 최신 staging 147개 checksum PASS 및 fb48371 이후 배포 product 경로 diff 없음. PII/Push Player는 아직 NOT_RUN이다.
+
+- P09-T05 새 전용 Android AVD 2개 생성: `GameBridge_V2_P09_PII_20261113_210717`, `GameBridge_V2_P09_PUSH_20261113_210717`. 기존 AVD는 변경하지 않았다. 아직 부팅·Player 실행은 NOT_RUN이다.
+
+- P09-T05 두 전용 AVD는 부팅 초기 adb offline 상태로 아직 사용할 수 없다. 부팅 완료 및 지정 AVD 이름을 확인한 뒤 진행하며 이 시점 Player 결과는 NOT_RUN이다.
+
+- P09-T05 전용 AVD 부팅 확인: emulator-5580=P09_PII, emulator-5582=P09_PUSH, 각 이름·boot_completed 확인. 다음 `ci-unity-e2e.sh`는 PII·Push·strict를 같은 tracked-clean HEAD에서 수행한다. 커밋 전 시작 기록만 포함한다.

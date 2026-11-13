@@ -3361,3 +3361,11 @@
 - P09-T06 기준선 정리 후 aggregation 14건·self-check report 2건 PASS/skip 0, 진행 원장·diff PASS. 커밋 전: lane별 정제 evidence와 과거 정적 mapping 표현 정정 및 진행 문서만 포함한다. P09 전체 PARTIAL 유지.
 
 - P09-T06 커밋 전 staged gitleaks exit 0, 탐지 0건. 정제 기준선 기록을 커밋한다.
+
+- P09-T05 시작: HEAD/원격 c4269e9, Unity 6000.5.8f1 활성 라이선스 및 Android/iOS 모듈, 기존 staging/cache 확인. `check-staging.py` 147개 PASS; fb48371 이후 Android/iOS/Unity 배포 product 경로 diff 0. 기존 AVD·Simulator는 사용하지 않고 전용 AVD 2개를 준비한다. 아직 Player는 미실행이다.
+
+- P09-T05 새 전용 Android AVD 2개 생성: `GameBridge_V2_P09_PII_20261113_210717`, `GameBridge_V2_P09_PUSH_20261113_210717`. 기존 AVD는 변경하지 않았다. 아직 부팅·Player 실행은 NOT_RUN이다.
+
+- P09-T05 두 전용 AVD는 부팅 초기 adb offline 상태로 아직 사용할 수 없다. 부팅 완료 및 지정 AVD 이름을 확인한 뒤 진행하며 이 시점 Player 결과는 NOT_RUN이다.
+
+- P09-T05 전용 AVD 부팅 확인: emulator-5580=P09_PII, emulator-5582=P09_PUSH, 각 이름·boot_completed 확인. 다음 `ci-unity-e2e.sh`는 PII·Push·strict를 같은 tracked-clean HEAD에서 수행한다. 커밋 전 시작 기록만 포함한다.

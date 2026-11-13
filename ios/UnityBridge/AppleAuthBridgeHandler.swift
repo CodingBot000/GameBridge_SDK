@@ -128,7 +128,7 @@ extension AppleAuthBridgeApi {
             let supported = name == "auth" || name == "store" || name == "push" || name == "config"
             let configured = name == "auth" || name == "config" || (name == "store" && mapping != nil) || (name == "push" && installation != nil)
             capabilities[name] = ["supported": supported, "configured": configured, "mode": "PLATFORM_SANDBOX",
-                                  "reason": configured ? NSNull() as Any : (name == "store" ? "Store product IDs required" : name == "push" ? "Installation ID required" : "Bridge operation is not connected")]
+                                  "reason": configured ? NSNull() as Any : (name == "store" ? "coinsStoreProductId, premiumStoreProductId required" : name == "push" ? "installationId required" : "Bridge operation is not connected")]
         }
         return ["state": "READY", "mode": "PLATFORM_SANDBOX", "provider": "APPLE", "capabilities": capabilities]
     }

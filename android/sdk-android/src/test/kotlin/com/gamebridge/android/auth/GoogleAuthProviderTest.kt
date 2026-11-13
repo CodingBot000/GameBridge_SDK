@@ -40,13 +40,14 @@ private class StubGateway : GoogleCredentialGateway {
 }
 private class StubBackend : GoogleAuthBackend {
     var exchanges = 0
+    var challenges = 0
     var challengeNonce = "server-nonce"
     var profileUser = "d2719c4e-d533-47ee-9efd-838791ea79c8"
     var expired = false
     var refreshes = 0
     var failRefresh = false
     var failRevoke = false
-    override suspend fun challenge(appId: String) = AuthChallenge("dc9a46f4-8e20-4880-bcbb-ac45033157ca", challengeNonce, "2030-01-01T00:00:00Z")
+    override suspend fun challenge(appId: String): AuthChallenge { challenges++; return AuthChallenge("dc9a46f4-8e20-4880-bcbb-ac45033157ca", challengeNonce, "2030-01-01T00:00:00Z") }
     override suspend fun exchange(challengeId: String, credential: GoogleIdToken): NativeSession {
         assertEquals("test-id-token", credential.value); exchanges++
         return NativeSession("test-access", "test-refresh", "2030-01-01T00:00:00Z", "d2719c4e-d533-47ee-9efd-838791ea79c8")
@@ -83,8 +84,9 @@ class GoogleAuthProviderTest {
     }
     @Test fun `missing config and mismatched user fail without saving`() = runBlocking {
         val store = MemoryStore(); val backend = StubBackend(); val gateway = StubGateway()
-        assertEquals("CONFIG_REQUIRED", assertFailsWith<SdkFailure> { GoogleAuthProvider(config(null), store, gateway, backend).signIn() }.code)
-        assertEquals(0, backend.exchanges)
+        val missing = assertFailsWith<SdkFailure> { GoogleAuthProvider(config(null), store, gateway, backend).signIn() }
+        assertEquals("CONFIG_REQUIRED", missing.code); assertEquals("googleServerClientId", missing.nativeCode)
+        assertNull(gateway.nonce); assertEquals(0, backend.challenges); assertEquals(0, backend.exchanges)
         backend.profileUser = "8e37925d-a1a8-4118-84eb-b00668b9d469"
         assertEquals("AUTH_FAILED", assertFailsWith<SdkFailure> { GoogleAuthProvider(config(), store, gateway, backend).signIn() }.code)
         assertNull(store.stored)

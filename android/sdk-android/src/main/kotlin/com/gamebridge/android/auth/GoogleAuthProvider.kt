@@ -78,7 +78,7 @@ class GoogleAuthProvider internal constructor(
     fun detachHost() = gateway.detach()
     suspend fun signIn(): UserProfile {
         if (config.mode != ProviderMode.PLATFORM_SANDBOX) throw SdkFailure("UNSUPPORTED_PROVIDER")
-        val clientId = config.googleServerClientId?.takeIf { it.isNotBlank() } ?: throw SdkFailure("CONFIG_REQUIRED")
+        val clientId = config.googleServerClientId?.takeIf { it.isNotBlank() } ?: throw SdkFailure("CONFIG_REQUIRED", "googleServerClientId")
         if (!uiGate.tryLock()) throw SdkFailure("BUSY")
         try { return sessionLock.withLock {
             val challenge = backend.challenge(config.appId)

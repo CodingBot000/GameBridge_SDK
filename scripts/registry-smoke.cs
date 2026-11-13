@@ -249,7 +249,11 @@ internal static class Program
         Check(permissionTransport.Requests == 1, "explicit Android permission request"); permissionFacade.Dispose();
         var hostTransport = new HeldTransport(); var hostFacade = new GameBridge.GameBridgeClient(hostTransport);
         var hostInit = hostFacade.InitializeAsync(new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.PlatformSandbox, "https://example.invalid"));
-        hostTransport.Reply(hostTransport.Requests[0], InitResponse("PLATFORM_SANDBOX")); await hostInit;
+        var sandboxInit = InitResponse("PLATFORM_SANDBOX");
+        sandboxInit["capabilities"]["auth"]["configured"] = false;
+        sandboxInit["capabilities"]["auth"]["reason"] = "googleServerClientId required";
+        hostTransport.Reply(hostTransport.Requests[0], sandboxInit); await hostInit;
+        Check(!hostFacade.GetCapabilities().Features["auth"].Configured && hostFacade.GetCapabilities().Features["auth"].Reason == "googleServerClientId required", "missing configuration key visible in capability");
         var diagnosticsTask = hostFacade.GetNativeDiagnosticsAsync();
         hostTransport.Reply(hostTransport.Requests[hostTransport.Requests.Count - 1], new JObject { ["events"] = new JArray(new JObject {
             ["kind"] = "AUTH", ["outcome"] = "FAILED", ["timestamp"] = "2026-11-10T00:00:00Z", ["requestId"] = Guid.NewGuid().ToString("D") }) });

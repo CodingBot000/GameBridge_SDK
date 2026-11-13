@@ -34,6 +34,10 @@ final class AppleAuthBridgeTests: XCTestCase {
         let initResult = try await handler.invoke("sdk.initialize", payload: ["providerMode": "PLATFORM_SANDBOX", "appId": "demo",
             "backendBaseUrl": "https://example.invalid", "requestTimeoutMs": 30000]) as? [String: Any]
         XCTAssertEqual(initResult?["mode"] as? String, "PLATFORM_SANDBOX")
+        let capabilities = try XCTUnwrap(initResult?["capabilities"] as? [String: [String: Any]])
+        XCTAssertEqual(capabilities["store"]?["configured"] as? Bool, false)
+        XCTAssertEqual(capabilities["store"]?["reason"] as? String, "coinsStoreProductId, premiumStoreProductId required")
+        XCTAssertEqual(capabilities["push"]?["reason"] as? String, "installationId required")
         do { _ = try await handler.invoke("auth.signIn", payload: ["provider": "MOCK"]); XCTFail("must reject") }
         catch let error as SdkFailure { XCTAssertEqual(error.code, "UNSUPPORTED_PROVIDER") }
         let profile = try await handler.invoke("auth.signIn", payload: ["provider": "APPLE"]) as? [String: Any]

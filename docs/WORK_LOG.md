@@ -3111,3 +3111,26 @@
 - P00-T04 완료 조건과 실제 실행을 `docs/evidence/p00-entrypoints.md`에 연결하고 문서/진입점 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. 실제 제품 suite와 외부 provider는 별도다.
 - 도구 부재 fixture는 PATH와 전용 ANDROID_HOME만 격리하고 시스템 HOME은 유지하도록 조정한다. 종료 코드 검증을 재실행한다.
 - HOME 유지 fixture에서 `test_entrypoint_exit_codes.py` 2건 PASS/skip0, 원장/diff PASS. 커밋 전: 음성 검사·CI 단위·해당 Task evidence만 포함한다. 제품/실 provider 완료 선언은 아니다.
+
+### P00-T05 ignore·설정 격리 재감사 시작
+- 추적 파일명만 확인한 결과 실제 `.env`/서명·서비스 설정 파일은 추적 목록에서 발견되지 않았다. 기존 `.gitignore`는 `.env.local`만 막고 `.env`, 변형 환경 파일, Unity `.ulf` 및 독립 APK/AAB/IPA를 명시적으로 막지 않으므로 보강한다. 실제 비밀 파일 내용은 읽지 않는다.
+- `test_gitignore_secrets.py` 2건 PASS/skip0: synthetic .env/서명/Unity license/빌드 산출물 이름은 ignore, example 이름은 추적 가능하다. Android Google 설정 누락의 정확한 key와 no-fallback 경로를 추가 점검한다.
+- Android `GoogleAuthProvider.signIn`은 client ID가 없으면 backend 호출 전 CONFIG_REQUIRED이지만 `nativeCode`에 누락 key 이름이 없다. Unity capability reason은 auth/store 공통 문구로 실제 빠진 설정을 구분하지 못한다. P00-T05의 누락 key 진단 기준에 맞춰 허용된 key 이름만 표시하고 값/Mock fallback은 노출하지 않는다.
+- Native GoogleAuthProvider의 미설정 오류에 `googleServerClientId` key 이름을 추가하고 Unity capability reason을 auth/store/push별 실제 누락 key로 분리했다. synthetic 설정 matrix 및 로그인 호출 전 차단 test를 작성했다. 실제 Google 인증은 미실행이다.
+- Android provider/bridge 시험 첫 호출은 `ANDROID_HOME`이 없어 SDK location 탐색에서 exit 1, 테스트는 NOT_RUN이었다. 설치된 Android SDK 경로를 환경변수로 명시해 재실행한다. 사용자 local.properties는 만들지 않는다.
+- `ANDROID_HOME=<installed SDK> android/gradlew ... GoogleAuthProviderTest ... GoogleAuthBridgeHandlerTest --rerun-tasks` exit 0: provider 15건·bridge 5건/skip0. 설치 SDK XML 버전 경고는 있었고 실 Google 인증은 아니다. Unity capability 공개 전달과 challenge 호출 전 차단을 명시적으로 확인한다.
+- Android provider/bridge `--rerun-tasks` exit 0: JUnit 각각 15건·5건/실패0/skip0, client ID 없으면 gateway/challenge 미호출 및 정확한 key, capability 누락 조합을 확인했다. 이는 fake이며 실 Google 인증은 아니다. Unity managed 전달·나머지 설정 격리 테스트를 실행한다.
+- Backend `EnvironmentPolicyTest`, Android `ConfigurationTest`, Swift `ConfigurationTests` 각 2건 PASS/skip0; C# `smoke-csharp-registry.sh` exit 0에서 `googleServerClientId` capability reason 전달 확인. `test_gitignore_secrets.py` 2건 PASS/skip0. synthetic/fake 및 standalone managed 시험이며 실제 Google/Apple provider는 미실행이다.
+- Android Google provider/bridge 제품 코드가 바뀌어 기존 Maven·UPM·Android Player 증거는 이전 source에 대한 것이다. 재검증 전 P08-T01/T03/T04를 IN_PROGRESS/PARTIAL로 낮추고 과거 PASS evidence는 보존했다. iOS Native 제품은 변경되지 않았다.
+- 새 `maven-config-diagnostic-20261113`에 변경 Android product를 다시 publish하고 독립 R8 소비자를 빌드한다. 개발키·서비스 credential 관련 환경 변수를 제거한 명령으로 backend bootJar도 빌드한다. 기존 staging/산출물은 보존한다.
+- `env -u GAMEBRIDGE_DEV_AUTH_KEY -u SERVER_TOKEN_ENCRYPTION_KEY -u GOOGLE_APPLICATION_CREDENTIALS backend/gradlew -p backend bootJar` exit 0 (`artifacts/config-diagnostic-backend-build.log`): 명시적 local build만 확인, 서버 기동·실 provider는 아님. Android build는 진행 중이다.
+- 개발키·Google credential 환경변수를 제거한 `build-android.sh --mock` exit 0 (`artifacts/config-diagnostic-android-build.log`, Maven `artifacts/maven-config-diagnostic-20261113`). Android 실제 provider는 미검증이다. 새 격리 clean consumer를 실행한다.
+- iOS `AppleAuthBridgeHandler`의 store/push capability reason 역시 일반 문구라 `coinsStoreProductId`, `premiumStoreProductId`, `installationId`를 구체적으로 안내하지 않는다. 값 없이 key 이름만 보이도록 수정한다. Apple entitlement·실 계정 검증은 별도다.
+- `swift test --package-path ios --filter AppleAuthBridgeTests` exit 0, XCTest 3건/실패0/skip0: synthetic capability의 누락 product/installation key 확인, 실제 Apple 인증/entitlement은 아님. iOS 제품 코드도 변경되어 이전 XCFramework는 구 source이며 P08-T02를 IN_PROGRESS/PARTIAL로 전환했다.
+- 변경 Android Maven으로 `smoke-android-maven-consumer.sh` exit 0 (`artifacts/android-maven-consumer.IjHXTq`), unsigned R8 APK/merged manifest 확인. iOS Apple bridge 변경은 아직 새 XCFramework에 포함되지 않아 새 output으로 archive/symbol/link를 검증한다.
+- `GAMEBRIDGE_IOS_OUTPUT_DIR=<new> bash scripts/build-ios.sh --xcframework` exit 0 (`artifacts/config-diagnostic-ios-build.log`), device/simulator 무서명 archive 및 XCFramework 생성. symbol/독립 link와 실기기/실 provider는 별도다.
+- 변경 iOS XCFramework `verify-xcframework.py` exit 0(device arm64/simulator arm64+x86_64, C ABI 4개), 별도 `swiftc` 링크 및 IOSSIMULATOR load command 확인. 독립 SwiftPM source consumer host 실행 exit 0 (`artifacts/ios-source-consumer.OuaLdz`). 서명 실기기/실 provider는 미검증이다. 새 Android/iOS 산출물로 UPM staging을 생성한다.
+- 새 stage Unity 검증 호출은 작업 디렉터리 오타로 시작되지 않아 모든 Editor/hook 시험 NOT_RUN이었다. 올바른 경로에서 실행한다.
+- 새 UPM stage의 Sample API/Editor fake test 및 동일 프로젝트 GUID 재import PASS (`artifacts/offline-sample.X4RqNd`), Android 실제 Gradle hook 2회 hash 불변 PASS (`artifacts/unity-android-mock.RMw4BW`). iOS hook은 진행 중이며 원격/실기기 결과가 아니다.
+- 새 UPM stage `smoke-unity-ios-hook-repeat.sh` exit 0 (`artifacts/unity-ios-mock.v5pYhN`): 실제 Xcode export hook 2회 후 PBX·XCFramework hash 불변. 이 결과는 서명/Player 실행이 아니다. 변경 product의 양 Player는 다음에 검증한다.
+- Android/iOS capability 누락 key 개선, synthetic ignore 시험 및 no-key build, 새 UPM sample/양 export hook이 로컬 검증됐다. 실제 Unity sandbox 누락 경계·변경 Player 및 실제 provider는 아직 NOT_RUN이다. 커밋 전: 제품 진단 코드·관련 테스트·ignore·정제 문서만 포함하고 P00-T05/P08은 PARTIAL 유지한다.

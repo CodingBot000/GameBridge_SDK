@@ -156,8 +156,13 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
                         put("reason", when {
                             name == "push" && configured -> JsonPrimitive("Firebase host initialization and notification permission must be checked")
                             configured -> JsonNull
-                            name == "push" -> JsonPrimitive("Installation ID required")
-                            supported -> JsonPrimitive("Google client ID and store product IDs required")
+                            name == "push" -> JsonPrimitive("installationId required")
+                            name == "auth" -> JsonPrimitive("googleServerClientId required")
+                            name == "store" -> JsonPrimitive(buildList {
+                                if (clientId == null) add("googleServerClientId")
+                                if (mapping == null) { add("coinsStoreProductId"); add("premiumStoreProductId") }
+                            }.joinToString(", ") + " required")
+                            supported -> JsonPrimitive("Configuration required")
                             else -> JsonPrimitive("Bridge operation is not connected")
                         })
                     })

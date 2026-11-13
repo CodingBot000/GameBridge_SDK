@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T05 / Unity Player 현재 실행 검증
+- 현재 Phase / Task: P05-T03 / iOS 26.5 StoreKit 독립 원인 분리
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 현재 소스 PII·Push Player 검증 결과를 커밋·인계한다. P05-T03 iOS 26.5 실패의 별도 조사가 남는다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md·P09-T05 격리 Player 실행 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: 독립 XCTest 비교 결과를 커밋·인계한다. 다음에는 SDK 없는 독립 앱과 XCTest의 launch 환경 차이를 조사한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 재현 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
@@ -1196,3 +1196,23 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T05 종료 검증: 전용 AVD 프로세스·부팅 Simulator 없음. strict `sourceDirty=true`는 보존한 미추적 Demo/캐시를 포함하며 Player 각 `sourceTrackedDirty=false`와 구분한다. 원장·diff 검사 후 정제 문서만 커밋한다.
 
 - P09-T05 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 정제 evidence·진행 문서만 커밋하고 원본 로그·APK·DB·합성 키는 제외한다.
+
+- P05-T03 독립 원인 분리 시작: HEAD/원격 6c87900 일치. 기존 통합 named/URL·스레드 반복은 하지 않는다. Xcode 26.6, iOS 18.6/26.5 runtime 확인; 제품 SDK와 Backend 없이 test-only 비교를 준비한다.
+
+- P05-T03 독립 UIKit host·XCTest와 1상품 최소 StoreKit 설정을 작성했다. 기존 설정은 실행 시 복사하고 SDK·Unity·Backend·DB 의존성은 없다. 새 runtime별 Simulator에서 각 설정을 1회씩, testcase timeout 60초로 실행할 예정이다. 아직 실제 빌드·실행은 NOT_RUN이다.
+
+- P05-T03 독립 runner 문법·원장·diff PASS. 18.6/26.5 전용 신규 simulator 각 하나에서 최소/현재 설정 2종을 각각 1회씩 실행한다. 각 테스트 60초·명령 150초 상한, 결과는 성공/실패/환경 대기를 구분한다.
+
+- P05-T03 독립 XCTest iOS 18.6 최소 1상품 구성: exit 0, 1건 PASS/skip 0. 기존 구성과 26.5 비교는 진행 중이며 전체 원인은 아직 미확정이다.
+
+- P05-T03 독립 XCTest iOS 18.6 기존 구성: exit 0, 1건 PASS/skip 0. 26.5 전용 신규 Simulator를 만들었으며 비교는 진행 중이다.
+
+- P05-T03 독립 XCTest iOS 26.5 최소·기존 구성 각각 exit 0, 각 1건 PASS/skip 0. SDK 없는 독립 테스트에서는 기존 timeout이 재현되지 않았다. XCTest host와 기존 SwiftUI 실행 앱의 환경 차이를 조사하며 P05-T03 FAIL은 유지한다.
+
+- P05-T03 네 독립 실행 전부 exit 0, 4건 PASS/skip 0 (`artifacts/storekit-isolation-04skqp6v`). 기존 .storekit 복사본 SHA-256이 원본과 일치한다. 26.5 기존 app의 `storekit-session-create` timeout과 달리 XCTest host에서는 재현되지 않았다. Xcode SDK StoreKitTest header의 deprecated 경고는 관찰됐으나 원인 연결 근거는 없다.
+
+- P05-T03 독립 XCTest 18.6/26.5 각 최소·기존 설정 4/4 PASS. 기존 통합 앱 26.5 timeout은 해결로 간주하지 않으며 FAIL/ENV-STOREKIT-26 OPEN 유지. [독립 비교 evidence](evidence/p05-storekit-26-isolation.md).
+
+- P05-T03 커밋 전 원장·diff PASS, 신규 Simulator 2대 shutdown 확인. 독립 test fixture/runner 및 정제 evidence·진행 문서만 stage한다. 제품 StoreKit Provider·원본 xcresult·로그·사용자 미추적 파일은 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 독립 재현 코드와 정제 문서만 커밋한다.

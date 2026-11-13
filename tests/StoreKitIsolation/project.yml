@@ -1,0 +1,42 @@
+name: StoreKitIsolation
+options:
+  deploymentTarget:
+    iOS: '16.0'
+targets:
+  IsolationHost:
+    type: application
+    platform: iOS
+    sources:
+      - App.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: invalid.gamebridge.storekit.isolation
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: '5.0'
+  IsolationTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - SessionTests.swift
+      - path: Minimal.storekit
+        buildPhase: resources
+      - path: Current.storekit
+        buildPhase: resources
+    dependencies:
+      - target: IsolationHost
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: invalid.gamebridge.storekit.isolation.tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: '5.0'
+        FRAMEWORK_SEARCH_PATHS: "$(inherited) $(SDKROOT)/Developer/Library/Frameworks"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks $(PLATFORM_DIR)/Developer/Library/Frameworks"
+schemes:
+  Isolation:
+    build:
+      targets:
+        IsolationHost: all
+        IsolationTests: [test]
+    test:
+      targets:
+        - IsolationTests

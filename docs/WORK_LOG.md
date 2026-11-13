@@ -3134,3 +3134,9 @@
 - 새 UPM stage의 Sample API/Editor fake test 및 동일 프로젝트 GUID 재import PASS (`artifacts/offline-sample.X4RqNd`), Android 실제 Gradle hook 2회 hash 불변 PASS (`artifacts/unity-android-mock.RMw4BW`). iOS hook은 진행 중이며 원격/실기기 결과가 아니다.
 - 새 UPM stage `smoke-unity-ios-hook-repeat.sh` exit 0 (`artifacts/unity-ios-mock.v5pYhN`): 실제 Xcode export hook 2회 후 PBX·XCFramework hash 불변. 이 결과는 서명/Player 실행이 아니다. 변경 product의 양 Player는 다음에 검증한다.
 - Android/iOS capability 누락 key 개선, synthetic ignore 시험 및 no-key build, 새 UPM sample/양 export hook이 로컬 검증됐다. 실제 Unity sandbox 누락 경계·변경 Player 및 실제 provider는 아직 NOT_RUN이다. 커밋 전: 제품 진단 코드·관련 테스트·ignore·정제 문서만 포함하고 P00-T05/P08은 PARTIAL 유지한다.
+
+### P00-T05 Unity sandbox 설정 누락 Player 검증 시작
+- Android/iOS test-only consumer로 PLATFORM_SANDBOX 초기화 후 누락 configuration key를 capability에서 확인한다. Android는 Google sign-in이 key 검사 단계에서 CONFIG_REQUIRED, iOS는 store ID 미설정 시 products가 CONFIG_REQUIRED인지 확인한다. `example.invalid`만 사용하며 실제 계정·서버·스토어 UI는 열지 않는다.
+- Android는 client ID 없음·Google sign-in CONFIG_REQUIRED, iOS는 store ID 없음·products CONFIG_REQUIRED와 양쪽 capability key 이름을 검사하는 test-only consumer를 작성했다. `example.invalid` 사용, 아직 컴파일/Player는 NOT_RUN이다.
+- `run-unity-sandbox-config.py`는 Android/iOS를 명시적으로 선택해 누락 key와 no-fallback marker를 요구한다. opt-in·다른 플랫폼/누락 marker 거부 단위 2건 PASS/skip0. 실제 Provider 계정 호출은 설계상 없다. 양 managed compile을 확인한다.
+- Android `UNITY_ANDROID` 및 iOS `UNITY_IOS` test-only sandbox config consumer managed compile 각각 exit 0, 경고·오류 0. runner 음성 2건 PASS/skip0. 실제 Unity Player·실 provider는 아직 미실행이다. 커밋 전: test-only consumer/runner·검증만 포함한다.

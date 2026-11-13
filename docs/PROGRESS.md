@@ -944,3 +944,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 새 UPM stage Editor sample/API import·동일 프로젝트 재import PASS (`artifacts/offline-sample.X4RqNd`), Android Gradle export hook 반복 PASS (`artifacts/unity-android-mock.RMw4BW`). iOS hook은 진행 중이다.
 - 새 UPM stage iOS Xcode export hook 반복 PASS (`artifacts/unity-ios-mock.v5pYhN`), 서명/Player는 별도다. 현재 변경 product의 Android/iOS Player 재실행을 준비한다.
 - P00-T05 Android/iOS 설정 진단 변경과 ignore 규칙은 fake 단위·키 없는 빌드·새 stage Editor/양 hook PASS. 실제 Unity sandbox 누락 경계 및 변경 Player 검증 전이며 P00-T05/P08 재검증 상태는 PARTIAL 유지, clean-source 실행 위해 커밋 준비.
+- P00-T05 실제 Unity sandbox 설정 누락 경계 검증 시작: Android Google client ID와 iOS store/installation 설정이 없는 경우 capability의 key 이름 및 CONFIG_REQUIRED를 확인한다. 실제 계정 UI·서버 호출은 수행하지 않는다.
+- test-only Android/iOS sandbox 누락 설정 consumer를 작성했다. 실제 account UI/서버 호출 없이 capability key 및 CONFIG_REQUIRED를 확인하며 아직 컴파일/Player 미실행이다.
+- Unity sandbox config 전용 runner 초안과 platform marker/opt-in 음성 단위 2건 PASS. 양 조건부 managed compile 및 실제 Player는 아직 NOT_RUN이다.
+- sandbox config consumer Android/iOS 조건부 managed compile 각각 경고·오류 0, marker/opt-in 음성 2건 PASS. 실제 Player는 NOT_RUN이며 clean-source 실행 전 커밋 준비.

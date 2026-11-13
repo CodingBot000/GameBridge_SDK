@@ -1342,3 +1342,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 커밋 전: 확인된 fresh checkout artifacts 초기화 결함 1줄과 진행 문서만 포함한다. clean clone 전체 inventory step 24 suite/68건 PASS; 첫 원격 run의 macOS는 계속 진행 중이며 완료 결과는 별도 기록한다.
 
 - P09-T07 커밋 전 staged gitleaks exit 0, 탐지 0건. 수정 1줄과 진행 기록만 로컬 커밋한다.
+
+- P09-T07 첫 원격 run 43481632527 완료 FAIL: Backend·Android·macOS SUCCESS, inventory FAIL(빈 artifacts), basic-ci FAIL(의존 job 실패), Unity SKIPPED, release FAIL. 후속 gate 로그의 실제 실패 사유를 확인하고, 수정 commit 기반 재검증을 준비한다.
+
+- P09-T07 첫 run gate 원인 대조: basic-ci는 inventory=failure를 정확히 전파했고 release-readiness는 basic failure에서 먼저 종료했다. Unity SKIPPED는 성공이 아니다. 수정 commit을 검사·push 후 같은 조건에서 재검증한다.
+
+- P09-T07 재검증 전 커밋: 첫 원격 run 상태와 gate 원인만 기록한다. 91228d8 및 이 기록을 비밀정보·원격 이력 검사한 후 push한다.

@@ -3153,3 +3153,4 @@
 - `upm-config-diagnostic-20261113`을 새 iOS 소비 프로젝트에 Sample API로 import하고 Native Demo LOCAL_MOCK Player/DB를 재실행한다. clean-source 시작 기록만 먼저 커밋한다.
 - 새 UPM `run-unity-ios-mock-e2e.py --native-demo-probe --adhoc` exit 0 (`artifacts/unity-ios-e2e-kobckvqn`): Sample API import 후 iOS Simulator Native Demo LOCAL_MOCK flow·원장 1건/100 PASS, tracked-clean. 실제 Apple provider·시각 QA는 아니다.
 - iOS test Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 실제 부분 결과만 포함하며 Android 최신 stage Player는 NOT_RUN이다.
+- `upm-config-diagnostic-20261113`의 Android Sample API import→Native Demo Player/DB를 재실행한다. 기존 AVD 앱을 덮어쓰지 않기 위해 빈 전용 AVD를 사용하고 시작 기록을 먼저 커밋한다.

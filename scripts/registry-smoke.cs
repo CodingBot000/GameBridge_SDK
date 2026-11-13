@@ -61,6 +61,14 @@ internal static class Program
         foreach (var name in new[] { "auth", "store", "push", "config" }) caps[name] = new JObject { ["supported"] = true, ["configured"] = true, ["mode"] = mode, ["reason"] = JValue.CreateNull() };
         return new JObject { ["state"] = "READY", ["mode"] = mode, ["capabilities"] = caps };
     }
+    private static void CheckFixtureRoundTrip<T>(JToken value, string name)
+    {
+        var model = WireModels.Decode<T>(value);
+        var serializer = Newtonsoft.Json.JsonSerializer.Create(new Newtonsoft.Json.JsonSerializerSettings {
+            Converters = new[] { new Newtonsoft.Json.Converters.StringEnumConverter() }
+        });
+        Check(JToken.DeepEquals(value, JToken.FromObject(model, serializer)), name + " fixture round trip");
+    }
     private static async Task Main()
     {
         string sent = null;
@@ -153,6 +161,13 @@ internal static class Program
             }
         }
         var fixture = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(Environment.GetEnvironmentVariable("GAMEBRIDGE_ROOT"), "contracts/fixtures/models/roundtrip.json")));
+        CheckFixtureRoundTrip<GameBridge.UserProfile>(fixture["profile"], "profile");
+        CheckFixtureRoundTrip<GameBridge.StoreProduct>(fixture["product"], "product");
+        CheckFixtureRoundTrip<GameBridge.PurchaseResult>(fixture["purchase"], "purchase");
+        CheckFixtureRoundTrip<GameBridge.SdkError>(fixture["error"], "error");
+        var missingError = (JObject)fixture["error"].DeepClone(); missingError.Remove("nativeCode");
+        try { WireModels.Decode<GameBridge.SdkError>(missingError); throw new Exception("missing error nullable field accepted"); }
+        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable error field"); }
         Check(WireModels.Decode<GameBridge.UserProfile>(fixture["profile"]).displayName == "별빛 🎮", "Korean profile");
         Check(WireModels.Decode<GameBridge.StoreProduct>(fixture["product"]).priceMicros == "9223372036854775807", "64-bit string");
         var invalidProduct = (JObject)fixture["product"].DeepClone(); invalidProduct["type"] = "UNKNOWN";

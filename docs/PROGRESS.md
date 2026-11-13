@@ -5,20 +5,20 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P05-T03 / iOS 26.5 StoreKit 진단 재개
+- 현재 Phase / Task: P01-T01 / 공통 모델 fixture 계약 검증
 - 마지막 갱신 시각: 2026-11-13 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
-- 현재 작업 트리 상태: 진단 진행 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
+- 현재 작업 트리 상태: 계약 검증 진행 중; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: P05-T03 iOS 26.5 StoreKit named/URL 초기화 실패를 보존하고 진단·대조 조건을 검토한다. 필요 시 최신 소스 strict를 재실행한다. 실제 provider 및 R40 iOS GUI 보조는 별도다.
+- 바로 다음 행동: P01-T01 계약 검증을 커밋하고 P01-T02 bridge schema와 fixture의 누락을 확인한다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·계획과 원장 및 Git 상태를 확인한 뒤 현재 P11 작업과 남은 내부 누락을 이어서 진행한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 54 / IMPLEMENTED 10 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 10 / FAIL 1 / PARTIAL 53 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 53 / IMPLEMENTED 11 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 11 / FAIL 1 / PARTIAL 52 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -38,7 +38,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T03 | ENV-002, ENV-003 |
 | P00-T04 | 진행 문서 검사·기본 명령 진입점 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-entrypoints.md | - |
 | P00-T05 | 모드·비밀정보·설정 격리 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-mode-config-isolation.md | - |
-| P01-T01 | 공통 모델·오류·상태 schema | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T01 | - |
+| P01-T01 | 공통 모델·오류·상태 schema | IMPLEMENTED | PASS | N/A | WORK_LOG P01-T01; artifacts/contracts-72sh1hus | - |
 | P01-T02 | Bridge wire protocol·공용 fixture | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T02 | - |
 | P01-T03 | SDK 상태기계·Provider interface | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T03 | - |
 | P01-T04 | 결정적인 Fake Provider | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P01-T04 | - |
@@ -966,3 +966,17 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 최신 양 Native Demo Player는동일 staging hash·각 tracked-clean이며 두 source 간 Unity/Native 제품 diff 0. AVD shutdown·데이터 보존, P08-T04 증거를 갱신한다.
 - P08-T04 변경 product의 최신 stage에서 Sample API→Android/iOS Native Demo LOCAL_MOCK Player를 각각 재검증해 해당 로컬 PASS를 복원했다. 실제 provider·실기기·시각 QA는 아니다.
 - P08-T04 상태 복원 후 원장·음성·manifest/diff PASS. 최신 양 Player·stage evidence 커밋 준비; 실제 provider/시각 QA는 별도다.
+- P01-T01 공통 model fixture 재감사 시작: Kotlin/Swift는 네 DTO round-trip을 검사하지만 C# smoke는 profile/product 값과 일부 purchase만 확인한다. 동일 fixture 네 DTO의 round-trip·필수 null 필드 검증을 보강한다.
+- P01-T01 C# standalone smoke PASS: 네 DTO의 공유 fixture round-trip 및 nullable 오류 확인. 전체 Kotlin/Swift/C# 계약 runner는 새로 실행한다.
+
+- P01-T01 진행: 공통 contract runner Kotlin 10·Swift 11·C# 1 PASS/skip 0 (`artifacts/contracts-72sh1hus`, d238169 + 미커밋 테스트). fixture 변조 음성 검증 및 완료 기준 대조 예정.
+
+- P01-T01 `check-contract-negative.py` PASS: 별도 복사본의 protocolVersion 변조를 Kotlin/Swift가 거부했으며 원본 fixture는 보존됐다. C# nullable 누락은 별도 managed 테스트에서 확인했다.
+
+- P01-T01 완료 기준: 공통 fixture 네 모델의 Kotlin/Swift/C# encode/decode, Unicode·null·큰 정수 문자열과 필수 필드 누락 검증 PASS. standalone 계약 시험이며 Unity IL2CPP 및 실제 플랫폼 검증은 범위 밖이다.
+
+- P01-T01 커밋 전 원장 검사에서 `harness/verify-progress.py` 경로 오류로 실행되지 않았다. 실제 스크립트 위치를 확인해 재실행한다.
+
+- P01-T01 원장 검사는 Task 상태 변경 후 상단 합계 미갱신을 발견해 실패했다. 합계를 원장에 맞춘 뒤 재검증한다.
+
+- P01-T01 원장 합계 수정 후 `scripts/verify-progress.py`, `harness/check-progress-negative.py`, `git diff --check` PASS. 커밋 전: C# contract smoke와 진행 문서만 포함하며 미추적 Demo·캐시는 보존한다.

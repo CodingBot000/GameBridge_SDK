@@ -3158,3 +3158,17 @@
 - Android 131a4d2/iOS 469a924 Player의 staging hash는 동일 `358be200…`, 각 tracked-clean이고 두 source 사이 Unity/Android/iOS 제품 경로 diff 0. Android AVD는 삭제 없이 shutdown했다. P08-T04 현재 제품 evidence를 갱신한다.
 - `consumer-install.md`에 변경 product 최신 stage의 Android/iOS Sample API→Native Demo Player 재실행을 추가하고 P08-T04 로컬 PASS를 복원했다. 다른 source commit이지만 제품 tree가 같고 각 tracked-clean이다. 실제 provider·실기기·시각 QA는 별도다.
 - `verify-progress.py`, `check-progress-negative.py`, `check-manifest.py`, diff PASS. 커밋 전: 변경 Native 최신 stage의 양 Player 재검증 및 P08-T04 로컬 상태만 포함한다. raw logs·APK·키·DB는 제외한다.
+
+### P01-T01 공통 모델 fixture 재감사 시작
+- Kotlin/Swift `ModelFixtureTest`는 profile/product/purchase/error 전체 encode/decode를 검사하지만 C# `registry-smoke.cs`는 전체 round-trip assertion이 없다. 동일 fixture의 네 DTO, Unicode·64bit string·null 및 필수 nullable 누락을 C#에서도 명시 검증한다. Unity runtime/IL2CPP는 별도다.
+- `UNITY_EDITOR_PATH=<installed> bash scripts/smoke-csharp-registry.sh` exit 0: C# profile/product/purchase/error의 동일 JSON semantic round-trip과 missing nullable error 필드를 확인했다. standalone managed 테스트이며 Unity runtime/IL2CPP는 아니다. 전체 언어별 contract runner를 재실행한다.
+- `harness/run-contracts.py` exit 0 (`artifacts/contracts-72sh1hus`): Kotlin 10건, Swift 11건, C# 1건 PASS/skip 0. HEAD d238169 위의 미커밋 C# 테스트가 포함됐으며 실제 Unity Player 검증은 아니다. 복사 fixture 변조 음성 검사를 실행한다.
+
+- P01-T01 `check-contract-negative.py` PASS: 별도 복사본의 protocolVersion 변조를 Kotlin/Swift가 거부했으며 원본 fixture는 보존됐다. C# nullable 누락은 별도 managed 테스트에서 확인했다.
+- P01-T01 계획의 네 모델·문자/정수/null round-trip 및 필수 필드 거부 기준을 세 언어 managed 테스트로 충족해 IMPLEMENTED/로컬 PASS로 기록했다. Unity IL2CPP 및 실제 플랫폼 검증은 주장하지 않는다. 커밋 전 원장·변조 검사와 diff 검사를 수행한다.
+
+- P01-T01 커밋 전 원장 검사에서 `harness/verify-progress.py` 경로 오류로 실행되지 않았다. 실제 스크립트 위치를 확인해 재실행한다.
+
+- P01-T01 원장 검사는 Task 상태 변경 후 상단 합계 미갱신을 발견해 실패했다. 합계를 원장에 맞춘 뒤 재검증한다.
+
+- P01-T01 원장 합계 수정 후 `scripts/verify-progress.py`, `harness/check-progress-negative.py`, `git diff --check` PASS. 커밋 전: C# contract smoke와 진행 문서만 포함하며 미추적 Demo·캐시는 보존한다.

@@ -3150,3 +3150,4 @@
 - 변경 Native를 포함한 stage의 Editor sample/API import·같은 프로젝트 재import, Android/iOS 실제 export hook 반복이 각각 PASS했고 `git diff fb48371 HEAD`의 Android/iOS product 경로 차이 0을 확인했다. 해당 빌드 당시 test/docs 변경은 미커밋이었다. Native artifact/UPM evidence를 갱신하고 Player 재검증은 별도 유지한다.
 - 변경 Native의 fresh Maven/clean R8, iOS unsigned XCFramework/독립 link, 새 147파일 UPM/Editor sample/양 hook evidence를 추가해 P08-T01/T02/T03 로컬 PASS를 복원했다. 이전 실패/경고를 보존하며 P08-T04 양 Player 재검증과 실 provider는 미완료다.
 - 새 product의 P08-T01/T02/T03 상태 복원 후 원장·음성·metadata·diff PASS. 커밋 전: 새 산출물 정제 evidence·경로·해당 Task 상태만 포함한다. Native Demo 양 Player 및 실 provider는 별도 미완료다.
+- `upm-config-diagnostic-20261113`을 새 iOS 소비 프로젝트에 Sample API로 import하고 Native Demo LOCAL_MOCK Player/DB를 재실행한다. clean-source 시작 기록만 먼저 커밋한다.

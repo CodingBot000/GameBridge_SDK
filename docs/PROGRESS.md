@@ -958,3 +958,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 새 stage Editor sample·재import 및 실제 Android/iOS export hook 반복 PASS. Native product source는 설정 진단 commit fb48371 이후 변하지 않았다. 변경 Native의 독립 소비/staging 증거를 갱신한다.
 - P08-T01/T02/T03은 변경 Native 재빌드·독립 소비·새 staging/Editor/양 hook 실제 재검증으로 로컬 PASS를 복원했다. P08-T04 변경 Native의 양 Player 재실행은 아직 PARTIAL이며 실 provider는 별도다.
 - 변경 후 P08-T01/T02/T03 로컬 상태 복원 뒤 원장·음성·metadata/diff PASS. P08-T04 양 Player 재검증 전 정제 evidence 커밋 준비.
+- P08-T04 변경 Native 포함 최신 UPM의 Sample API→Native Demo iOS LOCAL_MOCK Player 재검증 시작. 실제 Apple provider/시각 QA는 별도다.

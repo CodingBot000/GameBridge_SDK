@@ -3193,3 +3193,13 @@
 - P01-T02 C# standalone smoke의 불일치 requestId 격리 PASS. schema 검증·공유 fixture·Kotlin/Swift parser 및 C# registry 시험으로 계획된 로컬 완료 기준을 충족해 IMPLEMENTED/PASS 기록했다. CI 구성은 실제 원격 실행 결과가 아니다. 커밋 전 문서·차이 검사를 수행한다.
 
 - P01-T02 커밋 전 원장 일관성·원장 음성 검사·`git diff --check` PASS. schema 시험·fixture·CI 설정·진행 문서만 로컬 커밋하며 기존 미추적 파일은 보존한다.
+
+- P01-T03 시작: Kotlin/Swift coordinator 및 C# facade의 초기화·중복·shutdown·재시작과 동시성, provider interface 및 capability 분리를 기존 증거와 소스에서 대조한다. P01-T02는 65b460f 로컬 커밋이다.
+
+- P01-T03 감사: Kotlin·C#은 shutdown 후 재초기화를 실행하지만 Swift 테스트에 명시 assertion이 없다. Swift 재초기화를 보강한다. Auth/Store/Push/Clock별 공통 interface는 검색상 확인되지 않아 구현 범위를 추가 대조하며 전체 Task 완료로 기록하지 않는다.
+
+- P01-T03 Swift host `SdkCoordinatorTests` 3건 PASS/skip 0: shutdown 중단·중복 init·다른 설정 거부·중복 shutdown·재초기화 추가 확인. 별도 Swift Testing의 0건 출력은 해당 XCTest 3건과 구분한다. Swift 상호 배제 실행을 보강한다.
+
+- P01-T03 Swift host `SdkCoordinatorTests` 4건 PASS/skip 0: 추가된 상호 배제 BUSY 및 재초기화가 통과했다. actor 기반 순서 제어 시험이며 전체 data race 부재를 증명하지 않는다. 공통 provider interface 전체 범위는 미완료/PARTIAL로 유지한다.
+
+- P01-T03 커밋 전 원장 및 diff 검사 PASS. Swift host 테스트와 문서만 커밋하고 P01-T03은 IN_PROGRESS/PARTIAL로 유지한다.

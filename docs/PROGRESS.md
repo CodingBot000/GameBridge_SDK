@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 57 / IMPLEMENTED 7 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 7 / FAIL 1 / PARTIAL 56 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 56 / IMPLEMENTED 8 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 8 / FAIL 1 / PARTIAL 55 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -34,7 +34,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | Task ID | 작업 | 구현 | 로컬 검증 | 실연동 검증 | 증거/로그 | 블로커/설정 |
 |---|---|---|---|---|---|---|
 | P00-T01 | 저장소 보존·작업 원장 초기화 | IMPLEMENTED | PASS | N/A | WORK_LOG P00-T01 | - |
-| P00-T02 | 도구·라이선스·버전 조합 확정 | IN_PROGRESS | PARTIAL | N/A | docs/TOOLCHAIN.md, WORK_LOG P00-T02 | ENV-001 |
+| P00-T02 | 도구·라이선스·버전 조합 확정 | IMPLEMENTED | PASS | N/A | docs/TOOLCHAIN.md, WORK_LOG P00-T02 | ENV-001 |
 | P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T03 | ENV-002, ENV-003 |
 | P00-T04 | 진행 문서 검사·기본 명령 진입점 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T04 | - |
 | P00-T05 | 모드·비밀정보·설정 격리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T05 | - |
@@ -130,7 +130,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | ENV-004 | ENV | P03-T01 | 전용 emulator 복원 시험에서 화면 준비 전 입력 실패 | UI 준비 후 재시도 | Keystore 복원 확인 | RESOLVED |
 | ENV-003 | ENV | P00-T03 | XcodeGen 최초 부재 | 로컬 도구 2.46.0 확보 후 프로젝트 생성·빌드 확인 | 실제 스토어 및 Unity 검증 별도 | RESOLVED |
 | ENV-002 | ENV | P00-T03 및 Unity 검증 | 과거 Unity 라이선스 비활성 및 Android 모듈 부재 | Unity 6000.5.8f1 라이선스·Android 모듈 준비 확인, Unity Android local-mock Player 실행 | Unity iOS 및 나머지 테스트 별도 | RESOLVED |
-| ENV-001 | ENV | P00-T02 | Unity 6.3 LTS 미설치; 설치 버전의 모듈·라이선스 미확인 | 설치된 Editor로 검증 시도 | 호환 Editor와 모듈·라이선스 확인 | OPEN |
+| ENV-001 | ENV | P00-T02 | Unity 6.3 LTS 미설치·미검증; 설치된 6000.5.8f1 라이선스/Android·iOS 모듈 및 로컬 Player 확인 | 설치된 Editor에서 계속 검증 | 6.3 LTS 호환성 별도 확인 | OPEN |
 
 유형: USER=사용자 계정·서명·콘솔, ENV=설치/실행환경, BUG=내부 버그, DEP=선행 구현 미해결. 같은 사건은 중복 ID를 만들지 않고 영향 Task를 추가한다. 사용자 인증 필요성은 USER_SETUP에 이미 계획되어 있지만 실제 구현 준비 여부는 개발 중 갱신한다.
 
@@ -911,3 +911,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 원인: P08-T05 기존 행의 증거 표기가 예상보다 길어 문자열 교체가 적용되지 않았다. 실제 행과 증거 링크를 갱신하고 집계를 재검증한다.
 - P08-T05 행·집계 정정 후 원장 단독 검사 PASS. snapshot의 과거 P05 FAIL/PARTIAL은 보존하며 기준점 문서 Task만 완료로 기록한다.
 - P08-T05 정정 후 원장·음성·API mutation·manifest/diff PASS. INCOMPLETE 기준점 snapshot과 Task 기록 커밋 준비.
+- P00-T02 환경·도구 기준 재감사 시작: 기존 2026-11-10 TOOLCHAIN/ENVIRONMENT와 현재 설치·라이선스·실행 증거를 대조한다. 최신 공식 지원 문서 확인을 시작 기록보다 먼저 수행한 순서 누락을 보완한다.
+- P00-T02 현재 도구 조회: Unity installed 6000.5.8f1(Android/iOS 모듈)·6000.4.0f1(Web/Windows), 라이선스 active, Xcode 26.6/Swift 6.3.3/JDK 21.0.10/PostgreSQL 17.6 컨테이너 running. Unity 6.3 LTS는 미설치다. 실제 provider/기기는 별도다.
+- P00-T02 TOOLCHAIN/ENVIRONMENT/USER_SETUP의 현재 설치·실행 범위를 갱신했다. 6000.3 LTS 미설치, 26.5 StoreKit FAIL, 실provider·실기기 대기는 유지한다.
+- P00-T02의 현 설치 버전·라이선스·로컬 검증/미검증 환경 기록 기준을 충족해 문서화 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. Unity 6.3 LTS 미설치 ENV-001 및 26.5/실 provider 실패·대기는 해소한 것이 아니다.
+- P00-T02 행/집계 갱신 후 원장 검사 PASS. ENV-001 OPEN·실 provider/26.5 실패는 그대로이며 음성 검사 후 커밋 준비.

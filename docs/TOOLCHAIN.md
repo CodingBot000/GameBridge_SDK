@@ -1,6 +1,6 @@
 # 도구와 호환성
 
-확인일 2026-11-10. 아래 버전은 설치 또는 공식 호환성 확인 결과이며 전체 조합의 빌드 통과를 뜻하지 않는다.
+아래 표는 2026-11-10 최초 조사 기록이다. 현재 확인값과 실행 범위는 아래 2026-11-13 재감사를 따른다.
 
 | 도구 | 확인 결과 | 확인 방법 |
 |---|---|---|
@@ -25,3 +25,15 @@ Unity JSON 후보 `com.unity.nuget.newtonsoft-json` 3.2.2는 Unity 공식 regist
 Android Google adapter: androidx.credentials 및 credentials-play-services-auth 1.6.0, googleid 1.1.1. googleid 1.2.1은 Kotlin metadata 2.4로 기존 Kotlin 2.1.20과 빌드 실패하여 제외했다. 출처: Google Maven metadata 및 https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation.
 
 Google Play Billing candidate: `com.android.billingclient:billing:9.1.0`. Google Maven metadata와 공식 9.1.0 release notes를 확인했고 Android AAR 및 Mock sample 빌드, fake boundary 시험을 수행했다. 실제 Play Console·기기 테스트는 미실행이다. 출처: https://developer.android.com/google/play/billing/release-notes 및 https://developer.android.com/google/play/billing/deprecation-faq.
+
+## 2026-11-13 재감사
+
+| 도구 | 현재 확인 | 근거·범위 |
+|---|---|---|
+| Unity | 설치 6000.5.8f1(Android/iOS 모듈), 6000.4.0f1(Web/Windows); 라이선스 active | `unity editors list --installed --format json`, `unity license status --format json`의 활성 여부만 확인. 6000.5.8f1 Editor 및 Android/iOS LOCAL_MOCK Player 시험; Unity 6000.3/6.3 LTS는 미설치·미검증 |
+| Apple | Xcode 26.6 (17F113), Swift 6.3.3; Simulator iOS 18.6 및 26.5 | `xcodebuild -version`, `swift --version`, `xcrun simctl list runtimes`. iOS 18.6 local StoreKit 일부 PASS, 26.5 세션 생성 timeout FAIL; 서명 실기기/Apple sandbox는 미검증 |
+| Android/JDK | OpenJDK 21.0.10, adb 37.0.1, SDK 34–36/37.0 및 build-tools 34–36 | `java -version`, `adb version`, SDK 디렉터리. AGP 8.13.0·Gradle wrapper 8.13·Kotlin 2.1.20·compile/target 36 설정과 독립 R8 consumer 빌드 확인 |
+| Backend | Docker client/server 29.1.3, Compose 2.40.3; 로컬 PostgreSQL 17.6 컨테이너 실행 | `docker version`, `docker compose version`, 지정 테스트 컨테이너 이미지/상태 조회. local/sandbox fixture이며 운영 환경 검증이 아니다 |
+| Unity package | Newtonsoft 3.2.2, Mobile Notifications 2.5.0 | package.json 및 격리 Unity 테스트. 실제 FCM/APNs 전달과는 별도 |
+
+Unity의 [공식 지원 정책](https://unity.com/releases/unity-6/support)은 6.3 LTS의 지원 기간과 Update release 정책을 설명한다. 이 저장소는 설치된 6000.5.8f1에서 로컬 검증했으며 6.3 LTS 호환성을 검증한 것으로 취급하지 않는다. 설치 또는 업그레이드는 수행하지 않았다. 실제 provider·실기기 및 원격 CI는 별도로 남는다.

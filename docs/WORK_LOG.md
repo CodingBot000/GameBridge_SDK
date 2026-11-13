@@ -3095,3 +3095,10 @@
 - 원인은 기존 P08-T05 행의 추가 WORK_LOG evidence를 교체 문자열이 포함하지 않아 행만 미변경된 것이다. 해당 행을 정확히 갱신하고 선언 집계와 비교한다.
 - P08-T05 정확한 행 교체 후 `python3 scripts/verify-progress.py` 단독 exit 0. 과거 snapshot의 P05 FAIL/미완료 수와 실제 provider 대기를 바꾸지 않는다.
 - `check-progress-negative.py`, `check-api-baseline-negative.py`, `check-manifest.py`, `verify-progress.py`, diff 검사 각각 PASS. 커밋 전: INCOMPLETE 48행 snapshot과 P08-T05 문서화 Task 상태만 포함하며 제품 전체를 완료로 바꾸지 않는다.
+
+### P00-T02 도구 기준 재감사 시작
+- 오래된 TOOLCHAIN의 Unity 라이선스/모듈 미검증과 과거 빌드 상태를 현재 실제 환경·증거로 정정한다. Unity 공식 지원 문서 조회를 시작 기록보다 먼저 수행한 순서 누락을 기록한다. 설치되지 않은 Editor나 실제 provider를 완료로 표시하지 않는다.
+- `unity editors list --installed --format json`에서 설치 Editor는 6000.5.8f1(Android, Android SDK/NDK, iOS, OpenJDK) 및 6000.4.0f1(Web/Windows), `unity license status` active=true만 확인했다(계정/라이선스 식별자 기록 없음). JDK 21.0.10, Xcode 26.6(17F113), Swift 6.3.3, adb 37.0.1, Android SDK 34–36/37.0, build-tools 34–36, Docker 29.1.3/Compose 2.40.3, PostgreSQL 17.6 실행 확인. Unity 6000.3 LTS는 설치되지 않았으며 실제 provider·실기기 검증은 별도다.
+- `TOOLCHAIN.md`에 2026-11-13 실제 조회 버전·명령·LOCAL_MOCK/외부 한계를 추가하고 `ENVIRONMENT.md`, USER-UNITY 현재 evidence, ENV-001 증상을 정정했다. Unity 공식 지원 정책은 https://unity.com/releases/unity-6/support 참조. 6000.3 LTS를 설치·검증했다고 주장하지 않는다.
+- P00-T02 완료 조건인 실제 버전/명령/출처와 가능한·불가능한 검증 및 미확정 항목 후속 기록을 충족해 도구 감사 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. 6.3 LTS 미설치 ENV-001은 OPEN, 26.5 실패 및 실제 provider 대기는 그대로다.
+- P00-T02 행/집계 반영 후 `verify-progress.py` PASS. 커밋 전: 도구 감사·환경 대기와 당시 결과만 포함하며 6.3 LTS/실 provider 또는 iOS 26.5 실패를 해소했다고 기록하지 않는다.

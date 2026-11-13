@@ -13,7 +13,7 @@ Codex는 실제 Provider 호출 코드, 설정 로더, 오류 처리, Mock, 빌�
 | 설정 ID | 준비 대상 | 코드 준비 | 설정 준비 | 실연동 검증 | 코드/실행 증거 |
 |---|---|---|---|---|---|
 | USER-GIT | 로컬 Git identity | NOT_STARTED | NOT_CHECKED | N/A | - |
-| USER-UNITY | Unity 설치·라이선스·target modules | IMPLEMENTED | READY | NOT_RUN | PX-T04 Android local-mock PASS; iOS 별도 |
+| USER-UNITY | Unity 설치·라이선스·target modules | IMPLEMENTED | READY | NOT_RUN | 6000.5.8f1 Android/iOS LOCAL_MOCK Player 및 Editor 확인; 6.3 LTS 별도 |
 | USER-DEVICE | Xcode·Android 도구·실기기·서명 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-BACKEND | 로컬 서버·DB·개발/샌드박스 네트워크 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
 | USER-AUTH-GOOGLE | Android Google 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
@@ -47,7 +47,7 @@ Git identity·도구/라이선스 → 앱 package/bundle ID·서명 → Backend 
 
 Unity Android LOCAL_MOCK 격리 소비 프로젝트는 `GAMEBRIDGE_UPM_STAGING=<절대 staging 경로> bash scripts/prepare-unity-android-mock.sh --prepare`로 생성할 수 있다. 이 명령은 파일 생성과 checksum 확인만 하며 Unity import·빌드·실행은 아니다. 생성된 project 경로와 새 절대 APK 경로를 `bash scripts/build-unity-android-mock.sh <project> <새 APK>`에 전달하면 라이선스·Android 모듈을 확인한 뒤 `BuildMockPlayer.Build`를 실행한다. 테스트 APK는 개발용 cleartext 설정을 포함하므로 배포하지 않는다. 실행 시 전용 local-mock 서버와 별도 테스트 DB, 사용자 준비 Android 에뮬레이터가 필요하며 synthetic 개발키는 intent extra로만 전달한다. 실제 Google 인증이나 스토어 결제의 검증은 아니다.
 
-2026-11-12 확인: 6000.5.8f1의 라이선스가 활성이고 Android Build Support·SDK/NDK·OpenJDK 및 iOS Build Support가 설치돼 있다. Unity Android LOCAL_MOCK Player는 전용 에뮬레이터에서 PASS했으며 iOS Player는 확인하지 않았다.
+2026-11-12 확인: 6000.5.8f1의 라이선스가 활성이고 Android Build Support·SDK/NDK·OpenJDK 및 iOS Build Support가 설치돼 있다. 당시 Unity Android LOCAL_MOCK Player는 전용 에뮬레이터에서 PASS했고 iOS Player는 미확인이었다. 이후 iOS Simulator LOCAL_MOCK Player도 별도로 PASS했다.
 
 설정: `UNITY_EDITOR_PATH`를 실제 실행파일로 지정한다. 정확한 버전은 TOOLCHAIN/ProjectVersion과 일치시킨다. 다른 Unity major/minor를 자동으로 설치해 기존 project를 올리지 않는다.
 

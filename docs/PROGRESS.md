@@ -1021,3 +1021,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P01-T04 독립 test Fake 개선 후 Android `OfflineFakeTest` 1건 및 Swift host `OfflineFakeTests` XCTest 1건 PASS/skip 0: 200개 FIFO, 재초기화 세션, 공백 ID, 기존 구매 중복·푸시 흐름 확인. Swift Testing 별도 0건은 XCTest와 구분한다. 실제 provider·Unity Player 시험은 아니다.
 
 - P01-T04 JUnit 결과 1건·원장·diff 검사 PASS. 커밋 전: 별도 테스트용 Native Fake와 그 테스트·진행 문서만 포함한다. 늦은 callback 등 남은 fake 범위가 있어 Task는 IN_PROGRESS/PARTIAL을 유지한다.
+
+- P01-T04 후속 감사: 방금 검증한 Android `sdk-testing`과 Swift `OfflineFakeTests`가 CI 필터에 포함되지 않는다. 해당 테스트를 필수 lane에 넣고 로컬에서 실행 수/skip을 재확인한다. 원격 CI는 미실행으로 유지한다.
+
+- P01-T04 CI Swift 필터와 동일한 host 실행은 필수 6개 class, XCTest 16건 PASS/skip 0 (`artifacts/p01-fake-swift-ci.log`); Android Fake는 직전 JUnit 1건 PASS. GitHub Actions/macOS CI 자체는 NOT_RUN이며 원본 로그는 커밋하지 않는다.
+
+- P01-T04 CI YAML 파싱·원장·diff 검사 PASS. 커밋 전: 테스트 필터 및 기록만 포함하며 원격 CI와 실제 플랫폼을 완료로 표시하지 않는다.

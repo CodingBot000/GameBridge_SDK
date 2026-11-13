@@ -115,6 +115,10 @@ jobs:
         run: |
           android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BridgeProtocolTest --tests com.gamebridge.ModelFixtureTest --tests com.gamebridge.LocalMockRecoveryTest --tests com.gamebridge.PushRouterTest :sdk-android:testDebugUnitTest --tests com.gamebridge.android.auth.GoogleAuthProviderTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest :sdk-unity-bridge:testDebugUnitTest --tests com.gamebridge.bridge.GoogleAuthBridgeHandlerTest --tests com.gamebridge.bridge.HostPushDeliveryTest
           python3 harness/check-junit.py android/sdk-core/build/test-results/test/TEST-com.gamebridge.BridgeProtocolTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.ModelFixtureTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockRecoveryTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.PushRouterTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.auth.GoogleAuthProviderTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.purchase.GooglePlayBillingProviderTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.GoogleAuthBridgeHandlerTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.HostPushDeliveryTest.xml
+      - name: Android standalone offline fake
+        run: |
+          android/gradlew -p android :sdk-testing:test --rerun-tasks --tests com.gamebridge.testing.OfflineFakeTest
+          python3 harness/check-junit.py android/sdk-testing/build/test-results/test/TEST-com.gamebridge.testing.OfflineFakeTest.xml
       - name: Android local Maven and separate R8 consumer
         env:
           GAMEBRIDGE_MAVEN_REPO: ${{ runner.temp }}/gamebridge-maven
@@ -131,8 +135,8 @@ jobs:
       - name: Swift package contract and fake tests
         run: |
           set -o pipefail
-          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|StoreKitBillingProviderTests|PushRouterTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
-          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests StoreKitBillingProviderTests PushRouterTests
+          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|StoreKitBillingProviderTests|PushRouterTests|OfflineFakeTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
+          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests StoreKitBillingProviderTests PushRouterTests OfflineFakeTests
           bash scripts/smoke-ios-source-consumer.sh
       - name: Install pinned XcodeGen locally
         run: |

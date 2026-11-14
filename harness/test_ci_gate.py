@@ -65,4 +65,17 @@ class CiGateTests(unittest.TestCase):
             (base/'harness/check-required-coverage.py').write_text("import sys; print('INCOMPLETE: PARTIAL'); sys.exit(1)\n")
             result=self.invoke('ci-release-gate.sh',base=base,BASIC_RESULT='success',UNITY_RESULT='success')
             self.assertEqual(result.returncode,1);self.assertIn('PARTIAL',result.stdout)
+    def test_release_success_requires_coverage_and_missing_checker_is_not_pass(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp); (base/'scripts').mkdir(); (base/'harness').mkdir()
+            shutil.copy2(ROOT/'scripts/ci-release-gate.sh',base/'scripts/ci-release-gate.sh')
+            checker=base/'harness/check-required-coverage.py'
+            checker.write_text("print('fixture coverage checked')\n")
+            passed=self.invoke('ci-release-gate.sh',base=base,BASIC_RESULT='success',UNITY_RESULT='success')
+            self.assertEqual(passed.returncode,0)
+            self.assertIn('fixture coverage checked',passed.stdout)
+            checker.write_text("raise SystemExit(1)\n")
+            self.assertNotEqual(self.invoke('ci-release-gate.sh',base=base,BASIC_RESULT='success',UNITY_RESULT='success').returncode,0)
+            checker.unlink()
+            self.assertNotEqual(self.invoke('ci-release-gate.sh',base=base,BASIC_RESULT='success',UNITY_RESULT='success').returncode,0)
 if __name__=='__main__':unittest.main()

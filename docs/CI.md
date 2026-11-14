@@ -1,6 +1,6 @@
 # CI 검증 범위
 
-`.github/workflows/verify.yml`은 PR과 수동 실행에서 다음 결과를 분리한다. 현재 workflow 수정본의 GitHub Actions 실행은 **NOT_RUN**이며 로컬 정적·음성 시험이 원격 성공을 뜻하지 않는다.
+`.github/workflows/verify.yml`은 PR과 수동 실행에서 다음 결과를 분리한다. hosted CI는 소스 `2af863b`에서 네 hosted job과 basic-ci가 원격 통과했다 ([증거](evidence/p09-hosted-ci.md)). Unity self-hosted는 SKIPPED이며 로컬 정적·음성 시험을 원격 Unity 성공으로 기록하지 않는다.
 
 - `inventory-contracts`: 진행 원장·manifest·집계와 fail-closed gate 단위 검사 및 `harness/requirements-schema.txt`의 검증 라이브러리로 bridge Draft 2020-12 schema/fixture 검사. 로컬에서는 가상환경 설치 후 `python -m unittest discover -s harness -p test_bridge_schema.py -v`를 실행한다.
 - `backend-postgres`: GitHub 호스팅 Linux의 전용 PostgreSQL과 Backend fixture. 테스트 전용 자격값이며 외부 서비스 계정이 아니다.
@@ -15,3 +15,10 @@
 현재 로컬 UPM staging은 `artifacts/upm-config-diagnostic-20261113`이다. 변경 Android/iOS Native 산출물과 147개 checksum, Editor sample 및 양 export hook을 검증했다. 해당 stage의 양 Native Demo LOCAL_MOCK Player를 별도로 재검증했다 ([소비자 증거](evidence/consumer-install.md)). `upm-native-sample-fix-20261112`에는 안정적 asset metadata 추가가 없다. 이전 `upm-offline-sample-current-20261112`에는 iOS Native Demo asmdef 수정이 없다. 이전 `upm-offline-sample-20261112` 후보는 Native payload가 달라 최신 staging으로 사용하지 않는다. 로컬 산출물은 원격 checkout에 자동으로 존재하지 않는다.
 
 standalone strict에서 현재 실행의 `GAMEBRIDGE_UNITY_PII_EVIDENCE`와 `GAMEBRIDGE_UNITY_PII_NONCE`가 없으면 PII Player lane은 `DEFERRED_ENV`다. CI는 양 Player를 새로 실행해 nonce와 증거를 전달하며 기존 결과를 재사용하지 않는다. 이 연결을 포함한 로컬 전체 gate는 실행했지만, 두 Android 최초 안내를 수동 처리했으므로 무인 CI 검증은 아니다.
+
+
+## Self-hosted 실행 전 점검
+
+2026-11-14 사전 점검은 **DEFERRED_ENV**다. 등록 runner와 전용 label이 없고 Unity 활성화 repository 변수도 없다. 현재 로컬 개발 계정에서 도구가 동작하더라도 전용 실행 계정·VM과 개인 credential/업무 파일/기존 개발 리소스 접근 차단은 확인되지 않았다. 보존된 AVD와 개발 PostgreSQL을 원격 CI 격리 환경으로 간주하지 않는다. 이번에는 등록·변수 변경·원격 실행을 하지 않았다.
+
+현재 Unity job은 전체 Strict도 포함하므로 Player가 통과해도 P05-T03 FAIL이 job 실패로 전파된다. 두 상태를 독립적으로 보여주려면 strict 호출·nonzero 차단을 유지하면서 같은 실행의 Player 증거와 strict 결과를 각각 기록하고 Release가 둘 다 검증하도록 바꿔야 한다. 이는 적용 전 제안이며 판정표·준비 조건과 단위시험 범위는 [self-hosted 사전 점검](evidence/p09-self-hosted-readiness.md)을 따른다.

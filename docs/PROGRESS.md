@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T07 / GitHub Actions hosted CI 검증
+- 현재 Phase / Task: P09-T07 / Unity self-hosted CI 사전 점검
 - 마지막 갱신 시각: 2026-11-14 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 원격 hosted CI 재검증 결과를 커밋·인계한다. Unity self-hosted와 release readiness는 미완료다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: self-hosted 사전 점검 DEFERRED_ENV와 gate 분리 제안을 인계한다. 전용 환경 입증 후 별도 등록/실행 단계가 필요하다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1368,3 +1368,15 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 커밋 전 원장·diff PASS. 두 hosted run의 정제된 결과와 CI 문서·진행 기록만 stage하며 원본 job 로그·사용자 미추적 파일은 제외한다.
 
 - P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 정제된 결과 문서만 커밋한다.
+
+- P09-T07 self-hosted 사전 점검 시작: 시작 HEAD/원격 2a771c6 일치. 원격 runner 목록 0개, repository 변수 목록 0개. runner 등록·변수 변경·workflow 실행은 이번 범위에 없다.
+
+- P09-T07 읽기 전용 점검: 현재 개발 계정은 admin 그룹의 macOS ARM64이며 전용 runner 계정·개인 파일 접근 차단 증거 없음. 로컬 Unity 활성, Android/iOS 모듈, staging 147 checksum 및 배포 제품 diff 0, exact PackageCache 두 종 각 1개를 확인했다. 전용 AVD 두 개는 과거 시험 데이터가 있는 보존 기기이고 연결 기기/booted simulator는 없다. PostgreSQL은 기존 개발 컨테이너로 원격 runner 격리를 증명하지 않는다. self-hosted는 DEFERRED_ENV다.
+
+- P09-T07 로컬 gate 단위 7건 PASS/skip 0: Unity 미실행·실패/skip, basic 실패, 부분/누락 coverage 거부, 결합 script의 strict 실패 전파, 정상 fixture의 gate 성공을 확인했다. 정상 fixture 성공은 제품/원격 release PASS가 아니다. runtime gate 분리 구현은 이번에 적용하지 않고 판정표·최소 변경안으로만 기록했다.
+
+- P09-T07 readiness DEFERRED_ENV: 전용 runner/label·계정/접근 격리 미준비. 등록·활성화·원격 실행 없음. [사전 점검 evidence](evidence/p09-self-hosted-readiness.md). 기존 P05 FAIL/OPEN 및 Provider 대기 유지.
+
+- P09-T07 커밋 전 원장·diff PASS. 현행 gate 단위 보강과 CI 문서·사전 점검 evidence만 stage한다. runtime workflow/script, runner 등록·변수·원격 실행 상태는 변경하지 않았다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 검토 문서·현행 gate 단위 보강만 커밋한다.

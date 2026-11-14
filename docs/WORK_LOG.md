@@ -3553,3 +3553,13 @@
 - P09-T07 커밋 전 원장·diff PASS. 두 hosted run의 정제된 결과와 CI 문서·진행 기록만 stage하며 원본 job 로그·사용자 미추적 파일은 제외한다.
 
 - P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 정제된 결과 문서만 커밋한다.
+
+- P09-T07 self-hosted readiness 시작 (2026-11-14): 원격 runner/label 등록 없음, repo 변수 없음. 현재 unity-e2e는 Player 이후 strict까지 한 exit로 묶고 P05-T03 원장 FAIL이 최종 실패에 반영됨을 확인했다. 실행 전 검토이므로 격리 준비와 판정 분리 제안만 수행하고 원격 실행은 하지 않는다.
+
+- P09-T07 읽기 전용 점검: 현재 개발 계정은 admin 그룹의 macOS ARM64이며 전용 runner 계정·개인 파일 접근 차단 증거 없음. 로컬 Unity 활성, Android/iOS 모듈, staging 147 checksum 및 배포 제품 diff 0, exact PackageCache 두 종 각 1개를 확인했다. 전용 AVD 두 개는 과거 시험 데이터가 있는 보존 기기이고 연결 기기/booted simulator는 없다. PostgreSQL은 기존 개발 컨테이너로 원격 runner 격리를 증명하지 않는다. self-hosted는 DEFERRED_ENV다.
+
+- P09-T07 로컬 gate 단위 7건 PASS/skip 0: Unity 미실행·실패/skip, basic 실패, 부분/누락 coverage 거부, 결합 script의 strict 실패 전파, 정상 fixture의 gate 성공을 확인했다. 정상 fixture 성공은 제품/원격 release PASS가 아니다. runtime gate 분리 구현은 이번에 적용하지 않고 판정표·최소 변경안으로만 기록했다.
+
+- P09-T07 커밋 전 원장·diff PASS. 현행 gate 단위 보강과 CI 문서·사전 점검 evidence만 stage한다. runtime workflow/script, runner 등록·변수·원격 실행 상태는 변경하지 않았다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 검토 문서·현행 gate 단위 보강만 커밋한다.

@@ -3747,3 +3747,11 @@
 - 배치25 D 최종검증: run43889958441 source59b98349689171cc8a75d9652f248708645a85c2 전체SUCCESS. inventory/Backend/Android/macOS/basic-ci 5SUCCESS,Unity/Release 2SKIPPED. 원격38suite/131unit PASS,backend기존JUnit13+TC11(예상failure1,정확변이/정상복원),Swift17및synthetic Host검사통과. false dispatch1회만수행·재실행없음. 이후최종문서만commit/scan/FF push하고Head일치를확인한다.
 
 - 배치25 최종 커밋 전: 원격7job 최종결과와local5PASS/3PARTIAL·source별actual counts·잔여작업을확정했다. 최종문서만scan/commit/FF push하고HEAD와미추적3개디렉터리보존을대조한다. 추가코드/원격재실행없음.
+
+- 배치26 A 시작: 기준6d200b064b5cd8ea5ebca76bf3b58c1bd0086e6d/추적변경없음/기존미추적Demo·cache보존. 명시작업브랜치 handoff/p09-resume-20261113을같은HEAD에서생성해전환했다(main/fix이력변경없음). R01~R12의실행test/actualassertion/static선언을구분하는test-only계측과mutation복원기준을확보한다. 이후B18.6제한진단/C실질CoreBridge분리/D통합·Hosted1회까지진행한다. P05FAIL/26OPEN/Provider13WAIT/self-hosted미검증유지.
+
+- 배치26 A 초기검증: Kotlin선택10 test PASS/실행helper50,Swift12 PASS/helper122,C#managed smoke0 tests/check1/helper391 확인. 기본framework건수와assertions실행을구분했다. Xcode spec경로첫참조오류는실제ios/Framework/project.yml로정정해test-only helper를CBridge target에도포함했다. 분기없는valid parse testcase의helper0은0 tests라는뜻이아니며implicit throw/check는별도UNMEASURED다. shipping API/runtime변경은아직없다.
+
+- 배치26 A 계측초기통합 exit0: Kotlin10/50,Swift12/122,managedcheck1/391,stress100sample의helper316(warmup15/sample300/final1),정상복원391 확인. Mutation partial helper1에서unknown request-ID guard가duplicate보다먼저실패했음을trace로발견했다. 기존감지의민감도는유효하지만duplicate 전용 probe로정상0/변이nonzero를확인하도록범위를정확히보강한다. 정적호출수/manifest항목수는실행수로대체하지않는다.
+
+- 배치26 A 계측 준비 커밋 전: 실제Kotlin10/50·Swift12/122·managed391·stress316·Unity2/32 확인,전체Python136 PASS/skip0,APIbaseline/progress/manifest/diff통과. 동적helper호출/정상·예상오류/partial변이/정적선언·미측정범위구분. duplicate-only 정상0/변이nonzero와원본hash복원 검증을보강했다. 현재shipping runtime은6d와동일. commit후동일cohort/조건분기control로A최종baseline을확정한다.

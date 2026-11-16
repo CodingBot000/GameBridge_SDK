@@ -1,10 +1,14 @@
 package com.gamebridge
 
+import org.junit.jupiter.api.extension.ExtendWith
+import com.gamebridge.measure.MeasuredAssertions
+import com.gamebridge.measure.assertEquals
+import com.gamebridge.measure.assertFailsWith
+
 import java.io.File
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
+@ExtendWith(MeasuredAssertions::class)
 class BridgeProtocolTest {
     private fun fixture(name: String) = File(System.getenv("GAMEBRIDGE_CONTRACT_ROOT") ?: "../../contracts", "fixtures/bridge/$name.json").readBytes()
     @Test fun `accepts request and pending response`() {

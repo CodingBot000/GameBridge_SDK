@@ -1,15 +1,19 @@
 package com.gamebridge
 
+import org.junit.jupiter.api.extension.ExtendWith
+import com.gamebridge.measure.MeasuredAssertions
+import com.gamebridge.measure.assertEquals
+import com.gamebridge.measure.assertFails
+
 import java.io.File
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
 
 @Serializable private data class Fixture(val profile: UserProfile, val product: StoreProduct, val purchase: PurchaseResult, val error: SdkError)
+@ExtendWith(MeasuredAssertions::class)
 class ModelFixtureTest {
     private val json = Json { ignoreUnknownKeys = true }
     private fun fixture() = File(System.getenv("GAMEBRIDGE_CONTRACT_ROOT") ?: "../../contracts", "fixtures/models/roundtrip.json").readText()

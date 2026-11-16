@@ -1,9 +1,16 @@
 package com.gamebridge
 
+import org.junit.jupiter.api.extension.ExtendWith
+import com.gamebridge.measure.MeasuredAssertions
+import com.gamebridge.measure.assertEquals
+import com.gamebridge.measure.assertTrue
+import com.gamebridge.measure.assertFailsWith
+
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.*
 
+@ExtendWith(MeasuredAssertions::class)
 class SdkCoordinatorTest {
     @Test fun `initialization joins same config and rejects different config`() = runBlocking {
         val starts = AtomicInteger(); val entered = CompletableDeferred<Unit>(); val finish = CompletableDeferred<Unit>()

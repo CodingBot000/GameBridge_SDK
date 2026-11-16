@@ -1,9 +1,16 @@
 package com.gamebridge
 
+import org.junit.jupiter.api.extension.ExtendWith
+import com.gamebridge.measure.MeasuredAssertions
+import com.gamebridge.measure.assertEquals
+import com.gamebridge.measure.assertTrue
+import com.gamebridge.measure.assertFalse
+
 import kotlinx.serialization.json.*
 import java.io.File
 import kotlin.test.*
 
+@ExtendWith(MeasuredAssertions::class)
 class BridgeDispatcherTest {
     @Test fun `status returns correlated response and unimplemented purchase fails explicitly`() {
         val fixture = File("../../contracts/fixtures/bridge/request.json").readText()

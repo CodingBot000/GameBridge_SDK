@@ -76,6 +76,7 @@ targets:
     type: bundle.unit-test
     platform: iOS
     sources:
+      - ../Tests/GameBridgeCoreTests/MeasuredAssertions.swift
       - ../Tests/GameBridgeCoreTests/CBridgeTests.swift
     dependencies:
       - target: GameBridgeSample

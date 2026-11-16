@@ -30,6 +30,12 @@ internal static class Program
         public void Pump() { inner.Pump(); }
         public void Dispose() { inner.Message -= Forward; inner.Dispose(); Message = null; }
     }
+    private static int assertions;
+    private static void Require(bool condition, string message)
+    {
+        System.Threading.Interlocked.Increment(ref assertions);
+        if (!condition) throw new Exception(message);
+    }
     private static int QueueCount(GameBridgeClient client)
     {
         var field = typeof(GameBridgeClient).GetField("pendingPushEvents", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -41,11 +47,10 @@ internal static class Program
         var watch = Stopwatch.StartNew();
         var transport = new QueuedPushTransport(); var client = new GameBridgeClient(transport);
         await client.InitializeAsync(config);
-        if (client.GetStatus().State != "READY" || QueueCount(client) != 1) throw new Exception("initialization or queued push mismatch");
-        if ((await client.GetProductsAsync()).Count != 2) throw new Exception("fake catalog mismatch");
+        Require(client.GetStatus().State == "READY" && QueueCount(client) == 1, "initialization or queued push mismatch");
+        Require((await client.GetProductsAsync()).Count == 2, "fake catalog mismatch");
         await client.ShutdownAsync(); watch.Stop();
-        if (client.GetStatus().State != "SHUTDOWN" || client.GetDiagnostics().PendingCount != 0 || QueueCount(client) != 0)
-            throw new Exception("registry or push queue cleanup failed");
+        Require(client.GetStatus().State == "SHUTDOWN" && client.GetDiagnostics().PendingCount == 0 && QueueCount(client) == 0, "registry or push queue cleanup failed");
         client.Dispose();
         return (watch.Elapsed.TotalMilliseconds, new WeakReference(client), new WeakReference(transport));
     }
@@ -55,20 +60,24 @@ internal static class Program
         var times = new List<double>();
         var config = new GameBridgeConfig("stress", ProviderMode.EditorOffline, null);
         var clients = new List<WeakReference>(); var transports = new List<WeakReference>();
+        var warmupAssertions = 0;
         for (var index = 0; index < warmup + samples; index++)
         {
             var cycle = await Cycle(config);
+            if (index == warmup - 1) warmupAssertions = assertions;
             if (index >= warmup) { times.Add(cycle.elapsed); clients.Add(cycle.client); transports.Add(cycle.transport); }
         }
         GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
         var liveClients = clients.Count(item => item.IsAlive); var liveTransports = transports.Count(item => item.IsAlive);
-        if (liveClients != 0 || liveTransports != 0) throw new Exception($"disposed objects retained: clients={liveClients}, transports={liveTransports}");
+        var cycleAssertions = assertions;
+        Require(liveClients == 0 && liveTransports == 0, $"disposed objects retained: clients={liveClients}, transports={liveTransports}");
         times.Sort();
         var result = new {
             scope = "standalone-dotnet-editor-offline-fake", os = RuntimeInformation.OSDescription,
             runtime = RuntimeInformation.FrameworkDescription, architecture = RuntimeInformation.ProcessArchitecture.ToString(),
             sourceHead = Environment.GetEnvironmentVariable("GAMEBRIDGE_SOURCE_HEAD"),
             workingTree = "HEAD plus uncommitted changes may be present", warmup, samples,
+            assertionExecution = new { executed = assertions, warmup = warmupAssertions, samples = cycleAssertions - warmupAssertions, finalChecks = assertions - cycleAssertions, outcomes = "UNMEASURED" },
             operation = "create + initialize + queued fake push + product query + shutdown", liveClients, liveTransports, unit = "milliseconds",
             p50 = times[(samples * 50 + 99) / 100 - 1], p95 = times[(samples * 95 + 99) / 100 - 1],
             limitation = "Not Unity runtime, device performance, long-duration memory profiling, or a real provider."

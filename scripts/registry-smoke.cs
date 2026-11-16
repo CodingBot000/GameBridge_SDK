@@ -43,11 +43,55 @@ internal static class Program
         public Task<GameBridge.PushPermission> RequestPermissionAsync(CancellationToken cancellation) { PermissionCalls++; return Task.FromResult(new GameBridge.PushPermission { provider = "APNS", permission = "GRANTED" }); }
         public Task<GameBridge.PushRegistration> RegisterAsync(CancellationToken cancellation) { RegisterCalls++; return Task.FromResult(new GameBridge.PushRegistration { provider = "APNS", registered = true, permission = "GRANTED", tokenFingerprint = "abcdef123456", updatedAt = "2026-11-10T00:00:00Z" }); }
     }
-    private static void Check(bool condition, string label) { if (!condition) throw new Exception(label); }
-    private static async Task Expect(string code, Task task)
+    private static readonly object assertionGate = new object();
+    private static readonly Dictionary<string, JObject> assertionSites = new Dictionary<string, JObject>();
+    private static int normalAssertions, expectedErrorChecks;
+    private static void RecordAssertion(string kind, string label, string file, int line)
     {
+        lock (assertionGate)
+        {
+            if (kind == "expectedError") expectedErrorChecks++; else normalAssertions++;
+            var key = file + ":" + line + ":" + kind + ":" + label;
+            if (!assertionSites.TryGetValue(key, out var site))
+            {
+                site = new JObject { ["file"] = System.IO.Path.GetFileName(file), ["line"] = line, ["kind"] = kind, ["label"] = label, ["count"] = 0 };
+                assertionSites.Add(key, site);
+            }
+            site["count"] = (int)site["count"] + 1;
+        }
+    }
+    private static void Verify(bool condition, string label) { if (!condition) throw new Exception(label); }
+    private static void Check(bool condition, string label,
+        [System.Runtime.CompilerServices.CallerFilePath] string file = "",
+        [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+    {
+        RecordAssertion("normal", label, file, line); Verify(condition, label);
+    }
+    private static void CheckExpected(bool condition, string label,
+        [System.Runtime.CompilerServices.CallerFilePath] string file = "",
+        [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+    {
+        RecordAssertion("expectedError", label, file, line); Verify(condition, label);
+    }
+    private static void ReportAssertions(bool complete)
+    {
+        lock (assertionGate)
+        {
+            var sites = new JArray(); foreach (var value in assertionSites.Values) sites.Add(value.DeepClone());
+            Console.WriteLine("GB_ASSERTIONS_JSON " + new JObject { ["platform"] = "csharp-managed", ["test"] = "registry-smoke",
+                ["normalAssertions"] = normalAssertions, ["expectedErrorChecks"] = expectedErrorChecks,
+                ["assertionsExecuted"] = normalAssertions + expectedErrorChecks, ["assertionOutcomes"] = "UNMEASURED",
+                ["complete"] = complete, ["sites"] = sites }.ToString(Newtonsoft.Json.Formatting.None));
+            Console.WriteLine("GB_ASSERTIONS_END registry-smoke");
+        }
+    }
+    private static async Task Expect(string code, Task task,
+        [System.Runtime.CompilerServices.CallerFilePath] string file = "",
+        [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+    {
+        RecordAssertion("expectedError", "expected " + code, file, line);
         try { await task; throw new Exception("expected " + code); }
-        catch (SdkException error) { Check(error.Code == code, "expected " + code + ", got " + error.Code); }
+        catch (SdkException error) { Verify(error.Code == code, "expected " + code + ", got " + error.Code); }
     }
     private static string Response(JObject request, string session = null, string operation = null, bool ok = true) => new JObject {
         ["protocolVersion"] = 1, ["sdkSessionId"] = session ?? (string)request["sdkSessionId"], ["kind"] = "response",
@@ -71,6 +115,30 @@ internal static class Program
     }
     private static async Task Main()
     {
+        var complete = false;
+        try { await Run(); complete = true; }
+        finally { ReportAssertions(complete); }
+    }
+    private static async Task DuplicateCompletionProbe()
+    {
+        string sent = null;
+        using (var registry = new RequestRegistry(json => sent = json, Guid.NewGuid()))
+        {
+            var task = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5));
+            var completions = 0;
+            var observed = task.ContinueWith(_ => Interlocked.Increment(ref completions), TaskContinuationOptions.ExecuteSynchronously);
+            var response = Response(JObject.Parse(sent));
+            registry.HandleMessage(response); await task; await observed;
+            Check(completions == 1 && registry.PendingCount == 0, "duplicate probe first completion owned once");
+            var ignored = registry.IgnoredMessages;
+            registry.HandleMessage(response);
+            Check(completions == 1 && registry.PendingCount == 0 && registry.IgnoredMessages == ignored + 1, "duplicate probe second completion rejected");
+        }
+        Console.WriteLine("GB_DUPLICATE_PROBE PASS");
+    }
+    private static async Task Run()
+    {
+        if (Environment.GetEnvironmentVariable("GAMEBRIDGE_MUTATION_DUPLICATE_ONLY") == "true") { await DuplicateCompletionProbe(); return; }
         string sent = null;
         var registry = new RequestRegistry(value => sent = value, Guid.NewGuid());
         var one = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5));
@@ -105,12 +173,12 @@ internal static class Program
         request = JObject.Parse(sent); var logoutFailure = JObject.Parse(Response(request, ok: false));
         logoutFailure["error"]["nativeCode"] = "REVOCATION_UNCONFIRMED"; registry.HandleMessage(logoutFailure.ToString());
         try { await logout; throw new Exception("expected logout failure"); }
-        catch (SdkException error) { Check(error.NativeCode == "REVOCATION_UNCONFIRMED", "logout revoke uncertainty retained"); }
+        catch (SdkException error) { CheckExpected(error.NativeCode == "REVOCATION_UNCONFIRMED", "logout revoke uncertainty retained"); }
         var secretFailure = registry.RequestAsync("auth.signOut", new JObject(), TimeSpan.FromSeconds(5));
         request = JObject.Parse(sent); var secretResponse = JObject.Parse(Response(request, ok: false));
         secretResponse["error"]["nativeCode"] = "sensitive-token"; registry.HandleMessage(secretResponse.ToString());
         try { await secretFailure; throw new Exception("expected failure"); }
-        catch (SdkException error) { Check(error.NativeCode == null && !error.ToString().Contains("sensitive-token"), "untrusted native code redacted"); }
+        catch (SdkException error) { CheckExpected(error.NativeCode == null && !error.ToString().Contains("sensitive-token"), "untrusted native code redacted"); }
         var timed = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromMilliseconds(30));
         var timedRequest = JObject.Parse(sent); var timedCompletions = 0;
         var timedObserved = timed.ContinueWith(_ => Interlocked.Increment(ref timedCompletions), TaskContinuationOptions.ExecuteSynchronously);
@@ -170,15 +238,15 @@ internal static class Program
         CheckFixtureRoundTrip<GameBridge.SdkError>(fixture["error"], "error");
         var missingError = (JObject)fixture["error"].DeepClone(); missingError.Remove("nativeCode");
         try { WireModels.Decode<GameBridge.SdkError>(missingError); throw new Exception("missing error nullable field accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable error field"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable error field"); }
         Check(WireModels.Decode<GameBridge.UserProfile>(fixture["profile"]).displayName == "별빛 🎮", "Korean profile");
         Check(WireModels.Decode<GameBridge.StoreProduct>(fixture["product"]).priceMicros == "9223372036854775807", "64-bit string");
         var invalidProduct = (JObject)fixture["product"].DeepClone(); invalidProduct["type"] = "UNKNOWN";
         try { WireModels.Decode<GameBridge.StoreProduct>(invalidProduct); throw new Exception("unknown enum accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "unknown enum"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "unknown enum"); }
         var numericPrice = (JObject)fixture["product"].DeepClone(); numericPrice["priceMicros"] = 123;
         try { WireModels.Decode<GameBridge.StoreProduct>(numericPrice); throw new Exception("numeric price accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "strict numeric string"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "strict numeric string"); }
         var secretError = (JObject)fixture["purchase"].DeepClone();
         secretError["error"] = new JObject { ["code"] = "AUTH_FAILED", ["message"] = "sensitive-token", ["retryable"] = false,
             ["requestId"] = JValue.CreateNull(), ["nativeCode"] = "sensitive-token", ["details"] = new JObject { ["token"] = "sensitive-token" } };
@@ -194,10 +262,10 @@ internal static class Program
         Check(!Newtonsoft.Json.JsonConvert.SerializeObject(WireModels.Decode<GameBridge.PushRegistration>(secretPush)).Contains(syntheticSecret), "push credential field redaction");
         var badPush = new JObject { ["provider"] = "MOCK", ["registered"] = true, ["permission"] = "GRANTED", ["tokenFingerprint"] = new string('a', 64), ["updatedAt"] = "2026-01-01T00:00:00Z" };
         try { WireModels.Decode<GameBridge.PushRegistration>(badPush); throw new Exception("raw token-sized fingerprint accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "fingerprint redaction"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "fingerprint redaction"); }
         var missingProfile = (JObject)fixture["profile"].DeepClone(); missingProfile.Remove("displayName");
         try { WireModels.Decode<GameBridge.UserProfile>(missingProfile); throw new Exception("missing nullable field accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable"); }
         var fake = new EditorOfflineTransport();
         var fakeRegistry = new RequestRegistry(fake.Dispatch, Guid.NewGuid());
         fake.Message += fakeRegistry.HandleMessage;
@@ -308,7 +376,7 @@ internal static class Program
             var observed = pendingRace.ContinueWith(_ => Interlocked.Increment(ref raceCompletions), TaskContinuationOptions.ExecuteSynchronously);
             await Task.WhenAll(Task.Run(() => cancellation.Cancel()), Task.Run(() => raceRegistry.Dispose()));
             try { await pendingRace; throw new Exception("race unexpectedly succeeded"); }
-            catch (SdkException error) { Check(error.Code == "CANCELED" || error.Code == "NOT_INITIALIZED", "race error"); }
+            catch (SdkException error) { CheckExpected(error.Code == "CANCELED" || error.Code == "NOT_INITIALIZED", "race error"); }
             await observed; Check(raceCompletions == 1 && raceRegistry.PendingCount == 0, "cancel shutdown race completes once");
         }
         var held = new HeldTransport(); var concurrent = new GameBridge.GameBridgeClient(held);
@@ -318,7 +386,7 @@ internal static class Program
             var secondInit = concurrent.InitializeAsync(config);
             Check(held.Requests.Count == 1, "same configuration joins initialization");
             try { _ = concurrent.InitializeAsync(new GameBridge.GameBridgeConfig("other", GameBridge.ProviderMode.EditorOffline, null)); throw new Exception("different config accepted"); }
-            catch (SdkException error) { Check(error.Code == "ALREADY_INITIALIZED_DIFFERENT_CONFIG", "different config"); }
+            catch (SdkException error) { CheckExpected(error.Code == "ALREADY_INITIALIZED_DIFFERENT_CONFIG", "different config"); }
             callerCancellation.Cancel(); await Expect("CANCELED", firstInit);
             held.Reply(held.Requests[0], InitResponse());
             await secondInit;

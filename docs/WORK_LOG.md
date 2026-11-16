@@ -3765,3 +3765,9 @@
 - 배치26 B controlled DB 경로1회: source5bca33f의새owned18.6/nonparallel/별도DerivedData,실제XCTest1PASS/skip0/exit0(artifacts/xcode-storekit-e2e-s3e8c47b). Xcode26.6/17F113,source configurationSHA확인. 첫built-app경로검색은0개로built일치는아직미검증이며아래추가확인으로정정한다. backend-ready8.75s,boot-ready30.92s,teststart32.22s/return67.96s를단조시계로관측했다. 기존180초제한그대로며최초간헐원인은재현되지않아미확정유지. 다음process경로도fresh환경1회만관측한다.
 
 - 배치26 B 제한진단종료/커밋 전: source5bca33f(후속진행문서변경외코드동일) controlled18.6 DB1회XCTest1PASS/exit0,process1회재시작PASS/exit0. 실제built config는.app/PlugIns/시험bundle에있어첫root-app검색0개를정정했고확인SHA4ead4675...로기존과동일. XCTest15단계attachment수집(최초start약5.94s/purchase1.39s/recover1.09s),processTransaction.all prepare3.93s/recover0.92s,unfinished0.18s/0.005s 관측. 최초timeout재현없음·원인미확정위험유지,추가반복종료. 새owned기기process만종료/디스크DB보존. P09T04 PARTIAL/26.5미조사/P05FAIL유지. C반드시계속한다.
+
+- 배치26 C/P10-T01 시작: P09T08 localPASS에의존조건충족;self-hosted대기는중단사유아님. shippingKotlin/SwiftCoordinator는플랫폼고유동시성으로유지하고C#RequestRegistry의3중event공통header검증과Finish/finally의동일소유removal중복을선정했다. publicAPI·Native소스/CABI/wire기준을기록하고,변경전동일cohort+추가eventheader negative matrix를실행한뒤책임경계별작게refactor/검증/commit한다.
+
+- 배치26 C baseline: shipping 변경 전 3종 event×7 invalid header 및 정상 callback matrix를 추가해 managed418 helper/exit0 확인. API snapshot 첫 시도는 기존에 없는 contracts/openapi.yaml 참조로exit1/쓰기없음, 실제 존재하는 wire·public-api와Native shipping hash/C ABI exports/C#선언을기록했다. OpenAPI 부재는UNMEASURED로표시하며전체binary ABI검증으로주장하지않는다. 변경전baseline검사PASS.
+
+- 배치26 C1 검증/커밋 전: RequestRegistry의3중event session/id/time/payload header검증을private TryReadEventEnvelope로집중하고kind별body/disposed/callback전달은유지했다. 변경전/후같은managed matrix+race cohort actualhelper418=198normal+220expected,process0동일. 기존API baseline및새79파일Native/C#선언/C-export/wire scope baselinePASS. 공개/internal호출표면변경없음;단순공통추상화가아닌동일검증3곳→1곳. public/wire/source/export변경음성단위3PASS. Kotlin/Swift coordinator는각각Mutex/actor·generation고유상태소유로이영역형식통일이득낮아이번수정제외했다.

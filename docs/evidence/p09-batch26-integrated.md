@@ -53,3 +53,7 @@ source5bca33f:DB `xcode-storekit-e2e-s3e8c47b` actualXCTest1/skip0/exit0,新owne
 process `xcode-process-recovery-8qg9cxnf`은같은code及진행문서변경상태에서fresh18.6/새DB/기존phase75초로1회PASS/exit0. prepare/recover PID변경·잔액100확인. API trace에서Transaction.all prepare3.93s/recover0.92s,unfinished0.18s/0.005s. boot/health/launch단계를따로기록했다.
 
 두controlled경로모두증상이재현되지않았다. 정상동작관측은이전정지의원인증명이아니다. 초기boot/version/부분로그한계·SDK/환경가설미확정위험을유지하고이번B조사를종료한다. timeout증가·동일조건반복·26.5재조사는없다. P09-T04 PARTIAL/P05FAIL/ENV26OPEN유지.
+
+### C1 event header 분리
+
+변경전/후matrix+기존cohort418helper/exit0동일. 공통header검증3곳→private1곳,body와callback의미유지.API/Native source/C-export/wire baselinePASS.[상세비교](p10-core-bridge-batch26.md). 후속ownership분리를별도검증/commit한다.

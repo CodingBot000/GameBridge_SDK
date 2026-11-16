@@ -1,0 +1,463 @@
+{
+  "files": {
+    "android/sdk-core/src/main/kotlin/com/gamebridge/BackendClient.kt": {
+      "sha256": "aaba3985f546dcaa1ef2aa31f59afbcfbb25600dbeb6ccbfbfcb09cde74bcd4b"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/BridgeDispatcher.kt": {
+      "sha256": "53e185971601ad83f2a8164e081d4090c8f3e7193bc7396200c698735c6e5af5"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/BridgeProtocol.kt": {
+      "sha256": "709fa3734a55e7b55bdb76c8d96d07edf90ce4773ed1375e850d3eb871abc4f7"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/Configuration.kt": {
+      "sha256": "b3c3c5b50241f7a0f0b3e3d1a9a96c169d087e1acf10aa198dda6f1811bdb995"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/Diagnostics.kt": {
+      "sha256": "b9995340be3ca750bdbeb20160db6b6a6b4b11ef8eee919112fb0aabcab322d5"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/LocalMockBridgeHandler.kt": {
+      "sha256": "fe6400e954895df655e64bdedeb70970595fc9fb87e3870207f1d2c9b702b8a3"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/LocalMockClient.kt": {
+      "sha256": "ad976a2e02be9175f28d89f60ce86b08c476a0974476c1eef4ae2925832f52b9"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/MaintenanceGate.kt": {
+      "sha256": "c1572480341bbbcbffaaabf9feedd58d7c37890e7d9ffa813e473196378828a2"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/MockPushEventDecoder.kt": {
+      "sha256": "808681ccf642a89abf2743e4e2125fe5ae66c44b0928b34211b5fca76acb011e"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/MockPushStream.kt": {
+      "sha256": "03794176f2a3c0b4c11164d6d20688ffc1300f59619845af239b6a612f314458"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/Models.kt": {
+      "sha256": "156149c5dc05e1e0c937a193232bf52e806fffcc918deb0d73352ba1ddb5b083"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/PushPayload.kt": {
+      "sha256": "9a1c44dcc108f9c7c3a617467b5e42728b7b7051292481b42626b763711ea98c"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/PushRouter.kt": {
+      "sha256": "e00bcff90d0e486605f0471899190abcb6c287123c5c4dde39b70db0cc876a64"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/SdkCoordinator.kt": {
+      "sha256": "91a6f2722164e3b5892cbfda29d20389331f80b8ef34a16b35259983689b3202"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/ServiceConfigurationRepository.kt": {
+      "sha256": "4adc36e724efa50a3541b09c59846e4cbba7ca9a3f8855615cfa8e6f6730c1cf"
+    },
+    "android/sdk-core/src/main/kotlin/com/gamebridge/Version.kt": {
+      "sha256": "f4d025a94c83fa9018de2c78b8b351bec0de547a7a6b2c804d21d5b886503759"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/KeystoreTokenStore.kt": {
+      "sha256": "166f26525de3cc360a5233decafc7676bb9e8243f7ca5cb2af86fa265d8010e9"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/GoogleAuthProvider.kt": {
+      "sha256": "5d8168383c56b37747356a7eebd99c2981cdbe292fc72968e51def7c4fe520b6"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GoogleHttpProofSink.kt": {
+      "sha256": "0444ffa42f95ce14668a40d8b1b1ff5b773cc27d24302f65e4661668e71a33d9"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GooglePlayBillingProvider.kt": {
+      "sha256": "d2f477646af10784f61f69b2675a5785f7f16f56edcd0daf881eadc5b71c67ab"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GooglePlayStore.kt": {
+      "sha256": "31c08a7f8708f1a203c60dfc0a1388de36702122ca3f215ae481e6fc439fdb70"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GooglePurchaseAccountSource.kt": {
+      "sha256": "44ccfe2b69b38f42d7465ccf9350a67872fdd34802d6d31caa998478e5a1229e"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GoogleStoreRuntime.kt": {
+      "sha256": "5329aa3ec128cef4de6b142f5977aeb1daaa5ecdb7725eb265ea5b9d5988de35"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/PurchaseCoordinator.kt": {
+      "sha256": "b96f54e731d19001cb27b762652af5640122690928f05751313fadc917a42978"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/push/AndroidPushHostAdapter.kt": {
+      "sha256": "aa77760234b61569c66cc76af68900e91d989ebe2c0d16a908fa78361ea01153"
+    },
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/push/GooglePushRegistration.kt": {
+      "sha256": "f985a234fdee5a7edc4d4c3b252944f113d06502d020d6d4598fdb639132d60f"
+    },
+    "android/sdk-unity-bridge/src/main/kotlin/com/gamebridge/bridge/BridgeFacade.kt": {
+      "sha256": "3502825e0af5205475e3e3d26d02f34b18e3ba90e2eb65b157aedcf6d20d5c31"
+    },
+    "android/sdk-unity-bridge/src/main/kotlin/com/gamebridge/bridge/GoogleAuthBridgeHandler.kt": {
+      "sha256": "46b018621bebfe994c1590c012cbf73ec85c17a0763ea4568e2b8d1ca200f073"
+    },
+    "ios/Sources/GameBridgeApple/AppleAuthProvider.swift": {
+      "sha256": "40abe5e775d5e503bdbcc254d2a86a7ab03979a9d0be22cf5fc48a060ffa0d65"
+    },
+    "ios/Sources/GameBridgeApple/AppleConcurrency.swift": {
+      "sha256": "4c127e093ecb46b9aa2989b6d17b7b208ecde3b3c9448667d926dd0ca29e2588"
+    },
+    "ios/Sources/GameBridgeApple/AppleHttpProofSink.swift": {
+      "sha256": "37caab851c47c532e01bb8ec065550f72f63078ab26f433db2c1999359e5fb2f"
+    },
+    "ios/Sources/GameBridgeApple/ApplePurchaseAccountSource.swift": {
+      "sha256": "cc8a4b233faba2259c52af82c09004699514b3125eaf62d2cdd41a68a972ac29"
+    },
+    "ios/Sources/GameBridgeApple/ApplePushHostAdapter.swift": {
+      "sha256": "8cd8d2e6a54d4ded8ba475032875fae93bf79f1e78d63469d25cf77ed9e9190c"
+    },
+    "ios/Sources/GameBridgeApple/ApplePushRegistration.swift": {
+      "sha256": "5d9d2496fde769493f6f8f04a64699cf5a237f49b772b2335e127fa26f287315"
+    },
+    "ios/Sources/GameBridgeApple/AppleStore.swift": {
+      "sha256": "7c503fcc1699956f622d9987a5b7ee38851df26692e9b28f8004ce819338fb36"
+    },
+    "ios/Sources/GameBridgeApple/AppleStoreRuntime.swift": {
+      "sha256": "5ea71443d104f6571ecbc524ef68239135c3715ed272d20e10cf1d9c13b901ea"
+    },
+    "ios/Sources/GameBridgeApple/AppleSystemGateway.swift": {
+      "sha256": "51841f865e5ebbb5387ac706c2f87c175265937840bfcf24ab5cf46dfc041709"
+    },
+    "ios/Sources/GameBridgeApple/PurchaseCoordinator.swift": {
+      "sha256": "9d52624d9769acc6a7e4e08aaa7587ffcc2b4ed97c0a2c5e3cdf8f904a4790f0"
+    },
+    "ios/Sources/GameBridgeApple/StoreKitBillingProvider.swift": {
+      "sha256": "092b0f62f9530584f991bbb7fd9860d0fc1956a504da50eb0e186dfd8f2e576c"
+    },
+    "ios/Sources/GameBridgeApple/XcodeAttemptJournal.swift": {
+      "sha256": "1c361f9db484d64d5a67779e2489f12feec071d0c8f72b4797db51be1fdb4546"
+    },
+    "ios/Sources/GameBridgeApple/XcodeStoreKitSession.swift": {
+      "sha256": "0f0b93f533248032baf2ac7bf34648dcef0922bb04564e07d462fbd0d90a6866"
+    },
+    "ios/Sources/GameBridgeCore/BackendClient.swift": {
+      "sha256": "89e62e86d0b8b6928a3fb4ab80ab26776c72c1be41d00330a54668ebe07def4e"
+    },
+    "ios/Sources/GameBridgeCore/BridgeProtocol.swift": {
+      "sha256": "4ec67338d228fe2aa2795f83254dabd326c246645ea46b0b6339e188aa0a8266"
+    },
+    "ios/Sources/GameBridgeCore/Configuration.swift": {
+      "sha256": "41fb442e664f5b3447c85121766cbdb76506cdb8741b42b904873c21fb667015"
+    },
+    "ios/Sources/GameBridgeCore/Diagnostics.swift": {
+      "sha256": "bd2d192a6d69fabda0b36c70e1e3978a30a56724d822d2d7dcab6f9359f55146"
+    },
+    "ios/Sources/GameBridgeCore/KeychainTokenStore.swift": {
+      "sha256": "a354b03c4feebf88a21ea0ed3775d717d3425028db73519e12fe750e0516e2b7"
+    },
+    "ios/Sources/GameBridgeCore/LocalMockBridgeHandler.swift": {
+      "sha256": "6ca56455019ca1ff34725260b8185e61f3b835e8e16424f6f7fd06e545edf989"
+    },
+    "ios/Sources/GameBridgeCore/LocalMockClient.swift": {
+      "sha256": "b447c5a7c0a157efa1c89963735f5a094547535380d23b966f8f605315ed9218"
+    },
+    "ios/Sources/GameBridgeCore/MaintenanceGate.swift": {
+      "sha256": "1b23b177666ca94ff1652dc1574d183eec5e1da6393a347bcc7494233c0b35ce"
+    },
+    "ios/Sources/GameBridgeCore/MockPushEventDecoder.swift": {
+      "sha256": "cc71fff2bc794c7db6dd5cbd2136377b19bd415d9676d2a6f268fb25d9a40066"
+    },
+    "ios/Sources/GameBridgeCore/MockPushStream.swift": {
+      "sha256": "d09847e848ef6568d77bd08451516d312638d4cfc405fad65ed565325a576fdf"
+    },
+    "ios/Sources/GameBridgeCore/Models.swift": {
+      "sha256": "b92c6793f4ffbf7269c2333092c13864a44eeca74c886a094972bc2b2d1c43d4"
+    },
+    "ios/Sources/GameBridgeCore/PushPayload.swift": {
+      "sha256": "dc7e5d79fcad01894a5a9b32dd6754e8b4da3cdadce3119943dc466b75eca389"
+    },
+    "ios/Sources/GameBridgeCore/PushRouter.swift": {
+      "sha256": "00ee870932f731a1deda3bfe8933159ea7c2b26f9ef2f13e8f8fe367ca55bb90"
+    },
+    "ios/Sources/GameBridgeCore/SdkCoordinator.swift": {
+      "sha256": "474fa028272a2d64a334b026732d9bdde5b39a5c040784b1ba5cb3501c5a8481"
+    },
+    "ios/Sources/GameBridgeCore/ServiceConfigurationRepository.swift": {
+      "sha256": "fdfa053fdf6e5ae8933f7eb7bba1a64086c65abf3f4f8e6bff036b6f8a824e4f"
+    },
+    "ios/Sources/GameBridgeCore/Version.swift": {
+      "sha256": "d319998ae78d0103e4d0b995dad0a609c489dc29c7d632bff3c6240cf8226e3b"
+    },
+    "ios/Sources/GameBridgeTesting/OfflineFake.swift": {
+      "sha256": "eb525aa2bba96daded3c7af9f9812adf5079df0a895d15601ff4aaf3e9796119"
+    },
+    "ios/UnityBridge/AppleAuthBridgeHandler.swift": {
+      "sha256": "827d1abd0824a3baddf6fa3c4a5568fab120928704fc2c234a7752c1919afb79"
+    },
+    "ios/UnityBridge/Bridge.swift": {
+      "sha256": "8e5909dc40e486f244ead0da0b56ff679a23ac6be47dc5fc01f5d14054aaf8d2"
+    },
+    "ios/UnityBridge/XcodeStoreKitBridgeHandler.swift": {
+      "sha256": "84005733e7cde3418eaceb6588203ee01484efafff39910388ce6ad4f4014a43"
+    },
+    "ios/Framework/include/GameBridgeNative.h": {
+      "sha256": "dec321c6568cd1e96e80bbe2ef053b75267ff34ca4734266797e4142a214b2cf"
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/AssemblyInfo.cs": {
+      "sha256": "3820526aa5a36ffac61798d85f38bea49a898f2d148595b18e4167edd3988326",
+      "declarations": []
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs": {
+      "sha256": "c8bcaa0803d338c83cbe1ae7cd91cdcc780c91d8de953dd18d538ff70799fee5",
+      "declarations": [
+        "internal sealed class EditorOfflineTransport : IWireTransport",
+        "public event Action<string> Message;",
+        "public void Pump() { }",
+        "public void Dispose() { lock (gate) { disposed = true; initialized = false; signedIn = false; Message = null; } }",
+        "public void Dispatch(string json)"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/Core/IWireTransport.cs": {
+      "sha256": "bab4c043cfa8e1d236f23bd432c2c364c060db300421acf681863f1a1d0d6ae5",
+      "declarations": [
+        "internal interface IWireTransport : IDisposable"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs": {
+      "sha256": "89729467a4c230d17951a988fc11a98822b8f7a08cde9d1548e7632d4c3d6f7a",
+      "declarations": [
+        "public sealed class SdkException : Exception",
+        "public string Code { get; }",
+        "public bool Retryable { get; }",
+        "public string NativeCode { get; }",
+        "public SdkException(string code, bool retryable = false) : base(code) { Code = code; Retryable = retryable; }",
+        "public SdkException(string code, bool retryable, string nativeCode) : base(code) { Code = code; Retryable = retryable; NativeCode = nativeCode == \"REVOCATION_UNCONFIRMED\" ? nativeCode : null; }",
+        "internal sealed class RequestRegistry : IDisposable",
+        "internal readonly string Operation;",
+        "internal readonly TaskCompletionSource<JToken> Completion = new TaskCompletionSource<JToken>(TaskCreationOptions.RunContinuationsAsynchronously);",
+        "internal Pending(string operation) { Operation = operation; }",
+        "internal static bool IsKnownError(string code) => code != null && Errors.Contains(code);",
+        "internal event Action<PurchaseUpdate> PurchaseUpdated;",
+        "internal event Action<PushUpdate, bool> PushUpdated;",
+        "internal event Action<PushTokenUpdate> PushTokenUpdated;",
+        "internal int IgnoredMessages => Volatile.Read(ref ignored);",
+        "internal int PendingCount { get { lock (gate) return pending.Count; } }",
+        "internal RequestRegistry(Action<string> dispatch, Guid sessionId)",
+        "internal async Task<JToken> RequestAsync(string operation, JObject payload, TimeSpan timeout, CancellationToken cancellation = default)",
+        "internal void HandleMessage(string json)",
+        "public void Dispose()"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/Core/WireModels.cs": {
+      "sha256": "c337847cf222fbdc401f88b63b11d3cc885268576d5955570a71e1364a4583b3",
+      "declarations": [
+        "internal static class WireModels",
+        "public override bool CanConvert(Type type) => type.IsEnum;",
+        "public override object ReadJson(JsonReader reader, Type type, object existingValue, JsonSerializer serializer)",
+        "public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => writer.WriteValue(value.ToString());",
+        "internal static T Decode<T>(JToken token)"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs": {
+      "sha256": "b544c11b30844d2fe13acd51e208fe73cbe8aa5d3e3eaaab2732530d5dc082da",
+      "declarations": [
+        "public enum AuthProvider { MOCK, GOOGLE, APPLE }",
+        "public sealed class CapabilityStatus",
+        "public bool Supported { get; }",
+        "public bool Configured { get; }",
+        "public ProviderMode Mode { get; }",
+        "public string Reason { get; }",
+        "internal CapabilityStatus(bool supported, bool configured, ProviderMode mode, string reason)",
+        "public sealed class SdkCapabilities",
+        "public bool Known { get; }",
+        "public IReadOnlyDictionary<string, CapabilityStatus> Features { get; }",
+        "public DateTimeOffset SnapshotAt { get; }",
+        "internal SdkCapabilities(bool known, IDictionary<string, CapabilityStatus> features, DateTimeOffset snapshotAt)",
+        "public sealed class DiagnosticsSnapshot",
+        "public ProviderMode? Mode { get; }",
+        "public int PendingCount { get; }",
+        "public int IgnoredMessages { get; }",
+        "public DateTimeOffset SnapshotAt { get; }",
+        "internal DiagnosticsSnapshot(ProviderMode? mode, int pending, int ignored, DateTimeOffset snapshotAt)",
+        "public enum DiagnosticKind { INITIALIZE, AUTH, PURCHASE, PUSH, SHUTDOWN }",
+        "public enum DiagnosticOutcome { STARTED, SUCCEEDED, FAILED, PENDING }",
+        "public sealed class NativeDiagnosticEvent",
+        "public DiagnosticKind Kind { get; }",
+        "public DiagnosticOutcome Outcome { get; }",
+        "public DateTimeOffset Timestamp { get; }",
+        "public Guid? RequestId { get; }",
+        "internal NativeDiagnosticEvent(DiagnosticKind kind, DiagnosticOutcome outcome, DateTimeOffset timestamp, Guid? requestId)",
+        "public sealed class SdkStatus",
+        "public string State { get; }",
+        "public string SdkVersion { get; }",
+        "public string Platform { get; }",
+        "public ProviderMode? Mode { get; }",
+        "public DateTimeOffset? InitializedAt { get; }",
+        "public DateTimeOffset SnapshotAt { get; }",
+        "public SdkCapabilities Capabilities { get; }",
+        "internal SdkStatus(string state, ProviderMode? mode, DateTimeOffset? initialized, DateTimeOffset snapshot, SdkCapabilities capabilities)",
+        "public sealed class InitResult { public SdkStatus Status { get; } internal InitResult(SdkStatus status) { Status = status; } }",
+        "internal interface IHostPushPermissionDriver",
+        "internal interface IHostPushDriver",
+        "public sealed class GameBridgeClient : IDisposable",
+        "internal event Action<GameBridgeClient> Disposed;",
+        "public event Action<PurchaseUpdate> PurchaseUpdated;",
+        "public event Action<PushUpdate> PushReceived;",
+        "public event Action<PushUpdate> PushOpened;",
+        "public event Action<PushTokenUpdate> PushTokenChanged;",
+        "internal GameBridgeClient(IWireTransport transport)",
+        "internal void Pump()",
+        "public SdkStatus GetStatus() { lock (gate) return Snapshot(); }",
+        "public SdkCapabilities GetCapabilities() { lock (gate) return capabilities; }",
+        "public DiagnosticsSnapshot GetDiagnostics() { lock (gate) return new DiagnosticsSnapshot(lastMode, registry?.PendingCount ?? 0, (registry?.IgnoredMessages ?? 0) + droppedPushEvents, DateTimeOffset.UtcNow); }",
+        "public async Task<IReadOnlyList<NativeDiagnosticEvent>> GetNativeDiagnosticsAsync(CancellationToken cancellation = default)",
+        "public Task<InitResult> InitializeAsync(GameBridgeConfig value, CancellationToken cancellation = default)",
+        "public async Task<UserProfile> SignInAsync(AuthProvider provider, CancellationToken cancellation = default)",
+        "public async Task SignOutAsync(CancellationToken cancellation = default) { lock (gate) pendingPushEvents.Clear(); await Invoke(\"auth.signOut\", new JObject(), false, cancellation); }",
+        "public async Task<SessionSnapshot> RestoreSessionAsync(CancellationToken cancellation = default)",
+        "public async Task<IReadOnlyList<StoreProduct>> GetProductsAsync(CancellationToken cancellation = default)",
+        "public async Task<PurchaseResult> PurchaseAsync(string productId, CancellationToken cancellation = default)",
+        "public async Task<EntitlementSnapshot> GetEntitlementsAsync(CancellationToken cancellation = default)",
+        "public async Task<PurchaseSyncResult> SyncPurchasesAsync(SyncReason reason, CancellationToken cancellation = default)",
+        "internal void AttachHostPushDriver(IHostPushDriver driver) { lock (gate) { if (disposed) throw new SdkException(\"NOT_INITIALIZED\"); hostPushDriver = driver; } }",
+        "internal void DetachHostPushDriver(IHostPushDriver driver) { lock (gate) { if (ReferenceEquals(hostPushDriver, driver)) hostPushDriver = null; } }",
+        "public async Task<PushPermission> RequestPushPermissionAsync(CancellationToken cancellation = default)",
+        "public async Task<PushRegistration> RegisterPushAsync(CancellationToken cancellation = default)",
+        "public async Task UnregisterPushAsync(CancellationToken cancellation = default) { await Invoke(\"push.unregister\", new JObject(), false, cancellation); }",
+        "public async Task<ServiceConfig> GetServiceConfigAsync(CancellationToken cancellation = default)",
+        "internal async Task<string> ForwardHostPushTokenAsync(string token, CancellationToken cancellation = default)",
+        "internal async Task ForwardHostPushEventAsync(string messageId, string route, string campaignId, bool opened)",
+        "public Task ShutdownAsync()",
+        "public void Dispose()"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs": {
+      "sha256": "3c1bafd294e717b461be011d058033217ab3c31022c777f9115911fd60d62c30",
+      "declarations": [
+        "public enum ProviderMode { EditorOffline, LocalMock, XcodeStoreKit, PlatformSandbox }",
+        "public sealed class ConfigurationException : Exception",
+        "public IReadOnlyList<string> InvalidKeys { get; }",
+        "public ConfigurationException(IReadOnlyList<string> invalidKeys)",
+        "public sealed class GameBridgeConfig",
+        "public string AppId { get; }",
+        "public ProviderMode Mode { get; }",
+        "public string BackendBaseUrl { get; }",
+        "public int RequestTimeoutMs { get; }",
+        "public string DevelopmentKey { get; }",
+        "public string MockSubject { get; }",
+        "public string GoogleServerClientId { get; }",
+        "public string CoinsStoreProductId { get; }",
+        "public string PremiumStoreProductId { get; }",
+        "public string InstallationId { get; }",
+        "public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs = 30000)",
+        "public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject)",
+        "public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject, string googleServerClientId)",
+        "public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject, string googleServerClientId, string coinsStoreProductId, string premiumStoreProductId)",
+        "public GameBridgeConfig(string appId, ProviderMode mode, string backendBaseUrl, int requestTimeoutMs, string developmentKey, string mockSubject, string googleServerClientId, string coinsStoreProductId, string premiumStoreProductId, string installationId)",
+        "public void Validate()"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeSdk.cs": {
+      "sha256": "af869b09ca73387448be21f0fb6e678a64688134e3e9e6d3cedc177b67298389",
+      "declarations": [
+        "public static class GameBridgeSdk",
+        "public static GameBridgeClient Create(GameBridgeConfig config)",
+        "internal sealed class GameBridgeDriver : MonoBehaviour",
+        "internal void Attach(GameBridgeClient value) { client = value; }",
+        "internal void Detach() { client = null; }"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/Models.cs": {
+      "sha256": "da27ed5b94f256ccef039d8d2c41bd0c09bffa15d0ec06e7d9e728b99e8c30ac",
+      "declarations": [
+        "public enum ProductType { CONSUMABLE, NON_CONSUMABLE }",
+        "public enum PurchaseStatus { PURCHASED, PENDING, CANCELED, VERIFICATION_PENDING, FAILED }",
+        "public enum FulfillmentStatus { NOT_GRANTED, GRANTED, ALREADY_GRANTED }",
+        "public enum FinalizationStatus { NOT_REQUIRED, PENDING, FINALIZED }",
+        "public sealed class PurchaseUpdate",
+        "public string EventId { get; internal set; }",
+        "public string ProductId { get; internal set; }",
+        "public PurchaseStatus Status { get; internal set; }",
+        "public string ServerPurchaseId { get; internal set; }",
+        "public string ErrorCode { get; internal set; }",
+        "public DateTimeOffset OccurredAt { get; internal set; }",
+        "public sealed class PushUpdate",
+        "public string EventId { get; internal set; }",
+        "public string MessageId { get; internal set; }",
+        "public string Route { get; internal set; }",
+        "public string CampaignId { get; internal set; }",
+        "public DateTimeOffset OccurredAt { get; internal set; }",
+        "public sealed class PushTokenUpdate",
+        "public string EventId { get; internal set; }",
+        "public bool Registered { get; internal set; }",
+        "public string TokenFingerprint { get; internal set; }",
+        "public string ErrorCode { get; internal set; }",
+        "public DateTimeOffset OccurredAt { get; internal set; }",
+        "public enum SyncReason { APP_RESUME, USER_RESTORE }"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/Platforms/AndroidTransport.cs": {
+      "sha256": "7664a26076602cafa1278c5bc4bf1f0278c963be9795aa3f051a037df71baa0d",
+      "declarations": [
+        "internal sealed class AndroidTransport : IWireTransport, IHostPushPermissionDriver",
+        "public event Action<string> Message;",
+        "internal int DroppedMessages => callback.DroppedMessages;",
+        "internal AndroidTransport()",
+        "public void Dispatch(string json)",
+        "public void Pump()",
+        "public async Task<PushPermission> RequestPermissionAsync(CancellationToken cancellation)",
+        "public void Dispose()",
+        "internal int DroppedMessages => Volatile.Read(ref dropped);",
+        "internal CallbackProxy(ConcurrentQueue<string> queue) : base(\"com.gamebridge.bridge.BridgeCallback\") { this.queue = queue; }",
+        "internal void Deactivate() => Interlocked.Exchange(ref active, 0);",
+        "internal void Removed() => Interlocked.Decrement(ref queued);",
+        "public void onMessage(string json)"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/Platforms/IosTransport.cs": {
+      "sha256": "b9bce0171d1b79a2a579dc53b61db55945994e4153a55dc83791c007e2aba26c",
+      "declarations": [
+        "internal sealed class IosTransport : IWireTransport",
+        "public event Action<string> Message;",
+        "internal int DroppedMessages => Volatile.Read(ref dropped);",
+        "internal IosTransport()",
+        "public void Dispatch(string json)",
+        "public void Pump()",
+        "public void Dispose()"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/iOSHost/HostPushQueue.cs": {
+      "sha256": "f4d62f870f022521121d81408e8fee9b8b138d7b9004590c89d39c9d327464ba",
+      "declarations": [
+        "internal sealed class HostPushEvent { internal string Id, Route, Campaign; internal bool Opened; }",
+        "internal enum HostPushEnqueue { Queued, Duplicate, Invalid, Busy }",
+        "internal sealed class HostPushQueue",
+        "internal int Count => pending.Count;",
+        "internal HostPushEvent Peek() => pending.Peek();",
+        "internal void Complete(HostPushEvent value) { if (pending.Count > 0 && ReferenceEquals(value, pending.Peek())) pending.Dequeue(); }",
+        "internal void Clear() { pending.Clear(); seen.Clear(); recency.Clear(); }",
+        "internal HostPushEnqueue Add(string json, bool opened)"
+      ]
+    },
+    "unity/Packages/com.gamebridge.sdk/Runtime/iOSHost/IosPushHostAdapter.cs": {
+      "sha256": "dad9f6788d4d50c66c6e93d56c3d903fb5106f62f97d7afa438f9985ab9e0869",
+      "declarations": [
+        "public sealed class IosPushHostAdapter : MonoBehaviour",
+        "public event Action<string> Status;",
+        "internal HostDriver(IosPushHostAdapter owner) { this.owner = owner; }",
+        "public Task<PushPermission> RequestPermissionAsync(CancellationToken cancellation) => owner.RequestPermissionAsync(cancellation);",
+        "public Task<PushRegistration> RegisterAsync(CancellationToken cancellation) => owner.RegisterAsync(cancellation);",
+        "public void Attach(GameBridgeClient value)",
+        "public void Detach()",
+        "public void RetryPending() { paused = false; }",
+        "public void RequestRegistration() { _ = RegisterAndReport(); }"
+      ]
+    },
+    "contracts/bridge.schema.json": {
+      "sha256": "5df3632ceade099b273f04fa2ea6ebdfceffce7d2d019773ef3c8648c5b78eef"
+    },
+    "contracts/models.schema.json": {
+      "sha256": "66c42177f337644f97b5969d400485e8fa2c61d04920bc973f2fdb5178438b35"
+    },
+    "contracts/error-codes.json": {
+      "sha256": "4012467e21297ab7f3d4f3b299aa140481f6e08d0f0e26d63e64bf6c3f706843"
+    },
+    "contracts/public-api.md": {
+      "sha256": "a43deda083de25ba4f314dadba54e8025ad627a80ea4a11a35e4e22204c8eb9a"
+    }
+  },
+  "unavailable": [
+    "contracts/openapi.yaml (not present in existing repository)"
+  ],
+  "swiftCExports": [
+    "GB_Dispatch",
+    "GB_ProtocolVersion",
+    "GB_SetCallback",
+    "GB_Shutdown"
+  ],
+  "privateRefactorTarget": "unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs",
+  "sourceHead": "fd158a92239218b7a5684c44b5bf2be62dc3bc4b"
+}

@@ -119,6 +119,28 @@ internal static class Program
         try { await Run(); complete = true; }
         finally { ReportAssertions(complete); }
     }
+    private static void EventHeaderMatrix(RequestRegistry registry, JObject purchase, JObject push, JObject token, Func<int> callbacks)
+    {
+        var goodPush = (JObject)push.DeepClone(); goodPush["payload"]["route"] = "store";
+        var goodToken = (JObject)token.DeepClone(); goodToken["payload"]["tokenFingerprint"] = "abcdef123456";
+        var variants = new Action<JObject>[] {
+            x => x["sdkSessionId"] = Guid.NewGuid().ToString("D"), x => x["eventId"] = "invalid-guid",
+            x => x["occurredAt"] = "2026-11-10T00:00:00+00:00", x => x["occurredAt"] = "invalid-time",
+            x => x["payload"] = new JArray(), x => x.Remove("occurredAt"), x => x.Remove("eventId")
+        };
+        foreach (var valid in new[] { purchase, goodPush, goodToken })
+        {
+            foreach (var invalidate in variants)
+            {
+                var changed = (JObject)valid.DeepClone(); invalidate(changed);
+                var before = callbacks(); var ignored = registry.IgnoredMessages;
+                registry.HandleMessage(changed.ToString());
+                Check(callbacks() == before && registry.IgnoredMessages == ignored + 1, "shared event header rejects invalid " + (string)valid["type"]);
+            }
+            var ready = callbacks(); registry.HandleMessage(valid.ToString());
+            Check(callbacks() == ready + 1, "shared event header preserves valid " + (string)valid["type"]);
+        }
+    }
     private static async Task DuplicateCompletionProbe()
     {
         string sent = null;
@@ -217,6 +239,7 @@ internal static class Program
             ["type"] = "PushTokenChanged", ["occurredAt"] = "2026-11-10T00:00:00Z", ["payload"] = new JObject { ["registered"] = true, ["tokenFingerprint"] = "abcdef123456", ["errorCode"] = JValue.CreateNull() } };
         registry.HandleMessage(tokenEvent.ToString()); Check(tokenEvents == 1, "token event accepted");
         tokenEvent["payload"]["tokenFingerprint"] = "raw-token"; registry.HandleMessage(tokenEvent.ToString()); Check(tokenEvents == 1, "raw token rejected");
+        EventHeaderMatrix(registry, updateEvent, pushEvent, tokenEvent, () => eventCount + pushCount + tokenEvents);
         var waiting = new List<Task>();
         for (var i = 0; i < 100; i++) waiting.Add(registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
         await Expect("BUSY", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));

@@ -1523,3 +1523,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치25 C 시작: 기존CI미연결4파일6건과새binding/TC계약단위를Hosted에연결하고측정/오류/집계회귀·새격리self9를검증한다. TC11건은예상실패1과검사4를보존해별도Strict lane에연결한다. A currentAndroid PushPASS 확보, C용새PII/Push전용AVD와실제PIDport소유를준비한경우에만commit후ci-unity-e2e.sh 전체Strict최대1회실행한다.
 
 - 배치25 C 검증/실행준비 커밋 전: 전체 Python131건PASS/skip0(38파일),기존미연결4파일6건은순수fixture/XML/파일복사검사로Linux Hosted적합하여모두연결. 신규binding/TC단위도연결하고backend Hosted에실제TC4case경로추가. actionlint/progress/manifest/diff exit0. TC는별도required Strict lane(tests11/expectedFailures1/outerchecks1/childChecks4)으로분리한다. self-only는사용하지않는iOSproject/Simulator생성을생략한다. currentcommit에서새전용DB self9 및TC 경로부터확인후C전체AVD준비조건을판단한다.
+
+- 배치25 C 실제검증/Strict전 커밋: source43d255a39f9efd28e630fad40889cec9d255365d에서 self9/9 PASS(exit0, tests47/예상failure3/checks9; harness-self-rl7_n0r_) 및TC4case11test/예상failure1 PASS(exit0; purchase-testcontainers-86d9mge4). self-only 불필요Simulator 생성없음. Unity active/staging147 PASS. C새PIO5578/PID36894 및Push5580/PID36901 각각이console+ADB양port소유·AVD이름·boot완료일치. A독립PASS와C전용환경이확인돼 이문서commit후tracked-clean source에서ci-unity-e2e.sh 전체경로1회만 실행한다. 기존P05FAIL은유지한다.

@@ -71,3 +71,13 @@ A는 실제 current-source Player1 PASS로 완료. ENV-P09-AVD local RESOLVED. �
 Strict는TC를별도required lane으로기록한다. tests11/expectedFailures1,outer검사1과내부검사4를분리하고원본JUnit failure1/Gradle1은유지한다. TC opt-in/환경이없으면DEFERRED_ENV이며기존PostgreSQL결과로대체하지않는다. static mapping50은실제test합계에포함하지않는다.
 
 self-only 실행은필요없는iOSproject/Simulator를생성하지않는다. Native/Editor/StoreKit/전체Strict 성공을뜻하지않으며기존9개필수자체시험은유지한다. 실행source확정후실제결과를이어기록한다.
+
+### C 실제 사전 검증/조건부 전체 실행
+
+source **43d255a39f9efd28e630fad40889cec9d255365d**:
+
+- 전체Python131건 PASS/skip0; 38파일모두Hosted 연결.
+- 새전용DB self-check `harness-self-rl7_n0r_`, orchestration `strict-isolated-1wj1cs8b`:9/9 PASS/exit0,tests47(정상44+예상mutation failure3),checks9. 사용하지않는Simulator는생성하지않았다.
+- Testcontainers `purchase-testcontainers-86d9mge4`:4case/11실제test(정상10+예상원장failure1),4검사,wrapper0,Gradle0/1/0/0,errors/skip0,네owned container정리확인. 새named mutation 검사도현재commit에서검증했다.
+
+C용fresh PII/PUSH AVD를별도생성했다. PII serial5578/PID36894/ports5578·5579,Push serial5580/PID36901/ports5580·5581의이름·PID·실제양port소유·boot를확인했다. user AVD/ADB server는건드리지않았다. Unity license active 및staging147파일검사통과. A독립Android Push PASS와별도C환경이모두준비돼,다음문서commit후기존ci-unity-e2e.sh전체경로를**1회**실행한다. 18.6 StoreKit을사용하고26.5를재조사하지않는다. 최초전체결과나새실패를숨기지않으며source고정중중간runtime관측은ignored checkpoint에보존후검증종료시정식문서로갱신한다.

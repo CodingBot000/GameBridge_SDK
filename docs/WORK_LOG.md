@@ -3571,3 +3571,21 @@
 - P09-T07 ロ컬 actionlint 1.7.12(기존 바이너리·custom label 설정) exit 0. GitHub 조회 2종은 각각 12초 timeout으로 원격 SHA·Unity 변수 재확인 불가; 원격 push/dispatch는 미실행으로 유지한다.
 
 - P09-T07 커밋 전: CI 모드·관련 테스트와 정제 문서만 stage한다. GitHub 연결 timeout으로 원격 push/dispatch는 미실행이며 재개 조건을 기록했다.
+
+- P09-T07 Hosted-only 원격 검증 시작 (2026-11-16): 로컬·원격 HEAD f8d644e83dd8219578c19c4d1330e9846e35a35b 일치. 변수 조회 성공(총 0개), Unity 활성화 변수 미설정. 기존 code/workflow 수정 없이 false 입력 dispatch 1회 진행한다.
+
+- P09-T07 false 입력 dispatch 1회 수락: run 43840984922, 실제 실행 SHA f8d644e83dd8219578c19c4d1330e9846e35a35b 확인. 완료 job 결과는 아직 대기 중이며 자동 재실행하지 않는다.
+
+- P09-T07 hosted-only run 43840984922: inventory-contracts SUCCESS, Unity SKIPPED. Backend·Android·macOS 실행 중이며 Release 최종 상태는 아직 확인 전이다.
+
+- P09-T07 hosted-only run: Backend PostgreSQL·inventory SUCCESS, Android Maven/R8 consumer와 macOS synthetic iOS host 단계는 진행 중이다.
+
+- P09-T07 hosted-only run: Android Native도 SUCCESS. macOS synthetic host test와 basic-ci·release 최종 상태를 기다린다.
+
+- P09-T07 Hosted-only run 43840984922 완료 SUCCESS: inventory·Backend·Android·macOS·basic-ci SUCCESS, unity-e2e·release-readiness SKIPPED. release_validation=false로 단 1회 실행했고 재실행하지 않았다. 기존 P05-T03 FAIL·Provider 대기·P09 PARTIAL 유지.
+
+- P09-T07 최종 API 대조: run event workflow_dispatch·실행 SHA f8d644e 전체 일치, 7개 job 완료(5 SUCCESS, 2 SKIPPED), workflow SUCCESS. 기존 timeout/Push 미완료 이력 뒤 현재 Push 완료와 실행 결과를 evidence에 추가했다. 문서 외 변경 없음.
+
+- P09-T07 커밋 전 원장·diff PASS. Hosted-only 단일 실행의 정제 evidence와 진행 문서 3개만 stage한다. code/workflow·기존 미추적 파일은 변경하지 않았다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 결과 문서만 커밋한다.

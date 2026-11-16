@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T07 / Unity self-hosted CI 사전 점검
-- 마지막 갱신 시각: 2026-11-14 (Asia/Seoul)
+- 현재 Phase / Task: P09-T07 / Hosted-only 원격 검증
+- 마지막 갱신 시각: 2026-11-16 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: self-hosted 사전 점검 DEFERRED_ENV와 gate 분리 제안을 인계한다. 전용 환경 입증 후 별도 등록/실행 단계가 필요하다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: Hosted-only 원격 SUCCESS 결과를 인계한다. Unity self-hosted·Release 검증은 별도 미완료다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1388,3 +1388,19 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 ロ컬 actionlint 1.7.12(기존 바이너리·custom label 설정) exit 0. GitHub 조회 2종은 각각 12초 timeout으로 원격 SHA·Unity 변수 재확인 불가; 원격 push/dispatch는 미실행으로 유지한다.
 
 - P09-T07 커밋 전: CI 모드·관련 테스트와 정제 문서만 stage한다. GitHub 연결 timeout으로 원격 push/dispatch는 미실행이며 재개 조건을 기록했다.
+
+- P09-T07 Hosted-only 검증 시작: 로컬·원격 f8d644e 전체 SHA 일치, repository 변수 API 성공·총 0개로 Unity 변수 미설정 확인. 기존 Push는 완료됐으며 release_validation=false로 dispatch 1회만 요청한다.
+
+- P09-T07 false 입력 dispatch 1회 수락: run 43840984922, 실제 실행 SHA f8d644e83dd8219578c19c4d1330e9846e35a35b 확인. 완료 job 결과는 아직 대기 중이며 자동 재실행하지 않는다.
+
+- P09-T07 hosted-only run 43840984922: inventory-contracts SUCCESS, Unity SKIPPED. Backend·Android·macOS 실행 중이며 Release 최종 상태는 아직 확인 전이다.
+
+- P09-T07 hosted-only run: Backend PostgreSQL·inventory SUCCESS, Android Maven/R8 consumer와 macOS synthetic iOS host 단계는 진행 중이다.
+
+- P09-T07 hosted-only run: Android Native도 SUCCESS. macOS synthetic host test와 basic-ci·release 최종 상태를 기다린다.
+
+- P09-T07 Hosted-only run 43840984922 완료 SUCCESS: inventory·Backend·Android·macOS·basic-ci SUCCESS, unity-e2e·release-readiness SKIPPED. release_validation=false로 단 1회 실행했고 재실행하지 않았다. 기존 P05-T03 FAIL·Provider 대기·P09 PARTIAL 유지.
+
+- P09-T07 커밋 전 원장·diff PASS. Hosted-only 단일 실행의 정제 evidence와 진행 문서 3개만 stage한다. code/workflow·기존 미추적 파일은 변경하지 않았다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 결과 문서만 커밋한다.

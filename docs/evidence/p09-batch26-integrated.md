@@ -57,3 +57,7 @@ process `xcode-process-recovery-8qg9cxnf`은같은code及진행문서변경상�
 ### C1 event header 분리
 
 변경전/후matrix+기존cohort418helper/exit0동일. 공통header검증3곳→private1곳,body와callback의미유지.API/Native source/C-export/wire baselinePASS.[상세비교](p10-core-bridge-batch26.md). 후속ownership분리를별도검증/commit한다.
+
+### C2 pending ownership 분리
+
+Finish/finally의동일owner removal을한private경계로모으고lock범위·완료알림순서·ignored구분을유지했다. 전후cohort418동일/exit0,정상duplicate0/변이nonzero,baseline검사PASS. [실제변경비교](p10-core-bridge-batch26.md). D에서현재소스의빌드·Native/Unity·ABI·최종회귀를수행한다.

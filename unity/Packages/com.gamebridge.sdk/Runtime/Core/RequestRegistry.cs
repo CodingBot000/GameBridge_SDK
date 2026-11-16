@@ -83,7 +83,7 @@ namespace GameBridge.Core
                     }
                     return await entry.Completion.Task.ConfigureAwait(false);
                 }
-                finally { lock (gate) { if (pending.TryGetValue(id, out var current) && ReferenceEquals(entry, current)) pending.Remove(id); } }
+                finally { RemoveOwned(id, entry, false); }
             }
         }
         internal void HandleMessage(string json)
@@ -180,13 +180,23 @@ namespace GameBridge.Core
             PushTokenUpdated?.Invoke(new PushTokenUpdate { EventId = (string)root["eventId"], Registered = (bool)payload["registered"],
                 TokenFingerprint = (string)payload["tokenFingerprint"], ErrorCode = (string)payload["errorCode"], OccurredAt = time });
         }
-        private void Finish(string id, Pending entry, JToken result, SdkException error)
+        // Response, timeout, cancellation and final cleanup must remove the same pending owner atomically.
+        private bool RemoveOwned(string id, Pending entry, bool countIgnored)
         {
             lock (gate)
             {
-                if (!pending.TryGetValue(id, out var current) || !ReferenceEquals(current, entry)) { Interlocked.Increment(ref ignored); return; }
+                if (!pending.TryGetValue(id, out var current) || !ReferenceEquals(current, entry))
+                {
+                    if (countIgnored) Interlocked.Increment(ref ignored);
+                    return false;
+                }
                 pending.Remove(id);
+                return true;
             }
+        }
+        private void Finish(string id, Pending entry, JToken result, SdkException error)
+        {
+            if (!RemoveOwned(id, entry, true)) return;
             if (error != null) entry.Completion.TrySetException(error); else entry.Completion.TrySetResult(result);
         }
         public void Dispose()

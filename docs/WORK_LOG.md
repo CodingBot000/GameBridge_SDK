@@ -3691,3 +3691,15 @@
 - 배치25 A 실행 준비 커밋 전: 관련 단위16건 PASS/skip0, progress/manifest/diff exit0. 예상 PID 및 실제 console·ADB 소유 증거 요구를 추가했다. 새 전용 AVD 생성/실제 Push는 아직 NOT_RUN이며 tracked-clean commit 후 준비한다. 기존 실제 사용자 AVD·앱·ADB server는 변경하지 않는다.
 
 - 배치25 A 검증/커밋 전: source b55ffe722cfd9bd2663cd3e193343cebb0b4c202 tracked-clean의 Android Unity LOCAL_MOCK Push exit0/PASS(artifacts/unity-android-push-l_yu9kmb). PID22235가5582/5583 양 port 소유, serial·AVD명 일치. 필수7 marker·수신/중복/main-thread/background/실제 emulator망 차단·재연결/session/token삭제0 확인. 초기 systemui 전체화면 안내를 관측해 Got it1회 클릭(UI 보조, 무인CI 아님). 새 자기 emulator만 종료·디스크 보존, 기존 AVD/ADB server조작 없음. ENV-P09-AVD는 이 local 검증에서 RESOLVED. B로 이동하며 C Strict는 새 전용전체환경 준비 후 최대1회다.
+
+- 배치25 B 시작: 배치24 StoreKit18.6 최초 실패/단독 retry 성공의 source·checkpoint·XCTest/Simulator/Backend/timeout를 대조한다. 원인 미확정 위험을 유지하고 26.5 재실행·timeout 증가는 하지 않는다. Testcontainers 요구와 현재 별도PostgreSQL 격리의 차이를 코드·실행 증거로 판단해 처리 방향을 정한다.
+
+- 배치25 B 검증/방향 결정: StoreKit 최초 두 실패와 단독성공은 SDK runtime diff없음, 동일180초(DB)·75초(phase) 제한. 실패 DB 둘 모두 sessions1/purchases0/ledger0, 성공 둘은 purchases1/ledger1/delta100. DB recovery 최초부분stdout폐기·xcresult미완결 및 당시bootstate미보존으로 정확정지위치미확정, process는history진입후timeout. 두원인을합치거나후속PASS로간헐위험을해소처리하지 않는다. 현재 Docker PostgreSQL은 기능·fresh schema 불변식은 증명하나 Testcontainers 수명관리 literal요구는 충족하지 않는다. 기존fixture/보호를 유지한 Testcontainers2.0.5 별도opt-in 실행경로를 최소 보강해 실제 검증한다. 신규container만 시작/정리하고 기존개발DB는 변경하지 않는다.
+
+- 배치25 B Testcontainers 최초 검증 exit1/0 tests: Gradle init script의 nullable labels map 접근이 Kotlin compile에서 거부됐다. container 시작 전 실패라 기존DB/기기 영향 없음. safe nullable lookup으로 수정 후 같은 경로를 재검증한다. 미구현/미실행을 PASS로 기록하지 않는다.
+
+- 배치25 B Testcontainers 2차: 새 loopback container 실제 시작/owned cleanup 확인, 기존 local7건 중5 PASS/2 FAIL(exit1). 두 Finalization 시험은 기존public schema의 users/products를 사용하므로 marker만 초기화한 TC bootstrap이 불충분했다. 원장조건을 바꾸지 않고 프로젝트와 동일 Flyway migration+mock catalog 전체를 새container에 적용해 보강한다. 기존DB/시험assertion 변경 없음.
+
+- 배치25 B 3차: Testcontainers local7건은 실제모두PASS/Gradle0, 전체Flyway bootstrap도성공했다. wrapper는 cleanup확인실패로전체FAIL1을 반환했다. 실제 Docker inspect1 stderr가 소문자 no such object였고 새container삭제는확인됐다. 알려진not-found만대소문자정규화로판정하고 permission/daemon오류는거부하는단위검사후전체4case검증한다. 원본FAIL보고서는수정하지않는다.
+
+- 배치25 B 검증/커밋 전: Testcontainers2.0.5/PG17.6 신규loopback container4개에서 기존fixture11건 실행(정상10+의도된원장변이failure1), case Gradle exit0/1/0/0, wrapper exit0. 네container 실제시작·label·loopback owner·stop/삭제확인. 변이는기존named invariant assertion과일치하고정상복원1건도검사했다. bootstrap/cleanup파서초기실패원본보존. 새계약단위5건PASS, JDBC42.7.11/Flyway11.7.2는프로젝트기존해결버전고정. 기존devDB·assertion·timeout변경없음. source9c94234+구현중harness로실행했으며C에서commit된현재소스로다시검증한다. StoreKit18.6 간헐위험원인미확정유지.

@@ -47,3 +47,7 @@
 ### Xcode 테스트 거래 충돌·보관 (2026-11-11)
 
 사용자가 후속 권장안 결정을 위임했다. Xcode 테스트 거래는 Native에 최소 시도 UUID와 후보 식별자만 보관하고 StoreKit 완료 확인 뒤 삭제한다. 개발 서버는 거래 키와 시도 UUID의 일대일 결합을 개발 DB 수명 동안 보존하며 다른 시도가 같은 키를 주장하면 충돌로 거부한다. 증빙 원문은 저장하지 않는다. 실 Apple sandbox/production 정책이 아니다.
+
+### P09 Testcontainers 실행 경로 — 배치25 (2026-11-16)
+
+기존공유개발container의별도DB/fresh schema 검증은유효하지만원계획Testcontainers와같다고취급하지않는다. 배치25 기술선택으로기존구매fixture를그대로실행하는opt-in init script/runner를추가했다. Testcontainers2.0.5,PG17.6-alpine3.22,기존JDBC42.7.11/Flyway11.7.2를고정했다. 일반SDK·backendbuild의의존성/검증정책을바꾸지않는다. 새loopback-only container와소유label만사용·정리하고,기존개발DB는건드리지않는다. 원장변이의정확한예상실패와정상복원·sandbox합성HTTP를모두요구한다. native/self-check의기존전용DB경로는유지하고C Strict에별도TC검증을연결한다. StoreKit간헐위험분류는이선택과분리한다.

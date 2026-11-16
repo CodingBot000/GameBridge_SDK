@@ -3589,3 +3589,11 @@
 - P09-T07 커밋 전 원장·diff PASS. Hosted-only 단일 실행의 정제 evidence와 진행 문서 3개만 stage한다. code/workflow·기존 미추적 파일은 변경하지 않았다.
 
 - P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 결과 문서만 커밋한다.
+
+- P09 완료 조건 감사 시작 (2026-11-16): HEAD/원격 129b1bb, 계획 T01~T08 및 manifest 50 IMPLEMENTED/INCOMPLETE baseline, 자체시험 9 lane PASS와 strict source 5d716bd의 48 PASS/기록 FAIL 1을 확인했다. 구현과 실행·정적 매핑을 구분하며 상태 변경은 제안만 한다.
+
+- P09 감사 결과: 계획 T01~T08과 관련 source/evidence 및 보존 JSON을 대조했다. source 5d716bd→HEAD의 Core/Bridge·auth·자체시험 관련 선택 경로 diff 없음, StoreKit/CI 후속 변경은 별도 source 근거로 구분했다. 원장/manifest/diff 및 새 감사 문서 local link 검사 PASS. 다음 한 작업은 T06 독립 errors 누락/무시 방지이며 전체 suite/CI/Player/DB는 재실행하지 않았다.
+
+- P09 감사 커밋 전: 감사 문서와 진행 문서 3개만 개별 stage한다. 원장·manifest·링크·diff 정적 검사 통과, Task 상태·코드·workflow 변경 없음.
+
+- P09 감사 커밋 전 staged gitleaks exit 0·탐지 0건. 정제 문서만 커밋한다.

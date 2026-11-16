@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T07 / Hosted-only 원격 검증
+- 현재 Phase / Task: P09 / 완료 조건·미검증 항목 감사
 - 마지막 갱신 시각: 2026-11-16 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: Hosted-only 원격 SUCCESS 결과를 인계한다. Unity self-hosted·Release 검증은 별도 미완료다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: P09 감사 결과를 인계한다. 다음 단일 작업은 P09-T06 required lane errors 수집·차단 계약 보강이다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1404,3 +1404,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T07 커밋 전 원장·diff PASS. Hosted-only 단일 실행의 정제 evidence와 진행 문서 3개만 stage한다. code/workflow·기존 미추적 파일은 변경하지 않았다.
 
 - P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 결과 문서만 커밋한다.
+
+- P09 완료 조건 감사 시작: 기준 HEAD/원격 129b1bb 일치. Task 상태 변경 없이 계획·소스·보존 결과 JSON/evidence를 대조한다. 전체 suite나 원격 workflow는 재실행하지 않는다.
+
+- P09 감사 완료: T01/T03/T08 local 충족 근거는 상태 변경 제안만 기록, 전체 원장 PARTIAL 유지. T06 errors 독립 필드 수집/판정 공백, T04 Testcontainers 계획 차이, T07 격리 runner 대기를 확인했다. 다음 한 Task는 T06 errors 보강이며 이번 구현은 하지 않았다. [감사 evidence](evidence/p09-completion-gap-audit.md).
+
+- P09 감사 커밋 전: 감사 문서와 진행 문서 3개만 개별 stage한다. 원장·manifest·링크·diff 정적 검사 통과, Task 상태·코드·workflow 변경 없음.
+
+- P09 감사 커밋 전 staged gitleaks exit 0·탐지 0건. 정제 문서만 커밋한다.

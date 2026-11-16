@@ -1485,3 +1485,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치24 C 완료(부분)/D 시작: source 5eaf31f59f0d187a24bffb5007543744359ca076에서 전체 Python 119 PASS/skip 0, self-check 9/9 PASS/exit 0(whqw6w9q, tests47/예상실패3/checks9), 독립 iOS Unity Push PASS/exit 0(5wsdfn1e, tracked-clean/rejectedReconnect6/deviceTokens0). Android Push 재검증 ENV-P09-AVD 대기, 원래 Strict 52PASS/4FAIL/1대기/exit1 및 P05 FAIL 보존. D는 Hosted unit 연결/false·Unity비활성 조건을 유지하고 관련 commit scan→handoff FF push→Hosted-only dispatch 1회→최종 감사 기록을 수행한다.
 
 - 배치24 C/D 준비 커밋 전: source별 실제 결과와 T01/T03/T06/T08 local 변경 근거를 감사에 기록했다. 원장 일괄 PASS 변경 없음. 다음은 code 변경 없이 scan/FF push/Hosted-only 1회다.
+
+- 배치24 D push 전/커밋 전: 원격 CodingBot000/GameBridge_SDK(public), local fix/unity-android-mock-e2e-evidence/upstream origin/fix 확인. handoff 원격 8eec64a→local6313963 10 commit 조상/FF 확인. gitleaks 전 범위 exit0/탐지0, 31경로에 금지 파일·raw log·서명/실키·cache·binary 없음. 이 기록은 별도 docs commit으로 추가·staged scan 후 HEAD:handoff 정상 push한다. Unity 변수 총0, false 입력 dispatch 1회만 허용된 범위다. 자동 재실행·main·force·Release 없음.

@@ -81,3 +81,24 @@ source **43d255a39f9efd28e630fad40889cec9d255365d**:
 - Testcontainers `purchase-testcontainers-86d9mge4`:4case/11실제test(정상10+예상원장failure1),4검사,wrapper0,Gradle0/1/0/0,errors/skip0,네owned container정리확인. 새named mutation 검사도현재commit에서검증했다.
 
 C용fresh PII/PUSH AVD를별도생성했다. PII serial5578/PID36894/ports5578·5579,Push serial5580/PID36901/ports5580·5581의이름·PID·실제양port소유·boot를확인했다. user AVD/ADB server는건드리지않았다. Unity license active 및staging147파일검사통과. A독립Android Push PASS와별도C환경이모두준비돼,다음문서commit후기존ci-unity-e2e.sh전체경로를**1회**실행한다. 18.6 StoreKit을사용하고26.5를재조사하지않는다. 최초전체결과나새실패를숨기지않으며source고정중중간runtime관측은ignored checkpoint에보존후검증종료시정식문서로갱신한다.
+
+### C 전체 Strict1회 결과
+
+source **e46cb6520272334d9816d951274b91bd39133b9b**,tracked-clean. 원본 `verify-all-q_sj2gpu`, orchestration `strict-isolated-r5mw4kpc`, gate `artifacts/batch25/c-full.log`. 전체58lane: **57PASS/기존기록FAIL1/신규FAIL0/대기0**,exit **1**. 실패행은 recorded-unresolved-failures/P05-T03이며이번에26.5를재실행한것이아니다. 전체경로/Strict는최대1회조건대로1회만실행했다.
+
+| 실행별 측정 | 값 | 범위 |
+|---|---:|---|
+| 상위tests | 226 | self의예상실패3+TC예상실패1포함. 전부제품정상PASS226건이라는뜻이아님 |
+| 상위checks | 57 | static mapping alias1포함,고유receipt56. TC내부검사4는별도 |
+| samples | 100 | lifecycle stress,tests와분리 |
+| players | 4 | 현재Android/iOS PII2+Push2 |
+| static mapping | 50 | 실제tests합계에포함하지않음 |
+
+- PII `unity-pii-current-hsboynxv`: Android `unity-android-e2e-drwn26tt`,iOS `unity-ios-e2e-qpw5_qo8`,각ledger1/delta100/PII검사PASS.
+- Android Push `unity-android-push-40qhuo7b`:PID36901/ports5580·5581/이름·serial일치,모든markerPASS,reconnect거절2,실제emulator망차단/복구PASS,deviceTokens0.
+- iOS Push `unity-ios-push-vqc2s1vc`:모든markerPASS,reconnect거절6,networkRecovery=PASS_LOCAL_TRANSPORT_FAULT,deviceTokens0. 실제OS전체망차단으로기록하지않는다.
+- 두Player모두source일치·tracked-clean. 두새Android AVD의초기전체화면안내는각1회실제관측후클릭했다. 시스템상태우회는하지않았으며무인CI성공으로주장하지않는다.
+- StoreKit18.6 DB `xcode-storekit-e2e-ke7399o2` actualXCTest1/exit0,process `xcode-process-recovery-belki2xf` 실제재시작복구/exit0 PASS. 최초배치24의간헐위험은원인미확정으로유지한다.
+- 현재self9/TC11/Native합성회귀/Editor 및패키징검사도PASS. mock과real Provider를분리하며외부13 WAITING_USER는유지한다.
+
+완료된이번실행전용Simulator/AVD process만종료했고디스크·전용DB·원본증거는보존했다. source고정중관측은ignored checkpoint에보존했고검증종료후정식원장에반영했다.

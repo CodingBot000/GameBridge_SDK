@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T06 / simple marker·실제 테스트 수 분리
+- 현재 Phase / Task: 배치25 C 검증 완료 / P09 전체 감사·Hosted 인계
 - 마지막 갱신 시각: 2026-11-16 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
+- 마지막 검증된 소스 커밋: e46cb6520272334d9816d951274b91bd39133b9b (현재 Unity PII·Push 4 Player 및 Strict 57 PASS/기존 P05 FAIL 1; 실제 Provider 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: simple 측정 계약 결과를 인계한다. 다음 P09 단일 후보는 nested 측정 단위 보존이다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
+- 바로 다음 행동: 배치25 D에서 P09 Task별 상태를 계획 완료 조건과 대조하고 원장 검사·비밀정보 검사 후 handoff FF push 및 Hosted-only 1회 실행한다.
+- 재개 행동: AGENTS.md·START_HERE.md와 docs/evidence/p09-batch25-integrated.md의 최신 상태부터 확인한다. 배치24 실패는 역사 기록이며 C 원본을 재작성하지 않는다.
 
 ## 집계
 
@@ -1525,3 +1525,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치25 C 검증/실행준비 커밋 전: 전체 Python131건PASS/skip0(38파일),기존미연결4파일6건은순수fixture/XML/파일복사검사로Linux Hosted적합하여모두연결. 신규binding/TC단위도연결하고backend Hosted에실제TC4case경로추가. actionlint/progress/manifest/diff exit0. TC는별도required Strict lane(tests11/expectedFailures1/outerchecks1/childChecks4)으로분리한다. self-only는사용하지않는iOSproject/Simulator생성을생략한다. currentcommit에서새전용DB self9 및TC 경로부터확인후C전체AVD준비조건을판단한다.
 
 - 배치25 C 실제검증/Strict전 커밋: source43d255a39f9efd28e630fad40889cec9d255365d에서 self9/9 PASS(exit0, tests47/예상failure3/checks9; harness-self-rl7_n0r_) 및TC4case11test/예상failure1 PASS(exit0; purchase-testcontainers-86d9mge4). self-only 불필요Simulator 생성없음. Unity active/staging147 PASS. C새PIO5578/PID36894 및Push5580/PID36901 각각이console+ADB양port소유·AVD이름·boot완료일치. A독립PASS와C전용환경이확인돼 이문서commit후tracked-clean source에서ci-unity-e2e.sh 전체경로1회만 실행한다. 기존P05FAIL은유지한다.
+
+- 배치25 C 검증/커밋 전: source e46cb6520272334d9816d951274b91bd39133b9b tracked-clean의ci-unity-e2e.sh/전체Strict1회실행완료. verify-all-q_sj2gpu:58lane/57PASS/기존P05기록FAIL1/신규FAIL0/대기0,exit1. tests226(예상negative4포함),checks57(고유56,TC내부4별도),samples100,Players4. self9·TC11·StoreKit18.6두복구·Android/iOS현재Push·PII·Editor통과. AndroidPush PID36901/양port소유확인,reconnect2; iOS reconnect6/LOCAL_TRANSPORT_FAULT,각deviceTokens0. PII양원장1/delta100. C UI안내각1회관측클릭,무인CI검증은별도. 모든생성기기/DB/로그보존,완료된이번전용process만종료. 최초배치24간헐위험/P05FAIL/Provider13대기는제거하지않는다.

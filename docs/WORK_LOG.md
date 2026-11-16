@@ -3735,3 +3735,5 @@
 - 배치25 D 집계는64행에서자동재계산,임의성공건수추가/분모삭제없음.실Provider13 WAITING_USER/P05 FAIL/ENV26 OPEN 유지.
 
 - 배치25 D 감사 커밋 전: 계획과source별실제증거를대조해5개localPASS·3개PARTIAL을반영했고원장/음성/manifest/diff통과. TCgap/미연결unit/현재AVD대기는해소,간헐원인/actual assert/self-hosted는남김. 원래StrictFAIL및26.5/실Provider대기보존. 다음은범위·비밀정보검사후handoff FF push/false Hosted1회다.
+
+- 배치25 D push 전/커밋 전: CodingBot000/GameBridge_SDK public 확인, handoff 원격 f6915e3이local2b2b6b7의조상으로FF가능. 신규7commit/21text path의gitleaks exit0·탐지0,금지키/서명/원본로그/cache/빌드/binary delta없음. 이기록만추가scan·commit후명시handoff FF push한다. repo변수0/runner0,변경된Hosted를false입력1회실행하고self-hosted/Release는비활성으로유지한다.

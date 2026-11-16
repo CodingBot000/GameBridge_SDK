@@ -1537,3 +1537,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치25 D 개별 상태 반영: T01/T03/T05/T06/T08 local 완료 조건을 실제 증거로 충족해 IMPLEMENTED/PASS. T02 assert총수 미측정으로 IN_PROGRESS/PARTIAL, T04 TC구현 완료·18.6 간헐 원인 미확정으로 IMPLEMENTED/PARTIAL, T07 Hosted/설정 구현 완료·self-hosted/Release 미검증으로 IMPLEMENTED/PARTIAL. 집계는64개 원장행에서 재계산했고 외부13 WAITING_USER·P05 FAIL은 유지했다.
 
 - 배치25 D 감사 커밋 전: 계획과source별실제증거를대조해5개localPASS·3개PARTIAL을반영했고원장/음성/manifest/diff통과. TCgap/미연결unit/현재AVD대기는해소,간헐원인/actual assert/self-hosted는남김. 원래StrictFAIL및26.5/실Provider대기보존. 다음은범위·비밀정보검사후handoff FF push/false Hosted1회다.
+
+- 배치25 D push 전/커밋 전: CodingBot000/GameBridge_SDK public 확인, handoff 원격 f6915e3이local2b2b6b7의조상으로FF가능. 신규7commit/21text path의gitleaks exit0·탐지0,금지키/서명/원본로그/cache/빌드/binary delta없음. 이기록만추가scan·commit후명시handoff FF push한다. repo변수0/runner0,변경된Hosted를false입력1회실행하고self-hosted/Release는비활성으로유지한다.

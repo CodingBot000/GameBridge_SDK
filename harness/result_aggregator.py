@@ -1,4 +1,5 @@
 from error_contract import valid_error_evidence
+from measurement_contract import valid_checker
 """Pure fail-closed status classification; external waits are reported separately."""
 VALID = {'PASS', 'FAIL', 'PARTIAL', 'NOT_IMPLEMENTED', 'DEFERRED_ENV', 'NOT_RUN', 'SKIP', 'WAITING_USER'}
 
@@ -20,7 +21,14 @@ def summarize(lanes, required_names=None):
             if lane.get('evidenceKind') == 'static-mapping':
                 valid_count = (count == 0 and type(count) is int and lane.get('checks') == 1 and
                                lane.get('mappedScenarios') == 50 and lane.get('executionStatus') == 'NOT_RUN' and
-                               isinstance(lane.get('evidence'), str) and bool(lane['evidence']))
+                               isinstance(lane.get('evidence'), str) and bool(lane['evidence']) and valid_checker(lane))
+            elif lane.get('measurement') in ('checker','samples','players'):
+                valid_count = type(count) is int and count == 0 and valid_checker(lane)
+                if lane['measurement'] in ('samples','players'):
+                    key = lane['measurement']
+                    valid_count = valid_count and type(lane.get(key)) is int and lane[key] > 0
+            elif lane.get('measurement') == 'tests':
+                valid_count = type(count) is int and count > 0 and valid_checker(lane)
             else: valid_count = isinstance(count, int) and not isinstance(count, bool) and count > 0
             if (not valid_error_evidence(lane) or not valid_count or not isinstance(skipped, int) or skipped < 0 or
                 lane.get('exitCode', 0) != 0 or type(lane.get('failures', 0)) is not int or lane.get('failures', 0) != 0): failure = True

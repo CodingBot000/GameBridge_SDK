@@ -37,7 +37,9 @@ class StaticMappingTests(unittest.TestCase):
         module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder); (root/'checker.log').write_text('executed')
-            checker = {'name':'manifest','status':'PASS','exitCode':0,'tests':1,'errors':0,'evidence':'checker.log'}
+            from measurement_contract import measured_lane
+            checker = measured_lane('manifest',['fixture'],0,'executed',root/'checker.log','executed')
+            checker['evidence']='checker.log'
             manifest = {'scenarios':[{'id':f'R{i:02}', 'required':True, 'coverage':'IMPLEMENTED'} for i in range(1,51)]}
             lane = module.scenario_mapping_lane(manifest, checker, root)
             self.assertEqual((lane['status'],lane['tests'],lane['checks'],lane['mappedScenarios'],lane['executionStatus']), ('PASS',0,1,50,'NOT_RUN'))

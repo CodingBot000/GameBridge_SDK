@@ -3607,3 +3607,13 @@
 - P09-T06 최종 검토에서 nested 합산 실패 필드의 누락도 0으로 메우지 않도록 유지하고 summary의 MISSING/UNMEASURED를 구분했다. 오류 계약 9건 재검증 PASS, 원장·manifest·diff PASS. 커밋 전 관련 집계/producer/단위시험·CI 연결·정제 문서만 stage한다.
 
 - P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. errors 계약 범위의 변경만 커밋한다.
+
+- P09-T06 측정 계약 시작: 기준 HEAD/원격 6c8af7b 일치. simple 기본 marker를 tests 0/checks 1, stress는 samples, PII 검증은 players로 분리하고 checker의 실제 로그·marker·exit·hash 근거를 요구한다. 이번은 fixture 검사만 수행한다.
+
+- P09-T06 측정 fixture 10건 PASS, 내부 실제 aggregation unittest 14건 실행·건수 확인, 기존 errors 계약 9건 PASS/skip 0. checker marker·exit·로그 누락/변조와 required 누락·skip·errors를 차단했다. Player/스트레스는 fixture뿐이며 실제 제품 실행이 아니다.
+
+- P09-T06 최종 검증: 측정 10+집계 14+오류 9+self report 2=최상위 35건 PASS/skip 0, fixture 내부 aggregation subprocess 14건 실행 확인. 원장·manifest·문법·actionlint·diff PASS. 22개 simple 및 static mapping의 이전/수정 후 단위를 evidence에 기록했고 실제 Player/stress/Strict/DB/Actions는 미실행이다.
+
+- P09-T06 커밋 전 원장·manifest·diff PASS. simple 측정/근거 계약·관련 단위와 CI 연결·정제 문서만 개별 stage하며 과거 보고서나 제품 코드는 수정하지 않는다.
+
+- P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. 측정 계약 범위의 코드·정제 문서만 커밋한다.

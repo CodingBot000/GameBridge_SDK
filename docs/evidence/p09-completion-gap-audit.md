@@ -38,3 +38,7 @@ P09-T01의 local ID/entry·fixture 완료 확인, P09-T03의 synthetic local 거
 ## 감사 후 P09-T06 errors 보강 — 2026-11-16
 
 위 감사에서 지적한 독립 errors 누락·무시 공백은 [errors 계약 evidence](p09-errors-contract.md)의 로컬 fixture 검증으로 보강했다. JUnit 독립 errors, Swift 합산 호환, checker 미측정을 구분하며 tests 25건 PASS와 정상/오류 process exit 0/1을 확인했다. 전체 Strict 재실행은 없고 Task 상태는 PARTIAL이다. 다음 한 작업은 simple marker 호출과 실제 테스트 수의 구분이다.
+
+## 감사 후 simple 측정 보강 — 2026-11-16
+
+[simple 측정 계약](p09-measurement-contract.md)에 따라 기본 marker는 tests 0/checks 1, stress는 samples, PII 검증은 players로 분리했다. 검증된 로그 receipt가 없는 checker-only PASS를 거부한다. 관련 단위 35건 통과, 제품 suite 및 Strict 재실행 없음. 다음 한 작업 후보는 nested 측정 단위 보존이다.

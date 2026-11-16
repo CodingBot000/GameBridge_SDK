@@ -13,6 +13,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 from result_aggregator import summarize, runner_inconsistent
 from error_contract import copy_error_evidence
+from measurement_contract import measured_lane, valid_checker
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -22,7 +23,7 @@ def scenario_mapping_lane(manifest, checker, root):
     unimplemented = [x['id'] for x in scenarios if x.get('required') and x.get('coverage') == 'NOT_IMPLEMENTED']
     path = Path(checker.get('evidence', '')) if checker else Path()
     evidence_ok = (checker is not None and checker.get('name') == 'manifest' and checker.get('status') == 'PASS' and
-                   checker.get('exitCode') == 0 and checker.get('tests', 0) > 0 and bool(checker.get('evidence')) and
+                   checker.get('exitCode') == 0 and checker.get('tests') == 0 and valid_checker(checker) and bool(checker.get('evidence')) and
                    not path.is_absolute() and '..' not in path.parts and (root/path).is_file() and
                    (root/path).resolve().is_relative_to(root.resolve()))
     status = ('FAIL' if not evidence_ok else 'NOT_IMPLEMENTED' if unimplemented else 'PARTIAL' if partial else 'PASS')
@@ -30,7 +31,7 @@ def scenario_mapping_lane(manifest, checker, root):
             'errors':None,'errorModel':'checker-exit','evidenceKind':'static-mapping','executionStatus':'NOT_RUN','mappedScenarios':len(scenarios),
             'skipped':0,'exitCode':0 if status == 'PASS' else 1,'command':['python3','harness/check-manifest.py'],
             'evidence':checker.get('evidence','') if checker else '',
-            'partialCount':len(partial),'unimplementedCount':len(unimplemented)}
+            'checkerEvidence':checker.get('checkerEvidence') if checker else None, 'partialCount':len(partial),'unimplementedCount':len(unimplemented)}
 
 
 def nested_lane(name, item, command, evidence):
@@ -41,7 +42,7 @@ def nested_lane(name, item, command, evidence):
 
 def lane_row(lane):
     errors = lane['errors'] if 'errors' in lane and lane['errors'] is not None else ('UNMEASURED' if 'errors' in lane or lane.get('errorModel') in ('included-in-failures','checker-exit') else 'MISSING')
-    return f"| {lane['name']} | {lane['status']} | {lane['tests']} | {lane.get('checks',0)} | {errors} | {lane.get('errorModel','UNSPECIFIED')} | {lane['skipped']} |"
+    return f"| {lane['name']} | {lane['status']} | {lane['tests']} | {lane.get('checks',0)} | {lane.get('samples',0)} | {lane.get('players',0)} | {errors} | {lane.get('errorModel','UNSPECIFIED')} | {lane['skipped']} |"
 
 
 def main() -> int:
@@ -65,21 +66,9 @@ def main() -> int:
         return code,text,log.relative_to(ROOT).as_posix()
     def simple(name, command, marker, environment=None):
         code,text,log = execute(name,command,environment)
-        count = 1 if marker in text else 0
-        if name == 'aggregation-self':
-            match = re.search(r'Ran (\d+) tests?', text); count = int(match.group(1)) if match else 0
-        if name == 'unity-editor-runtime':
-            match = re.search(r'Unity consumer tests PASS: (\d+) executed', text); count = int(match.group(1)) if match else 0
-        if name == 'unity-pii-e2e':
-            count = 2 if marker in text else 0
-        if name == 'purchase-verifier':
-            match = re.search(r'Purchase verifier PASS: (\d+) synthetic tests', text); count = int(match.group(1)) if match else 0
-        if name == 'lifecycle-stress':
-            match = re.search(r'"samples"\s*:\s*(\d+)', text)
-            count = int(match.group(1)) if match and '"liveClients": 0' in text and '"liveTransports": 0' in text else 0
-        passed = code == 0 and marker in text and count > 0
-        status = 'PASS' if passed else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-        lanes.append({'name':name,'status':status,'required':True,'tests':count if passed else 0,'errors':None,'errorModel':'checker-exit','skipped':0,'exitCode':code,'command':command,'evidence':log})
+        lane=measured_lane(name,command,code,text,ROOT/log,marker)
+        lane['evidence']=log
+        lanes.append(lane)
     def nested(name, command):
         code,text,log = execute(name,command)
         match = re.search(r'^Evidence directory: (artifacts/[A-Za-z0-9_.-]+)$',text,re.M)
@@ -166,7 +155,7 @@ def main() -> int:
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'environment':{'os':platform.platform()},
               'summary':summary,'lanes':lanes,'external':{'status':'WAITING_USER' if external_waits else 'NOT_RUN','taskCount':external_waits,'tasks':external_tasks}}
     (output/'result.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    lines = ['# Local verification summary','',f"Source: `{head}`; working tree dirty: {dirty}.",f"Overall: **{summary['status']}** (exit {summary['exitCode']}).",'', '| Lane | Status | Tests | Checks | Errors | Error model | Skipped |', '|---|---|---:|---:|---:|---|---:|']
+    lines = ['# Local verification summary','',f"Source: `{head}`; working tree dirty: {dirty}.",f"Overall: **{summary['status']}** (exit {summary['exitCode']}).",'', '| Lane | Status | Tests | Checks | Samples | Players | Errors | Error model | Skipped |', '|---|---|---:|---:|---:|---:|---:|---|---:|']
     lines += [lane_row(lane) for lane in lanes]
     lines += ['',f"External: {report['external']['status']} ({external_waits} tasks); not an external test pass."]
     (output/'summary.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')

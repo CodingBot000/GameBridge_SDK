@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09-T06 / required lane errors 전파·차단
+- 현재 Phase / Task: P09-T06 / simple marker·실제 테스트 수 분리
 - 마지막 갱신 시각: 2026-11-16 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: errors 전파·차단 검증 결과를 인계한다. 다음 P09 단일 후보는 simple marker 호출과 실제 테스트 수 구분이다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: simple 측정 계약 결과를 인계한다. 다음 P09 단일 후보는 nested 측정 단위 보존이다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1422,3 +1422,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T06 최종 검토에서 nested 합산 실패 필드의 누락도 0으로 메우지 않도록 유지하고 summary의 MISSING/UNMEASURED를 구분했다. 오류 계약 9건 재검증 PASS, 원장·manifest·diff PASS. 커밋 전 관련 집계/producer/단위시험·CI 연결·정제 문서만 stage한다.
 
 - P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. errors 계약 범위의 변경만 커밋한다.
+
+- P09-T06 측정 계약 시작: 기준 HEAD/원격 6c8af7b 일치. simple 기본 marker를 tests 0/checks 1, stress는 samples, PII 검증은 players로 분리하고 checker의 실제 로그·marker·exit·hash 근거를 요구한다. 이번은 fixture 검사만 수행한다.
+
+- P09-T06 측정 fixture 10건 PASS, 내부 실제 aggregation unittest 14건 실행·건수 확인, 기존 errors 계약 9건 PASS/skip 0. checker marker·exit·로그 누락/변조와 required 누락·skip·errors를 차단했다. Player/스트레스는 fixture뿐이며 실제 제품 실행이 아니다.
+
+- P09-T06 측정 단위: 관련 최상위 단위 35건 PASS/skip 0. checker tests 0/checks 1과 samples·players 분리, static mapping 및 오류 차단 유지. 전체 Strict·실 제품 실행 없음. [측정 evidence](evidence/p09-measurement-contract.md).
+
+- P09-T06 커밋 전 원장·manifest·diff PASS. simple 측정/근거 계약·관련 단위와 CI 연결·정제 문서만 개별 stage하며 과거 보고서나 제품 코드는 수정하지 않는다.
+
+- P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. 측정 계약 범위의 코드·정제 문서만 커밋한다.

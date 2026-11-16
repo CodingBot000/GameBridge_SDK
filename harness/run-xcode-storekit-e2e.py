@@ -13,6 +13,8 @@ import time
 import urllib.request
 import xml.etree.ElementTree as ET
 
+from process_output import timeout_output
+
 ROOT = Path(__file__).resolve().parent.parent
 CONTAINER = 'gamebridge-sdk-local-postgres-1'
 
@@ -70,7 +72,7 @@ def main():
                  '-resultBundlePath',str(result_path),'CODE_SIGN_IDENTITY=-','CODE_SIGNING_REQUIRED=YES','-only-testing:GameBridgeStoreKitTests/XcodeStoreKitLocalDatabaseTests','test','-quiet']
         print('Running Xcode local StoreKit + local database recovery E2E...',flush=True)
         try: result=subprocess.run(command,cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180); test_code=result.returncode; (output/'xcodebuild.log').write_text(result.stdout)
-        except subprocess.TimeoutExpired: (output/'xcodebuild.log').write_text('Xcode test timed out.\n'); test_code=124
+        except subprocess.TimeoutExpired as exc: (output/'xcodebuild.log').write_text(timeout_output(exc)); test_code=124
         if result_path.exists():
             report=subprocess.run(['xcrun','xcresulttool','get','test-results','summary','--path',str(result_path),'--format','json'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             if report.returncode == 0:
@@ -84,7 +86,7 @@ def main():
         log.close()
     report={'status':status,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
             'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),
-            'database':name,'simulator':simulator,'testExitCode':test_code,'passed':summary.get('passedTests',0),'skipped':summary.get('skippedTests',0),
+            'database':name,'simulator':simulator,'testExitCode':test_code,'timedOut':test_code==124,'passed':summary.get('passedTests',0),'skipped':summary.get('skippedTests',0),
             'limitations':['Xcode local StoreKit and synthetic development DB only','public native Xcode-local grant path','not Unity player or Apple sandbox']}
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n')
     print('Result:',status,'Evidence directory:',output.relative_to(ROOT)); return 0 if status=='PASS' else 1

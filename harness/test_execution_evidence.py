@@ -135,6 +135,15 @@ class ExecutionEvidenceTests(unittest.TestCase):
         lanes[0].update(status='PASS',exitCode=0,checks=1)
         self.assertEqual(summarize(lanes)['exitCode'],1)
 
+    def test_command_snapshot_cannot_change_after_execution(self):
+        from measurement_contract import record_execution, counted_lane
+        log=self.folder/'snapshot.log';log.write_text('observed PASS')
+        record_execution(['observed-command'],0,'observed PASS',log)
+        lane=counted_lane('check',0,(1,0,0),None,'checker-exit','checker')
+        lane.update(name='check',required=True)
+        lane['command'].append('never-executed')
+        self.assertEqual(summarize([lane])['exitCode'],1)
+
     def test_result_json_modification_invalidates_parent_binding(self):
         lanes,_,_,_=self.collect()
         path=Path(lanes[0]['producerEvidence']);path.write_text('{}')

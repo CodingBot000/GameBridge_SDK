@@ -15,6 +15,8 @@ from measurement_contract import record_execution, counted_lane
 
 from execution_evidence import metadata
 
+from process_output import timeout_output
+
 ROOT = Path(__file__).resolve().parent.parent
 
 def run(command, env, log, timeout=600):
@@ -25,7 +27,7 @@ def run(command, env, log, timeout=600):
                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=False)
         code, output = process.returncode, process.stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
-        code, output = 2, f'{type(exc).__name__}: suite unavailable or timed out\n'
+        code, output = 2, timeout_output(exc) if isinstance(exc,subprocess.TimeoutExpired) else f'{type(exc).__name__}: suite unavailable\n'
     log.write_text(output, encoding='utf-8')
     record_execution(command, code, output, log, started, invocation)
     return code, output, started

@@ -27,3 +27,5 @@
 ## 배치24 보강
 
 Nested 필드와 오류 모델은 원본과 상위에서 동일해야 한다. `failures=0/errors=1/exitCode=0/status=PASS`는 실패다. deferred 상태라도 측정한 실패·오류가 있으면 실패를 우선한다. 새 `test_execution_evidence.py`는 실제 child 및 collector subprocess에서 정상 0·실패 1·환경 대기 2를 확인한다. 전체 Python 113건 및 후속 collector 12건 통과; 제품 검증은 별도다.
+
+배치24 후속: `errorModel`은 separate/included-in-failures/checker-exit 중 하나여야 한다. 미정 모델은 errors=0이어도 거부한다. negative 재현 후 전체 Python 117건 통과. checker/Swift의 errors UNMEASURED를 독립 errors 0으로 바꾸지 않는다. 실제 Strict/새 runtime failure는 통합 evidence에 별도 보존한다.

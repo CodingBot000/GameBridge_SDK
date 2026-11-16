@@ -1,5 +1,6 @@
 """Explicit error measurement contracts for regression reports."""
 def valid_error_evidence(lane):
+    if not isinstance(lane.get('errorModel'),str) or lane['errorModel'] not in ('separate','included-in-failures','checker-exit'):return False
     if lane.get('errorModel') == 'included-in-failures' and (type(lane.get('failures')) is not int or lane['failures'] < 0):
         return False
     if 'errors' in lane:

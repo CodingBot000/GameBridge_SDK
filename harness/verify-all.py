@@ -18,6 +18,8 @@ from error_contract import copy_error_evidence
 from measurement_contract import measured_lane, valid_checker
 from execution_evidence import observe, valid_observation, metadata, source_identity
 
+from process_output import timeout_output
+
 ROOT = Path(__file__).resolve().parent.parent
 
 def scenario_mapping_lane(manifest, checker, root):
@@ -47,7 +49,7 @@ def nested_lane(name, item, command, evidence):
 
 def lane_row(lane):
     errors = lane['errors'] if 'errors' in lane and lane['errors'] is not None else ('UNMEASURED' if 'errors' in lane or lane.get('errorModel') in ('included-in-failures','checker-exit') else 'MISSING')
-    return f"| {lane['name']} | {lane['status']} | {lane.get('tests','MISSING')} | {lane.get('checks',0)} | {lane.get('samples',0)} | {lane.get('players',0)} | {errors} | {lane.get('errorModel','UNSPECIFIED')} | {lane.get('skipped','MISSING')} |"
+    return f"| {lane['name']} | {lane['status']} | {lane.get('tests','MISSING')} | {lane.get('checks','MISSING')} | {lane.get('samples','MISSING')} | {lane.get('players','MISSING')} | {lane.get('failures','MISSING')} | {errors} | {lane.get('errorModel','UNSPECIFIED')} | {lane.get('skipped','MISSING')} | {lane.get('exitCode','MISSING')} | {lane.get('measurement','MISSING')} |"
 
 
 
@@ -100,7 +102,7 @@ def main() -> int:
                                     stderr=subprocess.STDOUT,timeout=3600 if name == 'push' and env.get('GAMEBRIDGE_RUN_UNITY_PUSH_E2E') == 'true' else 1200,check=False)
             code, text = result.returncode, result.stdout
         except (OSError,subprocess.TimeoutExpired) as exc:
-            code, text = 2, f'{type(exc).__name__}: suite unavailable or timed out\n'
+            code, text = 2, timeout_output(exc) if isinstance(exc,subprocess.TimeoutExpired) else f'{type(exc).__name__}: suite unavailable\n'
         log = output/f'{name}.log'; log.write_text(text,encoding='utf-8')
         return code,text,log.relative_to(ROOT).as_posix(),observe(command,code,text,log,started,invocation)
     def simple(name, command, marker, environment=None):
@@ -182,7 +184,7 @@ def main() -> int:
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'environment':{'os':platform.platform()},
               'summary':summary,'lanes':lanes,'external':{'status':'WAITING_USER' if external_waits else 'NOT_RUN','taskCount':external_waits,'tasks':external_tasks}}
     (output/'result.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    lines = ['# Local verification summary','',f"Source: `{head}`; working tree dirty: {dirty}.",f"Overall: **{summary['status']}** (exit {summary['exitCode']}).",'', '| Lane | Status | Tests | Checks | Samples | Players | Errors | Error model | Skipped |', '|---|---|---:|---:|---:|---:|---:|---|---:|']
+    lines = ['# Local verification summary','',f"Source: `{head}`; working tree dirty: {dirty}.",f"Overall: **{summary['status']}** (exit {summary['exitCode']}).",'', '| Lane | Status | Tests | Checks | Samples | Players | Failures | Errors | Error model | Skipped | Exit | Measurement |', '|---|---|---:|---:|---:|---:|---:|---:|---|---:|---:|---|']
     lines += [lane_row(lane) for lane in lanes]
     lines += ['',f"External: {report['external']['status']} ({external_waits} tasks); not an external test pass."]
     (output/'summary.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')

@@ -3645,3 +3645,9 @@
 - 배치24 C 원인 관측: Android Push 실패 AVD UIAutomator에서 systemui Viewing full screen/Got it 안내를 확인했다(READY 이전 차단). 기존 APK·AVD 보존 후 새 전용 AVD에서 안내를 관측·닫고 해당 Player gate만 재실행한다. Editor CLI 원본은 300초 process timeout/CLI exit 6이며 test verdict 없음. StoreKit DB xcresult는 Info.plist 미완결, process recovery는 Transaction history 진입 후 timeout이다. 원인 확정 없이 runtime FAIL을 환경 PASS로 바꾸지 않는다. 현재 실행 완료로 source 고정 해제, 관련 진단 로그 보강과 영향 lane만 재검증한다.
 
 - 배치24 C 결과 커밋 전: 실제 실패·대기와 52 보고 PASS를 정제 문서에 기록했다. 전체 Strict 재실행은 하지 않고 원본 실패를 보존한 채 관련 진단/재검증으로 이동한다.
+
+- 배치24 B/C 영향 보강 시작: 전체 실행의 source를 보존한 뒤 timeout 부분 로그 폐기·history 단계 미분리 진단 공백을 보강한다. 추가 검토에서 미정 errorModel 및 호출 후 command 리스트 변경에 대한 방어도 음성 fixture로 확인하고 같은 배치에서 수정한다. StoreKit/Editor/Push 원본 실패는 유지하며 전체 Strict는 반복하지 않는다.
+
+- 배치24 후속 음성 재현: 실제 collector 단위 3건 모두 기대와 달리 FAIL(exit 1)—unknown errorModel 수락, 호출 후 mutable command 리스트 변경 수락, 실제 subprocess timeout의 부분 stdout 폐기를 확인했다. 세 공백을 수정한 뒤 재검증하며 제품 테스트 통과로 기록하지 않는다.
+
+- 배치24 후속 검증/커밋 전: 정상 오류 모델 3종만 허용, 관측 command snapshot deep copy, timeout 부분 stdout 보존(부분 PASS marker로 승격 불가), Markdown 누락/실패/exit/단위 표시를 보강했다. RecoveryHarness history all/unfinished checkpoint만 분리(제품 SDK 의미 변경 없음). 전체 Python 117건 PASS/skip 0, timeout 실제 프로세스 1건 재확인 PASS. 원장·manifest·actionlint·diff exit 0. 현재 실패 lane만 확정 source에서 재실행한다.

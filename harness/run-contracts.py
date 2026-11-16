@@ -15,6 +15,8 @@ from measurement_contract import record_execution, counted_lane
 
 from execution_evidence import metadata
 
+from process_output import timeout_output
+
 ROOT = Path(__file__).resolve().parent.parent
 
 def run(command: list[str], log: Path, env: dict[str, str]) -> tuple[int, str]:
@@ -24,7 +26,7 @@ def run(command: list[str], log: Path, env: dict[str, str]) -> tuple[int, str]:
                                 text=True, errors='replace', timeout=600, check=False)
         output = result.stdout; code = result.returncode
     except (OSError, subprocess.TimeoutExpired) as exc:
-        output = f'{type(exc).__name__}: command unavailable or timed out\n'; code = 2
+        output = timeout_output(exc) if isinstance(exc,subprocess.TimeoutExpired) else f'{type(exc).__name__}: command unavailable\n'; code = 2
     log.write_text(output, encoding='utf-8')
     record_execution(command, code, output, log, started)
     return code, output

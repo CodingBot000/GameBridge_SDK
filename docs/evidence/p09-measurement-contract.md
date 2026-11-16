@@ -48,3 +48,7 @@ A 단위 25건 PASS, skip 0. 외부 명령 stub fixture는 실제 관측 로그�
 PASS는 모든 카운트의 정확한 int 타입(문자열·boolean·음수 거부), 명시 단위와 실제 측정, 오류 모델 및 exit를 요구한다. 자기시험 9 lane은 상위에서 각각 required로 집계한다. static 50 mapping은 실행 건수가 아니며 manifest 검사 receipt를 참조하는 별도 매핑 행이다.
 
 전체 Python 113건 통과 후 추가 collector 변조 방어 12건 통과. 최초 시스템 Python의 schema 의존성 error와 이전 출력 기대값 failure는 보존 로그에 있으며 후속 venv 실행으로 해소했다. 실제 제품·DB·Player·Strict는 C에서 검증한다.
+
+## 배치24 통합·후속 방어
+
+[통합 결과](p09-batch24-integrated.md)에 현재 source의 자체시험·실제 Player·Strict와 새 실패를 구분했다. 추가 음성 3건으로 미정 errorModel 수락, 호출 후 command 리스트 변조 수락, timeout 부분 stdout 폐기를 재현하고 수정했다. registry의 command는 deep snapshot으로 고정한다. Markdown은 누락 단위를 MISSING으로 표시하고 failures/exit/measurement도 출력한다. timeout의 부분 PASS 문자열은 성공으로 승격하지 않는다. 새 단위를 포함한 전체 Python 117건 PASS/skip 0; 실제 timeout 재확인 1건 PASS. Strict 원본은 수정하지 않으며 이후에는 영향 검증만 수행한다.

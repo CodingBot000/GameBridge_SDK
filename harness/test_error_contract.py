@@ -119,6 +119,10 @@ class ErrorContractTests(unittest.TestCase):
                 self.assertIn('errors',value)
                 self.assertEqual(summarize([{**value,'name':value['suite'],'required':True}])['exitCode'],0)
 
+    def test_unknown_error_model_is_not_measured_success(self):
+        for model in ('unknown','',None,False,[]):
+            self.assertEqual(summarize([{**self.base,'errorModel':model}])['exitCode'],1,model)
+
     def test_required_missing_zero_and_skip(self):
         self.assertEqual(summarize([self.base],{'lane','missing'})['exitCode'],1)
         self.assertEqual(summarize([{**self.base,'tests':0}])['exitCode'],1)

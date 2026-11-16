@@ -3,6 +3,7 @@
 This detects stale/mismatched evidence, not a hostile process with local write access.
 """
 import hashlib
+import copy
 import json
 import os
 import subprocess
@@ -32,7 +33,7 @@ def observe(command,code,text,log,started=None,invocation_id=None):
     receipt={**metadata(),'path':str(path),'sha256':hashlib.sha256(data).hexdigest(),
             'command':list(command),'exitCode':code,'startedNs':started or path.stat().st_mtime_ns,
             'finishedNs':time.time_ns(),'invocationId':invocation_id or uuid.uuid4().hex}
-    _OBSERVED[receipt['invocationId']]=dict(receipt)
+    _OBSERVED[receipt['invocationId']]=copy.deepcopy(receipt)
     return receipt
 
 

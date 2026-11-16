@@ -84,8 +84,9 @@ private func makeTestSession(initializer: String) throws -> SKTestSession {
             else { guard try await client.restore() != nil else { throw SdkFailure("SESSION_EXPIRED") } }
             checkpoint("store-init")
             let store = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore)
-            checkpoint("store-history")
+            checkpoint("store-history-all")
             for await _ in Transaction.all { historyBefore += 1 }
+            checkpoint("store-history-unfinished")
             for await _ in Transaction.unfinished { unfinishedBefore += 1 }
             checkpoint("store-start")
             try await store.start()

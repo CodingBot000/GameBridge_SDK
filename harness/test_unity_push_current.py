@@ -13,4 +13,18 @@ class UnityPushEvidenceTests(unittest.TestCase):
                 changed=data.copy();changed[key]=value;(directory/'result.json').write_text(json.dumps(changed));self.assertFalse(module.check_result(output,0,'head','ios'))
             (directory/'result.json').write_text(json.dumps(data));(directory/'unity-push-markers.log').write_text('\n'.join(module.REQUIRED[:-1]));self.assertFalse(module.check_result(output,0,'head','ios'))
             self.assertFalse(module.check_result(output,0,'head','android'));self.assertFalse(module.check_result(output,1,'head','ios'))
+    def test_android_requires_matching_pid_and_port_binding(self):
+        with tempfile.TemporaryDirectory() as temp,patch.object(module,'ROOT',Path(temp)):
+            directory=Path(temp)/'artifacts/unity-android-push-binding';directory.mkdir(parents=True)
+            output='RESULT PASS EVIDENCE '+directory.relative_to(module.ROOT).as_posix()+'\n'
+            data={'status':'PASS','player':'PASS','sourceHead':'head','sourceTrackedDirty':False,'mockPush':'PASS','background':'PASS','networkRecovery':'PASS','reconnectFailure':'PASS','rejectedReconnectAttempts':1,'deduplication':'PASS','mainThread':'PASS','sessionSwitch':'PASS','deviceTokens':0}
+            proof={'pid':123,'serial':'emulator-5582','avd':'GameBridge_V2_fixture','consolePort':5582,'adbPort':5583,'portsOwned':True}
+            (directory/'unity-push-markers.log').write_text('\n'.join(module.REQUIRED))
+            def check(binding,pid=123):
+                (directory/'result.json').write_text(json.dumps({**data,'emulatorBinding':binding}))
+                return module.check_result(output,0,'head','android',pid)
+            self.assertTrue(check(proof))
+            for bad in (None,[],{}, {**proof,'pid':999},{**proof,'portsOwned':False},{**proof,'serial':'emulator-5570'},{**proof,'adbPort':5581}):
+                self.assertFalse(check(bad))
+
 if __name__=='__main__':unittest.main()

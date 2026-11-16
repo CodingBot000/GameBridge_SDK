@@ -18,7 +18,7 @@ class CiGateTests(unittest.TestCase):
     def test_unity_preflight_refuses_missing_editor_executable(self):
         env=os.environ.copy();env.update(UNITY_EDITOR_PATH='/nonexistent/gamebridge-unity-editor',GAMEBRIDGE_UPM_STAGING='/tmp',GAMEBRIDGE_UNITY_PACKAGE_CACHE='/tmp',
             GAMEBRIDGE_ANDROID_SERIAL='emulator-5580',GAMEBRIDGE_TEST_AVD_NAME='GameBridge_V2_baseline',
-            GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push')
+            GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push',GAMEBRIDGE_PUSH_EMULATOR_PID='123')
         result=subprocess.run(['bash',str(ROOT/'scripts/ci-unity-e2e.sh')],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         self.assertEqual(result.returncode,2);self.assertIn('UNITY_EDITOR_PATH',result.stdout)
     def test_unity_preflight_refuses_missing_package_cache(self):
@@ -26,7 +26,7 @@ class CiGateTests(unittest.TestCase):
             env=os.environ.copy();env.update(UNITY_EDITOR_PATH=editor.name,GAMEBRIDGE_UPM_STAGING='/tmp',
                 GAMEBRIDGE_UNITY_PACKAGE_CACHE='/nonexistent/gamebridge-package-cache',
                 GAMEBRIDGE_ANDROID_SERIAL='emulator-5580',GAMEBRIDGE_TEST_AVD_NAME='GameBridge_V2_baseline',
-                GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push')
+                GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push',GAMEBRIDGE_PUSH_EMULATOR_PID='123')
             result=subprocess.run(['bash',str(ROOT/'scripts/ci-unity-e2e.sh')],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
             self.assertEqual(result.returncode,2);self.assertIn('package cache',result.stdout)
     def test_unity_gate_calls_isolated_strict_and_propagates_failure(self):
@@ -41,7 +41,7 @@ class CiGateTests(unittest.TestCase):
             env=os.environ.copy();env.update(PATH=str(base/'bin')+os.pathsep+env['PATH'],GB_TEST_CALLS=str(calls),
                 UNITY_EDITOR_PATH=str(editor),GAMEBRIDGE_UPM_STAGING=str(base),GAMEBRIDGE_UNITY_PACKAGE_CACHE=str(base/'cache'),
                 GAMEBRIDGE_ANDROID_SERIAL='emulator-5580',GAMEBRIDGE_TEST_AVD_NAME='GameBridge_V2_baseline',
-                GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push')
+                GAMEBRIDGE_PUSH_ANDROID_SERIAL='emulator-5582',GAMEBRIDGE_PUSH_TEST_AVD_NAME='GameBridge_V2_push',GAMEBRIDGE_PUSH_EMULATOR_PID='123')
             result=subprocess.run(['bash',str(base/'scripts/ci-unity-e2e.sh')],cwd=base,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
             self.assertEqual(result.returncode,1);captured=calls.read_text()
             self.assertIn('harness/run-strict-local-isolated.py',captured)

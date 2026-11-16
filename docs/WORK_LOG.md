@@ -3683,3 +3683,9 @@
 - 배치24 D 완료: run43862394352 source8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18 workflow_dispatch(false) 전체 SUCCESS. inventory/Backend/Android/macOS/basic-ci 5 SUCCESS, Unity/Release 2 SKIPPED. 원격 unit32suite113 PASS, BackendJUnit13, Android45+1+1, SwiftXCTest17, synthetic host는 >0·실패/skip0 검사 통과(정확건수 미출력). 자동 재실행 없음. 로컬119/self9/iOSPush와 구분한다. Android Push ENV-P09-AVD, 최초Strict FAIL, P05 FAIL/ENV26 OPEN/Provider WAITING_USER/self-hosted 미검증 유지. 최종 docs scan·commit·FF push·HEAD 대조만 남았다.
 
 - 배치24 최종 커밋 전: Hosted7개job 최종 상태와 source별 검증·남은 환경/내부 항목을 정제 evidence에 기록했다. 추가 코드 변경·원격 재실행 없음. 최종 문서만 stage/scan/FF push하고 local/remote HEAD 및 기존 미추적3개 디렉터리를 확인한다.
+
+- 배치25 A 시작: 기준 f6915e35f28e06a0d88e053a66883505bc7bc881 및 기존 미추적3개 디렉터리 확인. ENV-P09-AVD의 serial/이름/PID/실제 listen port를 읽기 전용 대조하며 타 AVD·앱·기기/ADB server kill·restart·초기화는 하지 않는다. 첫 adb devices 조회에서 daemon 부재로 CLI가 자동 시작을 출력했고 이후 명시적 server 조작은 하지 않는다. A 독립 PASS/환경 준비 없이는 C 전체 Strict를 실행하지 않는다. B/C/D를 순차 수행하고 최종 통합 보고한다.
+
+- 배치25 A 검증: PID/console·ADB port 양쪽 소유, 요청 이름·port 불일치/PID 재사용/반쪽 연결/다중 owner 거부, 기존 기기 guard 및 CI gate 15건 PASS(exit0/skip0). 현재 타 AVD의 요청5560과 실제5560/5561 owner PID89772 일치를 읽기 전용 확인했다. 배치24는 요청5570·자기 PID가 있어도 실제 console/ADB listen이 없고 serial이 타 AVD에 연결됐던 관측이다. 포트 소유 불일치는 확인됐지만 최초 경쟁/실패 시점은 보존 증거가 없어 확정하지 않는다. 새 guard는 예상 PID와 실제 두 port 소유를 매 명령 전 요구한다.
+
+- 배치25 A 실행 준비 커밋 전: 관련 단위16건 PASS/skip0, progress/manifest/diff exit0. 예상 PID 및 실제 console·ADB 소유 증거 요구를 추가했다. 새 전용 AVD 생성/실제 Push는 아직 NOT_RUN이며 tracked-clean commit 후 준비한다. 기존 실제 사용자 AVD·앱·ADB server는 변경하지 않는다.

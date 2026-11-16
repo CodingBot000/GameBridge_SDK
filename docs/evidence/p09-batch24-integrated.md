@@ -141,3 +141,7 @@ Strict source 0b6fb72와 최신 source 사이의 변경은 오류 모델/관측 
 P09-T01/T03/T06/T08의 local 상태 변경 근거는 [완료 조건 감사](p09-completion-gap-audit.md)에 제시했다. 원장 상태를 일괄 PASS로 변경하지 않았고 P05-T03 FAIL·ENV-STOREKIT-26 OPEN·Provider WAITING_USER13을 유지한다.
 
 최종 push는 handoff/p09-resume-20261113에 docs만 추가하는 FF다. 최종 문서 commit의 자기 SHA는 Git 이력/채팅 최종 보고에서 대조한다. 원격 실행은8c8fc62에서 완료됐으며 이후 코드 변경은 없다. 기존 미추적 Demo·Python cache, ignored artifacts·DB·AVD·Simulator 디스크를 삭제하지 않았다.
+
+## 배치25 진행
+
+잔여 환경·검증·상태 감사의 후속은 [배치25 evidence](p09-batch25-integrated.md)에 기록한다. 배치24의 실패·미실행·후속 성공은 수정하지 않는다.

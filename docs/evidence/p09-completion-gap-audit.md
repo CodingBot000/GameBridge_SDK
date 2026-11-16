@@ -66,3 +66,7 @@ P09-T01의 local ID/entry·fixture 완료 확인, P09-T03의 synthetic local 거
 ## 배치24 최종 인계
 
 Hosted-only source8c8fc62, [run43862394352](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352) 전체 SUCCESS. 새 하네스 단위 포함 원격113건 통과. 로컬119·자체시험9 및 iOS Push 실제 current-source 결과와 scope를 구분했다. A/B/D 수행 완료, C는 Android Push 재검증 ENV-P09-AVD로 PARTIAL. 기존 Strict 및 최초 runtime 실패와 후속 성공을 모두 보존한다. 위 Task별 상태 제안은 전체 P09/Release 완료 선언이 아니다.
+
+## 배치25 진행
+
+잔여 환경·검증·상태 감사의 후속은 [배치25 evidence](p09-batch25-integrated.md)에 기록한다. 배치24의 실패·미실행·후속 성공은 수정하지 않는다.

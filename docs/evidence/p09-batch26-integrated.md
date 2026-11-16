@@ -27,3 +27,11 @@ NOT_RUN. A baseline확정후API/ABI/wire/소스snapshot을기록하고실제중�
 ## D — 통합·Hosted·인계
 
 NOT_RUN. 현재Core 변경을빌드해새staging/checksum·실제Native/Unity LOCAL_MOCK 및조건부Strict최대1회검증한다. Hosted false입력1회만실행하고main/force/Release/self-hosted등록활성화는하지않는다. P05FAIL/ENV26OPEN/Provider13WAIT/기기·원격Unity미검증을유지한다.
+
+### A 확정 baseline
+
+source **b6fd5379c8ec31b110904754e744325bd39d61c9**,tracked-clean,`core-assertions-2u0cmwrq` actual exit0/PASS. framework test는Kotlin10/Swift12/UnityEditor2이며managed는tests0/checks1이다. helper invocation은각각50/122/32,managed391. 정상복원은별도391,조건분기OFF는0실행/ON은1실행추가로392(테스트-onlysynthetic config)이다. 동일선언소스라도미진입branch는세지않는다.
+
+R12는warmup15/sample300/final1=316실제호출,samples100을tests로치환하지않는다. duplicate-only정상probe는helper2/exit0,guard제거disposable probe는부분helper1후정확한duplicate응답에서NullReference/nonzero를보였다. 실패process1과assertion실패수는같지않다. 원본SHA동일·정상전체smoke391재실행을확인했다.
+
+shared native testcase의전체N회를R별정확N회로중복배분하지않으며managed는실행label/site선택값을보여준다. declared manifest list는STATIC_MAPPING이다. 래퍼밖implicit signal/전체assertion outcomes·정확한소스callsite총수및이ledger에서미실행JNI probe범위는UNMEASURED/NOT_RUN으로구분했다. 이범위를0이나testcase수로채우지않는다. P10전후동일cohort비교의기준이다.

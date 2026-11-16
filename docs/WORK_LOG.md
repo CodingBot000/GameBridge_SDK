@@ -3635,3 +3635,7 @@
 - 배치24 작업 C 시작: B source commit 확정 후 전체 Python·정적 검증→격리 PostgreSQL 자체시험 9 lane→ci-unity-e2e.sh 경로의 현재 Player/Strict 1회를 실행한다. Unity license active, staging 147 checksum PASS, exact PackageCache 존재. 사용자 연결 AVD 4개·기존 booted iOS 기기는 보존하며 별도 GameBridge 전용 AVD 2개만 사용한다.
 
 - 배치24 C 1차 검증/Strict 전 커밋: 전체 Python 114건 PASS(exit 0/skip 0), 원장·manifest·Unity meta·API baseline·actionlint·diff exit 0. 격리 self-check source 94dad65 + 진행 문서 변경에서 9/9 PASS, 실제 tests 47(정상 44/예상 실패 3), checks 9, samples/players 0. sandbox 지정 testcase JUnit 1건 401 거부 확인. artifacts/harness-self-cvmhknn5 및 strict-isolated-pf5d4dpu. DB·role·Simulator 보존. 이어서 이 기록을 커밋해 tracked-clean source에서 ci-unity-e2e.sh 전체 Player/Strict 1회를 실행한다.
+
+- 배치24 C 환경 블로커: ci-unity-e2e.sh exit 2. source a6a14da tracked-clean에서 Editor 2건·sample 1건/reimport·Android/iOS hook PASS 후 기존 PII AVD의 TEST_APP_ALREADY_INSTALLED_PRESERVE_EXISTING으로 설치 차단. artifacts/unity-android-e2e-jefckpl8 및 unity-pii-current-ocq0awkp. Player/Strict NOT_RUN, 과거 증거 재사용 없음. 기존 앱·AVD를 보존하고 새 전용 AVD 2개로 환경을 준비한다. 전체 Strict 실행은 아직 0회다.
+
+- 배치24 C 환경 기록 커밋 전: 차단된 AVD·앱은 보존하며 원본 로그나 빌드는 stage하지 않는다. 다음 실행 source를 문서 커밋으로 확정한다.

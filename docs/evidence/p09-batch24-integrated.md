@@ -39,3 +39,7 @@ NOT_RUN — 위 기록을 로컬 커밋한 뒤 ci-unity-e2e.sh에서 실행할 �
 ## 원격·남은 상태
 
 Hosted-only 새 실행은 NOT_RUN. repository 변수 총 0개(활성 Unity 변수 없음), 원격 handoff 기준 HEAD 8eec64a 확인. 이후 작업 D에서 commit scan·fast-forward push·false 입력 dispatch 1회를 수행한다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN/실 Provider WAITING_USER/Unity self-hosted 미검증을 유지한다.
+
+### C 준비 시도 1 — 환경 대기
+
+source a6a14da30a96e77348a445b1daf657c69e396a19 tracked-clean. Editor 2 tests, Offline sample flow 1 test·GUID reimport, Android/iOS hook repeat PASS. ci-unity-e2e.sh는 기존 AVD의 설치 앱을 보호해 `TEST_APP_ALREADY_INSTALLED_PRESERVE_EXISTING`/exit 2. 새 Player/Strict는 NOT_RUN이다. `artifacts/unity-pii-current-ocq0awkp`·`unity-android-e2e-jefckpl8`은 이 차단의 원본이며 이전 PASS로 대체하지 않는다. 기존 앱을 삭제/덮어쓰지 않고 새로운 전용 AVD를 준비한다.

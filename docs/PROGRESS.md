@@ -1446,3 +1446,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치24 B 전체 단위 1차: 112건 실행 중 failure 1(이전 Markdown errorModel 기대값), error 1(시스템 Python에 jsonschema 미설치), exit 1. 기대값을 실제 separate 표시에 맞추고 기존 schema venv로 전체 단위를 재실행한다. 새 collector 경계 11건은 PASS이며 종료 0/1/2 subprocess를 확인했다.
 
 - 배치24 B 검증/커밋 전: schema venv 전체 113건 PASS(exit 0/skip 0); 추가 양수 count 변조 방어를 포함한 collector 12건 재검증 PASS. sourceHead+tracked diff digest, 관측 registry/명령/실행 ID/시간/로그 hash와 부모의 실제 stdout→새 report→자식 receipt를 연결했다. 단위 누락·0건·부정 타입·오류·중복·skip 승격·부모 종료 불일치·동일 SHA 과거 report 재사용을 거부한다. classifier를 실제 subprocess에서 실행하여 exit 0/1/2 확인. 원장·manifest·actionlint·diff PASS. 새 unit 2종을 Hosted inventory에 연결했다.
+
+- 배치24 작업 C 시작: B source commit 확정 후 전체 Python·정적 검증→격리 PostgreSQL 자체시험 9 lane→ci-unity-e2e.sh 경로의 현재 Player/Strict 1회를 실행한다. Unity license active, staging 147 checksum PASS, exact PackageCache 존재. 사용자 연결 AVD 4개·기존 booted iOS 기기는 보존하며 별도 GameBridge 전용 AVD 2개만 사용한다.
+
+- 배치24 C 1차 검증/Strict 전 커밋: 전체 Python 114건 PASS(exit 0/skip 0), 원장·manifest·Unity meta·API baseline·actionlint·diff exit 0. 격리 self-check source 94dad65 + 진행 문서 변경에서 9/9 PASS, 실제 tests 47(정상 44/예상 실패 3), checks 9, samples/players 0. sandbox 지정 testcase JUnit 1건 401 거부 확인. artifacts/harness-self-cvmhknn5 및 strict-isolated-pf5d4dpu. DB·role·Simulator 보존. 이어서 이 기록을 커밋해 tracked-clean source에서 ci-unity-e2e.sh 전체 Player/Strict 1회를 실행한다.

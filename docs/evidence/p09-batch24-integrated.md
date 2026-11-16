@@ -62,3 +62,9 @@ source **0b6fb7250e6f9edb2c93ba477ac06a5060b1769a**, tracked-clean. `ci-unity-e2
 | recorded-unresolved-failures | P05-T03 기존 FAIL 유지 | 26.5를 이번에 재실행/해소한 것으로 취급하지 않음 |
 
 새 두 StoreKit 실패는 26.5 기록과 다른 18.6 관측이며 원인은 아직 확정되지 않았다. 관련 StoreKit runner/RecoveryHarness는 이전 5d716bd 이후 선택 경로 git diff가 없음을 확인했다. 이 사실만으로 환경 원인을 확정하지 않는다. 완료된 이번 실행 전용 PII·StoreKit·Process Simulator는 shutdown했고 디스크·DB·실패 결과는 보존했다. 사용자 iPhone 17 Pro는 변경하지 않았다.
+
+### C 후속 검증/진단 source
+
+`4508b9a`에서 미정 오류 모델·mutable command snapshot·timeout 부분 로그 공백을 보강했다. 관련 새 음성 3건은 수정 전 실패를 재현했고 수정 후 전체 Python 117건 PASS/skip 0. Strict 전체를 재실행한 것으로 취급하지 않는다. 같은 source의 단독 Editor 재검증 `unity-consumer.nsFJLu`는 실제 2건 PASS/exit 0. 최초 timeout은 보존한다.
+
+다음 source는 test-only StoreKit stage 로그와 Transaction.all/unfinished checkpoint를 추가한다. SDK 동작이나 성공 판정 기준·timeout은 바꾸지 않는다. 그 뒤 격리 StoreKit 두 lane을 각각 한 번, 새 전용 AVD의 Push gate를 영향 재검증한다.

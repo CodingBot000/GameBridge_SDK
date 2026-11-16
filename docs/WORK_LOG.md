@@ -3651,3 +3651,7 @@
 - 배치24 후속 음성 재현: 실제 collector 단위 3건 모두 기대와 달리 FAIL(exit 1)—unknown errorModel 수락, 호출 후 mutable command 리스트 변경 수락, 실제 subprocess timeout의 부분 stdout 폐기를 확인했다. 세 공백을 수정한 뒤 재검증하며 제품 테스트 통과로 기록하지 않는다.
 
 - 배치24 후속 검증/커밋 전: 정상 오류 모델 3종만 허용, 관측 command snapshot deep copy, timeout 부분 stdout 보존(부분 PASS marker로 승격 불가), Markdown 누락/실패/exit/단위 표시를 보강했다. RecoveryHarness history all/unfinished checkpoint만 분리(제품 SDK 의미 변경 없음). 전체 Python 117건 PASS/skip 0, timeout 실제 프로세스 1건 재확인 PASS. 원장·manifest·actionlint·diff exit 0. 현재 실패 lane만 확정 source에서 재실행한다.
+
+- 배치24 C 영향 재검증 1: source 4508b9a에서 단독 bash scripts/build-unity.sh --editor-smoke exit 0, 실제 Editor tests 2 PASS(artifacts/unity-consumer.nsFJLu). 최초 Strict의 CLI 300초 timeout/DEFERRED는 그대로 보존하며 현재 재검증 성공을 별도 기록한다. StoreKit retry는 timeout 로그·고정 stage marker를 보강하고 새 격리 DB/Simulator에서 각 1회만 실행한다.
+
+- 배치24 진단 커밋 전: source4508 Editor 재검증 PASS를 기록하고 test-only stage 로그를 추가했다. Swift parse 확인 후 커밋하며 StoreKit 실제 재검증은 아직 NOT_RUN이다.

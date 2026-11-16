@@ -48,7 +48,9 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         guard environment["GAMEBRIDGE_RUN_XCODE_DB_E2E"] == "true" else { throw XCTSkip("explicit local database E2E opt-in required") }
         let base = try XCTUnwrap(environment["GAMEBRIDGE_XCODE_E2E_BASE_URL"]), key = try XCTUnwrap(environment["GAMEBRIDGE_XCODE_E2E_AUTH_KEY"])
         guard base.hasPrefix("http://127.0.0.1:") else { throw SdkFailure("CONFIG_REQUIRED") }
+        NSLog("GB_STOREKIT_DB_STAGE session-create")
         let session = try SKTestSession(configurationFileNamed:"GameBridge"); session.disableDialogs = true
+        NSLog("GB_STOREKIT_DB_STAGE session-configured")
         let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [DropCommittedGrantProtocol.self]
         let identifier = UUID().uuidString.lowercased()
         let sessionService = "com.gamebridge.test.xcode.session." + identifier
@@ -56,20 +58,22 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         let authStore = KeychainTokenStore(service:sessionService), pendingStore = KeychainTokenStore(service:pendingService)
         let config = GameBridgeConfig(appId:"gamebridge-sample", mode:.localMock, backendBaseURL:base, requestTimeoutMs:5000)
         var stage = "client construction"
+        func checkpoint(_ value: String) { stage = value; NSLog("GB_STOREKIT_DB_STAGE %@", value) }
+        checkpoint(stage)
         do {
         let client = try LocalMockClient(config:config, store:authStore, developmentKey:key, sessionConfiguration:configuration)
-        stage = "sign in and session Keychain save"
+        checkpoint("sign in and session Keychain save")
         _ = try await client.signIn(subject:"A")
         do {
             _ = try await XcodeStoreKitSession(client:client, pendingStore:KeychainTokenStore(service:sessionService))
             XCTFail("separate Keychain objects with same service must be rejected")
         } catch let error as SdkFailure { XCTAssertEqual(error.code, "CONFIG_REQUIRED") }
         DropCommittedGrantProtocol.setDrop(true)
-        stage = "initial Xcode account"
+        checkpoint("initial Xcode account")
         let first = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore)
-        stage = "first StoreKit start"
+        checkpoint("first StoreKit start")
         try await first.start()
-        stage = "purchase and dropped grant response"
+        checkpoint("purchase and dropped grant response")
         let result = try await first.purchase("coins_100")
         XCTAssertEqual(result.status, .verificationPending)
         XCTAssertGreaterThan(DropCommittedGrantProtocol.droppedCount(), 0, "server grant must commit before response is dropped")
@@ -84,19 +88,19 @@ final class XcodeStoreKitLocalDatabaseTests: XCTestCase {
         XCTAssertGreaterThan(unfinishedCount, 0, "unconfirmed grant must remain unfinished")
         first.stop()
         DropCommittedGrantProtocol.setDrop(false)
-        stage = "recreate client and restore"
+        checkpoint("recreate client and restore")
         let restored = try LocalMockClient(config:config, store:KeychainTokenStore(service:sessionService), developmentKey:key, sessionConfiguration:configuration)
         let restoredUser = try await restored.restore(); XCTAssertNotNil(restoredUser)
         let recreatedPending = KeychainTokenStore(service:pendingService)
-        stage = "recreate StoreKit and journal"
+        checkpoint("recreate StoreKit and journal")
         let recovered = try await XcodeStoreKitSession(client:restored, pendingStore:FailClearStore(recreatedPending))
-        stage = "recover and finish with injected journal clear failure"
+        checkpoint("recover and finish with injected journal clear failure")
         try await recovered.start()
         let wallet = try await recovered.wallet()
         XCTAssertEqual(wallet.coinBalance, "100", "response loss must not grant twice")
         XCTAssertNotNil(try recreatedPending.load(), "failed cleanup must retain journal")
         recovered.stop()
-        stage = "reconcile finished consumable after second recreation"
+        checkpoint("reconcile finished consumable after second recreation")
         let finalStore = KeychainTokenStore(service:pendingService)
         let final = try await XcodeStoreKitSession(client:restored, pendingStore:finalStore)
         try await final.start()

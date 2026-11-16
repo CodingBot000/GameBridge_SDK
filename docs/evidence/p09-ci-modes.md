@@ -35,3 +35,20 @@ source8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18, [run43862394352](https://github.
 source59b98349689171cc8a75d9652f248708645a85c2,[run43889958441](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441),false입력1회만요청. Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED,workflowSUCCESS. inventory모든38파일/131건과backend TC11(negative1/normal복원)확인. self-hosted등록/활성변수변경/Release실행은없다. actual localStrict57PASS/knownP05FAIL1은[배치25](p09-batch25-integrated.md)에source별분리했다.
 
 Unity self-hosted 경로는 GAMEBRIDGE_PUSH_EMULATOR_PID를job별전용emulator에서유도해제공해야한다. 정적인PID설정만으로소유를주장하지않고이름·console/ADB양port owner를매명령전재검증한다. 이번에는준비hook/전용계정격리의원격실행을검증하지않았으므로T07PARTIAL을유지한다.
+
+
+## Hosted-only 최종 결과
+
+[run43934095574](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43934095574),source **c34b419e3a2c719e5d615362f179b38f59b1a241**,`release_validation=false` 단1회,workflow **SUCCESS**. 호출 전 repo변수0/runner0이며 설정 변경·runner등록·재실행·Release 활성화는 없다.
+
+| Job | 최종 결과 |
+|---|---|
+| inventory-contracts | SUCCESS |
+| backend-postgres | SUCCESS |
+| android-native | SUCCESS |
+| swift-ios-simulator | SUCCESS |
+| basic-ci | SUCCESS |
+| unity-e2e | SKIPPED |
+| release-readiness | SKIPPED |
+
+공식 job 로그에서 Python42파일/143건 PASS/FAILED요약0·Core source/API/wire gatePASS,Backend Testcontainers11건(의도 mutation failure1 및 정상 복원 포함),Swift package17건/failure0를 확인했다. synthetic Simulator host step도SUCCESS다. 테스트/helper/checker/Player 계수를 합산하지 않는다. 원격Unity·실기기·실Provider·Release는 미검증이다. 현재 로컬 Player/Strict 환경 대기와 raw build FAIL은 이Hosted SUCCESS로 대체하지 않는다. 후속 최종 commit은 이결과를 포함한 문서만 변경하며 원격 실행소스는 위c34b419로 유지한다.

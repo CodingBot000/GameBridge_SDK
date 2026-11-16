@@ -46,3 +46,10 @@ P05-T03 FAIL, ENV-STOREKIT-26 OPEN, 실제 Provider WAITING_USER와 P09 PARTIAL�
 ## 로컬 검증
 
 `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p test_ci_gate.py -v`: 7건 PASS, 실패·skip 0. 기존 test는 결합 script의 strict 실패 전파 및 미실행/실패 Unity 차단을 확인하고, 추가 test는 정상 coverage fixture에서만 성공하며 checker 실패·누락은 비영 종료임을 확인한다. 실제 Unity·Strict·원격 workflow를 실행하지 않는 disposable stub 시험이다. 제안한 독립 `unityPlayer`/`strict` 증거 인터페이스는 아직 구현/실행하지 않았다. `scripts/verify-progress.py` 및 `git diff --check`도 PASS다.
+
+
+## 배치26 환경 관측
+
+원격 조회 변수0/runner0을 유지했다. 로컬 새 Native/XCFramework/UPM은 dc45a2f current SDKsource에서 재생성했고 checksum147 및 API/선정ABI표면을 확인했다. 이전 staging은 새 C#runtime와 달라 consumer gate에서 실제 거부된다.
+
+CLI license active/exit0만으로 실제 Editor 준비를 증명할 수 없었다. source d86ccc2의 fresh Android 소비 빌드에서 LicensingClient IPC channel 부재·재연결 실패가 반복돼 APK 생성 전 raw FAIL/exit1, Player NOT_RUN이다. full용 owned AVD 두 개가 준비됐어도 전체 Strict는 요청하지 않았으며 호출0/DEFERRED_ENV다. 소유 project/PID만 종료하고 계정·라이선스/기존기기·DB/파일은 보존했다. 후속 환경 준비는 actual Editor 실행까지 별도로 입증해야 하며 이 관측이 전용 runner 등록/활성화를 승인하지 않는다. [배치26 실행 증거](p09-batch26-integrated.md).

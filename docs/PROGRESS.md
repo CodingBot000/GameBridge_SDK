@@ -4,15 +4,15 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (배치26 A/B/C 구현·로컬 확인, D 원격 검증 준비; P09 local 6 PASS/2 PARTIAL, P10-T01 PARTIAL)
-- 현재 Phase / Task: 배치26 D / P09-T07 Hosted-only 검증 준비
+- 전체 상태: IN_PROGRESS (배치26 수행 종료; P09 local 6 PASS/2 PARTIAL, P10-T01 PARTIAL, 현재 Player·Strict 환경 대기)
+- 현재 Phase / Task: 배치26 종료 / P10-T01 영향 Player 회귀 환경 복구 인계
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 계측·새 패키지 dc45a2f1b97e035655b4b6b2a9d5381248b040dc / self9·독립 iOS C ABI d86ccc23ceb14dc6a81d93c2317de0c78f5d708e (shipping code 동일)
+- 마지막 검증된 소스 커밋: 계측·새 패키지 dc45a2f1b97e035655b4b6b2a9d5381248b040dc / self9·독립 iOS C ABI d86ccc23ceb14dc6a81d93c2317de0c78f5d708e (shipping code 동일); Hosted c34b419e3a2c719e5d615362f179b38f59b1a241 SUCCESS
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — CLI license active이나 새 Editor IPC 재연결 실패, Android APK/Player 미실행. raw runner FAIL/exit1 보존. 이번 전체 Strict 실행0/DEFERRED_ENV.
-- 바로 다음 행동: 모든 변경 commit·범위 비밀정보 검사·handoff FF push 후 release_validation=false Hosted-only 1회. Unity/Release SKIPPED 확인. P05 FAIL/18.6 간헐 위험/Provider13 대기 유지.
+- 바로 다음 행동: USER_SETUP의 ENV-UNITY-LICENSE-IPC를 실제 Editor 실행으로 복구한 후 현재 SDK staging과 소유 기기에서 영향 Android JNI/Unity Player를 검증한다. 이번 full Strict 실행0/DEFERRED_ENV, 원격 Unity/Release SKIPPED 및 P05 FAIL/18.6 간헐 위험/Provider13 대기 유지.
 - 재개 행동: AGENTS.md·START_HERE.md와 [배치26](evidence/p09-batch26-integrated.md), [Core 비교](evidence/p10-core-bridge-batch26.md)에서 미실행 Player 및 전용 runner 조건을 확인한다. old staging/과거 Player를 현재 실행으로 재사용하지 않는다.
 
 ## 집계
@@ -85,10 +85,10 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P09-T01 | 후반 하네스 manifest·공통 contract test | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T01 | - |
 | P09-T02 | Core·Bridge 회귀·실패 주입 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-batch26-assertions.json, WORK_LOG P09-T02 | 측정 밖 assertion은 UNMEASURED; 현재 JNI Player 대기 |
 | P09-T03 | 인증·세션·개발모드 차단 회귀 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T03 | - |
-| P09-T04 | 구매·DB 동시성·복구 회귀 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T04 | DEP-P09-SK18 |
+| P09-T04 | 구매·DB 동시성·복구 회귀 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch26-integrated.md, WORK_LOG P09-T04 | DEP-P09-SK18 |
 | P09-T05 | Push·Lifecycle·패키징 회귀 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T05 | - |
 | P09-T06 | 검증 집계·진행 원장 강제 검사 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T06 | - |
-| P09-T07 | CI 설정·플랫폼 lane 분리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T07 | ENV-P09-RUNNER |
+| P09-T07 | CI 설정·플랫폼 lane 분리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-ci-modes.md, WORK_LOG P09-T07 | ENV-P09-RUNNER |
 | P09-T08 | Fail-closed 하네스 자체 시험 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08 | - |
 | P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-core-bridge-batch26.md, WORK_LOG P10-T01 | ENV-UNITY-LICENSE-IPC |
 | P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T02 | - |
@@ -1600,3 +1600,16 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치26 D 검증/커밋 직전: 원장64행·manifest50·Unity metadata·Core79파일 source/API/wire·actionlint·diff 검사 exit0, CI gate7+workflow mode2 PASS. repo CodingBot000/GameBridge_SDK public 재확인, Actions variables0/runners0(등록/변경 없음). 코드·계측·현재 실행 증거를 명시 파일로만 stage하고 staged 및 기준6d200b0 이후 전체 range의 비밀정보/금지 생성물/PII를 검사한 뒤 handoff FF push한다. false Hosted dispatch는 아직0회다.
 
 - 배치26 D push 점검/커밋 전: 전체8개 기존 commit와 staged 범위를 gitleaks v8.24.2 redact=100으로 검사해 exit0/탐지0. 변경39개 text path에 금지 key·서명·Unity license·원본log·cache·APK/Xcode 산출물·binary 없음. 별도 PII 패턴의3개 후보는 기준source에 이미 있던 synthetic-person@example.invalid 고정 시험 fixture임을 line별 대조했다. 실제 개인정보/실키가 아니며 제품코드 유일 변경은 RequestRegistry.cs다. 원격 handoff는 local의 조상(0 behind/8 ahead),변수0/runner0. 이 기록 및 검증 증거만 명시 stage·scan·commit 후 FF push하고 false Hosted1회를 요청한다.
+
+- 배치26 D FF push 검증/원격 Task 시작: local/remote handoff HEAD c34b419e3a2c719e5d615362f179b38f59b1a241 일치,6d200b0→c34b419 FF 성공. 보존된 미추적3경로 외 tracked clean. repo변수0 재확인. 모든 제품/계측/하네스 소스 commit 후 release_validation=false Hosted-only dispatch1회를 요청한다. Unity self-hosted/Release SKIPPED가 최종 확인되기 전 원격PASS로 기록하지 않는다.
+
+- 배치26 D Hosted-only dispatch1회 수락: run43934095574,source c34b419e3a2c719e5d615362f179b38f59b1a241,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43934095574 . 현재 in_progress이며 최종 job 결과 대기. 재실행·Release 활성화는 하지 않는다.
+
+- 배치26 D 원격 중간 검증: run43934095574 source c34b419,inventory SUCCESS/Unity SKIPPED,나머지 job 진행 중. 완료 job 로그 조회는 workflow 미완료 상태에서 exit1/빈 반환이라 test0건 또는 계측PASS로 단정하지 않았다. 현재 소유 테스트 Editor/AVD PID6개 모두 종료 및 독립 C ABI 기기 Shutdown을 read-only로 확인했다. full 요청/로그 부재도 재확인(호출0), raw runtime FAIL과 환경 대기 기록을 유지한다.
+
+- 배치26 D 원격 검증: 공식 completed-job API 로그에서 inventory42파일/143 Python건·FAILED요약0·Core source/API/wire gatePASS 확인. Backend jobSUCCESS,Android Maven/R8까지SUCCESS,Swift synthetic Simulator host는아직진행중이다. 앞선 commentary의Android완료선기록은 즉시진행중으로정정한뒤최종SUCCESS를확인했으며 최종보고는공식job상태만사용한다. run43934095574 단일실행/UnitySKIPPED이며basic/Release최종상태는대기다.
+
+
+- [P09-T07] 배치26 D 최종 원격 검증/커밋 전: run43934095574/sourcec34b419,단1회false입력의전체SUCCESS. Hosted4+basic SUCCESS,Unity/Release SKIPPED를공식job상태로확인했다. inventory42파일/143건·Core source gatePASS,Backend TC11/negative1·복원,Swift17/failure0및syntheticSimhost stepSUCCESS. P09T07 PARTIAL(전용runner/remoteUnity/Release미검증),T04 PARTIAL(18.6간헐미확정),T02localPASS·T01첫범위PARTIAL은유지한다. 최종문서에는모든source·rawFAIL/DEFERRED/UNMEASURED·Strict호출0·기존대기를분리하고작업별9commit이력을남긴다. 다음최종문서commit만scan후handoffFFpush/localremote일치및미추적3경로보존을확인한다. 원격재실행은하지않는다.
+
+- 배치26 최종 검증/커밋 직전: 최종8개 staged경로는공개용Markdown문서뿐이며원본log/key/서명/cache/binary/산출물없음,stagedgitleaks exit0/탐지0. 원장64행·manifest50·meta·Core79파일 API/source/wire·구조화R12개JSON·diff exit0. c34b419 이후 shipping/test/harness/workflow 변경0이고원격단일SUCCESS소스와코드동일. main=e4b677e/fix=6d200b0 그대로보존. 이문서commit을handoff에FFpush후실제local/remoteHEAD와미추적3경로상태를최종보고한다.

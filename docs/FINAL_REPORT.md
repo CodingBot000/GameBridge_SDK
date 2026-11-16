@@ -1,5 +1,18 @@
 # GameBridge SDK 개발 보고서
 
+## 최신 인계 — 배치26 (2026-11-17)
+
+**프로젝트 IN_PROGRESS / P10-T01 PARTIAL.** [배치26 통합 결과·R01~R12·작업별 커밋](evidence/p09-batch26-integrated.md), [리팩토링 전후](evidence/p10-core-bridge-batch26.md), [구조화 계측](evidence/p09-batch26-assertions.json)을 현재 기준으로 본다. 이하 기존 보고서는 각 실행 당시의 역사 기록이다.
+
+A 실제 assertion helper 계측·duplicate-only 변이와 정상 복원 완료로 P09-T02 local PASS. Kotlin10tests/50helpers,Swift12/122,managed0tests/check1/418(전후동일),Editor2/32,stress100samples/316helpers를 구분했다. 래퍼 밖/전체 assertion outcome 및 JNI 계수는 UNMEASURED다. B controlled18.6 StoreKit 두 경로 각1회PASS에도 최초 간헐원인미확정이므로 T04 PARTIAL 유지.
+
+C shipping 수정은 RequestRegistry.cs 한파일의 event header 중복3→private1·pending owner removal중복2→private1이다. public/internal API·wire/native source·선정 javap/Cexport 표면 변경없음. 현재source의 새Native/XCFramework/UPM147checksum·Python143·cohort418·Editor·self9 및 독립 iOS Simulator C ABI1PASS를 확인했다. 현재 Android Unity 빌드는 LicensingClient IPC 연결실패로 raw FAIL/exit1,APK/Player NOT_RUN. 이번 전체Strict 호출0/DEFERRED_ENV이며 T01 IN_PROGRESS/PARTIAL을 유지한다. 이전 Player/Strict를 현재실행으로 치환하지 않는다.
+
+D [Hosted run43934095574](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43934095574),sourcec34b419e3a2c719e5d615362f179b38f59b1a241,release_validation=false 단1회 SUCCESS. Hosted4+basic SUCCESS,Unity/Release SKIPPED;unit42파일143건 확인. 전용 runner/실기기/실Provider13/Release는 미검증이며 P05-T03FAIL·ENV26OPEN·T07PARTIAL을 유지한다. 전체64Task는IMPLEMENTED22/IN_PROGRESS42,localPASS20/FAIL1/PARTIAL43이다.
+
+재개는 [USER_SETUP](USER_SETUP.md)의 ENV-UNITY-LICENSE-IPC 실제 Editor 통신 복구→current staging/source와 소유 기기 확인→미실행 영향 Player 회귀 순서다. local/remote최종문서HEAD는Git이력과채팅마지막인계에서확인한다. handoff/p09-resume-20261113에만FFpush하며main/force/Release/runner등록/실자격증명호출은없다. 기존Demo·cache·사용자기기·DB와모든실패원본은보존한다.
+
+
 ## 판정
 
 **BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. Unity Android 및 iOS Simulator LOCAL_MOCK 전체 흐름은 검증했으나 전체 제품, 실제 기기와 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미완료도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.

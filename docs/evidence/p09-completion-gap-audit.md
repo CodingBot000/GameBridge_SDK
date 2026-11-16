@@ -99,3 +99,5 @@ source59b9834의Hosted-only1회SUCCESS. 모든Python38파일/131건이원격검�
 [배치26 통합 증거](p09-batch26-integrated.md)와 [구조화 계측](p09-batch26-assertions.json)이 배치25의 T02 미측정 gap을 보강했다. 실제 helper 수/예상 오류 검사/testcase/정적 매핑·공유 scope를 분리하고 정확 duplicate-only mutation·원본 복원도 확인해 T02 local IMPLEMENTED/PASS로 전환한다. 전체 assertion outcomes/일부 JNI scope는 UNMEASURED이며 모든 플랫폼 current Player PASS라는 의미가 아니다.
 
 T04는 StoreKit18.6 controlled 경로 각1회 PASS에도 최초 간헐 원인 미확정으로 PARTIAL, T07은 전용 self-hosted/Release 미검증으로 PARTIAL 유지. T01/T03/T05/T06/T08 기존 localPASS 근거는 유지한다. P10-T01은 두 private Core 개선·새 패키지/API·선정 ABI·계측/Editor/자체시험·독립 C ABI를 검증했으나 새 Android Unity 빌드가 LicensingClient IPC 차단(raw FAIL/exit1, Player NOT_RUN)으로 멈춰 IN_PROGRESS/PARTIAL. 이번 전체 Strict는 실행0/DEFERRED_ENV이고 배치25 Strict/Player 결과는 역사 증거로 보존한다. P05 FAIL/ENV26OPEN/Provider13WAIT·실기기/원격 Unity 미검증 유지.
+
+배치26 최종Hosted sourcec34b419의 [단일run43934095574](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43934095574)은SUCCESS,Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED였다. 원격unit42파일/143건확인. 이는현재Player 미실행/Strict0회 및18.6원인미확정을해결하지않으며위후속상태를유지한다.

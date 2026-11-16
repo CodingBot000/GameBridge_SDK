@@ -47,6 +47,12 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_execution_evidence.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_runtime_diagnostics.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_device_command_guard.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_emulator_binding.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_testcontainers_contract.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_storekit_standalone_classification.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_consumer_e2e.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_consumer_result.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_ios_push_cache.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_manifest_execution_guard.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ledger_mutation_report.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_self_check_report.py' -v
@@ -115,6 +121,11 @@ jobs:
         run: |
           backend/gradlew -p backend test --rerun-tasks --tests com.gamebridge.auth.IdentityVerifierTest --tests com.gamebridge.purchase.LedgerInvariantDatabaseTest --tests com.gamebridge.purchase.GoogleGrantDatabaseTest --tests com.gamebridge.purchase.AppleGrantDatabaseTest --tests com.gamebridge.purchase.FinalizationDatabaseTest --tests com.gamebridge.purchase.PurchaseBindingsDatabaseTest
           python3 harness/check-junit.py backend/build/test-results/test/TEST-com.gamebridge.auth.IdentityVerifierTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.LedgerInvariantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.GoogleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.AppleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.FinalizationDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.PurchaseBindingsDatabaseTest.xml
+
+      - name: Owned Testcontainers purchase invariants and mutation
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+        run: PYTHONDONTWRITEBYTECODE=1 python3 harness/run-purchase-testcontainers.py --run-local
 
   android-native:
     runs-on: ubuntu-24.04

@@ -71,22 +71,23 @@ def main():
         if not wait_health(f'http://127.0.0.1:{sandbox_port}',sandbox_server): print('Sandbox fixture server unavailable; evidence:',output.relative_to(ROOT)); return 1
         sandbox_server.terminate(); sandbox_server.wait(timeout=10)
         editor,managed=editor_paths(os.environ)
-        env=shared.copy(); env.update(GAMEBRIDGE_RUN_DB_TESTS='true',GAMEBRIDGE_RUN_AUTH_DB_TESTS='true',GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST='true',
+        env=shared.copy(); env.update(GAMEBRIDGE_RUN_DB_TESTS='true',GAMEBRIDGE_RUN_TESTCONTAINERS='true',GAMEBRIDGE_RUN_AUTH_DB_TESTS='true',GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST='true',
             GAMEBRIDGE_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_LOCAL_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{local}',
             GAMEBRIDGE_SANDBOX_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_TEST_DB_USER=role,GAMEBRIDGE_TEST_DB_PASSWORD=password,
             GAMEBRIDGE_RUN_MOCK_PUSH_HARNESS='true',GAMEBRIDGE_RUN_XCODE_STOREKIT_HARNESS='true',GAMEBRIDGE_UPM_STAGING=str(staging),
             GAMEBRIDGE_MAVEN_REPO=os.environ.get('GAMEBRIDGE_MAVEN_REPO', str(staging/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo')),
             GAMEBRIDGE_IOS_XCFRAMEWORK=os.environ.get('GAMEBRIDGE_IOS_XCFRAMEWORK', str(staging/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework')),
             UNITY_EDITOR_PATH=str(editor),NEWTONSOFT_DLL=str(managed),GAMEBRIDGE_NEWTONSOFT_DLL=str(managed))
-        generated=subprocess.run(['bash','scripts/generate-ios-project.sh'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        (output/'ios-project.log').write_text(generated.stderr)
-        sim=subprocess.run(['xcrun','simctl','create','GameBridge-Push-Strict-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],
-                           cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        if generated.returncode == 0 and sim.returncode == 0:
-            env['GAMEBRIDGE_IOS_PROJECT']=generated.stdout.strip()
-            env['GAMEBRIDGE_IOS_SIMULATOR_ID']=sim.stdout.strip()
-            print('Retained synthetic host test simulator:',sim.stdout.strip(),flush=True)
-        else: print('iOS synthetic host lane unavailable; it remains deferred.',flush=True)
+        if '--self-check' not in sys.argv:
+            generated=subprocess.run(['bash','scripts/generate-ios-project.sh'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            (output/'ios-project.log').write_text(generated.stderr)
+            sim=subprocess.run(['xcrun','simctl','create','GameBridge-Push-Strict-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],
+                               cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            if generated.returncode == 0 and sim.returncode == 0:
+                env['GAMEBRIDGE_IOS_PROJECT']=generated.stdout.strip()
+                env['GAMEBRIDGE_IOS_SIMULATOR_ID']=sim.stdout.strip()
+                print('Retained synthetic host test simulator:',sim.stdout.strip(),flush=True)
+            else: print('iOS synthetic host lane unavailable; it remains deferred.',flush=True)
         print('Running strict local aggregation; Unity Editor:', 'enabled' if env.get('GAMEBRIDGE_RUN_UNITY_EDITOR') == 'true' else 'not opted in', '; external services remain separate.', flush=True)
         try:
             command=['python3','harness/run-self-check.py'] if '--self-check' in sys.argv else ['bash','scripts/verify-all.sh','--strict-local']

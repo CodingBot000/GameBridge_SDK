@@ -1519,3 +1519,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치25 B 3차: Testcontainers local7건은 실제모두PASS/Gradle0, 전체Flyway bootstrap도성공했다. wrapper는 cleanup확인실패로전체FAIL1을 반환했다. 실제 Docker inspect1 stderr가 소문자 no such object였고 새container삭제는확인됐다. 알려진not-found만대소문자정규화로판정하고 permission/daemon오류는거부하는단위검사후전체4case검증한다. 원본FAIL보고서는수정하지않는다.
 
 - 배치25 B 검증/커밋 전: Testcontainers2.0.5/PG17.6 신규loopback container4개에서 기존fixture11건 실행(정상10+의도된원장변이failure1), case Gradle exit0/1/0/0, wrapper exit0. 네container 실제시작·label·loopback owner·stop/삭제확인. 변이는기존named invariant assertion과일치하고정상복원1건도검사했다. bootstrap/cleanup파서초기실패원본보존. 새계약단위5건PASS, JDBC42.7.11/Flyway11.7.2는프로젝트기존해결버전고정. 기존devDB·assertion·timeout변경없음. source9c94234+구현중harness로실행했으며C에서commit된현재소스로다시검증한다. StoreKit18.6 간헐위험원인미확정유지.
+
+- 배치25 C 시작: 기존CI미연결4파일6건과새binding/TC계약단위를Hosted에연결하고측정/오류/집계회귀·새격리self9를검증한다. TC11건은예상실패1과검사4를보존해별도Strict lane에연결한다. A currentAndroid PushPASS 확보, C용새PII/Push전용AVD와실제PIDport소유를준비한경우에만commit후ci-unity-e2e.sh 전체Strict최대1회실행한다.
+
+- 배치25 C 검증/실행준비 커밋 전: 전체 Python131건PASS/skip0(38파일),기존미연결4파일6건은순수fixture/XML/파일복사검사로Linux Hosted적합하여모두연결. 신규binding/TC단위도연결하고backend Hosted에실제TC4case경로추가. actionlint/progress/manifest/diff exit0. TC는별도required Strict lane(tests11/expectedFailures1/outerchecks1/childChecks4)으로분리한다. self-only는사용하지않는iOSproject/Simulator생성을생략한다. currentcommit에서새전용DB self9 및TC 경로부터확인후C전체AVD준비조건을판단한다.

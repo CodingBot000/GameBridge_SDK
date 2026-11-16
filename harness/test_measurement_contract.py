@@ -72,6 +72,13 @@ class MeasurementTests(unittest.TestCase):
         lane=self.lane('aggregation-self','OK',0,'OK')
         self.assertEqual(summarize([lane])['exitCode'],1)
 
+    def test_testcontainers_tests_and_expected_mutation_are_separate(self):
+        lane=self.lane('purchase-testcontainers','Testcontainers purchase PASS: 11 executed tests; 1 expected mutation failure',0,'Testcontainers purchase PASS:')
+        self.assertEqual((lane['tests'],lane['checks'],lane['childChecks'],lane['expectedFailures'],lane['failures'],lane['errors']),(11,1,4,1,0,0))
+        self.assertEqual(summarize([lane])['exitCode'],0)
+        bad=self.lane('purchase-testcontainers','Testcontainers purchase PASS: 0 executed tests; 1 expected mutation failure',0,'Testcontainers purchase PASS:')
+        self.assertEqual(summarize([bad])['exitCode'],1)
+
     def test_json_and_markdown_preserve_units(self):
         spec=importlib.util.spec_from_file_location('verify_all',ROOT/'harness/verify-all.py')
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)

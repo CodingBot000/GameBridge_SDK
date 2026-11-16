@@ -137,6 +137,11 @@ def main() -> int:
     simple('ios-xcframework-negative',['python3','harness/check-ios-xcframework-negative.py'],'iOS XCFramework negatives PASS:')
     nested('auth',['python3','harness/run-auth-regression.py'],{'backend-jwt-fake','backend-sandbox-test-key-db','android-native-fake','swift-native-fake'})
     nested('purchase',['python3','harness/run-purchase-regression.py'],{'local-postgres-fixtures','sandbox-http-fixtures','android-native-fake','swift-native-fake','android-local-response-loss','swift-local-response-loss','xcode-storekit-local-db-recovery','xcode-storekit-process-recovery'})
+    if env.get('GAMEBRIDGE_RUN_TESTCONTAINERS')=='true':
+        simple('purchase-testcontainers',['python3','harness/run-purchase-testcontainers.py','--run-local'],'Testcontainers purchase PASS:')
+    else:
+        lanes.append({'name':'purchase-testcontainers','status':'DEFERRED_ENV','required':True,'tests':0,'skipped':0,'exitCode':2,
+                      'command':['python3','harness/run-purchase-testcontainers.py','--run-local'],'evidence':'docs/PROGRESS.md','reason':'owned Testcontainers DB suite not opted in'})
     ledger_env = env.copy()
     if env.get('GAMEBRIDGE_LOCAL_TEST_DB_URL'): ledger_env['GAMEBRIDGE_TEST_DB_URL'] = env['GAMEBRIDGE_LOCAL_TEST_DB_URL']
     simple('ledger-mutation',['python3','harness/check-ledger-mutation.py'],'Ledger mutation detected',ledger_env)
@@ -167,7 +172,7 @@ def main() -> int:
     required_names = {
         *(f'harness-self/{x}' for x in self_names), 'progress', 'manifest', 'api-baseline', 'api-baseline-negative', 'csharp-compat',
         'aggregation-self', 'progress-negative', 'manifest-negative', 'contract-negative', 'bridge-mutation',
-        'lifecycle-stress', 'r50-negative', 'purchase-verifier', 'session-replay', 'push-router-scenarios', 'push-ownership', 'android-dependency-negative', 'ios-xcframework-negative', 'ledger-mutation', 'scenario-coverage', 'unity-editor-runtime', 'unity-pii-e2e',
+        'lifecycle-stress', 'r50-negative', 'purchase-verifier', 'session-replay', 'push-router-scenarios', 'push-ownership', 'android-dependency-negative', 'ios-xcframework-negative', 'ledger-mutation', 'scenario-coverage', 'purchase-testcontainers', 'unity-editor-runtime', 'unity-pii-e2e',
         *(f'contracts/{name}' for name in ('kotlin','swift','csharp')),
         *(f'auth/{name}' for name in ('backend-jwt-fake','backend-sandbox-test-key-db','android-native-fake','swift-native-fake')),
         *(f'purchase/{name}' for name in ('local-postgres-fixtures','sandbox-http-fixtures','android-native-fake','swift-native-fake',

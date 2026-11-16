@@ -57,9 +57,17 @@ A는 실제 current-source Player1 PASS로 완료. ENV-P09-AVD local RESOLVED. �
 |---|---:|---:|---:|---:|---:|---|
 | local5개class | 7 | 0 | 0 | 0 | 0 | PASS |
 | named ledger mutation | 1 | 1(예상) | 0 | 0 | 1 | 감지PASS |
-| normal ledger restoration | 1 | 0 | 0 | 0 | 0 | 0 | PASS |
+| normal ledger restoration | 1 | 0 | 0 | 0 | 0 | PASS |
 | sandbox synthetic HTTP2개class | 2 | 0 | 0 | 0 | 0 | PASS |
 
 총11 실제test실행(정상10+예상failure1),검사4개,wrapper exit0. 네container모두정리확인. source9c94234+아직미커밋인새harness의초기실행이며commit-source 검증은C에서구분해추가한다.
 
 초기실패도보존: nullable label map compile거부/0 tests(ctkyzc8e),public migration미비로Finalization2실패(q94dolww),실제7testPASS이나Docker소문자not-found 파싱실패로wrapperFAIL(4xqzc9zk). assertion이나격리를완화하지않고migration·파서만보강했다. 관련독립단위5건PASS.
+
+### C 하네스/Hosted 범위 보강
+
+이전미연결4파일6건은StoreKit상태분류fixture,consumer결과JSON/XML,정확한package version임시복사검사로외부도구없이실행된다. 전부inventory에연결했고새binding/TC단위도연결해 **38파일** 전체가일치한다. 전체Python **131건 PASS/skip0/exit0**. backend Hosted는기존서비스DB시험과별도로새Testcontainers경로를실행한다. false입력·Unity비활성조건은유지했다.
+
+Strict는TC를별도required lane으로기록한다. tests11/expectedFailures1,outer검사1과내부검사4를분리하고원본JUnit failure1/Gradle1은유지한다. TC opt-in/환경이없으면DEFERRED_ENV이며기존PostgreSQL결과로대체하지않는다. static mapping50은실제test합계에포함하지않는다.
+
+self-only 실행은필요없는iOSproject/Simulator를생성하지않는다. Native/Editor/StoreKit/전체Strict 성공을뜻하지않으며기존9개필수자체시험은유지한다. 실행source확정후실제결과를이어기록한다.

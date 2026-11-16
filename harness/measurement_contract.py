@@ -53,6 +53,13 @@ def measured_lane(name, command, code, text, log, marker, execution=None):
         pattern=r'Unity consumer tests PASS: (\d+) executed' if name=='unity-editor-runtime' else r'Purchase verifier PASS: (\d+) synthetic tests'
         match=re.search(pattern,text);lane['tests']=int(match.group(1)) if match else 0
         passed=lane['tests']>0
+    elif name=='purchase-testcontainers':
+        lane.update(measurement='tests',errors=0,errorModel='separate')
+        match=re.search(r'Testcontainers purchase PASS: (\d+) executed tests; (\d+) expected mutation failure',text)
+        lane['tests']=int(match.group(1)) if match else 0
+        lane['expectedFailures']=int(match.group(2)) if match else 0
+        lane['childChecks']=4
+        passed=lane['tests']==11 and lane['expectedFailures']==1
     elif name=='lifecycle-stress':
         lane['measurement']='samples';match=re.search(r'"samples"\s*:\s*(\d+)',text)
         lane['samples']=int(match.group(1)) if match else 0

@@ -52,3 +52,5 @@ PASS는 모든 카운트의 정확한 int 타입(문자열·boolean·음수 거�
 ## 배치24 통합·후속 방어
 
 [통합 결과](p09-batch24-integrated.md)에 현재 source의 자체시험·실제 Player·Strict와 새 실패를 구분했다. 추가 음성 3건으로 미정 errorModel 수락, 호출 후 command 리스트 변조 수락, timeout 부분 stdout 폐기를 재현하고 수정했다. registry의 command는 deep snapshot으로 고정한다. Markdown은 누락 단위를 MISSING으로 표시하고 failures/exit/measurement도 출력한다. timeout의 부분 PASS 문자열은 성공으로 승격하지 않는다. 새 단위를 포함한 전체 Python 117건 PASS/skip 0; 실제 timeout 재확인 1건 PASS. Strict 원본은 수정하지 않으며 이후에는 영향 검증만 수행한다.
+
+최신 source 5eaf31f에서 전체 Python 119건과 실제 자체시험 9 lane(tests47/checks9), 독립 iOS Push Player 1건을 확인했다. 원래 Strict의 tests213/checks52(매핑 alias 포함)/samples100/players2 및 새 실패·후속 결과는 [배치24](p09-batch24-integrated.md)에 source별로 구분했다. Android Push 재검증은 환경 대기이며 과거 PASS를 사용하지 않는다.

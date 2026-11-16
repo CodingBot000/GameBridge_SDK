@@ -85,7 +85,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P09-T02 | Core·Bridge 회귀·실패 주입 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T02 | ENV-002 |
 | P09-T03 | 인증·세션·개발모드 차단 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T03 | - |
 | P09-T04 | 구매·DB 동시성·복구 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T04 | - |
-| P09-T05 | Push·Lifecycle·패키징 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T05 | ENV-002 |
+| P09-T05 | Push·Lifecycle·패키징 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T05 | ENV-002, ENV-P09-AVD |
 | P09-T06 | 검증 집계·진행 원장 강제 검사 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T06 | - |
 | P09-T07 | CI 설정·플랫폼 lane 분리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T07 | ENV-002 |
 | P09-T08 | Fail-closed 하네스 자체 시험 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T08 | - |
@@ -1481,3 +1481,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치24 C Push 재개 환경 차단: 예정 serial5570 조회가 Pomodoro_QA_33을 반환해 보조 실행이 Wrong dedicated AVD/exit 1로 즉시 중단됐다. UI/설치/네트워크 명령은 수행하지 않았다. GameBridge retry AVD는 현재 online 목록에 없어 원인 미확정으로 기록한다. serial 소유를 가정하지 않고 각 기기 명령 직전 identity 재확인과 cleanup 보호를 보강한 뒤 비어 있는 전용 포트에서 실행한다.
 
 - 배치24 기기 소유 보호 검증/커밋 전: 전체 Python 119건 PASS/skip 0. serial 재배정·비전용 이름·serial 없는 명령을 검사해 기기 조작 전 차단한다. network cleanup도 다른 AVD에는 보내지 않으며 기존 FAIL을 DEFERRED로 덮지 않는다. retry AVD PID는 살아 있었으나 예상 ADB serial과 연결되지 않았고 같은 serial은 타 AVD를 반환했다. 원인은 미확정; 검증한 자기 PID만 종료·디스크 보존. Android Push 재검증은 ENV-P09-AVD/DEFERRED_ENV로 남기고 독립 iOS Push를 실행한다. 다른 기기·ADB server를 종료/재설정하지 않는다.
+
+- 배치24 C 완료(부분)/D 시작: source 5eaf31f59f0d187a24bffb5007543744359ca076에서 전체 Python 119 PASS/skip 0, self-check 9/9 PASS/exit 0(whqw6w9q, tests47/예상실패3/checks9), 독립 iOS Unity Push PASS/exit 0(5wsdfn1e, tracked-clean/rejectedReconnect6/deviceTokens0). Android Push 재검증 ENV-P09-AVD 대기, 원래 Strict 52PASS/4FAIL/1대기/exit1 및 P05 FAIL 보존. D는 Hosted unit 연결/false·Unity비활성 조건을 유지하고 관련 commit scan→handoff FF push→Hosted-only dispatch 1회→최종 감사 기록을 수행한다.
+
+- 배치24 C/D 준비 커밋 전: source별 실제 결과와 T01/T03/T06/T08 local 변경 근거를 감사에 기록했다. 원장 일괄 PASS 변경 없음. 다음은 code 변경 없이 scan/FF push/Hosted-only 1회다.

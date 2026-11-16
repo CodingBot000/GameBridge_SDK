@@ -1,5 +1,25 @@
 # P09 완료 조건·미검증 항목 감사 — 2026-11-16
 
+## 최신 배치24 재평가 — 2026-11-16
+
+최신 코드 source 5eaf31f59f0d187a24bffb5007543744359ca076, [실행별 통합 evidence](p09-batch24-integrated.md). Python 119건·실제 자체시험 9 lane·독립 iOS Push PASS. Strict source 0b6fb72 원본은 57 lane/52 PASS/4 FAIL/1 환경 대기/exit 1이며, 그 이후 영향 재검증을 전체 Strict 성공으로 취급하지 않는다. 아래 최초 감사와 후속 기록은 당시 이력이다.
+
+| Task | 최신 local 근거와 완료 조건 | 재평가/변경 근거 | 잔여 조건 |
+|---|---|---|---|
+| P09-T01 | 50 required ID/entry 검사, 현재 Kotlin10·Swift12 및 C# checker, fixture 변조 실패/정상 복원 | IMPLEMENTED/PASS(local)로 바꿀 근거 있음. mapping50은 실제 test50이 아님 | 전체 플랫폼/real 서비스 검증으로 확장 금지 |
+| P09-T02 | 계약·guard mutation, 실제 stress100 samples, Editor2 | PARTIAL 유지 | assertion 총수와 전체 R01~R12 current-source 조합 미수집 |
+| P09-T03 | auth 실제48, sandbox 지정 fake-token 401 실제1, PII Android/iOS 2 Player | IMPLEMENTED/PASS(synthetic local)로 바꿀 근거 있음 | 실제 Google/Apple은 별도 프로젝트 Task WAITING_USER |
+| P09-T04 | DB/Native/응답 유실49 PASS, 원장 mutation, StoreKit 영향 retry 둘 PASS | PARTIAL 유지 | 최초18.6 timeout 간헐 원인 미확정, Testcontainers 계획 차이, P05 26.5 FAIL 및 실제 스토어 대기 |
+| P09-T05 | Native/Host/packaging PASS, 현재 PII 두 Player 및 독립 iOS Push PASS | PARTIAL 유지 | Android Push 원본 READY timeout·재검증 ENV-P09-AVD. OS 안내 보조와 실제 remote Push/기기 미검증 |
+| P09-T06 | 단위119 중 집계14/errors10/measurement10/nested4/execution13/runtime1/device2/self-report2. 프로세스0/1/2, 실제 Strict 실패·대기 보존 | IMPLEMENTED/PASS(local 집계 계약)로 바꿀 근거 있음 | 전체 Strict green 및 Release 가능을 의미하지 않음 |
+| P09-T07 | 새 하네스 단위 Hosted 연결, false 입력·Unity비활성 유지, actionlint PASS | PARTIAL 유지. 이번 Hosted 결과는 D 후 추가 | 전용 self-hosted 격리·Unity/Release 원격 미검증 |
+| P09-T08 | 최신 source self-check9/9 PASS,47 실제 tests 중 예상 failure3, 정상 복원·독립401 확인 | IMPLEMENTED/PASS(local 자체시험)로 바꿀 근거 있음 | 실제 Provider/원격 Unity를 대체하지 않음 |
+
+원장의 8개 Task 상태는 일괄 변경하지 않고 IN_PROGRESS/PARTIAL을 유지했다. 위 네 Task의 local 상태 변경 **근거를 제시**하며 전체 P09 완료를 선언하지 않는다. P05-T03 FAIL, ENV-STOREKIT-26 OPEN, Provider WAITING_USER13, self-hosted 미검증, Android Push 재검증 대기를 유지한다.
+
+## 최초 감사 기록 보존
+
+
 감사 기준은 로컬 및 handoff 원격 HEAD `129b1bb8f98a74e109178d0c13214d03876855a3`다. 이번에는 계획·소스·보존 JSON·문서와 Git diff를 읽고 정적 원장/manifest 검사만 수행했다. 전체 Strict, Unity Player, DB mutation, GitHub Actions를 재실행하지 않았다. 아래 상태는 감사 판단이며 기존 Task 원장의 IN_PROGRESS/PARTIAL을 수정하지 않았다.
 
 ## Task별 완료 조건 대조

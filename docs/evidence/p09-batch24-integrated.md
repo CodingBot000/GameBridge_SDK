@@ -1,5 +1,10 @@
 # P09 하네스 통합 보강 배치24 — 2026-11-16
 
+## 최신 상태 — C 종료, D 준비
+
+A/B 구현·방어 보강 완료. C는 전체 Strict 원본 FAIL을 보존한 **PARTIAL**이다. Android Push 재검증은 ENV-P09-AVD 대기다. 최신 코드 source **5eaf31f59f0d187a24bffb5007543744359ca076**: Python 119 PASS/skip 0, P09-T08 9/9 PASS, 독립 iOS Push Player PASS. 아래 NOT_RUN·중간 실패 기록은 당시 이력이며 후속 검증으로 덮어쓰지 않는다. D Hosted 실행 결과는 다음에 추가한다.
+
+
 ## 범위·소스
 
 기준 8eec64a1b95af8930d69680e4534a533bf04cb51. A `2af4d7a`는 nested 단위 보존, B `94dad65af2e45bdc67468ec0579fd9df4e5dd073`는 부모 호출과 실행 증거 연결·fail-closed 보강이다. 로컬 브랜치 fix/unity-android-mock-e2e-evidence에서 관련 커밋만 원격 handoff/p09-resume-20261113으로 전진시킨다.
@@ -81,3 +86,11 @@ source **0b6fb7250e6f9edb2c93ba477ac06a5060b1769a**, tracked-clean. `ci-unity-e2
 새 AVD helper는 예상 serial5570에서 다른 AVD 이름을 받아 `Wrong dedicated AVD`/exit 1로 gate 실행 전에 중단했다. UI·설치·네트워크 명령은 보내지 않았다. retry AVD의 자기 PID는 살아 있었지만 해당 serial/online AVD와 연결되지 않았고 원인은 확정하지 못했다. 검증한 자기 PID만 종료했고 디스크를 보존했다. 다른 기기·ADB server를 재시작/초기화하지 않는다.
 
 **ENV-P09-AVD OPEN / Android Push 영향 재검증 DEFERRED_ENV**. 기존 실제 READY timeout FAIL을 지우지 않는다. 원격/과거 Android Player 근거를 현재 PASS로 재사용하지 않는다. 기기 명령마다 serial·전용 이름을 다시 확인하고 cleanup이 기존 실패를 환경 대기로 덮지 않도록 보강했다. serial 재배정·범위 없는 명령 거부 단위 포함 전체 Python 119건 PASS. iOS Push는 독립 실행한다.
+
+### C 마지막 현재 source 검증
+
+- source 5eaf31f59f0d187a24bffb5007543744359ca076, 코드 커밋 후 Python **119건 PASS/skip 0/exit 0**, progress/manifest/Unity metadata/API baseline/actionlint/diff exit 0.
+- self-check `harness-self-whqw6w9q`, orchestration `strict-isolated-35ibhosh`: **9/9 PASS/exit 0**, tests 47(정상 44+예상 mutation failure 3), checks 9/samples 0/players 0. sandbox 지정 401 case 1건과 정상 복원을 포함한다.
+- 독립 iOS Unity Push `unity-ios-push-5wsdfn1e`: **Player 1 PASS/exit 0**, source 일치·tracked-clean, mockPush/deduplication/mainThread/background/reconnectFailure/sessionSwitch PASS, rejectedReconnectAttempts 6, deviceTokens 0. networkRecovery는 **PASS_LOCAL_TRANSPORT_FAULT**로 실제 OS 네트워크 전환과 구분한다. FCM/APNs 실제 전송이 아니다.
+
+Strict source 0b6fb72와 최신 source 사이의 변경은 오류 모델/관측 snapshot/timeout 진단/Markdown/기기 명령 소유 재확인·test-only stage 로그 및 증거 문서다. 실제 SDK 동작·signing·Provider는 변경하지 않았다. 전체 Strict는 한 번만 수행했으며 후속 119 단위·9 lane·Editor·StoreKit·iOS Push는 영향 재검증이다. 원래 Strict 결과를 최신 전체 PASS로 재작성하지 않는다. 상위 tests/checks 합계는 실행별 측정 단위이며 고유 제품 케이스/모든 내부 assertion 총수가 아니다. static 50 mapping은 실제 테스트 합계에 포함하지 않는다.

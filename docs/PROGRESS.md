@@ -1563,3 +1563,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치26 B 시작: 배치24최초18.6실패/24retry/25통합성공을source/configuration/Xcode/boot/health/순서/checkpoint와대조한다. 필요한test-only관측만추가하고SDK구매·지급·finish/recovery는변경하지않는다. 구분가능한controlled가설각1회범위,기존timeout유지·26.5재조사없음. 미재현이면미확정위험으로종료하고C실질리팩토링을계속한다.
 
 - 배치26 B 진단 준비 검증/커밋 전: read-only toolchain Xcode26.6/17F113 확인,0b6fb72·4b23529·e46cb65의GameBridge.storekit SHA동일. 최초failures의버전/boot/부분로그누락한계유지. test-only monotonic API전후trace/XCTest attachment/config SHA/health·boot·test단계관측추가,Python진단단위3 PASS/Swiftparse0. --diagnose는새owned18.6를따로boot관측하고nonparallel·전용DerivedData로각영향경로1회만검증한다. test180/phase75제한및SDK구매·지급·finish/recovery동작은변경하지않는다.
+
+- 배치26 B controlled DB 경로1회: source5bca33f의새owned18.6/nonparallel/별도DerivedData,실제XCTest1PASS/skip0/exit0(artifacts/xcode-storekit-e2e-s3e8c47b). Xcode26.6/17F113,source configurationSHA확인. 첫built-app경로검색은0개로built일치는아직미검증이며아래추가확인으로정정한다. backend-ready8.75s,boot-ready30.92s,teststart32.22s/return67.96s를단조시계로관측했다. 기존180초제한그대로며최초간헐원인은재현되지않아미확정유지. 다음process경로도fresh환경1회만관측한다.
+
+- 배치26 B 제한진단종료/커밋 전: source5bca33f(후속진행문서변경외코드동일) controlled18.6 DB1회XCTest1PASS/exit0,process1회재시작PASS/exit0. 실제built config는.app/PlugIns/시험bundle에있어첫root-app검색0개를정정했고확인SHA4ead4675...로기존과동일. XCTest15단계attachment수집(최초start약5.94s/purchase1.39s/recover1.09s),processTransaction.all prepare3.93s/recover0.92s,unfinished0.18s/0.005s 관측. 최초timeout재현없음·원인미확정위험유지,추가반복종료. 새owned기기process만종료/디스크DB보존. P09T04 PARTIAL/26.5미조사/P05FAIL유지. C반드시계속한다.

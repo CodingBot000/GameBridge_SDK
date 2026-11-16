@@ -43,3 +43,13 @@ shared native testcase의전체N회를R별정확N회로중복배분하지않으�
 새test-only관측: ProcessInfo.systemUptime API전후checkpoint,JSON timeline/XCTest attachment,configuration SHA,Xcode version,새owned Simulator의상태와Backend health/test구간경과시간. payload/자격값은수집하지않는다. Python진단3단위PASS,Swiftparse0.
 
 구분가능한조건은boot비용·test실행구간의분리관측이다. --diagnose는새18.6기기를명시boot관측한뒤동일180초XCTest제한으로nonparallel·새DerivedData에서DB recovery를1회실행한다. process는기존명시boot및75초phase제한에API전후trace만더해1회실행한다. 두조건은진단용이며default SDK구매/finish/recovery순서·assertion을바꾸지않는다. 성공해도최초간헐위험을해소했다고주장하지않는다.
+
+### B 제한 실행/위험 분류 완료
+
+source5bca33f:DB `xcode-storekit-e2e-s3e8c47b` actualXCTest1/skip0/exit0,新owned18.6명시boot/nonparallel/새DerivedData. backend-ready8.75s,boot-ready30.92s,teststart32.22s/return67.96s. source와실제.app/PlugIns/testbundle의configurationSHA4ead467555cf567cdbdfed14c7f2b7790123ee9f91ccda4d7053b001b9def19d일치. 첫app-root검색0개를성공으로단정하지않고경로를정정해확인했다.
+
+공식xcresulttool attachment export로15단계timeline수집:첫store.start약5.94s,purchase1.39s,recovery.start1.09s,final.start0.35s. 실제trace원본은owned result의api-attachments에만보존한다.
+
+process `xcode-process-recovery-8qg9cxnf`은같은code及진행문서변경상태에서fresh18.6/새DB/기존phase75초로1회PASS/exit0. prepare/recover PID변경·잔액100확인. API trace에서Transaction.all prepare3.93s/recover0.92s,unfinished0.18s/0.005s. boot/health/launch단계를따로기록했다.
+
+두controlled경로모두증상이재현되지않았다. 정상동작관측은이전정지의원인증명이아니다. 초기boot/version/부분로그한계·SDK/환경가설미확정위험을유지하고이번B조사를종료한다. timeout증가·동일조건반복·26.5재조사는없다. P09-T04 PARTIAL/P05FAIL/ENV26OPEN유지.

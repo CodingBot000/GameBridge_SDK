@@ -31,3 +31,5 @@ Nested 필드와 오류 모델은 원본과 상위에서 동일해야 한다. `f
 배치24 후속: `errorModel`은 separate/included-in-failures/checker-exit 중 하나여야 한다. 미정 모델은 errors=0이어도 거부한다. negative 재현 후 전체 Python 117건 통과. checker/Swift의 errors UNMEASURED를 독립 errors 0으로 바꾸지 않는다. 실제 Strict/새 runtime failure는 통합 evidence에 별도 보존한다.
 
 최신 source 5eaf31f 실제 self-check 9/9 및 Python 119건 통과. Strict source 0b6fb72의 4 FAIL/1 환경 대기는 그대로 보존한다. errors=UNMEASURED인 checker/Swift 행은 독립 errors=0을 측정했다는 의미가 아니다.
+
+배치25:TC JUnit의독립errors0/skipped0,예상failure1을실제명명된assertion과비교하며다른실패/cleanup오류는PASS로처리하지않는다. currentStrict57PASS/knownP05FAIL1과local/Hosted131단위를확인했다. Swift/xcresult합산모델및checker UNMEASURED를독립errors0으로재해석하지않는다. 자세한source관계는[배치25](p09-batch25-integrated.md)에보존했다.

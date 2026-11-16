@@ -1,8 +1,8 @@
 # P09 잔여 검증·안정화 배치25
 
-## 최신 상태 — D 감사/Hosted 준비
+## 최신 상태 — 배치25 수행 종료
 
-A 실제Android Push PASS, B 간헐위험분류/Testcontainers구현·실검증 완료, C 전체Strict1회는57PASS/기존P05기록FAIL1/신규실패·대기0이다. 전체PASS로재작성하지않는다. D에서T01/T03/T05/T06/T08의local완료조건을개별확인해IMPLEMENTED/PASS로변경했고,T02/T04/T07은PARTIAL을유지했다. 아래NOT_RUN/초기실패는당시기록이다. Hosted는아직이번배치미실행이며결과를추가한다.
+A 실제Android Push PASS, B 간헐위험분류/Testcontainers구현·실검증 완료, C 전체Strict1회는57PASS/기존P05기록FAIL1/신규실패·대기0이다. 전체PASS로재작성하지않는다. D에서T01/T03/T05/T06/T08의local완료조건을개별확인해IMPLEMENTED/PASS로변경했고,T02/T04/T07은PARTIAL을유지했다. 아래NOT_RUN/초기실패는당시기록이다. Hosted-only run43889958441 전체SUCCESS(5jobSUCCESS,Unity/ReleaseSKIPPED). 실제Provider·self-hosted·Release완료를뜻하지않는다.
 
 
 기준 f6915e35f28e06a0d88e053a66883505bc7bc881. local fix/unity-android-mock-e2e-evidence에서 작업하고 handoff/p09-resume-20261113으로 관련 커밋만 FF push한다. A~D 순차 진행, 실제 Provider·main·force·Release·P01/P02/P10 변경 없음.
@@ -125,6 +125,34 @@ source **e46cb6520272334d9816d951274b91bd39133b9b**,tracked-clean. 원본 `verif
 
 현재남은P09내부작업은T02 assertion계측·T04 간헐원인의추가관측이다. Testcontainers도구차이·CI미연결4파일·현재AVD연결대기는이번에해소했다. self-hosted는별도전용격리환경및emulator소유/PID를job마다제공하는준비가필요하며이번에등록/활성화하지않는다. 실제Provider/실기기·Release도별도대기다. P01/P02/P10으로전환하지않았다.
 
+
+## D 원격 Hosted-only 최종 결과
+
+[run43889958441](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441), source **59b98349689171cc8a75d9652f248708645a85c2**, workflow_dispatch, `release_validation=false`, repository변수0/runner등록0확인후한번만요청했다. **workflow SUCCESS**,자동재실행없음.
+
+| Job | 실제 결과 | 범위 |
+|---|---|---|
+| inventory-contracts | SUCCESS | 38 unittest suite/131건 PASS,FAILED요약0. 로컬에서만실행됐던4파일6건도이번원격실행포함 |
+| backend-postgres | SUCCESS | 기존synthetic key/별도PG JUnit13 PASS. 추가owned TC11실제test/검사4/예상원장failure1/복원/cleanup PASS,Gradle0·1·0·0 |
+| android-native | SUCCESS | Native fake/transport/offline 및Maven/R8별도consumer |
+| swift-ios-simulator | SUCCESS | Swift XCTest17/실패0,synthetic iOS Host의>0·실패/skip0검사통과. Host정확건수미출력 |
+| basic-ci | SUCCESS | Hosted4개집계 |
+| unity-e2e | SKIPPED | false입력/비활성조건,remote Unity미검증 |
+| release-readiness | SKIPPED | Release준비검증·생성·배포미실행 |
+
+원격131과로컬131은이제동일38파일범위다. 실제SQL/Native/XCTest/Player계수는별도이며unit131을제품실행131건으로합산하지않는다. 원본job로그는ignored artifacts/batch25에만보존한다. remoteUnity/실Provider를검증한것으로기록하지않는다.
+
+## 최종 인계·잔여
+
+- **A 완료/PASS**: 실제PID·양port소유와AVD이름을재검증하는새전용환경의Android Push PASS. 선행OS bind/경쟁시점은미확정이며serial만으로판단하지않는다.
+- **B 완료(위험분류/구현·검증)**: 최초StoreKit18.6실패는증거한계로원인미확정간헐위험유지. Testcontainers요구차이는기존assertion/격리를유지한별도실행경로로해소.
+- **C 수행완료**: unit131/self9/TC11/currentPlayers4와전체Strict1회. Strict는57PASS/기존P05FAIL1/신규실패·대기0,exit1로유지. 전체PASS로재작성하지않는다.
+- **D 완료(Hosted-only)**: P09별5개localPASS/3개PARTIAL상태반영·원장/음성검사통과·FF push·원격단일실행SUCCESS. 전체P09/SDK/Release완료선언은아니다.
+
+남은내부작업: T02 actual assertion총수계측,T04 간헐정지구간/기기상태·부하관측. 외부환경작업: 전용self-hosted계정·격리및job별ownedAVD/PID제공/실행,실제Google/Apple/FCM/APNs/실기기검증. P05-T03 FAIL/ENV-STOREKIT-26 OPEN/실Provider13 WAITING_USER유지. 기존사용자AVD/Simulator/개발DB/미추적Demo·cache를삭제하지않았다. main·force·Release·ADB server전체재시작·광범위kill은수행하지않았다. 최초read-only ADB조회에서daemon자동시작된관측은A기록에분리했다.
+
+최종보고문서commit은handoff/p09-resume-20261113으로FF push한다. 자기SHA는Git이력/최종보고에서대조하고이문서에순환기록하지않는다. Hosted source이후코드는변경하지않았다. P01/P02/P10으로전환하지않았다.
+
 ## 커밋·실행 source 관계
 
 | Commit | 범위 |
@@ -135,5 +163,7 @@ source **e46cb6520272334d9816d951274b91bd39133b9b**,tracked-clean. 원본 `verif
 | `43d255a39f9efd28e630fad40889cec9d255365d` | test(harness): [P09-T06] connect complete unit inventory and container lane |
 | `e46cb6520272334d9816d951274b91bd39133b9b` | test(harness): [P09-T08] establish current self-check and strict prerequisites |
 | `628a1c221bb41d89622bfd5961810ccd6eecc42e` | test(harness): [P09-T06] record current strict baseline with known StoreKit failure |
+| `2b2b6b738f901900ca9c37e5a2dd91571f9c3cc2` | docs(harness): [P09-T06] apply evidence-backed local task states |
+| `59b98349689171cc8a75d9652f248708645a85c2` | docs(ci): [P09-T07] record batch25 handoff preflight |
 
-A 실제Android Push는b55ffe7, commit된TC/self9 사전실행은43d255a, 전체Strict/현재4Player는e46cb65다. 이후실행증거·상태감사변경은문서다. 최종자기SHA는Git이력/마지막보고에서대조한다.
+A 실제Android Push는b55ffe7,commit된TC/self9 사전검증은43d255a,전체Strict·4Player는e46cb65,Hosted는59b9834에서실행했다. 이후최종문서만변경했다. 최종문서commit SHA는Git이력/채팅마지막인계에서확인한다.

@@ -15,7 +15,7 @@
 | P09-T07 | IMPLEMENTED/PARTIAL | 38파일전체Hosted연결·TC backend/localCI구현. self-hosted/Release미검증 |
 | P09-T08 | IMPLEMENTED/PASS | current전용환경9필수lane·정확negative·정상복원·독립401 |
 
-이번에는단순제안이아니라위5개local PASS를실제원장에반영했고64행에서집계를재계산했다. 다른3개는PARTIAL로남겼다. P05FAIL/ENV26OPEN/외부13대기/실기기·self-hosted미검증은별도유지한다. 아래배치24및최초감사내용은당시기록이며최신판정과구분한다. 이번Hosted 결과는종료후추가한다.
+이번에는단순제안이아니라위5개local PASS를실제원장에반영했고64행에서집계를재계산했다. 다른3개는PARTIAL로남겼다. P05FAIL/ENV26OPEN/외부13대기/실기기·self-hosted미검증은별도유지한다. 아래배치24및최초감사내용은당시기록이며최신판정과구분한다. 이번 [Hosted run43889958441](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441)은전체SUCCESS(Hosted4+basic성공,Unity/ReleaseSKIPPED),unit38파일131건과TC11실행을확인했다.
 
 
 ## 최신 배치24 재평가 — 2026-11-16
@@ -88,3 +88,7 @@ Hosted-only source8c8fc62, [run43862394352](https://github.com/CodingBot000/Game
 ## 배치25 진행
 
 잔여 환경·검증·상태 감사의 후속은 [배치25 evidence](p09-batch25-integrated.md)에 기록한다. 배치24의 실패·미실행·후속 성공은 수정하지 않는다.
+
+## 배치25 원격 검증 후 확정
+
+source59b9834의Hosted-only1회SUCCESS. 모든Python38파일/131건이원격검증됐고Backend TC11(예상negative1포함)도통과했다. P09 local상태는T01/T03/T05/T06/T08 PASS,T02/T04/T07 PARTIAL로확정했다. 이외부CI성공으로P05기존FAIL·18.6간헐위험·self-hosted/Release미검증을숨기지않는다. [최종배치25](p09-batch25-integrated.md).

@@ -29,3 +29,9 @@ GitHub 원격 HEAD 조회 및 repository 변수 조회는 각각 12초 timeout�
 ## 배치24 Hosted-only 재검증 — 2026-11-16
 
 source8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18, [run43862394352](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352). false 입력 단일 dispatch, repo Unity 변수 미설정. Hosted4+basic-ci SUCCESS, Unity/Release SKIPPED, workflow SUCCESS. 원격 하네스 단위113건 통과. self-hosted·remote Player·Release 검증으로 취급하지 않는다. local Strict 실패와 환경 대기는 [배치24 evidence](p09-batch24-integrated.md)에 별도로 유지했다.
+
+## 배치25 Hosted-only 확인
+
+source59b98349689171cc8a75d9652f248708645a85c2,[run43889958441](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441),false입력1회만요청. Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED,workflowSUCCESS. inventory모든38파일/131건과backend TC11(negative1/normal복원)확인. self-hosted등록/활성변수변경/Release실행은없다. actual localStrict57PASS/knownP05FAIL1은[배치25](p09-batch25-integrated.md)에source별분리했다.
+
+Unity self-hosted 경로는 GAMEBRIDGE_PUSH_EMULATOR_PID를job별전용emulator에서유도해제공해야한다. 정적인PID설정만으로소유를주장하지않고이름·console/ADB양port owner를매명령전재검증한다. 이번에는준비hook/전용계정격리의원격실행을검증하지않았으므로T07PARTIAL을유지한다.

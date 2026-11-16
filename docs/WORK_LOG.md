@@ -3737,3 +3737,13 @@
 - 배치25 D 감사 커밋 전: 계획과source별실제증거를대조해5개localPASS·3개PARTIAL을반영했고원장/음성/manifest/diff통과. TCgap/미연결unit/현재AVD대기는해소,간헐원인/actual assert/self-hosted는남김. 원래StrictFAIL및26.5/실Provider대기보존. 다음은범위·비밀정보검사후handoff FF push/false Hosted1회다.
 
 - 배치25 D push 전/커밋 전: CodingBot000/GameBridge_SDK public 확인, handoff 원격 f6915e3이local2b2b6b7의조상으로FF가능. 신규7commit/21text path의gitleaks exit0·탐지0,금지키/서명/원본로그/cache/빌드/binary delta없음. 이기록만추가scan·commit후명시handoff FF push한다. repo변수0/runner0,변경된Hosted를false입력1회실행하고self-hosted/Release는비활성으로유지한다.
+
+- 배치25 D FF push 성공: local/remote handoff HEAD59b98349689171cc8a75d9652f248708645a85c2 일치. repo변수재조회0,code/Hosted연결변경이있어 release_validation=false dispatch1회만지금요청한다. 진행중결과를PASS로기록하지않는다. self-hosted/Release는비활성유지한다.
+
+- 배치25 D dispatch1회수락: run43889958441,source59b98349689171cc8a75d9652f248708645a85c2,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441 . 현재in_progress이며job최종확인전PASS로기록하지않는다. 원격재실행은하지않는다.
+
+- 배치25 D 원격중간검증: source59b9834 run43889958441 inventory38suite/131건PASS/FAILED요약0,Backend(TC포함)·Android jobSUCCESS,UnitySKIPPED. 기존미연결6건도원격실행범위에포함됐다. macOS synthetic host및basic/Release 최종상태는아직대기하며전체SUCCESS로기록하지않는다.
+
+- 배치25 D 최종검증: run43889958441 source59b98349689171cc8a75d9652f248708645a85c2 전체SUCCESS. inventory/Backend/Android/macOS/basic-ci 5SUCCESS,Unity/Release 2SKIPPED. 원격38suite/131unit PASS,backend기존JUnit13+TC11(예상failure1,정확변이/정상복원),Swift17및synthetic Host검사통과. false dispatch1회만수행·재실행없음. 이후최종문서만commit/scan/FF push하고Head일치를확인한다.
+
+- 배치25 최종 커밋 전: 원격7job 최종결과와local5PASS/3PARTIAL·source별actual counts·잔여작업을확정했다. 최종문서만scan/commit/FF push하고HEAD와미추적3개디렉터리보존을대조한다. 추가코드/원격재실행없음.

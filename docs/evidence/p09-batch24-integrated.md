@@ -152,3 +152,5 @@ P09-T01/T03/T06/T08의 local 상태 변경 근거는 [완료 조건 감사](p09-
 ### 배치25 후속현재상태
 
 A current-owned Android Push PASS, current Strict57PASS/knownP05FAIL1/신규실패·대기0. P09-T01/T03/T05/T06/T08의local PASS를실제반영했다. T02 assert계측/T04 간헐위험/T07 self-hosted는PARTIAL로유지한다. source·개별상태·후속Hosted는[배치25](p09-batch25-integrated.md)에기록한다. 기존배치24문제관측은삭제하지않는다.
+
+배치25최종:sourcee46cb65 전체Strict57PASS/기존P05FAIL1,새Android소유/Push실검증및TC요구해소. source59b9834 [Hosted-only43889958441](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441) SUCCESS,Python131/TC11검증. 배치24의실패관측은그대로보존한다. 최신5localPASS/3PARTIAL및잔여항목은[배치25](p09-batch25-integrated.md)를참조한다.

@@ -4,14 +4,14 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: 배치25 D / P09 개별 완료 조건 감사·Hosted 인계
-- 마지막 갱신 시각: 2026-11-16 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: e46cb6520272334d9816d951274b91bd39133b9b (현재 Unity PII·Push 4 Player 및 Strict 57 PASS/기존 P05 FAIL 1; 실제 Provider 미검증)
-- 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
+- 전체 상태: IN_PROGRESS (배치25 수행 종료; P09 local 5 PASS/3 PARTIAL, P05 FAIL 및 외부 대기 유지)
+- 현재 Phase / Task: 배치25 종료 / P09 잔여 검증 인계
+- 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
+- 마지막 검증된 소스 커밋: local e46cb6520272334d9816d951274b91bd39133b9b / Hosted 59b98349689171cc8a75d9652f248708645a85c2 (코드 동일, 이후 문서만 변경)
+- 현재 작업 트리 상태: 코드·실행 증거·상태를 작업별 commit 및 handoff FF push로 인계; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: 배치25 D에서 P09 Task별 상태를 계획 완료 조건과 대조하고 원장 검사·비밀정보 검사 후 handoff FF push 및 Hosted-only 1회 실행한다.
+- 바로 다음 행동: P09-T02 actual assert 계측, P09-T04 18.6 간헐 원인 관측, P09-T07 전용 self-hosted 격리/PID 제공·명시 검증을 별도 후속으로 진행한다. P05 FAIL/외부 대기를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md와 docs/evidence/p09-batch25-integrated.md의 최신 상태부터 확인한다. 배치24 실패는 역사 기록이며 C 원본을 재작성하지 않는다.
 
 ## 집계
@@ -1539,3 +1539,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치25 D 감사 커밋 전: 계획과source별실제증거를대조해5개localPASS·3개PARTIAL을반영했고원장/음성/manifest/diff통과. TCgap/미연결unit/현재AVD대기는해소,간헐원인/actual assert/self-hosted는남김. 원래StrictFAIL및26.5/실Provider대기보존. 다음은범위·비밀정보검사후handoff FF push/false Hosted1회다.
 
 - 배치25 D push 전/커밋 전: CodingBot000/GameBridge_SDK public 확인, handoff 원격 f6915e3이local2b2b6b7의조상으로FF가능. 신규7commit/21text path의gitleaks exit0·탐지0,금지키/서명/원본로그/cache/빌드/binary delta없음. 이기록만추가scan·commit후명시handoff FF push한다. repo변수0/runner0,변경된Hosted를false입력1회실행하고self-hosted/Release는비활성으로유지한다.
+
+- 배치25 D FF push 성공: local/remote handoff HEAD59b98349689171cc8a75d9652f248708645a85c2 일치. repo변수재조회0,code/Hosted연결변경이있어 release_validation=false dispatch1회만지금요청한다. 진행중결과를PASS로기록하지않는다. self-hosted/Release는비활성유지한다.
+
+- 배치25 D dispatch1회수락: run43889958441,source59b98349689171cc8a75d9652f248708645a85c2,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441 . 현재in_progress이며job최종확인전PASS로기록하지않는다. 원격재실행은하지않는다.
+
+- 배치25 D 원격중간검증: source59b9834 run43889958441 inventory38suite/131건PASS/FAILED요약0,Backend(TC포함)·Android jobSUCCESS,UnitySKIPPED. 기존미연결6건도원격실행범위에포함됐다. macOS synthetic host및basic/Release 최종상태는아직대기하며전체SUCCESS로기록하지않는다.
+
+- 배치25 D 최종검증: run43889958441 source59b98349689171cc8a75d9652f248708645a85c2 전체SUCCESS. inventory/Backend/Android/macOS/basic-ci 5SUCCESS,Unity/Release 2SKIPPED. 원격38suite/131unit PASS,backend기존JUnit13+TC11(예상failure1,정확변이/정상복원),Swift17및synthetic Host검사통과. false dispatch1회만수행·재실행없음. 이후최종문서만commit/scan/FF push하고Head일치를확인한다.
+
+- 배치25 최종 커밋 전: 원격7job 최종결과와local5PASS/3PARTIAL·source별actual counts·잔여작업을확정했다. 최종문서만scan/commit/FF push하고HEAD와미추적3개디렉터리보존을대조한다. 추가코드/원격재실행없음.

@@ -12,7 +12,7 @@
 | P09-T04 | DB/Native/응답 유실49 PASS, 원장 mutation, StoreKit 영향 retry 둘 PASS | PARTIAL 유지 | 최초18.6 timeout 간헐 원인 미확정, Testcontainers 계획 차이, P05 26.5 FAIL 및 실제 스토어 대기 |
 | P09-T05 | Native/Host/packaging PASS, 현재 PII 두 Player 및 독립 iOS Push PASS | PARTIAL 유지 | Android Push 원본 READY timeout·재검증 ENV-P09-AVD. OS 안내 보조와 실제 remote Push/기기 미검증 |
 | P09-T06 | 단위119 중 집계14/errors10/measurement10/nested4/execution13/runtime1/device2/self-report2. 프로세스0/1/2, 실제 Strict 실패·대기 보존 | IMPLEMENTED/PASS(local 집계 계약)로 바꿀 근거 있음 | 전체 Strict green 및 Release 가능을 의미하지 않음 |
-| P09-T07 | 새 하네스 단위 Hosted 연결, false 입력·Unity비활성 유지, actionlint PASS | PARTIAL 유지. 이번 Hosted 결과는 D 후 추가 | 전용 self-hosted 격리·Unity/Release 원격 미검증 |
+| P09-T07 | 새 하네스 단위 Hosted 연결, false 입력·Unity비활성 유지, actionlint PASS | PARTIAL 유지. [이번 Hosted run43862394352](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352) SUCCESS: Hosted4+basic 성공, Unity/Release SKIPPED | 전용 self-hosted 격리·Unity/Release 원격 미검증. 기존 CI 미연결4파일6건은 local only |
 | P09-T08 | 최신 source self-check9/9 PASS,47 실제 tests 중 예상 failure3, 정상 복원·독립401 확인 | IMPLEMENTED/PASS(local 자체시험)로 바꿀 근거 있음 | 실제 Provider/원격 Unity를 대체하지 않음 |
 
 원장의 8개 Task 상태는 일괄 변경하지 않고 IN_PROGRESS/PARTIAL을 유지했다. 위 네 Task의 local 상태 변경 **근거를 제시**하며 전체 P09 완료를 선언하지 않는다. P05-T03 FAIL, ENV-STOREKIT-26 OPEN, Provider WAITING_USER13, self-hosted 미검증, Android Push 재검증 대기를 유지한다.
@@ -62,3 +62,7 @@ P09-T01의 local ID/entry·fixture 완료 확인, P09-T03의 synthetic local 거
 ## 감사 후 simple 측정 보강 — 2026-11-16
 
 [simple 측정 계약](p09-measurement-contract.md)에 따라 기본 marker는 tests 0/checks 1, stress는 samples, PII 검증은 players로 분리했다. 검증된 로그 receipt가 없는 checker-only PASS를 거부한다. 관련 단위 35건 통과, 제품 suite 및 Strict 재실행 없음. 다음 한 작업 후보는 nested 측정 단위 보존이다.
+
+## 배치24 최종 인계
+
+Hosted-only source8c8fc62, [run43862394352](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352) 전체 SUCCESS. 새 하네스 단위 포함 원격113건 통과. 로컬119·자체시험9 및 iOS Push 실제 current-source 결과와 scope를 구분했다. A/B/D 수행 완료, C는 Android Push 재검증 ENV-P09-AVD로 PARTIAL. 기존 Strict 및 최초 runtime 실패와 후속 성공을 모두 보존한다. 위 Task별 상태 제안은 전체 P09/Release 완료 선언이 아니다.

@@ -1,8 +1,8 @@
 # P09 하네스 통합 보강 배치24 — 2026-11-16
 
-## 최신 상태 — C 종료, D 준비
+## 최신 상태 — 배치24 종료
 
-A/B 구현·방어 보강 완료. C는 전체 Strict 원본 FAIL을 보존한 **PARTIAL**이다. Android Push 재검증은 ENV-P09-AVD 대기다. 최신 코드 source **5eaf31f59f0d187a24bffb5007543744359ca076**: Python 119 PASS/skip 0, P09-T08 9/9 PASS, 독립 iOS Push Player PASS. 아래 NOT_RUN·중간 실패 기록은 당시 이력이며 후속 검증으로 덮어쓰지 않는다. D Hosted 실행 결과는 다음에 추가한다.
+A/B 구현·방어 보강 완료. C는 전체 Strict 원본 FAIL을 보존한 **PARTIAL**이다. Android Push 재검증은 ENV-P09-AVD 대기다. 최신 코드 source **5eaf31f59f0d187a24bffb5007543744359ca076**: Python 119 PASS/skip 0, P09-T08 9/9 PASS, 독립 iOS Push Player PASS. 아래 NOT_RUN·중간 실패 기록은 당시 이력이며 후속 검증으로 덮어쓰지 않는다. D Hosted-only run 43862394352 전체 SUCCESS(5 job SUCCESS, Unity·Release SKIPPED). 원격 검증 source는 8c8fc62이며 최종 결과 문서만 이후 추가한다.
 
 
 ## 범위·소스
@@ -94,3 +94,50 @@ source **0b6fb7250e6f9edb2c93ba477ac06a5060b1769a**, tracked-clean. `ci-unity-e2
 - 독립 iOS Unity Push `unity-ios-push-5wsdfn1e`: **Player 1 PASS/exit 0**, source 일치·tracked-clean, mockPush/deduplication/mainThread/background/reconnectFailure/sessionSwitch PASS, rejectedReconnectAttempts 6, deviceTokens 0. networkRecovery는 **PASS_LOCAL_TRANSPORT_FAULT**로 실제 OS 네트워크 전환과 구분한다. FCM/APNs 실제 전송이 아니다.
 
 Strict source 0b6fb72와 최신 source 사이의 변경은 오류 모델/관측 snapshot/timeout 진단/Markdown/기기 명령 소유 재확인·test-only stage 로그 및 증거 문서다. 실제 SDK 동작·signing·Provider는 변경하지 않았다. 전체 Strict는 한 번만 수행했으며 후속 119 단위·9 lane·Editor·StoreKit·iOS Push는 영향 재검증이다. 원래 Strict 결과를 최신 전체 PASS로 재작성하지 않는다. 상위 tests/checks 합계는 실행별 측정 단위이며 고유 제품 케이스/모든 내부 assertion 총수가 아니다. static 50 mapping은 실제 테스트 합계에 포함하지 않는다.
+
+## 커밋·실행 source 관계
+
+| Commit | 범위 |
+|---|---|
+| `2af4d7ae86b3daeda1924d62dc64219d748a3f87` | fix(harness): [P09-T06] preserve nested measurement units |
+| `94dad65af2e45bdc67468ec0579fd9df4e5dd073` | fix(harness): [P09-T06] bind nested evidence to observed executions |
+| `a6a14da30a96e77348a445b1daf657c69e396a19` | test(harness): [P09-T08] record integrated self-check before strict |
+| `0b6fb7250e6f9edb2c93ba477ac06a5060b1769a` | docs(harness): [P09-T06] record preserved AVD preflight deferral |
+| `30f55dd2564859798bd2764dcfa707c91a9c3f92` | test(harness): [P09-T06] preserve strict results and new runtime failures |
+| `4508b9a856df8fa62b1979e6cb2104d856e58fb5` | fix(harness): [P09-T06] freeze observations and retain timeout diagnostics |
+| `4b23529251392bdcc26cdbc2616b574cf93f3063` | test(harness): [P09-T06] record editor retry and trace StoreKit stages |
+| `5a50a3bc2d947058cf3143bcedf21b1630b47d78` | test(harness): [P09-T04] record isolated StoreKit recovery retries |
+| `5eaf31f59f0d187a24bffb5007543744359ca076` | fix(harness): [P09-T05] revalidate device identity before commands |
+| `631396365d0d57486330624596ed1092b126b575` | docs(harness): [P09-T06] audit integrated validation and remaining waits |
+| `8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18` | docs(ci): [P09-T07] record handoff push preflight |
+
+실제 전체 Strict는 0b6fb72, 후속 Editor는 4508b9a, StoreKit 두 retry는 4b23529, 최종 local119/self9/iOS Push는 5eaf31f, Hosted 실행은 8c8fc62다. 5eaf31f 이후 Hosted source까지는 문서만 변경했다. 이 뒤 최종 결과 문서 커밋 SHA는 자기 참조로 넣지 않고 Git 이력과 최종 인계에서 보고한다.
+
+## D Hosted-only 최종 결과
+
+[GitHub Actions run 43862394352](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352), source **8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18**, event workflow_dispatch, `release_validation=false`. repo 변수 총0으로 Unity 활성 변수 미설정을 확인했다. 한 번만 요청했고 재실행하지 않았다. **workflow SUCCESS**.
+
+| Job | 실제 최종 결과 | 범위 |
+|---|---|---|
+| inventory-contracts | SUCCESS | 32 unittest suite/113건 PASS, 새 하네스 단위 연결 확인 |
+| backend-postgres | SUCCESS | synthetic key·격리 PostgreSQL, JUnit13/실패·skip0 |
+| android-native | SUCCESS | JUnit45+1+1/실패·skip0 및 Maven/R8 clean consumer |
+| swift-ios-simulator | SUCCESS | Swift XCTest17/실패0, synthetic iOS host >0·실패/skip0 검사 통과. Host 정확 건수는 출력되지 않음 |
+| basic-ci | SUCCESS | 네 Hosted 결과 집계 |
+| unity-e2e | SKIPPED | 요청한 false 입력·비활성 조건. remote Unity 검증 미실행 |
+| release-readiness | SKIPPED | Release 검증/생성·배포 미실행 |
+
+로컬 단위119는36파일, 원격113은32파일 범위다. 기존 `test_storekit_standalone_classification.py`, `test_unity_consumer_e2e.py`, `test_unity_consumer_result.py`, `test_unity_ios_push_cache.py`의6건은 로컬에서만 실행했다. 이번에 추가/수정한 하네스 단위는 전부 Hosted에 연결했다. 113을 제품/Player 테스트 건수로 취급하지 않는다. 원본 job 로그는 ignored artifacts에만 보존하고 공개하지 않는다.
+
+## 최종 판정·다음 재개점
+
+- **A 완료**: nested tests/checks/samples/players 및 오류·실행 필드 보존, 실제 JUnit/XCTest와 checker/Player 구분, self-check 호환 치환 제거.
+- **B 완료**: 실행 관측/source/run/log/parent-child 연결, 타입·누락·중복·0건·오류·재사용·변조·status/exit 불일치 fail-closed. 정상/실패/대기 실제 collector process0/1/2 확인. 새 관측 snapshot·오류 모델 공백도 음성 재현 후 보강.
+- **C PARTIAL**: 현재 local119/self9/iOS Push 및 영향 Editor/StoreKit retry PASS. 원래 Strict52PASS/4FAIL/1대기/exit1 보존. Android Push current retry는 **ENV-P09-AVD** 대기. StoreKit 최초 timeout의 간헐 원인은 미확정이며 기존26.5 FAIL과도 별도다.
+- **D 완료(Hosted-only)**: FF push와 단일 false-input run SUCCESS. self-hosted/remote Unity/Release 증명은 아니다.
+
+다음 내부 작업: CI 미연결 기존4파일6건의 연결 검토, T04 Testcontainers 계획 차이 정리 및 StoreKit 간헐 증거 보강. 다음 환경 작업: 독점 전용 ADB/AVD 연결·실제 이름 일치를 확보한 뒤 `run-unity-push-current.py`를 current tracked-clean source에서 실행한다. serial 번호만 보고 기기를 조작하지 않는다. self-hosted 격리 준비·실 Provider 자격/실기기 검증은 별도 대기다. 이번에는 P01/P02/P10으로 이동하지 않았다.
+
+P09-T01/T03/T06/T08의 local 상태 변경 근거는 [완료 조건 감사](p09-completion-gap-audit.md)에 제시했다. 원장 상태를 일괄 PASS로 변경하지 않았고 P05-T03 FAIL·ENV-STOREKIT-26 OPEN·Provider WAITING_USER13을 유지한다.
+
+최종 push는 handoff/p09-resume-20261113에 docs만 추가하는 FF다. 최종 문서 commit의 자기 SHA는 Git 이력/채팅 최종 보고에서 대조한다. 원격 실행은8c8fc62에서 완료됐으며 이후 코드 변경은 없다. 기존 미추적 Demo·Python cache, ignored artifacts·DB·AVD·Simulator 디스크를 삭제하지 않았다.

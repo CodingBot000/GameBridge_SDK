@@ -1487,3 +1487,15 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치24 C/D 준비 커밋 전: source별 실제 결과와 T01/T03/T06/T08 local 변경 근거를 감사에 기록했다. 원장 일괄 PASS 변경 없음. 다음은 code 변경 없이 scan/FF push/Hosted-only 1회다.
 
 - 배치24 D push 전/커밋 전: 원격 CodingBot000/GameBridge_SDK(public), local fix/unity-android-mock-e2e-evidence/upstream origin/fix 확인. handoff 원격 8eec64a→local6313963 10 commit 조상/FF 확인. gitleaks 전 범위 exit0/탐지0, 31경로에 금지 파일·raw log·서명/실키·cache·binary 없음. 이 기록은 별도 docs commit으로 추가·staged scan 후 HEAD:handoff 정상 push한다. Unity 변수 총0, false 입력 dispatch 1회만 허용된 범위다. 자동 재실행·main·force·Release 없음.
+
+- 배치24 D push 성공: 로컬/원격 handoff HEAD 8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18 일치. FF push만 수행했다. repository 변수 재조회 총0(활성 Unity 변수 없음). 지금 해당 SHA의 release_validation=false Hosted-only dispatch 1회 요청하며 완료 전 PASS로 기록하지 않는다.
+
+- 배치24 D dispatch 1회 수락: run 43862394352, 실제 source 8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18, release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352 . 실행 완료 전이며 자동 재실행하지 않는다.
+
+- 배치24 D 원격 중간 결과: run43862394352 source8c8fc62에서 inventory-contracts SUCCESS, backend-postgres SUCCESS, unity-e2e SKIPPED. Android/macOS는 진행 중, basic/release는 아직 최종 미확인이다. 원격 전체 PASS로 기록하지 않는다.
+
+- 배치24 D 원격 검증: inventory 실제 unittest 32 suite/113건 PASS(FAILED 요약0), Backend·Android job SUCCESS, Unity SKIPPED. 로컬119와 원격113은 scope가 다르며 기존 CI 미연결4파일6건은 로컬에서만 실행했다. 이번 변경 단위는 모두 Hosted에 연결됐다. macOS synthetic host와 basic/release 최종 결과를 기다린다.
+
+- 배치24 D 완료: run43862394352 source8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18 workflow_dispatch(false) 전체 SUCCESS. inventory/Backend/Android/macOS/basic-ci 5 SUCCESS, Unity/Release 2 SKIPPED. 원격 unit32suite113 PASS, BackendJUnit13, Android45+1+1, SwiftXCTest17, synthetic host는 >0·실패/skip0 검사 통과(정확건수 미출력). 자동 재실행 없음. 로컬119/self9/iOSPush와 구분한다. Android Push ENV-P09-AVD, 최초Strict FAIL, P05 FAIL/ENV26 OPEN/Provider WAITING_USER/self-hosted 미검증 유지. 최종 docs scan·commit·FF push·HEAD 대조만 남았다.
+
+- 배치24 최종 커밋 전: Hosted7개job 최종 상태와 source별 검증·남은 환경/내부 항목을 정제 evidence에 기록했다. 추가 코드 변경·원격 재실행 없음. 최종 문서만 stage/scan/FF push하고 local/remote HEAD 및 기존 미추적3개 디렉터리를 확인한다.

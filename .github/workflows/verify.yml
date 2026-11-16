@@ -3,6 +3,12 @@ name: Local verification lanes
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_validation:
+        description: Run release readiness validation
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -44,6 +50,7 @@ jobs:
           python3 -m py_compile harness/run-unity-android-mock-e2e.py harness/run-android-mock-bridge-e2e.py harness/export-mock-e2e-evidence.py
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_export_mock_e2e_evidence.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ci_gate.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_workflow_modes.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_push_current.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_pii_current.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_pii_optin.py' -v
@@ -184,7 +191,7 @@ jobs:
   unity-e2e:
     # Avoid running untrusted PR code on a self-hosted runner. Opt-in requires an
     # explicitly provisioned, licensed isolated host and disposable resources.
-    if: ${{ github.event_name == 'workflow_dispatch' && vars.GAMEBRIDGE_UNITY_E2E_ENABLED == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_validation == true && vars.GAMEBRIDGE_UNITY_E2E_ENABLED == 'true' }}
     runs-on: [self-hosted, macOS, ARM64, gamebridge-unity-e2e]
     timeout-minutes: 120
     steps:
@@ -195,7 +202,7 @@ jobs:
         run: bash scripts/ci-unity-e2e.sh
 
   release-readiness:
-    if: ${{ always() && !cancelled() }}
+    if: ${{ always() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.release_validation == true }}
     needs: [basic-ci, unity-e2e]
     runs-on: ubuntu-24.04
     timeout-minutes: 5

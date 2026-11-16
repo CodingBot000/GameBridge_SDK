@@ -22,3 +22,8 @@ standalone strict에서 현재 실행의 `GAMEBRIDGE_UNITY_PII_EVIDENCE`와 `GAM
 2026-11-14 사전 점검은 **DEFERRED_ENV**다. 등록 runner와 전용 label이 없고 Unity 활성화 repository 변수도 없다. 현재 로컬 개발 계정에서 도구가 동작하더라도 전용 실행 계정·VM과 개인 credential/업무 파일/기존 개발 리소스 접근 차단은 확인되지 않았다. 보존된 AVD와 개발 PostgreSQL을 원격 CI 격리 환경으로 간주하지 않는다. 이번에는 등록·변수 변경·원격 실행을 하지 않았다.
 
 현재 Unity job은 전체 Strict도 포함하므로 Player가 통과해도 P05-T03 FAIL이 job 실패로 전파된다. 두 상태를 독립적으로 보여주려면 strict 호출·nonzero 차단을 유지하면서 같은 실행의 Player 증거와 strict 결과를 각각 기록하고 Release가 둘 다 검증하도록 바꿔야 한다. 이는 적용 전 제안이며 판정표·준비 조건과 단위시험 범위는 [self-hosted 사전 점검](evidence/p09-self-hosted-readiness.md)을 따른다.
+
+
+## Hosted와 Release 실행 모드
+
+PR과 기본 `workflow_dispatch`는 hosted 네 job 및 basic-ci만 결과를 판단하며 Unity·release-readiness는 skipped다. `workflow_dispatch`의 `release_validation`을 명시적으로 true로 지정하고 repository의 기존 Unity opt-in 변수도 true일 때만 self-hosted Unity job이 실행된다. Release 요청 시 Unity가 skipped/failed이면 기존 release gate가 비영 종료한다. Unity와 전체 strict는 아직 단일 job으로 결합돼 있으며 독립 결과 인터페이스는 후속 작업이다. 이번 변경의 원격 Actions 실행 여부는 [모드 분리 evidence](evidence/p09-ci-modes.md)를 따른다.

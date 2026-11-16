@@ -3563,3 +3563,11 @@
 - P09-T07 커밋 전 원장·diff PASS. 현행 gate 단위 보강과 CI 문서·사전 점검 evidence만 stage한다. runtime workflow/script, runner 등록·변수·원격 실행 상태는 변경하지 않았다.
 
 - P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 검토 문서·현행 gate 단위 보강만 커밋한다.
+
+- P09-T07 CI 모드 분리 시작: PR/기본 dispatch는 hosted 결과만, 명시 release 요청에만 Unity·release gate를 조건부 실행한다. 기존 Strict 결합·실패 전파와 coverage 검사는 유지한다.
+
+- P09-T07 로컬 검증: 기존 gate 7건 및 workflow 모드 정적 단위 2건 PASS/skip 0, 원장·diff PASS. GitHub 원격 조회와 actionlint가 응답하지 않아 중단했으며 원격 안전 조건·실행은 아직 확인되지 않았다.
+
+- P09-T07 ロ컬 actionlint 1.7.12(기존 바이너리·custom label 설정) exit 0. GitHub 조회 2종은 각각 12초 timeout으로 원격 SHA·Unity 변수 재확인 불가; 원격 push/dispatch는 미실행으로 유지한다.
+
+- P09-T07 커밋 전: CI 모드·관련 테스트와 정제 문서만 stage한다. GitHub 연결 timeout으로 원격 push/dispatch는 미실행이며 재개 조건을 기록했다.

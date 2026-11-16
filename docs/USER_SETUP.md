@@ -362,3 +362,10 @@ Runner와 exporter의 문법·오프라인 입력 검증은 GitHub Actions의 Li
 Unity 6000.5.8f1, Xcode 26.6 및 iOS 18.6 ARM64 Simulator에서 전용 local-mock 전체 경로가 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging <UPM staging 절대경로>`는 신규 Simulator·로컬 DB를 만들고 보존한다. 무서명 시도는 로그인 INTERNAL_ERROR였고 성공 시험에는 Apple 계정이나 개인키가 필요 없는 Simulator 로컬 ad-hoc 서명을 사용했다. 테스트 앱의 ATS는 loopback만 허용한다. Unity Android emulator와 iOS Simulator의 LOCAL_MOCK push/lifecycle은 별도 검증했다 ([Android](evidence/px-t08-unity-android-mock-push.md), [iOS](evidence/px-t12-unity-ios-mock-push.md)). 실제 Apple 로그인, App Store 결제, APNs 및 실제 기기 검증은 별도 NOT_RUN이다.
 
 PX-T07의 최초 전용 Simulator 시도에서 Unity Mobile Notifications 패키지의 기본 프로젝트 설정이 시작 시 권한 창을 표시했다. 최종 테스트 소비 앱은 plist의 자동 알림 권한 요청 설정을 끈 뒤 별도의 사용자 UI 조작 없이 통과했다. 이는 테스트 앱 설정이며, 실제 host는 Unity Notifications 설정과 AppDelegate/권한 요청 정책을 직접 확인해야 한다. APNs 검증은 아니다.
+
+
+### 배치26 Unity Editor LicensingClient IPC 환경 대기
+
+`unity license status --format json`은 active/exit0이었으나 새 전용 Android 소비 프로젝트의 실제 Editor는 LicenseClient IPC channel 부재와 재연결 실패를 반복했다. APK/Player는 미실행이며 raw runner FAIL은 `artifacts/unity-android-e2e-0tikbq7v`에 보존했다. 계정 로그인·라이선스 재활성화·파일 수정은 수행하지 않았다. 현재 기기/Player 상태를 과거 PASS로 덮지 않는다.
+
+사용자 환경에서 Unity Hub/Editor의 정상 라이선스 통신을 복구한 뒤 상태 조회와 실제 전용 프로젝트 실행을 각각 확인한다. 토큰·라이선스 원본·Editor 원본 로그를 Git에 올리지 않는다. 영향 재검증은 `harness/run-r09-utf8.py` 및 `scripts/ci-unity-e2e.sh`의 기존 명시 opt-in/전용 기기 소유 조건을 사용하고, current SDK source와 일치하는 `artifacts/batch26/upm-current` 또는 재생성 staging으로 수행한다. AVD명·PID·console/ADB port 소유 및 PackageCache 확인 없이 실행하지 않는다. 이번 전체 Strict는 실행0/DEFERRED_ENV이고, 후속 실행은 별도 evidence/source로 남긴다. 전용 self-hosted 등록·실 Provider·Release는 이 환경 복구로 승인되는 항목이 아니다.

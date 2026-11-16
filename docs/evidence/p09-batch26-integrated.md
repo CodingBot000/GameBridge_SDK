@@ -1,5 +1,7 @@
 # 배치26 P09 잔여 정리 / P10 Core·Bridge
 
+최신 상태는 아래 **A~D 로컬 결과 및 완료 판정** 참조. 앞부분은 작업 중 source별 이력이며 초기 NOT_RUN은 최종 상태가 아니다.
+
 기준6d200b064b5cd8ea5ebca76bf3b58c1bd0086e6d. 명시handoff/p09-resume-20261113 local branch를같은HEAD에서생성해사용한다. 기존fix/main이력·사용자미추적Demo/cache는보존한다.
 
 ## A — 실제 assertion 계측
@@ -18,15 +20,15 @@ R01~R12의report는native shared-test scope와managed선택label/site를구분�
 
 ## B — StoreKit18.6 제한 진단
 
-NOT_RUN. 최초실패/정상source·설정·boot/health/checkpoint·경과시간관측을검토하며26.5재조사/timeout증가/성공까지반복하지않는다. 미확정위험은PARTIAL유지.
+초기 체크포인트: NOT_RUN. 최초실패/정상source·설정·boot/health/checkpoint·경과시간관측을검토하며26.5재조사/timeout증가/성공까지반복하지않는다. 미확정위험은PARTIAL유지.
 
 ## C — P10-T01 첫 리팩토링
 
-NOT_RUN. A baseline확정후API/ABI/wire/소스snapshot을기록하고실제중복책임을작게분리한다. 자체동작을Fake로바꾸지않는다. NativeSDK/실행의영향경계를명시한다.
+초기 체크포인트: NOT_RUN. A baseline확정후API/ABI/wire/소스snapshot을기록하고실제중복책임을작게분리한다. 자체동작을Fake로바꾸지않는다. NativeSDK/실행의영향경계를명시한다.
 
 ## D — 통합·Hosted·인계
 
-NOT_RUN. 현재Core 변경을빌드해새staging/checksum·실제Native/Unity LOCAL_MOCK 및조건부Strict최대1회검증한다. Hosted false입력1회만실행하고main/force/Release/self-hosted등록활성화는하지않는다. P05FAIL/ENV26OPEN/Provider13WAIT/기기·원격Unity미검증을유지한다.
+초기 체크포인트: NOT_RUN. 현재Core 변경을빌드해새staging/checksum·실제Native/Unity LOCAL_MOCK 및조건부Strict최대1회검증한다. Hosted false입력1회만실행하고main/force/Release/self-hosted등록활성화는하지않는다. P05FAIL/ENV26OPEN/Provider13WAIT/기기·원격Unity미검증을유지한다.
 
 ### A 확정 baseline
 
@@ -69,3 +71,46 @@ Finish/finally의동일owner removal을한private경계로모으고lock범위·�
 ### D 새 산출물 및 post baseline
 
 source dc45a2f tracked-clean의새NativeMaven/Android/R8·XCFramework양slice build0,새UPM147checksum통과. javap3종Nativeclass publicsurface·GB_*4exports양slice동일.[비교원본](p10-core-bridge-batch26.md). postledger core-assertions-zn69jotl:Kotlin10/50·Swift12/122·managed418/restore418/branch419·stress316·Unity2/32 및정확duplicate변이복원PASS. 추가NativebridgeJUnit1/실패skip0. 이후source는검증증거문서만추가되며새stage는current SDKsource와일치한다. fresh self9/actualJNI·C ABI/조건부Strict결과를추가한다.
+
+
+## A~D 로컬 결과 및 완료 판정 (Hosted 대기)
+
+- **A 완료**: 측정 가능한 실제 helper invocation과 test/expected-error-check/static declaration을 분리하고 duplicate-only 변이 감지·정상 복원을 확인했다. 배치26 명시 완료 조건에 따라 P09-T02 IMPLEMENTED/PASS. 실제 assertion outcomes와 래퍼 밖 implicit signal·JNI 계수는 UNMEASURED다.
+- **B 완료(제한 진단·위험 분류)**: 각 controlled 경로 1회 PASS했지만 최초 간헐 현상은 재현되지 않았다. 원인 미확정이며 P09-T04 PARTIAL 유지. 26.5 재조사·timeout 증가·성공까지 반복 없음.
+- **C 첫 범위 구현·회귀 확인 / 전체 PARTIAL**: RequestRegistry.cs의 event 공통 header와 pending owner 제거 두 private 책임을 분리했다. public API/wire/native source·선정 binary 표면 보존, 동일 managed418 cohort·mutation·Editor 통과. 현재 Android/iOS Unity Player 전체 회귀가 끝나지 않아 P10-T01 IN_PROGRESS/PARTIAL.
+- **D 부분 수행**: Python143, fresh Kotlin/Swift·managed·Editor·stress·mutation·API/선정 ABI 및 self9 완료. 독립 iOS Simulator C ABI XCTest1 PASS. 실제 Android Player 빌드는 LicensingClient IPC 차단으로 raw FAIL/exit1, APK/Player NOT_RUN. 전체 Strict는 실행0/DEFERRED_ENV. Hosted-only는 다음 단일 실행으로 확인한다.
+
+### R01~R12 측정 원장
+
+공개 가능한 구조화 결과는 [p09-batch26-assertions.json](p09-batch26-assertions.json). source dc45a2f, 동일 shipping code의 후속 d86ccc2에서 self/C ABI를 실행했다. 아래 native 수는 **해당 전체 공유 testcase**의 helper 수다. R01/R02/R03 등의 수를 합산해 per-R assertion 총수로 사용하지 않는다. `—`는 이 선택 범위의 attribution 없음이며 실제 실행0이라는 뜻이 아니다. managed 수는 동적 실행 label/site의 선택값이며 전체 smoke418과 같다고 주장하지 않는다.
+
+| R | Kotlin 공유 testcase helper | Swift 공유 testcase helper | Managed 선택 label/site helper | 추가 실제 범위 |
+|---|---:|---:|---:|---|
+| R01 | 8 | 1 | 1 | — |
+| R02 | 8 | 6 | 3 | — |
+| R03 | 8 | 6 | 2 | — |
+| R04 | — | — | 1 | duplicate-only 변이: 정상 exit0 / 변이 nonzero / 복원418 |
+| R05 | — | — | 4 | — |
+| R06 | — | — | 2 | — |
+| R07 | 11 | 15 | 2 | — |
+| R08 | 6 | 5 | UNMEASURED | — |
+| R09 | — | 6 | UNMEASURED | 독립 iOS Simulator C ABI1 PASS; Android JNI Player NOT_RUN |
+| R10 | 2 | 1 | 200 | — |
+| R11 | — | — | UNMEASURED | Unity Editor 2 tests ×16=32 helpers |
+| R12 | — | — | UNMEASURED | 5 warmup/100 samples, helpers15+300+1=316 |
+
+framework test pass/fail은 Kotlin10/0, Swift12/0, UnityEditor2/0이고 skip0이다. managed는 tests0/check1, 정상 helper198/expected-error helper220=418이며 프로세스0. expected-error helper는 예상된 예외 거부 조건을 검사하는 호출로 failed test220건이 아니다. K50=37+13/S122=112+10. 같은 native testcase가 여러 R을 다룰 수 있다. 정적 manifest 선언은 STATIC_MAPPING_NOT_EXECUTIONS, 정확한 소스 callsite 총수와 assertion 결과 pass/fail은 UNMEASURED다. 스트레스는 tests0/check1/samples100이며 helpers316을 테스트316건으로 치환하지 않는다.
+
+분기 control은 동일 선언소스에서 OFF0회/ON1회 추가(418→419)를 보여준다. duplicate-only 정상 helper2/exit0, 변이 부분 helper1/nonzero·NullReferenceException을 별도로 보존했다. 원본 hash 불변과 전체 managed418/exit0 복원을 검사했으며 실패 process1을 assertion failure1로 변환하지 않았다.
+
+### 현재 실제 플랫폼 실행과 Strict 환경 한계
+
+self `harness-self-5b5bz9vm`: source d86ccc2,9/9 PASS,tests47(정상44+의도negative3)/checks9/예상 외 failures0/exit0. self-only라 불필요 Simulator 생성 없음.
+
+독립 C ABI `artifacts/batch26/r09-ios-independent`: 같은 source, 새 owned iOS18.6, `testHostPushEventRoutingAndDedup` XCTest1 PASS/failure0/skip0/exit0,35.92초. xcresult의 실제 deviceId와 생성한 전용 기기가 일치한다. 종료 시 이미 Shutdown이었으며 shutdown 명령149 응답 뒤 read-only 상태 확인으로 디스크 보존을 확인했다. macOS의 UTF8 testcase와 다른 실제 Simulator testcase이므로 이를 모든 R09 사례 완료로 바꾸지 않는다.
+
+Android `unity-android-e2e-0tikbq7v`: current staging/source 확인 후 fresh 전용 AVD에서 빌드를 시작했으나 새 Unity Editor가 LicenseClient IPC channel 부재와60초 재연결 실패를8분 이상 반복했다. CLI `license status` active/exit0과 실제 Editor 통신은 다른 관측이다. APK 생성 전이므로 Player0/NOT_RUN. 현재 project/PID 소유를 확인하고 Editor만 종료했으며 raw `RESULT FAIL UNITY_IMPORT_OR_ANDROID_BUILD_FAILED`와 wrapper exit1을 보존했다. SDK assertion failure나 PASS로 해석하지 않는다. root R09 runner는 Android 실패 뒤 iOS를 호출하지 않았으므로 위 C ABI는 별도 신규 실행이다. 런타임 문제의 정확한 원인은 미확정이다.
+
+full용 AVD 두 개도 PID·console/ADB port·serial·이름·boot READY까지 확인했지만 Unity runtime 준비 조건은 충족하지 못했다. `c-run-request.json`/`c-full.log`가 없으며 전체 `ci-unity-e2e.sh` 호출0/Strict DEFERRED_ENV. 준비 controller만 중단해 finally에서 소유 emulator를 종료했고 모든 AVD/Simulator 디스크와 DB/로그·기존 사용자 기기를 보존했다. 이번 실행에서는 Player UI/네트워크 조작 단계에 도달하지 않아 안내 UI 보조도 발생하지 않았다. 배치25 Strict57PASS/기존P05FAIL1은 역사 증거이며 이번 source의 Strict 결과가 아니다. 새 제품 testcase 실패0을 증명한 전체 Strict가 있다고 주장하지 않는다.
+
+현재 Player·Strict 재개 절차는 [USER_SETUP](../USER_SETUP.md)의 배치26 환경 항목과 current staging/source 검사 및 기존 owned device gate를 따른다. 이전 산출물을 재활용해 PASS 처리하지 않는다. 실제 OAuth/스토어/FCM/APNs·실기기는 미검증, Provider13 WAITING_USER/P05-T03 FAIL/ENV-STOREKIT-26 OPEN/self-hosted·Release 미검증은 유지한다.

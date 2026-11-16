@@ -92,3 +92,10 @@ Hosted-only source8c8fc62, [run43862394352](https://github.com/CodingBot000/Game
 ## 배치25 원격 검증 후 확정
 
 source59b9834의Hosted-only1회SUCCESS. 모든Python38파일/131건이원격검증됐고Backend TC11(예상negative1포함)도통과했다. P09 local상태는T01/T03/T05/T06/T08 PASS,T02/T04/T07 PARTIAL로확정했다. 이외부CI성공으로P05기존FAIL·18.6간헐위험·self-hosted/Release미검증을숨기지않는다. [최종배치25](p09-batch25-integrated.md).
+
+
+## 배치26 후속 — assertion 계측 및 Core 리팩토링
+
+[배치26 통합 증거](p09-batch26-integrated.md)와 [구조화 계측](p09-batch26-assertions.json)이 배치25의 T02 미측정 gap을 보강했다. 실제 helper 수/예상 오류 검사/testcase/정적 매핑·공유 scope를 분리하고 정확 duplicate-only mutation·원본 복원도 확인해 T02 local IMPLEMENTED/PASS로 전환한다. 전체 assertion outcomes/일부 JNI scope는 UNMEASURED이며 모든 플랫폼 current Player PASS라는 의미가 아니다.
+
+T04는 StoreKit18.6 controlled 경로 각1회 PASS에도 최초 간헐 원인 미확정으로 PARTIAL, T07은 전용 self-hosted/Release 미검증으로 PARTIAL 유지. T01/T03/T05/T06/T08 기존 localPASS 근거는 유지한다. P10-T01은 두 private Core 개선·새 패키지/API·선정 ABI·계측/Editor/자체시험·독립 C ABI를 검증했으나 새 Android Unity 빌드가 LicensingClient IPC 차단(raw FAIL/exit1, Player NOT_RUN)으로 멈춰 IN_PROGRESS/PARTIAL. 이번 전체 Strict는 실행0/DEFERRED_ENV이고 배치25 Strict/Player 결과는 역사 증거로 보존한다. P05 FAIL/ENV26OPEN/Provider13WAIT·실기기/원격 Unity 미검증 유지.

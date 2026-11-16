@@ -29,3 +29,10 @@ source **dc45a2f1b97e035655b4b6b2a9d5381248b040dc**,tracked-clean. 현재NativeM
 현재Native3종class(SdkCoordinator,BridgeProtocol,BridgeFacade)의javap publicsurface가변경전과동일하다. 양slice nm의Cexports는GB_Dispatch/GB_ProtocolVersion/GB_SetCallback/GB_Shutdown4개로동일. snapshot79파일의Kotlin/Swiftshipping/wire는동일하며유일한private수정파일의public/internal선언도일치했다. 전체SDK의모든binary ABI를검사한것이아닌선정표면의실제새빌드검증이다. 원본 `artifacts/batch26/artifact-compatibility.json`.
 
 현재post ledger `core-assertions-zn69jotl` PASS/exit0:Kotlin10/50,Swift12/122,managed418(198normal+220expected),정상복원418,분기control419,stress316,Unity2/32. baseline391에matrix27을더한동일418cohort를C1/C2전후유지했다. counts를맞추도록assertion을제거하거나Fake제품으로대체하지않았다. 실제Native/Player/Strict는후속source별로추가한다.
+
+
+## 실제 플랫폼 회귀의 완료 범위와 잔여
+
+새 package/source의 managed Editor2/32 및 전체418 smoke는 PASS이고, 동일 shipping code d86ccc2에서 freshDB self9 PASS와 신규18.6 Simulator C ABI1 PASS를 확인했다. 실제 Android Unity Player는 새 Editor LicensingClient IPC 연결 실패로 APK 생성 전 차단됐다. raw runner FAIL/exit1을 보존하며 실제 Player는 NOT_RUN/DEFERRED_ENV다. 전체 Strict 호출은0/DEFERRED_ENV이며 과거 batch25 Player·Strict를 이번 refactor 실행으로 대체하지 않는다. 관련 현재 iOS Unity Player도 이번 batch에서 실행하지 않았다.
+
+공개/internal API·wire·선정 javap/nm 표면 변경 없음은 검증 범위의 사실이며, 모든 OS·binary ABI·실기기 동작 보증은 아니다. T01 첫 두 private 개선은 구현 및 관련 로컬 회귀 확인을 마쳤으나 현재 Unity 전체 Player 영향 검증을 남겨 Task 전체 IN_PROGRESS/PARTIAL을 유지한다. 이후 P10-T02~T04를 이번 배치 완료로 표시하지 않는다. Native coordinator 등 제외 영역은 위 선정 근거를 유지한다.

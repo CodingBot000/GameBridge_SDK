@@ -4,21 +4,22 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (배치25 수행 종료; P09 local 5 PASS/3 PARTIAL, P05 FAIL 및 외부 대기 유지)
-- 현재 Phase / Task: 배치25 종료 / P09 잔여 검증 인계
+- 전체 상태: IN_PROGRESS (배치26 A/B/C 구현·로컬 확인, D 원격 검증 준비; P09 local 6 PASS/2 PARTIAL, P10-T01 PARTIAL)
+- 현재 Phase / Task: 배치26 D / P09-T07 Hosted-only 검증 준비
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: local e46cb6520272334d9816d951274b91bd39133b9b / Hosted 59b98349689171cc8a75d9652f248708645a85c2 (코드 동일, 이후 문서만 변경)
-- 현재 작업 트리 상태: 코드·실행 증거·상태를 작업별 commit 및 handoff FF push로 인계; 기존 미추적 Demo·Python 캐시 보존
-- 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
-- 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: P09-T02 actual assert 계측, P09-T04 18.6 간헐 원인 관측, P09-T07 전용 self-hosted 격리/PID 제공·명시 검증을 별도 후속으로 진행한다. P05 FAIL/외부 대기를 유지한다.
-- 재개 행동: AGENTS.md·START_HERE.md와 docs/evidence/p09-batch25-integrated.md의 최신 상태부터 확인한다. 배치24 실패는 역사 기록이며 C 원본을 재작성하지 않는다.
+- 마지막 검증된 소스 커밋: 계측·새 패키지 dc45a2f1b97e035655b4b6b2a9d5381248b040dc / self9·독립 iOS C ABI d86ccc23ceb14dc6a81d93c2317de0c78f5d708e (shipping code 동일)
+- 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
+- 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
+- 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
+- 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — CLI license active이나 새 Editor IPC 재연결 실패, Android APK/Player 미실행. raw runner FAIL/exit1 보존. 이번 전체 Strict 실행0/DEFERRED_ENV.
+- 바로 다음 행동: 모든 변경 commit·범위 비밀정보 검사·handoff FF push 후 release_validation=false Hosted-only 1회. Unity/Release SKIPPED 확인. P05 FAIL/18.6 간헐 위험/Provider13 대기 유지.
+- 재개 행동: AGENTS.md·START_HERE.md와 [배치26](evidence/p09-batch26-integrated.md), [Core 비교](evidence/p10-core-bridge-batch26.md)에서 미실행 Player 및 전용 runner 조건을 확인한다. old staging/과거 Player를 현재 실행으로 재사용하지 않는다.
 
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 43 / IMPLEMENTED 21 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 19 / FAIL 1 / PARTIAL 44 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 42 / IMPLEMENTED 22 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 20 / FAIL 1 / PARTIAL 43 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -82,14 +83,14 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IMPLEMENTED | PASS | N/A | docs/evidence/consumer-install.md | - |
 | P08-T05 | 기능 개발 기준점 고정 | IMPLEMENTED | PASS | N/A | docs/evidence/feature-baseline-current-20261113.md | - |
 | P09-T01 | 후반 하네스 manifest·공통 contract test | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T01 | - |
-| P09-T02 | Core·Bridge 회귀·실패 주입 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T02 | - |
+| P09-T02 | Core·Bridge 회귀·실패 주입 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-batch26-assertions.json, WORK_LOG P09-T02 | 측정 밖 assertion은 UNMEASURED; 현재 JNI Player 대기 |
 | P09-T03 | 인증·세션·개발모드 차단 회귀 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T03 | - |
 | P09-T04 | 구매·DB 동시성·복구 회귀 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T04 | DEP-P09-SK18 |
 | P09-T05 | Push·Lifecycle·패키징 회귀 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T05 | - |
 | P09-T06 | 검증 집계·진행 원장 강제 검사 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T06 | - |
 | P09-T07 | CI 설정·플랫폼 lane 분리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T07 | ENV-P09-RUNNER |
 | P09-T08 | Fail-closed 하네스 자체 시험 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08 | - |
-| P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T01 | ENV-002 |
+| P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-core-bridge-batch26.md, WORK_LOG P10-T01 | ENV-UNITY-LICENSE-IPC |
 | P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T02 | - |
 | P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
 | P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | ENV-002 |
@@ -125,6 +126,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제 | local-mock 세션별 삭제와 경쟁 상황 검증 완료 | 실제 FCM/APNs 경로 별도 구현 | RESOLVED |
 | USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프 | local-mock worker·재시작·동시성 검증 완료 | 실제 store finalizer 별도 구현 | RESOLVED |
 | DEP-P09-SK18 | DEP | P09-T04 | 배치24 18.6 timeout 원인 미확정, 배치25 동일 제한의 두 경로 PASS | 최초/후속 증거 및 checkpoint 분리 유지 | 정지 구간·기기 상태/부하 관측으로 간헐 원인 분류 | OPEN |
+| ENV-UNITY-LICENSE-IPC | ENV | P10-T01·현재 Unity Player/Strict | CLI license active이나 새 owned Editor의 LicensingClient IPC channel 부재·reconnect 실패 | raw build FAIL 보존, APK/Player NOT_RUN·Strict 실행0/DEFERRED_ENV, 계정/라이선스 변경 없음 | 정상 Editor IPC 복구 후 현재 SDK staging으로 영향 Player 재검증; USER_SETUP 참고 | OPEN |
 | ENV-P09-RUNNER | ENV | P09-T07 | 전용 self-hosted 격리·실제 Unity CI/Release 미검증 | Hosted-only 및 local CI 경로 유지 | 전용 runner 준비와 별도 명시 검증 | OPEN |
 | ENV-P09-AVD | ENV | P09-T05 | 배치24 serial/PID/실제 port 불일치 | 배치25 새 AVD의 PID·이름·console/ADB 양 port 소유를 확인한 current Push PASS | 재실행마다 소유 검증·새 앱 상태 유지; 무인 CI 별도 | RESOLVED |
 | ENV-STOREKIT-26 | ENV | P05-T03 | iOS 26.5 simulator SKTestSession 설정 저장 Code 3 및 상품 조회 실패; 별도 iOS 18.6 전용 simulator 상품 조회 1건 통과 | 다른 독립 구현 진행; 실패 시험 보존 | 호환 환경에서 StoreKit local 재시험 | OPEN |
@@ -1583,3 +1585,18 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치26 D 실제검증/플랫폼준비: commitdc45a2f tracked-clean에서새Maven+Android/R8 build0,Xcodedevice/simulatorarchive+XCFramework0,새UPM147checksum0. Native javap3종class publicsurface와GB_*4개export(2slice)모두변경전동일. shipping79파일/currentstage hash 기록. current post-refactor ledger core-assertions-zn69jotl exit0: Kotlin10/50,Swift12/122,managed418=198+220,restore418,branch419(OFF0/ON1),stress316,Unity2/32,duplicate정상0/변이nonzero/원본hash동일. 변화전cohort391에header matrix27을추가한418이며전후동일matrix418비교. 추가Native/actualJNI·self9·조건부Strict를이어서검증한다.
 
 - 배치26 D 실행소스확정 커밋 전: Native추가sdk-unity-bridge JUnit1/실패skip0도current code에서통과. 새Maven/XCFramework/UPM checksum·javap/nm ABI표면·postassert ledger·old-stage 거부증거를보존했다. 다음source에서freshDB self9,전용R09 JNI/C ABI및현재Unity실행/조건부Strict1회만수행한다. oldstaging은사용하지않는다.
+
+
+- 배치26 D 환경 블로커/검증: source d86ccc23ceb14dc6a81d93c2317de0c78f5d708e의 fresh self9는 tests47(예상negative3)/checks9/exit0, harness-self-5b5bz9vm PASS. 현재 R09 Android Player 빌드는 CLI license status active/exit0인데 Editor LicensingClient IPC channel 부재·60초 reconnect 실패를 8분 이상 반복했고 APK 생성/Player 실행 전이었다. 소유 project+PID9961을 재확인해 해당 Editor만 종료했으며 raw runner exit1/RESULT FAIL UNITY_IMPORT_OR_ANDROID_BUILD_FAILED는 보존했다(artifacts/unity-android-e2e-0tikbq7v). 제품 assertion 실패로 단정하지 않으며 실제 Android JNI/현재 Player는 DEFERRED_ENV/NOT_RUN이다. 계정·라이선스 재활성화/우회/반복빌드는 하지 않았다.
+- 배치26 D Strict 환경 판단: 전용 AVD 두 개의 PID/양 port/serial/이름/boot는 준비됐으나 실제 Unity 실행환경은 미준비. full request 및 c-full.log 없이 실행횟수0, 전체 Strict DEFERRED_ENV. 준비 controller만 SIGINT해 finally에서 소유 emulator들을 종료했고 디스크/DB/원본 로그·기존 사용자 기기를 보존했다. 기존 배치25 Strict 결과는 역사 증거로 유지하며 이번 source 실행으로 재사용하지 않는다. 독립 iOS C ABI 시험은 현재 source/new18.6 Simulator에서 별도로 수행 중이다.
+
+
+- [P09-T02] 배치26 완료 조건 판정: Kotlin10 tests/50 helpers(37normal+13expected),Swift12/122(112+10),managed0tests/check1/418(198+220),UnityEditor2/32,stress0tests/100samples/316 helpers를 실제 scope로 분리했다. R01~R12 구조화 결과·공유 native testcase 중복배분 금지·분기 OFF0/ON1·duplicate-only mutation 정상0/변이nonzero/원본hash일치/정상전체418 복원을 확인했다. 전체 assertion outcomes/래퍼밖 implicit signal/JNI assertion은 UNMEASURED이며 현재 Android JNI Player는 환경 대기다. 배치26 A의 명시 완료 조건을 충족해 IMPLEMENTED/PASS로 전환한다. 모든 플랫폼의 현재 Player PASS나 assertion 전체 측정 완료 선언은 아니다.
+- [P10-T01] 배치26 D 독립 iOS 실제 검증: source d86ccc2, 새 owned18.6 Simulator의 CBridge testHostPushEventRoutingAndDedup XCTest1 PASS/skip0/exit0(35.92초). xcresult deviceId 일치, 시험 후 정확한 기기 Shutdown 상태 확인; shutdown149는 이미 Shutdown인 기기에 대한 응답이며 실패한 시험으로 계산하지 않는다. Android 새 APK/Player는 ENV-UNITY-LICENSE-IPC로 미실행이며 full Strict 실행0/DEFERRED_ENV. 관련 raw FAIL은 보존한다. 두 private refactor와 unit/Editor/API·선정 ABI 확인 범위는 완료했으나 현재 Unity Player 회귀를 끝내지 못해 Task 전체 IN_PROGRESS/PARTIAL 유지.
+- 배치26 D 원격 준비/커밋 전: 새 assertion 계측·진단·staging 검사 unit143 PASS/skip0, 새 self9 PASS. 원장64행 재집계 및 T02 local PASS 근거·T04/T07 PARTIAL·P05 FAIL/ENV26 OPEN/Provider13 WAIT를 분리한다. 원장 편집 첫 시도는 64행 선택 assertion에서 쓰기 전 exit1이었다. 행 시작 정규식으로 대상을 한정해 수정했으며 제품 검증 실패와 구분한다. Native shipping byte/hash와 wire/public API 보존 검사도 Hosted inventory에 연결한다. 다음은 staged 명시 파일·원장/manifest/meta/actionlint/diff 검사 및 전체 push 범위 secret/생성물/PII 점검이다.
+
+- 배치26 D 문서 검사 exit1은 blocker행 삽입 anchor가 Task셀의 동일 ID 참조를 먼저 선택한 편집 오류였다. 변경 전 행을 복원하고 행 시작 anchor로 실제 blocker 원장에만 추가했다. historical 집계 문구도 보존했으며 원장 검사를 재실행한다. 제품/하네스 테스트 실패를 숨긴 것이 아니다.
+
+- 배치26 D 검증/커밋 직전: 원장64행·manifest50·Unity metadata·Core79파일 source/API/wire·actionlint·diff 검사 exit0, CI gate7+workflow mode2 PASS. repo CodingBot000/GameBridge_SDK public 재확인, Actions variables0/runners0(등록/변경 없음). 코드·계측·현재 실행 증거를 명시 파일로만 stage하고 staged 및 기준6d200b0 이후 전체 range의 비밀정보/금지 생성물/PII를 검사한 뒤 handoff FF push한다. false Hosted dispatch는 아직0회다.
+
+- 배치26 D push 점검/커밋 전: 전체8개 기존 commit와 staged 범위를 gitleaks v8.24.2 redact=100으로 검사해 exit0/탐지0. 변경39개 text path에 금지 key·서명·Unity license·원본log·cache·APK/Xcode 산출물·binary 없음. 별도 PII 패턴의3개 후보는 기준source에 이미 있던 synthetic-person@example.invalid 고정 시험 fixture임을 line별 대조했다. 실제 개인정보/실키가 아니며 제품코드 유일 변경은 RequestRegistry.cs다. 원격 handoff는 local의 조상(0 behind/8 ahead),변수0/runner0. 이 기록 및 검증 증거만 명시 stage·scan·commit 후 FF push하고 false Hosted1회를 요청한다.

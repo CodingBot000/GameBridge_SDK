@@ -1,0 +1,581 @@
+{
+  "sourceHead": "dc45a2f1b97e035655b4b6b2a9d5381248b040dc",
+  "rawEvidence": "artifacts/core-assertions-zn69jotl/result.json",
+  "status": "PASS",
+  "scope": "test-only helper invocation measurement",
+  "assertionOutcomes": "UNMEASURED",
+  "sourceCallSiteCount": "UNMEASURED",
+  "limitation": "Counts are test-helper invocations, not boolean operands or all framework internals. Shared test scope totals are not additive per scenario.",
+  "executions": [
+    {
+      "name": "kotlin",
+      "status": "PASS",
+      "exitCode": 0,
+      "tests": 10,
+      "checks": 1,
+      "failures": 0,
+      "errors": 0,
+      "errorModel": "separate",
+      "skipped": 0,
+      "normalAssertions": 37,
+      "expectedErrorChecks": 13,
+      "assertionsExecuted": 50
+    },
+    {
+      "name": "swift",
+      "status": "PASS",
+      "exitCode": 0,
+      "tests": 12,
+      "checks": 1,
+      "failures": 0,
+      "errors": null,
+      "errorModel": "included-in-failures",
+      "skipped": 0,
+      "normalAssertions": 112,
+      "expectedErrorChecks": 10,
+      "assertionsExecuted": 122
+    },
+    {
+      "name": "csharp",
+      "status": "PASS",
+      "exitCode": 0,
+      "tests": 0,
+      "checks": 1,
+      "failures": 0,
+      "errors": null,
+      "errorModel": "checker-exit",
+      "skipped": 0,
+      "normalAssertions": 198,
+      "expectedErrorChecks": 220,
+      "assertionsExecuted": 418
+    },
+    {
+      "name": "lifecycle-stress",
+      "tests": 0,
+      "checks": 1
+    },
+    {
+      "name": "duplicate-guard-mutation",
+      "tests": 0,
+      "checks": 1
+    },
+    {
+      "name": "normal-after-mutation",
+      "tests": 0,
+      "checks": 1,
+      "normalAssertions": 198,
+      "expectedErrorChecks": 220,
+      "assertionsExecuted": 418
+    },
+    {
+      "name": "conditional-branch-control",
+      "tests": 0,
+      "checks": 1,
+      "normalAssertions": 199,
+      "expectedErrorChecks": 220,
+      "assertionsExecuted": 419
+    },
+    {
+      "name": "unity-editor",
+      "tests": 2,
+      "checks": 1,
+      "normalAssertions": 32,
+      "expectedErrorChecks": 0,
+      "assertionsExecuted": 32
+    }
+  ],
+  "scenarioCoverage": [
+    {
+      "id": "R01",
+      "declaredPlatform": "3언어 Core",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [
+          {
+            "platform": "kotlin-jvm",
+            "test": "SdkCoordinatorTest.initialization joins same config and rejects different config",
+            "normalAssertions": 6,
+            "expectedErrorChecks": 2,
+            "assertionsExecuted": 8,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          }
+        ],
+        "swift": [
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 1,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 1,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[SdkCoordinatorTests testRequireReadyBeforeInitializationFails]"
+          }
+        ]
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": 1,
+      "managedLabelSelectedSites": [
+        {
+          "file": "registry-smoke.cs",
+          "line": 323,
+          "kind": "expectedError",
+          "label": "expected NOT_INITIALIZED",
+          "count": 1
+        }
+      ],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R02",
+      "declaredPlatform": "Core",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [
+          {
+            "platform": "kotlin-jvm",
+            "test": "SdkCoordinatorTest.initialization joins same config and rejects different config",
+            "normalAssertions": 6,
+            "expectedErrorChecks": 2,
+            "assertionsExecuted": 8,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          }
+        ],
+        "swift": [
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 6,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 6,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[SdkCoordinatorTests testConcurrentInitializeAndShutdown]"
+          }
+        ]
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": 3,
+      "managedLabelSelectedSites": [
+        {
+          "file": "registry-smoke.cs",
+          "line": 388,
+          "kind": "normal",
+          "label": "same config sends one init",
+          "count": 1
+        },
+        {
+          "file": "registry-smoke.cs",
+          "line": 391,
+          "kind": "normal",
+          "label": "same config identical ready results",
+          "count": 1
+        },
+        {
+          "file": "registry-smoke.cs",
+          "line": 410,
+          "kind": "normal",
+          "label": "same configuration joins initialization",
+          "count": 1
+        }
+      ],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R03",
+      "declaredPlatform": "Core",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [
+          {
+            "platform": "kotlin-jvm",
+            "test": "SdkCoordinatorTest.initialization joins same config and rejects different config",
+            "normalAssertions": 6,
+            "expectedErrorChecks": 2,
+            "assertionsExecuted": 8,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          }
+        ],
+        "swift": [
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 6,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 6,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[SdkCoordinatorTests testConcurrentInitializeAndShutdown]"
+          }
+        ]
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": 2,
+      "managedLabelSelectedSites": [
+        {
+          "file": "registry-smoke.cs",
+          "line": 298,
+          "kind": "expectedError",
+          "label": "expected ALREADY_INITIALIZED_DIFFERENT_CONFIG",
+          "count": 1
+        },
+        {
+          "file": "registry-smoke.cs",
+          "line": 412,
+          "kind": "expectedError",
+          "label": "different config",
+          "count": 1
+        }
+      ],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R04",
+      "declaredPlatform": "Unity registry",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [],
+        "swift": []
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": 1,
+      "managedLabelSelectedSites": [
+        {
+          "file": "registry-smoke.cs",
+          "line": 182,
+          "kind": "normal",
+          "label": "duplicate response ignored exactly once",
+          "count": 1
+        }
+      ],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R05",
+      "declaredPlatform": "Bridge/Store",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [],
+        "swift": []
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": 4,
+      "managedLabelSelectedSites": [
+        {
+          "file": "registry-smoke.cs",
+          "line": 210,
+          "kind": "normal",
+          "label": "late timed-out response ignored",
+          "count": 1
+        },
+        {
+          "file": "registry-smoke.cs",
+          "line": 217,
+          "kind": "normal",
+          "label": "verified purchase event",
+          "count": 2
+        },
+        {
+          "file": "registry-smoke.cs",
+          "line": 221,
+          "kind": "normal",
+          "label": "purchase event accepted after timeout",
+          "count": 1
+        }
+      ],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R06",
+      "declaredPlatform": "Bridge",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [],
+        "swift": []
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": 2,
+      "managedLabelSelectedSites": [
+        {
+          "file": "registry-smoke.cs",
+          "line": 171,
+          "kind": "normal",
+          "label": "stale session must be ignored",
+          "count": 1
+        },
+        {
+          "file": "registry-smoke.cs",
+          "line": 223,
+          "kind": "normal",
+          "label": "stale event ignored",
+          "count": 1
+        }
+      ],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R07",
+      "declaredPlatform": "공통 parser",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [
+          {
+            "platform": "kotlin-jvm",
+            "test": "BridgeProtocolTest.rejects invalid envelopes and unrelated requests",
+            "normalAssertions": 3,
+            "expectedErrorChecks": 8,
+            "assertionsExecuted": 11,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          }
+        ],
+        "swift": [
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 15,
+            "expectedErrorChecks": 8,
+            "normalAssertions": 7,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[BridgeProtocolTests testRejectsMalformedInputs]"
+          }
+        ]
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": 2,
+      "managedLabelSelectedSites": [
+        {
+          "file": "registry-smoke.cs",
+          "line": 176,
+          "kind": "normal",
+          "label": "trailing JSON must be ignored",
+          "count": 1
+        },
+        {
+          "file": "registry-smoke.cs",
+          "line": 184,
+          "kind": "normal",
+          "label": "malformed JSON ignored safely",
+          "count": 1
+        }
+      ],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R08",
+      "declaredPlatform": "Native Bridge",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [
+          {
+            "platform": "kotlin-jvm",
+            "test": "BridgeDispatcherTest.status returns correlated response and unimplemented purchase fails explicitly",
+            "normalAssertions": 6,
+            "expectedErrorChecks": 0,
+            "assertionsExecuted": 6,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          }
+        ],
+        "swift": [
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 5,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 5,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[CBridgeTests testInvalidLengthsAreRejectedWithoutReadingAndBridgeSurvives]"
+          }
+        ]
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": "UNMEASURED",
+      "managedLabelSelectedSites": [],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R09",
+      "declaredPlatform": "C ABI/JNI",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [],
+        "swift": [
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 6,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 6,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[CBridgeTests testCopiedUTF8AndCorrelatedResponse]"
+          }
+        ]
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": "UNMEASURED",
+      "managedLabelSelectedSites": [],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R10",
+      "declaredPlatform": "Core",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [
+          {
+            "platform": "kotlin-jvm",
+            "test": "SdkCoordinatorTest.shutdown cancels an unfinished initialization",
+            "normalAssertions": 2,
+            "expectedErrorChecks": 0,
+            "assertionsExecuted": 2,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          }
+        ],
+        "swift": [
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 1,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 1,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[SdkCoordinatorTests testShutdownDuringInitialization]"
+          }
+        ]
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": 200,
+      "managedLabelSelectedSites": [
+        {
+          "file": "registry-smoke.cs",
+          "line": 402,
+          "kind": "expectedError",
+          "label": "race error",
+          "count": 100
+        },
+        {
+          "file": "registry-smoke.cs",
+          "line": 403,
+          "kind": "normal",
+          "label": "cancel shutdown race completes once",
+          "count": 100
+        }
+      ],
+      "unityEditorScopes": [],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R11",
+      "declaredPlatform": "Unity",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [],
+        "swift": []
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": "UNMEASURED",
+      "managedLabelSelectedSites": [],
+      "unityEditorScopes": [
+        {
+          "platform": "csharp-unity-editor",
+          "test": "DomainReloadDisabled",
+          "normalAssertions": 16,
+          "expectedErrorChecks": 0,
+          "assertionsExecuted": 16,
+          "assertionOutcomes": "UNMEASURED",
+          "complete": true
+        },
+        {
+          "platform": "csharp-unity-editor",
+          "test": "DomainReloadEnabled",
+          "normalAssertions": 16,
+          "expectedErrorChecks": 0,
+          "assertionsExecuted": 16,
+          "assertionOutcomes": "UNMEASURED",
+          "complete": true
+        }
+      ],
+      "stressExecution": null,
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    },
+    {
+      "id": "R12",
+      "declaredPlatform": "Local stress",
+      "managedSmokeExecution": "EXECUTED",
+      "declarationKind": "STATIC_MAPPING_NOT_EXECUTIONS",
+      "nativeTestScopes": {
+        "kotlin": [],
+        "swift": []
+      },
+      "nativeAttribution": "entire shared test scope; not per-R assertion totals",
+      "managedLabelSelectedAssertions": "UNMEASURED",
+      "managedLabelSelectedSites": [],
+      "unityEditorScopes": [],
+      "stressExecution": {
+        "executed": 316,
+        "warmup": 15,
+        "samples": 300,
+        "finalChecks": 1,
+        "outcomes": "UNMEASURED"
+      },
+      "limits": "Unwrapped implicit failure signals and unselected scopes remain UNMEASURED; no test-count substitution"
+    }
+  ],
+  "actualPlatformAddendum": {
+    "sourceHead": "d86ccc23ceb14dc6a81d93c2317de0c78f5d708e",
+    "iosSimulatorCAbi": {
+      "status": "PASS",
+      "tests": 1,
+      "failures": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "assertionsExecuted": "UNMEASURED",
+      "scope": "testHostPushEventRoutingAndDedup; separate from selected macOS CBridge UTF8 test"
+    },
+    "androidJniPlayer": {
+      "validationStatus": "DEFERRED_ENV",
+      "rawRunnerStatus": "FAIL",
+      "rawRunnerExitCode": 1,
+      "playerExecution": "NOT_RUN",
+      "players": 0,
+      "assertionsExecuted": "UNMEASURED",
+      "reason": "Unity LicensingClient IPC channel unavailable before APK creation"
+    },
+    "fullStrict": {
+      "status": "DEFERRED_ENV",
+      "invocations": 0
+    }
+  }
+}

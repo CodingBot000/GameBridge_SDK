@@ -53,9 +53,18 @@ private func makeTestSession(initializer: String) throws -> SKTestSession {
         let env = ProcessInfo.processInfo.environment
         let phase = env["GAMEBRIDGE_PROCESS_TEST_PHASE"] ?? ""
         let statusURL = FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0].appendingPathComponent("gamebridge-recovery-status.json")
-        func report(_ values: [String: Any]) { if let data = try? JSONSerialization.data(withJSONObject:values) { try? data.write(to:statusURL,options:.atomic) } }
+        let diagnosticStart = ProcessInfo.processInfo.systemUptime
+        var diagnosticEvents: [[String: Any]] = []
+        func report(_ values: [String: Any]) {
+            var enriched = values; enriched["observations"] = diagnosticEvents
+            if let data = try? JSONSerialization.data(withJSONObject:enriched) { try? data.write(to:statusURL,options:.atomic) }
+        }
         var stage = "configuration"
-        func checkpoint(_ value: String) { stage = value; report(["phase":"running", "stage":value]) }
+        func checkpoint(_ value: String) {
+            stage = value
+            diagnosticEvents.append(["stage":value,"elapsedMs":(ProcessInfo.processInfo.systemUptime-diagnosticStart)*1000])
+            report(["phase":"running", "stage":value,"observations":diagnosticEvents])
+        }
         var historyBefore = 0
         var unfinishedBefore = 0
         let pendingStore = CountingStore(KeychainTokenStore(service:"com.gamebridge.process-test.pending"))
@@ -86,19 +95,23 @@ private func makeTestSession(initializer: String) throws -> SKTestSession {
             let store = try await XcodeStoreKitSession(client:client, pendingStore:pendingStore)
             checkpoint("store-history-all")
             for await _ in Transaction.all { historyBefore += 1 }
+            checkpoint("store-history-all-returned")
             checkpoint("store-history-unfinished")
             for await _ in Transaction.unfinished { unfinishedBefore += 1 }
+            checkpoint("store-history-unfinished-returned")
             checkpoint("store-start")
             try await store.start()
+            checkpoint("store-start-returned")
             if phase == "prepare" {
                 checkpoint("purchase")
                 let purchase = try await store.purchase("coins_100")
+                checkpoint("purchase-returned")
                 checkpoint("pending-assertion")
                 guard purchase.status == .verificationPending, try pendingStore.load() != nil else { throw SdkFailure("INTERNAL_ERROR") }
                 checkpoint("wallet")
                 let wallet = try await store.wallet()
                 guard wallet.coinBalance == "100" else { throw SdkFailure("INTERNAL_ERROR") }
-                report(["phase":"pending", "balance":wallet.coinBalance, "pid":ProcessInfo.processInfo.processIdentifier])
+                report(["phase":"pending", "balance":wallet.coinBalance, "pid":ProcessInfo.processInfo.processIdentifier,"observations":diagnosticEvents])
                 // Keep the process alive until the test runner terminates it.
             } else {
                 checkpoint("recover-wallet")
@@ -114,7 +127,7 @@ private func makeTestSession(initializer: String) throws -> SKTestSession {
                 try await Task.sleep(nanoseconds:1_000_000_000)
                 stage = "recovery-assertion-\(wallet.coinBalance)-\(remaining.examinedCount)-\(try pendingStore.load() == nil)-\(pendingStore.saves)"
                 guard wallet.coinBalance == "100", try pendingStore.load() == nil, remaining.examinedCount == 0, pendingStore.saves == 0 else { throw SdkFailure("INTERNAL_ERROR") }
-                report(["phase":"recovered", "balance":wallet.coinBalance, "pid":ProcessInfo.processInfo.processIdentifier])
+                report(["phase":"recovered", "balance":wallet.coinBalance, "pid":ProcessInfo.processInfo.processIdentifier,"observations":diagnosticEvents])
                 store.stop(); try await client.signOut()
             }
         } catch let failure as SdkFailure { report(["phase":"failed", "code":failure.code, "stage":stage, "historyBefore":historyBefore, "unfinishedBefore":unfinishedBefore, "saves":pendingStore.saves, "clears":pendingStore.clears, "clearErrors":pendingStore.clearErrors]) }

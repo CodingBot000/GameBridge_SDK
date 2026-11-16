@@ -1559,3 +1559,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치26 A 계측 준비 커밋 전: 실제Kotlin10/50·Swift12/122·managed391·stress316·Unity2/32 확인,전체Python136 PASS/skip0,APIbaseline/progress/manifest/diff통과. 동적helper호출/정상·예상오류/partial변이/정적선언·미측정범위구분. duplicate-only 정상0/변이nonzero와원본hash복원 검증을보강했다. 현재shipping runtime은6d와동일. commit후동일cohort/조건분기control로A최종baseline을확정한다.
 
 - 배치26 A 검증/커밋 전: commit b6fd5379c8ec31b110904754e744325bd39d61c9 tracked-clean baseline core-assertions-2u0cmwrq PASS/exit0. Kotlin10test/helper50,Swift12/122,managedcheck1/391,원본복원391,분기control OFF0/ON1로392,stress316(15/300/1),Unity2/32. duplicate-only정상probe0/helper2,변이nonzero/partialhelper1·NullReference의정확한duplicate단계감지·원본hash동일확인. R01~R12 shared-test/label attribution과JNI Player/implicit signals/전체assertoutcomes UNMEASURED를명시했다. 정적manifest목록은숫자실행으로합산하지않는다. 최종P09T02판정은D의실제영향검증과함께검토한다. B제한진단으로이동.
+
+- 배치26 B 시작: 배치24최초18.6실패/24retry/25통합성공을source/configuration/Xcode/boot/health/순서/checkpoint와대조한다. 필요한test-only관측만추가하고SDK구매·지급·finish/recovery는변경하지않는다. 구분가능한controlled가설각1회범위,기존timeout유지·26.5재조사없음. 미재현이면미확정위험으로종료하고C실질리팩토링을계속한다.
+
+- 배치26 B 진단 준비 검증/커밋 전: read-only toolchain Xcode26.6/17F113 확인,0b6fb72·4b23529·e46cb65의GameBridge.storekit SHA동일. 최초failures의버전/boot/부분로그누락한계유지. test-only monotonic API전후trace/XCTest attachment/config SHA/health·boot·test단계관측추가,Python진단단위3 PASS/Swiftparse0. --diagnose는새owned18.6를따로boot관측하고nonparallel·전용DerivedData로각영향경로1회만검증한다. test180/phase75제한및SDK구매·지급·finish/recovery동작은변경하지않는다.

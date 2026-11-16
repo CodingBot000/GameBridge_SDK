@@ -35,3 +35,11 @@ source **b6fd5379c8ec31b110904754e744325bd39d61c9**,tracked-clean,`core-assertio
 R12는warmup15/sample300/final1=316실제호출,samples100을tests로치환하지않는다. duplicate-only정상probe는helper2/exit0,guard제거disposable probe는부분helper1후정확한duplicate응답에서NullReference/nonzero를보였다. 실패process1과assertion실패수는같지않다. 원본SHA동일·정상전체smoke391재실행을확인했다.
 
 shared native testcase의전체N회를R별정확N회로중복배분하지않으며managed는실행label/site선택값을보여준다. declared manifest list는STATIC_MAPPING이다. 래퍼밖implicit signal/전체assertion outcomes·정확한소스callsite총수및이ledger에서미실행JNI probe범위는UNMEASURED/NOT_RUN으로구분했다. 이범위를0이나testcase수로채우지않는다. P10전후동일cohort비교의기준이다.
+
+### B 관측 설계/대조
+
+0b6fb72/4b23529/e46cb65의GameBridge.storekit bytes/SHA동일,shipping SDK runtime도변경없다. 현재Xcode26.6(17F113)과CLI의nonparallel옵션을직접확인했다. 최초실패의정확한Xcode/boot상태·정지시간자료는보존되지않아같았다고임의보충하지않는다. 배치25가비교한Backend준비·session1/매입/원장0대성공1/1/100자료도유효하나단독PASS로RootCause를결정하지않는다.
+
+새test-only관측: ProcessInfo.systemUptime API전후checkpoint,JSON timeline/XCTest attachment,configuration SHA,Xcode version,새owned Simulator의상태와Backend health/test구간경과시간. payload/자격값은수집하지않는다. Python진단3단위PASS,Swiftparse0.
+
+구분가능한조건은boot비용·test실행구간의분리관측이다. --diagnose는새18.6기기를명시boot관측한뒤동일180초XCTest제한으로nonparallel·새DerivedData에서DB recovery를1회실행한다. process는기존명시boot및75초phase제한에API전후trace만더해1회실행한다. 두조건은진단용이며default SDK구매/finish/recovery순서·assertion을바꾸지않는다. 성공해도최초간헐위험을해소했다고주장하지않는다.

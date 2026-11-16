@@ -65,3 +65,7 @@ Finish/finally의동일owner removal을한private경계로모으고lock범위·�
 ### D 현재 소스 검증 준비
 
 전체Python143건PASS/skip0,신규4파일도Hosted에연결.API/source/wire/progress/actionlint/diff검사통과. consumerEditor실행은이제checksum뿐아니라실제checkout SDK source일치를요구한다. old147파일staging은새private실행코드와달라실제exit1로거부됐고Unity를실행하지않았다. 현재sourcecommit후Maven/XCFramework/UPM을신규경로에생성한다. 이전산출물을현재제품수정의플랫폼증거로사용하지않는다.
+
+### D 새 산출물 및 post baseline
+
+source dc45a2f tracked-clean의새NativeMaven/Android/R8·XCFramework양slice build0,새UPM147checksum통과. javap3종Nativeclass publicsurface·GB_*4exports양slice동일.[비교원본](p10-core-bridge-batch26.md). postledger core-assertions-zn69jotl:Kotlin10/50·Swift12/122·managed418/restore418/branch419·stress316·Unity2/32 및정확duplicate변이복원PASS. 추가NativebridgeJUnit1/실패skip0. 이후source는검증증거문서만추가되며새stage는current SDKsource와일치한다. fresh self9/actualJNI·C ABI/조건부Strict결과를추가한다.

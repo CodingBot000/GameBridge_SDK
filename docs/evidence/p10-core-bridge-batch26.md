@@ -21,3 +21,11 @@ Finish와RequestAsync finally의동일entry참조확인/removal을private Remove
 C1후/C2후동일cohort418=198normal+220expected/exit0. 100회cancel-vs-dispose 각exactly-once/timeout후응답/중복/pending0/초기화join·새session의미검사유지. duplicate-only정상0/변이nonzero의예상guard실패도감지했다. source/API/wire baselinePASS. 중앙화로반복조건이줄었으며helper와설명추가때문에전체LOC감소를주장하지않는다.
 
 실제shipping수정은RequestRegistry.cs한파일의두private경계다. 나머지변경은계측·test-only진단·회귀/harness·evidence다. P10-T01전체범위완료판정은D의현소스산출물/실제플랫폼결과및남은범위를함께고려한다.
+
+## D 새 소스 빌드/API·ABI 결과
+
+source **dc45a2f1b97e035655b4b6b2a9d5381248b040dc**,tracked-clean. 현재NativeMaven/Android/R8 compile exit0,새XCFramework device/simulator archive exit0,새UPM147파일checksum통과. 현재package의privateC#source가checkout과일치하며oldstaging은거부된다.
+
+현재Native3종class(SdkCoordinator,BridgeProtocol,BridgeFacade)의javap publicsurface가변경전과동일하다. 양slice nm의Cexports는GB_Dispatch/GB_ProtocolVersion/GB_SetCallback/GB_Shutdown4개로동일. snapshot79파일의Kotlin/Swiftshipping/wire는동일하며유일한private수정파일의public/internal선언도일치했다. 전체SDK의모든binary ABI를검사한것이아닌선정표면의실제새빌드검증이다. 원본 `artifacts/batch26/artifact-compatibility.json`.
+
+현재post ledger `core-assertions-zn69jotl` PASS/exit0:Kotlin10/50,Swift12/122,managed418(198normal+220expected),정상복원418,분기control419,stress316,Unity2/32. baseline391에matrix27을더한동일418cohort를C1/C2전후유지했다. counts를맞추도록assertion을제거하거나Fake제품으로대체하지않았다. 실제Native/Player/Strict는후속source별로추가한다.

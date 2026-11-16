@@ -1579,3 +1579,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치26 D 시작: 현재변경의전체Python·Kotlin/SwiftCoreBridge·managed/stress/mutation·API/ABI/contract·self9·원장검사를통합하고현재source에서Native패키지/UPMstaging을새로생성한다. old변경전staging을현재C#runtime증거로쓰지않는다. 소유입증전용기기에서실제Native/Unity LOCAL_MOCK와조건부Strict최대1회,모두commit후falseHosted1회를검증한다. P09T04/P09T07PARTIAL/P05FAIL/Provider대기유지.
 
 - 배치26 D 준비검증/커밋 전: 전체Python143건PASS/skip0(신규assert계약/진단/surface/staging단위),API/source/wire·progress·actionlint/diff통과. build-unity consumer에도current checkout source검사를추가해old147-checksum-valid staging을실제exit1로거부(현재runtime를old로검증하지않음). 새단위4파일을Hosted연결했다. 현재codecommit뒤Native/Maven/XCFramework/UPM을새경로로재생성하고currentSource/hash/ABI를검증한다.
+
+- 배치26 D 실제검증/플랫폼준비: commitdc45a2f tracked-clean에서새Maven+Android/R8 build0,Xcodedevice/simulatorarchive+XCFramework0,새UPM147checksum0. Native javap3종class publicsurface와GB_*4개export(2slice)모두변경전동일. shipping79파일/currentstage hash 기록. current post-refactor ledger core-assertions-zn69jotl exit0: Kotlin10/50,Swift12/122,managed418=198+220,restore418,branch419(OFF0/ON1),stress316,Unity2/32,duplicate정상0/변이nonzero/원본hash동일. 변화전cohort391에header matrix27을추가한418이며전후동일matrix418비교. 추가Native/actualJNI·self9·조건부Strict를이어서검증한다.
+
+- 배치26 D 실행소스확정 커밋 전: Native추가sdk-unity-bridge JUnit1/실패skip0도current code에서통과. 새Maven/XCFramework/UPM checksum·javap/nm ABI표면·postassert ledger·old-stage 거부증거를보존했다. 다음source에서freshDB self9,전용R09 JNI/C ABI및현재Unity실행/조건부Strict1회만수행한다. oldstaging은사용하지않는다.

@@ -75,3 +75,9 @@ source **0b6fb7250e6f9edb2c93ba477ac06a5060b1769a**, tracked-clean. `ci-unity-e2
 - `run-xcode-process-recovery.py --run-local`: 같은 source 및 진행 문서 변경(제품·하네스 코드는 동일), `xcode-process-recovery-r2r9s3db`, exit 0. prepare/recover의 잔액 모두 100, PID가 달라 실제 프로세스 종료·복구를 확인했다. 실제 XCTest 건수가 아닌 process recovery 검사 1회다.
 
 새 격리 DB·role·Simulator에서 각 한 번씩 재검증했다. 완료된 이번 전용 Simulator를 종료하고 보존했다. SDK 동작이나 timeout을 변경하지 않았으므로 최초 실패 원인은 미확정/간헐 위험으로 남기며, 원래 Strict report를 통과 결과로 재작성하지 않는다.
+
+### Android Push retry 환경 보류
+
+새 AVD helper는 예상 serial5570에서 다른 AVD 이름을 받아 `Wrong dedicated AVD`/exit 1로 gate 실행 전에 중단했다. UI·설치·네트워크 명령은 보내지 않았다. retry AVD의 자기 PID는 살아 있었지만 해당 serial/online AVD와 연결되지 않았고 원인은 확정하지 못했다. 검증한 자기 PID만 종료했고 디스크를 보존했다. 다른 기기·ADB server를 재시작/초기화하지 않는다.
+
+**ENV-P09-AVD OPEN / Android Push 영향 재검증 DEFERRED_ENV**. 기존 실제 READY timeout FAIL을 지우지 않는다. 원격/과거 Android Player 근거를 현재 PASS로 재사용하지 않는다. 기기 명령마다 serial·전용 이름을 다시 확인하고 cleanup이 기존 실패를 환경 대기로 덮지 않도록 보강했다. serial 재배정·범위 없는 명령 거부 단위 포함 전체 Python 119건 PASS. iOS Push는 독립 실행한다.

@@ -65,7 +65,7 @@ def locate_adb(configured):
     return next((candidate for candidate in candidates if candidate and Path(candidate).is_file()), None)
 
 
-def find_dedicated_device(adb, serial, expected_avd):
+def require_dedicated_identity(adb, serial, expected_avd):
     lines = must([adb, "devices"], "ADB_UNAVAILABLE", category="DEFERRED_ENV").splitlines()
     online = [line.split()[0] for line in lines[1:] if len(line.split()) >= 2 and line.split()[1] == "device"]
     emulators = [entry for entry in online if entry.startswith("emulator-")]
@@ -79,6 +79,11 @@ def find_dedicated_device(adb, serial, expected_avd):
     avd = next((line.strip() for line in output.splitlines() if line.strip() not in ("OK", "")), "")
     if not avd.startswith("GameBridge_V2_") or (expected_avd and expected_avd != avd):
         raise GateError("NOT_THE_DEDICATED_GAMEBRIDGE_AVD", "DEFERRED_ENV")
+    return serial, avd
+
+
+def find_dedicated_device(adb, serial, expected_avd):
+    serial,avd=require_dedicated_identity(adb,serial,expected_avd)
     packages = must([adb, "-s", serial, "shell", "pm", "list", "packages", PACKAGE], "PACKAGE_QUERY_FAILED", category="DEFERRED_ENV")
     if "package:" + PACKAGE in packages.splitlines():
         raise GateError("TEST_APP_ALREADY_INSTALLED_PRESERVE_EXISTING", "DEFERRED_ENV")

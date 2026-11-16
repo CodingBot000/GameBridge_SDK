@@ -124,6 +124,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | USER-SESSION-TTL | USER | P04-T04 | 최초 로그인부터 7일 고정 사용자 선택 | 기존 코드와 대조·검증 진행 | 실제 인증 검증 별도 필요 | RESOLVED |
 | USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제 | local-mock 세션별 삭제와 경쟁 상황 검증 완료 | 실제 FCM/APNs 경로 별도 구현 | RESOLVED |
 | USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프 | local-mock worker·재시작·동시성 검증 완료 | 실제 store finalizer 별도 구현 | RESOLVED |
+| ENV-P09-AVD | ENV | P09-T05 | 전용 retry AVD PID와 요청 ADB serial 연결 불일치; 해당 serial이 다른 AVD를 반환 | 다른 기기 조작 전 차단·검증한 자기 PID만 종료·데이터 보존 | 독점 전용 ADB/AVD 연결과 이름 일치를 확인 후 현재 Android Push 실행 | OPEN |
 | ENV-STOREKIT-26 | ENV | P05-T03 | iOS 26.5 simulator SKTestSession 설정 저장 Code 3 및 상품 조회 실패; 별도 iOS 18.6 전용 simulator 상품 조회 1건 통과 | 다른 독립 구현 진행; 실패 시험 보존 | 호환 환경에서 StoreKit local 재시험 | OPEN |
 | ENV-008 | ENV | P04-T04 | 전용 PostgreSQL container 정상 종료 상태에서 opt-in DB 시험 실패 | 기존 volume 보존 후 재기동 | DB healthy 및 실패 시험 재실행 | RESOLVED |
 | ENV-005 | ENV | P03-T02 | Simulator UI snapshot 대상 0개, 수동 대체 입력으로도 흐름 미확인 | XCTest 기반 독립 UI 검증 시도 | iOS local-mock UI smoke 실행 확인 | RESOLVED |
@@ -1476,3 +1477,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치24 C 영향 재검증 3: source 4b23529 + 진행 문서 변경(코드 동일)에서 process recovery exit 0(artifacts/xcode-process-recovery-r2r9s3db). prepare/recover balance 100, 서로 다른 PID로 실제 프로세스 종료·재실행 복구 확인. StoreKit 두 lane 및 Editor는 단독 재검증 PASS지만 최초 Strict 실패·간헐 원인 미확정을 보존한다. 현재 문서 commit 후 fresh Push AVD5570에서 UI 안내를 관측·닫는 보조와 함께 양 Player gate만 재실행한다.
 
 - 배치24 StoreKit 재검증 기록 커밋 전: 두 영향 검증 PASS와 최초 FAIL/원인 미확정을 함께 기록했다. 다음 Push Player는 이 문서 커밋의 tracked-clean source에서 새로 실행한다.
+
+- 배치24 C Push 재개 환경 차단: 예정 serial5570 조회가 Pomodoro_QA_33을 반환해 보조 실행이 Wrong dedicated AVD/exit 1로 즉시 중단됐다. UI/설치/네트워크 명령은 수행하지 않았다. GameBridge retry AVD는 현재 online 목록에 없어 원인 미확정으로 기록한다. serial 소유를 가정하지 않고 각 기기 명령 직전 identity 재확인과 cleanup 보호를 보강한 뒤 비어 있는 전용 포트에서 실행한다.
+
+- 배치24 기기 소유 보호 검증/커밋 전: 전체 Python 119건 PASS/skip 0. serial 재배정·비전용 이름·serial 없는 명령을 검사해 기기 조작 전 차단한다. network cleanup도 다른 AVD에는 보내지 않으며 기존 FAIL을 DEFERRED로 덮지 않는다. retry AVD PID는 살아 있었으나 예상 ADB serial과 연결되지 않았고 같은 serial은 타 AVD를 반환했다. 원인은 미확정; 검증한 자기 PID만 종료·디스크 보존. Android Push 재검증은 ENV-P09-AVD/DEFERRED_ENV로 남기고 독립 iOS Push를 실행한다. 다른 기기·ADB server를 종료/재설정하지 않는다.

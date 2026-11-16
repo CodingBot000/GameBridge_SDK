@@ -6,9 +6,19 @@ ROOT=Path(__file__).resolve().parent.parent
 spec=importlib.util.spec_from_file_location('android_e2e',ROOT/'harness/run-unity-android-mock-e2e.py'); common=importlib.util.module_from_spec(spec);spec.loader.exec_module(common)
 proxy_spec=importlib.util.spec_from_file_location('ios_push',ROOT/'harness/run-unity-ios-mock-push-e2e.py'); proxy_module=importlib.util.module_from_spec(proxy_spec);proxy_spec.loader.exec_module(proxy_module)
 
+
+def guarded_call(command, adb, serial, expected_avd, failure_code=None, **kwargs):
+    if adb and str(command[0])==str(adb):
+        if [str(x) for x in command[1:3]]!=['-s',serial]:
+            raise common.GateError('UNSCOPED_DEVICE_COMMAND','DEFERRED_ENV')
+        common.require_dedicated_identity(adb,serial,expected_avd)
+    return common.must(command,failure_code,**kwargs) if failure_code else common.run(command,**kwargs)
+
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--run-local',required=True,action='store_true');parser.add_argument('--staging',type=Path,required=True);parser.add_argument('--serial',required=True);parser.add_argument('--expected-avd',required=True);args=parser.parse_args()
-    out=Path(tempfile.mkdtemp(prefix='unity-android-push-',dir=ROOT/'artifacts'));must=common.must;run=common.run;server=None;log=None;proxy=None;network_changed=False;adb=None;serial=None
+    out=Path(tempfile.mkdtemp(prefix='unity-android-push-',dir=ROOT/'artifacts'));server=None;log=None;proxy=None;network_changed=False;adb=None;serial=None
+    def run(command,**kwargs):return guarded_call(command,adb,serial,args.expected_avd,**kwargs)
+    def must(command,failure_code,**kwargs):return guarded_call(command,adb,serial,args.expected_avd,failure_code,**kwargs)
     head=must(['git','rev-parse','HEAD'],'GIT_HEAD').strip();dirty=bool(must(['git','status','--porcelain','--untracked-files=no'],'GIT_STATUS').strip()); result={'status':'FAIL','scope':'Unity Android LOCAL_MOCK push; not FCM','sourceHead':head,'sourceTrackedDirty':dirty,'player':'NOT_RUN','background':'NOT_RUN','networkRecovery':'NOT_RUN','processRestart':'NOT_RUN'}
     try:
         stage=args.staging.resolve();must(['python3','harness/check-staging.py',stage],'STAGING_INVALID');common.verify_staged_source_matches_checkout(stage)
@@ -121,8 +131,12 @@ def main():
     except Exception as error:result['errorCode']=type(error).__name__
     finally:
         if network_changed and adb and serial:
-            run([adb,'-s',serial,'shell','svc','wifi','enable'],timeout=15)
-            run([adb,'-s',serial,'shell','svc','data','enable'],timeout=15)
+            try:
+                run([adb,'-s',serial,'shell','svc','wifi','enable'],timeout=15)
+                run([adb,'-s',serial,'shell','svc','data','enable'],timeout=15)
+            except common.GateError:
+                result['cleanupErrorCode']='CLEANUP_TARGET_IDENTITY_CHANGED'
+                if result.get('status')=='PASS':result.update(status='FAIL',errorCode='CLEANUP_TARGET_IDENTITY_CHANGED')
         if proxy:proxy.shutdown();proxy.server_close()
         if server:
             server.terminate()

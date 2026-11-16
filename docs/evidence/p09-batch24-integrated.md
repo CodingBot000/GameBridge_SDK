@@ -68,3 +68,10 @@ source **0b6fb7250e6f9edb2c93ba477ac06a5060b1769a**, tracked-clean. `ci-unity-e2
 `4508b9a`에서 미정 오류 모델·mutable command snapshot·timeout 부분 로그 공백을 보강했다. 관련 새 음성 3건은 수정 전 실패를 재현했고 수정 후 전체 Python 117건 PASS/skip 0. Strict 전체를 재실행한 것으로 취급하지 않는다. 같은 source의 단독 Editor 재검증 `unity-consumer.nsFJLu`는 실제 2건 PASS/exit 0. 최초 timeout은 보존한다.
 
 다음 source는 test-only StoreKit stage 로그와 Transaction.all/unfinished checkpoint를 추가한다. SDK 동작이나 성공 판정 기준·timeout은 바꾸지 않는다. 그 뒤 격리 StoreKit 두 lane을 각각 한 번, 새 전용 AVD의 Push gate를 영향 재검증한다.
+
+### StoreKit 영향 재검증
+
+- `run-xcode-storekit-e2e.py --run-local`: source 4b23529251392bdcc26cdbc2616b574cf93f3063, `xcode-storekit-e2e-zk9hcbqp`, exit 0, 실제 XCTest 1 PASS/skip 0, testExitCode 0, timedOut false.
+- `run-xcode-process-recovery.py --run-local`: 같은 source 및 진행 문서 변경(제품·하네스 코드는 동일), `xcode-process-recovery-r2r9s3db`, exit 0. prepare/recover의 잔액 모두 100, PID가 달라 실제 프로세스 종료·복구를 확인했다. 실제 XCTest 건수가 아닌 process recovery 검사 1회다.
+
+새 격리 DB·role·Simulator에서 각 한 번씩 재검증했다. 완료된 이번 전용 Simulator를 종료하고 보존했다. SDK 동작이나 timeout을 변경하지 않았으므로 최초 실패 원인은 미확정/간헐 위험으로 남기며, 원래 Strict report를 통과 결과로 재작성하지 않는다.

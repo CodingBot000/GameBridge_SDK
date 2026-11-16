@@ -1470,3 +1470,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치24 C 영향 재검증 1: source 4508b9a에서 단독 bash scripts/build-unity.sh --editor-smoke exit 0, 실제 Editor tests 2 PASS(artifacts/unity-consumer.nsFJLu). 최초 Strict의 CLI 300초 timeout/DEFERRED는 그대로 보존하며 현재 재검증 성공을 별도 기록한다. StoreKit retry는 timeout 로그·고정 stage marker를 보강하고 새 격리 DB/Simulator에서 각 1회만 실행한다.
 
 - 배치24 진단 커밋 전: source4508 Editor 재검증 PASS를 기록하고 test-only stage 로그를 추가했다. Swift parse 확인 후 커밋하며 StoreKit 실제 재검증은 아직 NOT_RUN이다.
+
+- 배치24 C 영향 재검증 2: source 4b23529의 StoreKit DB wrapper 단독 retry exit 0, 실제 XCTest 1 PASS/skip 0/testExitCode 0/timedOut false(artifacts/xcode-storekit-e2e-zk9hcbqp). SDK 동작·timeout 변경 없이 통과했지만 최초 180초 실패 원인은 미확정/간헐 관측으로 남긴다. 최초 Strict 결과는 수정하지 않는다. 완료된 이번 전용 Simulator를 shutdown 후 process recovery만 재실행한다.
+
+- 배치24 C 영향 재검증 3: source 4b23529 + 진행 문서 변경(코드 동일)에서 process recovery exit 0(artifacts/xcode-process-recovery-r2r9s3db). prepare/recover balance 100, 서로 다른 PID로 실제 프로세스 종료·재실행 복구 확인. StoreKit 두 lane 및 Editor는 단독 재검증 PASS지만 최초 Strict 실패·간헐 원인 미확정을 보존한다. 현재 문서 commit 후 fresh Push AVD5570에서 UI 안내를 관측·닫는 보조와 함께 양 Player gate만 재실행한다.
+
+- 배치24 StoreKit 재검증 기록 커밋 전: 두 영향 검증 PASS와 최초 FAIL/원인 미확정을 함께 기록했다. 다음 Push Player는 이 문서 커밋의 tracked-clean source에서 새로 실행한다.

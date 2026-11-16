@@ -8,6 +8,13 @@ if [[ -z "${GAMEBRIDGE_UPM_STAGING:-}" || ! -d "$GAMEBRIDGE_UPM_STAGING/com.game
   echo 'CONFIG_REQUIRED: GAMEBRIDGE_UPM_STAGING must name an existing packaged SDK staging directory' >&2; exit 2
 fi
 python3 "$root/harness/check-staging.py" "$GAMEBRIDGE_UPM_STAGING"
+python3 - "$root" "$GAMEBRIDGE_UPM_STAGING" <<'PYSOURCE'
+import importlib.util,sys
+from pathlib import Path
+root,stage=map(Path,sys.argv[1:]);spec=importlib.util.spec_from_file_location('staged_source',root/'harness/run-unity-android-mock-e2e.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+try:module.verify_staged_source_matches_checkout(stage)
+except module.GateError:raise SystemExit('FAIL: Unity consumer staging source differs from current checkout')
+PYSOURCE
 mkdir -p "$root/artifacts"
 output="$(mktemp -d "$root/artifacts/unity-consumer.XXXXXX")"
 project="$output/project"

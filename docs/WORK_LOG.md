@@ -3773,3 +3773,7 @@
 - 배치26 C1 검증/커밋 전: RequestRegistry의3중event session/id/time/payload header검증을private TryReadEventEnvelope로집중하고kind별body/disposed/callback전달은유지했다. 변경전/후같은managed matrix+race cohort actualhelper418=198normal+220expected,process0동일. 기존API baseline및새79파일Native/C#선언/C-export/wire scope baselinePASS. 공개/internal호출표면변경없음;단순공통추상화가아닌동일검증3곳→1곳. public/wire/source/export변경음성단위3PASS. Kotlin/Swift coordinator는각각Mutex/actor·generation고유상태소유로이영역형식통일이득낮아이번수정제외했다.
 
 - 배치26 C2 검증/커밋 전: RequestRegistry Finish/finally의동일pending-entry reference확인+remove를private RemoveOwned로모았다. lookup/remove 및필요한ignored계수는같은gate안,Completion通知는기존대로밖. finally중복정리는ignored를추가하지않고Dispose clear/abandon순서및cancellation/timeouterror선택은유지. 같은matrix+100racecohort418=198normal+220expected/exit0,duplicate-only정상0/변이nonzero감지,API/source/wire검사PASS. 공개/Internal/C ABI변경없음. 실제새빌드/플랫폼·최종회귀는D에서검증한다.
+
+- 배치26 D 시작: 현재변경의전체Python·Kotlin/SwiftCoreBridge·managed/stress/mutation·API/ABI/contract·self9·원장검사를통합하고현재source에서Native패키지/UPMstaging을새로생성한다. old변경전staging을현재C#runtime증거로쓰지않는다. 소유입증전용기기에서실제Native/Unity LOCAL_MOCK와조건부Strict최대1회,모두commit후falseHosted1회를검증한다. P09T04/P09T07PARTIAL/P05FAIL/Provider대기유지.
+
+- 배치26 D 준비검증/커밋 전: 전체Python143건PASS/skip0(신규assert계약/진단/surface/staging단위),API/source/wire·progress·actionlint/diff통과. build-unity consumer에도current checkout source검사를추가해old147-checksum-valid staging을실제exit1로거부(현재runtime를old로검증하지않음). 새단위4파일을Hosted연결했다. 현재codecommit뒤Native/Maven/XCFramework/UPM을새경로로재생성하고currentSource/hash/ABI를검증한다.

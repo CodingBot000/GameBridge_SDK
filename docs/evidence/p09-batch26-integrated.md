@@ -61,3 +61,7 @@ process `xcode-process-recovery-8qg9cxnf`은같은code及진행문서변경상�
 ### C2 pending ownership 분리
 
 Finish/finally의동일owner removal을한private경계로모으고lock범위·완료알림순서·ignored구분을유지했다. 전후cohort418동일/exit0,정상duplicate0/변이nonzero,baseline검사PASS. [실제변경비교](p10-core-bridge-batch26.md). D에서현재소스의빌드·Native/Unity·ABI·최종회귀를수행한다.
+
+### D 현재 소스 검증 준비
+
+전체Python143건PASS/skip0,신규4파일도Hosted에연결.API/source/wire/progress/actionlint/diff검사통과. consumerEditor실행은이제checksum뿐아니라실제checkout SDK source일치를요구한다. old147파일staging은새private실행코드와달라실제exit1로거부됐고Unity를실행하지않았다. 현재sourcecommit후Maven/XCFramework/UPM을신규경로에생성한다. 이전산출물을현재제품수정의플랫폼증거로사용하지않는다.

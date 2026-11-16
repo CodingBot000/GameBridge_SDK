@@ -51,3 +51,42 @@ def measured_lane(name, command, code, text, log, marker):
         passed=lane['players']==2
     lane['status']='PASS' if passed else 'FAIL'
     return lane
+
+
+# A producer attaches the invocation observed by its own subprocess wrapper.
+# This is process-local; it is never loaded from a supplied result.json.
+_last_execution = None
+
+
+def record_execution(command, code, text, log):
+    global _last_execution
+    path = Path(log).resolve()
+    _last_execution = dict(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                           marker=text.strip().splitlines()[-1] if text.strip() else '',
+                           exitCode=code, command=list(command))
+    return _last_execution
+
+
+def attach_execution(lane, execution=None):
+    receipt = execution if execution is not None else _last_execution
+    if receipt is not None and receipt.get('exitCode') == lane.get('exitCode'):
+        lane['command'] = receipt['command']
+        lane['evidence'] = receipt['path']
+        lane['checkerEvidence'] = dict(receipt)
+    return lane
+
+
+def counted_lane(name, code, counts, errors=None, error_model='included-in-failures', measurement='tests', execution=None):
+    tests, failures, skipped = counts
+    checker = measurement in ('checker', 'players', 'samples')
+    count = tests
+    lane = {'suite': name, 'tests': 0 if checker else tests, 'checks': 1 if count > 0 else 0,
+            'samples': count if measurement == 'samples' else 0,
+            'players': count if measurement == 'players' else 0,
+            'measurement': measurement, 'failures': failures, 'errors': errors,
+            'errorModel': error_model, 'skipped': skipped, 'exitCode': code}
+    good = (type(code) is int and code == 0 and type(count) is int and count > 0 and
+            type(failures) is int and failures == 0 and (errors is None or type(errors) is int and errors == 0) and
+            type(skipped) is int and skipped == 0)
+    lane['status'] = 'PASS' if good else ('DEFERRED_ENV' if code == 2 else 'FAIL')
+    return attach_execution(lane, execution)

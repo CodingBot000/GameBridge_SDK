@@ -1432,3 +1432,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09-T06 커밋 전 원장·manifest·diff PASS. simple 측정/근거 계약·관련 단위와 CI 연결·정제 문서만 개별 stage하며 과거 보고서나 제품 코드는 수정하지 않는다.
 
 - P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. 측정 계약 범위의 코드·정제 문서만 커밋한다.
+
+- P09-T06 배치24 작업 A 시작: HEAD 8eec64a 기준 nested producer 단위 보존과 자체시험 checker 계약을 구현한다. 작업 B에서 실행 근거 연결·fail-closed를 보강하고 C/D 실제 통합·원격 검증까지 연속 수행한다. 기존 P05-T03 FAIL/ENV-STOREKIT-26 OPEN/Provider WAITING_USER, 사용자 미추적 자료를 보존한다.
+
+- 배치24 A 검증 1: 계약·측정 단위 19건 중 기존 stub fixture 3건 FAIL(exit 1). 실행 로그를 만들지 않던 fixture가 새 근거 필수 조건에 걸렸다. fixture에 관측 명령·로그를 명시하고 자체시험 fixture도 checker 계약으로 갱신한다. 실제 제품 검증 실패는 아니다.
+
+- 배치24 A 검증/커밋 전: 계약·측정 19건, nested 단위 4건, self-report 2건 PASS(skip 0), 원장·manifest·diff exit 0. 최초 stub 3건 실패는 실제 로그를 생성하는 fixture로 수정했다. C#·패키징·marker는 tests 0/checks, Unity push는 players 2, 상위 nested는 모든 측정 필드와 누락을 보존한다. 자체시험의 checks→tests 치환을 제거했다. 통합 제품 실행은 C에서 수행한다.

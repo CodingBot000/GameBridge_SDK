@@ -11,6 +11,8 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from measurement_contract import record_execution, counted_lane
+
 ROOT = Path(__file__).resolve().parent.parent
 
 def run(command: list[str], log: Path, env: dict[str, str]) -> tuple[int, str]:
@@ -21,6 +23,7 @@ def run(command: list[str], log: Path, env: dict[str, str]) -> tuple[int, str]:
     except (OSError, subprocess.TimeoutExpired) as exc:
         output = f'{type(exc).__name__}: command unavailable or timed out\n'; code = 2
     log.write_text(output, encoding='utf-8')
+    record_execution(command, code, output, log)
     return code, output
 
 def main() -> int:
@@ -42,7 +45,7 @@ def main() -> int:
                 tests += int(root.attrib['tests']); failures += int(root.attrib['failures']); errors += int(root.attrib['errors']); skipped += int(root.attrib['skipped'])
         except (OSError, ET.ParseError, KeyError, ValueError): tests = 0
         status = 'PASS' if code == 0 and tests > 0 and failures == 0 and errors == 0 and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-        results.append({'suite':'kotlin','status':status,'exitCode':code,'tests':tests,'failures':failures,'errors':errors,'errorModel':'separate','skipped':skipped})
+        results.append(counted_lane('kotlin',code,(tests,failures,skipped),errors,'separate'))
     if not shutil.which('swift'): results.append({'suite':'swift','status':'DEFERRED_ENV','exitCode':2,'tests':0})
     else:
         code, text = run(['swift','test','--package-path','ios','--filter','BridgeProtocolTests|ModelFixtureTests|SdkCoordinatorTests|CBridgeTests'], output / 'swift.log', env)
@@ -50,14 +53,14 @@ def main() -> int:
         tests, failures = max(counts, default=(0,0), key=lambda item:item[0])
         skipped = max((int(v) for v in re.findall(r'with (\d+) tests? skipped', text)), default=0)
         status = 'PASS' if code == 0 and tests > 0 and failures == 0 and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-        results.append({'suite':'swift','status':status,'exitCode':code,'tests':tests,'failures':failures,'errors':None,'errorModel':'included-in-failures','skipped':skipped})
+        results.append(counted_lane('swift',code,(tests,failures,skipped)))
     editor = env.get('UNITY_EDITOR_PATH')
     if not editor or not Path(editor).is_file(): results.append({'suite':'csharp','status':'DEFERRED_ENV','exitCode':2,'tests':0})
     else:
         code, text = run(['bash','scripts/smoke-csharp-registry.sh'], output / 'csharp.log', env)
         tests = 1 if 'Registry, facade and offline fake smoke passed' in text else 0
         status = 'PASS' if code == 0 and tests == 1 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-        results.append({'suite':'csharp','status':status,'exitCode':code,'tests':tests,'errors':None,'errorModel':'checker-exit'})
+        results.append(counted_lane('csharp',code,(tests,0,0),None,'checker-exit','checker'))
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
     report = {'scope':'shared-contract-fixtures-only','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'suites':results}

@@ -29,7 +29,10 @@ class SelfCheckReportTests(unittest.TestCase):
             self.assertNotEqual(module.sandbox_report(path, 0, 1)['status'], 'PASS')
 
     def test_checks_are_not_test_counts_and_gate_is_fail_closed(self):
-        lanes = [{'name':'check','status':'PASS','required':True,'tests':0,'checks':1,'skipped':0,'exitCode':0}]
+        from measurement_contract import measured_lane
+        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup)
+        log=Path(temp.name)/'check.log';log.write_text('checked')
+        lanes=[measured_lane('check',['fixture'],0,'checked',log,'checked')]
         self.assertEqual(module.summarize_lanes(lanes, {'check'})['exitCode'],0)
         self.assertEqual(lanes[0]['tests'],0)
         for changes in ({'checks':0}, {'skipped':1}, {'exitCode':1}, {'status':'FAIL'}):

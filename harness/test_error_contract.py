@@ -7,6 +7,7 @@ from unittest.mock import patch
 import os
 from pathlib import Path
 from result_aggregator import summarize
+from measurement_contract import record_execution
 
 ROOT=Path(__file__).resolve().parent.parent
 
@@ -16,6 +17,10 @@ def module(file):
 
 class ErrorContractTests(unittest.TestCase):
     def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.fixture_log=Path(self.temp.name)/'observed.log'
+        self.fixture_log.write_text('fixture complete')
+        record_execution(['fixture'],0,'fixture complete',self.fixture_log)
         self.base={'name':'lane','status':'PASS','required':True,'tests':1,'failures':0,'errors':0,'skipped':0,'exitCode':0}
 
     def test_separate_normal_and_error_despite_success_exit(self):
@@ -79,7 +84,10 @@ class ErrorContractTests(unittest.TestCase):
             common=producer if file=='run-auth-regression.py' else producer.common
             with tempfile.TemporaryDirectory() as temp:
                 root=Path(temp)
-                with patch.object(producer,'ROOT',root), patch.object(common,'run',return_value=(0,output_text,0)), \
+                def fake_run(command,env,log,**kwargs):
+                    log.write_text(output_text);record_execution(command,0,output_text,log)
+                    return 0,output_text,0
+                with patch.object(producer,'ROOT',root), patch.object(common,'run',side_effect=fake_run), \
                      patch.object(common,'junit_counts',return_value=common.JUnitCounts(1,0,0,0)), \
                      patch.object(producer.shutil,'which',return_value='/fixture'), patch.dict(os.environ,{'GAMEBRIDGE_UPM_STAGING':temp},clear=True):
                     producer.main()
@@ -100,7 +108,9 @@ class ErrorContractTests(unittest.TestCase):
                     folder=root/'android/sdk-core/build/test-results/test';folder.mkdir(parents=True)
                     for cls in ('BridgeProtocolTest','ModelFixtureTest','SdkCoordinatorTest','BridgeDispatcherTest'):
                         (folder/('TEST-com.gamebridge.'+cls+'.xml')).write_text('<testsuite tests="1" failures="0" errors="0" skipped="0"/>')
-                return 0, 'Executed 3 tests, with 0 failures\nRegistry, facade and offline fake smoke passed'
+                text='Executed 3 tests, with 0 failures\nRegistry, facade and offline fake smoke passed'
+                log.write_text(text);record_execution(command,0,text,log)
+                return 0,text
             with patch.object(producer,'ROOT',root),patch.object(producer,'run',side_effect=fake_run), \
                  patch.object(producer.shutil,'which',return_value='/fixture'),patch.dict(os.environ,{'UNITY_EDITOR_PATH':str(editor)},clear=True):
                 self.assertEqual(producer.main(),0)

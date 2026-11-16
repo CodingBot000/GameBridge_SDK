@@ -10,6 +10,8 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from measurement_contract import record_execution, counted_lane
+
 ROOT = Path(__file__).resolve().parent.parent
 
 def run(command, env, log, timeout=600):
@@ -21,6 +23,7 @@ def run(command, env, log, timeout=600):
     except (OSError, subprocess.TimeoutExpired) as exc:
         code, output = 2, f'{type(exc).__name__}: suite unavailable or timed out\n'
     log.write_text(output, encoding='utf-8')
+    record_execution(command, code, output, log)
     return code, output, started
 
 class JUnitCounts(tuple):
@@ -41,14 +44,12 @@ def junit_counts(paths, started):
     return JUnitCounts(tests, failures, skipped, errors)
 
 
-def item(name, code, counts, error_model='included-in-failures'):
-    # Three-count API explicitly represents XCTest/xcresult combined failures.
-    # Marker callers must request checker-exit instead.
-    tests, failures, skipped = counts
-    errors = counts.errors if isinstance(counts, JUnitCounts) else None
+def item(name, code, counts, error_model='included-in-failures', measurement=None):
     model = 'separate' if isinstance(counts, JUnitCounts) else error_model
-    status = 'PASS' if code == 0 and tests > 0 and failures == 0 and (errors is None or errors == 0) and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-    return {'suite':name, 'status':status,'exitCode':code,'tests':tests,'failures':failures,'errors':errors,'errorModel':model,'skipped':skipped}
+    errors = counts.errors if isinstance(counts, JUnitCounts) else None
+    return counted_lane(name, code, counts, errors, model,
+                        measurement or ('checker' if model == 'checker-exit' else 'tests'))
+
 
 def main() -> int:
     artifacts = ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)

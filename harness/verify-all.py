@@ -35,14 +35,16 @@ def scenario_mapping_lane(manifest, checker, root):
 
 
 def nested_lane(name, item, command, evidence):
+    fields = ('tests','checks','samples','players','failures','errors','skipped','exitCode','errorModel','measurement','checkerEvidence')
     return {'name':name+'/'+str(item.get('suite','?')), 'status':item.get('status','FAIL'), 'required':True,
-            **copy_error_evidence(item), 'tests':item.get('tests',0), 'skipped':item.get('skipped',0),
-            'failures':item.get('failures',0 if item.get('errorModel') == 'checker-exit' else None), 'exitCode':item.get('exitCode',1), 'command':command,'evidence':evidence}
+            **{key:item[key] for key in fields if key in item},
+            'command':item.get('command',command),'evidence':item.get('evidence',evidence), 'producerEvidence':evidence}
+
 
 
 def lane_row(lane):
     errors = lane['errors'] if 'errors' in lane and lane['errors'] is not None else ('UNMEASURED' if 'errors' in lane or lane.get('errorModel') in ('included-in-failures','checker-exit') else 'MISSING')
-    return f"| {lane['name']} | {lane['status']} | {lane['tests']} | {lane.get('checks',0)} | {lane.get('samples',0)} | {lane.get('players',0)} | {errors} | {lane.get('errorModel','UNSPECIFIED')} | {lane['skipped']} |"
+    return f"| {lane['name']} | {lane['status']} | {lane.get('tests','MISSING')} | {lane.get('checks',0)} | {lane.get('samples',0)} | {lane.get('players',0)} | {errors} | {lane.get('errorModel','UNSPECIFIED')} | {lane.get('skipped','MISSING')} |"
 
 
 def main() -> int:

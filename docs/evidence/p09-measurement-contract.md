@@ -34,3 +34,9 @@
 - `verify-progress.py`, `check-manifest.py`, Python 문법, actionlint 1.7.12, diff 검사 PASS.
 
 로그는 로컬 `artifacts/p09-measurement-*.log`에만 보존한다. 실제 stress·Unity Player·제품 suite·전체 Strict·DB mutation·원격 Actions·실제 Provider·StoreKit 시험은 실행하지 않았다. CI에 단위시험 연결만 추가했으며 원격 실행은 NOT_RUN이다. P09 PARTIAL, P05-T03 FAIL / ENV-STOREKIT-26 OPEN, Provider WAITING_USER는 유지한다. 다음 P09 한 작업 후보는 nested producer의 checker/Player 측정 단위를 상위로 보존하는 계약 감사·보강이다.
+
+## 배치24 A — nested 단위 (2026-11-16)
+
+Nested JUnit/XCTest는 tests, C# smoke·설정·패키징·StoreKit wrapper·native mock E2E wrapper는 checks, Unity Push wrapper는 players로 분리한다. wrapper 검사 수는 내부 JUnit/XCTest 수의 대용이 아니다. tests/checks/samples/players/failures/errors/skipped/exitCode/errorModel/measurement와 근거를 상위까지 보존하며, 누락 필드를 0으로 채우지 않는다. 자체시험 checker는 tests로 변환하지 않고 판정한다. negative-contract의 실제 Kotlin/Swift test 수 및 ledger mutation 2건은 실제 하위 결과에서 수집한다.
+
+A 단위 25건 PASS, skip 0. 외부 명령 stub fixture는 실제 관측 로그를 생성한다. 제품/DB/Player 실행은 아직 NOT_RUN; 실행 근거 replay 방어는 B에서 보강한다.

@@ -89,7 +89,7 @@ def main() -> int:
     if env.get('GAMEBRIDGE_RUN_UNITY_PUSH_E2E') == 'true':
         code, text, _ = common.run(['python3','harness/run-unity-push-current.py'], env, output/'unity-push.log', timeout=3300)
         counts = (2 if 'Unity push current-run PASS: Android and iOS LOCAL_MOCK Players, 2 tests' in text else 0,0,0)
-        results.append(common.item('unity-player-notifications',code,counts,error_model='checker-exit'))
+        results.append(common.item('unity-player-notifications',code,counts,error_model='checker-exit',measurement='players'))
     else:
         results.append({'suite':'unity-player-notifications','status':'DEFERRED_ENV','exitCode':2,'tests':0,'failures':0,'skipped':0})
     head = subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()

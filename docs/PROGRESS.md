@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: P09 / 완료 조건·미검증 항목 감사
+- 현재 Phase / Task: P09-T06 / required lane errors 전파·차단
 - 마지막 갱신 시각: 2026-11-16 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: Android d2146ad / iOS be7bfea (Unity LOCAL_MOCK Push/Lifecycle 및 합성 지연 callback Player PASS; 실제 FCM/APNs 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 provider 미실행
 - 최신 로컬 UPM staging: `artifacts/upm-config-diagnostic-20261113`; 테스트 package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 바로 다음 행동: P09 감사 결과를 인계한다. 다음 단일 작업은 P09-T06 required lane errors 수집·차단 계약 보강이다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
+- 바로 다음 행동: errors 전파·차단 검증 결과를 인계한다. 다음 P09 단일 후보는 simple marker 호출과 실제 테스트 수 구분이다. iOS 26.5 StoreKit 실패와 실제 provider 미검증 상태를 유지한다.
 - 재개 행동: AGENTS.md·START_HERE.md·P05-T03 StoreKit 독립 앱 비교 결과를 확인한다. 실제 플랫폼과 Mock 증거를 분리한다.
 
 ## 집계
@@ -1412,3 +1412,13 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - P09 감사 커밋 전: 감사 문서와 진행 문서 3개만 개별 stage한다. 원장·manifest·링크·diff 정적 검사 통과, Task 상태·코드·workflow 변경 없음.
 
 - P09 감사 커밋 전 staged gitleaks exit 0·탐지 0건. 정제 문서만 커밋한다.
+
+- P09-T06 errors 계약 보강 시작: HEAD/원격 c1c121a. JUnit은 독립 errors를 수집하고 Swift/xcresult 합산 실패 및 marker 검사에는 명시 errorModel을 부여한다. 오류 미측정은 null로 표현하며 근거 없는 누락·잘못된 타입은 PASS를 거부한다.
+
+- P09-T06 오류 계약 단위 9건, 기존 aggregation 14건, self report 2건 PASS/skip 0. 정상/오류·부정 타입/누락·합산 호환·nested JSON/Markdown 및 producer main을 stub 명령으로 확인했으며 실제 제품 suite/Strict/DB/Player/Actions는 실행하지 않았다.
+
+- P09-T06 errors 보강: 관련 단위 25건 PASS, 정상/오류 fixture process exit 0/1, 정적 원장·manifest·actionlint PASS. 전체 Strict·제품 suite·원격 Actions는 미실행, 기존 PARTIAL/FAIL/WAITING_USER 유지. [errors evidence](evidence/p09-errors-contract.md).
+
+- P09-T06 최종 검토에서 nested 합산 실패 필드의 누락도 0으로 메우지 않도록 유지하고 summary의 MISSING/UNMEASURED를 구분했다. 오류 계약 9건 재검증 PASS, 원장·manifest·diff PASS. 커밋 전 관련 집계/producer/단위시험·CI 연결·정제 문서만 stage한다.
+
+- P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. errors 계약 범위의 변경만 커밋한다.

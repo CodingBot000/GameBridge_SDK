@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 sys.dont_write_bytecode = True
 from result_aggregator import summarize, runner_inconsistent
+from error_contract import copy_error_evidence
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -26,10 +27,21 @@ def scenario_mapping_lane(manifest, checker, root):
                    (root/path).resolve().is_relative_to(root.resolve()))
     status = ('FAIL' if not evidence_ok else 'NOT_IMPLEMENTED' if unimplemented else 'PARTIAL' if partial else 'PASS')
     return {'name':'scenario-coverage','status':status,'required':True,'tests':0,'checks':1 if evidence_ok else 0,
-            'evidenceKind':'static-mapping','executionStatus':'NOT_RUN','mappedScenarios':len(scenarios),
+            'errors':None,'errorModel':'checker-exit','evidenceKind':'static-mapping','executionStatus':'NOT_RUN','mappedScenarios':len(scenarios),
             'skipped':0,'exitCode':0 if status == 'PASS' else 1,'command':['python3','harness/check-manifest.py'],
             'evidence':checker.get('evidence','') if checker else '',
             'partialCount':len(partial),'unimplementedCount':len(unimplemented)}
+
+
+def nested_lane(name, item, command, evidence):
+    return {'name':name+'/'+str(item.get('suite','?')), 'status':item.get('status','FAIL'), 'required':True,
+            **copy_error_evidence(item), 'tests':item.get('tests',0), 'skipped':item.get('skipped',0),
+            'failures':item.get('failures',0 if item.get('errorModel') == 'checker-exit' else None), 'exitCode':item.get('exitCode',1), 'command':command,'evidence':evidence}
+
+
+def lane_row(lane):
+    errors = lane['errors'] if 'errors' in lane and lane['errors'] is not None else ('UNMEASURED' if 'errors' in lane or lane.get('errorModel') in ('included-in-failures','checker-exit') else 'MISSING')
+    return f"| {lane['name']} | {lane['status']} | {lane['tests']} | {lane.get('checks',0)} | {errors} | {lane.get('errorModel','UNSPECIFIED')} | {lane['skipped']} |"
 
 
 def main() -> int:
@@ -67,7 +79,7 @@ def main() -> int:
             count = int(match.group(1)) if match and '"liveClients": 0' in text and '"liveTransports": 0' in text else 0
         passed = code == 0 and marker in text and count > 0
         status = 'PASS' if passed else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-        lanes.append({'name':name,'status':status,'required':True,'tests':count if passed else 0,'skipped':0,'exitCode':code,'command':command,'evidence':log})
+        lanes.append({'name':name,'status':status,'required':True,'tests':count if passed else 0,'errors':None,'errorModel':'checker-exit','skipped':0,'exitCode':code,'command':command,'evidence':log})
     def nested(name, command):
         code,text,log = execute(name,command)
         match = re.search(r'^Evidence directory: (artifacts/[A-Za-z0-9_.-]+)$',text,re.M)
@@ -81,9 +93,7 @@ def main() -> int:
             lanes.append({'name':name,'status':'DEFERRED_ENV' if code == 2 else 'FAIL','required':True,'tests':0,'skipped':0,'exitCode':code,'command':command,'evidence':log}); return
         start = len(lanes)
         for item in report['suites']:
-            lanes.append({'name':name+'/'+str(item.get('suite','?')), 'status':item.get('status','FAIL'), 'required':True,
-                          'tests':item.get('tests',0), 'skipped':item.get('skipped',0), 'failures':item.get('failures',0),
-                          'exitCode':item.get('exitCode',1), 'command':command, 'evidence':match.group(1)+'/result.json'})
+            lanes.append(nested_lane(name,item,command,match.group(1)+'/result.json'))
         statuses = [value['status'] for value in lanes[start:]]
         if runner_inconsistent(code, statuses):
             lanes.append({'name':name+'/runner-consistency','status':'FAIL','required':True,'tests':0,'skipped':0,'exitCode':code,'command':command,'evidence':log})
@@ -156,8 +166,8 @@ def main() -> int:
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'environment':{'os':platform.platform()},
               'summary':summary,'lanes':lanes,'external':{'status':'WAITING_USER' if external_waits else 'NOT_RUN','taskCount':external_waits,'tasks':external_tasks}}
     (output/'result.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    lines = ['# Local verification summary','',f"Source: `{head}`; working tree dirty: {dirty}.",f"Overall: **{summary['status']}** (exit {summary['exitCode']}).",'', '| Lane | Status | Tests | Checks | Skipped |', '|---|---|---:|---:|---:|']
-    lines += [f"| {lane['name']} | {lane['status']} | {lane['tests']} | {lane.get('checks', 0)} | {lane['skipped']} |" for lane in lanes]
+    lines = ['# Local verification summary','',f"Source: `{head}`; working tree dirty: {dirty}.",f"Overall: **{summary['status']}** (exit {summary['exitCode']}).",'', '| Lane | Status | Tests | Checks | Errors | Error model | Skipped |', '|---|---|---:|---:|---:|---|---:|']
+    lines += [lane_row(lane) for lane in lanes]
     lines += ['',f"External: {report['external']['status']} ({external_waits} tasks); not an external test pass."]
     (output/'summary.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     print(f"Overall: {summary['status']} (exit {summary['exitCode']}); external {report['external']['status']} ({external_waits} tasks)")

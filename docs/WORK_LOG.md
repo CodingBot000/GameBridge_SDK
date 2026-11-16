@@ -3597,3 +3597,13 @@
 - P09 감사 커밋 전: 감사 문서와 진행 문서 3개만 개별 stage한다. 원장·manifest·링크·diff 정적 검사 통과, Task 상태·코드·workflow 변경 없음.
 
 - P09 감사 커밋 전 staged gitleaks exit 0·탐지 0건. 정제 문서만 커밋한다.
+
+- P09-T06 errors 계약 보강 시작: HEAD/원격 c1c121a. JUnit은 독립 errors를 수집하고 Swift/xcresult 합산 실패 및 marker 검사에는 명시 errorModel을 부여한다. 오류 미측정은 null로 표현하며 근거 없는 누락·잘못된 타입은 PASS를 거부한다.
+
+- P09-T06 오류 계약 단위 9건, 기존 aggregation 14건, self report 2건 PASS/skip 0. 정상/오류·부정 타입/누락·합산 호환·nested JSON/Markdown 및 producer main을 stub 명령으로 확인했으며 실제 제품 suite/Strict/DB/Player/Actions는 실행하지 않았다.
+
+- P09-T06 최종 관련 단위 9+14+2=25건 PASS/skip 0, 정상/오류 disposable subprocess 실제 exit 0/1 확인. 네 producer main은 stub 계약 검증, 실제 제품 suite는 미실행이다. actionlint·원장·manifest·diff PASS, 오류 필드 미측정·합산 호환을 문서화했다.
+
+- P09-T06 최종 검토에서 nested 합산 실패 필드의 누락도 0으로 메우지 않도록 유지하고 summary의 MISSING/UNMEASURED를 구분했다. 오류 계약 9건 재검증 PASS, 원장·manifest·diff PASS. 커밋 전 관련 집계/producer/단위시험·CI 연결·정제 문서만 stage한다.
+
+- P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. errors 계약 범위의 변경만 커밋한다.

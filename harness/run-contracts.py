@@ -33,16 +33,16 @@ def main() -> int:
     else:
         started_ns = time.time_ns()
         code, _ = run([str(gradle), '-p', 'android', ':sdk-core:test', '--rerun-tasks', '--tests', 'com.gamebridge.BridgeProtocolTest', '--tests', 'com.gamebridge.ModelFixtureTest', '--tests', 'com.gamebridge.SdkCoordinatorTest', '--tests', 'com.gamebridge.BridgeDispatcherTest'], output / 'kotlin.log', env)
-        tests = failures = skipped = 0
+        tests = failures = errors = skipped = 0
         try:
             for cls in ('BridgeProtocolTest', 'ModelFixtureTest', 'SdkCoordinatorTest', 'BridgeDispatcherTest'):
                 report = ROOT / f'android/sdk-core/build/test-results/test/TEST-com.gamebridge.{cls}.xml'
                 if report.stat().st_mtime_ns < started_ns: raise ValueError('stale report')
                 root = ET.parse(report).getroot()
-                tests += int(root.attrib['tests']); failures += int(root.attrib['failures']) + int(root.attrib['errors']); skipped += int(root.attrib['skipped'])
+                tests += int(root.attrib['tests']); failures += int(root.attrib['failures']); errors += int(root.attrib['errors']); skipped += int(root.attrib['skipped'])
         except (OSError, ET.ParseError, KeyError, ValueError): tests = 0
-        status = 'PASS' if code == 0 and tests > 0 and failures == 0 and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-        results.append({'suite':'kotlin','status':status,'exitCode':code,'tests':tests,'failures':failures,'skipped':skipped})
+        status = 'PASS' if code == 0 and tests > 0 and failures == 0 and errors == 0 and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
+        results.append({'suite':'kotlin','status':status,'exitCode':code,'tests':tests,'failures':failures,'errors':errors,'errorModel':'separate','skipped':skipped})
     if not shutil.which('swift'): results.append({'suite':'swift','status':'DEFERRED_ENV','exitCode':2,'tests':0})
     else:
         code, text = run(['swift','test','--package-path','ios','--filter','BridgeProtocolTests|ModelFixtureTests|SdkCoordinatorTests|CBridgeTests'], output / 'swift.log', env)
@@ -50,14 +50,14 @@ def main() -> int:
         tests, failures = max(counts, default=(0,0), key=lambda item:item[0])
         skipped = max((int(v) for v in re.findall(r'with (\d+) tests? skipped', text)), default=0)
         status = 'PASS' if code == 0 and tests > 0 and failures == 0 and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-        results.append({'suite':'swift','status':status,'exitCode':code,'tests':tests,'failures':failures,'skipped':skipped})
+        results.append({'suite':'swift','status':status,'exitCode':code,'tests':tests,'failures':failures,'errors':None,'errorModel':'included-in-failures','skipped':skipped})
     editor = env.get('UNITY_EDITOR_PATH')
     if not editor or not Path(editor).is_file(): results.append({'suite':'csharp','status':'DEFERRED_ENV','exitCode':2,'tests':0})
     else:
         code, text = run(['bash','scripts/smoke-csharp-registry.sh'], output / 'csharp.log', env)
         tests = 1 if 'Registry, facade and offline fake smoke passed' in text else 0
         status = 'PASS' if code == 0 and tests == 1 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-        results.append({'suite':'csharp','status':status,'exitCode':code,'tests':tests})
+        results.append({'suite':'csharp','status':status,'exitCode':code,'tests':tests,'errors':None,'errorModel':'checker-exit'})
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
     report = {'scope':'shared-contract-fixtures-only','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'suites':results}

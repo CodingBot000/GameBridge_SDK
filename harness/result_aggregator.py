@@ -1,3 +1,4 @@
+from error_contract import valid_error_evidence
 """Pure fail-closed status classification; external waits are reported separately."""
 VALID = {'PASS', 'FAIL', 'PARTIAL', 'NOT_IMPLEMENTED', 'DEFERRED_ENV', 'NOT_RUN', 'SKIP', 'WAITING_USER'}
 
@@ -10,6 +11,7 @@ def summarize(lanes, required_names=None):
         names.add(name)
         if not required: continue
         required_count += 1
+        if 'errors' in lane and lane['errors'] is not None and not valid_error_evidence(lane): failure = True
         if status == 'WAITING_USER': failure = True
         elif status in ('FAIL','PARTIAL','NOT_IMPLEMENTED'): failure = True
         elif status in ('DEFERRED_ENV','NOT_RUN','SKIP'): deferred = True
@@ -20,8 +22,8 @@ def summarize(lanes, required_names=None):
                                lane.get('mappedScenarios') == 50 and lane.get('executionStatus') == 'NOT_RUN' and
                                isinstance(lane.get('evidence'), str) and bool(lane['evidence']))
             else: valid_count = isinstance(count, int) and not isinstance(count, bool) and count > 0
-            if (not valid_count or not isinstance(skipped, int) or skipped < 0 or
-                lane.get('exitCode', 0) != 0 or lane.get('failures', 0) != 0): failure = True
+            if (not valid_error_evidence(lane) or not valid_count or not isinstance(skipped, int) or skipped < 0 or
+                lane.get('exitCode', 0) != 0 or type(lane.get('failures', 0)) is not int or lane.get('failures', 0) != 0): failure = True
             elif skipped: deferred = True
     if required_count == 0: failure = True
     if required_names is not None:

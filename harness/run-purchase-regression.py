@@ -64,11 +64,11 @@ def main() -> int:
                    'com.gamebridge.LocalMockIntegrationTest.bridge uses real local backend for mock purchase and restore']
         code, _, started = common.run(command, env, output/'android-loss.log')
         counts = common.junit_counts([ROOT/'android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockIntegrationTest.xml'], started)
-        results.append(common.item('android-local-response-loss', code, counts if counts[0] == 3 else (0,counts[1],counts[2])))
+        results.append(common.item('android-local-response-loss', code, counts if counts[0] == 3 else (common.JUnitCounts(0,counts[1],counts[2],counts.errors) if isinstance(counts,common.JUnitCounts) else (0,counts[1],counts[2]))))
         if shutil.which('swift'):
             code, text, _ = common.run(['swift','test','--package-path','ios','--filter','LocalMockIntegrationTests.testPersistedMockTransactionRecoversAfterCommittedResponseIsLost|LocalMockIntegrationTests.testLocalServerWalletAndRestore|LocalMockIntegrationTests.testBridgeHandlerAgainstLocalBackend'], env, output/'swift-loss.log')
             counts = swift_counts(text)
-            results.append(common.item('swift-local-response-loss', code, counts if counts[0] == 3 else (0,counts[1],counts[2])))
+            results.append(common.item('swift-local-response-loss', code, counts if counts[0] == 3 else (common.JUnitCounts(0,counts[1],counts[2],counts.errors) if isinstance(counts,common.JUnitCounts) else (0,counts[1],counts[2]))))
         else: results.append(common.item('swift-local-response-loss', 2, (0,0,0)))
     else:
         results.extend([common.item('android-local-response-loss', 2, (0,0,0)), common.item('swift-local-response-loss', 2, (0,0,0))])
@@ -85,7 +85,7 @@ def main() -> int:
                     if result.get('sourceHead') == source and result.get('status') == 'PASS' and result.get('passed') == 1 and result.get('skipped') == 0:
                         counts = (1,0,0)
             except (OSError,ValueError,subprocess.CalledProcessError): pass
-        results.append(common.item('xcode-storekit-local-db-recovery',code,counts))
+        results.append(common.item('xcode-storekit-local-db-recovery',code,counts,error_model='checker-exit'))
     else: results.append(common.item('xcode-storekit-local-db-recovery',2,(0,0,0)))
     if env.get('GAMEBRIDGE_RUN_XCODE_STOREKIT_HARNESS') == 'true':
         code, text, _ = common.run(['python3','harness/run-xcode-process-recovery.py','--run-local'], env, output/'xcode-process-recovery.log')
@@ -104,7 +104,7 @@ def main() -> int:
                         and first.get('pid') and second.get('pid') and first['pid'] != second['pid']):
                         counts = (1,0,0)
             except (OSError,ValueError,subprocess.CalledProcessError): pass
-        results.append(common.item('xcode-storekit-process-recovery',code,counts))
+        results.append(common.item('xcode-storekit-process-recovery',code,counts,error_model='checker-exit'))
     else: results.append(common.item('xcode-storekit-process-recovery',2,(0,0,0)))
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
     report = {'scope':'synthetic-purchase-regression-only','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',

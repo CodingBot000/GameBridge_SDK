@@ -15,11 +15,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.dont_write_bytecode = True
 from result_aggregator import summarize
+from error_contract import valid_error_evidence
 spec = importlib.util.spec_from_file_location('auth_runner', ROOT/'harness/run-auth-regression.py')
 common = importlib.util.module_from_spec(spec); spec.loader.exec_module(common)
 
 def summarize_lanes(lanes, expected):
-    normalized = [dict(x, tests=x.get('checks', 0)) if x.get('tests', 0) == 0 and 'checks' in x else x for x in lanes]
+    normalized = [dict(x, tests=x.get('checks', 0), errorModel=x.get('errorModel','checker-exit')) if x.get('tests', 0) == 0 and 'checks' in x else x for x in lanes]
     return summarize(normalized, expected)
 
 
@@ -49,7 +50,7 @@ def main() -> int:
         code, text, _ = common.run(command, environment or env, workspace/f'{name}.log')
         passed = code == 0 and marker in text
         lane = {'name':name,'status':'PASS' if passed else ('DEFERRED_ENV' if code == 2 else 'FAIL'),
-                'required':True,'tests':0,'checks':1 if passed else 0,'failures':1 if code != 2 and not passed else 0,'errors':0,'skipped':0,'exitCode':code}
+                'required':True,'tests':0,'checks':1 if passed else 0,'failures':1 if code != 2 and not passed else 0,'errors':None,'errorModel':'checker-exit','skipped':0,'exitCode':code}
         if passed and name in ('contract-negative', 'ledger-mutation'):
             try:
                 if name == 'contract-negative':
@@ -61,7 +62,7 @@ def main() -> int:
                     cs = [x for x in suites if x['suite'] == 'csharp']
                     if (len(suites) != 3 or len(cs) != 1 or cs[0]['status'] != 'PASS' or cs[0]['exitCode'] != 0 or cs[0]['tests'] != 1 or
                         len(natives) != 2 or {x['suite'] for x in natives} != {'kotlin','swift'} or
-                        any(x['status'] != 'FAIL' or x['exitCode'] != 1 or x['tests'] < 1 or x.get('failures') != 1 or x.get('skipped') != 0 for x in natives)):
+                        any(x['status'] != 'FAIL' or x['exitCode'] != 1 or x['tests'] < 1 or x.get('failures') != 1 or (x.get('errors') != 0 and not (x.get('errors') is None and x.get('errorModel') == 'included-in-failures')) or x.get('skipped') != 0 for x in natives)):
                         raise ValueError('negative contract counts')
                     lane.update(tests=sum(x['tests'] for x in natives), expectedFailures=2, evidence=outer.group(1))
                 else:
@@ -91,7 +92,7 @@ def main() -> int:
     failed = subprocess.run([sys.executable,'-c','raise SystemExit(7)'],cwd=ROOT,check=False).returncode
     checks.append(failed == 7 and summarize([{'name':'failure','status':'FAIL','required':True,'tests':1,'exitCode':failed}])['exitCode'] == 1)
     good = all(checks)
-    lanes.append({'name':'failed-and-zero-test','status':'PASS' if good else 'FAIL','required':True,'tests':0,'checks':sum(checks),'failures':0 if good else 1,'errors':0,'skipped':0,'exitCode':0 if good else 1})
+    lanes.append({'name':'failed-and-zero-test','status':'PASS' if good else 'FAIL','required':True,'tests':0,'checks':sum(checks),'failures':0 if good else 1,'errors':None,'errorModel':'checker-exit','skipped':0,'exitCode':0 if good else 1})
     sandbox = env.get('GAMEBRIDGE_SANDBOX_TEST_DB_URL','')
     safe = bool(sandbox) and not re.search(r'(?i)([?&](?:user|password)=|://[^/]*@)',sandbox)
     if env.get('GAMEBRIDGE_RUN_AUTH_DB_TESTS') == 'true' and safe and all(env.get(k) for k in ('GAMEBRIDGE_TEST_DB_USER','GAMEBRIDGE_TEST_DB_PASSWORD')):
@@ -109,11 +110,11 @@ def main() -> int:
         contract_report = json.loads((ROOT / match.group(1) / 'result.json').read_text()) if match else {}
         suites = contract_report['suites']
         valid = (code == 0 and len(suites) == 3 and {x['suite'] for x in suites} == {'kotlin','swift','csharp'} and
-                 all(x['status'] == 'PASS' and x['exitCode'] == 0 and x['tests'] > 0 and x.get('failures',0) == 0 and x.get('skipped',0) == 0 for x in suites))
+                 all(x['status'] == 'PASS' and x['exitCode'] == 0 and x['tests'] > 0 and x.get('failures',0) == 0 and valid_error_evidence(x) and x.get('skipped',0) == 0 for x in suites))
         tests = sum(x['tests'] for x in suites if x['suite'] != 'csharp') if valid else 0
     except (OSError, ValueError, KeyError, TypeError): valid = False; tests = 0
     lanes.append({'name':'normal-contracts','status':'PASS' if valid else ('DEFERRED_ENV' if code == 2 else 'FAIL'),
-                  'required':True,'tests':tests,'checks':1 if valid else 0,'failures':0 if valid else 1,'errors':0,'skipped':0,'exitCode':code})
+                  'required':True,'tests':tests,'checks':1 if valid else 0,'failures':0 if valid else 1,'errors':None,'errorModel':'checker-exit','skipped':0,'exitCode':code})
     expected = {'progress-negative','manifest-negative','package-negative','contract-negative','bridge-mutation',
                 'ledger-mutation','failed-and-zero-test','sandbox-fake-token','normal-contracts'}
     # Checker invocations count as checks, not test cases; preserve fail-closed aggregation.

@@ -23,20 +23,32 @@ def run(command, env, log, timeout=600):
     log.write_text(output, encoding='utf-8')
     return code, output, started
 
+class JUnitCounts(tuple):
+    def __new__(cls, tests, failures, skipped, errors):
+        value = super().__new__(cls, (tests, failures, skipped)); value.errors = errors; return value
+
+
 def junit_counts(paths, started):
-    tests = failures = skipped = 0
+    tests = failures = errors = skipped = 0
     try:
         for path in paths:
             if path.stat().st_mtime_ns < started: raise ValueError('stale report')
             data = ET.parse(path).getroot().attrib
-            tests += int(data['tests']); failures += int(data['failures']) + int(data['errors']); skipped += int(data['skipped'])
-    except (OSError, ET.ParseError, KeyError, ValueError): return (0, 0, 0)
-    return tests, failures, skipped
+            counts = [int(data[k]) for k in ('tests','failures','errors','skipped')]
+            if any(x < 0 for x in counts): raise ValueError('negative count')
+            tests += counts[0]; failures += counts[1]; errors += counts[2]; skipped += counts[3]
+    except (OSError, ET.ParseError, KeyError, ValueError): return JUnitCounts(0,0,0,0)
+    return JUnitCounts(tests, failures, skipped, errors)
 
-def item(name, code, counts):
+
+def item(name, code, counts, error_model='included-in-failures'):
+    # Three-count API explicitly represents XCTest/xcresult combined failures.
+    # Marker callers must request checker-exit instead.
     tests, failures, skipped = counts
-    status = 'PASS' if code == 0 and tests > 0 and failures == 0 and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-    return {'suite':name, 'status':status, 'exitCode':code, 'tests':tests, 'failures':failures, 'skipped':skipped}
+    errors = counts.errors if isinstance(counts, JUnitCounts) else None
+    model = 'separate' if isinstance(counts, JUnitCounts) else error_model
+    status = 'PASS' if code == 0 and tests > 0 and failures == 0 and (errors is None or errors == 0) and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
+    return {'suite':name, 'status':status,'exitCode':code,'tests':tests,'failures':failures,'errors':errors,'errorModel':model,'skipped':skipped}
 
 def main() -> int:
     artifacts = ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)

@@ -34,3 +34,7 @@ P09-T01의 local ID/entry·fixture 완료 확인, P09-T03의 synthetic local 거
 완료 조건: (1) nested 결과의 errors를 수집·보존하고 (2) required lane에 errors가 있으면 전체 exit 1을 반환하며 (3) 정상·errors 양수·필드 형태 오류/누락의 계약을 정해 단위 음성/정상 검사로 검증하고 (4) 기존 missing/zero/skip·static mapping 분리를 유지한다. 기존 보고서에서 errors가 failures에 합산되는 lane의 호환성을 명시한다. 이 한 단위는 로컬 disposable 결과로 독립 실행 가능하고 전용 self-hosted 구축·Provider 인증·iOS 26.5 재시도 없이 집계 신뢰성의 빈틈을 줄인다. 전체 Strict 재실행 여부는 그 다음 별도 결정이다.
 
 이번 감사는 문서만 변경했고 기존 FAIL·외부 대기·PARTIAL 및 미추적 사용자 파일을 유지한다.
+
+## 감사 후 P09-T06 errors 보강 — 2026-11-16
+
+위 감사에서 지적한 독립 errors 누락·무시 공백은 [errors 계약 evidence](p09-errors-contract.md)의 로컬 fixture 검증으로 보강했다. JUnit 독립 errors, Swift 합산 호환, checker 미측정을 구분하며 tests 25건 PASS와 정상/오류 process exit 0/1을 확인했다. 전체 Strict 재실행은 없고 Task 상태는 PARTIAL이다. 다음 한 작업은 simple marker 호출과 실제 테스트 수의 구분이다.

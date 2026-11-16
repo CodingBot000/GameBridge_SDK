@@ -43,3 +43,22 @@ Hosted-only 새 실행은 NOT_RUN. repository 변수 총 0개(활성 Unity 변�
 ### C 준비 시도 1 — 환경 대기
 
 source a6a14da30a96e77348a445b1daf657c69e396a19 tracked-clean. Editor 2 tests, Offline sample flow 1 test·GUID reimport, Android/iOS hook repeat PASS. ci-unity-e2e.sh는 기존 AVD의 설치 앱을 보호해 `TEST_APP_ALREADY_INSTALLED_PRESERVE_EXISTING`/exit 2. 새 Player/Strict는 NOT_RUN이다. `artifacts/unity-pii-current-ocq0awkp`·`unity-android-e2e-jefckpl8`은 이 차단의 원본이며 이전 PASS로 대체하지 않는다. 기존 앱을 삭제/덮어쓰지 않고 새로운 전용 AVD를 준비한다.
+
+### C Strict 실행 1회 결과
+
+source **0b6fb7250e6f9edb2c93ba477ac06a5060b1769a**, tracked-clean. `ci-unity-e2e.sh`로 fresh 전용 AVD와 기존 staging/cache를 사용했다. 원본 `artifacts/verify-all-5ffhc5v8/result.json`, orchestration `strict-isolated-9udgzbhv`, gate log `p09-batch24-c-player-strict-fresh.log`. 전체 exit **1**, 57 lane 중 **52 PASS / 4 FAIL / 1 DEFERRED_ENV**. 기존 P05 원장 하나만으로 실패한 결과가 아니다.
+
+- 현재 self-check `harness-self-f7gzdby0`: 9/9 PASS.
+- 실제 측정 tests **213**(예상 mutation failure 3 포함), checks **52**(manifest/static mapping alias 1개 포함, 고유 receipt 51개), samples **100**, 검증된 Players **2**. 미실행·시간 초과 lane은 테스트 성공 건수로 추가하지 않았다.
+- PII: `unity-pii-current-nx2g3_gq`; Android `unity-android-e2e-ebq2fh_4`, iOS `unity-ios-e2e-kxqg9zui`. 모두 source 일치·tracked-clean·piiProbe true·원장 1건/증가 100. 새 Android 최초 systemui 전체화면 안내를 확인하고 Got it을 한 번 눌렀다. 무인 CI 검증으로 간주하지 않는다.
+- Auth 6+3+17+22=48 실제 test PASS. Purchase DB/Native/응답 유실 7+2+18+16+3+3=49 PASS. Push Backend 10/sandbox 1/Android 5/Swift 9/iOS Host XCTest 1 PASS.
+
+| 실패/대기 lane | 실제 관측 | 후속 |
+|---|---|---|
+| purchase/xcode-storekit-local-db-recovery | iOS 18.6, `xcode-storekit-e2e-a3aicym0`, testExitCode 124/180초 timeout, xcresult 미완결·건수 미확정 | 부분 stdout 보존 보강 후 영향 lane 재검증 |
+| purchase/xcode-storekit-process-recovery | `xcode-process-recovery-s3d3ilfe`, prepare/store-history timeout | history 두 API 단계 식별 및 영향 lane 재검증 |
+| push/unity-player-notifications | `unity-android-push-0weeo3hz` TIMEOUT_GB_PUSH_READY. 실패 후 UI dump에서 systemui Viewing full screen/Got it 확인. iOS Push는 gate가 앞에서 종료돼 NOT_RUN | 앱·AVD 보존, fresh AVD와 명시 UI 보조로 영향 gate만 재실행 |
+| unity-editor-runtime | `unity-consumer.781hN7`, CLI process timeout 300초/exit 6, 테스트 판정 없음 → DEFERRED_ENV/exit 2 | preflight 2건 PASS와 구분, 단독 영향 재검증 |
+| recorded-unresolved-failures | P05-T03 기존 FAIL 유지 | 26.5를 이번에 재실행/해소한 것으로 취급하지 않음 |
+
+새 두 StoreKit 실패는 26.5 기록과 다른 18.6 관측이며 원인은 아직 확정되지 않았다. 관련 StoreKit runner/RecoveryHarness는 이전 5d716bd 이후 선택 경로 git diff가 없음을 확인했다. 이 사실만으로 환경 원인을 확정하지 않는다. 완료된 이번 실행 전용 PII·StoreKit·Process Simulator는 shutdown했고 디스크·DB·실패 결과는 보존했다. 사용자 iPhone 17 Pro는 변경하지 않았다.

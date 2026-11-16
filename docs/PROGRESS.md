@@ -1454,3 +1454,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치24 C 환경 블로커: ci-unity-e2e.sh exit 2. source a6a14da tracked-clean에서 Editor 2건·sample 1건/reimport·Android/iOS hook PASS 후 기존 PII AVD의 TEST_APP_ALREADY_INSTALLED_PRESERVE_EXISTING으로 설치 차단. artifacts/unity-android-e2e-jefckpl8 및 unity-pii-current-ocq0awkp. Player/Strict NOT_RUN, 과거 증거 재사용 없음. 기존 앱·AVD를 보존하고 새 전용 AVD 2개로 환경을 준비한다. 전체 Strict 실행은 아직 0회다.
 
 - 배치24 C 환경 기록 커밋 전: 차단된 AVD·앱은 보존하며 원본 로그나 빌드는 stage하지 않는다. 다음 실행 source를 문서 커밋으로 확정한다.
+
+- 배치24 C Strict 완료: source 0b6fb7250e6f9edb2c93ba477ac06a5060b1769a, ci-unity-e2e.sh/Strict exit 1. artifacts/verify-all-5ffhc5v8: 57 lane 중 52 PASS, 4 FAIL, 1 DEFERRED_ENV. 기존 P05 기록 FAIL 외 새 StoreKit DB timeout(124), process prepare/store-history timeout, Android Unity Push READY timeout(따라서 iOS Push 미실행), Editor runtime 환경 대기. 자체시험 9/9·PII 양 Player·합성 회귀는 통과. 검증 완료 전 source 고정을 위해 runtime checkpoint에 즉시 보존했던 실패를 이제 정식 원장에 반영한다. 새 실패를 알려진 P05만의 실패로 기록하지 않는다. 원본 실패 유지 후 영향 lane만 조사/재실행한다.
+
+- 배치24 C 원인 관측: Android Push 실패 AVD UIAutomator에서 systemui Viewing full screen/Got it 안내를 확인했다(READY 이전 차단). 기존 APK·AVD 보존 후 새 전용 AVD에서 안내를 관측·닫고 해당 Player gate만 재실행한다. Editor CLI 원본은 300초 process timeout/CLI exit 6이며 test verdict 없음. StoreKit DB xcresult는 Info.plist 미완결, process recovery는 Transaction history 진입 후 timeout이다. 원인 확정 없이 runtime FAIL을 환경 PASS로 바꾸지 않는다. 현재 실행 완료로 source 고정 해제, 관련 진단 로그 보강과 영향 lane만 재검증한다.
+
+- 배치24 C 결과 커밋 전: 실제 실패·대기와 52 보고 PASS를 정제 문서에 기록했다. 전체 Strict 재실행은 하지 않고 원본 실패를 보존한 채 관련 진단/재검증으로 이동한다.

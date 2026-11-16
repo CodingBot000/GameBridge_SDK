@@ -7,15 +7,19 @@ import shutil
 import subprocess
 import tempfile
 import time
+import uuid
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from measurement_contract import record_execution, counted_lane
 
+from execution_evidence import metadata
+
 ROOT = Path(__file__).resolve().parent.parent
 
 def run(command, env, log, timeout=600):
-    started = time.time_ns()
+    started = time.time_ns();invocation=uuid.uuid4().hex
+    env=env.copy();env['GAMEBRIDGE_HARNESS_RUN_ID']=invocation
     try:
         process = subprocess.run(command, cwd=ROOT, env=env, text=True, errors='replace',
                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=False)
@@ -23,7 +27,7 @@ def run(command, env, log, timeout=600):
     except (OSError, subprocess.TimeoutExpired) as exc:
         code, output = 2, f'{type(exc).__name__}: suite unavailable or timed out\n'
     log.write_text(output, encoding='utf-8')
-    record_execution(command, code, output, log)
+    record_execution(command, code, output, log, started, invocation)
     return code, output, started
 
 class JUnitCounts(tuple):
@@ -83,7 +87,7 @@ def main() -> int:
         results.append(item('swift-native-fake', code, (tests, failures, skipped)))
     else: results.append(item('swift-native-fake', 2, (0,0,0)))
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
-    report = {'scope':'synthetic-auth-session-only', 'sourceHead':head, 'workingTree':'HEAD plus uncommitted changes may be present',
+    report = {'scope':'synthetic-auth-session-only', **metadata(), 'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'suites':results}
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n', encoding='utf-8')
     for value in results: print(f"{value['suite']}: {value['status']} (tests={value['tests']}, exit={value['exitCode']})")

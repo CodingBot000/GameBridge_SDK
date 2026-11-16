@@ -12,13 +12,30 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from execution_evidence import metadata, valid_observation
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.dont_write_bytecode = True
 from result_aggregator import summarize
 from error_contract import valid_error_evidence
-from measurement_contract import measured_lane, attach_execution, valid_checker
+from measurement_contract import measured_lane, attach_execution, valid_checker, last_execution
 spec = importlib.util.spec_from_file_location('auth_runner', ROOT/'harness/run-auth-regression.py')
 common = importlib.util.module_from_spec(spec); spec.loader.exec_module(common)
+
+
+def valid_contract_checker(lane, report_path, report):
+    observed=last_execution()
+    try:
+        receipt=lane['checkerEvidence']
+        return (valid_observation(observed) and report.get('runId')==observed['invocationId'] and
+                all(report.get(k)==observed[k] for k in ('sourceHead','sourceDigest')) and
+                observed['startedNs']<=report_path.stat().st_mtime_ns<=observed['finishedNs'] and
+                Path(receipt['path'])==report_path.parent/'csharp.log' and lane.get('command')==receipt['command'] and
+                observed['startedNs']<=receipt['startedNs']<=receipt['finishedNs']<=observed['finishedNs'] and
+                valid_observation(receipt,run_id=observed['invocationId']) and
+                lane.get('tests')==0 and lane.get('checks')==1 and lane.get('measurement')=='checker' and
+                receipt.get('marker') and receipt['marker'] in Path(receipt['path']).read_text())
+    except (OSError,ValueError,KeyError,TypeError):return False
 
 def summarize_lanes(lanes, expected):
     return summarize(lanes, expected)
@@ -57,10 +74,12 @@ def main() -> int:
                     outer = re.search(r'^Negative evidence directory: (artifacts/negative-contract-[A-Za-z0-9_-]+)$', text, re.M)
                     nested_text = (ROOT/outer.group(1)/'negative.log').read_text() if outer else ''
                     nested = re.search(r'^Evidence directory: (artifacts/contracts-[A-Za-z0-9_-]+)$', nested_text, re.M)
-                    suites = json.loads((ROOT/nested.group(1)/'result.json').read_text())['suites'] if nested else []
+                    report_path=ROOT/nested.group(1)/'result.json' if nested else Path('/missing')
+                    contract_report=json.loads(report_path.read_text()) if nested else {}
+                    suites=contract_report.get('suites',[])
                     natives = [x for x in suites if x['suite'] in ('kotlin','swift')]
                     cs = [x for x in suites if x['suite'] == 'csharp']
-                    if (len(suites) != 3 or len(cs) != 1 or cs[0]['status'] != 'PASS' or cs[0]['exitCode'] != 0 or cs[0]['tests'] != 0 or cs[0].get('checks') != 1 or not valid_checker(cs[0]) or
+                    if (len(suites) != 3 or len(cs) != 1 or cs[0]['status'] != 'PASS' or cs[0]['exitCode'] != 0 or cs[0]['tests'] != 0 or cs[0].get('checks') != 1 or not valid_contract_checker(cs[0],report_path,contract_report) or
                         len(natives) != 2 or {x['suite'] for x in natives} != {'kotlin','swift'} or
                         any(x['status'] != 'FAIL' or x['exitCode'] != 1 or x['tests'] < 1 or x.get('failures') != 1 or (x.get('errors') != 0 and not (x.get('errors') is None and x.get('errorModel') == 'included-in-failures')) or x.get('skipped') != 0 for x in natives)):
                         raise ValueError('negative contract counts')
@@ -114,10 +133,11 @@ def main() -> int:
     code, text, _ = common.run(['python3','harness/run-contracts.py'], env, workspace/'normal-contracts.log')
     match = re.search(r'^Evidence directory: (artifacts/contracts-[A-Za-z0-9_-]+)$', text, re.M)
     try:
-        contract_report = json.loads((ROOT / match.group(1) / 'result.json').read_text()) if match else {}
+        report_path=ROOT/match.group(1)/'result.json' if match else Path('/missing')
+        contract_report = json.loads(report_path.read_text()) if match else {}
         suites = contract_report['suites']
         valid = (code == 0 and len(suites) == 3 and {x['suite'] for x in suites} == {'kotlin','swift','csharp'} and
-                 all(x['status'] == 'PASS' and x['exitCode'] == 0 and (x['tests'] > 0 if x['suite'] != 'csharp' else x['tests'] == 0 and x.get('checks') == 1 and valid_checker(x)) and x.get('failures',0) == 0 and valid_error_evidence(x) and x.get('skipped',0) == 0 for x in suites))
+                 all(x['status'] == 'PASS' and x['exitCode'] == 0 and (x['tests'] > 0 if x['suite'] != 'csharp' else x['tests'] == 0 and x.get('checks') == 1 and valid_contract_checker(x,report_path,contract_report)) and x.get('failures',0) == 0 and valid_error_evidence(x) and x.get('skipped',0) == 0 for x in suites))
         tests = sum(x['tests'] for x in suites if x['suite'] != 'csharp') if valid else 0
     except (OSError, ValueError, KeyError, TypeError): valid = False; tests = 0
     lane = measured_lane('normal-contracts',['python3','harness/run-contracts.py'],code,text,workspace/'normal-contracts.log','Evidence directory:')
@@ -127,7 +147,7 @@ def main() -> int:
                 'ledger-mutation','failed-and-zero-test','sandbox-fake-token','normal-contracts'}
     # Checker invocations count as checks, not test cases; preserve fail-closed aggregation.
     summary = summarize_lanes(lanes, expected)
-    report = {'scope':'harness-negative-self-check','sourceHead':subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip(),
+    report = {'scope':'harness-negative-self-check',**metadata(),
               'workingTree':'HEAD plus uncommitted changes may be present','timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'lanes':lanes,'summary':summary}
     (workspace/'result.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     for lane in lanes: print(f"{lane['name']}: {lane['status']} (tests={lane['tests']}, checks={lane.get('checks',0)}, expected_failures={lane.get('expectedFailures',0)}, failures={lane.get('failures',0)}, errors={lane.get('errors',0)}, skipped={lane['skipped']}, exit={lane['exitCode']})")

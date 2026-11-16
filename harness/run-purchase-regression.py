@@ -11,6 +11,8 @@ import time
 import sys
 from pathlib import Path
 
+from execution_evidence import metadata
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.dont_write_bytecode = True
 spec = importlib.util.spec_from_file_location('auth_runner', ROOT/'harness/run-auth-regression.py')
@@ -107,7 +109,7 @@ def main() -> int:
         results.append(common.item('xcode-storekit-process-recovery',code,counts,error_model='checker-exit'))
     else: results.append(common.item('xcode-storekit-process-recovery',2,(0,0,0)))
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
-    report = {'scope':'synthetic-purchase-regression-only','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
+    report = {'scope':'synthetic-purchase-regression-only',**metadata(),'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'suites':results}
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n', encoding='utf-8')
     for value in results: print(f"{value['suite']}: {value['status']} (tests={value['tests']}, exit={value['exitCode']})")

@@ -4,23 +4,34 @@ import re
 from pathlib import Path
 
 
+from execution_evidence import observe, valid_observation, valid_parent, ROOT
+
+
 def valid_checker(lane):
     receipt=lane.get('checkerEvidence')
-    if not isinstance(receipt,dict) or type(lane.get('checks')) is not int or lane['checks']!=1:
-        return False
-    if type(lane.get('exitCode')) is not int or lane['exitCode']!=0 or type(receipt.get('exitCode')) is not int or receipt['exitCode']!=0 or not isinstance(lane.get('command'),list) or not lane['command'] or not all(isinstance(x,str) and x for x in lane['command']):
-        return False
+    parent=valid_parent(lane)
+    if parent is False:return False
+    run_id=parent['invocationId'] if parent else None
+    if not valid_observation(receipt,run_id=run_id):return False
+    if type(lane.get('checks')) is not int or lane['checks']!=1:return False
+    if type(lane.get('exitCode')) is not int or lane['exitCode']!=0 or receipt['exitCode']!=0:return False
+    if lane.get('command')!=receipt['command']:return False
     try:
-        data=Path(receipt['path']).read_bytes()
-        return (isinstance(receipt.get('marker'),str) and bool(receipt['marker']) and
-                receipt['marker'] in data.decode('utf-8') and
-                hashlib.sha256(data).hexdigest()==receipt.get('sha256'))
+        path=Path(lane['evidence'])
+        if not path.is_absolute():path=ROOT/path
+        if path.resolve()!=Path(receipt['path']):return False
+        if parent:
+            report=Path(lane['producerEvidence'])
+            if not path.resolve().is_relative_to(report.parent):return False
+            if not parent['startedNs']<=receipt['startedNs']<=receipt['finishedNs']<=parent['finishedNs']:return False
+        marker=receipt.get('marker')
+        return isinstance(marker,str) and bool(marker) and marker in path.read_text()
     except (OSError,KeyError,TypeError,ValueError):return False
 
 
-def measured_lane(name, command, code, text, log, marker):
+def measured_lane(name, command, code, text, log, marker, execution=None):
     lane={'name':name,'status':'FAIL','required':True,'tests':0,'checks':0,'samples':0,'players':0,
-          'measurement':'checker','errors':None,'errorModel':'checker-exit','skipped':0,'exitCode':code,
+          'measurement':'checker','failures':0,'errors':None,'errorModel':'checker-exit','skipped':0,'exitCode':code,
           'command':command,'evidence':str(log)}
     path=Path(log)
     try:
@@ -31,7 +42,7 @@ def measured_lane(name, command, code, text, log, marker):
     if code==2:lane['status']='DEFERRED_ENV'
     if not passed:return lane
     lane['checks']=1
-    lane['checkerEvidence']={'path':str(path.resolve()),'sha256':hashlib.sha256(data).hexdigest(),'marker':marker,'exitCode':code}
+    lane['checkerEvidence']={**(execution or observe(command,code,text,path)),'marker':marker}
     if name=='aggregation-self':
         lane['measurement']='tests';match=re.search(r'Ran (\d+) tests?',text)
         lane['tests']=int(match.group(1)) if match else 0
@@ -58,12 +69,10 @@ def measured_lane(name, command, code, text, log, marker):
 _last_execution = None
 
 
-def record_execution(command, code, text, log):
+def record_execution(command, code, text, log, started=None, invocation_id=None):
     global _last_execution
     path = Path(log).resolve()
-    _last_execution = dict(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
-                           marker=text.strip().splitlines()[-1] if text.strip() else '',
-                           exitCode=code, command=list(command))
+    _last_execution = {**observe(command,code,text,path,started,invocation_id), 'marker':text.strip().splitlines()[-1] if text.strip() else ''}
     return _last_execution
 
 
@@ -90,3 +99,7 @@ def counted_lane(name, code, counts, errors=None, error_model='included-in-failu
             type(skipped) is int and skipped == 0)
     lane['status'] = 'PASS' if good else ('DEFERRED_ENV' if code == 2 else 'FAIL')
     return attach_execution(lane, execution)
+
+
+def last_execution():
+    return _last_execution

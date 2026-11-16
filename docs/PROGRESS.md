@@ -1438,3 +1438,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치24 A 검증 1: 계약·측정 단위 19건 중 기존 stub fixture 3건 FAIL(exit 1). 실행 로그를 만들지 않던 fixture가 새 근거 필수 조건에 걸렸다. fixture에 관측 명령·로그를 명시하고 자체시험 fixture도 checker 계약으로 갱신한다. 실제 제품 검증 실패는 아니다.
 
 - 배치24 A 검증/커밋 전: 계약·측정 19건, nested 단위 4건, self-report 2건 PASS(skip 0), 원장·manifest·diff exit 0. 최초 stub 3건 실패는 실제 로그를 생성하는 fixture로 수정했다. C#·패키징·marker는 tests 0/checks, Unity push는 players 2, 상위 nested는 모든 측정 필드와 누락을 보존한다. 자체시험의 checks→tests 치환을 제거했다. 통합 제품 실행은 C에서 수행한다.
+
+- 배치24 작업 B 시작: A commit 2af4d7a. 같은 SHA의 과거 로그 재사용, 임의 경로/부모·자식 종료 불일치/누락·중복·부정 타입을 차단하기 위해 실행 ID·실제 관측 시간·소스 내용 digest와 부모 호출에 묶인 receipt를 적용한다.
+
+- 배치24 B 검증 1: 기존 계약·측정 19건 중 3건 FAIL. 오류 기본 fixture와 집계 unittest가 측정 필드 없는 과거 형식을 사용했다. 누락 허용으로 되돌리지 않고, 정상 fixture만 현재 실행 receipt·명시 단위를 갖추도록 수정한다. zero/누락 fixture는 계속 거부한다.
+
+- 배치24 B 전체 단위 1차: 112건 실행 중 failure 1(이전 Markdown errorModel 기대값), error 1(시스템 Python에 jsonschema 미설치), exit 1. 기대값을 실제 separate 표시에 맞추고 기존 schema venv로 전체 단위를 재실행한다. 새 collector 경계 11건은 PASS이며 종료 0/1/2 subprocess를 확인했다.
+
+- 배치24 B 검증/커밋 전: schema venv 전체 113건 PASS(exit 0/skip 0); 추가 양수 count 변조 방어를 포함한 collector 12건 재검증 PASS. sourceHead+tracked diff digest, 관측 registry/명령/실행 ID/시간/로그 hash와 부모의 실제 stdout→새 report→자식 receipt를 연결했다. 단위 누락·0건·부정 타입·오류·중복·skip 승격·부모 종료 불일치·동일 SHA 과거 report 재사용을 거부한다. classifier를 실제 subprocess에서 실행하여 exit 0/1/2 확인. 원장·manifest·actionlint·diff PASS. 새 unit 2종을 Hosted inventory에 연결했다.

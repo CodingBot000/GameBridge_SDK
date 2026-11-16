@@ -11,6 +11,8 @@ import tempfile
 import time
 from pathlib import Path
 
+from execution_evidence import metadata
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.dont_write_bytecode = True
 spec = importlib.util.spec_from_file_location('auth_runner', ROOT/'harness/run-auth-regression.py')
@@ -93,7 +95,7 @@ def main() -> int:
     else:
         results.append({'suite':'unity-player-notifications','status':'DEFERRED_ENV','exitCode':2,'tests':0,'failures':0,'skipped':0})
     head = subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()
-    report = {'scope':'push-and-package-partial','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
+    report = {'scope':'push-and-package-partial',**metadata(),'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'suites':results}
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     for item in results: print(f"{item['suite']}: {item['status']} (tests={item['tests']}, exit={item['exitCode']})")

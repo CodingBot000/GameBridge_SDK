@@ -23,3 +23,7 @@
 오류 계약 단위는 잘못된 errors 타입·누락, 합산 호환의 정상·실패, required 누락/0건/skip, 별도 JUnit errors가 failures에 이중 집계되지 않는지 확인했다. 실제 nested_lane의 disposable result.json/summary.md에 errors 1을 저장하고 전체 exit 1임을 검사했다. producer main 4종(contracts/auth/purchase/push)은 외부 명령을 stub 처리한 계약 시험으로 실제 제품 suite PASS가 아니다. 과거 static mapping 단위도 유지했다. 로그는 로컬 `artifacts/p09-errors-unit.log`, `p09-errors-aggregation.log`, `p09-errors-self.log`에만 보존한다.
 
 전체 Strict·하네스 자체시험 9 lane·Unity Player·DB mutation·원격 Actions·실제 Provider·StoreKit은 이번에 실행하지 않았다. CI에는 새 단위시험을 연결했으나 원격 실행은 NOT_RUN이다. P09 모든 기존 PARTIAL, P05-T03 FAIL / ENV-STOREKIT-26 OPEN / Provider WAITING_USER는 유지한다. 다음 P09 한 작업 후보는 `verify-all.simple`의 marker 호출 수를 실제 테스트 수와 구분하는 측정 계약 보강이다.
+
+## 배치24 보강
+
+Nested 필드와 오류 모델은 원본과 상위에서 동일해야 한다. `failures=0/errors=1/exitCode=0/status=PASS`는 실패다. deferred 상태라도 측정한 실패·오류가 있으면 실패를 우선한다. 새 `test_execution_evidence.py`는 실제 child 및 collector subprocess에서 정상 0·실패 1·환경 대기 2를 확인한다. 전체 Python 113건 및 후속 collector 12건 통과; 제품 검증은 별도다.

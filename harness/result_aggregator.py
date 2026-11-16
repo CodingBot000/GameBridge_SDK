@@ -13,25 +13,31 @@ def summarize(lanes, required_names=None):
         if not required: continue
         required_count += 1
         if 'errors' in lane and lane['errors'] is not None and not valid_error_evidence(lane): failure = True
+        if any(k in lane and (type(lane[k]) is not int or lane[k]<0) for k in ('tests','checks','samples','players','failures','skipped')):failure=True
+        if 'exitCode' in lane and type(lane['exitCode']) is not int:failure=True
+        if type(lane.get('failures')) is int and lane['failures']>0:failure=True
+        if status in ('DEFERRED_ENV','NOT_RUN','SKIP') and lane.get('exitCode',2)!=2:failure=True
         if status == 'WAITING_USER': failure = True
         elif status in ('FAIL','PARTIAL','NOT_IMPLEMENTED'): failure = True
         elif status in ('DEFERRED_ENV','NOT_RUN','SKIP'): deferred = True
         elif status == 'PASS':
-            count = lane.get('tests', 0); skipped = lane.get('skipped', 0)
-            if lane.get('evidenceKind') == 'static-mapping':
-                valid_count = (count == 0 and type(count) is int and lane.get('checks') == 1 and
-                               lane.get('mappedScenarios') == 50 and lane.get('executionStatus') == 'NOT_RUN' and
-                               isinstance(lane.get('evidence'), str) and bool(lane['evidence']) and valid_checker(lane))
-            elif lane.get('measurement') in ('checker','samples','players'):
-                valid_count = type(count) is int and count == 0 and valid_checker(lane)
-                if lane['measurement'] in ('samples','players'):
-                    key = lane['measurement']
-                    valid_count = valid_count and type(lane.get(key)) is int and lane[key] > 0
-            elif lane.get('measurement') == 'tests':
-                valid_count = type(count) is int and count > 0 and valid_checker(lane)
-            else: valid_count = isinstance(count, int) and not isinstance(count, bool) and count > 0
-            if (not valid_error_evidence(lane) or not valid_count or not isinstance(skipped, int) or skipped < 0 or
-                lane.get('exitCode', 0) != 0 or type(lane.get('failures', 0)) is not int or lane.get('failures', 0) != 0): failure = True
+            count=lane.get('tests');skipped=lane.get('skipped')
+            counters=('tests','checks','samples','players','failures','skipped')
+            valid_counts=all(type(lane.get(k)) is int and lane[k]>=0 for k in counters)
+            measurement=lane.get('measurement')
+            if measurement=='tests':
+                valid_count=valid_counts and count>0 and lane['samples']==lane['players']==0
+            elif measurement in ('checker','samples','players'):
+                valid_count=valid_counts and count==0
+                if measurement=='checker':valid_count=valid_count and lane['samples']==lane['players']==0
+                elif measurement=='samples':valid_count=valid_count and lane['samples']>0 and lane['players']==0
+                else:valid_count=valid_count and lane['players']>0 and lane['samples']==0
+            else:valid_count=False
+            if lane.get('evidenceKind')=='static-mapping':
+                valid_count=(valid_count and measurement=='checker' and type(lane.get('mappedScenarios')) is int and
+                             lane['mappedScenarios']==50 and lane.get('executionStatus')=='NOT_RUN')
+            if (not valid_count or not valid_error_evidence(lane) or not valid_checker(lane) or
+                type(lane.get('exitCode')) is not int or lane['exitCode']!=0 or lane['failures']!=0): failure=True
             elif skipped: deferred = True
     if required_count == 0: failure = True
     if required_names is not None:
@@ -43,7 +49,7 @@ def summarize(lanes, required_names=None):
     return {'status':'PASS', 'exitCode':0, 'reason':'all required local lanes executed and passed'}
 
 def runner_inconsistent(code, statuses):
-    if code not in (0, 1, 2) or not statuses: return True
+    if type(code) is not int or code not in (0, 1, 2) or not statuses: return True
     if code == 0: return any(status != 'PASS' for status in statuses)
     if code == 1: return not any(status in ('FAIL', 'PARTIAL', 'NOT_IMPLEMENTED') for status in statuses)
     return all(status == 'PASS' for status in statuses)

@@ -7,7 +7,7 @@ from unittest.mock import patch
 import os
 from pathlib import Path
 from result_aggregator import summarize
-from measurement_contract import record_execution
+from measurement_contract import record_execution, counted_lane
 
 ROOT=Path(__file__).resolve().parent.parent
 
@@ -21,7 +21,7 @@ class ErrorContractTests(unittest.TestCase):
         self.fixture_log=Path(self.temp.name)/'observed.log'
         self.fixture_log.write_text('fixture complete')
         record_execution(['fixture'],0,'fixture complete',self.fixture_log)
-        self.base={'name':'lane','status':'PASS','required':True,'tests':1,'failures':0,'errors':0,'skipped':0,'exitCode':0}
+        self.base={**counted_lane('lane',0,(1,0,0),0,'separate'),'name':'lane','required':True}
 
     def test_separate_normal_and_error_despite_success_exit(self):
         self.assertEqual(summarize([self.base])['exitCode'],0)
@@ -50,7 +50,7 @@ class ErrorContractTests(unittest.TestCase):
             (path/'summary.md').write_text(parent.lane_row(lane))
             report=json.loads((path/'result.json').read_text())
             self.assertEqual(report['lanes'][0]['errors'],1);self.assertEqual(report['summary']['exitCode'],1)
-            self.assertIn('| 1 | UNSPECIFIED |',(path/'summary.md').read_text())
+            self.assertIn('| 1 | separate |',(path/'summary.md').read_text())
             lane=parent.nested_lane('parent',{'suite':'child','status':'PASS','tests':1,'exitCode':0},[],'fixture')
             self.assertNotIn('errors',lane);self.assertEqual(summarize([lane])['exitCode'],1)
 

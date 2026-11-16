@@ -40,3 +40,11 @@
 Nested JUnit/XCTest는 tests, C# smoke·설정·패키징·StoreKit wrapper·native mock E2E wrapper는 checks, Unity Push wrapper는 players로 분리한다. wrapper 검사 수는 내부 JUnit/XCTest 수의 대용이 아니다. tests/checks/samples/players/failures/errors/skipped/exitCode/errorModel/measurement와 근거를 상위까지 보존하며, 누락 필드를 0으로 채우지 않는다. 자체시험 checker는 tests로 변환하지 않고 판정한다. negative-contract의 실제 Kotlin/Swift test 수 및 ledger mutation 2건은 실제 하위 결과에서 수집한다.
 
 A 단위 25건 PASS, skip 0. 외부 명령 stub fixture는 실제 관측 로그를 생성한다. 제품/DB/Player 실행은 아직 NOT_RUN; 실행 근거 replay 방어는 B에서 보강한다.
+
+## 배치24 B — 실행 연결
+
+현재 orchestrator가 관측한 명령·stdout 로그·실행 ID·시각·HEAD·tracked diff digest를 메모리 registry에 보관한다. simple receipt는 이 관측과 일치해야 한다. nested는 부모가 전달한 새 실행 ID, 부모 실행 시간 안에 생성한 result, stdout에 출력한 해당 artifacts 디렉터리, report hash·source와 자식 로그 경로·시각·hash를 모두 확인한다. 상위 필드도 원본 child와 같아야 한다. 임의 파일의 hash만으로 PASS하지 않는다. 과거 JSON은 조회용이며 다른 실행의 PASS 입력으로 사용할 수 없다. 로컬 파일을 쓸 수 있는 악성 실행 코드에 대한 서명/인증 체계는 아니다.
+
+PASS는 모든 카운트의 정확한 int 타입(문자열·boolean·음수 거부), 명시 단위와 실제 측정, 오류 모델 및 exit를 요구한다. 자기시험 9 lane은 상위에서 각각 required로 집계한다. static 50 mapping은 실행 건수가 아니며 manifest 검사 receipt를 참조하는 별도 매핑 행이다.
+
+전체 Python 113건 통과 후 추가 collector 변조 방어 12건 통과. 최초 시스템 Python의 schema 의존성 error와 이전 출력 기대값 failure는 보존 로그에 있으며 후속 venv 실행으로 해소했다. 실제 제품·DB·Player·Strict는 C에서 검증한다.

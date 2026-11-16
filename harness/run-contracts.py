@@ -13,9 +13,12 @@ from pathlib import Path
 
 from measurement_contract import record_execution, counted_lane
 
+from execution_evidence import metadata
+
 ROOT = Path(__file__).resolve().parent.parent
 
 def run(command: list[str], log: Path, env: dict[str, str]) -> tuple[int, str]:
+    started=time.time_ns()
     try:
         result = subprocess.run(command, cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                 text=True, errors='replace', timeout=600, check=False)
@@ -23,7 +26,7 @@ def run(command: list[str], log: Path, env: dict[str, str]) -> tuple[int, str]:
     except (OSError, subprocess.TimeoutExpired) as exc:
         output = f'{type(exc).__name__}: command unavailable or timed out\n'; code = 2
     log.write_text(output, encoding='utf-8')
-    record_execution(command, code, output, log)
+    record_execution(command, code, output, log, started)
     return code, output
 
 def main() -> int:
@@ -62,7 +65,7 @@ def main() -> int:
         status = 'PASS' if code == 0 and tests == 1 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
         results.append(counted_lane('csharp',code,(tests,0,0),None,'checker-exit','checker'))
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
-    report = {'scope':'shared-contract-fixtures-only','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
+    report = {'scope':'shared-contract-fixtures-only',**metadata(),'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'suites':results}
     (output / 'result.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     for item in results: print(f"{item['suite']}: {item['status']} (tests={item['tests']}, exit={item['exitCode']})")

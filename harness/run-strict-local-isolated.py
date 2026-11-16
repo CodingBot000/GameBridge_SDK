@@ -33,8 +33,8 @@ def wait_health(base, process):
     return False
 
 def main():
-    if sys.argv[1:] != ['--run-local']:
-        print('Usage: python3 harness/run-strict-local-isolated.py --run-local (retains dedicated test DBs and roles)'); return 2
+    if sys.argv[1:] not in (['--run-local'],['--run-local','--self-check']):
+        print('Usage: python3 harness/run-strict-local-isolated.py --run-local [--self-check] (retains dedicated test DBs and roles)'); return 2
     staging = Path(os.environ.get('GAMEBRIDGE_UPM_STAGING', ROOT/'artifacts/upm-validated-20261111'))
     if not staging.is_dir(): print('CONFIG_REQUIRED: latest local UPM staging missing'); return 2
     artifacts=ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)
@@ -89,7 +89,8 @@ def main():
         else: print('iOS synthetic host lane unavailable; it remains deferred.',flush=True)
         print('Running strict local aggregation; Unity Editor:', 'enabled' if env.get('GAMEBRIDGE_RUN_UNITY_EDITOR') == 'true' else 'not opted in', '; external services remain separate.', flush=True)
         try:
-            result=subprocess.run(['bash','scripts/verify-all.sh','--strict-local'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=strict_timeout(env))
+            command=['python3','harness/run-self-check.py'] if '--self-check' in sys.argv else ['bash','scripts/verify-all.sh','--strict-local']
+            result=subprocess.run(command,cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=strict_timeout(env))
             (output/'aggregate.log').write_text(result.stdout); print(result.stdout,flush=True)
             return result.returncode
         except subprocess.TimeoutExpired:

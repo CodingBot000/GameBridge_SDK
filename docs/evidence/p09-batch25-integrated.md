@@ -23,3 +23,11 @@ NOT_RUN. 기존 미연결4파일6건을 조사하고 Hosted 적합 시 연결한
 ## D — 감사/인계
 
 NOT_RUN. 개별 P09 상태 변경은 실제 근거 및 원장 검사로 판단한다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN/Provider13 WAITING_USER/self-hosted·Release 미검증을 유지한다. 로컬 검증 후 비밀정보·범위 검사, handoff FF push, 변경된 Hosted 테스트가 있고 Unity 변수 안전 확인 가능 시 false 입력 dispatch1회만 수행한다.
+
+### A 실제 실행 완료
+
+source **b55ffe722cfd9bd2663cd3e193343cebb0b4c202**, tracked-clean, Android Push actual exit **0/PASS**, 원본 `artifacts/unity-android-push-l_yu9kmb`. 새 전용 GameBridge_V2_B25_A_PUSH_20261116 / emulator-5582 / PID22235 / console5582·ADB5583 owner 일치. 전체 기기 명령마다 다시 검증했다.
+
+필수 marker7개 모두 존재. mockPush/수신·deduplication/mainThread/background/networkRecovery/reconnectFailure/sessionSwitch PASS, rejectedReconnectAttempts **2**, deviceTokens **0**. 새 앱의 systemui Viewing full screen/Got it을 실제 UI dump로 확인 후1회 클릭했다. UI 보조이며 시스템 상태 우회나 무인CI 입증이 아니다. FCM/APNs/실기기 검증이 아니다.
+
+A는 실제 current-source Player1 PASS로 완료. ENV-P09-AVD local RESOLVED. 최초 OS port 경쟁 시점은 미확정이나, serial·요청 인자와 실제 소유가 같지 않았다는 선행 문제를 PID/양쪽 listen-port 검증으로 차단했다. 처음 실패한 배치24 자료는 보존하며 새 환경에서 통과한 것으로 구분한다. A 전용 프로세스만 종료했고 디스크를 보존했다.

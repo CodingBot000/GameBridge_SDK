@@ -3689,3 +3689,5 @@
 - 배치25 A 검증: PID/console·ADB port 양쪽 소유, 요청 이름·port 불일치/PID 재사용/반쪽 연결/다중 owner 거부, 기존 기기 guard 및 CI gate 15건 PASS(exit0/skip0). 현재 타 AVD의 요청5560과 실제5560/5561 owner PID89772 일치를 읽기 전용 확인했다. 배치24는 요청5570·자기 PID가 있어도 실제 console/ADB listen이 없고 serial이 타 AVD에 연결됐던 관측이다. 포트 소유 불일치는 확인됐지만 최초 경쟁/실패 시점은 보존 증거가 없어 확정하지 않는다. 새 guard는 예상 PID와 실제 두 port 소유를 매 명령 전 요구한다.
 
 - 배치25 A 실행 준비 커밋 전: 관련 단위16건 PASS/skip0, progress/manifest/diff exit0. 예상 PID 및 실제 console·ADB 소유 증거 요구를 추가했다. 새 전용 AVD 생성/실제 Push는 아직 NOT_RUN이며 tracked-clean commit 후 준비한다. 기존 실제 사용자 AVD·앱·ADB server는 변경하지 않는다.
+
+- 배치25 A 검증/커밋 전: source b55ffe722cfd9bd2663cd3e193343cebb0b4c202 tracked-clean의 Android Unity LOCAL_MOCK Push exit0/PASS(artifacts/unity-android-push-l_yu9kmb). PID22235가5582/5583 양 port 소유, serial·AVD명 일치. 필수7 marker·수신/중복/main-thread/background/실제 emulator망 차단·재연결/session/token삭제0 확인. 초기 systemui 전체화면 안내를 관측해 Got it1회 클릭(UI 보조, 무인CI 아님). 새 자기 emulator만 종료·디스크 보존, 기존 AVD/ADB server조작 없음. ENV-P09-AVD는 이 local 검증에서 RESOLVED. B로 이동하며 C Strict는 새 전용전체환경 준비 후 최대1회다.

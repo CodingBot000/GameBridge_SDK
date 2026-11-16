@@ -124,7 +124,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | USER-SESSION-TTL | USER | P04-T04 | 최초 로그인부터 7일 고정 사용자 선택 | 기존 코드와 대조·검증 진행 | 실제 인증 검증 별도 필요 | RESOLVED |
 | USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제 | local-mock 세션별 삭제와 경쟁 상황 검증 완료 | 실제 FCM/APNs 경로 별도 구현 | RESOLVED |
 | USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프 | local-mock worker·재시작·동시성 검증 완료 | 실제 store finalizer 별도 구현 | RESOLVED |
-| ENV-P09-AVD | ENV | P09-T05 | 전용 retry AVD PID와 요청 ADB serial 연결 불일치; 해당 serial이 다른 AVD를 반환 | 다른 기기 조작 전 차단·검증한 자기 PID만 종료·데이터 보존 | 독점 전용 ADB/AVD 연결과 이름 일치를 확인 후 현재 Android Push 실행 | OPEN |
+| ENV-P09-AVD | ENV | P09-T05 | 배치24 serial/PID/실제 port 불일치 | 배치25 새 AVD의 PID·이름·console/ADB 양 port 소유를 확인한 current Push PASS | 재실행마다 소유 검증·새 앱 상태 유지; 무인 CI 별도 | RESOLVED |
 | ENV-STOREKIT-26 | ENV | P05-T03 | iOS 26.5 simulator SKTestSession 설정 저장 Code 3 및 상품 조회 실패; 별도 iOS 18.6 전용 simulator 상품 조회 1건 통과 | 다른 독립 구현 진행; 실패 시험 보존 | 호환 환경에서 StoreKit local 재시험 | OPEN |
 | ENV-008 | ENV | P04-T04 | 전용 PostgreSQL container 정상 종료 상태에서 opt-in DB 시험 실패 | 기존 volume 보존 후 재기동 | DB healthy 및 실패 시험 재실행 | RESOLVED |
 | ENV-005 | ENV | P03-T02 | Simulator UI snapshot 대상 0개, 수동 대체 입력으로도 흐름 미확인 | XCTest 기반 독립 UI 검증 시도 | iOS local-mock UI smoke 실행 확인 | RESOLVED |
@@ -1505,3 +1505,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치25 A 검증: PID/console·ADB port 양쪽 소유, 요청 이름·port 불일치/PID 재사용/반쪽 연결/다중 owner 거부, 기존 기기 guard 및 CI gate 15건 PASS(exit0/skip0). 현재 타 AVD의 요청5560과 실제5560/5561 owner PID89772 일치를 읽기 전용 확인했다. 배치24는 요청5570·자기 PID가 있어도 실제 console/ADB listen이 없고 serial이 타 AVD에 연결됐던 관측이다. 포트 소유 불일치는 확인됐지만 최초 경쟁/실패 시점은 보존 증거가 없어 확정하지 않는다. 새 guard는 예상 PID와 실제 두 port 소유를 매 명령 전 요구한다.
 
 - 배치25 A 실행 준비 커밋 전: 관련 단위16건 PASS/skip0, progress/manifest/diff exit0. 예상 PID 및 실제 console·ADB 소유 증거 요구를 추가했다. 새 전용 AVD 생성/실제 Push는 아직 NOT_RUN이며 tracked-clean commit 후 준비한다. 기존 실제 사용자 AVD·앱·ADB server는 변경하지 않는다.
+
+- 배치25 A 검증/커밋 전: source b55ffe722cfd9bd2663cd3e193343cebb0b4c202 tracked-clean의 Android Unity LOCAL_MOCK Push exit0/PASS(artifacts/unity-android-push-l_yu9kmb). PID22235가5582/5583 양 port 소유, serial·AVD명 일치. 필수7 marker·수신/중복/main-thread/background/실제 emulator망 차단·재연결/session/token삭제0 확인. 초기 systemui 전체화면 안내를 관측해 Got it1회 클릭(UI 보조, 무인CI 아님). 새 자기 emulator만 종료·디스크 보존, 기존 AVD/ADB server조작 없음. ENV-P09-AVD는 이 local 검증에서 RESOLVED. B로 이동하며 C Strict는 새 전용전체환경 준비 후 최대1회다.

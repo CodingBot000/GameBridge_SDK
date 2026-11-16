@@ -1,5 +1,10 @@
 # P09 잔여 검증·안정화 배치25
 
+## 최신 상태 — D 감사/Hosted 준비
+
+A 실제Android Push PASS, B 간헐위험분류/Testcontainers구현·실검증 완료, C 전체Strict1회는57PASS/기존P05기록FAIL1/신규실패·대기0이다. 전체PASS로재작성하지않는다. D에서T01/T03/T05/T06/T08의local완료조건을개별확인해IMPLEMENTED/PASS로변경했고,T02/T04/T07은PARTIAL을유지했다. 아래NOT_RUN/초기실패는당시기록이다. Hosted는아직이번배치미실행이며결과를추가한다.
+
+
 기준 f6915e35f28e06a0d88e053a66883505bc7bc881. local fix/unity-android-mock-e2e-evidence에서 작업하고 handoff/p09-resume-20261113으로 관련 커밋만 FF push한다. A~D 순차 진행, 실제 Provider·main·force·Release·P01/P02/P10 변경 없음.
 
 ## A — AVD 연결 조사/보호
@@ -47,7 +52,7 @@ A는 실제 current-source Player1 PASS로 완료. ENV-P09-AVD local RESOLVED. �
 
 기존별도Docker PostgreSQL+fresh schema는실제SQL·경쟁·rollback·원장제약·복구를검증했지만 Testcontainers의컨테이너수명관리구현을대체했다고기록하지않는다. 원계획도구요구를충족하도록별도opt-in Gradle init+Python runner를추가했다. 일반backend/SDKclasspath와기존fixture/assertion을바꾸지않는다.
 
-- Testcontainers **2.0.5**, PostgreSQL **17.6-alpine3.22**, JDBC **42.7.11**, Flyway **11.7.2** 고정. 뒤둘은기존backend해결버전이다. [공식release](https://github.com/testcontainers/testcontainers-java/releases/tag/2.0.5), [PostgreSQL구현](https://github.com/testcontainers/testcontainers-java/blob/2.0.5/modules/postgresql/src/main/java/org/testcontainers/postgresql/PostgreSQLContainer.java), [Gradle init/finalizer](https://docs.gradle.org/current/userguide/init_scripts.html).
+- Testcontainers **2.0.5**, PostgreSQL **17.6-alpine3.22**, JDBC **42.7.11**, Flyway **11.7.2** 고정. 뒤둘은기존backend해결버전이다. [공식release](https://github.com/testcontainers/testcontainers-java/releases/tag/2.0.5), [PostgreSQL구현](https://github.com/testcontainers/testcontainers-java/blob/2.0.5/modules/postgresql/src/main/java/org/testcontainers/postgresql/PostgreSQLContainer.java), [Gradle init](https://docs.gradle.org/current/userguide/init_scripts.html), [task finalizer](https://docs.gradle.org/current/userguide/more_about_tasks.html#sec:finalizer_tasks).
 - 새container별임의자격정보/unique run label,127.0.0.1랜덤port강제·실제binding확인,fsync=on,전체프로젝트Flyway+mock migration 적용. 기존5개local fixture는각자의fresh schema/고유row를유지한다. Sandbox2개HTTP fixture는별도empty container에서기존Spring migration/profile 보호를사용한다. 실제Google/Apple호출이아니다.
 - mutation은새schema에서만제약을손상하며기존named assertion실패여야한다. 다른실패1건은거부한다. `finalizedBy`로owned container정리후Docker inspect의명시not-found를확인한다. 권한/daemon오류는삭제성공으로기록하지않는다.
 
@@ -102,3 +107,33 @@ source **e46cb6520272334d9816d951274b91bd39133b9b**,tracked-clean. 원본 `verif
 - 현재self9/TC11/Native합성회귀/Editor 및패키징검사도PASS. mock과real Provider를분리하며외부13 WAITING_USER는유지한다.
 
 완료된이번실행전용Simulator/AVD process만종료했고디스크·전용DB·원본증거는보존했다. source고정중관측은ignored checkpoint에보존했고검증종료후정식원장에반영했다.
+
+## D 개별 Task 감사·상태 반영
+
+| Task | 최종 구현/local | 완료 확인·남은 조건 |
+|---|---|---|
+| P09-T01 | IMPLEMENTED/PASS | required50 ID/entry·fixture잘못된값거부·정상복원·미실행platform제외금지. mapping50은actualtest가아님 |
+| P09-T02 | IN_PROGRESS/PARTIAL | core/bridge·duplicate guard mutation·복원·stress100확인. 실제assert총수미측정으로완료승격보류 |
+| P09-T03 | IMPLEMENTED/PASS | synthetic auth48·sandbox fake-token401 case1·current PII2Player. realGoogle/Apple은별도13대기 |
+| P09-T04 | IMPLEMENTED/PARTIAL | Testcontainers literal요구는실행경로·11case·정확변이감지로충족. 기존SQL/Native회귀유지. 18.6간헐원인미확정위험을추적해localPARTIAL 유지 |
+| P09-T05 | IMPLEMENTED/PASS | 현재소유검증Android/iOS Push2+PII2·Native/Host/packaging음성. mock/OS범위·UI보조구분,실제remotePush/기기미검증은별도 |
+| P09-T06 | IMPLEMENTED/PASS | 전체Python131·실제Strict58lane·정상/오류/대기0/1/2·측정/소스/증거/소유판정. knownFAIL보존 |
+| P09-T07 | IMPLEMENTED/PARTIAL | 38파일모두Hosted연결·TC backend추가·actionlint/localCI경로확인. 현재runner등록0,repository변수0. 실제self-hosted/Release미검증유지 |
+| P09-T08 | IMPLEMENTED/PASS | 현재새전용환경9lane/예상negative3/정상복원/독립401실제실행,누락·0건·위조결과차단 |
+
+5개local PASS와3개PARTIAL을개별반영했다. 전체원장64행에서구현/검증집계를자동재계산했다: IMPLEMENTED21/IN_PROGRESS43, localPASS19/FAIL1/PARTIAL44. 외부13 WAITING_USER 및P05-T03 FAIL/ENV-STOREKIT-26 OPEN 유지. 원장편집첫시도는blocker참조를중복행으로오인해쓰기전assert1로중단했고행시작판정으로수정했다. 실제상태반영후verify-progress/문서음성/manifest/diff검사exit0이다.
+
+현재남은P09내부작업은T02 assertion계측·T04 간헐원인의추가관측이다. Testcontainers도구차이·CI미연결4파일·현재AVD연결대기는이번에해소했다. self-hosted는별도전용격리환경및emulator소유/PID를job마다제공하는준비가필요하며이번에등록/활성화하지않는다. 실제Provider/실기기·Release도별도대기다. P01/P02/P10으로전환하지않았다.
+
+## 커밋·실행 source 관계
+
+| Commit | 범위 |
+|---|---|
+| `b55ffe722cfd9bd2663cd3e193343cebb0b4c202` | fix(harness): [P09-T05] attest emulator process and port ownership |
+| `9c942349975c2d4c05deb0d3e8f815c12cc4ab59` | test(harness): [P09-T05] verify owned Android mock push player |
+| `1a58915d01df23107c32b917587bca9510098e86` | test(harness): [P09-T04] run purchase invariants in owned Testcontainers |
+| `43d255a39f9efd28e630fad40889cec9d255365d` | test(harness): [P09-T06] connect complete unit inventory and container lane |
+| `e46cb6520272334d9816d951274b91bd39133b9b` | test(harness): [P09-T08] establish current self-check and strict prerequisites |
+| `628a1c221bb41d89622bfd5961810ccd6eecc42e` | test(harness): [P09-T06] record current strict baseline with known StoreKit failure |
+
+A 실제Android Push는b55ffe7, commit된TC/self9 사전실행은43d255a, 전체Strict/현재4Player는e46cb65다. 이후실행증거·상태감사변경은문서다. 최종자기SHA는Git이력/마지막보고에서대조한다.

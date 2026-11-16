@@ -3711,3 +3711,27 @@
 - 배치25 C 실제검증/Strict전 커밋: source43d255a39f9efd28e630fad40889cec9d255365d에서 self9/9 PASS(exit0, tests47/예상failure3/checks9; harness-self-rl7_n0r_) 및TC4case11test/예상failure1 PASS(exit0; purchase-testcontainers-86d9mge4). self-only 불필요Simulator 생성없음. Unity active/staging147 PASS. C새PIO5578/PID36894 및Push5580/PID36901 각각이console+ADB양port소유·AVD이름·boot완료일치. A독립PASS와C전용환경이확인돼 이문서commit후tracked-clean source에서ci-unity-e2e.sh 전체경로1회만 실행한다. 기존P05FAIL은유지한다.
 
 - 배치25 C 검증/커밋 전: source e46cb6520272334d9816d951274b91bd39133b9b tracked-clean의ci-unity-e2e.sh/전체Strict1회실행완료. verify-all-q_sj2gpu:58lane/57PASS/기존P05기록FAIL1/신규FAIL0/대기0,exit1. tests226(예상negative4포함),checks57(고유56,TC내부4별도),samples100,Players4. self9·TC11·StoreKit18.6두복구·Android/iOS현재Push·PII·Editor통과. AndroidPush PID36901/양port소유확인,reconnect2; iOS reconnect6/LOCAL_TRANSPORT_FAULT,각deviceTokens0. PII양원장1/delta100. C UI안내각1회관측클릭,무인CI검증은별도. 모든생성기기/DB/로그보존,완료된이번전용process만종료. 최초배치24간헐위험/P05FAIL/Provider13대기는제거하지않는다.
+
+- 배치25 D 시작: A~C 현재증거로P09-T01~T08의명시완료조건을개별판단한다. P05 FAIL/26OPEN/실Provider13WAIT/self-hosted·Release미검증은분리유지. 근거있는로컬상태만변경하고table에서집계를재계산·원장/음성검사통과후scan/FF push/false Hosted-only1회를수행한다.
+
+- 배치25 D 원장 편집1차는 blocker ID가 Task셀에참조된것을중복행으로오인한assert에서exit1,파일쓰기전에중단됐다. 원장상태/집계는갱신되지않았음을확인했고행시작조건으로수정해다시검증한다. 제품/하네스검증실패가아니다.
+
+- [P09-T01] 배치25 D 판정: 50 ID/entry·잘못된fixture거부·정상복원,현재Kotlin10/Swift12+C#checker. localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T02] 배치25 D 판정: core/bridge·mutation은실행,실제assert총수미측정. PARTIAL. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T03] 배치25 D 판정: auth48·독립sandbox401 case1·PII2Player 확인. synthetic localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T04] 배치25 D 판정: TC11/정확한negative1/정상복원과SQL/Native복구. 코드IMPLEMENTED,18.6간헐위험미확정으로PARTIAL. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T05] 배치25 D 판정: 현재Android/iOS Push2+PII2·Native/Host·packaging음성PASS. mock·OS구간·UI보조구분,localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T06] 배치25 D 판정: 단위131·실제Strict58lane가knownP05FAIL1을보존하고다른57PASS. 0/1/2및측정/source/소유계약localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T07] 배치25 D 판정: 38파일Hosted연결·TC backend·localCI1회·actionlint완료. 실제self-hosted/Release미검증으로PARTIAL. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T08] 배치25 D 판정: 현재새전용환경9필수lane전부PASS·정확변이실패·정상복원·독립401확인.localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- 배치25 D 집계는64행에서자동재계산,임의성공건수추가/분모삭제없음.실Provider13 WAITING_USER/P05 FAIL/ENV26 OPEN 유지.
+
+- 배치25 D 감사 커밋 전: 계획과source별실제증거를대조해5개localPASS·3개PARTIAL을반영했고원장/음성/manifest/diff통과. TCgap/미연결unit/현재AVD대기는해소,간헐원인/actual assert/self-hosted는남김. 원래StrictFAIL및26.5/실Provider대기보존. 다음은범위·비밀정보검사후handoff FF push/false Hosted1회다.

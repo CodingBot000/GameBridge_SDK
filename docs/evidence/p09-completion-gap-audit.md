@@ -1,5 +1,23 @@
 # P09 완료 조건·미검증 항목 감사 — 2026-11-16
 
+## 최신 배치25 최종 local 감사
+
+[배치25 source별 결과](p09-batch25-integrated.md): current code e46cb6520272334d9816d951274b91bd39133b9b. A독립Android Push PASS/PID·양port소유확인, currentStrict58lane=57PASS/기존P05기록FAIL1/신규실패·대기0(exit1),측정tests226/checks57/samples100/Players4. actual tests에는의도된negative4가포함된다. 단위131·self9·Testcontainers11 확인.
+
+| Task | 실제 반영 상태(구현/local) | 근거/잔여 |
+|---|---|---|
+| P09-T01 | IMPLEMENTED/PASS | ID/entry50·fixture음성/정상복원·platform미실행구분 완료 |
+| P09-T02 | IN_PROGRESS/PARTIAL | guard mutation·회귀/100samples확인,actual assert총수미측정 |
+| P09-T03 | IMPLEMENTED/PASS | synthetic48·독립fake-token401·PII2,realProvider와분리 |
+| P09-T04 | IMPLEMENTED/PARTIAL | Testcontainers도구차이는실제로해소,SQL/Native복구현재PASS. 18.6간헐원인미확정위험유지 |
+| P09-T05 | IMPLEMENTED/PASS | fresh currentPush2·PII2·Native/Host/packaging음성,OS/mock/UI보조구분 |
+| P09-T06 | IMPLEMENTED/PASS | typed측정/source/증거fail-closed·실제0/1/2·knownFAIL보존 |
+| P09-T07 | IMPLEMENTED/PARTIAL | 38파일전체Hosted연결·TC backend/localCI구현. self-hosted/Release미검증 |
+| P09-T08 | IMPLEMENTED/PASS | current전용환경9필수lane·정확negative·정상복원·독립401 |
+
+이번에는단순제안이아니라위5개local PASS를실제원장에반영했고64행에서집계를재계산했다. 다른3개는PARTIAL로남겼다. P05FAIL/ENV26OPEN/외부13대기/실기기·self-hosted미검증은별도유지한다. 아래배치24및최초감사내용은당시기록이며최신판정과구분한다. 이번Hosted 결과는종료후추가한다.
+
+
 ## 최신 배치24 재평가 — 2026-11-16
 
 최신 코드 source 5eaf31f59f0d187a24bffb5007543744359ca076, [실행별 통합 evidence](p09-batch24-integrated.md). Python 119건·실제 자체시험 9 lane·독립 iOS Push PASS. Strict source 0b6fb72 원본은 57 lane/52 PASS/4 FAIL/1 환경 대기/exit 1이며, 그 이후 영향 재검증을 전체 Strict 성공으로 취급하지 않는다. 아래 최초 감사와 후속 기록은 당시 이력이다.

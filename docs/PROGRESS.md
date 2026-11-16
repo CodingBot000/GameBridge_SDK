@@ -5,7 +5,7 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (작업 미완료)
-- 현재 Phase / Task: 배치25 C 검증 완료 / P09 전체 감사·Hosted 인계
+- 현재 Phase / Task: 배치25 D / P09 개별 완료 조건 감사·Hosted 인계
 - 마지막 갱신 시각: 2026-11-16 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: e46cb6520272334d9816d951274b91bd39133b9b (현재 Unity PII·Push 4 Player 및 Strict 57 PASS/기존 P05 FAIL 1; 실제 Provider 미검증)
 - 현재 작업 트리 상태: 로컬 작업 커밋됨; Unity 미완성 Demo와 Python 캐시 미추적 보존
@@ -17,8 +17,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 50 / IMPLEMENTED 14 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 14 / FAIL 1 / PARTIAL 49 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 43 / IMPLEMENTED 21 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 19 / FAIL 1 / PARTIAL 44 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -81,14 +81,14 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P08-T03 | UPM staging·멱등 build hook | IMPLEMENTED | PASS | N/A | docs/evidence/p08-upm-staging.md | - |
 | P08-T04 | 신규 Unity 프로젝트 재설치 검증 | IMPLEMENTED | PASS | N/A | docs/evidence/consumer-install.md | - |
 | P08-T05 | 기능 개발 기준점 고정 | IMPLEMENTED | PASS | N/A | docs/evidence/feature-baseline-current-20261113.md | - |
-| P09-T01 | 후반 하네스 manifest·공통 contract test | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T01 | - |
-| P09-T02 | Core·Bridge 회귀·실패 주입 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T02 | ENV-002 |
-| P09-T03 | 인증·세션·개발모드 차단 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T03 | - |
-| P09-T04 | 구매·DB 동시성·복구 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T04 | - |
-| P09-T05 | Push·Lifecycle·패키징 회귀 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T05 | ENV-002, ENV-P09-AVD |
-| P09-T06 | 검증 집계·진행 원장 강제 검사 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T06 | - |
-| P09-T07 | CI 설정·플랫폼 lane 분리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T07 | ENV-002 |
-| P09-T08 | Fail-closed 하네스 자체 시험 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P09-T08 | - |
+| P09-T01 | 후반 하네스 manifest·공통 contract test | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T01 | - |
+| P09-T02 | Core·Bridge 회귀·실패 주입 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T02 | - |
+| P09-T03 | 인증·세션·개발모드 차단 회귀 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T03 | - |
+| P09-T04 | 구매·DB 동시성·복구 회귀 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T04 | DEP-P09-SK18 |
+| P09-T05 | Push·Lifecycle·패키징 회귀 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T05 | - |
+| P09-T06 | 검증 집계·진행 원장 강제 검사 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T06 | - |
+| P09-T07 | CI 설정·플랫폼 lane 분리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T07 | ENV-P09-RUNNER |
+| P09-T08 | Fail-closed 하네스 자체 시험 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08 | - |
 | P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T01 | ENV-002 |
 | P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T02 | - |
 | P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
@@ -124,6 +124,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | USER-SESSION-TTL | USER | P04-T04 | 최초 로그인부터 7일 고정 사용자 선택 | 기존 코드와 대조·검증 진행 | 실제 인증 검증 별도 필요 | RESOLVED |
 | USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제 | local-mock 세션별 삭제와 경쟁 상황 검증 완료 | 실제 FCM/APNs 경로 별도 구현 | RESOLVED |
 | USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프 | local-mock worker·재시작·동시성 검증 완료 | 실제 store finalizer 별도 구현 | RESOLVED |
+| DEP-P09-SK18 | DEP | P09-T04 | 배치24 18.6 timeout 원인 미확정, 배치25 동일 제한의 두 경로 PASS | 최초/후속 증거 및 checkpoint 분리 유지 | 정지 구간·기기 상태/부하 관측으로 간헐 원인 분류 | OPEN |
+| ENV-P09-RUNNER | ENV | P09-T07 | 전용 self-hosted 격리·실제 Unity CI/Release 미검증 | Hosted-only 및 local CI 경로 유지 | 전용 runner 준비와 별도 명시 검증 | OPEN |
 | ENV-P09-AVD | ENV | P09-T05 | 배치24 serial/PID/실제 port 불일치 | 배치25 새 AVD의 PID·이름·console/ADB 양 port 소유를 확인한 current Push PASS | 재실행마다 소유 검증·새 앱 상태 유지; 무인 CI 별도 | RESOLVED |
 | ENV-STOREKIT-26 | ENV | P05-T03 | iOS 26.5 simulator SKTestSession 설정 저장 Code 3 및 상품 조회 실패; 별도 iOS 18.6 전용 simulator 상품 조회 1건 통과 | 다른 독립 구현 진행; 실패 시험 보존 | 호환 환경에서 StoreKit local 재시험 | OPEN |
 | ENV-008 | ENV | P04-T04 | 전용 PostgreSQL container 정상 종료 상태에서 opt-in DB 시험 실패 | 기존 volume 보존 후 재기동 | DB healthy 및 실패 시험 재실행 | RESOLVED |
@@ -292,7 +294,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 ### 추가 Task PX-T04 — Unity Android Player E2E 검증 Runner (현재 브랜치)
 
-- 구현: IMPLEMENTED / 실제 Unity Android LOCAL_MOCK Player 검증: PASS ([공개 증거](evidence/px-t04-unity-android-local-mock.md)). 실제 제공자·Unity iOS는 NOT_RUN.
+- 구현: NOT_STARTED 0 / IN_PROGRESS 43 / IMPLEMENTED 21 / BLOCKED 0
 - harness/run-unity-android-mock-e2e.py를 추가했다. 기존 전용 AVD를 확인하고, 새 격리 Unity 소비 프로젝트를 생성하여 UPM staging을 검사한 후 APK를 빌드한다.
 - 빌드 이후 별도의 랜덤 local-mock DB 및 Backend를 기동하고 Player를 실행한다. Unity 로그의 initialize/login/products/purchase/wallet/logout PASS, Native 진단 초기화·인증·구매 이벤트, Backend HTTP trace와 DB wallet_ledger 1건·100코인을 **모두** 확인해야 PASS다.
 - Unity 6000.5.8f1 import·Android IL2CPP APK 및 전용 Android 36 에뮬레이터에서 LOCAL_MOCK 전체 경로를 검증했다. 첫 전체화면 안내는 수동으로 닫았다. 실제 Provider/스토어와 Unity iOS는 NOT_RUN 유지.
@@ -300,13 +302,13 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 
 ### 추가 Task PX-T05 — Native-only Runner 환경 가변화
 
-- 구현: IMPLEMENTED / 로컬 재실행: NOT_RUN (변경 후).
+- 구현: NOT_STARTED 0 / IN_PROGRESS 43 / IMPLEMENTED 21 / BLOCKED 0
 - 기존 harness/run-android-mock-bridge-e2e.py의 emulator-5598, 사용자 홈 Android SDK 경로, Docker 컨테이너·포트 가정을 CLI/환경변수로 대체했다.
 - adb로 현재 연결된 emulator와 GameBridge_V2_ 전용 AVD 이름을 확인하며 기존 com.gamebridge.sample 설치 앱을 보존한다. 재검증 전에는 이전 PX-T03 PASS 증거만 유효하며, 변경 후 재현성은 미검증이다.
 
 ### 추가 Task PX-T06 — 공개용 증거 요약과 CI 정적/오프라인 검사
 
-- 구현: IMPLEMENTED / 테스트 실행: NOT_RUN (신규 브랜치).
+- 구현: NOT_STARTED 0 / IN_PROGRESS 43 / IMPLEMENTED 21 / BLOCKED 0
 - harness/export-mock-e2e-evidence.py는 result.json PASS, 소스 HEAD 일치, tracked-clean, 지급 원장 1건·100코인, Unity Player 또는 Native-only 증거를 구분하여 허용된 요약만 생성한다.
 - harness/test_export_mock_e2e_evidence.py에 dirty/stale/NOT_RUN/원본 누락·Mock-as-Unity를 거부하는 단위 테스트를 추가하고 .github/workflows/verify.yml의 Linux lane에 Python 문법/해당 테스트를 추가했다. 원격 CI는 아직 실행하지 않았다.
 - 실제 새로운 PASS 증거는 존재하지 않는다. docs/evidence/px-t03-android-mock-bridge.md의 기존 실험은 원래 소스/미커밋 상태 그대로 기록하며 새 HEAD의 재현성 PASS로 바꾸지 않는다.
@@ -1527,3 +1529,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치25 C 실제검증/Strict전 커밋: source43d255a39f9efd28e630fad40889cec9d255365d에서 self9/9 PASS(exit0, tests47/예상failure3/checks9; harness-self-rl7_n0r_) 및TC4case11test/예상failure1 PASS(exit0; purchase-testcontainers-86d9mge4). self-only 불필요Simulator 생성없음. Unity active/staging147 PASS. C새PIO5578/PID36894 및Push5580/PID36901 각각이console+ADB양port소유·AVD이름·boot완료일치. A독립PASS와C전용환경이확인돼 이문서commit후tracked-clean source에서ci-unity-e2e.sh 전체경로1회만 실행한다. 기존P05FAIL은유지한다.
 
 - 배치25 C 검증/커밋 전: source e46cb6520272334d9816d951274b91bd39133b9b tracked-clean의ci-unity-e2e.sh/전체Strict1회실행완료. verify-all-q_sj2gpu:58lane/57PASS/기존P05기록FAIL1/신규FAIL0/대기0,exit1. tests226(예상negative4포함),checks57(고유56,TC내부4별도),samples100,Players4. self9·TC11·StoreKit18.6두복구·Android/iOS현재Push·PII·Editor통과. AndroidPush PID36901/양port소유확인,reconnect2; iOS reconnect6/LOCAL_TRANSPORT_FAULT,각deviceTokens0. PII양원장1/delta100. C UI안내각1회관측클릭,무인CI검증은별도. 모든생성기기/DB/로그보존,완료된이번전용process만종료. 최초배치24간헐위험/P05FAIL/Provider13대기는제거하지않는다.
+
+- 배치25 D 시작: A~C 현재증거로P09-T01~T08의명시완료조건을개별판단한다. P05 FAIL/26OPEN/실Provider13WAIT/self-hosted·Release미검증은분리유지. 근거있는로컬상태만변경하고table에서집계를재계산·원장/음성검사통과후scan/FF push/false Hosted-only1회를수행한다.
+
+- 배치25 D 원장 편집1차는 blocker ID가 Task셀에참조된것을중복행으로오인한assert에서exit1,파일쓰기전에중단됐다. 원장상태/집계는갱신되지않았음을확인했고행시작조건으로수정해다시검증한다. 제품/하네스검증실패가아니다.
+
+- 배치25 D 개별 상태 반영: T01/T03/T05/T06/T08 local 완료 조건을 실제 증거로 충족해 IMPLEMENTED/PASS. T02 assert총수 미측정으로 IN_PROGRESS/PARTIAL, T04 TC구현 완료·18.6 간헐 원인 미확정으로 IMPLEMENTED/PARTIAL, T07 Hosted/설정 구현 완료·self-hosted/Release 미검증으로 IMPLEMENTED/PARTIAL. 집계는64개 원장행에서 재계산했고 외부13 WAITING_USER·P05 FAIL은 유지했다.
+
+- 배치25 D 감사 커밋 전: 계획과source별실제증거를대조해5개localPASS·3개PARTIAL을반영했고원장/음성/manifest/diff통과. TCgap/미연결unit/현재AVD대기는해소,간헐원인/actual assert/self-hosted는남김. 원래StrictFAIL및26.5/실Provider대기보존. 다음은범위·비밀정보검사후handoff FF push/false Hosted1회다.

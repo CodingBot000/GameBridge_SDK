@@ -1,5 +1,8 @@
 # P09 하네스 통합 보강 배치24 — 2026-11-16
 
+> 후속현재판정은 [배치25](p09-batch25-integrated.md)를참조한다. 배치24의Android환경대기는새owned Push실행으로해소했고,TC요구/기존CI미연결도후속구현했다. 아래배치24실패·부분·대기및retry성공은당시원본으로보존한다.
+
+
 ## 최신 상태 — 배치24 종료
 
 A/B 구현·방어 보강 완료. C는 전체 Strict 원본 FAIL을 보존한 **PARTIAL**이다. Android Push 재검증은 ENV-P09-AVD 대기다. 최신 코드 source **5eaf31f59f0d187a24bffb5007543744359ca076**: Python 119 PASS/skip 0, P09-T08 9/9 PASS, 독립 iOS Push Player PASS. 아래 NOT_RUN·중간 실패 기록은 당시 이력이며 후속 검증으로 덮어쓰지 않는다. D Hosted-only run 43862394352 전체 SUCCESS(5 job SUCCESS, Unity·Release SKIPPED). 원격 검증 source는 8c8fc62이며 최종 결과 문서만 이후 추가한다.
@@ -145,3 +148,7 @@ P09-T01/T03/T06/T08의 local 상태 변경 근거는 [완료 조건 감사](p09-
 ## 배치25 진행
 
 잔여 환경·검증·상태 감사의 후속은 [배치25 evidence](p09-batch25-integrated.md)에 기록한다. 배치24의 실패·미실행·후속 성공은 수정하지 않는다.
+
+### 배치25 후속현재상태
+
+A current-owned Android Push PASS, current Strict57PASS/knownP05FAIL1/신규실패·대기0. P09-T01/T03/T05/T06/T08의local PASS를실제반영했다. T02 assert계측/T04 간헐위험/T07 self-hosted는PARTIAL로유지한다. source·개별상태·후속Hosted는[배치25](p09-batch25-integrated.md)에기록한다. 기존배치24문제관측은삭제하지않는다.

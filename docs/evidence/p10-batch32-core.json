@@ -1,0 +1,112 @@
+{
+  "sourceHead": "01892c8e347431a076a85f3530d4b98eec22512f",
+  "sourceDigest": "9612787c1c778913fec5f0a451cbfe298e1fba1cf869685ec120027d9333255c",
+  "runId": "36e297f5a072463289127030823d47aa",
+  "scope": "current Core helper execution and duplicate mutation/normal restoration; not Player assertion or full Strict",
+  "status": "PASS",
+  "executions": [
+    {
+      "name": "kotlin",
+      "tests": 10,
+      "checks": 1,
+      "status": "PASS",
+      "exitCode": 0,
+      "failures": 0,
+      "errors": 0,
+      "errorModel": "separate",
+      "skipped": 0,
+      "normalAssertions": 37,
+      "expectedErrorChecks": 13,
+      "assertionsExecuted": 50,
+      "assertionOutcomes": "UNMEASURED"
+    },
+    {
+      "name": "swift",
+      "tests": 12,
+      "checks": 1,
+      "status": "PASS",
+      "exitCode": 0,
+      "failures": 0,
+      "errors": null,
+      "errorModel": "included-in-failures",
+      "skipped": 0,
+      "normalAssertions": 112,
+      "expectedErrorChecks": 10,
+      "assertionsExecuted": 122,
+      "assertionOutcomes": "UNMEASURED"
+    },
+    {
+      "name": "csharp",
+      "tests": 0,
+      "checks": 1,
+      "status": "PASS",
+      "exitCode": 0,
+      "failures": 0,
+      "errors": null,
+      "errorModel": "checker-exit",
+      "skipped": 0,
+      "normalAssertions": 198,
+      "expectedErrorChecks": 220,
+      "assertionsExecuted": 418,
+      "assertionOutcomes": "UNMEASURED"
+    },
+    {
+      "name": "lifecycle-stress",
+      "tests": 0,
+      "checks": 1,
+      "samples": 100,
+      "assertions": {
+        "executed": 316,
+        "warmup": 15,
+        "samples": 300,
+        "finalChecks": 1,
+        "outcomes": "UNMEASURED"
+      },
+      "evidence": "artifacts/lifecycle-stress.cwZFAG/result.json"
+    },
+    {
+      "name": "duplicate-guard-mutation",
+      "tests": 0,
+      "checks": 1,
+      "expectedProcessFailures": 1,
+      "mutatedProcessExitCode": 134,
+      "partialAssertions": {
+        "normalAssertions": 1,
+        "expectedErrorChecks": 0,
+        "assertionsExecuted": 1
+      },
+      "normalProbeExitCode": 0,
+      "normalProbeAssertions": {
+        "normalAssertions": 2,
+        "expectedErrorChecks": 0,
+        "assertionsExecuted": 2
+      },
+      "probe": "duplicate-completion-only",
+      "sourceUnchanged": true
+    },
+    {
+      "name": "normal-after-mutation",
+      "tests": 0,
+      "checks": 1,
+      "normalAssertions": 198,
+      "expectedErrorChecks": 220,
+      "assertionsExecuted": 418,
+      "sourceUnchanged": true
+    },
+    {
+      "name": "conditional-branch-control",
+      "tests": 0,
+      "checks": 1,
+      "normalAssertions": 199,
+      "expectedErrorChecks": 220,
+      "assertionsExecuted": 419,
+      "branchOffExecutions": 0,
+      "branchOnExecutions": 1
+    }
+  ],
+  "assertionOutcomes": "UNMEASURED",
+  "sourceCallSiteCount": "UNMEASURED",
+  "limitation": "Counts are test-helper invocations, not boolean operands or all framework internals. Shared test scope totals are not additive per scenario.",
+  "evidence": "artifacts/core-assertions-uv2hv2g5",
+  "workingTreeAtExecution": "documentation edits only; unchanged SDK Core"
+}

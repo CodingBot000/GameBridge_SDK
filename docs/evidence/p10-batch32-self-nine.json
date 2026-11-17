@@ -1,0 +1,126 @@
+{
+  "scope": "harness-negative-self-check",
+  "sourceHead": "eff5d5a44a9d8dcb182a94381dab76c82714ade0",
+  "sourceDigest": "1163176132b2d128833ae1c280148c3b7fcd682570dbaf4e4567347a6cce18c4",
+  "runId": "4898153480014018b0cfba4976adc3a0",
+  "workingTree": "HEAD plus uncommitted changes may be present",
+  "timestampUtc": "2026-11-17T18:24:56Z",
+  "summary": {
+    "status": "PASS",
+    "exitCode": 0,
+    "reason": "all required local lanes executed and passed"
+  },
+  "lanes": [
+    {
+      "name": "progress-negative",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "manifest-negative",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "package-negative",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "contract-negative",
+      "status": "PASS",
+      "tests": 22,
+      "checks": 1,
+      "expectedFailures": 2,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "bridge-mutation",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "ledger-mutation",
+      "status": "PASS",
+      "tests": 2,
+      "checks": 1,
+      "expectedFailures": 1,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "failed-and-zero-test",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "sandbox-fake-token",
+      "status": "PASS",
+      "tests": 1,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "separate"
+    },
+    {
+      "name": "normal-contracts",
+      "status": "PASS",
+      "tests": 22,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    }
+  ],
+  "evidence": "artifacts/harness-self-w7488dwm",
+  "orchestration": "artifacts/strict-isolated-zjle511z",
+  "fullStrict": "NOT_RUN"
+}

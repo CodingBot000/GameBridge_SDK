@@ -18,8 +18,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 42 / IMPLEMENTED 22 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 20 / FAIL 1 / PARTIAL 43 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 41 / IMPLEMENTED 23 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 21 / FAIL 1 / PARTIAL 42 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.
@@ -90,7 +90,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P09-T06 | 검증 집계·진행 원장 강제 검사 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T06 | - |
 | P09-T07 | CI 설정·플랫폼 lane 분리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-ci-modes.md, WORK_LOG P09-T07 | ENV-P09-RUNNER |
 | P09-T08 | Fail-closed 하네스 자체 시험 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08 | - |
-| P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-batch31-integrated.md; docs/evidence/p10-core-bridge-batch26.md, WORK_LOG P10-T01 | ENV-HUB-NEW-TERMS; DEP-P10-PLAYER-IMPACT; ENV-UNITY-LICENSE-IPC |
+| P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IMPLEMENTED | PASS | N/A | docs/evidence/p10-batch32-t01-decision.md; docs/evidence/p10-batch32-core.json, WORK_LOG P10-T01 | 추가 전체Strict/Release는 ENV-UNITY-LICENSE-IPC/ENV-P09-RUNNER로 별도 유지 |
 | P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-batch29-candidate-tests.json; docs/evidence/p10-auth-purchase-push-batch27.md, WORK_LOG P10-T02 | DEP-P10-T01 |
 | P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
 | P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | ENV-002 |
@@ -130,8 +130,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | ENV-UNITY-ADB-STARTUP | ENV | P10-T01·전용 기기 시험 | 배치28 Hub GUI Editor 상태바에서 다른 SDK ADB server 인스턴스 종료 경고 관측, 대상/영향 미확정 | 에이전트 ADB명령 없음, 추가 기기/서버 조작 보류 | 후속 기기 시험 전 SDK·ADB process 및 전용 serial/PID/양port 소유 확인 | OPEN |
 | DEP-P10-ANDROID-E2E | DEP | P10-T01 구매·PII 범위 | 배치29 timeout FAIL 원본/미수집 UI 원인 미확정 보존; 배치30 새 APK/AVD에서 명시1회 교육안내 ACK 후 동일 PID managed/Backend/원장1·100 PASS | 현재 동일 제품/source 범위 성공과 과거FAIL 분리 | 구매PII 재검증 충족; Push/JNI/무인CI는 별도 DEP-P10-PLAYER-IMPACT | RESOLVED |
 | ENV-UNITY-LICENSE-IPC | ENV | P10-T01 자동batch/Strict | 배치28 Hub GUI6000.5.8f1 정상UI, direct batch210초/outertimeout124·receipt없음·IPC/mutex실패 | raw보존/자동1회·GUI별도1회,Player NOT_RUN/Strict0·DEFERRED_ENV | 일반GUI와자동batch차이확인·정상자동receipt후current Player/Strict | OPEN |
-| ENV-HUB-NEW-TERMS | ENV | P10-T01 GUI Push/JNI | Hub 재시작 후4.0.1의 새 Software License Terms 화면; 명시 동의 미수신/동의0·실제GUI APK0 | 독립harness/Core/API/ABI/CI 및두소유project등록 | 사용자 직접 새약관처리 또는행동시점 명시허용 뒤6000.5.8f1 실제GUI빌드 | OPEN |
-| DEP-P10-PLAYER-IMPACT | DEP | P10-T01·T02 | 새 Android Push/JNI 실제Player 미실행; 과거iOSUnityPush 이후RequestRegistry 변경1개로current 영향 미검증 | 명시GUI 입력/음성 fixture와기존제품source 유지 | 양플랫폼별필수Player 영향증거와Strict환경제한을분리확인후T01판정 | OPEN |
+| ENV-HUB-NEW-TERMS | ENV | P10-T01 GUI Push/JNI | Hub 재시작 후4.0.1의 새 Software License Terms 화면; 명시 동의 미수신/동의0·실제GUI APK0 | 독립harness/Core/API/ABI/CI 및두소유project등록 | 사용자 직접 새약관처리 또는행동시점 명시허용 뒤6000.5.8f1 실제GUI빌드 | RESOLVED |
+| DEP-P10-PLAYER-IMPACT | DEP | P10-T01·T02 | 새 Android Push/JNI 실제Player 미실행; 과거iOSUnityPush 이후RequestRegistry 변경1개로current 영향 미검증 | 명시GUI 입력/음성 fixture와기존제품source 유지 | 양플랫폼별필수Player 영향증거와Strict환경제한을분리확인후T01판정 | RESOLVED |
 | ENV-P09-RUNNER | ENV | P09-T07 | 전용 self-hosted 격리·실제 Unity CI/Release 미검증 | Hosted-only 및 local CI 경로 유지 | 전용 runner 준비와 별도 명시 검증 | OPEN |
 | ENV-P09-AVD | ENV | P09-T05 | 배치24 serial/PID/실제 port 불일치 | 배치25 새 AVD의 PID·이름·console/ADB 양 port 소유를 확인한 current Push PASS | 재실행마다 소유 검증·새 앱 상태 유지; 무인 CI 별도 | RESOLVED |
 | ENV-STOREKIT-26 | ENV | P05-T03 | iOS 26.5 simulator SKTestSession 설정 저장 Code 3 및 상품 조회 실패; 별도 iOS 18.6 전용 simulator 상품 조회 1건 통과 | 다른 독립 구현 진행; 실패 시험 보존 | 호환 환경에서 StoreKit local 재시험 | OPEN |
@@ -1890,3 +1890,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치32 E 최초실측 aggregateFAIL(source4793bc4,performance-local-0t0528ka): managed는Release/Stopwatch/warmup20+100각측정·pending/live0으로실제PASS. Backend는catalog120/200과초회verify1/200까지도달했으나기존WalletSnapshot.coinBalance가JSON문자열인데driver가숫자100으로비교해ValueError로중단했다. 제품/원장장애아닌계측harness계약오독으로Backend전체PASS가아니다. 원본보존·정확한문자열100비교/음성fixture추가. 이미유효한managed실측은별도artifact로보존·반복하지않고명시backend-only 새측정/새DB로재확인한다. source/시간/범위혼동없음.
 
 - 배치32 E backend계약수정 검증/커밋 전: WalletSnapshot의정확한문자열100/같은purchaseID와숫자·bool·잘못된문자열거부5unit PASS. Driver는측정scope별PARTIAL/실패code를보존하고backend-only를명시해이전managed실측을새실행으로재표시하지않는다. 제품API/샘플수/warmup/원장조건변경0. 기존managed p50/p95/max는원본4793source에서유효하고이번반복은수정된Backend부분만새DB에서실행한다.
+
+- 배치32 E 검증/P09의존 self9 시작: 원본4793의managed실측은warmup20+100각Release/Stopwatch로PASS·pending/live0,수정eff5의Backend-only 새측정도catalog/동일멱등키/409충돌 각100(+warmup20)·원장1/delta100 PASS/exit0(performance-local-jn_wziif). JSON문자열수량오독의첫aggregateFAIL은보존,이미유효한managed는반복0/별도source로분리했다. Core-current10/12/helpers50·122/managed418/복원·변이134·stress100/316도PASS. T01명시조건최종판정에앞서현재하네스의P09-T08 self-only 필수9개를새격리DB/role로검증한다. 전체Strict/새Simulator/Player를호출하지않으며사용자DB보존.
+
+- 배치32 C 판정/커밋 전: DEVELOPMENT_PLAN 명시Core완료(API baseline·관련회귀·취소/late semantics·전후소스/결과)와Task32가구분한추가전체Strict/Release를대조해T01 IMPLEMENTED/로컬PASS로판정. 기존79file原Coreguard·P08API·現Core10/12/418/변이복원·신규AndroidJNI/Push·현재iOSPush·유효기존구매PII/CABI·現self9全PASS 근거를decision문서에연결했다. 64Task그대로구현23/진행41·localPASS21/FAIL1/PARTIAL42; P05FAIL/Strict0·ENV/Provider13WAIT/SDK BLOCKED_INTERNAL유지. 의존을우회하지않고이closing commit을고정한뒤검증된Native후보를정식T02로통합한다. 기존Core baseline변경0/후속phase정확4파일전이검사를추가해검증약화없이CI를유지한다.

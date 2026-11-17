@@ -90,6 +90,13 @@ class AndroidVariantTests(unittest.TestCase):
                 self.assertEqual(m.main(),1);self.assertEqual(loaded.call_args.args[-1],'push')
             result=json.loads(next((root/'artifacts').glob('*/result.json')).read_text());self.assertEqual(result['unityBuildMode'],'GUI_EXPLICIT_RECEIPT');self.assertEqual(result['errorCode'],'STOP_AT_BACKEND');self.assertTrue(any(x[0]=='backend/gradlew' for x in calls));self.assertIsNone(m.common._GUI_ADB_GUARD)
 
+    def test_push_notice_input_requires_explicit_gui_and_diagnostics(self):
+        spec=importlib.util.spec_from_file_location('push_notice_scope',REAL_ROOT/'harness/run-unity-android-mock-push-e2e.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+        for extras in ([],['--gui-project','/owned','--gui-build-receipt','/receipt']):
+            argv=['push','--run-local','--staging','/stage','--serial','emulator-5596','--expected-avd','GameBridge_V2_unit','--ack-known-fullscreen-notice',*extras]
+            with patch('sys.argv',argv),patch.object(m.common,'run') as run,contextlib.redirect_stderr(io.StringIO()),self.assertRaises(SystemExit) as stop:m.main()
+            self.assertEqual(stop.exception.code,2);run.assert_not_called()
+
     def test_invalid_push_gui_input_stops_before_adb_backend_or_batch(self):
         spec=importlib.util.spec_from_file_location('push_gui_gate',REAL_ROOT/'harness/run-unity-android-mock-push-e2e.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
         with tempfile.TemporaryDirectory() as tmp:

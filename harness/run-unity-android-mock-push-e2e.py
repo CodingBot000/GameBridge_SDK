@@ -23,8 +23,10 @@ def main():
     parser.add_argument('--gui-project',type=Path);parser.add_argument('--gui-build-receipt',type=Path)
     parser.add_argument('--adb');parser.add_argument('--expected-emulator-pid',type=int)
     parser.add_argument('--expected-adb-server-pid',type=int);parser.add_argument('--startup-diagnostics',action='store_true')
+    parser.add_argument('--ack-known-fullscreen-notice',action='store_true')
     args=parser.parse_args()
     if bool(args.gui_project)!=bool(args.gui_build_receipt):parser.error('GUI project and receipt must be supplied together')
+    if args.ack_known_fullscreen_notice and not (args.gui_project and args.startup_diagnostics):parser.error('Explicit GUI receipt, diagnostics and owned binding required for normal notice acknowledgement')
     out=Path(tempfile.mkdtemp(prefix='unity-android-push-',dir=ROOT/'artifacts'));server=None;log=None;proxy=None;network_changed=False;adb=None;serial=None;diagnostics=None;key=password=admin=bearer=None
     expected_pid=str(args.expected_emulator_pid or os.environ.get('GAMEBRIDGE_PUSH_EMULATOR_PID',''))
     def run(command,**kwargs):return guarded_call(command,adb,serial,args.expected_avd,expected_pid=expected_pid,**kwargs)
@@ -84,7 +86,7 @@ def main():
         if installed.returncode or 'Success' not in installed.stdout:raise common.GateError('INSTALL_FAILED')
         must([adb,'-s',serial,'logcat','-c'],'LOGCAT_CLEAR')
         if args.startup_diagnostics:
-            diagnostics=common._startup.Collector(run,adb,serial,common.PACKAGE,out/'startup-diagnostics',(key,password,admin,bearer))
+            diagnostics=common._startup.Collector(run,adb,serial,common.PACKAGE,out/'startup-diagnostics',(key,password,admin,bearer),allow_notice_ack=args.ack_known_fullscreen_notice)
             result['startupDiagnostics']='startup-diagnostics/summary.json'
             diagnostics.capture('installed-before-launch',backend_log=out/'server.log')
         launch=run([adb,'-s',serial,'shell','am','start','-W','-n',common.PACKAGE+'/com.unity3d.player.UnityPlayerGameActivity','--es','gamebridge_mock_url',f'http://10.0.2.2:{proxyport}','--es','gamebridge_mock_key',key,'--es','gamebridge_installation',installation],timeout=30)

@@ -5,8 +5,8 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치29 종료; GUI 양플랫폼 빌드·iOS E2E/Hosted PASS,Android실행timeout FAIL,T01/T02 PARTIAL)
-- 현재 Phase / Task: 배치30 C / 정상 OS 안내 ACK 방법 사용자 입력 대기, 추가재검증 전
-- 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
+- 현재 Phase / Task: 배치30 D / 사용자 허용 안내 ACK 후 Android 실제 E2E PASS; Core·호환성 및 환경 조건 검증
+- 마지막 갱신 시각: 2026-11-18 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: GUI probe dcc0b4c,Android build7263444/실행FAIL7520cbc,iOS export953a5a5/실행PASSd543556; Hosted3fd95f459355d5abdab98ff9c622a7bd5675d0d1 SUCCESS. 최종Python171 PASS.
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
@@ -1772,3 +1772,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치30 C 명시ACK구현/검증·커밋 전: --ack-known-fullscreen-notice는GUIreceipt/진단/소유바인딩이모두있는경로의명시옵션일때만작동한다. 실제freshXML의정상교육header·단일enabled Gotit/bounds만식별하고같은run guard를통해1회tap,전후XML/시간/exit·unattendedCI=false를기록한다. default입력0/권한·타app prompt입력0/단일정확serial좌표음성검증PASS. 실제UI입력은아직0이며허용된추가C검증을위해새B30B project/APK를생성한다. 기존첫FAIL·AVD·DB/로그보존,SDK제품/await/성공/timeout조건변경0.
 
 - 배치30 C 추가재검증 시작: 사용자명시전용ADB UI ACK요청범위에서새GUI B30B APK(현재source/147/nonce/hash검증)·새AVD B30_START_B_20261118_ACK·5594/5595·현재동일UnitySDK server98843을확인했다. 기존A/B29AVD·설치app/DB보존. 아래controller에서소유PID/양port/이름/serial을실측한뒤명시ACK옵션의E2E를1회만수행한다. 정상교육안내이외tap/권한/설정/서버변경없으며원래180초/기존auth-purchase-PII-원장조건유지. 허용추가1회를이실행에서사용하며더반복하지않는다.
+
+- 배치30 C 재검증 PASS/exit0: source6f813a79ffe2b8b932a7b562f326613950c7d7fc·GUI buildsource c07a264/APK f8f402fd. 새전용AVD에서정확한Viewing full screen 안내를사용자허용범위로1회tap(exit0,14.528s). 동일PID4479에서focus회복·안내소멸·Awake/Start/intent/SDK/init반환/auth진입관측,첫HTTP22.937s·완료27.976s·PII포함marker34·Backendauth/catalog/entitlements/verify/logout·원장1/delta100 PASS. 일반OS안내가이재현의managed진입을막았음은전후실측으로확인됐으나B29원본UI미수집때문에과거원인을소급확정하지않는다. 무인CI PASS아님/실Provider미검증. controller는자기PID99860만종료·AVD/DB/원본보존,첫진단FAIL도유지. 정제증거p10-batch30-android-e2e-b.json. D Core/duplicate·API/ABI/source대조를시작하고Push/JNI/Strict자동경로의미충족조건은별도평가한다.

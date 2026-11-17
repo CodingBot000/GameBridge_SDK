@@ -30,6 +30,9 @@ _redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.l
 _gui_spec = importlib.util.spec_from_file_location('gui_contract', ROOT/'harness/gui_verification.py')
 _gui = importlib.util.module_from_spec(_gui_spec); _gui_spec.loader.exec_module(_gui)
 load_android_build = _gui.load_android_build
+_binding_spec = importlib.util.spec_from_file_location('gui_binding', ROOT/'harness/emulator_binding.py')
+_binding = importlib.util.module_from_spec(_binding_spec); _binding_spec.loader.exec_module(_binding)
+_GUI_ADB_GUARD = None
 
 PACKAGE = "com.gamebridge.sdk.mockconsumer"
 STEPS = ("initialize", "login", "products", "purchase", "wallet", "logout")
@@ -43,6 +46,10 @@ class GateError(Exception):
 
 
 def run(command, timeout=120, input_text=None, env=None):
+    if _GUI_ADB_GUARD is not None and command and Path(str(command[0])).name == 'adb':
+        try: _GUI_ADB_GUARD.attest(command)
+        except _binding.BindingError as error:
+            raise GateError("GUI_DEVICE_OR_ADB_BINDING_CHANGED", "DEFERRED_ENV") from error
     try:
         return subprocess.run(
             [str(part) for part in command], cwd=ROOT, env=env, input=input_text,
@@ -251,6 +258,8 @@ def assert_wallet_ledger(container, admin, database):
 
 
 def main():
+    global _GUI_ADB_GUARD
+    _GUI_ADB_GUARD = None
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-local", action="store_true", required=True,
                         help="Explicit permission to create and retain a dedicated local DB and install test APK")
@@ -268,6 +277,8 @@ def main():
     parser.add_argument("--pii-probe", action="store_true", help="Use synthetic personal-data callback consumer")
     parser.add_argument("--gui-project", type=Path, help="Explicit owned GUI consumer; requires matching GUI build receipt")
     parser.add_argument("--gui-build-receipt", type=Path, help="Actual GUI build result; never a fallback for a failed CLI build")
+    parser.add_argument("--expected-emulator-pid", type=int)
+    parser.add_argument("--expected-adb-server-pid", type=int)
     parser.add_argument("--timeout-seconds", type=int, default=180)
     args = parser.parse_args()
     if sum((args.utf8_probe, args.native_demo_probe, args.pii_probe)) > 1: parser.error("choose one specialized probe")
@@ -305,6 +316,12 @@ def main():
         adb = locate_adb(args.adb)
         if adb is None:
             raise GateError("ADB_MISSING", "DEFERRED_ENV")
+        if gui_input is not None:
+            if not all((args.serial, args.expected_avd, args.expected_emulator_pid, args.expected_adb_server_pid)):
+                raise GateError("GUI_OWNED_DEVICE_AND_SERVER_BINDING_REQUIRED", "DEFERRED_ENV")
+            _GUI_ADB_GUARD = _binding.GuiAdbGuard(adb,args.expected_adb_server_pid,args.serial,args.expected_avd,args.expected_emulator_pid)
+            summary["emulatorPid"] = args.expected_emulator_pid
+            summary["adbServerPid"] = args.expected_adb_server_pid
         expected_avd = args.expected_avd
         marker = ROOT / "artifacts/v2-test-avd-name.txt"
         if not expected_avd and marker.is_file():
@@ -439,6 +456,7 @@ def main():
         summary["status"] = "FAIL"
         summary["errorCode"] = type(error).__name__
     finally:
+        _GUI_ADB_GUARD = None
         if backend_process:
             backend_process.terminate()
             try:

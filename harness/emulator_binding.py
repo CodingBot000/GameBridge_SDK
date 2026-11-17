@@ -2,8 +2,31 @@
 import re
 import shlex
 import subprocess
+from pathlib import Path
 
 class BindingError(ValueError):pass
+
+
+class GuiAdbGuard:
+    """Only the already-running matching SDK server and one owned emulator."""
+    def __init__(self, adb, server_pid, serial, avd, emulator_pid):
+        self.adb=Path(adb).resolve(); self.server_pid=int(server_pid)
+        self.serial=serial; self.avd=avd; self.emulator_pid=int(emulator_pid)
+
+    def attest(self, command):
+        inspect_binding(self.serial,self.avd,self.emulator_pid)
+        if _port_owners(5037)!={self.server_pid}:
+            raise BindingError('ADB_SERVER_PORT_OWNER_CHANGED')
+        p=subprocess.run(['lsof','-p',str(self.server_pid),'-d','txt','-Fn'],capture_output=True,text=True,timeout=5)
+        paths={Path(l[1:]).resolve() for l in p.stdout.splitlines() if l.startswith('n') and l.endswith('/adb')}
+        if p.returncode or self.adb not in paths:
+            raise BindingError('ADB_SERVER_EXECUTABLE_MISMATCH')
+        args=[str(x) for x in command]
+        if not args or Path(args[0]).resolve()!=self.adb:
+            raise BindingError('ADB_CLIENT_EXECUTABLE_MISMATCH')
+        if args[1:]==['devices']:return
+        if len(args)<4 or args[1:3]!=['-s',self.serial] or args[3] not in ('emu','shell','install','logcat'):
+            raise BindingError('UNSCOPED_ADB_COMMAND_REJECTED')
 
 
 def _process_arguments(pid):

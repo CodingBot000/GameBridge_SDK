@@ -72,7 +72,7 @@ def run_ios(out):
             if stopped.returncode==149:
                 try:
                     listing=subprocess.run(['xcrun','simctl','list','devices','-j'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                    confirmed=listing.returncode==0 and any(x.get('udid')==device and x.get('state')=='Shutdown' for group in json.loads(listing.stdout)['devices'].values() for x in group)
+                    confirmed=listing.returncode==0 and any(str(x.get('udid','')).lower()==device and x.get('state')=='Shutdown' for group in json.loads(listing.stdout)['devices'].values() for x in group)
                 except (ValueError,KeyError,TypeError):confirmed=False
             if not confirmed:result.update(status='FAIL',exitCode=1,errorCode='OWNED_SIMULATOR_SHUTDOWN_FAILED')
 

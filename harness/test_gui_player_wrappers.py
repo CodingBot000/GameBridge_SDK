@@ -66,6 +66,17 @@ class GuiPlayerWrapperTests(unittest.TestCase):
             result=m.run_ios(Path(tmp));self.assertEqual(result['status'],'DEFERRED_ENV');self.assertEqual(result['ownedSimulatorShutdownExitCode'],0)
         self.assertFalse(any('delete' in cmd or 'erase' in cmd for cmd in commands))
 
+    def test_r09_already_shutdown_uuid_comparison_ignores_simctl_letter_case(self):
+        m=module('r09-utf8');device='AAAABBBB-0000-0000-0000-000000000001'
+        def run(cmd,**kw):
+            if cmd[0]=='bash':return subprocess.CompletedProcess([],0,stdout='/owned/project')
+            if cmd[:3]==['xcrun','simctl','create']:return subprocess.CompletedProcess([],0,stdout=device)
+            if cmd[0]=='xcodebuild':raise subprocess.TimeoutExpired(cmd,240)
+            if cmd[:3]==['xcrun','simctl','shutdown']:return subprocess.CompletedProcess([],149)
+            self.assertEqual(cmd,['xcrun','simctl','list','devices','-j']);return subprocess.CompletedProcess([],0,stdout=json.dumps({'devices':{'runtime':[{'udid':device,'state':'Shutdown'}]}}))
+        with tempfile.TemporaryDirectory() as tmp,patch.object(m.subprocess,'run',side_effect=run):value=m.run_ios(Path(tmp))
+        self.assertEqual(value['status'],'DEFERRED_ENV');self.assertEqual(value['errorCode'],'IOS_COMMAND_UNAVAILABLE_OR_TIMEOUT');self.assertEqual(value['ownedSimulatorShutdownExitCode'],149)
+
     def test_r09_ios_malformed_summary_fails_closed_and_preserves_cleanup(self):
         m=module('r09-utf8');device='00000000-0000-0000-0000-000000000001'
         with tempfile.TemporaryDirectory() as tmp:

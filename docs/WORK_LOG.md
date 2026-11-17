@@ -4011,3 +4011,17 @@
 - 배치31 F 통합문서/커밋 전: A~F/최종보고11항목·source별JSON·이전배치30연결·USER_SETUP/FINAL_REPORT를갱신했다. GUI입력구현/fixture검증과실제미실행·새Hub약관동의대기를명확히분리했다. 공식CLI project등록2개각0/launch0,현재5037read-only listener0/ADB명령0도기록. 최종Python203/GUI38·Core/API/ABI/stagingPASS,새미형식summary오류재현/복구와과거iOSPush current-gap유지. 모든code/test commit완료,새range scan0/탐지0·기존history1/정확sourcehash오탐2보존. 명시stage scan·원장검사뒤handoff FFpush/vars정상0재확인/falseHosted1회만수행한다. 약관승인pending의존GUI단계는강행하지않는다.
 
 - 배치31 F stage검증/커밋 직전: 명시7개정제문서text/JSONparse·원장/diff PASS,실제staged blob scan0/탐지0. origin handoff0behind/3ahead·FFancestor확인. 키/서명/license/rawlog/DB/APK/Library/Temp/Xcode생성물·미추적Demo/cache는stage하지않았다. 이문서commit뒤전체이번range재scan/FFpush→코드source원격일치/vars0정상응답확인→release_validation=false Hosted단1회. 새Hub약관/실제GUI·Player pending을CI통과로대체하지않는다.
+
+- 배치31 F FFpush 확인/Hosted 시작: local/remote handoff HEAD5af3aff08686d330d107bee2bb6482c7e6ed1383 일치,origin089f1a8→5af3aff FFpush exit0. 모든code/test포함·전체이번range scan0/탐지0·생성물0·tracked clean/초기미추적3경로보존. vars정상API exit0/total0재확인. release_validation=false Hosted-only 단1회를이source에서요청하며결과전PASS표기없음. 새약관입력pending·실제GUI/Player/Strict는미실행으로유지하고추가실행/약관동의/runner등록/Release없음.
+
+- 배치31 F Hosted dispatch1회수락: run44126492891/source5af3aff08686d330d107bee2bb6482c7e6ed1383,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44126492891 . 현재진행상태최종대기이며새동의/Player/추가dispatch/재실행/Unity활성변수/runner/Release없음.
+
+- 배치31 F 원장정합성: 과거Android구매PII timeout의존성은배치30같은scope신규PASS로RESOLVED 처리하되원본FAIL/과거원인미확정은보존했다. 새환경ENV-HUB-NEW-TERMS와현Player영향DEP-P10-PLAYER-IMPACT를원장에등록하고T01은여전히PARTIAL. 기존자동IPC블로커를자동batch/Strict범위로명시해GUI제품성공과혼동하지않는다. 64Task의구현/검증집계변화없음. Hosted run44126492891/source5af3aff 진행결과대기,추가dispatch없음.
+
+- 배치31 F 문서검사 정정: 새블로커행삽입의첫문자열치환이P09-T07 Task행마지막셀을먼저매치해원장parser가expected six fields를검출했다(문서오류,제품test아님). 정확한blocker table행앵커로복구했고기존64Task행/집계는그대로다. 다시원장검사하며코드/test/CI source변화없음.
+
+- 배치31 F 원격중간검증: run44126492891 inventory-contracts SUCCESS/UnitySKIPPED. 공식jobs/logs API exit0에서Python51모듈203건·FAILED요약0·신규GUI/R09모듈연결을재추출했다. Backend/Android진행·macOS Swift queued로전체결과는대기,추가dispatch/runner활성화없음. 원장문서앵커수정후검사PASS/64행집계보존·이후코드변경0.
+
+- 배치31 F CI진행중추가결함 재현: 새iOS독립runner가생성UUID를canonical소문자로만들지만simctl list의대문자UUID와직접비교해already-Shutdown exit149를cleanup실패로오판하는경계결함을10unit중failure1/exit1로재현(r09-uppercase-before.log). 다른기기조작이나실제XCTest실패가아니다. UUID비교만대소문자무관하게고치고회귀를추가한다. 이추가code/test는이미요청한단일Hosted source5af3aff에포함되지않으므로원격203건결과와최종로컬검증을구분하며,1회제약을지켜추가dispatch/재실행은하지않는다. 마지막후속수정의Hosted검증미완료를최종보고에명시한다.
+
+- 배치31 F UUID수정 결과/커밋 전: 실제형식의대문자simctl UUID fixture로재현한cleanup오판을비교1곳casefold로수정했고GUI39unit/최종Python204건·51모듈PASS/skip0(17.796초)확인. 이후Hosted source5af3aff(203건)와추가수정의범위를명시하고추가dispatch0유지. 사용자응답은“직접 약관 확인·동의 후 알려줄게”로,동의완료나에이전트동의허용이아니라직접처리예정임을기록한다. 해당GUI는계속보류하며사용자조작에간섭하지않는다. 독립적으로변경된R09 iOS runner를새소유18.6Simulator에서1회실행해C ABI/XCTest/cleanup을실측한다(새UnityPlayer아님). codecommit후실행하며기존Simulator/DB는보존한다.

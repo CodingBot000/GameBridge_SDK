@@ -1,0 +1,57 @@
+{
+  "sourceHead": "cf276b7ca8e5dc92c6bbd13306c8fc0a869d0faf",
+  "scope": "Batch27 controlled actual Editor comparison; not SDK tests or Player",
+  "preflight": {
+    "cliVersion": "1.0.0-beta.13",
+    "licenseStatusExit": 0,
+    "active": true
+  },
+  "comparisons": [
+    {
+      "mode": "direct",
+      "sourceHead": "cf276b7ca8e5dc92c6bbd13306c8fc0a869d0faf",
+      "launcherPid": 58432,
+      "exitCode": 124,
+      "elapsedSeconds": 210.05,
+      "timedOut": true,
+      "resultExists": false,
+      "markerFound": false,
+      "status": "DEFERRED_ENV",
+      "tests": 0,
+      "checks": 1,
+      "compilerErrors": 0,
+      "ipcTimeouts": 3,
+      "rawEvidence": "artifacts/batch27/smoke-direct",
+      "reanalysisStatus": "DEFERRED_ENV"
+    },
+    {
+      "mode": "cli",
+      "sourceHead": "cf276b7ca8e5dc92c6bbd13306c8fc0a869d0faf",
+      "launcherPid": 58904,
+      "exitCode": 6,
+      "elapsedSeconds": 181.47,
+      "resultExists": false,
+      "markerFound": false,
+      "status": "DEFERRED_ENV",
+      "tests": 0,
+      "checks": 1,
+      "compilerErrors": 0,
+      "ipcTimeouts": 3,
+      "rawEvidence": "artifacts/batch27/smoke-cli",
+      "reanalysisStatus": "DEFERRED_ENV"
+    }
+  ],
+  "correctiveAttempts": 0,
+  "maximumCorrectiveAttempts": 2,
+  "recovered": false,
+  "playerRuns": 0,
+  "fullStrictRuns": 0,
+  "existingRawFailurePreserved": true,
+  "observedMechanisms": [
+    "Hub Client rejected CLI LocalIPC 1.19.0-rc.3 with 505 in batch26 time window",
+    "Editor-bundled Client 1.18.1 logged global mutex acquisition failure",
+    "Both batch27 Editor paths lacked channel and completed-method verdict"
+  ],
+  "rootCauseLimit": "These observations establish IPC failure, not exact global-mutex ownership or a complete causal chain. No account/license/Hub/process-reset corrective action was performed.",
+  "runnerLimit": "The controlled comparisons used the preserved batch27 artifact command wrapper. The newly committed diagnostic runner is unit-tested but not executed again against Unity in this batch."
+}

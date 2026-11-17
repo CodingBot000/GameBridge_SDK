@@ -5,7 +5,7 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치26 수행 종료; P09 local 6 PASS/2 PARTIAL, P10-T01 PARTIAL, 현재 Player·Strict 환경 대기)
-- 현재 Phase / Task: 배치26 종료 / P10-T01 영향 Player 회귀 환경 복구 인계
+- 현재 Phase / Task: 배치27 A / P10-T01 Unity IPC 제한 진단 및 복구
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 계측·새 패키지 dc45a2f1b97e035655b4b6b2a9d5381248b040dc / self9·독립 iOS C ABI d86ccc23ceb14dc6a81d93c2317de0c78f5d708e (shipping code 동일); Hosted c34b419e3a2c719e5d615362f179b38f59b1a241 SUCCESS
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
@@ -1613,3 +1613,21 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - [P09-T07] 배치26 D 최종 원격 검증/커밋 전: run43934095574/sourcec34b419,단1회false입력의전체SUCCESS. Hosted4+basic SUCCESS,Unity/Release SKIPPED를공식job상태로확인했다. inventory42파일/143건·Core source gatePASS,Backend TC11/negative1·복원,Swift17/failure0및syntheticSimhost stepSUCCESS. P09T07 PARTIAL(전용runner/remoteUnity/Release미검증),T04 PARTIAL(18.6간헐미확정),T02localPASS·T01첫범위PARTIAL은유지한다. 최종문서에는모든source·rawFAIL/DEFERRED/UNMEASURED·Strict호출0·기존대기를분리하고작업별9commit이력을남긴다. 다음최종문서commit만scan후handoffFFpush/localremote일치및미추적3경로보존을확인한다. 원격재실행은하지않는다.
 
 - 배치26 최종 검증/커밋 직전: 최종8개 staged경로는공개용Markdown문서뿐이며원본log/key/서명/cache/binary/산출물없음,stagedgitleaks exit0/탐지0. 원장64행·manifest50·meta·Core79파일 API/source/wire·구조화R12개JSON·diff exit0. c34b419 이후 shipping/test/harness/workflow 변경0이고원격단일SUCCESS소스와코드동일. main=e4b677e/fix=6d200b0 그대로보존. 이문서commit을handoff에FFpush후실제local/remoteHEAD와미추적3경로상태를최종보고한다.
+
+- [P10-T01] 배치27 A 시작: 요청문서와 AGENTS/START_HERE·현재원장·마지막로그를 대조했다. branch handoff 및 시작HEADcf276b7 일치,tracked clean/기존미추적3경로보존. 공식log read-only 대조→새전용project CLI/direct 실제Editor smoke 각1회,근거있는 수정최대2회로IPC복구를판정한다. A 실제PASS 전 Player강행없음. C Strict최대1회,완료시에만T02제품변경;차단되면독립감사/회귀설계·E검증/CI/FF인계를끝까지수행한다.
+
+- 배치27 A 관측: batch26 공식Client로그에서 CLI1.0.0-beta.13/LocalIPC1.19.0-rc.3에대한기존HubClient505 Unsupported protocol response와EditorClient1.18.1의globalmutex획득실패를확인했다. PID/시각상관관측이며단일rootcause확정은아니다. 현재CLI상태active/exit0. 공식direct smoke새project를시작했으나marker미생성/Clientmutex실패를관측중이며최종verdict대기. 라이선스/Hub/사용자프로세스조작없음. 비교대기중독립D책임경계read-only검토에착수한다(제품T02수정은C완료전금지).
+
+- 배치27 A direct검증: 새project/공식Editor -batchmode -quit -projectPath -executeMethod -logFile 1회,210초timeout/실제wrapper124/검증exit2(DEFERRED_ENV),smoke JSON/marker없음,compiler CS오류0. Clientmutex획득실패·IPC재연결관측이최종까지지속됐다. own process group만기한종료했고기존Hub/Client/타Editor변경없음. 다음CLI동일smoke새project1회를비교한다.
+
+- 배치27 A/E 관측 도구 보강 시작: raw로그를공개하지않고IPC오류범주·실제Editor메서드receipt/marker/exit를대조하는명시실행형smoke진단하네스를추가한다. active또는부분로그만으로PASS하지않고timeout/nonzero/다른runreceipt/compile실패를구분한다. 이미수행중인CLI/direct비교는각1회로끝내며새하네스추가때문에실제Editor재실행하지않는다. 제품API/라이선스확인/실행gate변경없음.
+
+- 배치27 A 최종검증/블로커: CLI새project비교1회는timeout180초/actualCLIexit6/181.47초,validator exit2,receipt/marker없음,CS compile오류0/IPC부재5회. direct1회는timeout210초/124/210.05초였다. 실제Editor smokePASS가없어A DEFERRED_ENV,복구미완료다. 확인된관측층은protocol505/Clientglobalmutex거부와Editorchannel부재이며누가mutex를유지하는지까지확정하지않는다. 공식명령옵션에서안전한수정근거가없어추가수정시도0/최대2,Hub/라이선스/계정/전체프로세스조작없이대기로전환한다. B현재Player NOT_RUN,C전체Strict호출0/DEFERRED_ENV,T01PARTIAL유지. D는제품변경없이경계감사·최대2후보·회귀설계를수행하고E독립검증/CI/FF인계를계속한다.
+
+- 배치27 A/E 검증: 새순수진단계약6단위PASS/skip0(licenseactive만으로PASS거부,timeout부분결과/비영/foreign·duplicate receipt/compile실패/원본payload비공개). raw실행2건을새판정함수로read-only재분석해둘다DEFERRED_ENV확인했으며Editor재실행은없다. staging147/currentSDKsource일치·PackageCache Notifications2.5.0/Newtonsoft3.2.2 확인. B준비검사는유효하나Player실행은A미충족으로NOT_RUN. 현재소스/API/wire검사·전체Python및별도Native/managed 회귀를E에서진행한다.
+
+- [P10-T02] 배치27 D 감사/설계 완료(REVIEW_ONLY): Native인증/UI/세션저장·구매계정/증빙/완료·Push host/등록/router·전송redaction경계를파일/함수/기존테스트로대조했다. 후보는Android bound-session codec/검증과Swift grant 응답decoder 두개뿐,추가회귀설계는NOT_RUN. Android두refresh flow의저장/profile순서차이와Swiftgeneration/MainActor·동일attempt retry/finish순서를보존하도록기록했다. Push는분리근거가충분해새후보추가없음. A차단/C미충족이므로제품변경0,T02완료승격없음. E전체회귀/새하네스CI연결/인계로이동한다.
+
+- 배치27 E 검증/커밋 전: Python전체149건PASS/skip0,새진단6건은Hosted inventory에연결했다. 원장64행·manifest50·meta·Core source/API/wire·actionlint·diff PASS,staging147/currentSDKsource·exactCache일치. A실제direct/CLI는각1회DEFERRED_ENV(124/6),다시실행없음. 공개정제IPC JSON·T02감사/설계를추가했고shipping제품/baseline파일변경0. 원본log/개인정보/라이선스파일은추적하지않는다. 진단도구는미래재개용이며이번실제비교는보존된artifact wrapper명령으로수행했음을분리한다. commit후고정source에서Core·Native·managed/mutation/self9를검증한다.
+
+- 배치27 A/E 커밋 직전: 두실제Editor비교DEFERRED_ENV·추가수정0·B/C미실행과raw보존/정제IPC JSON을기록했다. 신규진단하네스는6unit/전체Python149PASS·actionlint/API/progress검사PASS이며현재실패log재분석만추가(Editor추가실행0). 이진단/CI연결과A증거를독립commit하고D감사문서를다음별도commit으로남긴뒤고정source의E실행을수행한다. 공개에는원본Client/Hub/CLI로그·라이선스·개인정보를올리지않는다.

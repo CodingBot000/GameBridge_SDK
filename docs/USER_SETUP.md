@@ -369,3 +369,17 @@ PX-T07의 최초 전용 Simulator 시도에서 Unity Mobile Notifications 패키
 `unity license status --format json`은 active/exit0이었으나 새 전용 Android 소비 프로젝트의 실제 Editor는 LicenseClient IPC channel 부재와 재연결 실패를 반복했다. APK/Player는 미실행이며 raw runner FAIL은 `artifacts/unity-android-e2e-0tikbq7v`에 보존했다. 계정 로그인·라이선스 재활성화·파일 수정은 수행하지 않았다. 현재 기기/Player 상태를 과거 PASS로 덮지 않는다.
 
 사용자 환경에서 Unity Hub/Editor의 정상 라이선스 통신을 복구한 뒤 상태 조회와 실제 전용 프로젝트 실행을 각각 확인한다. 토큰·라이선스 원본·Editor 원본 로그를 Git에 올리지 않는다. 영향 재검증은 `harness/run-r09-utf8.py` 및 `scripts/ci-unity-e2e.sh`의 기존 명시 opt-in/전용 기기 소유 조건을 사용하고, current SDK source와 일치하는 `artifacts/batch26/upm-current` 또는 재생성 staging으로 수행한다. AVD명·PID·console/ADB port 소유 및 PackageCache 확인 없이 실행하지 않는다. 이번 전체 Strict는 실행0/DEFERRED_ENV이고, 후속 실행은 별도 evidence/source로 남긴다. 전용 self-hosted 등록·실 Provider·Release는 이 환경 복구로 승인되는 항목이 아니다.
+
+
+### 배치27 Unity IPC 제한 진단 결과와 재개
+
+[정제관측](evidence/p10-batch27-ipc.json)과[비교결과](evidence/p10-batch27-integrated.md)를확인한다. CLI active/exit0이나새공식direct Editor smoke(timeout210초/124)와CLI run(timeout180초/6)은각1회모두실제메서드receipt/marker가없었다. protocol거부/globalmutex획득실패/channel부재를확인했으나mutex소유자및완전한원인은미확정이다. 추가수정시도0이며Hub·Client/사용자프로세스종료,계정로그아웃·재활성화,라이선스파일삭제/수정은하지않았다.
+
+사용자환경/Unity지원에서Hub·Editor Client간호환성과정상IPC서비스상태를확인하고복구해야한다. 토큰/원본로그/라이선스파일을Git이나채팅에올리지않는다. 정상환경에서아래명령을각1회·순차실행해실제Editor메서드완료를확인한다. 새전용project만만들며Player/SDK test 통과와는별개다. 이batch에서는아래새도구의unit만검증했고이미시행한두Editor비교를반복하지않았다.
+
+```sh
+python3 harness/run-unity-editor-smoke.py --run-local --mode direct
+python3 harness/run-unity-editor-smoke.py --run-local --mode cli
+```
+
+실제smokePASS후에만현재staging/source·기기소유조건을확인해미실행Android/iOS Unity Player를실행하고전체Strict를별도source/evidence로진행한다. A미복구상태에서는P10-T01PARTIAL/P10-T02제품진입보류다. 원격self-hosted등록/Release/실Provider호출은별도이며이도구가활성화하지않는다.

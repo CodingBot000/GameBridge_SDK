@@ -21,3 +21,9 @@ def managed_summary(data,head):
     work=data.get('measuredWorkload',{})
     if any(type(work.get(k)) is not int or work[k]!=v for k,v in {'inFlightPerCycle':8,'successfulResponses':800,'expectedCancellations':100,'ignoredDuplicateResponses':100,'ignoredLateResponses':100,'finalPending':0,'liveClients':0,'liveTransports':0}.items()):raise ValueError('workload/cleanup mismatch')
     return {k:v for k,v in data.items() if k!='timings'}|{'timings':result}
+
+
+def is_exact_coin_grant(body, purchase=None):
+    if not isinstance(body,dict) or not isinstance(body.get('entitlements'),dict):return False
+    # Wallet quantities are decimal strings in the existing API contract.
+    return body['entitlements'].get('coinBalance')=='100' and isinstance(body.get('serverPurchaseId'),str) and (purchase is None or body['serverPurchaseId']==purchase)

@@ -1,5 +1,5 @@
 import copy,unittest
-from performance_contract import distribution,managed_summary
+from performance_contract import distribution,managed_summary,is_exact_coin_grant
 
 class PerformanceContractTests(unittest.TestCase):
     def fixture(self):
@@ -17,6 +17,11 @@ class PerformanceContractTests(unittest.TestCase):
             with self.assertRaises(ValueError):managed_summary(changed,'head')
         value['measuredWorkload']['finalPending']=1
         with self.assertRaises(ValueError):managed_summary(value,'head')
+    def test_wallet_contract_uses_exact_decimal_string_and_same_purchase(self):
+        self.assertTrue(is_exact_coin_grant({'serverPurchaseId':'fixture','entitlements':{'coinBalance':'100'}},'fixture'))
+        for value in (100,100.0,True,'100.0','0',None):self.assertFalse(is_exact_coin_grant({'serverPurchaseId':'fixture','entitlements':{'coinBalance':value}},'fixture'))
+        self.assertFalse(is_exact_coin_grant({'serverPurchaseId':'other','entitlements':{'coinBalance':'100'}},'fixture'))
+
     def test_declarations_helpers_and_forged_percentiles_cannot_replace_samples(self):
         for kind in ('missing','count','p95','live'):
             value=self.fixture()

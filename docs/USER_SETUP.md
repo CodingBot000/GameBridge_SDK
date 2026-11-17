@@ -412,3 +412,12 @@ GUI프로젝트는전용artifact에만만든다. 새Android준비는 `harness/pr
 E2E의GUI입력은기본CLI실패fallback이아니다. Android는 `--gui-project`/`--gui-build-receipt`/`--expected-emulator-pid`/`--expected-adb-server-pid`/전용serial·avd명·현재5037동일SDK adb가모두필요하다. iOS는 `--gui-project`/`--gui-export-receipt`/`--adhoc`로검증된export만소비한다. source ancestor/보호SDK와test source diff0·147package/checksum·정확cache·Builder/주·보조scenario·nonce로그·APK 또는PBX/exporttreehash가달라지면거부한다. 실제빌드receipt가없는PASS문자열을입력할수없다.
 
 현재 GUI Editor는 `artifacts/unity-ios-mock.1j6lHu/GameBridgeGuiIosB29`로idle이며Android전용GUI는정상종료했다. batch28의과거다른SDK ADB종료대상영향은미확정으로유지한다. 본시험은기존5037서버를시작/종료하지않았고device명/PID/양port/서버경로를재검증했다. Root원인과사용자기기소유확인없이ADB전체재시작·다른SDK client접근·사용자AVD정리를하지않는다. T01/T02제품완료조건과self-hosted/Release/실Provider13대기는유지한다.
+
+
+### 배치30 정상 OS 안내 회복과 남은 자동 환경 조건
+
+[현재 결과와 정확한 재개 순서](evidence/p10-batch30-integrated.md). 사용자가 전용 AVD 한정 ADB UI 입력을 명시 요청한 후, 새 B30B APK/새 AVD에서 정상 Viewing full screen/Got it 안내만1회 닫았고 동일 PID의 managed entry·SDK·Backend·구매원장1/delta100·PII E2E가 PASS했다. 사용자 ACK가 포함돼 무인 CI의 성공 조건을 확보한 것은 아니다. 다른 AVD/권한/계정/설정 조작 허가로 확대하지 않는다.
+
+원래 자동 batch Editor IPC/receipt 정상은 아직 미확인, Strict 실행0이다. 기존 Push runner는 batch builder 전용으로 GUI receipt 경로가 없고, JNI는 별도 UTF8 APK와 설치 없는 전용 AVD가 필요하다. 기존 설치/AVD 보존 gate를 우회하지 않는다. 이 내부 하네스 작업과 실행 환경은 다음 재개 대상으로 남겼으며 실Provider 13건의 인증·콘솔 준비와 구분한다. T01 전체 검증 충족 전 T02 제품 refactor는 보류한다. 새 실제 키/서명·license/토큰을 Git이나 채팅에 넣지 않는다.
+
+현재 B30B GUI project는 artifacts/unity-android-mock.3JQWTU/GameBridgeGuiAndroidB30B로 idle, 두 시험 AVD/controller/Backend는 종료했고 디스크/DB/원본 증거를 보존했다. 최초 timeout과 환경 검증 오류도 보존한다. 코드/test를 변경하지 않은 iOS는 배치29 actual PASS와 보호 source diff0로 대조했고 새로운 실행으로 표시하지 않는다.

@@ -1,5 +1,16 @@
 # GameBridge SDK 개발 보고서
 
+## 최신 인계 — 배치30 (2026-11-18)
+
+**Android LOCAL_MOCK E2E PASS, P10-T01/T02 PARTIAL.** [통합 결과·재개 지점·커밋](evidence/p10-batch30-integrated.md)과[정제검증](evidence/p10-batch30-verification.json)이 최신 기준이다. 아래 배치29 Android FAIL과 UI 입력 대기는 당시 이력으로 보존한다.
+
+새 AVD 첫 진단에서는 Native 초기화/Activity·PID까지만 확인됐고 정상 전체화면 안내가 managed 진입을 막았다. 사용자 명시 요청 후 새 APK·새 전용 AVD에서 정확한 안내를1회 닫자 같은 PID에서 Awake/Start·SDK 초기화와 Backend 구매/원장1·100코인·PII 검사가 PASS했다. 실Provider나 무인 Strict PASS는 아니다. 첫 실패 원본은 보존했고 배치29의 미수집 UI 원인까지 소급 확정하지 않는다.
+
+Python187/49모듈, Core Kotlin10/Swift12·managed418·duplicate 변이 감지/원본 복원·lifecycle100samples, API/source/147staging/선정 ABI 확인 PASS. iOS는 배치29 PASS와 보호 source diff0 대조이며 신규 실행0이다. Push/Lifecycle·JNI R09와 자동 batch/Strict는 미완료이며 T02 제품 codec/decoder refactor는 진입하지 않았다. P05 FAIL/ENV26OPEN·18.6간헐 위험·실Provider13WAIT·self-hosted/Release 미검증 유지.
+
+GitHub handoff FFpush/Hosted false1회 최종 상태는 후속 인계 기록에서 갱신한다. 기존 Demo/캐시·모든 AVD/DB/로그/라이선스 보존, main/force/Release/runner등록 없음.
+
+
 ## 최신 인계 — 배치29 (2026-11-17)
 
 **P10-T01/T02 PARTIAL, 로컬 Android 실행 FAIL 잔여.** [GUI·플랫폼·작업별source/commit 통합결과](evidence/p10-batch29-integrated.md)와[정제검증](evidence/p10-batch29-verification.json)을현재기준으로본다. 이전중단문서와아래이전배치는시각별이력이다.

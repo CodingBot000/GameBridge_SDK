@@ -1,0 +1,129 @@
+{
+  "status": "PASS",
+  "scope": "Unity Android LOCAL_MOCK push; not FCM",
+  "sourceHead": "1ec45b98d583ca0f0065786017eeec5cee2b0614",
+  "sourceTrackedDirty": false,
+  "player": "PASS",
+  "background": "PASS",
+  "networkRecovery": "PASS",
+  "processRestart": "NOT_RUN",
+  "adbServerPid": 31840,
+  "avd": "GameBridge_V2_B32_PUSH_C_20261118",
+  "emulatorBinding": {
+    "pid": 46481,
+    "serial": "emulator-5596",
+    "avd": "GameBridge_V2_B32_PUSH_C_20261118",
+    "consolePort": 5596,
+    "adbPort": 5597,
+    "portsOwned": true
+  },
+  "unityBuildMode": "GUI_EXPLICIT_RECEIPT",
+  "guiBuildSourceHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+  "guiBuildRunId": "ac3018583bfa47cca483c96521536726",
+  "guiBuildReceiptSha256": "c51cf65e6a183d54a28630ee9120526b967450aa9e600a981cbc14a4beb6bfe2",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+  "apkSha256": "97a2e42a76f71c72aae68769c4574787562f18ef263fab77e46d72ab333bc648",
+  "startupDiagnostics": "startup-diagnostics/summary.json",
+  "rejectedReconnectAttempts": 1,
+  "mockPush": "PASS",
+  "deduplication": "PASS",
+  "mainThread": "PASS",
+  "unregisterLogout": "PASS",
+  "reconnectFailure": "PASS",
+  "sessionSwitch": "PASS",
+  "deviceTokens": 0,
+  "evidence": "artifacts/unity-android-push-bwjh5gqj",
+  "normalNoticeAcknowledgements": [
+    {
+      "kind": "explicit-known-fullscreen-notice",
+      "tapAttempts": 1,
+      "exitCode": 0,
+      "atSeconds": 15.855,
+      "unattendedCI": false
+    }
+  ],
+  "recordedCommandTimings": {
+    "git": {
+      "commands": 2,
+      "wallSeconds": 0.03
+    },
+    "python3": {
+      "commands": 1,
+      "wallSeconds": 0.077
+    },
+    "gradlew": {
+      "commands": 1,
+      "wallSeconds": 1.353
+    },
+    "adb:install": {
+      "commands": 1,
+      "wallSeconds": 3.019
+    },
+    "adb:logcat:-c": {
+      "commands": 1,
+      "wallSeconds": 0.799
+    },
+    "adb:logcat:-d:-b": {
+      "commands": 4,
+      "wallSeconds": 3.51
+    },
+    "adb:shell:pidof:com.gamebridge.sdk.mockconsumer": {
+      "commands": 4,
+      "wallSeconds": 3.198
+    },
+    "adb:shell:dumpsys:activity": {
+      "commands": 8,
+      "wallSeconds": 6.566
+    },
+    "adb:shell:dumpsys:window": {
+      "commands": 4,
+      "wallSeconds": 3.312
+    },
+    "adb:shell:am:start": {
+      "commands": 2,
+      "wallSeconds": 3.18
+    },
+    "adb:shell:uiautomator:dump": {
+      "commands": 2,
+      "wallSeconds": 7.179
+    },
+    "adb:shell:cat": {
+      "commands": 2,
+      "wallSeconds": 1.613
+    },
+    "adb:shell:input:tap": {
+      "commands": 1,
+      "wallSeconds": 0.788
+    },
+    "adb:logcat:-d:-v": {
+      "commands": 19,
+      "wallSeconds": 15.917
+    },
+    "adb:shell:input:keyevent": {
+      "commands": 1,
+      "wallSeconds": 0.855
+    },
+    "adb:shell:svc:wifi": {
+      "commands": 2,
+      "wallSeconds": 1.656
+    },
+    "adb:shell:svc:data": {
+      "commands": 2,
+      "wallSeconds": 1.62
+    },
+    "adb:shell:toybox:nc": {
+      "commands": 2,
+      "wallSeconds": 1.597
+    },
+    "docker": {
+      "commands": 1,
+      "wallSeconds": 0.119
+    }
+  },
+  "limits": "Runtime diagnostics, not performance benchmark. GUI notice had explicit batch32 permission; not unattended CI or real FCM.",
+  "originalFailedEvidence": "p10-batch32-android-push-b.json"
+}

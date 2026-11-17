@@ -4025,3 +4025,7 @@
 - 배치31 F CI진행중추가결함 재현: 새iOS독립runner가생성UUID를canonical소문자로만들지만simctl list의대문자UUID와직접비교해already-Shutdown exit149를cleanup실패로오판하는경계결함을10unit중failure1/exit1로재현(r09-uppercase-before.log). 다른기기조작이나실제XCTest실패가아니다. UUID비교만대소문자무관하게고치고회귀를추가한다. 이추가code/test는이미요청한단일Hosted source5af3aff에포함되지않으므로원격203건결과와최종로컬검증을구분하며,1회제약을지켜추가dispatch/재실행은하지않는다. 마지막후속수정의Hosted검증미완료를최종보고에명시한다.
 
 - 배치31 F UUID수정 결과/커밋 전: 실제형식의대문자simctl UUID fixture로재현한cleanup오판을비교1곳casefold로수정했고GUI39unit/최종Python204건·51모듈PASS/skip0(17.796초)확인. 이후Hosted source5af3aff(203건)와추가수정의범위를명시하고추가dispatch0유지. 사용자응답은“직접 약관 확인·동의 후 알려줄게”로,동의완료나에이전트동의허용이아니라직접처리예정임을기록한다. 해당GUI는계속보류하며사용자조작에간섭하지않는다. 독립적으로변경된R09 iOS runner를새소유18.6Simulator에서1회실행해C ABI/XCTest/cleanup을실측한다(새UnityPlayer아님). codecommit후실행하며기존Simulator/DB는보존한다.
+
+- 배치31 C 독립iOS 실제시도1 FAIL: source7e07c70,artifacts/r09-utf8-5lb0vxs3,wrapper1/childxcodebuild70. 생성UUID를소문자로정규화해전달한destination id를Xcode가매치하지못했고available목록에는같은소유UUID대문자형이실제존재했다. XCTest실행전destination선택실패로tests0/NOT_RUN이며SDKtestcase실패로치환하지않는다. 자기Simulator만shutdown149후조회Shutdown확인/디스크보존,타기기조작0. 원본available목록은private로그에만보존한다. simctl이반환한정확한UUID표기를명령에유지하고비교시에만casefold하는최소수정+destination인자음성검증뒤새소유기기로근거있는재검증1회를진행한다. 이후수정은원격CI source밖임을계속명시한다.
+
+- 배치31 C destination수정 검증/커밋 직전: UUID유효성만검사하고simctl원문UUID를Xcode/기기명령에그대로전달하며조회비교만양쪽소문자로수행하도록수정했다. 대문자destination인자보존·alreadyShutdown149확인포함GUI39unit PASS/skip0. 최초실제70/시험0을보존했고SDK/승인/timeout변경없음. commit된새source에서신규Simulator1회재검증후최종Python을현재source로검증한다. 사용자약관직접처리완료메시지는아직대기중이며Hub에입력하지않는다.

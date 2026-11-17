@@ -71,7 +71,8 @@ class GuiPlayerWrapperTests(unittest.TestCase):
         def run(cmd,**kw):
             if cmd[0]=='bash':return subprocess.CompletedProcess([],0,stdout='/owned/project')
             if cmd[:3]==['xcrun','simctl','create']:return subprocess.CompletedProcess([],0,stdout=device)
-            if cmd[0]=='xcodebuild':raise subprocess.TimeoutExpired(cmd,240)
+            if cmd[0]=='xcodebuild':
+                self.assertIn('platform=iOS Simulator,id='+device,cmd);raise subprocess.TimeoutExpired(cmd,240)
             if cmd[:3]==['xcrun','simctl','shutdown']:return subprocess.CompletedProcess([],149)
             self.assertEqual(cmd,['xcrun','simctl','list','devices','-j']);return subprocess.CompletedProcess([],0,stdout=json.dumps({'devices':{'runtime':[{'udid':device,'state':'Shutdown'}]}}))
         with tempfile.TemporaryDirectory() as tmp,patch.object(m.subprocess,'run',side_effect=run):value=m.run_ios(Path(tmp))

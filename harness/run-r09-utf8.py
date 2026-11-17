@@ -50,7 +50,7 @@ def run_ios(out):
         if generated.returncode:return dict(status='DEFERRED_ENV',exitCode=2,errorCode='XCODE_PROJECT_UNAVAILABLE')
         sim=subprocess.run(['xcrun','simctl','create','GameBridge-CBridge-R09-'+out.name,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         if sim.returncode:return dict(status='DEFERRED_ENV',exitCode=2,errorCode='IOS_18_6_SIMULATOR_UNAVAILABLE')
-        device=str(uuid.UUID(sim.stdout.strip()));result['device']=device
+        device=sim.stdout.strip();uuid.UUID(device);result['device']=device
         bundle=out/'result.xcresult';cmd=['xcodebuild','-project',generated.stdout.strip(),'-scheme','GameBridgeCBridge','-destination','platform=iOS Simulator,id='+device,'-resultBundlePath',str(bundle),'CODE_SIGN_IDENTITY=-','CODE_SIGNING_REQUIRED=YES','-only-testing:GameBridgeCBridgeTests/CBridgeTests/testHostPushEventRoutingAndDedup','test','-quiet']
         try:r=subprocess.run(cmd,cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)
         except (OSError,subprocess.TimeoutExpired):result.update(status='DEFERRED_ENV',exitCode=2,errorCode='IOS_COMMAND_UNAVAILABLE_OR_TIMEOUT');return result
@@ -72,7 +72,7 @@ def run_ios(out):
             if stopped.returncode==149:
                 try:
                     listing=subprocess.run(['xcrun','simctl','list','devices','-j'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                    confirmed=listing.returncode==0 and any(str(x.get('udid','')).lower()==device and x.get('state')=='Shutdown' for group in json.loads(listing.stdout)['devices'].values() for x in group)
+                    confirmed=listing.returncode==0 and any(str(x.get('udid','')).lower()==device.lower() and x.get('state')=='Shutdown' for group in json.loads(listing.stdout)['devices'].values() for x in group)
                 except (ValueError,KeyError,TypeError):confirmed=False
             if not confirmed:result.update(status='FAIL',exitCode=1,errorCode='OWNED_SIMULATOR_SHUTDOWN_FAILED')
 

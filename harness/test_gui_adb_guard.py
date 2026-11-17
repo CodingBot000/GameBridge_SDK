@@ -1,4 +1,6 @@
 import subprocess
+import importlib.util
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 import emulator_binding as m
@@ -24,3 +26,13 @@ class GuiAdbGuardTests(unittest.TestCase):
         for command in (['/opt/unity/sdk/adb','-s','emulator-5554','shell','getprop'],
                         ['/opt/unity/sdk/adb','kill-server'],['/opt/other-sdk/adb','devices']):
             with self.assertRaises(m.BindingError):self.check(command)
+
+    def test_renamed_configured_client_still_dispatches_guard_before_subprocess(self):
+        spec=importlib.util.spec_from_file_location('renamed_gui_client',Path(__file__).with_name('run-unity-android-mock-e2e.py'))
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        class Guard:
+            adb=Path('/tmp/renamed-client').resolve()
+            def attest(self,command):raise module._binding.BindingError('wrong SDK')
+        with patch.object(module,'_GUI_ADB_GUARD',Guard()),patch.object(module.subprocess,'run') as execute:
+            with self.assertRaises(module.GateError):module.run(['/tmp/renamed-client','devices'])
+            execute.assert_not_called()

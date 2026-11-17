@@ -114,6 +114,14 @@ def embedded_versions(project):
     return versions
 
 
+def verify_auxiliary_sources(project, root, variant):
+    if variant != 'pii':return
+    for target, source in [('PiiProbe.cs','tests/UnityPiiProbe/PiiProbe.cs'),('link.xml','tests/UnityLateCallbackPlayer/link.xml')]:
+        path=Path(project)/'Assets'/target
+        if path.is_symlink() or file_hash(path)!=file_hash(Path(root)/source):
+            raise ValueError('GUI PII auxiliary source differs from checkout')
+
+
 def load_android_build(project, receipt_path, staging, current_head, variant):
     root = Path(__file__).resolve().parent.parent
     project, staging = Path(project).resolve(), Path(staging).resolve()
@@ -152,6 +160,7 @@ def load_android_build(project, receipt_path, staging, current_head, variant):
     folder={'standard':'UnityAndroidMockConsumer','pii':'UnityAndroidPiiConsumer','utf8':'UnityAndroidUtf8Consumer'}[variant]
     if file_hash(project/'Assets/MockPlayerScenario.cs') != file_hash(root/'tests'/folder/'MockPlayerScenario.cs'):
         raise ValueError('GUI scenario differs from checkout')
+    verify_auxiliary_sources(project,root,variant)
     if file_hash(staging/'SHA256SUMS') != config['stagingManifestSha256'] or file_hash(project/'GameBridgeStaging.SHA256SUMS') != config['stagingManifestSha256']:
         raise ValueError('GUI staging manifest differs')
     records=(staging/'SHA256SUMS').read_text().splitlines()
@@ -216,6 +225,7 @@ def load_ios_export(project, receipt_path, staging, current_head, variant):
            ('Assets/MockIosPlayerScenario.cs','scenarioSha256','tests/'+('UnityIosPiiConsumer' if variant=='pii' else 'UnityIosMockConsumer')+'/MockIosPlayerScenario.cs')]
     for relative,key,source in pairs:
         if file_hash(project/relative)!=c[key] or c[key]!=file_hash(root/source):raise ValueError('GUI iOS builder/scenario differs')
+    verify_auxiliary_sources(project,root,variant)
     if file_hash(staging/'SHA256SUMS')!=c['stagingManifestSha256'] or file_hash(project/'GameBridgeStaging.SHA256SUMS')!=c['stagingManifestSha256']:raise ValueError('GUI iOS manifest mismatch')
     lines=(staging/'SHA256SUMS').read_text().splitlines()
     if len(lines)!=147:raise ValueError('Unexpected GUI package count')

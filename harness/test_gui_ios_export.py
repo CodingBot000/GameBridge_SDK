@@ -2,7 +2,7 @@ import copy
 from pathlib import Path
 import tempfile
 import unittest
-from gui_verification import validate_ios_receipt, export_tree_hash, embedded_versions
+from gui_verification import validate_ios_receipt, export_tree_hash, embedded_versions, verify_auxiliary_sources
 import json
 
 
@@ -49,3 +49,13 @@ class GuiIosExportTests(unittest.TestCase):
             self.assertEqual(embedded_versions(root)['com.unity.mobile.notifications'],'2.5.0')
             (root/'Packages/com.unity.mobile.notifications/package.json').write_text(json.dumps(dict(name='com.unity.mobile.notifications',version='other')))
             with self.assertRaises(ValueError):embedded_versions(root)
+
+    def test_pii_auxiliary_source_cannot_be_replaced_under_unchanged_main_scenario(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);project=root/'consumer';(project/'Assets').mkdir(parents=True)
+            for target,source in [('PiiProbe.cs','tests/UnityPiiProbe/PiiProbe.cs'),('link.xml','tests/UnityLateCallbackPlayer/link.xml')]:
+                p=root/source;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('fixture '+target)
+                (project/'Assets'/target).write_text(p.read_text())
+            verify_auxiliary_sources(project,root,'pii')
+            (project/'Assets/PiiProbe.cs').write_text('different implementation')
+            with self.assertRaises(ValueError):verify_auxiliary_sources(project,root,'pii')

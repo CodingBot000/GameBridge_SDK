@@ -4,7 +4,7 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (배치29 사용자 요청 안전 중단; GUI메서드/APK PASS,Android실행timeout FAIL,T01/T02 PARTIAL)
+- 전체 상태: IN_PROGRESS (배치29 재개 진행; GUI 양플랫폼 빌드·iOS E2E PASS,Android timeout FAIL,T01/T02 PARTIAL)
 - 현재 Phase / Task: 배치29 재개 / iOS GUI export 실제 검증
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: GUI probe dcc0b4c / Android APK7263444 / Android E2E timeout7520cbc / Native 후보 tests b1e3c73(신규test source hash 별도기록). iOS 실제 검증 NOT_RUN.
@@ -1721,3 +1721,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치29 재개 iOS 실제GUI export PASS: source953a5a5/nonceb0626c0dfa914789b0fe2eee01d2a3af,새GameBridgeGuiIosB29를Hub로열고실제iOS target전환·기존BuildMockIosPlayer.Build를GUI에서호출했다. 원본Builder return/147SDKfiles·script/adapter/scenario·PBX/exporttreeSHA·nonce로그·현재source보호경로diff0입력계약검증PASS. tests0/check1/Player0,GUIexportPASS는batch나Simulator실행PASS가아니다. 이전Android전용GUI만정상종료했으며사용자project/라이선스/기존기기를조작하지않았다. 이제해당검증된export로새Simulator/DB의기존E2E를독립1회수행한다.
 
 - 배치29 iOS GUI입력 의존성검사 보강/커밋 전: 실제export PASS후E2E소비계약을점검해iOS에도정확embedded Notifications2.5.0/Newtonsoft3.2.2검사를명시하고summary에보존했다(기존Android같은검사공유). 잘못된version음성unit포함GUI20단위PASS/skip0. C#Builder/SDK/export바이트변경없음,receipt빌드source953a5a5는보호경로diff0인현재harness/doc후속commit의ancestor로기록한다. 실제Simulator실행은아직미실행이며commit후시작한다.
+
+- 배치29 iOS 실제Simulator E2E PASS/exit0: sourced543556 tracked-clean,GUIexport buildsource953a5a5와보호SDK/scenario바이트동일성검증후Xcode ad-hoc Simulator build·C ABI4symbols·새Simulator/DB·initialize/login/products/purchase/wallet/logout 및PII24marker·Backendtrace·원장1/delta100통과(artifacts/unity-ios-e2e-c4qqwuvs). 실Apple/스토어/APNs아님. receipt의UUID8D737ECF-CD32-4069-A64D-30D3D5176210와새DB suffix로deviceName소유를대조한뒤해당기기만shutdown/데이터보존,다른Simulator조작없음. AndroidFAIL과합치지않는다.
+- 배치29 E 영향하네스최종회귀: 코드변경이있어전체Python을최종1회수행,169건PASS/skip0(18.793초). 이번에전체Native·self9/Strict를관성재실행하지않았고이전증거와구분한다. 원장/manifest/meta/API-source-wire/actionlint/diffPASS. T01은AndroidFAIL/나머지미실행조건때문에PARTIAL이며T02제품refactor진입없음,독립신규tests만PASS다.
+
+- 배치29 E 입력경계검토·검증: GUI용ADBguard dispatch가configured client의basename만검사하면renamed실행파일로빠질수있는경로를발견해configured실제path도검사하도록보강했다. subprocess전거부unit추가. PII주scenario뿐아니라보조PiiProbe/link.xml의현재checkout일치도양GUI입력에서검사하고변이음성추가. 실제두소비project보조소스일치확인,GUI22단위PASS/skip0. 실제실행은원래동일SDK의adb·원래보조소스였으므로이두보강으로플랫폼E2E를반복하지않는다. SDK제품/기존검사약화없음. 변경된harness최종전체Python을다시검증한다(이전169PASS도보존).

@@ -2,9 +2,9 @@
 
 ## 이 패키지의 성격
 
-이 파일들은 **Codex가 실행할 개발계획과 기록 양식**이다. SDK 소스나 실행 결과는 아직 포함되어 있지 않다. 모든 작업은 미착수 상태다.
+이 저장소에는 Kotlin Android SDK, Swift iOS SDK, Unity C# 패키지, Kotlin Backend와 회귀 하네스가 구현되어 있다. 이 문서는 초기 개발계획 양식에서 시작했으며, 현재 작업은 [진행 원장](docs/PROGRESS.md), [작업 로그](docs/WORK_LOG.md), [최종 보고](docs/FINAL_REPORT.md)와 최신 배치 증거에서 재개한다. 소스가 없는 초기 상태로 가정하거나 이미 검증된 작업을 다시 만들지 않는다.
 
-`AGENTS.md`는 짧은 상시 실행 규칙, `docs/DEVELOPMENT_PLAN.md`는 상세 계약과 순차 작업 명세, 나머지는 개발 중 갱신할 상태 문서다. 큰 계획 전체를 AGENTS.md에 넣지 않는다. Codex의 프로젝트 지침에는 크기 제한이 있기 때문이다. [공식 안내](https://developers.openai.com/codex/guides/agents-md/)
+구현·로컬 검증·실제 Provider 검증은 다르다. LOCAL_MOCK의 Unity Android/iOS Player 실행 근거는 있지만 실제 Google/Apple 로그인·결제·FCM/APNs·실기기는 미검증이며, 기존 StoreKit26.5 실패와 환경/문서 gap이 남아 전체 SDK는 완료가 아니다. 아래 최초 실행용 문구는 기본 계약이며 사용자가 명시한 개별 배치의 Git 인계 허용과 작업 범위를 함께 적용한다.
 
 ## 배치
 

@@ -18,7 +18,7 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 41 / IMPLEMENTED 23 / BLOCKED 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 40 / IMPLEMENTED 24 / BLOCKED 0
 - 로컬 검증: NOT_RUN 0 / PASS 21 / FAIL 1 / PARTIAL 42 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
@@ -91,7 +91,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P09-T07 | CI 설정·플랫폼 lane 분리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-ci-modes.md, WORK_LOG P09-T07 | ENV-P09-RUNNER |
 | P09-T08 | Fail-closed 하네스 자체 시험 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08 | - |
 | P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IMPLEMENTED | PASS | N/A | docs/evidence/p10-batch32-t01-decision.md; docs/evidence/p10-batch32-core.json, WORK_LOG P10-T01 | 추가 전체Strict/Release는 ENV-UNITY-LICENSE-IPC/ENV-P09-RUNNER로 별도 유지 |
-| P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-batch29-candidate-tests.json; docs/evidence/p10-auth-purchase-push-batch27.md, WORK_LOG P10-T02 | DEP-P10-T01 |
+| P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p10-batch32-handoff-package.json; docs/evidence/p10-batch32-candidate-package.json, WORK_LOG P10-T02 | ENV-MAC-LOCKED (post-change GUI); 실제Provider 별도 |
 | P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
 | P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | ENV-002 |
 | P11-T01 | 전체 Task·TODO·계약 누락 최종 감사 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T01 | - |
@@ -105,6 +105,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 |---|---|---|---|---|---|---|
 | USER-PUSH-CONCURRENCY | USER | P06-T04 | 기본 동시 1건 사용자 선택 | scheduler 설정·검증 진행 | 실제 원격 발송은 별도 | RESOLVED |
 | USER-CONFIG-TTL | USER | P07-T01 | 기본 유효기간 5분 사용자 선택 | 서버 설정·local-mock 통합 진행 | 실제 플랫폼 검증은 별도 | RESOLVED |
+| BUG-017 | BUG | P11-T01·P11-T03 | 계획된 contracts/openapi.yaml 부재(기존Core unavailable에도명시), 실제Controller/docsAPI/Bridge schema는존재 | 현재구현·검증범위문서정정/사전감사계속 | 실제Controller와동기화한기계OpenAPI계약작성·검증(초안존재만으로완료아님) | OPEN |
 | BUG-016 | BUG | P04-T04, P09-T03 | Native 실제 Provider의 profile 확인 이후 요청 401에서 refresh 누락 | Android/iOS 단일 refresh·1회 재시도 및 proof idempotency 유지 구현 | fake 동시 요청·계정 변경·반복 401·증빙 멱등키 검증 | RESOLVED |
 | BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring의 Unity 공개 조회: Android 및 iOS Simulator LOCAL_MOCK Player 확인 | Native typed snapshot과 C# 제한 검사 유지 | 다른 모드·실제 기기 redaction 별도 | OPEN |
 | BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle 확인 | 인증·소유권·heartbeat 회귀 유지 | 실제 기기·FCM/APNs 및 iOS OS 전체 네트워크 차단 별도 | OPEN |
@@ -130,6 +131,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | ENV-UNITY-ADB-STARTUP | ENV | P10-T01·전용 기기 시험 | 배치28 Hub GUI Editor 상태바에서 다른 SDK ADB server 인스턴스 종료 경고 관측, 대상/영향 미확정 | 에이전트 ADB명령 없음, 추가 기기/서버 조작 보류 | 후속 기기 시험 전 SDK·ADB process 및 전용 serial/PID/양port 소유 확인 | OPEN |
 | DEP-P10-ANDROID-E2E | DEP | P10-T01 구매·PII 범위 | 배치29 timeout FAIL 원본/미수집 UI 원인 미확정 보존; 배치30 새 APK/AVD에서 명시1회 교육안내 ACK 후 동일 PID managed/Backend/원장1·100 PASS | 현재 동일 제품/source 범위 성공과 과거FAIL 분리 | 구매PII 재검증 충족; Push/JNI/무인CI는 별도 DEP-P10-PLAYER-IMPACT | RESOLVED |
 | ENV-UNITY-LICENSE-IPC | ENV | P10-T01 자동batch/Strict | 배치28 Hub GUI6000.5.8f1 정상UI, direct batch210초/outertimeout124·receipt없음·IPC/mutex실패 | raw보존/자동1회·GUI별도1회,Player NOT_RUN/Strict0·DEFERRED_ENV | 일반GUI와자동batch차이확인·정상자동receipt후current Player/Strict | OPEN |
+| ENV-MAC-LOCKED | ENV | P10-T02 post-change GUI 소비, P10-T04 | CUA가 Mac 잠금/자동해제불가/사용자수동해제를반환 | Native·패키지·문서·headless검증계속 | 사용자가Mac수동잠금해제후소유GUI후속검증 | OPEN |
 | ENV-HUB-NEW-TERMS | ENV | P10-T01 GUI Push/JNI | Hub 재시작 후4.0.1의 새 Software License Terms 화면; 명시 동의 미수신/동의0·실제GUI APK0 | 독립harness/Core/API/ABI/CI 및두소유project등록 | 사용자 직접 새약관처리 또는행동시점 명시허용 뒤6000.5.8f1 실제GUI빌드 | RESOLVED |
 | DEP-P10-PLAYER-IMPACT | DEP | P10-T01·T02 | 새 Android Push/JNI 실제Player 미실행; 과거iOSUnityPush 이후RequestRegistry 변경1개로current 영향 미검증 | 명시GUI 입력/음성 fixture와기존제품source 유지 | 양플랫폼별필수Player 영향증거와Strict환경제한을분리확인후T01판정 | RESOLVED |
 | ENV-P09-RUNNER | ENV | P09-T07 | 전용 self-hosted 격리·실제 Unity CI/Release 미검증 | Hosted-only 및 local CI 경로 유지 | 전용 runner 준비와 별도 명시 검증 | OPEN |
@@ -1902,3 +1904,21 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치32 D1 정식검증/커밋 전: handoff의기존GoogleAuthProvider18+codec2=20건·failure/error/skip0/Gradle0. candidatee6e1de7와제품bytes동일·기존storage/profile/save/operation401/refresh/cancel/logout/tombstone/사전거부의미보존. 전후baseline183639근거와현재20을구분한다. 이commit은Kotlin제품3파일만정식통합하며Swift와전이검사/CI연결은다음별도commit이다. 기존Corebaseline덮어쓰기없음,T01closing4485고정·전체SDK/ReleasePASS아님.
 
 - 배치32 D2/전이검사 검증·커밋 전: handoff AppleAuthProvider20+GrantDecoder3=23 PASS/failure/skip0/Swift0,후보fc3da2f와제품bytes동일. attempt/auth/account/idempotency/late grant/finish/journal·공개API변경0. 원본Coreguard는closed4485 Git tree에서그대로PASS하고현재tree는정확승인Native4파일hash/추가2개파일집합·나머지Core/Native/wire byte불변·Cexports불변을확인했다. 전이checker8unit이Coreprivate/Wire/승인Native의추가drift·잘못된preimage/경로·元baselinehash변경·존재하지않는closedref를拒否한다. 元baseline파일변경0/기존Core검사unit유지,CIinventory fullhistory와새phase체인·신규Native2/3 test필수연결. E1/E2각formalcommit후현재SDKfresh패키지/소비·회귀/모의구매PII를검증한다.
+
+- [P10-T04] 배치32 F handoff신규빌드 시작: 정식D1/D2 Native sourceff2d0d5를기준으로이제handoff자체에서새Maven3모듈/AAR/sample/별도R8와새XCFramework device/sim을artifacts/batch32/handoff/...에생성한다. candidate산출물은사전검증으로보존할뿐새handoff빌드성공근거로대체하지않는다. 원본version/API·C ABI 유지·checksum/Swift module/소비자검증뒤그새staging으로post-T02 구매PII신규GUI소비를수행한다. T03사전계측/Native profiling·전체Release미완료로T04전체PARTIAL유지.
+
+- 배치32 신규환경블로커: 완료된소유iOS Editor를GUI로전환하려는CUA조회가“The Mac is locked and automatic unlock could not unlock it; unlock manually”를반환했다. 잠금해제/비밀번호입력/우회는진행하지않고사용자수동해제만요청한다. GUI후속새package소비2건은보류,이미검증한T01/Native후보/정식단위/신규handoff Nativebuild·소비/147staging은분리유지. 문서감사/CLI계약/일반headless검증/scan 등독립작업은계속한다. T02와T04최종플랫폼검증은미실행으로정확히남기며Stage모두PASS로변경하지않는다.
+
+- 배치32 H 변경후현재handoff 검증 시작: 정식Native두후보와동일한현재handoff source를freshbuild했으며현재auth/purchase/push/session을Native보고서실수로재확인한다(candidate결과재표시아님). 새Maven/R8·XCFramework/Swift source/binary import/147staging을같은handoff기준확인뒤새staging으로self9/Testcontainers검증을수행한다. Mac잠금은GUI후속만중단하고headless검증계속한다.
+
+- [P11-T01] 배치32 G 사전읽기완료/문서수정 시작: 64Task·각증거경로를대조해누락path0/제품TODO-FIXME-NotImplemented표식0을확인했으나기능완성근거로쓰지않는다. FEATURE_MATRIX의110checksum/COMPATIBILITY의Unity미검증·舊ENV-002/START_HERE계획전용소개가현재실측과불일치해정정한다. contracts/openapi.yaml은기존계획에있지만부재(기존Core baseline에서도미존재명시)로P11기계계약문서gap을등록,實행Controller/docsAPI/Bridge schemas와구분한다. P11전체완료/실Provider13·P05실패·self-hosted/Strict제약은유지한다.
+
+- 배치32 F/H 현재handoff검증 결과: ff2d0d5제품 source의freshAndroid/Maven/AAR/R8·device+sim XCFramework·SwiftPM sourceconsumer·SimulatorSDK binarymodule typecheck·UPM147체크섬·선정3Java class/Cexports4양slice 모두PASS. GoogleAuthProvider는compiler synthetic private accessors를제외한공개bytecode surface도전과동일(전체ABI주장아님). 현재Native폭넓은회귀Android47/Swift43 failures/skip0,P08sourceAPI/닫힌Core＋정확Native전이검사PASS. Testcontainers11실행(의도변이1 exit1·정상복원0포함)PASS. 후보기능제품bytes는candidatee6/fc와동일하며정식handoff에별도5ef87e5/ff2d0d5로통합; candidate21b5f71은로컬이력보존/원격push0. T02코드구현은완료하되Mac잠금으로새package post-change GUI소비필수검증이남아로컬PARTIAL,SDK/Release완료아님.
+
+- 배치32 H 최종현재코드검증: 全Python229/55모듈PASS/skip0(18.532초),현재Native47Android/43Swift·새handoff source/binary Swift소비·Maven/R8/XCFramework/147checksum·P08API/원본Core閉鎖+Native exact전이guard PASS. 새Native source/새package로self9 재검증9/9PASS(이전T01판정用self9와Source/staging이변경돼재실행필요),TC11(정상10/의도변이1과정상복원)PASS. test/check/sample/expected failure/Player수는분리한다. 原P05FAIL·실Provider13/Native profile/GUIpost형검증은미완료. 新Hub4에서정상GUI/실제Builder環境이확인된변경근거로 기존tiny direct batch diagnostic을소유새project/nonce/session/210초상한에서단1회수행한다. 라이선스활성화/파일수정/사용자process종료없고실패시동일재시도없음. 이진단이전체Strict는아니다.
+
+- 배치32 자동Editor direct진단PASS: ff2d0d5,새소유project/nonce862871954f4d43b3a0879b56a0a20bf1·실제batch C# method/receipt·정확6000.5.8f1·marker1/exit0/7.26초,missingChannel/IPC/compileerror0(tests0/check1/Player0). Mac잠금은CUA UI조작제약이며이자동실행을GUI검증이라고재표시하지않는다. 原빌드script는unity run CLI를사용하므로이제동일한tiny--mode cli를새소유project/210초상한에서한번확인한다. 직접실행PASS로CLI/전체Strict/Player까지PASS로추론하지않는다. 라이선스파일/활성화/타process조작0. 전체Strict는전용환경까지완비될때만최대1 유지.
+
+- 배치32 자동Editor CLI tiny진단도PASS/exit0(실제batch method·nonce receipt·marker1/compileerror0,unity-editor-smoke-fxlcmqqv). 기존build script의unity run 경로정상도별도확인했으므로Mac잠금중후속새package소비를GUI대신원래CLI batch 경로로실행가능하다. GUI검증으로재표시하지않는다. CLI에서도같은명시PID/AVD/양port/동일SDKserver Guard를사용하도록분리하고known教育안내는明示diagnostics+전부binding일때만허용한다. GUIreceipt요구를CLI에가짜로충족시키지않고실제원본batchBuilder/APK와최종DB/PII판정을유지한다. Default ACK0/불완전binding/타SDK기기거부는강화unit뒤실제실행한다. 全Strict는별도완전한전용환경확인前0이며tiny PASS로대체하지않는다.
+
+- 배치32 H CLI대체후속경로 검증/커밋 전: batch direct와cli실제nonce method완료PASS에근거해원래CLI consumer경로로현재Native변경후E2E를수행한다. GUI실행이라고claim하지않고실제원본batchBuilder/APK·동일staging/source검사·PII/SQL/marker/시간제한을유지한다. 新3unit은CLI/GUI동일GuiAdbGuard 생성·부분binding거부/legacyACK없는경로유지·completebinding없는notice입력거부와유효CLI입력처리를검증했다. 매명령PID/AVD/양port/server/exe는동일강도,GUIreceipt를위조하거나OS잠금을우회하지않는다. Code완료후새기기PostPII/새iOSCLI 소비를실측하고새fullPython은그후최종source에서재검증한다.

@@ -260,6 +260,14 @@ def assert_wallet_ledger(container, admin, database):
         raise GateError("DB_LEDGER_NOT_EXACTLY_ONE_100_COIN_GRANT")
 
 
+def owned_device_guard(args, adb, gui_input=False):
+    requested=gui_input or args.expected_emulator_pid is not None or args.expected_adb_server_pid is not None
+    if not requested:return None
+    if not all((args.serial,args.expected_avd,args.expected_emulator_pid,args.expected_adb_server_pid)):
+        raise GateError('GUI_OWNED_DEVICE_AND_SERVER_BINDING_REQUIRED' if gui_input else 'EXPLICIT_OWNED_DEVICE_AND_SERVER_BINDING_REQUIRED','DEFERRED_ENV')
+    return _binding.GuiAdbGuard(adb,args.expected_adb_server_pid,args.serial,args.expected_avd,args.expected_emulator_pid)
+
+
 def main():
     global _GUI_ADB_GUARD
     _GUI_ADB_GUARD = None
@@ -289,8 +297,8 @@ def main():
     if sum((args.utf8_probe, args.native_demo_probe, args.pii_probe)) > 1: parser.error("choose one specialized probe")
     if bool(args.gui_project) != bool(args.gui_build_receipt): parser.error("GUI project and receipt must be supplied together")
     if args.gui_project and args.native_demo_probe: parser.error("GUI Native Demo input is not supported")
-    if args.ack_known_fullscreen_notice and not (args.startup_diagnostics and args.gui_project):
-        parser.error("Notice input requires explicit GUI receipt, startup diagnostics and owned-device binding")
+    if args.ack_known_fullscreen_notice and not all((args.startup_diagnostics,args.serial,args.expected_avd,args.expected_emulator_pid,args.expected_adb_server_pid)):
+        parser.error("Notice input requires startup diagnostics and complete explicit owned-device/server binding")
 
     (ROOT / "artifacts").mkdir(exist_ok=True)
     output = Path(tempfile.mkdtemp(prefix="unity-android-e2e-", dir=ROOT / "artifacts"))
@@ -325,12 +333,10 @@ def main():
         adb = locate_adb(args.adb)
         if adb is None:
             raise GateError("ADB_MISSING", "DEFERRED_ENV")
-        if gui_input is not None:
-            if not all((args.serial, args.expected_avd, args.expected_emulator_pid, args.expected_adb_server_pid)):
-                raise GateError("GUI_OWNED_DEVICE_AND_SERVER_BINDING_REQUIRED", "DEFERRED_ENV")
-            _GUI_ADB_GUARD = _binding.GuiAdbGuard(adb,args.expected_adb_server_pid,args.serial,args.expected_avd,args.expected_emulator_pid)
-            summary["emulatorPid"] = args.expected_emulator_pid
-            summary["adbServerPid"] = args.expected_adb_server_pid
+        _GUI_ADB_GUARD = owned_device_guard(args,adb,gui_input is not None)
+        if _GUI_ADB_GUARD is not None:
+            summary['emulatorPid']=args.expected_emulator_pid;summary['adbServerPid']=args.expected_adb_server_pid
+        if gui_input is None:summary['unityBuildMode']='CLI_EXPLICIT_OWNED_BINDING' if _GUI_ADB_GUARD else 'CLI_LEGACY'
         expected_avd = args.expected_avd
         marker = ROOT / "artifacts/v2-test-avd-name.txt"
         if not expected_avd and marker.is_file():

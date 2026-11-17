@@ -1,0 +1,125 @@
+{
+  "scope": "post Native source and fresh staging self-only nine required checks; full Strict NOT_RUN",
+  "sourceHead": "ff2d0d5aa864b42ad048faf4dea713e851deaa95",
+  "sourceDigest": "b91c6d1407eae293f2f978f03aa1f05b130a81233406032e5e9d7576091ac554",
+  "runId": "cd3df7da1af949d98a0b9b353e81ec71",
+  "workingTree": "HEAD plus uncommitted changes may be present",
+  "timestampUtc": "2026-11-17T18:56:05Z",
+  "summary": {
+    "status": "PASS",
+    "exitCode": 0,
+    "reason": "all required local lanes executed and passed"
+  },
+  "lanes": [
+    {
+      "name": "progress-negative",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "manifest-negative",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "package-negative",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "contract-negative",
+      "status": "PASS",
+      "tests": 22,
+      "checks": 1,
+      "expectedFailures": 2,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "bridge-mutation",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "ledger-mutation",
+      "status": "PASS",
+      "tests": 2,
+      "checks": 1,
+      "expectedFailures": 1,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "failed-and-zero-test",
+      "status": "PASS",
+      "tests": 0,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    },
+    {
+      "name": "sandbox-fake-token",
+      "status": "PASS",
+      "tests": 1,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "separate"
+    },
+    {
+      "name": "normal-contracts",
+      "status": "PASS",
+      "tests": 22,
+      "checks": 1,
+      "expectedFailures": null,
+      "failures": 0,
+      "errors": null,
+      "skipped": 0,
+      "exitCode": 0,
+      "errorModel": "checker-exit"
+    }
+  ],
+  "evidence": "artifacts/harness-self-ezvpnu07",
+  "orchestration": "artifacts/strict-isolated-8wuc31gi"
+}

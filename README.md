@@ -4,6 +4,14 @@ Android, iOS 및 Unity 게임을 위한 SDK와 Backend를 개발하고 있습니
 
 Android/iOS 샘플의 `LOCAL_MOCK` 로그인·구매·복원은 로컬 Backend를 사용합니다. 실제 Google/Apple 인증, 스토어 결제 및 원격 푸시 성공을 뜻하지 않습니다. Unity Native bridge에는 LOCAL_MOCK의 초기화·인증·상품·구매·서버 잔액·로그아웃 경로가 연결돼 있습니다. Unity Android Player에서 LOCAL_MOCK 초기화부터 로그인·상품·구매·서버 잔액·로그아웃까지 검증했습니다. Unity iOS Simulator의 LOCAL_MOCK 동일 흐름도 통과했습니다. 실제 iOS 기기와 실제 제공자 연동은 미검증입니다. iOS 26.5의 로컬 StoreKit 상품 조회 시험은 실패 상태입니다.
 
+## 현재 검증과 개발 범위
+
+[배치32 source별 통합 기록](docs/evidence/p10-batch32-integrated.md)과 [P10-T01 제품 판정](docs/evidence/p10-batch32-t01-decision.md)을 최신 기준으로 봅니다. Unity6000.5.8f1 GUI에서 원본 Builder로 Android Push/UTF8 APK와 iOS Push export를 생성하고, 새 전용 기기의 LOCAL_MOCK Push/Lifecycle·Android JNI 전용 marker·iOS token/session/late callback을 검증했습니다. 이전 timeout/입력 오류도 삭제하지 않았습니다. 이는 실제 FCM/APNs·스토어·실기기 성공이나 자동 Strict/Release 통과가 아닙니다.
+
+Google 저장 세션 codec과 Apple grant decode는 별도 후보 baseline·Native 회귀·패키징을 확인한 뒤 T01 명시 제품 조건 충족에 따라 정식 통합했습니다. 현재 소스의 새 Maven/R8·무서명 XCFramework 양 slice·Swift 소비·UPM147 checksum을 검증합니다. 생성된 바이너리·DB·원본 로그·라이선스는 Git에 넣지 않습니다. Mac 잠금으로 새 package의 변경 후 GUI 소비는 대기 중이며 Native/CI와 검증 범위를 구분합니다.
+
+[사전 계측](docs/evidence/p10-batch32-performance.md)은 .NET EDITOR_OFFLINE와 localhost HTTP/PostgreSQL의 warmup20·100 samples·p50/p95/max·잔존0을 기록합니다. Native 메모리·실제 UI jank·Unity startup·상용 안정성이나 성능 개선 수치로 해석하지 않습니다. P11 사전 감사에서 발견한 기계 OpenAPI 문서 부재와 추가 플랫폼 검증은 남아 있습니다.
+
 ## 로컬 개발
 
 도구와 버전은 [TOOLCHAIN](docs/TOOLCHAIN.md)을 참고하세요. Backend 실행 전 Docker와 전용 로컬 DB 비밀번호, 32자 이상의 로컬 개발 인증키, Base64로 인코딩한 32바이트 로컬 token 암호화 키를 비밀 환경에 준비합니다. 기존 DB 비밀번호 및 암호화 키는 재시작할 때 유지해야 합니다. 실제 키는 소스나 채팅에 넣지 않습니다.
@@ -45,7 +53,7 @@ Git 저장소의 `unity/Packages/com.gamebridge.sdk`는 소스 패키지이며 �
 
 ### 추가 검증 도구 (Unity Android LOCAL_MOCK)
 
-준비가 완료된 Unity 환경에서 전체 Player 흐름을 확인하기 위한 별도 Runner는 harness/run-unity-android-mock-e2e.py이다. 전용 AVD 및 staging 무결성 확인, 격리 소비 프로젝트 생성, APK 빌드·설치·실행, Unity 마커·Backend trace 및 DB 1건/100코인 대조까지 수행하며 하나라도 누락되면 PASS가 아니다. **Unity Android LOCAL_MOCK Player 검증은 PASS다.** 최초 전체화면 안내는 수동으로 닫았으며 Unity iOS LOCAL_MOCK 및 실제 제공자는 각각 별도 검증 범위다. 명령·비밀정보 분리·전용 환경 준비는 docs/USER_SETUP.md의 PX-T04~PX-T06 절을 따른다.
+준비가 완료된 Unity 환경에서 전체 Player 흐름을 확인하기 위한 별도 Runner는 harness/run-unity-android-mock-e2e.py이다. 전용 AVD 및 staging 무결성 확인, 격리 소비 프로젝트 생성, APK 빌드·설치·실행, Unity 마커·Backend trace 및 DB 1건/100코인 대조까지 수행하며 하나라도 누락되면 PASS가 아니다. **해당 source의 Unity Android LOCAL_MOCK Player 검증은 PASS다.** 초기 PX 실행의 전체화면 안내는 수동으로 닫았으며, 이후 배치32에서는 새 승인 범위의 전용 기기에서 알려진 교육 안내만 가드된 명시 옵션으로 닫았습니다. Unity iOS LOCAL_MOCK 및 실제 제공자는 각각 별도 검증 범위다. 명령·비밀정보 분리·전용 환경 준비는 docs/USER_SETUP.md의 PX-T04~PX-T06 절을 따른다.
 
 Android Native-only 재실행기는 harness/run-android-mock-bridge-e2e.py로, 기존 고정된 adb/에뮬레이터/DB 경로를 환경변수나 실행 옵션으로 변경할 수 있다. 다만 해당 수정본 재실행은 아직 NOT_RUN이다. 실제 PASS를 확보한 뒤 검증 증거의 민감정보를 제거하고 커밋하려면 harness/export-mock-e2e-evidence.py를 사용한다. 원본 로그·APK·로컬 DB는 Git에 올리지 않는다.
 

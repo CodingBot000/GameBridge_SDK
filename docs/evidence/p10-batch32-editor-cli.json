@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "reason": "EDITOR_METHOD_COMPLETED",
+  "exitCode": 0,
+  "timedOut": false,
+  "receiptCorrelated": true,
+  "markerCount": 1,
+  "observations": {
+    "missingChannel": 0,
+    "ipcTimeouts": 0,
+    "clientMutexFailures": 0,
+    "unsupportedProtocols": [],
+    "compilerErrors": 0
+  },
+  "tests": 0,
+  "checks": 1,
+  "players": 0,
+  "mode": "cli",
+  "runId": "d0e23578f87e4e23b7c1053db6257784",
+  "elapsedSeconds": 8.01,
+  "sourceHead": "ff2d0d5aa864b42ad048faf4dea713e851deaa95"
+}

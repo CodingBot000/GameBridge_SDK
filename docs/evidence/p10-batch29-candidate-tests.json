@@ -14,10 +14,16 @@
     "skipped": 0,
     "newTests": 2
   },
-  "testSourceHashes": {
-    "android/sdk-android/src/test/kotlin/com/gamebridge/android/auth/GoogleAuthProviderTest.kt": "ca2894387bc2a5460bb0b879ffebd4c172d038a2414785925a5b60c2d7e1051d",
-    "ios/Tests/GameBridgeCoreTests/AppleAuthProviderTests.swift": "c5dd7001078fcbcced61074557667f95a63ed3686d17a9294a4079dffada0764"
-  },
+  "testSourceHashes": [
+    {
+      "path": "android/sdk-android/src/test/kotlin/com/gamebridge/android/auth/GoogleAuthProviderTest.kt",
+      "sha256": "ca2894387bc2a5460bb0b879ffebd4c172d038a2414785925a5b60c2d7e1051d"
+    },
+    {
+      "path": "ios/Tests/GameBridgeCoreTests/AppleAuthProviderTests.swift",
+      "sha256": "c5dd7001078fcbcced61074557667f95a63ed3686d17a9294a4079dffada0764"
+    }
+  ],
   "platformProviderCalls": "NOT_RUN",
   "finishPolicyChanged": false
 }

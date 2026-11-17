@@ -61,3 +61,12 @@ python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc \
 - 현재모든코드/tests를commit후secret/생성물/PII·remote/upstream/FF 이력검사,repo Unity변수비활성정상응답확인후Hosted-only false 단1회. **현재 dispatch0/push0이며아직원격미검증**.
 - P05-T03FAIL/ENV-STOREKIT-26OPEN/18.6간헐위험/Provider13WAIT/self-hosted미검증보존. main/force/Release/실Provider호출/runner등록금지.
 - PROGRESS/WORK_LOG·USER_SETUP·batch28/29 evidence 갱신후작업별commit/handoff FF인계·최종보고. 이번중단은최종배치완료보고가아니다.
+
+
+## 중단 시점 비밀정보 검사 상태
+
+네트워크사용을막은 `go run module@version` 호출은Go의module deprecation lookup이차단돼실행불가였다. 이어캐시된gitleaks v8.24.2 source를GOPROXY=off/GOSUMDB=off/GOTOOLCHAIN=local로실행해이번6commit전체를검사했고exit1/finding2였다.
+
+두finding은모두 `b1e3c738fa9a0c17ec2d7eed99da16672ef9faa0`의 `docs/evidence/p10-batch29-candidate-tests.json` 18/19행(generic-api-key)이다. 실제값을해당Kotlin/Swift test파일의SHA256과독립계산·대조해일치확인했다. 인증키/토큰이아닌**테스트source파일hash metadata**의오탐이다. SHA필드를path→hash map에서path/sha256객체배열로정리했으며기존commit을amend/rewrite/ignore하지않았다. rawscan exit1을0으로표시하지않는다.
+
+재개 후push전전체범위검사에서이두개가다시나오면위commit/file/line과실제sourcehash일치근거로검토하고,새finding은별도로조사한다. 원본redacted report는 `artifacts/batch29/pause-secret-report.json`이다. 이번push0/CI0은유지한다.

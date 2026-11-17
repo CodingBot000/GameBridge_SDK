@@ -1711,3 +1711,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 사용자 요청 안전중단/커밋 직전: 현재빌드/Player/시험Backend·Gradle/Swift testcase진행없음,ownedemulator80979/controller종료·AVD/DB/로그보존,Android소비GUI79170은idle로남긴다. 미완료iOS helper/준비·export입력계약·음성4건은Python syntax/GUI단위19PASS를확인한코드상태로localcommit하되실제iOS컴파일/export/PlayerNOT_RUN이다. 신규unit을Hosted연결했지만아직CI미실행. docs/evidence/p10-batch29-resume.md에모든source/nonce/artifact·실패/미실행·재개명령·금지조건을기록했다. 이번push0/dispatch0,네트워크작업시작없이pause한다. T01/T02PARTIAL/기존FAIL·외부대기유지.
 
 - 중단기록검증: 문서작성의첫호출은마지막PROGRESS머리말갱신전에import re 누락NameError로멈췄다. 이미기록된체크포인트/실패·unit결과는보존하고머리말/USER_SETUP만정정완료했다. 원장검사·Python문법·새iOS4음성/정상unit은exit0. 실제iOSGUI실행/전체회귀는미실행으로명시한다. offline secret검사후로컬중단commit만남기고정지한다.
+
+- 중단전offline secret검토: version명시go-run은deprecation metadata lookup차단으로실행불가였다. 캐시source 직접실행으로6commit전체scan은exit1/finding2. 모두b1e3c73 candidate-tests.json18/19의testSourceHashes값이며실제Kotlin/Swift test파일SHA256과독립계산일치→credential아닌metadata오탐확인. publicJSON은path/sha256배열로정리했고기존이력/실패를삭제·amend/ignore하지않았다. rawexit1과정확재검토근거를resume문서에기록했다. 네트워크/push/CI없음.
+
+- 사용자요청중단확정/최종localcommit전: 마지막staged문서offline gitleaks exit0/탐지0,원장/diff검사PASS. 이전6commit scan의2개sourcehash metadata오탐은별도근거/exit1그대로보존했다. 현재활성시험/빌드/Player없음,새네트워크/push/CI없음. 사용자재개지시전작업을진행하지않으며resume문서의정확한다음명령에서시작한다.

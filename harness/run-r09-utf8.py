@@ -10,6 +10,7 @@ def android_command(args, stage, serial, avd, cache):
     if not stage or not serial or not avd or not avd.startswith('GameBridge_V2_'):
         raise ValueError('staging and fresh dedicated Android emulator required')
     if bool(args.gui_project)!=bool(args.gui_build_receipt):raise ValueError('GUI project and receipt required together')
+    if getattr(args,'ack_known_fullscreen_notice',False) and not (args.gui_project and args.startup_diagnostics):raise ValueError('Notice input requires explicit GUI and diagnostics')
     command=[sys.executable,'harness/run-unity-android-mock-e2e.py','--run-local','--utf8-probe','--staging',stage,'--serial',serial,'--expected-avd',avd]
     if args.gui_project:
         if not args.expected_emulator_pid or not args.expected_adb_server_pid:raise ValueError('GUI owned emulator/server binding required')
@@ -18,6 +19,7 @@ def android_command(args, stage, serial, avd, cache):
     elif cache:command+=['--package-cache',cache]
     if args.adb:command+=['--adb',args.adb]
     if args.startup_diagnostics:command+=['--startup-diagnostics']
+    if getattr(args,'ack_known_fullscreen_notice',False):command+=['--ack-known-fullscreen-notice']
     return command
 
 
@@ -77,11 +79,16 @@ def run_ios(out):
             if not confirmed:result.update(status='FAIL',exitCode=1,errorCode='OWNED_SIMULATOR_SHUTDOWN_FAILED')
 
 
-def main():
+def argument_parser():
     p=argparse.ArgumentParser();p.add_argument('--platform',choices=('android','ios','both'),default='both')
     p.add_argument('--gui-project',type=Path);p.add_argument('--gui-build-receipt',type=Path)
     p.add_argument('--expected-emulator-pid',type=int);p.add_argument('--expected-adb-server-pid',type=int)
-    p.add_argument('--adb');p.add_argument('--startup-diagnostics',action='store_true');args=p.parse_args()
+    p.add_argument('--adb');p.add_argument('--startup-diagnostics',action='store_true');p.add_argument('--ack-known-fullscreen-notice',action='store_true')
+    return p
+
+
+def main():
+    p=argument_parser();args=p.parse_args()
     if os.environ.get('GAMEBRIDGE_RUN_R09')!='true':print('DEFERRED_ENV: explicit GAMEBRIDGE_RUN_R09=true required');return 2
     command=None
     if args.platform!='ios':

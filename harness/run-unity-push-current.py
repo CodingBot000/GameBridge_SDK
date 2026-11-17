@@ -56,10 +56,15 @@ def commands_for(args, env):
     return commands
 
 
-def main():
+def argument_parser():
     p=argparse.ArgumentParser();p.add_argument('--platform',choices=('android','ios','both'),default='both')
     p.add_argument('--gui-project',type=Path);p.add_argument('--gui-build-receipt',type=Path)
-    p.add_argument('--expected-adb-server-pid',type=int);p.add_argument('--adb');p.add_argument('--ack-known-fullscreen-notice',action='store_true');args=p.parse_args()
+    p.add_argument('--expected-adb-server-pid',type=int);p.add_argument('--adb');p.add_argument('--ack-known-fullscreen-notice',action='store_true')
+    return p
+
+
+def main():
+    args=argument_parser().parse_args()
     if os.environ.get('GAMEBRIDGE_RUN_UNITY_PUSH_E2E')!='true':print('DEFERRED_ENV: explicit Unity push opt-in required');return 2
     try:commands=commands_for(args,os.environ)
     except ValueError as error:print('DEFERRED_ENV:',error);return 2

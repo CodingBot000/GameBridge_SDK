@@ -107,6 +107,14 @@ class GuiPlayerWrapperTests(unittest.TestCase):
         with patch('sys.argv',['push','--ack-known-fullscreen-notice']),patch.dict(m.os.environ,{'GAMEBRIDGE_RUN_UNITY_PUSH_E2E':'true'}),patch.object(m,'commands_for',side_effect=ValueError('fixture')) as parsed,contextlib.redirect_stdout(io.StringIO()):self.assertEqual(m.main(),2)
         self.assertTrue(parsed.call_args.args[0].ack_known_fullscreen_notice)
 
+    def test_r09_notice_command_is_validated_before_a_device_is_needed(self):
+        m=module('r09-utf8')
+        a=m.argument_parser().parse_args(['--platform','android','--gui-project','/owned','--gui-build-receipt','/receipt','--expected-emulator-pid','42','--expected-adb-server-pid','43','--startup-diagnostics','--ack-known-fullscreen-notice'])
+        self.assertIn('--ack-known-fullscreen-notice',m.android_command(a,'/stage','emulator-5598','GameBridge_V2_unit',None))
+        a.startup_diagnostics=False
+        with self.assertRaises(ValueError):m.android_command(a,'/stage','emulator-5598','GameBridge_V2_unit',None)
+        m=module('unity-push-current');a=m.argument_parser().parse_args(['--platform','android','--gui-project','/owned','--gui-build-receipt','/receipt','--expected-adb-server-pid','43','--ack-known-fullscreen-notice']);self.assertTrue(a.ack_known_fullscreen_notice)
+
     def test_push_unpaired_gui_or_missing_server_rejected_before_child(self):
         m=module('unity-push-current');env={'GAMEBRIDGE_UPM_STAGING':'/stage','GAMEBRIDGE_PUSH_ANDROID_SERIAL':'emulator-5596','GAMEBRIDGE_PUSH_TEST_AVD_NAME':'GameBridge_V2_unit','GAMEBRIDGE_PUSH_EMULATOR_PID':'42'}
         for a in (arguments(gui_project=Path('/owned')),arguments(gui_project=Path('/owned'),gui_build_receipt=Path('/receipt')),arguments(platform='ios',gui_project=Path('/owned'),gui_build_receipt=Path('/receipt'))):

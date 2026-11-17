@@ -3945,3 +3945,5 @@
 - 배치30 B 구현 시작: Android전용표준/PII/UTF8소비scenario에실제Awake/sceneIndex·Start/focus/pause·intent존재/유효성(bool만)·SDK생성·init호출/반환/예외·첫auth API직전marker를추가한다. 제품SDK/await순서/완료시점/기존성공·실패marker는바꾸지않는다. 하네스는동일소유guard하의PID생존·resumed/focus·모든logcatbuffer/AndroidRuntime/ANR/native-load·UI hierarchy·Backendhealth/첫trace관측을ignored raw와정제범주로분리한다. 로그수집불가를정상으로판정하지않는다.
 
 - 배치30 B 진단계약검증/커밋 전: startup진단8건/GUI입력7건PASS/skip0(무marker는UNMEASURED,init호출과반환구분,package crash/ANR·knownSystemUI증거,raw비공개/secretredaction·PID종료관측·log수집불가거부·HTTP첫관측시간미위조). 원래180초deadline은Activity응답직후로유지해진단수집으로대기창을늘리지않는다. defaultCLI옵션은유지하고 --startup-diagnostics를명시한다. 새marker는고정point/유효성bool/engineelapsed뿐이며기존성공/실패조건·SDK/await순서변경0. CI연결및별도GUI projectlabel검증추가. commit된source에서새B30A소비project/APK를준비한다.
+
+- 배치30 B/C 전검증·커밋 전: 새계측GUI APK가실제원본Builder로생성됐고147package·source/scenarioSHA·nonce로그·APK크기/hash·현재입력계약재검증PASS. package crash판정은FATAL/해당Process 또는해당Native tombstone을요구하도록구체화했고optional UI idle timeout은UNMEASURED/124로표시하되소유권실패는전파하는음성추가(진단9건PASS). mandatorylog/PID수집실패는여전히E2E성공불가다. SDK제품/await/원래성공/timeout조건변경0. commit후새전용AVD1회진단실행을시작한다.

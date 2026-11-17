@@ -30,6 +30,8 @@ class AndroidStartupDiagnosticsTests(unittest.TestCase):
         other=self.sample('FATAL EXCEPTION\nProcess: com.android.other, PID: 42')
         self.assertFalse(other['appCrashObserved'])
         self.assertTrue(self.sample('ANR in '+PACKAGE)['appAnrObserved'])
+        self.assertFalse(self.sample('Process: '+PACKAGE+', PID: 123')['appCrashObserved'])
+        self.assertTrue(self.sample('Fatal signal 11\n>>> '+PACKAGE+' <<<\nbacktrace:')['appCrashObserved'])
 
     def test_only_observed_known_systemui_guide_is_reported(self):
         xml='<hierarchy><node package="com.android.systemui" text="Viewing full screen"/><node package="com.android.systemui" text="Got it"/></hierarchy>'
@@ -75,3 +77,16 @@ class AndroidStartupDiagnosticsTests(unittest.TestCase):
             c.capture('ready',backend_log=log);self.assertIsNone(c.first_http)
             log.write_text('LOCAL_MOCK_TRACE operation=mock-auth method=POST requestId=dc9a46f4-8e20-4880-bcbb-ac45033157ca status=200')
             c.capture('requested',backend_log=log);self.assertIsNotNone(c.first_http)
+
+    def test_optional_ui_timeout_is_unmeasured_but_binding_failure_is_not_swallowed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            def runner(command,timeout):
+                if 'uiautomator' in command:raise ValueError('COMMAND_UNAVAILABLE_OR_TIMEOUT')
+                return self.fake_runner(command,timeout)
+            c=Collector(runner,'/sdk/adb','emulator-5592',PACKAGE,Path(tmp)/'diag')
+            result=c.capture('starting',ui=True)
+            self.assertEqual(result['knownFullscreenGuideObserved'],'UNMEASURED')
+            self.assertEqual(result['queryExitCodes']['ui'],124)
+            def unbound(command,timeout):raise ValueError('GUI_DEVICE_OR_ADB_BINDING_CHANGED')
+            c.run=unbound
+            with self.assertRaises(ValueError):c.capture('unbound',ui=True)

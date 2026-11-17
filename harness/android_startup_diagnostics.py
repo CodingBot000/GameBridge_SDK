@@ -28,7 +28,10 @@ def analyze(logcat, pid_text, activity, windows, exit_info, ui_xml, package):
             texts={n.get('text','') for n in nodes if n.get('package')=='com.android.systemui'}
             known_guide='Viewing full screen' in texts and 'Got it' in texts
         except ET.ParseError: pass
-    package_crash = bool(re.search(r'Process:\s*'+re.escape(package)+r'\s*,\s*PID:',logcat))
+    log_lines=logcat.splitlines()
+    package_crash=any('FATAL EXCEPTION' in line and re.search(r'Process:\s*'+re.escape(package)+r'\s*,\s*PID:', '\n'.join(log_lines[i:i+7])) for i,line in enumerate(log_lines))
+    native_crash=bool(re.search(r'>>>\s*'+re.escape(package)+r'\s*<<<',logcat) and re.search(r'Fatal signal|backtrace:',logcat))
+    package_crash=package_crash or native_crash
     native_load = sorted(set(re.findall(r'\b(UnsatisfiedLinkError|dlopen failed|JNI DETECTED ERROR)\b',logcat)))
     # These categories may be system-wide; only package-specific crash/ANR are attributed.
     app_anr = bool(re.search(r'ANR in '+re.escape(package)+r'\b',logcat))
@@ -91,8 +94,15 @@ class Collector:
         xml=None;ui_code=None
         if ui:
             path='/sdcard/gamebridge-startup-diagnostics.xml'
-            dumped=self.command(['shell','uiautomator','dump',path],timeout=12);ui_code=dumped.returncode
-            self.save(prefix+'-ui-command.log',dumped.stdout)
+            try:
+                dumped=self.command(['shell','uiautomator','dump',path],timeout=12);ui_code=dumped.returncode
+                self.save(prefix+'-ui-command.log',dumped.stdout)
+            except Exception as error:
+                # Optional UI idle probing may time out while Unity is starting.
+                # Ownership changes and all other errors must still propagate.
+                if str(error)!='COMMAND_UNAVAILABLE_OR_TIMEOUT':raise
+                ui_code=124
+                self.save(prefix+'-ui-command.log','UI hierarchy unavailable: command timeout\n')
             if ui_code==0:
                 read=self.command(['shell','cat',path]);ui_code=read.returncode
                 if ui_code==0:xml=read.stdout;self.save(prefix+'-ui.xml',xml)

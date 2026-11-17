@@ -1634,3 +1634,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치27 A/E 커밋 직전: 두실제Editor비교DEFERRED_ENV·추가수정0·B/C미실행과raw보존/정제IPC JSON을기록했다. 신규진단하네스는6unit/전체Python149PASS·actionlint/API/progress검사PASS이며현재실패log재분석만추가(Editor추가실행0). 이진단/CI연결과A증거를독립commit하고D감사문서를다음별도commit으로남긴뒤고정source의E실행을수행한다. 공개에는원본Client/Hub/CLI로그·라이선스·개인정보를올리지않는다.
 
 - [P10-T02] 배치27 D 검증/독립 커밋 전: 책임감사문서의호출경로·후보2·기존testcase·미실행설계·선행차단근거를확인했다. T02원장은IN_PROGRESS/PARTIAL유지,감사활동만REVIEW_ONLY이며DEP-P10-T01을명시했다. 제품source/API/baseline파일변경0. A진단commit39a3076 이후이문서와진행기록만별도commit하고고정sourceE검증으로계속한다.
+
+- 배치27 E Core/API 실제검증: sourceffed5c2 tracked-clean의core-assertions-_jnkfd1a exit0/PASS. Kotlin10test/50helper,Swift12/122,managed0test/check1/418(198normal+220expected),duplicate정상2/0→변이부분1/nonzero→원본hash동일/정상복원418,분기419/추가OFF0ON1,stress100samples/316. Editor는include하지않아NOT_RUN. 보존batch26artifact의shipping79hash·UPMmanifest/checksum147·javap3class·Cexport4개양slice현재재대조PASS(새build아님). E뒤이은Native회귀는같은shipping code이며현재미커밋변경은이결과문서뿐이다.
+
+- 배치27 E Native 검증/커밋 전: ffed5c2와같은shipping79hash(전후실측동일)에서Android선택Core/session·auth·purchase·push fake JUnit42건/실패error skip0·Gradle0,Swift선택Native/session/store/push XCTest38건/실패skip0·exit0. 현재미커밋은결과문서뿐이며실제OS/Provider/Player실행은아니다. lifecycle100samples/liveClient·Transport0·helper316 및API/선정ABI대조도기록한다. 이독립회귀증거commit후새격리DB/role의self9만수행하고전체Strict/Editor/Player는A미충족으로재실행하지않는다.

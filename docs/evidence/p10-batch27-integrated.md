@@ -47,3 +47,14 @@ harness/run-unity-editor-smoke.py는명시--run-local/--mode로매번새artifact
 ## E 진행
 
 전체Python149건PASS/skip0,신규진단6건Hosted연결. 원장/manifest/meta/API/source/wire/actionlint/diffPASS. 고정source에서Native/managed·mutation·self9및API/선정ABI를검증한뒤명시handoff FFpush/false Hosted-only1회로인계한다. 실제Provider13WAIT/P05FAIL/ENV26OPEN/18.6위험/self-hosted/Release미검증유지.
+
+
+## E 고정 소스 독립 회귀
+
+source **ffed5c2e83c1b02ec1f68edb590a918e9556174c**의 Core collector는 tracked-clean에서 실행해 `core-assertions-_jnkfd1a` PASS/exit0. Kotlin10test/helper50(37+13),Swift12/122(112+10),managed0test/check1/helper418(198+220),복원418,분기419(추가OFF0/ON1)이다. duplicate-only 정상probe helper2/exit0→변이부분helper1/process134(의도negative1)→원본hash동일·정상전체418/exit0. assertion outcomes/래퍼밖/JNI scope는UNMEASURED이며framework test수와helper수는별개다.
+
+lifecycle `lifecycle-stress.IDb0Hp`: 5warmup/100samples에서helper316(15+300+1),liveClients0/liveTransports0. 이는managed fake 관측이며Unity/native memory 또는성능개선증명이아니다. `--include-editor`는사용하지않아이번Editor 회귀는NOT_RUN,과거2test/32helper를현재로복사하지않는다.
+
+이어같은shipping code의 Native fake/session/store/push 선택회귀 `artifacts/batch27/native`에서 Android42JUnit/failure0/error0/skip0/exit0,Swift38XCTest/failure0/skip0/exit0. 기록중미커밋변경은진행문서뿐이며79shipping hash를전후실측확인했다. 실제Google/Apple로그인·StoreKit/PlayStore결제·FCM/APNs·OS권한시험은아니다. 새T02설계case를이기존test42/38로대체하지않는다.
+
+ABI/source re-inspection은 `artifacts/batch27/artifact-inspection.json`: 기존dc45a2f산출물의79shippinghash·UPMmanifest/checksum147현재일치,Nativejavap3class표면및nm C-export4개양slice이전비교와동일. 새Nativebuild/현재Player성공으로주장하지않는다. 보존staging이현재SDKsource와일치함을확인한B준비inspection의연장이다. public/internal API/wire baseline파일변경없음.

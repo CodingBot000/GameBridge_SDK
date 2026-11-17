@@ -12,11 +12,20 @@ def guarded_call(command, adb, serial, expected_avd, failure_code=None, expected
     if adb and str(command[0])==str(adb):
         if [str(x) for x in command[1:3]]!=['-s',serial]:
             raise common.GateError('UNSCOPED_DEVICE_COMMAND','DEFERRED_ENV')
-        if expected_pid is not None:
-            try:inspect_binding(serial,expected_avd,expected_pid)
-            except BindingError as error:raise common.GateError(str(error),'DEFERRED_ENV') from None
-        common.require_dedicated_identity(adb,serial,expected_avd)
+        # GUI dispatch re-attests PID/AVD/both ports + server/executable in common.run.
+        # Re-running the legacy inventory here triples that proof and ADB traffic.
+        if common._GUI_ADB_GUARD is None:
+            if expected_pid is not None:
+                try:inspect_binding(serial,expected_avd,expected_pid)
+                except BindingError as error:raise common.GateError(str(error),'DEFERRED_ENV') from None
+            common.require_dedicated_identity(adb,serial,expected_avd)
     return common.must(command,failure_code,**kwargs) if failure_code else common.run(command,**kwargs)
+
+def wait_for_reconnect_failure(proxy, seconds=18, now=time.monotonic, sleep=time.sleep):
+    deadline=now()+seconds
+    while proxy.rejected < 1 and now()<deadline:sleep(min(.1,max(0,deadline-now())))
+    return proxy.rejected >= 1
+
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--run-local',required=True,action='store_true');parser.add_argument('--staging',type=Path,required=True);parser.add_argument('--serial',required=True);parser.add_argument('--expected-avd',required=True)
@@ -29,8 +38,16 @@ def main():
     if args.ack_known_fullscreen_notice and not (args.gui_project and args.startup_diagnostics):parser.error('Explicit GUI receipt, diagnostics and owned binding required for normal notice acknowledgement')
     out=Path(tempfile.mkdtemp(prefix='unity-android-push-',dir=ROOT/'artifacts'));server=None;log=None;proxy=None;network_changed=False;adb=None;serial=None;diagnostics=None;key=password=admin=bearer=None
     expected_pid=str(args.expected_emulator_pid or os.environ.get('GAMEBRIDGE_PUSH_EMULATOR_PID',''))
-    def run(command,**kwargs):return guarded_call(command,adb,serial,args.expected_avd,expected_pid=expected_pid,**kwargs)
-    def must(command,failure_code,**kwargs):return guarded_call(command,adb,serial,args.expected_avd,failure_code,expected_pid=expected_pid,**kwargs)
+    timing=[];started=time.monotonic()
+    def call(command,failure_code=None,**kwargs):
+        before=time.monotonic();category=Path(str(command[0])).name
+        if adb and str(command[0])==str(adb):category='adb:'+':'.join(str(x) for x in command[3:6])
+        try:return guarded_call(command,adb,serial,args.expected_avd,failure_code,expected_pid=expected_pid,**kwargs)
+        finally:
+            timing.append(dict(category=category,startedAfterSeconds=round(before-started,3),durationSeconds=round(time.monotonic()-before,3)))
+            (out/'command-timing.json').write_text(json.dumps(timing,indent=2)+'\n')
+    def run(command,**kwargs):return call(command,**kwargs)
+    def must(command,failure_code,**kwargs):return call(command,failure_code,**kwargs)
     head=must(['git','rev-parse','HEAD'],'GIT_HEAD').strip();dirty=bool(must(['git','status','--porcelain','--untracked-files=no'],'GIT_STATUS').strip()); result={'status':'FAIL','scope':'Unity Android LOCAL_MOCK push; not FCM','sourceHead':head,'sourceTrackedDirty':dirty,'player':'NOT_RUN','background':'NOT_RUN','networkRecovery':'NOT_RUN','processRestart':'NOT_RUN'}
     try:
         if not expected_pid or not expected_pid.isdecimal():raise common.GateError('EXPECTED_EMULATOR_PID_REQUIRED','DEFERRED_ENV')
@@ -84,6 +101,7 @@ def main():
         common.wait_for_dedicated_device(adb,serial,avd)
         installed=run([adb,'-s',serial,'install',apk],timeout=120);(out/'adb-install.log').write_text(installed.stdout)
         if installed.returncode or 'Success' not in installed.stdout:raise common.GateError('INSTALL_FAILED')
+        result['player']='INSTALLED_NOT_RUN'
         must([adb,'-s',serial,'logcat','-c'],'LOGCAT_CLEAR')
         if args.startup_diagnostics:
             diagnostics=common._startup.Collector(run,adb,serial,common.PACKAGE,out/'startup-diagnostics',(key,password,admin,bearer),allow_notice_ack=args.ack_known_fullscreen_notice)
@@ -92,11 +110,14 @@ def main():
         launch=run([adb,'-s',serial,'shell','am','start','-W','-n',common.PACKAGE+'/com.unity3d.player.UnityPlayerGameActivity','--es','gamebridge_mock_url',f'http://10.0.2.2:{proxyport}','--es','gamebridge_mock_key',key,'--es','gamebridge_installation',installation],timeout=30)
         (out/'adb-launch.log').write_text(launch.stdout.replace(key,'[REDACTED]'))
         if launch.returncode or not re.search(r'^Status:\s*ok\s*$',launch.stdout,re.M):raise common.GateError('LAUNCH_FAILED')
+        result['player']='LAUNCHED_PENDING'
         if diagnostics:diagnostics.capture('activity-response',ui=True,backend_log=out/'server.log')
         def logs():
             text=must([adb,'-s',serial,'logcat','-d','-v','brief','-s','Unity:I','*:S'],'LOGCAT_FAILED',timeout=20)
             if key in text or password in text or admin in text or bearer in text or common._redaction.contains_mock_credential(text):raise common.GateError('SYNTHETIC_SECRET_IN_PLAYER_LOG')
-            return '\n'.join(line for line in text.splitlines() if 'GB_PUSH_' in line)
+            filtered='\n'.join(line for line in text.splitlines() if 'GB_PUSH_' in line)
+            (out/'unity-push-markers.log').write_text(filtered+'\n')
+            return filtered
         def wait(marker,seconds=90):
             deadline=time.monotonic()+seconds;next_capture=time.monotonic()+10
             while time.monotonic()<deadline:
@@ -136,8 +157,7 @@ def main():
             if '200' in probe.stdout:break
             time.sleep(1)
         else:raise common.GateError('NETWORK_RESTORE_FAILED')
-        time.sleep(18)
-        if proxy.rejected < 1:raise common.GateError('RECONNECT_FAILURE_NOT_OBSERVED')
+        if not wait_for_reconnect_failure(proxy):raise common.GateError('RECONNECT_FAILURE_NOT_OBSERVED')
         result['rejectedReconnectAttempts']=proxy.rejected
         proxy.reconnect();time.sleep(22)
         for _ in range(2):

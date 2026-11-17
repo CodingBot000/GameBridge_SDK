@@ -25,6 +25,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
@@ -40,7 +41,7 @@ jobs:
           python3 scripts/verify-progress.py
           python3 harness/check-manifest.py
           python3 harness/check-unity-meta.py
-          python3 harness/check-core-refactor-surface.py
+          python3 harness/check-feature-refactor-transition.py
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_aggregation.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_error_contract.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_measurement_contract.py' -v
@@ -63,6 +64,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_android_fullscreen_notice.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ios_test_diagnostics.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_core_refactor_surface.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_feature_refactor_transition.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_core_staging_source.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_storekit_standalone_classification.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_consumer_e2e.py' -v
@@ -158,8 +160,8 @@ jobs:
           cache: gradle
       - name: Android contract and provider fake tests
         run: |
-          android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BridgeProtocolTest --tests com.gamebridge.ModelFixtureTest --tests com.gamebridge.LocalMockRecoveryTest --tests com.gamebridge.PushRouterTest :sdk-android:testDebugUnitTest --tests com.gamebridge.android.auth.GoogleAuthProviderTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest :sdk-unity-bridge:testDebugUnitTest --tests com.gamebridge.bridge.GoogleAuthBridgeHandlerTest --tests com.gamebridge.bridge.HostPushDeliveryTest
-          python3 harness/check-junit.py android/sdk-core/build/test-results/test/TEST-com.gamebridge.BridgeProtocolTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.ModelFixtureTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockRecoveryTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.PushRouterTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.auth.GoogleAuthProviderTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.purchase.GooglePlayBillingProviderTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.GoogleAuthBridgeHandlerTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.HostPushDeliveryTest.xml
+          android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BridgeProtocolTest --tests com.gamebridge.ModelFixtureTest --tests com.gamebridge.LocalMockRecoveryTest --tests com.gamebridge.PushRouterTest :sdk-android:testDebugUnitTest --tests com.gamebridge.android.auth.GoogleAuthProviderTest --tests com.gamebridge.android.auth.StoredGoogleSessionCodecTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest :sdk-unity-bridge:testDebugUnitTest --tests com.gamebridge.bridge.GoogleAuthBridgeHandlerTest --tests com.gamebridge.bridge.HostPushDeliveryTest
+          python3 harness/check-junit.py android/sdk-core/build/test-results/test/TEST-com.gamebridge.BridgeProtocolTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.ModelFixtureTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockRecoveryTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.PushRouterTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.auth.GoogleAuthProviderTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.auth.StoredGoogleSessionCodecTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.purchase.GooglePlayBillingProviderTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.GoogleAuthBridgeHandlerTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.HostPushDeliveryTest.xml
       - name: Android backend transport tests
         run: |
           android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BackendClientTest
@@ -184,8 +186,8 @@ jobs:
       - name: Swift package contract and fake tests
         run: |
           set -o pipefail
-          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|AppleAuthProviderTests|StoreKitBillingProviderTests|PushRouterTests|OfflineFakeTests|BackendClientTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
-          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests AppleAuthProviderTests StoreKitBillingProviderTests PushRouterTests OfflineFakeTests BackendClientTests
+          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|AppleAuthProviderTests|AppleGrantDecoderTests|StoreKitBillingProviderTests|PushRouterTests|OfflineFakeTests|BackendClientTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
+          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests AppleAuthProviderTests AppleGrantDecoderTests StoreKitBillingProviderTests PushRouterTests OfflineFakeTests BackendClientTests
           bash scripts/smoke-ios-source-consumer.sh
       - name: Install pinned XcodeGen locally
         run: |

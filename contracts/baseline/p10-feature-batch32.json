@@ -1,0 +1,27 @@
+{
+  "coreCompletedSourceHead": "4485b2fec8db8f06ee9405ed4a87de434782d0a1",
+  "originalCoreBaselineSha256": "0bb74dd8fc91d5ace23888d52aaf937ac062ad395f0ee5d4d78c4ab0768daab8",
+  "scope": "Only Task32 D1/D2 reviewed internal Native refactors; original Core baseline remains immutable",
+  "changes": [
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/GoogleAuthProvider.kt",
+      "beforeSha256": "5d8168383c56b37747356a7eebd99c2981cdbe292fc72968e51def7c4fe520b6",
+      "afterSha256": "a2c91252c1315fbce265219f141d506a6dc91fbd0300fe4b2e1d5e6b07fc34b2"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/StoredGoogleSessionCodec.kt",
+      "beforeSha256": null,
+      "afterSha256": "ae5ebb7431cc322e08fe3747885a75a3ae02f32ed81d9f885d5b6e5ae1a0aa5e"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/AppleHttpProofSink.swift",
+      "beforeSha256": "37caab851c47c532e01bb8ec065550f72f63078ab26f433db2c1999359e5fb2f",
+      "afterSha256": "a26e32e162a7b502e8bb051f36d15fbc50743a93b116fc8ae7b4450841799231"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/AppleGrantDecoder.swift",
+      "beforeSha256": null,
+      "afterSha256": "86551907b9d676efe6811a8eb0b9714aab75c2ee3fba40bddfa02fd9f3960d4e"
+    }
+  ]
+}

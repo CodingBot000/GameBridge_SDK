@@ -6,13 +6,18 @@ ROOT=Path(__file__).resolve().parent.parent
 _redaction_spec = importlib.util.spec_from_file_location('local_mock_redaction', ROOT/'harness/local_mock_redaction.py')
 _redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.loader.exec_module(_redaction)
 
+_gui_spec=importlib.util.spec_from_file_location('ios_gui_contract',ROOT/'harness/gui_verification.py')
+_gui=importlib.util.module_from_spec(_gui_spec);_gui_spec.loader.exec_module(_gui)
+
 BUNDLE='com.gamebridge.sdk.mockiosconsumer'
 STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--pii-probe',action='store_true'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); args=parser.parse_args()
+    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--pii-probe',action='store_true'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); parser.add_argument('--gui-project',type=Path);parser.add_argument('--gui-export-receipt',type=Path);args=parser.parse_args()
     if sum((args.host_callback_probe,args.native_demo_probe,args.pii_probe)) > 1: parser.error('choose one specialized probe')
+    if bool(args.gui_project)!=bool(args.gui_export_receipt):parser.error('GUI project and export receipt required together')
+    if args.gui_project and (args.host_callback_probe or args.native_demo_probe):parser.error('GUI callback/demo variants not supported')
     out=Path(tempfile.mkdtemp(prefix='unity-ios-e2e-',dir=ROOT/'artifacts'))
     def run(cmd,**kw): return subprocess.run([str(x) for x in cmd],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,**kw)
     def must(cmd,label,**kw):
@@ -31,44 +36,54 @@ def main():
         framework=packaged/'Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework'; must(['python3','scripts/verify-xcframework.py',framework],'xcframework')
         result['stagingManifestSha256']=digest(stage/'SHA256SUMS')
         result['iosSimulatorBinarySha256']=digest(framework/'ios-arm64_x86_64-simulator/GameBridgeNative.framework/GameBridgeNative')
-        env=os.environ.copy(); env['GAMEBRIDGE_UPM_STAGING']=str(stage)
-        prepared=must(['bash','scripts/prepare-unity-ios-mock.sh','--prepare'],'prepare',env=env)
-        match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
-        if not match: raise RuntimeError('consumer path')
-        project=Path(match.group(1))
-        if args.package_cache:
-            import importlib.util
-            spec=importlib.util.spec_from_file_location('ios_push_cache',ROOT/'harness/run-unity-ios-mock-push-e2e.py')
-            cache_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(cache_module)
-            try: result['embeddedCachedPackages']=cache_module.embed_cached_packages(args.package_cache.resolve(),project)
-            except cache_module.common.GateError as error: raise RuntimeError(str(error)) from error
-        if args.host_callback_probe:
-            import shutil
-            shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
-            shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/link.xml',project/'Assets/link.xml')
-        if args.native_demo_probe:
-            import shutil
-            editor=Path('/Applications/Unity/Hub/Editor')/os.environ.get('UNITY_EDITOR_VERSION','6000.5.8f1')/'Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui'
+        if args.gui_project:
             try:
-                if json.loads((editor/'package.json').read_text()).get('version')!='2.5.0': raise ValueError()
-                shutil.copytree(editor,project/'Packages/com.unity.ugui',ignore=shutil.ignore_patterns('Tests','Tests.meta'))
-            except (OSError,ValueError): raise RuntimeError('UNITY_UGUI_REQUIRED')
-            (project/'Packages/manifest.json').write_text('{"dependencies":{"com.unity.ugui":"2.5.0"}}\n')
-            imported=run(['bash','scripts/import-unity-samples.sh',project,out/'sample-import-markers.log'],env=env,timeout=360)
-            (out/'sample-import.log').write_text(imported.stdout)
-            if imported.returncode: raise RuntimeError('SAMPLE_IMPORT_FAILED')
-            shutil.copy2(ROOT/'tests/UnityIosNativeDemo/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
-            result['nativeDemoProbe']=True; result['sampleImport']='PASS'
-        if args.pii_probe:
-            import shutil
-            shutil.copy2(ROOT/'tests/UnityIosPiiConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
-            shutil.copy2(ROOT/'tests/UnityPiiProbe/PiiProbe.cs',project/'Assets/PiiProbe.cs')
-            shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
-            result['piiProbe']=True
-        xcode=out/'xcode'
-        exported=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],env=env,timeout=1200)
-        (out/'unity-export.log').write_text(exported.stdout)
-        if exported.returncode: raise RuntimeError('UNITY_EXPORT_FAILED')
+                proof=_gui.load_ios_export(args.gui_project,args.gui_export_receipt,stage,head,'pii' if args.pii_probe else 'standard')
+            except (OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError) as error:
+                raise RuntimeError('GUI_EXPORT_INPUT_INVALID') from error
+            project=args.gui_project.resolve();xcode=proof['output']
+            (out/'unity-export.log').write_text(proof['logSegment'])
+            result.update(unityBuildMode='GUI_EXPLICIT_EXPORT',guiBuildSourceHead=proof['receipt']['sourceHead'],guiBuildRunId=proof['receipt']['runId'])
+            if args.pii_probe:result['piiProbe']=True
+        else:
+            env=os.environ.copy(); env['GAMEBRIDGE_UPM_STAGING']=str(stage)
+            prepared=must(['bash','scripts/prepare-unity-ios-mock.sh','--prepare'],'prepare',env=env)
+            match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
+            if not match: raise RuntimeError('consumer path')
+            project=Path(match.group(1))
+            if args.package_cache:
+                import importlib.util
+                spec=importlib.util.spec_from_file_location('ios_push_cache',ROOT/'harness/run-unity-ios-mock-push-e2e.py')
+                cache_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(cache_module)
+                try: result['embeddedCachedPackages']=cache_module.embed_cached_packages(args.package_cache.resolve(),project)
+                except cache_module.common.GateError as error: raise RuntimeError(str(error)) from error
+            if args.host_callback_probe:
+                import shutil
+                shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
+                shutil.copy2(ROOT/'tests/UnityIosHostCallbackConsumer/link.xml',project/'Assets/link.xml')
+            if args.native_demo_probe:
+                import shutil
+                editor=Path('/Applications/Unity/Hub/Editor')/os.environ.get('UNITY_EDITOR_VERSION','6000.5.8f1')/'Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui'
+                try:
+                    if json.loads((editor/'package.json').read_text()).get('version')!='2.5.0': raise ValueError()
+                    shutil.copytree(editor,project/'Packages/com.unity.ugui',ignore=shutil.ignore_patterns('Tests','Tests.meta'))
+                except (OSError,ValueError): raise RuntimeError('UNITY_UGUI_REQUIRED')
+                (project/'Packages/manifest.json').write_text('{"dependencies":{"com.unity.ugui":"2.5.0"}}\n')
+                imported=run(['bash','scripts/import-unity-samples.sh',project,out/'sample-import-markers.log'],env=env,timeout=360)
+                (out/'sample-import.log').write_text(imported.stdout)
+                if imported.returncode: raise RuntimeError('SAMPLE_IMPORT_FAILED')
+                shutil.copy2(ROOT/'tests/UnityIosNativeDemo/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
+                result['nativeDemoProbe']=True; result['sampleImport']='PASS'
+            if args.pii_probe:
+                import shutil
+                shutil.copy2(ROOT/'tests/UnityIosPiiConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
+                shutil.copy2(ROOT/'tests/UnityPiiProbe/PiiProbe.cs',project/'Assets/PiiProbe.cs')
+                shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
+                result['piiProbe']=True
+            xcode=out/'xcode'
+            exported=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],env=env,timeout=1200)
+            (out/'unity-export.log').write_text(exported.stdout)
+            if exported.returncode: raise RuntimeError('UNITY_EXPORT_FAILED')
         pbx=(xcode/'Unity-iPhone.xcodeproj/project.pbxproj').read_text()
         if 'GameBridgeNative.xcframework in Frameworks' not in pbx: raise RuntimeError('XCFRAMEWORK_NOT_LINKED')
         derived=out/'Derived'

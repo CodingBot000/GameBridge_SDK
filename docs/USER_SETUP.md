@@ -392,3 +392,8 @@ python3 harness/run-unity-editor-smoke.py --run-local --mode cli
 같은배치의앞선direct자동smoke1회는210초outertimeout124/검증2,receipt/marker부재였다. GUI정상과자동smoke/Player성공은다르므로T01PARTIAL/C1C2진입보류다. 이번추가자동smoke/Player반복은없다. [정제관측](evidence/p10-batch28-editor.json)에서Clientbundle버전과실제product버전·종료값미측정범위를구분했다.
 
 GUI상태바에는다른SDK의ADBserver인스턴스를Unity가종료했다는경고가있었다. 에이전트가ADB명령을보낸것은아니며대상과영향은미확정이다. 이후기기시험전에기존SDK/ADB process와전용serial/PID/양port소유를확인해야한다. 확인없이ADB전체재시작이나기존기기정리를하지않는다. 계정/라이선스파일조작도없다. 자동smoke환경복구확인→current Player→Strict→T01판정후에만C1/C2를구현한다.
+
+
+### 배치29 GUI 실제 메서드·APK 및 사용자 요청 중단
+
+GUI nonce/소유project/Unity7조건·실제C#메뉴실행과기존Builder의27,072,192byte AndroidAPK 생성은PASS다. batch/StrictPASS는아니다. Android새AVD의설치/launch는성공했으나180초Player marker timeoutFAIL,새DB users/sessions/purchases/ledger 각0·원인미확정이다. Qt Emulator가CUA표면으로노출되지않았다는한계도원인확정과구분한다. 사용자중단요청으로[재개명령/상태](evidence/p10-batch29-resume.md)를저장했다. 새iOS GUI helper코드는unit검증만됐고실제export/Player는NOT_RUN,이번CI/push도0회다. 사용자재개전새실행을시작하지않는다.

@@ -3901,3 +3901,7 @@
 - 배치29 B/C iOS 독립검증 시작: Android timeout을iOS결과로확대하지않고새전용iOS소비project에서기존BuildMockIosPlayer를GUI메뉴로호출하는export경로를구성한다. 출력설정은project-local/비밀아님,현재147패키지·builder/scenario·exporttree/PBX hash/nonce로그를검사한다. 원본Builder/SDK/finish정책변경없음. export가실제성공하고입력계약을검증한경우에만새ownedSimulator/DB로기존iOSE2E의원장·callback/PII검사를그대로진행한다. 아직iOSexport/Player NOT_RUN.
 
 - [P10-T02] 배치29 D 실제독립회귀/커밋 전: Android GoogleAuthProviderTest18건(신규3)/failure0/error0/skip0/Gradle0,Swift AppleAuthProviderTests20건(신규2)/failure0/skip0/exit0. stored binding/잘못된credentials의network전거부·profile후save실패순서,정상grant2status/잘못된grant·account및logout후늦은HTTPgrant CANCELED를실제주입경로로검증했다. SDK제품/refactor/finish순서변경0이며T02전체완료아님. 기존동시refresh/tombstone/같은idempotency retry회귀도같은class에서유지됐다. Swift20class를Hosted필터/required suite 검사에연결했다. Kotlin최초SDK설정실패는보존.
+
+- 사용자 요청 안전중단/커밋 직전: 현재빌드/Player/시험Backend·Gradle/Swift testcase진행없음,ownedemulator80979/controller종료·AVD/DB/로그보존,Android소비GUI79170은idle로남긴다. 미완료iOS helper/준비·export입력계약·음성4건은Python syntax/GUI단위19PASS를확인한코드상태로localcommit하되실제iOS컴파일/export/PlayerNOT_RUN이다. 신규unit을Hosted연결했지만아직CI미실행. docs/evidence/p10-batch29-resume.md에모든source/nonce/artifact·실패/미실행·재개명령·금지조건을기록했다. 이번push0/dispatch0,네트워크작업시작없이pause한다. T01/T02PARTIAL/기존FAIL·외부대기유지.
+
+- 중단기록검증: 문서작성의첫호출은마지막PROGRESS머리말갱신전에import re 누락NameError로멈췄다. 이미기록된체크포인트/실패·unit결과는보존하고머리말/USER_SETUP만정정완료했다. 원장검사·Python문법·새iOS4음성/정상unit은exit0. 실제iOSGUI실행/전체회귀는미실행으로명시한다. offline secret검사후로컬중단commit만남기고정지한다.

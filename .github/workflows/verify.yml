@@ -55,6 +55,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_verification.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_android_build.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_adb_guard.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_ios_export.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ios_test_diagnostics.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_core_refactor_surface.py' -v
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_core_staging_source.py' -v

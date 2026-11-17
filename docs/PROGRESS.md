@@ -4,16 +4,16 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (배치28 종료; Hub 일반GUI 정상, 자동batch/Player·Strict 환경 대기, T01/T02 PARTIAL, 독립 D 회귀 PASS)
-- 현재 Phase / Task: 배치29 A / GUI 실제 메서드 실행 및 Player 빌드 경로 검증
+- 전체 상태: IN_PROGRESS (배치29 사용자 요청 안전 중단; GUI메서드/APK PASS,Android실행timeout FAIL,T01/T02 PARTIAL)
+- 현재 Phase / Task: 배치29 사용자 요청 중단 / iOS GUI export 준비 코드 보존, 실제 실행 전
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 배치28 direct/Hub GUI 3955e4e(제품 source 동일), Core/Native 4d58d132859aa0990ced6a1b7fa67652030eb5a3 / self9 2737429c873e272b1576b519e709582670cf75ac; 이번Hosted NOT_RUN(코드변경0)
+- 마지막 검증된 소스 커밋: GUI probe dcc0b4c / Android APK7263444 / Android E2E timeout7520cbc / Native 후보 tests b1e3c73(신규test source hash 별도기록). iOS 실제 검증 NOT_RUN.
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — HubGUI 정상이나direct210초/outer124·receipt없음. Player NOT_RUN/Strict0·DEFERRED_ENV,DEP-P10-T01로C1/C2보류. ENV-UNITY-ADB-STARTUP의대상/영향미확정.
-- 바로 다음 행동: USER_SETUP의HubGUI/자동batch구분과ADB경고를확인하고정상자동receipt→currentPlayer/Strict→T01판정→C1/C2를재개한다. 이번Hosted추가0,기존P05 FAIL/18.6위험/Provider13대기유지.
-- 재개 행동: AGENTS.md·START_HERE.md와 [배치28](evidence/p10-batch28-integrated.md), [Editor관측](evidence/p10-batch28-editor.json), USER_SETUP부터확인한다. 검증용GUI project는artifact경로로열린상태이고과거Player/CI를현재실행으로치환하지않는다.
+- 바로 다음 행동: 사용자 재개 지시 전 실행/push/CI 없음. 재개 후 [배치29 재개 체크포인트](evidence/p10-batch29-resume.md)의 Git/GUI/staging 확인→새 iOS GUI 소비 project 준비→실제 export 판정 순서로 진행한다.
+- 재개 행동: [배치29 재개 문서](evidence/p10-batch29-resume.md)·WORK_LOG 마지막·AGENTS/START_HERE를읽는다. Android GUI79170은idle,ownedAVD80979는종료/데이터보존. PID/AX index 재사용금지. 원인미확정timeout을PASS로재작성하지않는다.
 
 ## 집계
 
@@ -1707,3 +1707,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치29 B/C iOS 독립검증 시작: Android timeout을iOS결과로확대하지않고새전용iOS소비project에서기존BuildMockIosPlayer를GUI메뉴로호출하는export경로를구성한다. 출력설정은project-local/비밀아님,현재147패키지·builder/scenario·exporttree/PBX hash/nonce로그를검사한다. 원본Builder/SDK/finish정책변경없음. export가실제성공하고입력계약을검증한경우에만새ownedSimulator/DB로기존iOSE2E의원장·callback/PII검사를그대로진행한다. 아직iOSexport/Player NOT_RUN.
 
 - [P10-T02] 배치29 D 실제독립회귀/커밋 전: Android GoogleAuthProviderTest18건(신규3)/failure0/error0/skip0/Gradle0,Swift AppleAuthProviderTests20건(신규2)/failure0/skip0/exit0. stored binding/잘못된credentials의network전거부·profile후save실패순서,정상grant2status/잘못된grant·account및logout후늦은HTTPgrant CANCELED를실제주입경로로검증했다. SDK제품/refactor/finish순서변경0이며T02전체완료아님. 기존동시refresh/tombstone/같은idempotency retry회귀도같은class에서유지됐다. Swift20class를Hosted필터/required suite 검사에연결했다. Kotlin최초SDK설정실패는보존.
+
+- 사용자 요청 안전중단/커밋 직전: 현재빌드/Player/시험Backend·Gradle/Swift testcase진행없음,ownedemulator80979/controller종료·AVD/DB/로그보존,Android소비GUI79170은idle로남긴다. 미완료iOS helper/준비·export입력계약·음성4건은Python syntax/GUI단위19PASS를확인한코드상태로localcommit하되실제iOS컴파일/export/PlayerNOT_RUN이다. 신규unit을Hosted연결했지만아직CI미실행. docs/evidence/p10-batch29-resume.md에모든source/nonce/artifact·실패/미실행·재개명령·금지조건을기록했다. 이번push0/dispatch0,네트워크작업시작없이pause한다. T01/T02PARTIAL/기존FAIL·외부대기유지.
+
+- 중단기록검증: 문서작성의첫호출은마지막PROGRESS머리말갱신전에import re 누락NameError로멈췄다. 이미기록된체크포인트/실패·unit결과는보존하고머리말/USER_SETUP만정정완료했다. 원장검사·Python문법·새iOS4음성/정상unit은exit0. 실제iOSGUI실행/전체회귀는미실행으로명시한다. offline secret검사후로컬중단commit만남기고정지한다.

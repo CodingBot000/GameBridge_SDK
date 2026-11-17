@@ -1,0 +1,27 @@
+{
+  "status": "FAIL",
+  "errorCode": "UNITY_PLAYER_RESULT_TIMEOUT",
+  "sourceHead": "7520cbc27d9cfb9e04e98d5fd36ebb74328fba72",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "LAUNCHED_PENDING",
+  "unityBuildMode": "GUI_EXPLICIT_RECEIPT",
+  "guiBuildSourceHead": "7263444dbf2262e7eae1539616ae7b0946d8cec9",
+  "guiBuildRunId": "85e0d5036b344ac7b90ef95da9cb035f",
+  "unityApkSha256": "dd09b532c842ee60116e57785e5b7add25f40a7f7d0deab486872e16c4b628e4",
+  "emulatorAvd": "GameBridge_V2_B29_GUI_PII_20261117_85e0",
+  "emulatorSerial": "emulator-5590",
+  "emulatorPid": 80979,
+  "adbServerPid": 79436,
+  "scope": "Actual Android GUI APK installation/launch followed by Player marker timeout; not PASS",
+  "evidence": "artifacts/unity-android-e2e-eb3lua0b/result.json",
+  "ownedEmulatorStopped": true,
+  "retainsAvdDatabaseLogs": true,
+  "uiCause": "UNCONFIRMED; Qt emulator not exposed as a CUA app",
+  "freshDatabaseCounts": {
+    "users": 0,
+    "sessions": 0,
+    "purchases": 0,
+    "walletLedger": 0
+  },
+  "adbServerStoppedOrRestartedByAgent": false
+}

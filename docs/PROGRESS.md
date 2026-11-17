@@ -5,7 +5,7 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치29 사용자 요청 안전 중단; GUI메서드/APK PASS,Android실행timeout FAIL,T01/T02 PARTIAL)
-- 현재 Phase / Task: 배치29 사용자 요청 중단 / iOS GUI export 준비 코드 보존, 실제 실행 전
+- 현재 Phase / Task: 배치29 재개 / iOS GUI export 실제 검증
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: GUI probe dcc0b4c / Android APK7263444 / Android E2E timeout7520cbc / Native 후보 tests b1e3c73(신규test source hash 별도기록). iOS 실제 검증 NOT_RUN.
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
@@ -1715,3 +1715,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 중단전offline secret검토: version명시go-run은deprecation metadata lookup차단으로실행불가였다. 캐시source 직접실행으로6commit전체scan은exit1/finding2. 모두b1e3c73 candidate-tests.json18/19의testSourceHashes값이며실제Kotlin/Swift test파일SHA256과독립계산일치→credential아닌metadata오탐확인. publicJSON은path/sha256배열로정리했고기존이력/실패를삭제·amend/ignore하지않았다. rawexit1과정확재검토근거를resume문서에기록했다. 네트워크/push/CI없음.
 
 - 사용자요청중단확정/최종localcommit전: 마지막staged문서offline gitleaks exit0/탐지0,원장/diff검사PASS. 이전6commit scan의2개sourcehash metadata오탐은별도근거/exit1그대로보존했다. 현재활성시험/빌드/Player없음,새네트워크/push/CI없음. 사용자재개지시전작업을진행하지않으며resume문서의정확한다음명령에서시작한다.
+
+- 사용자 재개 지시 수신: HEAD953a5a5/동일handoff/기존미추적3경로보존·중단문서/AGENTS/START_HERE/원장/로그대조완료. 사용자요청pause는해제됐다. 기존Androidtimeout·GUI APK/후보test PASS는보존하고새근거없는재실행없음. 현재Editor·5037owner는read-only로새로조회했으며과거PID/AX index재사용하지않는다. 다음미실행iOS GUI소비project준비→실제컴파일/export입력검증→가능시별도Simulator E2E·E검증/명시FF/Hosted1회로이어간다.
+
+- 배치29 재개 iOS 실제GUI export PASS: source953a5a5/nonceb0626c0dfa914789b0fe2eee01d2a3af,새GameBridgeGuiIosB29를Hub로열고실제iOS target전환·기존BuildMockIosPlayer.Build를GUI에서호출했다. 원본Builder return/147SDKfiles·script/adapter/scenario·PBX/exporttreeSHA·nonce로그·현재source보호경로diff0입력계약검증PASS. tests0/check1/Player0,GUIexportPASS는batch나Simulator실행PASS가아니다. 이전Android전용GUI만정상종료했으며사용자project/라이선스/기존기기를조작하지않았다. 이제해당검증된export로새Simulator/DB의기존E2E를독립1회수행한다.
+
+- 배치29 iOS GUI입력 의존성검사 보강/커밋 전: 실제export PASS후E2E소비계약을점검해iOS에도정확embedded Notifications2.5.0/Newtonsoft3.2.2검사를명시하고summary에보존했다(기존Android같은검사공유). 잘못된version음성unit포함GUI20단위PASS/skip0. C#Builder/SDK/export바이트변경없음,receipt빌드source953a5a5는보호경로diff0인현재harness/doc후속commit의ancestor로기록한다. 실제Simulator실행은아직미실행이며commit후시작한다.

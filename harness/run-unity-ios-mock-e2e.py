@@ -44,6 +44,7 @@ def main():
             project=args.gui_project.resolve();xcode=proof['output']
             (out/'unity-export.log').write_text(proof['logSegment'])
             result.update(unityBuildMode='GUI_EXPLICIT_EXPORT',guiBuildSourceHead=proof['receipt']['sourceHead'],guiBuildRunId=proof['receipt']['runId'])
+            result['embeddedCachedPackages']=proof['embeddedCachedPackages']
             if args.pii_probe:result['piiProbe']=True
         else:
             env=os.environ.copy(); env['GAMEBRIDGE_UPM_STAGING']=str(stage)

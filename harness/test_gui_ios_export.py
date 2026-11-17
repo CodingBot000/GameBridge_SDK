@@ -2,7 +2,8 @@ import copy
 from pathlib import Path
 import tempfile
 import unittest
-from gui_verification import validate_ios_receipt, export_tree_hash
+from gui_verification import validate_ios_receipt, export_tree_hash, embedded_versions
+import json
 
 
 class GuiIosExportTests(unittest.TestCase):
@@ -38,3 +39,13 @@ class GuiIosExportTests(unittest.TestCase):
             (root/'b').write_bytes(b'extra');self.assertEqual(export_tree_hash(root)[1],2)
             (root/'link').symlink_to(root/'a')
             with self.assertRaises(ValueError):export_tree_hash(root)
+
+    def test_gui_export_requires_exact_embedded_runtime_dependencies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for name,version in [('com.unity.mobile.notifications','2.5.0'),('com.unity.nuget.newtonsoft-json','3.2.2')]:
+                folder=root/'Packages'/name;folder.mkdir(parents=True)
+                (folder/'package.json').write_text(json.dumps(dict(name=name,version=version)))
+            self.assertEqual(embedded_versions(root)['com.unity.mobile.notifications'],'2.5.0')
+            (root/'Packages/com.unity.mobile.notifications/package.json').write_text(json.dumps(dict(name='com.unity.mobile.notifications',version='other')))
+            with self.assertRaises(ValueError):embedded_versions(root)

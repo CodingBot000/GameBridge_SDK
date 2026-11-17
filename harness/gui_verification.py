@@ -104,6 +104,16 @@ def validate_apk(path, value, config_mtime_ns):
         raise ValueError('GUI APK bytes changed')
 
 
+def embedded_versions(project):
+    versions={}
+    for name,expected in [('com.unity.mobile.notifications','2.5.0'),('com.unity.nuget.newtonsoft-json','3.2.2')]:
+        value=json.loads((Path(project)/'Packages'/name/'package.json').read_text())
+        if value.get('name')!=name or value.get('version')!=expected:
+            raise ValueError('GUI exact embedded package mismatch')
+        versions[name]=expected
+    return versions
+
+
 def load_android_build(project, receipt_path, staging, current_head, variant):
     root = Path(__file__).resolve().parent.parent
     project, staging = Path(project).resolve(), Path(staging).resolve()
@@ -157,11 +167,7 @@ def load_android_build(project, receipt_path, staging, current_head, variant):
     if logfile not in ((project/'Logs/Editor.log').resolve(), (Path.home()/'Library/Logs/Unity/Editor.log').resolve()):
         raise ValueError('Unexpected GUI Editor log path')
     selected=build_log_segment(logfile.read_text(errors='replace'),config['runId'])
-    versions={}
-    for name,expected in [('com.unity.mobile.notifications','2.5.0'),('com.unity.nuget.newtonsoft-json','3.2.2')]:
-        package=json.loads((project/'Packages'/name/'package.json').read_text())
-        if package.get('name')!=name or package.get('version')!=expected: raise ValueError('GUI exact package mismatch')
-        versions[name]=expected
+    versions=embedded_versions(project)
     return {'apk':apk,'receipt':value,'logSegment':selected,'embeddedCachedPackages':versions}
 
 
@@ -227,4 +233,4 @@ def load_ios_export(project, receipt_path, staging, current_head, variant):
     if len(start)!=1 or len(end)!=1 or start[0]>=end[0]:raise ValueError('GUI iOS log correlation invalid')
     segment=ls[start[0]:end[0]+1]
     if sum(l.strip()=='GB_IOS_MOCK_EXPORT PASS' for l in segment)!=1:raise ValueError('Original iOS builder verdict missing')
-    return {'output':output,'receipt':v,'logSegment':'\n'.join(segment)+'\n'}
+    return {'output':output,'receipt':v,'logSegment':'\n'.join(segment)+'\n','embeddedCachedPackages':embedded_versions(project)}

@@ -73,5 +73,15 @@
   "timeoutSeconds": 180,
   "postFailureDiagnosticCapture": "separate, does not extend marker acceptance deadline",
   "ownedEmulatorStopped": true,
-  "retainsOldAndNewAvdDatabaseLogs": true
+  "retainsOldAndNewAvdDatabaseLogs": true,
+  "lastConfirmedStage": "Application PID alive, Activity resumed, Unity Native engine/graphics initialized",
+  "firstUnconfirmedStage": "first Scene/MonoBehaviour Awake and Start",
+  "blockingUiObserved": {
+    "package": "android",
+    "title": "Viewing full screen",
+    "button": "Got it",
+    "normalAcknowledgementPerformed": false,
+    "causalRecoveryVerified": false
+  },
+  "additionalE2ERevalidation": "NOT_RUN; awaiting permitted UI acknowledgement method"
 }

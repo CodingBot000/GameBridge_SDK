@@ -1758,3 +1758,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치30 C 첫진단재현 관측/블로커: 앱PID4639생존·Activityresumed·Unity Initialize engine version/PlayerInitEngineGraphics OK가실제allbuffer로그에있으나Awake/Start marker없음·Backendtrace0. NativeFocus lost이후UIhierarchy의framework package android에Viewing full screen/To exit swipe/Got it 안내가실제존재했다. 초기detector의SystemUI전용조건이이를False로놓친문제(진단하네스)를android도허용하도록수정/음성검증했고focusfield부재는UNMEASURED로정정했다(원본보존). 이것은OS안내관측이며닫은뒤실제회복검증전SDK원인완전확정/PASS로표시하지않는다. Qt CUA표면한계로필요한정상UIack은사용자직접조작가능여부/이전용기기ADB UI입력명시요청을async문의했고답변전그조작을강행하지않는다. SDK제품변경0.
 
 - 배치30 C 최초진단실행 종료FAIL/exit1(UNITY_PLAYER_RESULT_TIMEOUT,artifacts/unity-android-e2e-pe_0tdqo). 원래180초marker판정뒤failure후속관측까지194.418초이며수락deadline은늘리지않았다. 전체로그/프로세스/Activity/UI가수집됐고마지막PID4639생존·UnityNative그래픽초기화·Activityresumed확인,Awake/Start/intent/SDK/init/HTTP는미도달관측. 실제Viewingfullscreen/Gotit의android소유UI와NativeFocusLost는새증거다. corrected detector true는원본을덮지않은별도재분석. OSguide정상ack뒤회복검증전원인완전확정/SDKPASS로기록하지않는다. controller는자기AVD PID94221만종료했고이후기기명령없음. UI조작응답대기중제품변경/동일재실행강행없음.
+
+- 배치30 독립호환성검증: 기존iOS actualPASS sourced543556와현재HEAD의UnitySDK·iOSSource/CABI·iOS공급scenario·공통PiiProbe/link소스gitdiff0확인. 이증거의동일제품범위는유효하나이번새iOS실행으로표시하지않고무조건재실행하지않는다. AndroidUI응답대기동안새SDK제품변경/Push/JNI/전체Native/self9/Strict를선행조건없이강행하지않는다.
+
+- 배치30 C/E 독립입력계약검증: framework android/SystemUI의고정Viewingfullscreen·정확히1개enabled Gotit·유효bounds만선택하는순수함수와음성4건PASS를추가했다. 다른app·권한prompt·중복/disabled/badgeometry는거부한다. 이코드는좌표식별만하며실제UI입력0,사용자응답전ACK를하지않는다. 변경하네스관련전체Python을검증하되조건미충족Push/JNI/CoreNative全/self9/Strict/제품refactor는아직미실행으로유지한다.
+
+- 배치30 E 독립최종회귀: 변경harness관련전체Python185건/49모듈PASS/skip0(16.813초),startup10·정상안내선택4음성/정상unit포함. API/source/wire·staging147·manifest/meta·progress/actionlint/diffPASS. 현재UIACK방식응답대기로추가E2E/Push/JNI/CoreNative/Strict는NOT_RUN·T01/T02PARTIAL유지. C첫실패는마지막확인Nativeengine/graphics+PID/Activity와최초미확인Scene/Awake/Start로분리했고UI안내ACK/인과회복검증은미실행이다. 독립순수selector는좌표만식별해실제입력0이며CI에연결했다.

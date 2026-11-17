@@ -1,0 +1,8 @@
+{
+  "priorIosPlayerEvidence": "artifacts/unity-ios-e2e-c4qqwuvs/result.json",
+  "priorIosPlayerSourceHead": "d543556580f72142507c57f57537891fb7d1c1e7",
+  "comparisonHead": "b00ce0d7a326ae4c8630516ecde29adb0d7f3d59",
+  "protectedSourceDelta": [],
+  "currentIosPlayerExecution": "NOT_RUN",
+  "reason": "no iOS product/common SDK or protected iOS consumer changes; retain prior verified scope"
+}

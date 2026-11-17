@@ -1,0 +1,9 @@
+{
+  "buildExitCode": 0,
+  "apkExists": true,
+  "runtimeServerPid": 66577,
+  "runtimeServerSurvived": true,
+  "buildPort": 5038,
+  "buildPortOwnerCount": 0,
+  "scope": "batch build/server isolation only; no AVD or Player"
+}

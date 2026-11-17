@@ -6,6 +6,7 @@ emulator, a staged UPM package, and the explicitly local Compose PostgreSQL.
 Never installs onto a non-dedicated device, replaces an existing app, or deletes a DB.
 The created DB, emulator installation and raw local artifacts are retained.
 """
+from adb_build_isolation import isolated_build_endpoint, BindingError as BuildBindingError
 import argparse
 import base64
 import hashlib
@@ -294,8 +295,11 @@ def main():
     parser.add_argument("--expected-adb-server-pid", type=int)
     parser.add_argument("--startup-diagnostics", action="store_true", help="Collect owned-device startup stages/all-buffer logs; never a success substitute")
     parser.add_argument("--ack-known-fullscreen-notice", action="store_true", help="Explicit opt-in for one ordinary fullscreen education notice on the bound owned AVD")
+    parser.add_argument("--build-adb-port",type=int,help="Explicit separate owned ADB endpoint for CLI batch build only")
     parser.add_argument("--timeout-seconds", type=int, default=180)
     args = parser.parse_args()
+    if args.build_adb_port is not None and (args.gui_project or not all((args.expected_emulator_pid,args.expected_adb_server_pid,args.serial,args.expected_avd)) or args.build_adb_port==5037):
+        parser.error("Separate build endpoint requires explicit CLI owned runtime binding")
     if sum((args.utf8_probe, args.native_demo_probe, args.pii_probe)) > 1: parser.error("choose one specialized probe")
     if bool(args.gui_project) != bool(args.gui_build_receipt): parser.error("GUI project and receipt must be supplied together")
     if args.gui_project and args.native_demo_probe: parser.error("GUI Native Demo input is not supported")
@@ -398,8 +402,17 @@ def main():
                 shutil.copy2(ROOT / "tests/UnityAndroidNativeDemo/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
                 summary["nativeDemoProbe"] = True; summary["sampleImport"] = "PASS"
             apk = output / "gamebridge-mock-consumer.apk"
-            built = run(["bash", "scripts/build-unity-android-mock.sh", project, apk],
-                        timeout=1200, env=environment)
+            if args.build_adb_port is not None:
+                summary['buildAdbPort']=args.build_adb_port
+                try:
+                    with isolated_build_endpoint(adb,args.build_adb_port,output,environment) as build_environment:
+                        built = run(["bash", "scripts/build-unity-android-mock.sh", project, apk],
+                                    timeout=1200, env=build_environment)
+                except BuildBindingError as error:raise GateError('BUILD_ADB_ISOLATION_FAILED','DEFERRED_ENV') from error
+            else:
+                built = run(["bash", "scripts/build-unity-android-mock.sh", project, apk],
+                            timeout=1200, env=environment)
+
             (output / "unity-build.log").write_text(built.stdout, encoding="utf-8")
             if built.returncode:
                 if built.returncode == 2 and "DEFERRED_ENV" in built.stdout:

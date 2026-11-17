@@ -1,0 +1,114 @@
+{
+  "codeSourceHead": "4b64d3701b4099036334dfb12293c050cb18f6f4",
+  "scope": "GUI input/dispatch fixture and independent Core checks; no new GUI build or Player execution",
+  "python": {
+    "tests": 203,
+    "modules": 51,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "seconds": 17.37,
+    "evidence": "artifacts/batch31/python-final.log",
+    "workingTreeAtExecution": "3a47266 plus exact R09 malformed-summary patch committed in 4b64d3701b4099036334dfb12293c050cb18f6f4",
+    "priorRun": {
+      "tests": 202,
+      "exitCode": 0,
+      "seconds": 16.704,
+      "evidence": "artifacts/batch31/python-all.log"
+    }
+  },
+  "guiContracts": {
+    "tests": 38,
+    "exitCode": 0,
+    "scope": "byte fixtures only, including both Push/UTF8 positive inputs and rejection/dispatch/independent outcome checks",
+    "reproducedFailure": {
+      "exitCode": 1,
+      "tests": 9,
+      "errors": 1,
+      "stage": "R09 malformed iOS summary array caused AttributeError before result.json save",
+      "evidence": "artifacts/batch31/r09-malformed-before.log"
+    },
+    "repaired": "FAIL/IOS_RESULT_UNAVAILABLE recorded; owned Simulator cleanup preserved"
+  },
+  "core": "p10-batch31-core.json",
+  "artifactInspection": "p10-batch31-artifact-inspection.json",
+  "iosCompatibility": "p10-batch31-ios-compatibility.json",
+  "preparedConsumers": "p10-batch31-prepared.json",
+  "checks": {
+    "progress": {
+      "exitCode": 0,
+      "evidence": "artifacts/batch31/check-progress.log"
+    },
+    "api": {
+      "exitCode": 0,
+      "evidence": "artifacts/batch31/check-api.log"
+    },
+    "manifest": {
+      "exitCode": 0,
+      "evidence": "artifacts/batch31/check-manifest.log"
+    },
+    "metadata": {
+      "exitCode": 0,
+      "evidence": "artifacts/batch31/check-metadata.log"
+    },
+    "staging": {
+      "exitCode": 0,
+      "evidence": "artifacts/batch31/check-staging.log"
+    },
+    "actionlint": {
+      "exitCode": 0,
+      "evidence": "artifacts/batch31/check-actionlint.log"
+    }
+  },
+  "newGuiBuilds": 0,
+  "newApks": 0,
+  "newPlayerExecutions": 0,
+  "newAvds": 0,
+  "newGuideAcknowledgements": 0,
+  "hub": {
+    "observedPreviousVersion": "3.22.6",
+    "observedAfterRestartVersion": "4.0.1",
+    "screen": "Unity Hub Software License Terms",
+    "termsAcceptedByAgent": false,
+    "explicitApproval": "PENDING",
+    "guiStatus": "NOT_RUN/DEFERRED_ENV",
+    "policy": "CUA Confirmation Required at Action time: Accepts a legally binding agreement"
+  },
+  "registration": [
+    {
+      "variant": "push",
+      "exitCode": 0,
+      "launchRequested": false
+    },
+    {
+      "variant": "utf8",
+      "exitCode": 0,
+      "launchRequested": false
+    }
+  ],
+  "adbObservation": {
+    "scope": "read-only port/executable inspection; no ADB client/device command",
+    "listeners": []
+  },
+  "strict": {
+    "invocations": 0,
+    "status": "DEFERRED_ENV",
+    "reason": "automatic batch Editor normal execution remains unverified; GUI blocked by new Hub terms"
+  },
+  "p10T01": "IN_PROGRESS/PARTIAL",
+  "p10T02": "IN_PROGRESS/PARTIAL; E1/E2 production changes NOT_RUN_PREREQUISITE",
+  "overallSdkStatus": "BLOCKED_INTERNAL (prior incomplete work preserved)",
+  "hosted": {
+    "status": "NOT_RUN",
+    "dispatches": 0
+  },
+  "secretAudit": {
+    "newRangeExitCode": 0,
+    "newFindings": 0,
+    "historyExitCode": 1,
+    "knownSourceHashMetadataFalsePositives": 2,
+    "noIgnoreOrHistoryRewrite": true
+  },
+  "preserved": "P05-T03 FAIL/ENV-STOREKIT-26 OPEN/18.6 intermittent risk/Provider13 WAITING_USER/self-hosted and Release unverified/old devices DB Demo caches and license"
+}

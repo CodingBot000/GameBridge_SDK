@@ -81,3 +81,8 @@ P05-T03 FAIL/ENV-STOREKIT-26 OPEN·18.6간헐 위험·Provider13 WAITING_USER·s
 코드/test가 모두 포함된 `a1cc004139193d175f6964cf11be7051f6e5b5f7`을 `2c8e7a7`에서 동일 handoff로 FFpush했고 local/remote 일치를 확인했다. 이후 변경은 결과 문서뿐이며 추가 CI/Unity/self-hosted/Release 실행0이다. 마지막 문서 커밋 후 동일 handoff FFpush와 HEAD/작업트리를 다시 조회한다. 최종 문서 커밋 SHA는 Git 이력과 최종 채팅에서 확인한다.
 
 현재 Android 회복/PII·Core·현재 source/선정 ABI·Python/Hosted는 PASS지만 Push/Lifecycle·R09·자동 batch/Strict는 미완료다. T01/T02 PARTIAL·전체 SDK BLOCKED_INTERNAL은 유지한다. 새 반복 E2E/SDK refactor를 시작하지 않은 채 위 재개 순서와 내부 미구현 작업을 다음 작업 기준으로 남긴다. 기존 실패 원본과 Demo/cache/AVD/DB/라이선스는 그대로 보존했다.
+
+
+## 배치31 후속
+
+[GUI Push/JNI 확장·현재 증거와 재개](p10-batch31-integrated.md). 새 명시 입력과 independent R09 결과 계약/음성 fixture를 구현했지만 Hub재시작 후4.0.1 새 법적 약관 동의 화면으로 실제 새GUI/APK/Player는미실행이다. 이 배치30의 단일AVD ACK 허용을 확대하지 않았다. iOS구매PII·CABI source동일 범위와 과거iOSPush의Registry변경 gap을 분리했다. T01/T02PARTIAL 및 과거실패/실Provider대기를 유지한다.

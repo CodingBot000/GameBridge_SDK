@@ -5,15 +5,15 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치30 Android 재현 안내 ACK 후 E2E PASS; 과거 FAIL 보존, T01/T02 PARTIAL)
-- 현재 Phase / Task: 배치31 A/B/C / GUI Push·JNI 명시 입력 계약 구현
+- 현재 Phase / Task: 배치31 F / GUI 입력 구현·독립 검증 완료, Hub 새약관 확인 대기 및 Git 인계
 - 마지막 갱신 시각: 2026-11-18 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 배치30 GUI APK c07a264 / 실제 Android PII E2E·Core6f813a7 PASS; Python187/49모듈 PASS. 이전 iOS d543556 PASS와 보호소스 diff0. Hosted 배치30 run44115202057/sourcea1cc004 SUCCESS (Unity/Release SKIPPED).
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 현재 환경 블로커: 원래batchIPC/Strict 미완료. Push 하네스는 자동batch빌드 경로만 지원하며 GUI receipt 입력 없음. R09용 새 UTF8 APK/설치 없는 전용AVD와 정상 UI 조작 조건 미확보. 현재 성공 AVD의 기존 설치 보존 gate를 우회하지 않는다. 과거ADB시작경고 영향 미확정.
-- 바로 다음 행동: Core/duplicate·API·ABI/source·Python187·보안점검과handoff FFpush 완료. Hosted run44115202057 SUCCESS 확인. 배치31 GUI Push/JNI 구현·음성 fixture→새GUI APK/각새소유AVD→조건별P10판정. 과거 결과와 새 실행을 분리한다.
-- 재개 행동: [배치30 현재결과·남은 조건](evidence/p10-batch30-integrated.md)를따른다. 과거FAIL/중단이력과현재성공을분리한다. 자동batch·Push/JNI/Strict·T01전체조건확인후에만T02제품변경진입.
+- 현재 환경 블로커: ENV-HUB-NEW-TERMS(Hub4.0.1 새 약관 동의의 행동시점 확인 대기); 실제 새GUI/APK/Player 미실행. 자동batch/Strict 미완료·현재iOSUnityPush Registry변경 영향 미검증. 현재5037listener0으로 과거PID 재사용 불가.
+- 바로 다음 행동: 모든code/test를인계하고Hosted false1회·결과문서/HEAD확인. 약관직접처리/명시허용후등록된두GUI project 실제빌드→각새AVD Push/JNI. T01/T02는PARTIAL이며제품refactor는보류.
+- 재개 행동: [배치31 현재결과·정확한경로/명령](evidence/p10-batch31-integrated.md)를따른다. 새약관을기존개발/AVD ACK허가로처리하지않는다.
 
 ## 집계
 
@@ -1814,3 +1814,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치31 F 블로커/수정前: R09의실패·누락계약최종검토에서iOS xcresult JSON이object아닌배열일때AttributeError로result.json판정저장이중단되는내부하네스결함을신규fixture로재현했다(9unit중error1/exit1, r09-malformed-before.log). 실제iOS test실행실패나약관동의가아니며소유Simulator shutdown은finally에서수행됐다. 잘못된summary형식을명시FAIL/정확code로기록하도록최소보강하고음성복구검증후,코드변경이있으므로전체Python을최종source에서재검증한다. 이전202PASS는그실행당시의결과로보존하며약관UI대기는계속pending이다.
 
 - 배치31 F R09 오류수정 검증/커밋 전: xcresult summary는JSONobject 및passed/failed/skipped integer를명시검증하며잘못된형식을IOS_RESULT_UNAVAILABLE/FAIL로저장하고소유기기shutdown을유지한다. 기존재현error1을보존했고GUI38unit PASS/skip0,전체Python203건/51모듈PASS/skip0(17.370초,code수정후재검증)로복구확인. 이전202건성공은수정전별도증거다. Core/Native shipping/ABI는변화없어반복하지않는다. Hub4.0.1새약관화면은읽기전용재확인에서도남아있고사용자직접동의/명시허용은아직없다. GUI컴파일/APK/각새AVD실행은보류하고독립검증·인계만진행,새terms회피/이전ACK확대/실Provider/Strict실행0. 전체code/test를이commit으로확정하고통합문서·scan/FF인계와Hosted false1회를수행한다.
+
+- 배치31 F 통합문서/커밋 전: A~F/최종보고11항목·source별JSON·이전배치30연결·USER_SETUP/FINAL_REPORT를갱신했다. GUI입력구현/fixture검증과실제미실행·새Hub약관동의대기를명확히분리했다. 공식CLI project등록2개각0/launch0,현재5037read-only listener0/ADB명령0도기록. 최종Python203/GUI38·Core/API/ABI/stagingPASS,새미형식summary오류재현/복구와과거iOSPush current-gap유지. 모든code/test commit완료,새range scan0/탐지0·기존history1/정확sourcehash오탐2보존. 명시stage scan·원장검사뒤handoff FFpush/vars정상0재확인/falseHosted1회만수행한다. 약관승인pending의존GUI단계는강행하지않는다.
+
+- 배치31 F stage검증/커밋 직전: 명시7개정제문서text/JSONparse·원장/diff PASS,실제staged blob scan0/탐지0. origin handoff0behind/3ahead·FFancestor확인. 키/서명/license/rawlog/DB/APK/Library/Temp/Xcode생성물·미추적Demo/cache는stage하지않았다. 이문서commit뒤전체이번range재scan/FFpush→코드source원격일치/vars0정상응답확인→release_validation=false Hosted단1회. 새Hub약관/실제GUI·Player pending을CI통과로대체하지않는다.

@@ -423,3 +423,12 @@ E2E의GUI입력은기본CLI실패fallback이아니다. Android는 `--gui-project
 현재 B30B GUI project는 artifacts/unity-android-mock.3JQWTU/GameBridgeGuiAndroidB30B로 idle, 두 시험 AVD/controller/Backend는 종료했고 디스크/DB/원본 증거를 보존했다. 최초 timeout과 환경 검증 오류도 보존한다. 코드/test를 변경하지 않은 iOS는 배치29 actual PASS와 보호 source diff0로 대조했고 새로운 실행으로 표시하지 않는다.
 
 배치30 원격 Hosted-only run44115202057/sourcea1cc004는 false 단1회 SUCCESS였다. Hosted4+basic만 성공, Unity/Release SKIPPED이므로 자동 batch/Strict·self-hosted·실Provider 조건을 해소하지 않는다. 결과 문서 이후 코드/test 변화0과 현재 미완료/재개 조건을 통합보고에 기록했다.
+
+
+### 배치31 새 Hub 약관과 GUI Push/JNI 재개
+
+[최신 구현·검증·재개 순서](evidence/p10-batch31-integrated.md). Hub3.22.6 파일선택 문제 후 정상 재시작에서 Hub4.0.1의 새 Unity Hub Software License Terms가 나타났다. CUA의 `Confirmation Required at Action time: Accepts a legally binding agreement` 규칙에 따라 에이전트는 동의하지 않았고 사용자 직접 확인·동의 또는 새 약관에 대한 명시 허용을 요청했다. 이전의 일반 개발 지시나 배치30 단일AVD ACK 허용을 새법적동의로 취급하지 않는다. 응답/직접처리 전에는 해당 GUI 단계만 보류한다. 계정/라이선스 파일/저장 설정을 조작해 우회하지 않는다.
+
+실제GUI/APK/Player는 아직 미실행이다. 두 소유 project는 공식 unity-cli projects add로 등록(exit0)됐으며 Hub에서 GameBridgeGuiAndroidB31Push 및 GameBridgeGuiAndroidB31Utf8를 검색할 수 있다. Editor는6000.5.8f1을 유지하고 nonce/receipt/147SDK·원본Builder·scenario/APK hash를 실제 빌드 후 확인한다. 현재5037listener0으로 과거PID를 재사용하지 말고 새기기 시험 전 동일SDK server/AVD PID·serial/양port를 실제 입증해야 한다. 기존 성공/실패AVD·설치app·DB를 덮지 않는다.
+
+신규 Push GUI/R09 harness 구현은 내부 완료했고 새iOSPush GUI/현재Player 영향 검증은 내부 후속/환경 작업이다. 이를 실Provider13건 인증 준비와 섞지 않는다. 새 AVD의 정상 전체화면 안내는 실제 관측 뒤 별도 허용을 받아야 한다. 기존 승인 범위를 확대하지 않는다. T01 전체 조건·현재iOSPush 및 자동Strict 조건을 확인한 후에만 T02 codec/decoder 제품 refactor에 진입한다.

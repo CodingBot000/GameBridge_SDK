@@ -1,5 +1,16 @@
 # GameBridge SDK 개발 보고서
 
+## 최신 인계 — 배치31 (2026-11-18)
+
+**GUI Push/JNI 입력 구현·fixture 검증 완료, 실제 GUI 빌드/Player는 NOT_RUN/DEFERRED_ENV. P10-T01/T02 PARTIAL·전체 SDK BLOCKED_INTERNAL 유지.** [배치31 통합결과·정확한 재개 지점·커밋](evidence/p10-batch31-integrated.md),[정제 검증](evidence/p10-batch31-verification.json)이 최신 기준이다.
+
+Push GUI preparer/strict receipt·기존 Backend/Proxy/DB 검사 연결과 R09 UTF8 GUI 전달·각 플랫폼 독립 결과/정확한 실패 저장을 구현했다. 최종 Python203/51모듈·GUI38 포함, CoreKotlin10/Swift12·managed418·duplicate 감지/복원·lifecycle100samples·API/wire/선정 ABI/staging147 PASS. malformed iOS summary의 새 음성 오류를 재현·수정한 뒤203건으로 복구했다. fixture 통과를 실제 JNI/Player 통과로 쓰지 않는다.
+
+Hub3.22.6 파일선택 실패 뒤 정상 재시작에서4.0.1 새 Software License Terms가 나타나 약관 동의를 보류하고 사용자 직접 처리/명시 허용을 요청했다. 새동의·우회·license조작·실제APK/AVD/ACK/Player 실행0. 공식 CLI로 두 소유 프로젝트 등록만 완료했고 source/nonce/hash를 보존했다. iOS구매PII/CABI 과거PASS와 source동일 범위는 유지하되, 과거iOSPush는Registry 변경이 있어 현재 검증으로 승계하지 않는다. Strict0, E1/E2 제품 refactor 진입0이다.
+
+GitHub handoff FF/Hosted false 단1회 결과는 후속 기록으로 갱신한다. P05FAIL/ENV26OPEN·18.6위험/Provider13WAIT·self-hosted/Release 미검증과 기존 Demo/cache/기기/DB/실패원본을 보존한다.
+
+
 ## 최신 인계 — 배치30 (2026-11-18)
 
 **Android LOCAL_MOCK E2E PASS, P10-T01/T02 PARTIAL. 전체 SDK 판정 BLOCKED_INTERNAL 유지.** [통합 결과·재개 지점·커밋](evidence/p10-batch30-integrated.md)과[정제검증](evidence/p10-batch30-verification.json)이 최신 기준이다. 아래 배치29 Android FAIL과 UI 입력 대기는 당시 이력으로 보존한다.

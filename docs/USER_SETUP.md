@@ -383,3 +383,12 @@ python3 harness/run-unity-editor-smoke.py --run-local --mode cli
 ```
 
 실제smokePASS후에만현재staging/source·기기소유조건을확인해미실행Android/iOS Unity Player를실행하고전체Strict를별도source/evidence로진행한다. A미복구상태에서는P10-T01PARTIAL/P10-T02제품진입보류다. 원격self-hosted등록/Release/실Provider호출은별도이며이도구가활성화하지않는다.
+
+
+### 배치28 — Hub GUI는 정상, 자동 batch는 미확인
+
+사용자가정상실행확인을위임해에이전트가새전용project를Hub에서열었고6000.5.8f1 Scene/Hierarchy/Inspector정상UI를확인했다. 검증용Editor는 `artifacts/unity-editor-smoke-w2bupii_/project` 경로로열린상태다. 기존사용자project는열지않았다.
+
+같은배치의앞선direct자동smoke1회는210초outertimeout124/검증2,receipt/marker부재였다. GUI정상과자동smoke/Player성공은다르므로T01PARTIAL/C1C2진입보류다. 이번추가자동smoke/Player반복은없다. [정제관측](evidence/p10-batch28-editor.json)에서Clientbundle버전과실제product버전·종료값미측정범위를구분했다.
+
+GUI상태바에는다른SDK의ADBserver인스턴스를Unity가종료했다는경고가있었다. 에이전트가ADB명령을보낸것은아니며대상과영향은미확정이다. 이후기기시험전에기존SDK/ADB process와전용serial/PID/양port소유를확인해야한다. 확인없이ADB전체재시작이나기존기기정리를하지않는다. 계정/라이선스파일조작도없다. 자동smoke환경복구확인→current Player→Strict→T01판정후에만C1/C2를구현한다.

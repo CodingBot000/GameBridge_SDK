@@ -3852,3 +3852,16 @@
 - 배치27 E 최종문서검증/커밋 직전: 원장/manifest/meta·두API/source baseline·정제JSON·diff검사PASS,CI이후제품/harness/test/workflow변경0. IPC JSON의124는direct실제Editor반환값이아닌outer timeout wrapper코드이고CLI6은실제CLI반환값임을명시했다. 두경로Editor child 종료값은미수집/UNMEASURED로분리했다. 최종문서와정제증거만명시stage·secret/생성물검사후commit/FFpush하고실제HEAD일치및Git상태를보고한다. 새실행/승격/재dispatch없음.
 
 - 배치27 최종커밋 직전: staged8개는Markdown/정제JSON문서뿐,secret검사exit0/탐지0·binary/원본로그/서명/license/build산출물없음. CI이후소스변경0,원장/두APIbaseline/diffPASS. 마지막문서commit후전체batchrange scan·handoff FFpush와remoteHEAD일치를검증하고,기존미추적Demo/cache만보존된Git상태를최종보고한다.
+
+- [P10-T01] 배치28 A 시작: 지시문·AGENTS/START_HERE·마지막원장/로그·branch/HEAD3955e4e/기존미추적3경로를확인했다. 문서의사용자Editor정상실행확인에대해사용자가“네가 정상실행 확인해줄수있나?”로확인을위임했다. 새전용project direct실제smoke1회로receipt/marker/exit를판정한다. 단순CLIactive는PASS아님. 실패시Player강행/반복없음;T01완료시에만C1/C2순차변경. 버전조회/실행/결과기록후독립검증과명시FF인계까지진행한다.
+
+- 배치28 A 관측/독립D 시작: Hub3.22.6/CLI1.0.0-beta.13/Editor6000.5.8f1,HubClient1.18.3+d7ffd15를read-only확인했다. EditorClient bundle표시1.2.0과실제실행Client product version1.18.1+9fbee8e는서로다른metadata로분리한다. 새direct smoke1회진행중IPCtimeout/receipt부재관측,최종결과대기. 이대기동안실제Editor·라이선스·사용자기기를조작하지않는D전체Python/API/staging검사를독립수행한다. B/C제품진입조건은아직미충족이다.
+
+- 배치28 D 독립검증: Python전체149건PASS/skip0(15.830초). 원장64행·manifest50·meta·두API/source/wire baseline·staging147·actionlint·diff exit0. 실제Editor는IPCtimeout/receipt미생성상태로아직verdict대기이며unitPASS를EditorPASS로바꾸지않는다. 제품/하네스/테스트/workflow변경0,미커밋은배치시작/검증문서뿐이다.
+
+- 배치28 A 최종검증/블로커: 위임된direct smoke1회는210초timeout/진단wrapper124·검증exit2(DEFERRED_ENV),receiptCorrelated=false/marker0/compile오류0. 실제Editor child종료반환값은미수집UNMEASURED로구분한다. 이번실행이시작한Client PID로그만read-only대조해mutex획득실패를확인했고productversion1.18.1+9fbee8e이다. 원본artifacts/unity-editor-smoke-w2bupii_와정제JSON보존,라이선스/계정/기존프로세스조작없음. B현재Player/R09플랫폼영향NOT_RUN·fullStrict0/DEFERRED_ENV,T01PARTIAL유지. C1/C2제품진입은선행미충족으로미실행이다. D독립Core/Native/자가시험·E문서/FF인계를계속하며동일Editor재실행없음.
+
+- 배치28 위임된Hub일반실행확인: CUA로Hub3.22.6의새전용artifact project만Add project from disk→해당project(6000.5.8f1)열기를1회수행했다. 실제Unity6000.5.8f1창/Scene·Hierarchy(Main Camera/Directional Light)·Project·Inspector정상UI를확인(PASS_UI_SCOPE)했고CUA결과확정후completion기록했다. 기존사용자project/계정/Cloud연결/라이선스설정변경없음;검증용GUIEditor는열린상태로보존한다. 앞선direct batchtimeout은삭제하지않고A자동receipt조건미충족으로B/Strict/C진입보류유지,추가자동smoke0회.
+- 배치28 실제관측부작용: 새GUIEditor상태바에Multiple ADB server instances 및다른SDK인스턴스종료경고가표시됐다. 에이전트가ADB kill/restart/설치·네트워크명령을호출하지않았으나Unity시작의자동동작관측이므로ADB상태완전불변이라고주장하지않는다. 대상SDK/프로세스/기기영향은미확정이며확인없이추가ADB조작하지않는다. 사용자에게commentary로알렸고정제JSON에분리기록했다.
+
+- 배치28 A/D 커밋 직전: 실제direct1회실패와HubGUI1회정상UI를서로다른scope로공개정제기록했다. 자동receipt/B/Strict/C조건미충족·실제ADB시작경고미확정도유지한다. Python149·문서/두API/staging/actionlint/diff통과,제품코드변경0. 이관측/설정인계를별도commit후고정source독립Core·Native·자가시험을검증한다. 원본화면/개인project목록/원시log/라이선스는commit하지않는다.

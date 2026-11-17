@@ -3957,3 +3957,5 @@
 - 배치30 C/E 독립입력계약검증: framework android/SystemUI의고정Viewingfullscreen·정확히1개enabled Gotit·유효bounds만선택하는순수함수와음성4건PASS를추가했다. 다른app·권한prompt·중복/disabled/badgeometry는거부한다. 이코드는좌표식별만하며실제UI입력0,사용자응답전ACK를하지않는다. 변경하네스관련전체Python을검증하되조건미충족Push/JNI/CoreNative全/self9/Strict/제품refactor는아직미실행으로유지한다.
 
 - 배치30 E 독립최종회귀: 변경harness관련전체Python185건/49모듈PASS/skip0(16.813초),startup10·정상안내선택4음성/정상unit포함. API/source/wire·staging147·manifest/meta·progress/actionlint/diffPASS. 현재UIACK방식응답대기로추가E2E/Push/JNI/CoreNative/Strict는NOT_RUN·T01/T02PARTIAL유지. C첫실패는마지막확인Nativeengine/graphics+PID/Activity와최초미확인Scene/Awake/Start로분리했고UI안내ACK/인과회복검증은미실행이다. 독립순수selector는좌표만식별해실제입력0이며CI에연결했다.
+
+- 배치30 UI입력대기 체크포인트: 독립Python185·compile-only/API/staging검증은완료했으나정상OS안내ACK방식사용자응답전실제UI입력/추가C실행을하지않는다. 과거첫진단AVD는종료/원본보존,현재B30A GUI는idle. docs/evidence/p10-batch30-ui-handoff.md에사실/마지막확인단계/미측정/응답후최대1추가재검증과D/E순서를기록했다. 향후조건부코드변경이남아전체code/test최종commit후1회원격CI/push는아직시작하지않았다. 배치완료선언/사용자요청pause로오표기하지않는다.

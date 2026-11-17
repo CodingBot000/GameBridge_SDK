@@ -36,8 +36,15 @@ class AndroidStartupDiagnosticsTests(unittest.TestCase):
     def test_only_observed_known_systemui_guide_is_reported(self):
         xml='<hierarchy><node package="com.android.systemui" text="Viewing full screen"/><node package="com.android.systemui" text="Got it"/></hierarchy>'
         self.assertTrue(self.sample(ui=xml)['knownFullscreenGuideObserved'])
+        self.assertTrue(self.sample(ui=xml.replace('com.android.systemui','android'))['knownFullscreenGuideObserved'])
         self.assertEqual(self.sample()['knownFullscreenGuideObserved'],'UNMEASURED')
         self.assertFalse(self.sample(ui=xml.replace('com.android.systemui',PACKAGE))['knownFullscreenGuideObserved'])
+
+    def test_absent_focus_fields_are_unmeasured_not_observed_unfocused(self):
+        value=analyze('APP_CMD_LOST_FOCUS','123','no activity fields','no focus fields','',None,PACKAGE)
+        self.assertEqual(value['activityResumedObserved'],'UNMEASURED')
+        self.assertEqual(value['appWindowFocusObserved'],'UNMEASURED')
+        self.assertTrue(value['unityWindowFocusLostObserved'])
 
     def test_public_analysis_does_not_export_raw_configuration_or_credentials(self):
         raw='private-token-123\nGB_BOOT point=intent_checked urlPresent=1 keyPresent=1 keyValid=1 t=1\nGB_BOOT point=unknown_secret t=2'

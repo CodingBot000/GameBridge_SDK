@@ -25,7 +25,7 @@ def analyze(logcat, pid_text, activity, windows, exit_info, ui_xml, package):
     if ui_xml is not None:
         try:
             nodes=list(ET.fromstring(ui_xml).iter('node'))
-            texts={n.get('text','') for n in nodes if n.get('package')=='com.android.systemui'}
+            texts={n.get('text','') for n in nodes if n.get('package') in ('android','com.android.systemui')}
             known_guide='Viewing full screen' in texts and 'Got it' in texts
         except ET.ParseError: pass
     log_lines=logcat.splitlines()
@@ -42,7 +42,9 @@ def analyze(logcat, pid_text, activity, windows, exit_info, ui_xml, package):
     return dict(appPids=pids, pidObservation='PRESENT' if pids else 'ABSENT', bootPoints=distinct,
         lastBusinessPoint=business[-1] if business else 'UNMEASURED',
         unityEngineInitializationObserved='Initialize engine version:' in logcat,
-        activityResumedObserved=resumed, appWindowFocusObserved=focused,
+        activityResumedObserved=resumed if re.search(r'mResumedActivity|topResumedActivity',activity) else 'UNMEASURED',
+        appWindowFocusObserved=focused if 'mCurrentFocus' in windows else 'UNMEASURED',
+        unityWindowFocusLostObserved='APP_CMD_LOST_FOCUS' in logcat,
         knownFullscreenGuideObserved=known_guide, appCrashObserved=package_crash,
         appAnrObserved=app_anr, activityManagerStartObserved=activity_start, activityManagerStopObserved=activity_stop, nativeLoadErrorCategories=native_load,
         nativeLoadAttribution='system log categories; not automatically attributed to this app',
@@ -87,7 +89,7 @@ class Collector:
         if pid_status not in (0,1) or (pid_status==0 and not re.fullmatch(r'\s*\d+(?:\s+\d+)*\s*',pid.stdout)):
             raise DiagnosticsUnavailable('package PID query unavailable or malformed')
         activity=self.command(['shell','dumpsys','activity','activities'])
-        windows=self.command(['shell','dumpsys','window','windows'])
+        windows=self.command(['shell','dumpsys','window'])
         exits=self.command(['shell','dumpsys','activity','exit-info',self.package])
         for label,result in [('pid',pid),('activity',activity),('window',windows),('exit-info',exits)]:
             self.save(prefix+'-'+label+'.log',result.stdout)

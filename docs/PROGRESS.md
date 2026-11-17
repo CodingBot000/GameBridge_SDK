@@ -5,15 +5,15 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치29 재개 진행; GUI 양플랫폼 빌드·iOS E2E PASS,Android timeout FAIL,T01/T02 PARTIAL)
-- 현재 Phase / Task: 배치29 재개 / iOS GUI export 실제 검증
+- 현재 Phase / Task: 배치29 E / 최종 검증·비밀정보 점검·Hosted-only 및 handoff 인계
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: GUI probe dcc0b4c / Android APK7263444 / Android E2E timeout7520cbc / Native 후보 tests b1e3c73(신규test source hash 별도기록). iOS 실제 검증 NOT_RUN.
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — HubGUI 정상이나direct210초/outer124·receipt없음. Player NOT_RUN/Strict0·DEFERRED_ENV,DEP-P10-T01로C1/C2보류. ENV-UNITY-ADB-STARTUP의대상/영향미확정.
-- 바로 다음 행동: 사용자 재개 지시 전 실행/push/CI 없음. 재개 후 [배치29 재개 체크포인트](evidence/p10-batch29-resume.md)의 Git/GUI/staging 확인→새 iOS GUI 소비 project 준비→실제 export 판정 순서로 진행한다.
-- 재개 행동: [배치29 재개 문서](evidence/p10-batch29-resume.md)·WORK_LOG 마지막·AGENTS/START_HERE를읽는다. Android GUI79170은idle,ownedAVD80979는종료/데이터보존. PID/AX index 재사용금지. 원인미확정timeout을PASS로재작성하지않는다.
+- 바로 다음 행동: 모든코드/test/증거commit→범위secret/생성물/PII·FF확인→handoff push→비활성변수확인후falseHosted1회. Androidtimeout/Strict미실행·T01/T02PARTIAL을유지한다.
+- 재개 행동: [배치29 현재결과](evidence/p10-batch29-integrated.md)를기준으로진행한다. 중단체크포인트는과거이력이며사용자재개로해제됐고,iOS GUIexport/실제Player는새증거로PASS다. Android실패를덮어쓰지않는다.
 
 ## 집계
 
@@ -1726,3 +1726,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치29 E 영향하네스최종회귀: 코드변경이있어전체Python을최종1회수행,169건PASS/skip0(18.793초). 이번에전체Native·self9/Strict를관성재실행하지않았고이전증거와구분한다. 원장/manifest/meta/API-source-wire/actionlint/diffPASS. T01은AndroidFAIL/나머지미실행조건때문에PARTIAL이며T02제품refactor진입없음,독립신규tests만PASS다.
 
 - 배치29 E 입력경계검토·검증: GUI용ADBguard dispatch가configured client의basename만검사하면renamed실행파일로빠질수있는경로를발견해configured실제path도검사하도록보강했다. subprocess전거부unit추가. PII주scenario뿐아니라보조PiiProbe/link.xml의현재checkout일치도양GUI입력에서검사하고변이음성추가. 실제두소비project보조소스일치확인,GUI22단위PASS/skip0. 실제실행은원래동일SDK의adb·원래보조소스였으므로이두보강으로플랫폼E2E를반복하지않는다. SDK제품/기존검사약화없음. 변경된harness최종전체Python을다시검증한다(이전169PASS도보존).
+
+- 배치29 E 현재결과/커밋 전: A GUI컴파일메서드·AndroidAPK·iOSexport와실제iOSPlayer는PASS,AndroidPlayer는timeoutFAIL로보존,StrictNOT_RUN·T01/T02PARTIAL. 후보제품변경0/신규test3+2는18/20class에서PASS,GUI22/전체Python171 PASS와이전169PASS를분리했다. API/source/wire·manifest/meta/actionlint/diffPASS. source별정제JSON/인계문서를갱신했다. 원격repo public/변수0/runner0/behind0 ahead9 확인,전체이력scan실제exit1의2finding은정확한b1e3c73 test-sourceSHA metadata와재계산일치(신규finding0)로review,원래이력삭제/ignore없음. 문서commit후명시handoffFFpush/falseHosted1회만수행한다.

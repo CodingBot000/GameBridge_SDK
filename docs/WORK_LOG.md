@@ -3920,3 +3920,5 @@
 - 배치29 E 영향하네스최종회귀: 코드변경이있어전체Python을최종1회수행,169건PASS/skip0(18.793초). 이번에전체Native·self9/Strict를관성재실행하지않았고이전증거와구분한다. 원장/manifest/meta/API-source-wire/actionlint/diffPASS. T01은AndroidFAIL/나머지미실행조건때문에PARTIAL이며T02제품refactor진입없음,독립신규tests만PASS다.
 
 - 배치29 E 입력경계검토·검증: GUI용ADBguard dispatch가configured client의basename만검사하면renamed실행파일로빠질수있는경로를발견해configured실제path도검사하도록보강했다. subprocess전거부unit추가. PII주scenario뿐아니라보조PiiProbe/link.xml의현재checkout일치도양GUI입력에서검사하고변이음성추가. 실제두소비project보조소스일치확인,GUI22단위PASS/skip0. 실제실행은원래동일SDK의adb·원래보조소스였으므로이두보강으로플랫폼E2E를반복하지않는다. SDK제품/기존검사약화없음. 변경된harness최종전체Python을다시검증한다(이전169PASS도보존).
+
+- 배치29 E 현재결과/커밋 전: A GUI컴파일메서드·AndroidAPK·iOSexport와실제iOSPlayer는PASS,AndroidPlayer는timeoutFAIL로보존,StrictNOT_RUN·T01/T02PARTIAL. 후보제품변경0/신규test3+2는18/20class에서PASS,GUI22/전체Python171 PASS와이전169PASS를분리했다. API/source/wire·manifest/meta/actionlint/diffPASS. source별정제JSON/인계문서를갱신했다. 원격repo public/변수0/runner0/behind0 ahead9 확인,전체이력scan실제exit1의2finding은정확한b1e3c73 test-sourceSHA metadata와재계산일치(신규finding0)로review,원래이력삭제/ignore없음. 문서commit후명시handoffFFpush/falseHosted1회만수행한다.

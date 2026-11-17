@@ -1,0 +1,210 @@
+{
+  "scope": "Batch29 GUI build paths, independent candidate tests and affected harness regressions",
+  "guiProbe": {
+    "status": "PASS",
+    "scope": "GUI Editor compiled method and engine probe",
+    "tests": 0,
+    "checks": 1,
+    "engineChecksExecuted": 7,
+    "players": 0,
+    "batchAutomation": "NOT_RUN",
+    "sourceHead": "dcc0b4cabaaf8dba463fe42276f64c00042876cb",
+    "runId": "7bbe2cf1b06d4612be219d88ac488fb2",
+    "project": "artifacts/unity-editor-smoke-w2bupii_/project",
+    "unityVersion": "6000.5.8f1",
+    "editorPid": 68110,
+    "method": "GameBridgeGuiVerification.RunProbe",
+    "assemblyName": "Assembly-CSharp-Editor",
+    "scriptSha256": "667c735f9257e57a181f100f0b048de564ae9b7354d762f25d130d738b41ba4e",
+    "engineObjectCreated": true,
+    "engineObjectDestroyed": true,
+    "startedUtc": "2026-11-17T11:23:50.1170970Z",
+    "finishedUtc": "2026-11-17T11:23:50.1197210Z",
+    "freshLogMarkerCount": 1,
+    "firstAttempt": "CS0619 compile failure, preserved; no method executed",
+    "correctionAttempts": 1
+  },
+  "androidBuild": {
+    "status": "PASS",
+    "operation": "android",
+    "runId": "85e0d5036b344ac7b90ef95da9cb035f",
+    "sourceHead": "7263444dbf2262e7eae1539616ae7b0946d8cec9",
+    "unityVersion": "6000.5.8f1",
+    "scriptSha256": "ef9f616d6e92493506f3f0ec750cd262198d3371ba4cc51dbde87787e974c7fd",
+    "adapterSha256": "f87264014091dba31657e0838920dfb371abbebfbbeb85f768e3f64f4e2d317c",
+    "buildScriptSha256": "74ffcb582f31ac7ac7b8ea74d0f0bcd99ca3b10aab9502fe0e0230215c264d85",
+    "scenarioSha256": "ed4a3f01eb05b717270d766c6732b58e6f9283e59b7c091027cd459c76ce7d1a",
+    "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+    "variant": "pii",
+    "method": "GuiAndroidBuild.Build",
+    "startedUtc": "2026-11-17T11:37:38.4732270Z",
+    "finishedUtc": "2026-11-17T11:38:33.7508390Z",
+    "artifactSize": 27072192,
+    "artifactSha256": "dd09b532c842ee60116e57785e5b7add25f40a7f7d0deab486872e16c4b628e4",
+    "editorPid": 79170,
+    "packageFilesVerified": 147,
+    "isBatchMode": false,
+    "originalBuilderReturned": true,
+    "scope": "Actual GUI Android BuildPipeline APK; Player not yet run",
+    "project": "artifacts/unity-android-mock.34sD3a/GameBridgeGuiAndroidB29",
+    "apk": "artifacts/unity-android-mock.34sD3a/gamebridge-gui-mock.apk",
+    "tests": 0,
+    "checks": 1,
+    "players": 0,
+    "batchAutomation": "NOT_RUN"
+  },
+  "androidE2E": {
+    "status": "FAIL",
+    "errorCode": "UNITY_PLAYER_RESULT_TIMEOUT",
+    "sourceHead": "7520cbc27d9cfb9e04e98d5fd36ebb74328fba72",
+    "sourceTrackedDirty": false,
+    "unityPlayer": "LAUNCHED_PENDING",
+    "unityBuildMode": "GUI_EXPLICIT_RECEIPT",
+    "guiBuildSourceHead": "7263444dbf2262e7eae1539616ae7b0946d8cec9",
+    "guiBuildRunId": "85e0d5036b344ac7b90ef95da9cb035f",
+    "unityApkSha256": "dd09b532c842ee60116e57785e5b7add25f40a7f7d0deab486872e16c4b628e4",
+    "emulatorAvd": "GameBridge_V2_B29_GUI_PII_20261117_85e0",
+    "emulatorSerial": "emulator-5590",
+    "emulatorPid": 80979,
+    "adbServerPid": 79436,
+    "scope": "Actual Android GUI APK installation/launch followed by Player marker timeout; not PASS",
+    "evidence": "artifacts/unity-android-e2e-eb3lua0b/result.json",
+    "ownedEmulatorStopped": true,
+    "retainsAvdDatabaseLogs": true,
+    "uiCause": "UNCONFIRMED; Qt emulator not exposed as a CUA app",
+    "freshDatabaseCounts": {
+      "users": 0,
+      "sessions": 0,
+      "purchases": 0,
+      "walletLedger": 0
+    },
+    "adbServerStoppedOrRestartedByAgent": false
+  },
+  "iosExport": {
+    "status": "PASS",
+    "operation": "ios",
+    "runId": "b0626c0dfa914789b0fe2eee01d2a3af",
+    "sourceHead": "953a5a5535ceb1698ec8ea84a0a1a8b3c2d73b9e",
+    "unityVersion": "6000.5.8f1",
+    "scriptSha256": "ef9f616d6e92493506f3f0ec750cd262198d3371ba4cc51dbde87787e974c7fd",
+    "adapterSha256": "9842f964650a254291c7b969bbfbbe2f22ef3bb1321617185fa3beefaee7399e",
+    "buildScriptSha256": "1c1854232990c61a63a127e3235e83daa88a68b34c8f87500ce2fe37ff1cd2c2",
+    "scenarioSha256": "7fb83b547c4a825f055880bc6bc04c8887a1a1dad259ff372d2698b74820a0f7",
+    "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+    "variant": "pii",
+    "method": "GuiIosExport.Export",
+    "startedUtc": "2026-11-17T13:30:26.9751900Z",
+    "finishedUtc": "2026-11-17T13:30:45.2701300Z",
+    "editorPid": 85323,
+    "packageFilesVerified": 147,
+    "artifactFileCount": 3076,
+    "artifactSha256": "fd7c2c6bd7f800d6a13fb9cdf6317f430e5ffc9f86aa812eb1ac702bb24e5a85",
+    "pbxprojSha256": "69255fbd3b0a887bd9fbd1ffbbdf358ac5662509b290310055beebc0e728d7a0",
+    "isBatchMode": false,
+    "originalBuilderReturned": true,
+    "scope": "Actual GUI Unity iOS Simulator Xcode export; app build/run not yet verified",
+    "project": "artifacts/unity-ios-mock.1j6lHu/GameBridgeGuiIosB29",
+    "export": "artifacts/unity-ios-mock.1j6lHu/xcode-gui",
+    "tests": 0,
+    "checks": 1,
+    "players": 0,
+    "batchAutomation": "NOT_RUN"
+  },
+  "iosE2E": {
+    "status": "PASS",
+    "scope": "Unity iOS Simulator -> Swift C ABI -> LOCAL_MOCK Backend/PostgreSQL",
+    "sourceHead": "d543556580f72142507c57f57537891fb7d1c1e7",
+    "sourceTrackedDirty": false,
+    "unityPlayer": "PASS",
+    "signing": "local-ad-hoc",
+    "unityBinarySha256": "7302ec7281a4a04857e082b0bbd966ee040b38509c14ca09d9c91c6963a8bea5",
+    "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+    "guiBuildSourceHead": "953a5a5535ceb1698ec8ea84a0a1a8b3c2d73b9e",
+    "guiBuildRunId": "b0626c0dfa914789b0fe2eee01d2a3af",
+    "unityBuildMode": "GUI_EXPLICIT_EXPORT",
+    "embeddedCachedPackages": {
+      "com.unity.mobile.notifications": "2.5.0",
+      "com.unity.nuget.newtonsoft-json": "3.2.2"
+    },
+    "piiProbe": true,
+    "unityMarkerCount": 24,
+    "backendTraceCounts": {
+      "mock-auth": 1,
+      "catalog": 1,
+      "entitlements": 2,
+      "verify": 1,
+      "logout": 1
+    },
+    "ledgerCount": 1,
+    "ledgerDelta": 100,
+    "realAppleLogin": "NOT_RUN",
+    "realStorePurchase": "NOT_RUN",
+    "evidence": "artifacts/unity-ios-e2e-c4qqwuvs/result.json",
+    "ownSimulator": {
+      "uuid": "8D737ECF-CD32-4069-A64D-30D3D5176210",
+      "state": "Shutdown",
+      "dataRetained": true,
+      "shutdownExitCode": 0
+    },
+    "tests": 0,
+    "checks": 1,
+    "players": 1,
+    "batchStrict": "NOT_RUN"
+  },
+  "candidateTests": {
+    "scope": "Independent P10-T02 candidate contract tests; production refactors NOT_RUN",
+    "kotlin": {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "newTests": 3,
+      "priorConfigFailure": "SDK location missing; tests 0; preserved; explicit subprocess ANDROID_HOME fixed"
+    },
+    "swift": {
+      "tests": 20,
+      "failures": 0,
+      "skipped": 0,
+      "newTests": 2
+    },
+    "testSourceHashes": [
+      {
+        "path": "android/sdk-android/src/test/kotlin/com/gamebridge/android/auth/GoogleAuthProviderTest.kt",
+        "sha256": "ca2894387bc2a5460bb0b879ffebd4c172d038a2414785925a5b60c2d7e1051d"
+      },
+      {
+        "path": "ios/Tests/GameBridgeCoreTests/AppleAuthProviderTests.swift",
+        "sha256": "c5dd7001078fcbcced61074557667f95a63ed3686d17a9294a4079dffada0764"
+      }
+    ],
+    "platformProviderCalls": "NOT_RUN",
+    "finishPolicyChanged": false
+  },
+  "python": {
+    "tests": 171,
+    "modules": 47,
+    "failures": 0,
+    "skipped": 0,
+    "evidence": "artifacts/batch29/python-final-hardened.log",
+    "priorBeforeHardening": {
+      "tests": 169,
+      "status": "PASS",
+      "evidence": "artifacts/batch29/python-final.log"
+    }
+  },
+  "fullNativeRegression": "NOT_RUN_THIS_BATCH; selected auth classes 18/20 executed",
+  "selfCheck9": "NOT_RUN_THIS_BATCH",
+  "coreManaged418": "PRIOR_EVIDENCE_ONLY; same shipping source, not newly executed",
+  "fullStrict": {
+    "status": "NOT_RUN",
+    "reason": "batch path unresolved; current Android E2E failed; not replaced by GUI success"
+  },
+  "productRefactors": {
+    "C1": "NOT_RUN_PREREQUISITE; independent contract tests implemented",
+    "C2": "NOT_RUN_PREREQUISITE; independent contract tests implemented"
+  },
+  "hosted": {
+    "status": "NOT_RUN",
+    "dispatches": 0
+  }
+}

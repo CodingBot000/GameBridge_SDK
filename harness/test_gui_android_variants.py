@@ -72,6 +72,24 @@ class AndroidVariantTests(unittest.TestCase):
                 context=patch.object(gui.subprocess,'run',side_effect=result) if kind in ('ancestor','protected') else contextlib.nullcontext()
                 with context,self.assertRaises(ValueError):gui.load_android_build(p,r,s,'b'*40,'push')
 
+    def test_valid_push_gui_reaches_backend_without_any_batch_build(self):
+        spec=importlib.util.spec_from_file_location('push_gui_valid',REAL_ROOT/'harness/run-unity-android-mock-push-e2e.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'artifacts').mkdir();stage=root/'stage';stage.mkdir();apk=root/'fixture.apk';apk.write_bytes(b'fixture')
+            calls=[]
+            def command(parts,*a,**kw):
+                calls.append(parts)
+                if parts[:3]==['git','rev-parse','HEAD']:return 'b'*40
+                if parts[:2]==['git','status']:return ''
+                if parts[0]=='backend/gradlew':raise m.common.GateError('STOP_AT_BACKEND')
+                if str(parts[0])=='bash':raise AssertionError('implicit batch fallback')
+                return 'fixture'
+            argv=['push','--run-local','--staging',str(stage),'--serial','emulator-5596','--expected-avd','GameBridge_V2_unit','--expected-emulator-pid','42','--expected-adb-server-pid','43','--gui-project',str(root/'project'),'--gui-build-receipt',str(root/'receipt.json')]
+            proof=dict(apk=apk,receipt={'sourceHead':'b'*40,'runId':'a'*32},logSegment='original fixture',embeddedCachedPackages={})
+            with patch.object(m,'ROOT',root),patch('sys.argv',argv),patch.object(m.common,'must',side_effect=command),patch.object(m.common,'verify_staged_source_matches_checkout'),patch.object(m.common,'load_android_build',return_value=proof) as loaded,patch.object(m.common,'locate_adb',return_value='/unity/adb'),patch.object(m.common,'wait_for_dedicated_device',return_value=('emulator-5596','GameBridge_V2_unit')),patch.object(m,'inspect_binding',return_value={'pid':42,'portsOwned':True}),patch.object(m.common,'sha256',return_value='c'*64),contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(m.main(),1);self.assertEqual(loaded.call_args.args[-1],'push')
+            result=json.loads(next((root/'artifacts').glob('*/result.json')).read_text());self.assertEqual(result['unityBuildMode'],'GUI_EXPLICIT_RECEIPT');self.assertEqual(result['errorCode'],'STOP_AT_BACKEND');self.assertTrue(any(x[0]=='backend/gradlew' for x in calls));self.assertIsNone(m.common._GUI_ADB_GUARD)
+
     def test_invalid_push_gui_input_stops_before_adb_backend_or_batch(self):
         spec=importlib.util.spec_from_file_location('push_gui_gate',REAL_ROOT/'harness/run-unity-android-mock-push-e2e.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
         with tempfile.TemporaryDirectory() as tmp:

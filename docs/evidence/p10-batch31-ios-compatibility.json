@@ -1,0 +1,34 @@
+[
+  {
+    "scope": "ios-purchase-pii",
+    "comparisonHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+    "priorSourceHead": "d543556580f72142507c57f57537891fb7d1c1e7",
+    "priorEvidence": "artifacts/unity-ios-e2e-c4qqwuvs/result.json",
+    "sourceDelta": [],
+    "currentExecution": "NOT_RUN",
+    "status": "SOURCE_UNCHANGED_PRIOR_SCOPE_RETAINED",
+    "limitation": "prior result retained; never relabelled as a new Player execution"
+  },
+  {
+    "scope": "ios-native-cabi-r09",
+    "comparisonHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+    "priorSourceHead": "d86ccc23ceb14dc6a81d93c2317de0c78f5d708e",
+    "priorEvidence": "artifacts/batch26/r09-ios-independent/summary.json",
+    "sourceDelta": [],
+    "currentExecution": "NOT_RUN",
+    "status": "SOURCE_UNCHANGED_PRIOR_SCOPE_RETAINED",
+    "limitation": "prior result retained; never relabelled as a new Player execution"
+  },
+  {
+    "scope": "ios-unity-push",
+    "comparisonHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+    "priorSourceHead": "e46cb6520272334d9816d951274b91bd39133b9b",
+    "priorEvidence": "artifacts/unity-ios-push-vqc2s1vc/result.json",
+    "sourceDelta": [
+      "unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs"
+    ],
+    "currentExecution": "NOT_RUN",
+    "status": "CURRENT_IMPACT_NOT_VALIDATED",
+    "limitation": "prior result retained; never relabelled as a new Player execution"
+  }
+]

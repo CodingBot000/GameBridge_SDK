@@ -60,7 +60,8 @@ def run_ios(out):
         data=json.loads(report.stdout);(out/'ios-summary.json').write_text(json.dumps(data,indent=2)+'\n')
         if report.returncode or data.get('passedTests')!=1 or data.get('failedTests')!=0 or data.get('skippedTests')!=0:result.update(errorCode='IOS_TEST_COUNT_INVALID');return result
         result.update(status='PASS',exitCode=0,tests=1,failures=0,skipped=0,evidence=str(bundle.relative_to(ROOT)));return result
-    except (OSError,ValueError):result.update(errorCode='IOS_RESULT_UNAVAILABLE');return result
+    except OSError:result.update(status='DEFERRED_ENV',exitCode=2,errorCode='IOS_COMMAND_UNAVAILABLE');return result
+    except ValueError:result.update(errorCode='IOS_RESULT_UNAVAILABLE');return result
     finally:
         if device:
             # Only the new Simulator created by this invocation; never erase/delete.

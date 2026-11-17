@@ -27,6 +27,10 @@ ROOT = Path(__file__).resolve().parent.parent
 _redaction_spec = importlib.util.spec_from_file_location('local_mock_redaction', ROOT/'harness/local_mock_redaction.py')
 _redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.loader.exec_module(_redaction)
 
+_gui_spec = importlib.util.spec_from_file_location('gui_contract', ROOT/'harness/gui_verification.py')
+_gui = importlib.util.module_from_spec(_gui_spec); _gui_spec.loader.exec_module(_gui)
+load_android_build = _gui.load_android_build
+
 PACKAGE = "com.gamebridge.sdk.mockconsumer"
 STEPS = ("initialize", "login", "products", "purchase", "wallet", "logout")
 HTTP_OPS = ("mock-auth", "catalog", "entitlements", "verify", "logout")
@@ -262,9 +266,13 @@ def main():
     parser.add_argument("--utf8-probe", action="store_true", help="Use test-only JNI UTF-8 round-trip consumer")
     parser.add_argument("--native-demo-probe", action="store_true", help="Use test-only staged Native Demo consumer")
     parser.add_argument("--pii-probe", action="store_true", help="Use synthetic personal-data callback consumer")
+    parser.add_argument("--gui-project", type=Path, help="Explicit owned GUI consumer; requires matching GUI build receipt")
+    parser.add_argument("--gui-build-receipt", type=Path, help="Actual GUI build result; never a fallback for a failed CLI build")
     parser.add_argument("--timeout-seconds", type=int, default=180)
     args = parser.parse_args()
     if sum((args.utf8_probe, args.native_demo_probe, args.pii_probe)) > 1: parser.error("choose one specialized probe")
+    if bool(args.gui_project) != bool(args.gui_build_receipt): parser.error("GUI project and receipt must be supplied together")
+    if args.gui_project and args.native_demo_probe: parser.error("GUI Native Demo input is not supported")
 
     (ROOT / "artifacts").mkdir(exist_ok=True)
     output = Path(tempfile.mkdtemp(prefix="unity-android-e2e-", dir=ROOT / "artifacts"))
@@ -286,6 +294,14 @@ def main():
         must(["python3", "harness/check-staging.py", staging], "UPM_CHECKSUM_FAILED")
         verify_staged_source_matches_checkout(staging)
         summary["stagingManifestSha256"] = sha256(staging / "SHA256SUMS")
+        gui_input = None
+        if args.gui_project:
+            variant = "pii" if args.pii_probe else "utf8" if args.utf8_probe else "standard"
+            try:
+                gui_input = load_android_build(args.gui_project, args.gui_build_receipt, staging, source, variant)
+            except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+                raise GateError("GUI_BUILD_INPUT_INVALID") from error
+
         adb = locate_adb(args.adb)
         if adb is None:
             raise GateError("ADB_MISSING", "DEFERRED_ENV")
@@ -298,53 +314,65 @@ def main():
         summary["emulatorSerial"] = serial
 
         # Fail on missing Unity license/modules before touching PostgreSQL.
-        environment = os.environ.copy()
-        environment["GAMEBRIDGE_UPM_STAGING"] = str(staging)
-        prepared = must(["bash", "scripts/prepare-unity-android-mock.sh", "--prepare"],
-                        "UNITY_CONSUMER_PREPARE_FAILED", env=environment)
-        match = re.search(r"^Prepared consumer: (/.+)$", prepared, re.MULTILINE)
-        if not match:
-            raise GateError("UNITY_CONSUMER_PATH_MISSING")
-        project = Path(match.group(1))
-        if not project.is_dir() or not project.is_relative_to((ROOT / "artifacts").resolve()):
-            raise GateError("UNEXPECTED_UNITY_CONSUMER_PATH")
-        if args.package_cache:
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("ios_push_cache", ROOT / "harness/run-unity-ios-mock-push-e2e.py")
-            cache_module = importlib.util.module_from_spec(spec); spec.loader.exec_module(cache_module)
-            try:
-                summary["embeddedCachedPackages"] = cache_module.embed_cached_packages(args.package_cache.resolve(), project)
-            except cache_module.common.GateError as error:
-                raise GateError(str(error), error.category) from error
-        if args.utf8_probe:
-            shutil.copy2(ROOT / "tests/UnityAndroidUtf8Consumer/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
-        if args.pii_probe:
-            shutil.copy2(ROOT / "tests/UnityAndroidPiiConsumer/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
-            shutil.copy2(ROOT / "tests/UnityPiiProbe/PiiProbe.cs", project / "Assets/PiiProbe.cs")
-            shutil.copy2(ROOT / "tests/UnityLateCallbackPlayer/link.xml", project / "Assets/link.xml")
-            summary["piiProbe"] = True
-        if args.native_demo_probe:
-            editor = Path("/Applications/Unity/Hub/Editor") / os.environ.get("UNITY_EDITOR_VERSION", "6000.5.8f1") / "Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui"
-            try:
-                if json.loads((editor / "package.json").read_text()).get("version") != "2.5.0": raise ValueError()
-                shutil.copytree(editor, project / "Packages/com.unity.ugui", ignore=shutil.ignore_patterns("Tests", "Tests.meta"))
-            except (OSError, ValueError): raise GateError("UNITY_UGUI_REQUIRED", "DEFERRED_ENV")
-            (project / "Packages/manifest.json").write_text('{"dependencies":{"com.unity.ugui":"2.5.0"}}\n')
-            imported = run(["bash", "scripts/import-unity-samples.sh", project, output / "sample-import-markers.log"], timeout=360, env=environment)
-            (output / "sample-import.log").write_text(imported.stdout, encoding="utf-8")
-            if imported.returncode: raise GateError("SAMPLE_IMPORT_FAILED")
-            shutil.copy2(ROOT / "tests/UnityAndroidNativeDemo/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
-            summary["nativeDemoProbe"] = True; summary["sampleImport"] = "PASS"
-        apk = output / "gamebridge-mock-consumer.apk"
-        built = run(["bash", "scripts/build-unity-android-mock.sh", project, apk],
-                    timeout=1200, env=environment)
-        (output / "unity-build.log").write_text(built.stdout, encoding="utf-8")
-        if built.returncode:
-            if built.returncode == 2 and "DEFERRED_ENV" in built.stdout:
-                raise GateError("UNITY_LICENSE_OR_ANDROID_MODULE_REQUIRED", "DEFERRED_ENV")
-            raise GateError("UNITY_IMPORT_OR_ANDROID_BUILD_FAILED")
-        if not apk.is_file() or not apk.stat().st_size:
-            raise GateError("UNITY_APK_MISSING")
+        if gui_input is not None:
+            project = args.gui_project.resolve()
+            apk = gui_input["apk"]
+            proof = gui_input["receipt"]
+            (output / "unity-build.log").write_text(gui_input["logSegment"], encoding="utf-8")
+            summary["embeddedCachedPackages"] = gui_input["embeddedCachedPackages"]
+            summary["unityBuildMode"] = "GUI_EXPLICIT_RECEIPT"
+            if args.pii_probe: summary["piiProbe"] = True
+            summary["guiBuildSourceHead"] = proof["sourceHead"]
+            summary["guiBuildRunId"] = proof["runId"]
+            summary["guiBuildReceiptSha256"] = sha256(args.gui_build_receipt)
+        else:
+            environment = os.environ.copy()
+            environment["GAMEBRIDGE_UPM_STAGING"] = str(staging)
+            prepared = must(["bash", "scripts/prepare-unity-android-mock.sh", "--prepare"],
+                            "UNITY_CONSUMER_PREPARE_FAILED", env=environment)
+            match = re.search(r"^Prepared consumer: (/.+)$", prepared, re.MULTILINE)
+            if not match:
+                raise GateError("UNITY_CONSUMER_PATH_MISSING")
+            project = Path(match.group(1))
+            if not project.is_dir() or not project.is_relative_to((ROOT / "artifacts").resolve()):
+                raise GateError("UNEXPECTED_UNITY_CONSUMER_PATH")
+            if args.package_cache:
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("ios_push_cache", ROOT / "harness/run-unity-ios-mock-push-e2e.py")
+                cache_module = importlib.util.module_from_spec(spec); spec.loader.exec_module(cache_module)
+                try:
+                    summary["embeddedCachedPackages"] = cache_module.embed_cached_packages(args.package_cache.resolve(), project)
+                except cache_module.common.GateError as error:
+                    raise GateError(str(error), error.category) from error
+            if args.utf8_probe:
+                shutil.copy2(ROOT / "tests/UnityAndroidUtf8Consumer/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
+            if args.pii_probe:
+                shutil.copy2(ROOT / "tests/UnityAndroidPiiConsumer/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
+                shutil.copy2(ROOT / "tests/UnityPiiProbe/PiiProbe.cs", project / "Assets/PiiProbe.cs")
+                shutil.copy2(ROOT / "tests/UnityLateCallbackPlayer/link.xml", project / "Assets/link.xml")
+                summary["piiProbe"] = True
+            if args.native_demo_probe:
+                editor = Path("/Applications/Unity/Hub/Editor") / os.environ.get("UNITY_EDITOR_VERSION", "6000.5.8f1") / "Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui"
+                try:
+                    if json.loads((editor / "package.json").read_text()).get("version") != "2.5.0": raise ValueError()
+                    shutil.copytree(editor, project / "Packages/com.unity.ugui", ignore=shutil.ignore_patterns("Tests", "Tests.meta"))
+                except (OSError, ValueError): raise GateError("UNITY_UGUI_REQUIRED", "DEFERRED_ENV")
+                (project / "Packages/manifest.json").write_text('{"dependencies":{"com.unity.ugui":"2.5.0"}}\n')
+                imported = run(["bash", "scripts/import-unity-samples.sh", project, output / "sample-import-markers.log"], timeout=360, env=environment)
+                (output / "sample-import.log").write_text(imported.stdout, encoding="utf-8")
+                if imported.returncode: raise GateError("SAMPLE_IMPORT_FAILED")
+                shutil.copy2(ROOT / "tests/UnityAndroidNativeDemo/MockPlayerScenario.cs", project / "Assets/MockPlayerScenario.cs")
+                summary["nativeDemoProbe"] = True; summary["sampleImport"] = "PASS"
+            apk = output / "gamebridge-mock-consumer.apk"
+            built = run(["bash", "scripts/build-unity-android-mock.sh", project, apk],
+                        timeout=1200, env=environment)
+            (output / "unity-build.log").write_text(built.stdout, encoding="utf-8")
+            if built.returncode:
+                if built.returncode == 2 and "DEFERRED_ENV" in built.stdout:
+                    raise GateError("UNITY_LICENSE_OR_ANDROID_MODULE_REQUIRED", "DEFERRED_ENV")
+                raise GateError("UNITY_IMPORT_OR_ANDROID_BUILD_FAILED")
+            if not apk.is_file() or not apk.stat().st_size:
+                raise GateError("UNITY_APK_MISSING")
         summary["unityApkSha256"] = sha256(apk)
         summary["unityPlayer"] = "BUILT_NOT_RUN"
 

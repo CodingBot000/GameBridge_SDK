@@ -3881,3 +3881,9 @@
 - 배치29 A 구현/검증·커밋 전: test-only GUI메뉴는실제UnityEngine객체생성/Transform조회/DestroyImmediate7조건과nonce·버전·projectpath·scriptSHA·Editor assembly/PID·시간receipt를검사한다. parser는GUI범위만PASS하며batch/Player로승격하지않는다. 누락runtime증거·stale source/nonce/script·다른project/version/batch·부분실패receipt음성5단위PASS/skip0,CI연결완료. 전용artifact project만준비하는명시도구를추가했다. 소스commit후기존열린project에복사·컴파일하여GUI에서메뉴를실제로실행한다. 제품SDK/라이선스/장시간batch수정없음.
 
 - 배치29 A 실제GUI컴파일 최초FAIL: test-only GameBridgeGuiVerification.cs의GetInstanceID가Unity6000.5.8f1에서CS0619(Use GetEntityId instead)로거부됐다. 신규메뉴미노출/메서드NOT_RUN,SDK제품회귀FAIL로분류하지않는다. 로그조회는실제GUIlog경로와default로그를구분한다. UnityEngine객체이름·active/Transform·DestroyImmediate검증으로호환수정하며조건7개/nonce/proof를약화하지않는다. 수정시도1회,원본실패보존.
+
+- 배치29 A 실제GUI 검증PASS: source dcc0b4c,nonce7bbe2cf1b06d4612be219d88ac488fb2,Editor6000.5.8f1/PID68110/Assembly-CSharp-Editor의RunProbe가실제메뉴로컴파일·실행됐다. 소유project/메서드/scriptSHA/nonce/time/receipt·freshlog1회검증,실제UnityGameObject이름/active/Transform·DestroyImmediate7조건통과. tests0/check1/enginechecks7,GUI범위PASS이며batch/PlayerNOT_RUN이다. 최초test-onlyCS0619실패/수정1회는보존했다. BcurrentSDK새소비project GUIbuild로계속한다.
+
+- [P10-T01] 배치29 B/C 입력계약 설계·구현 시작: A GUI실제메서드PASS에따라현재staging147/source/API·Maven/XCFramework/cache를확인한새소비project를준비한다. test-only메뉴가project내비밀아닌출력설정을검증하고기존BuildMockPlayer.Build를변경없이호출한다(환경값은그Editor프로세스에서만일시전달/복원). GUI APK를실제E2E에쓸경우명시receipt입력으로만허용하고nonce/source·147manifest·builder/scenario/log·APK SHA/size를엄격검사하며기존CLI실패→성공fallback은없다. B/C 실제빌드/실행은아직NOT_RUN이다.
+
+- 배치29 B/C 계약 검증/커밋 전: GUI Android메뉴는147패키지파일·builder/scenario/adapter SHA를실제검사후기존BuildMockPlayer를그대로호출하고실제APK size/SHA·원본빌드return·로그nonce를기록한다. GUI용명시입력은APK hash/크기/신선도/소유path/symlink/sourceancestor및보호SDK·scenario diff0/currentstage147·정확cache·원본빌드marker를검사하며,실패입력은ADB/DB전즉시차단하는음성단위추가. 기존CLI기본경로와Backend/원장/marker/PII검사본문은유지했다. unit통과후commit된source로새소비project준비·GUI빌드를진행한다. 실제B빌드/C실행은아직NOT_RUN이다.

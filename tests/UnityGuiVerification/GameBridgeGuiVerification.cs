@@ -12,6 +12,7 @@ public static class GameBridgeGuiVerification
     {
         public int schemaVersion;
         public string runId, sourceHead, projectRoot, expectedUnityVersion, scriptSha256, operation;
+        public string outputPath, buildScriptSha256, adapterSha256, scenarioSha256, stagingManifestSha256, variant;
     }
     [Serializable] public sealed class ProbeReceipt
     {

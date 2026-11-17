@@ -1770,3 +1770,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 사용자 명시요청 수신(2026-11-18 Asia/Seoul): “이 전용 AVD에 한해 ADB UI 입력으로 안내를 닫아줘”. CUA대체기술범위가이전용재검증AVD의정확한비구속Viewingfullscreen/Gotit ACK에한해허용됐다. 다른app/권한/설정/서버조작허용아님. 새source/APK/새전용AVD·기존동일SDKserver/양port를재검증하고허용된추가E2E최대1회만진행한다. before/after UI·tap1/foreground/조기marker·Backend/원장을실측하고원본첫FAIL은보존한다.
 
 - 배치30 C 명시ACK구현/검증·커밋 전: --ack-known-fullscreen-notice는GUIreceipt/진단/소유바인딩이모두있는경로의명시옵션일때만작동한다. 실제freshXML의정상교육header·단일enabled Gotit/bounds만식별하고같은run guard를통해1회tap,전후XML/시간/exit·unattendedCI=false를기록한다. default입력0/권한·타app prompt입력0/단일정확serial좌표음성검증PASS. 실제UI입력은아직0이며허용된추가C검증을위해새B30B project/APK를생성한다. 기존첫FAIL·AVD·DB/로그보존,SDK제품/await/성공/timeout조건변경0.
+
+- 배치30 C 추가재검증 시작: 사용자명시전용ADB UI ACK요청범위에서새GUI B30B APK(현재source/147/nonce/hash검증)·새AVD B30_START_B_20261118_ACK·5594/5595·현재동일UnitySDK server98843을확인했다. 기존A/B29AVD·설치app/DB보존. 아래controller에서소유PID/양port/이름/serial을실측한뒤명시ACK옵션의E2E를1회만수행한다. 정상교육안내이외tap/권한/설정/서버변경없으며원래180초/기존auth-purchase-PII-원장조건유지. 허용추가1회를이실행에서사용하며더반복하지않는다.

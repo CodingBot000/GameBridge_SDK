@@ -3879,3 +3879,5 @@
 - [P10-T01] 배치29 A 시작: 지시문·AGENTS/START_HERE·마지막원장/로그와branch/HEAD7fe7c4a/기존미추적3경로확인. GUI가열린전용artifact project만대상으로test-only메뉴를구성해실제C#컴파일·nonce/버전/소유경로·Unity객체생성/정리·메서드도달receipt를검증한다. batch전용Application.isBatchMode조건과GUI를구분하고새장시간batch는실행하지않는다. 이후현재소비projectGUI Player빌드,ADBread-only/전용기기소유증명조건부E2E,미충족시T02독립정상음성test까지연속수행한다.
 
 - 배치29 A 구현/검증·커밋 전: test-only GUI메뉴는실제UnityEngine객체생성/Transform조회/DestroyImmediate7조건과nonce·버전·projectpath·scriptSHA·Editor assembly/PID·시간receipt를검사한다. parser는GUI범위만PASS하며batch/Player로승격하지않는다. 누락runtime증거·stale source/nonce/script·다른project/version/batch·부분실패receipt음성5단위PASS/skip0,CI연결완료. 전용artifact project만준비하는명시도구를추가했다. 소스commit후기존열린project에복사·컴파일하여GUI에서메뉴를실제로실행한다. 제품SDK/라이선스/장시간batch수정없음.
+
+- 배치29 A 실제GUI컴파일 최초FAIL: test-only GameBridgeGuiVerification.cs의GetInstanceID가Unity6000.5.8f1에서CS0619(Use GetEntityId instead)로거부됐다. 신규메뉴미노출/메서드NOT_RUN,SDK제품회귀FAIL로분류하지않는다. 로그조회는실제GUIlog경로와default로그를구분한다. UnityEngine객체이름·active/Transform·DestroyImmediate검증으로호환수정하며조건7개/nonce/proof를약화하지않는다. 수정시도1회,원본실패보존.

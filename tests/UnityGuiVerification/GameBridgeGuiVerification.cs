@@ -15,9 +15,9 @@ public static class GameBridgeGuiVerification
     }
     [Serializable] public sealed class ProbeReceipt
     {
-        public int schemaVersion = 1, checksExecuted, editorPid, engineObjectId;
+        public int schemaVersion = 1, checksExecuted, editorPid;
         public string status, operation, runId, sourceHead, projectRoot, unityVersion, scriptSha256;
-        public string method, assemblyName, startedUtc, finishedUtc, errorType;
+        public string method, assemblyName, startedUtc, finishedUtc, errorType, engineObjectName;
         public bool isBatchMode, engineObjectCreated, engineObjectDestroyed;
     }
     const string ConfigName = "GameBridgeGuiRun.json";
@@ -79,8 +79,8 @@ public static class GameBridgeGuiVerification
             Check(Application.unityVersion == config.expectedUnityVersion, ref checks);
             Check(!String.IsNullOrEmpty(AssetDatabase.AssetPathToGUID("Assets/Editor/GameBridgeGuiVerification.cs")), ref checks);
             temporary = new GameObject("GameBridgeGuiProbe-" + config.runId) { hideFlags = HideFlags.HideAndDontSave };
-            result.engineObjectId = temporary.GetInstanceID();
-            Check(result.engineObjectId != 0 && temporary.activeSelf, ref checks);
+            result.engineObjectName = temporary.name;
+            Check(result.engineObjectName == "GameBridgeGuiProbe-" + config.runId && temporary.activeSelf, ref checks);
             result.engineObjectCreated = true;
             temporary.transform.position = new Vector3(1, 2, 3);
             Check(temporary.GetComponent<Transform>() != null && temporary.transform.position == new Vector3(1, 2, 3), ref checks);

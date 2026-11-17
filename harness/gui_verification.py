@@ -22,9 +22,11 @@ def validate_probe(value, config):
         raise ValueError('GUI receipt project mismatch')
     if value.get('method') != 'GameBridgeGuiVerification.RunProbe' or value.get('assemblyName') != 'Assembly-CSharp-Editor':
         raise ValueError('GUI compiled method identity missing')
-    for key in ('editorPid', 'engineObjectId', 'checksExecuted'):
+    for key in ('editorPid', 'checksExecuted'):
         if type(value.get(key)) is not int or value[key] == 0:
             raise ValueError('GUI runtime observations missing')
+    if value.get('engineObjectName') != 'GameBridgeGuiProbe-' + config['runId']:
+        raise ValueError('GUI engine object identity missing')
     if value['editorPid'] < 0:
         raise ValueError('GUI Editor PID invalid')
     if value['checksExecuted'] != 7 or value.get('engineObjectCreated') is not True or value.get('engineObjectDestroyed') is not True:

@@ -9,7 +9,7 @@ class GuiProbeReceiptTests(unittest.TestCase):
                       expectedUnityVersion='6000.5.8f1', projectRoot='/tmp/gamebridge-gui-owned/project')
         value = dict(config, schemaVersion=1, status='PASS', operation='probe', isBatchMode=False,
                      unityVersion='6000.5.8f1', method='GameBridgeGuiVerification.RunProbe',
-                     assemblyName='Assembly-CSharp-Editor', editorPid=123, engineObjectId=-42,
+                     assemblyName='Assembly-CSharp-Editor', editorPid=123, engineObjectName='GameBridgeGuiProbe-'+config['runId'],
                      checksExecuted=7, engineObjectCreated=True, engineObjectDestroyed=True,
                      startedUtc='2026-11-17T10:00:00Z', finishedUtc='2026-11-17T10:00:01Z')
         return value, config
@@ -21,7 +21,7 @@ class GuiProbeReceiptTests(unittest.TestCase):
 
     def test_pass_text_without_runtime_proof_rejected(self):
         value, config = self.fixtures()
-        for key in ('method', 'assemblyName', 'engineObjectId', 'engineObjectDestroyed'):
+        for key in ('method', 'assemblyName', 'engineObjectName', 'engineObjectDestroyed'):
             changed = copy.deepcopy(value); changed.pop(key)
             with self.assertRaises(ValueError): validate_probe(changed, config)
 

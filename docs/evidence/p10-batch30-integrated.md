@@ -1,6 +1,6 @@
 # 배치30 Android 최초 실행 진단과 P10 검증
 
-작업 branch `handoff/p09-resume-20261113`, 시작 HEAD `2c8e7a79db631e9e679d5c8c9680c58e3f706903`. 현재 기준은 이 문서이며 이전 UI 입력 대기 문서는 해소된 체크포인트 이력이다. **프로젝트 IN_PROGRESS, P10-T01/T02 PARTIAL**이다.
+작업 branch `handoff/p09-resume-20261113`, 시작 HEAD `2c8e7a79db631e9e679d5c8c9680c58e3f706903`. 현재 기준은 이 문서이며 이전 UI 입력 대기 문서는 해소된 체크포인트 이력이다. **프로젝트 IN_PROGRESS, P10-T01/T02 PARTIAL**이며 전체 SDK 완료 판정은 기존 **BLOCKED_INTERNAL**을 유지한다.
 
 ## A — 마지막 정상 단계와 최초 미확인 단계
 
@@ -32,7 +32,7 @@ SDK 제품 변경은 없다. 표준·PII·UTF8 Android 테스트 scenario에 Awa
 
 [현재 artifact 검사](p10-batch30-artifact-inspection.json): 79 shipping source SHA·147 staging·선정 Java3 class javap·양iOS slice Cexport4개가 보존 Native artifact와 일치한다. GUI APK source/receipt/hash도 현재 checkout에서 재검사했다. 새로운 Native build나 모든 ABI 검증은 아니다. [iOS 대조](p10-batch30-ios-compatibility.json)는 배치29 actual PASS d543556와 iOS/공통 제품·소비 source diff0이며 신규 iOS Player를 실행한 것으로 쓰지 않는다.
 
-Android Push/Lifecycle **NOT_RUN/DEFERRED_ENV**: 기존 runner는 자동 batch builder 전용이며 엄격한 GUI receipt 입력을 지원하지 않는다. 현재 자동 batch Editor 정상은 확인되지 않았다. main PII scenario의 focus callbacks를 전체 Push/Lifecycle 검증으로 대체하지 않는다.
+Android Push/Lifecycle **NOT_RUN/DEFERRED_ENV**: 기존 runner는 자동 batch builder 전용이다. 엄격한 GUI receipt 입력 확장은 내부 미구현 작업이며 사용자 인증 대기로 넘기지 않는다. 현재 자동 batch Editor 정상은 확인되지 않았다. main PII scenario의 focus callbacks를 전체 Push/Lifecycle 검증으로 대체하지 않는다.
 
 Android JNI R09 **NOT_RUN/DEFERRED_ENV**: 새 UTF8 전용 GUI APK와 설치 없는 전용 실행 환경이 없다. 이번 PII APK는 UTF8 scenario가 아니고 기존 설치 보존 gate를 우회하거나 전용 AVD ACK 허가를 다른 기기로 확장하지 않았다. 실제 UTF8 roundtrip을 Core/managed helper로 대신하지 않는다.
 
@@ -44,7 +44,7 @@ Android JNI R09 **NOT_RUN/DEFERRED_ENV**: 새 UTF8 전용 GUI APK와 설치 없�
 
 새 push 범위 secret scan exit0/finding0. 이전 이력 포함 scan은 exit1/finding2이며 정확히 b1e3c73 candidate-tests.json18/19의 test-source SHA metadata다. 현재 실제 test SHA와 독립 재계산 일치로 검토했다. raw exit1·원본 이력 보존, ignore/amend/force 없음. 모든 push commit 경로와 blob은 text이며 키/서명/license/원본로그/Library/Temp/APK/Xcode 산출물은 제외했다.
 
-Repository `CodingBot000/GameBridge_SDK` public, 정상 API vars0/runners0·origin handoff ancestor를 확인했다. 모든 code/test commit 후 handoff 동일 branch만 FFpush하고 `release_validation=false` Hosted-only를1회 실행한다. **이 문서 작성시 배치30 push/dispatch NOT_RUN**이며 수락/최종 결과를 아래 후속 기록으로 갱신한다. main 병합·force·runner 등록·Release·실Provider 호출 없음.
+Repository `CodingBot000/GameBridge_SDK` public, 정상 API vars0/runners0·origin handoff ancestor를 확인했다. 모든 code/test commit 후 handoff 동일 branch만 FFpush하고 `release_validation=false` Hosted-only를1회 실행한다. 이 문단의 최초 작성시 배치30 push/dispatch는 NOT_RUN이었다. **실제 FFpush/단일 Hosted SUCCESS는 아래 최종 원격 결과가 최신이다.** main 병합·force·runner 등록·Release·실Provider 호출 없음.
 
 P05-T03 FAIL/ENV-STOREKIT-26 OPEN·18.6간헐 위험·Provider13 WAITING_USER·self-hosted/실기기/Release 미검증을 유지한다. 64Task 집계는 IMPLEMENTED22/IN_PROGRESS42,local PASS20/FAIL1/PARTIAL43 그대로다. 초기 미추적 Demo/캐시3경로와 기존 기기를 보존한다. 현재 B30B GUI Editor만 idle로 남기고 시험 Backend/Player/controller는 종료됐다.
 
@@ -70,3 +70,14 @@ P05-T03 FAIL/ENV-STOREKIT-26 OPEN·18.6간헐 위험·Provider13 WAITING_USER·s
 | `98fca65fd96d2a3b57630d7df8fb985959312af2` | test(core): [P10-T01] record measured regressions and remaining platform gates |
 
 이후 정제문서/CI 결과 커밋과 최종 local/remote HEAD는 아래 인계 기록과 최종 채팅에서 실제 조회한다. 현재 커밋 자체 SHA를 파일 내부에 억지로 기록하지 않는다.
+
+| `a1cc004139193d175f6964cf11be7051f6e5b5f7` | docs(handoff): [P10-T01] reconcile batch30 recovery and verification limits; Hosted 검증 source |
+
+
+## E 최종 원격 결과와 재개 상태 (2026-11-18)
+
+[Hosted run44115202057](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44115202057), source `a1cc004139193d175f6964cf11be7051f6e5b5f7`, `release_validation=false` 단1회 **SUCCESS**. [정제 원격 증거](p10-batch30-hosted.json): Hosted4개와 basic-ci SUCCESS, Unity/Release SKIPPED. 공식 로그 Python49모듈187건·Swift package37건(후보 auth20 포함)/실패0·synthetic iOS host step/xcresult gate·TC11건/의도변이1·정상복원 확인. quiet host 로그의 정확 testcase 수는 UNMEASURED로 유지하며 Unity iOS 실행으로 바꾸지 않는다. 초기 진행중 `gh run view --job --log` 조회 exit1은 보존했고 완료job의 공식 jobs/logs API 조회 exit0으로 실제 수를 확인했다.
+
+코드/test가 모두 포함된 `a1cc004139193d175f6964cf11be7051f6e5b5f7`을 `2c8e7a7`에서 동일 handoff로 FFpush했고 local/remote 일치를 확인했다. 이후 변경은 결과 문서뿐이며 추가 CI/Unity/self-hosted/Release 실행0이다. 마지막 문서 커밋 후 동일 handoff FFpush와 HEAD/작업트리를 다시 조회한다. 최종 문서 커밋 SHA는 Git 이력과 최종 채팅에서 확인한다.
+
+현재 Android 회복/PII·Core·현재 source/선정 ABI·Python/Hosted는 PASS지만 Push/Lifecycle·R09·자동 batch/Strict는 미완료다. T01/T02 PARTIAL·전체 SDK BLOCKED_INTERNAL은 유지한다. 새 반복 E2E/SDK refactor를 시작하지 않은 채 위 재개 순서와 내부 미구현 작업을 다음 작업 기준으로 남긴다. 기존 실패 원본과 Demo/cache/AVD/DB/라이선스는 그대로 보존했다.

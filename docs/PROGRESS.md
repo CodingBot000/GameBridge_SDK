@@ -5,15 +5,15 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치30 Android 재현 안내 ACK 후 E2E PASS; 과거 FAIL 보존, T01/T02 PARTIAL)
-- 현재 Phase / Task: 배치30 D / 사용자 허용 안내 ACK 후 Android 실제 E2E PASS; Core·호환성 및 환경 조건 검증
+- 현재 Phase / Task: 배치30 E / 로컬·Hosted false 단1회 SUCCESS, 최종 문서 인계
 - 마지막 갱신 시각: 2026-11-18 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 배치30 GUI APK c07a264 / 실제 Android PII E2E·Core6f813a7 PASS; Python187/49모듈 PASS. 이전 iOS d543556 PASS와 보호소스 diff0. Hosted는 배치30 아직 NOT_RUN.
+- 마지막 검증된 소스 커밋: 배치30 GUI APK c07a264 / 실제 Android PII E2E·Core6f813a7 PASS; Python187/49모듈 PASS. 이전 iOS d543556 PASS와 보호소스 diff0. Hosted 배치30 run44115202057/sourcea1cc004 SUCCESS (Unity/Release SKIPPED).
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 현재 환경 블로커: 원래batchIPC/Strict 미완료. Push 하네스는 자동batch빌드 경로만 지원하며 GUI receipt 입력 없음. R09용 새 UTF8 APK/설치 없는 전용AVD와 정상 UI 조작 조건 미확보. 현재 성공 AVD의 기존 설치 보존 gate를 우회하지 않는다. 과거ADB시작경고 영향 미확정.
-- 바로 다음 행동: Core/duplicate 결과와 API·ABI·source대조 및 최종Python 검증→문서/보안점검→handoff FFpush/Hosted false 1회. Push/JNI/Strict 미실행을 PASS로 바꾸지 않으며 T02 제품 변경은 보류.
-- 재개 행동: [배치29 현재결과](evidence/p10-batch29-integrated.md)를기준으로진행한다. 중단체크포인트는과거이력이며사용자재개로해제됐고,iOS GUIexport/실제Player는새증거로PASS다. Android실패를덮어쓰지않는다.
+- 바로 다음 행동: Core/duplicate·API·ABI/source·Python187·보안점검과handoff FFpush 완료. Hosted run44115202057 SUCCESS 확인. 최종 문서커밋/동일handoff FFpush·최종HEAD확인. Push/JNI/Strict 미실행을 PASS로 바꾸지 않으며 T02 제품 변경은 보류.
+- 재개 행동: [배치30 현재결과·남은 조건](evidence/p10-batch30-integrated.md)를따른다. 과거FAIL/중단이력과현재성공을분리한다. 자동batch·Push/JNI/Strict·T01전체조건확인후에만T02제품변경진입.
 
 ## 집계
 
@@ -1784,3 +1784,19 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치30 E 정제문서/커밋 전: 통합보고10항목·PROGRESS/WORK_LOG/USER_SETUP/FINAL_REPORT·source별JSON을현재결과로정리했다. 초기UI입력대기는사용자명시요청과실제1회ACK/PASS로해소됐으나과거이력보존. Push/JNI/Strict미완료·T01/T02PARTIAL/Provider13WAIT를명시하고재개조건을기록했다. 전체push범위scanner0/탐지0,이전범위1/기존SHA오탐2를독립재계산했고전체commit text/산출물제외·FFancestor·repo public/vars0/runners0확인. 명시stage/scan/commit뒤handoff FFpush·falseHosted1회수행한다.
 
 - 배치30 E 최종stage검증/커밋 직전: 명시stage6개는정제Markdown/JSON뿐이며실제staged blob복사scan exit0/탐지0,원장/diff검사PASS. origin handoff와0behind/9ahead·FF가능확인. 원본로그/키/서명/license/생성물/미추적Demo·cache는stage하지않았다. 모든code/test는이미commit됐으며이문서commit후전체push범위재scan→handoff동일branch FFpush→변수정상응답재확인후Hosted false1회만수행한다.
+
+- 배치30 E FFpush 확인/Hosted 시작: local/remote handoff HEAD a1cc004139193d175f6964cf11be7051f6e5b5f7 일치,origin2c8e7a7에서FFpush성공/exit0. 전체push범위secret실제exit0·탐지0,tracked clean·기존미추적3경로보존. 변수정상API exit0/vars0을다시확인했고모든code/test가원격source에포함됐다. release_validation=false Hosted-only 단1회를이source에서요청하며최종상태전PASS기록없음. 추가Unity/runner/Release활성화·main/force없음.
+
+- 배치30 E Hosted dispatch1회수락: run44115202057/sourcea1cc004139193d175f6964cf11be7051f6e5b5f7,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44115202057 . 현재 in_progress 이며결과대기,추가dispatch/재실행/runner등록/Unity변수/Release없음.
+
+- 배치30 E 원격관측: watch에서inventory-contracts SUCCESS/UnitySKIPPED를확인했으나전체run진행중job log조회gh exit1로아직공식Python합계재추출은미완료다. 원격결과를로컬187건으로대신채우지않고전체완료후로그를다시확인한다. 새dispatch/코드변경없음.
+
+- 배치30 E 상태해석 보강: 전체SDK의기존BLOCKED_INTERNAL판정을최신보고에도명시했다. Push자동batch환경미충족과GUIreceipt확장미구현(내부후속작업)을구분하며후자를사용자인증대기로넘기지않는다. 이번범위의Android회복PASS로T01/T02나전체SDK를완료표기하지않는다. 원격은단일run최종결과대기이며추가실행없음.
+
+- 배치30 E 원격로그 확인: 공식GitHub jobs/{id}/logs 직접조회exit0에서49module run/187Python건·FAILED요약0을재추출했다. 앞선gh run view 진행중archive조회exit1과구분한다. inventory/Backend SUCCESS,UnitySKIPPED,Android/Swift최종대기. 추가dispatch없음.
+
+- 배치30 E 원격중간결과: Android-native·inventory-contracts·Backend-postgres 세job SUCCESS,UnitySKIPPED. Backend공식로그는TC local7/의도변이1(예상exit1)/정상복원1/sandbox2로총11executed tests·예상mutation failure1을확인했다. Swift synthetic Simulator host가진행중이며전체run/basic/Release판정은아직대기다. 원격Unity/전체Strict/실Provider로확대하지않는다.
+
+- [P09-T07] 배치30 E 최종원격검증/문서커밋 전: run44115202057/sourcea1cc004139193d175f6964cf11be7051f6e5b5f7,false 단1회 SUCCESS. Hosted4/basic SUCCESS,Unity/ReleaseSKIPPED,공식Python49모듈187·Swift37(auth20포함)·TC11/의도변이1·정상복원확인. synthetic iOS host step/xcresultgatePASS이지만quietlog의정확test수UNMEASURED·Unity실행아님. 이후code/test변화0,최종정제보고/USER_SETUP/원장/로그만변경. T01/T02PARTIAL·전체BLOCKED_INTERNAL/P05FAIL/Provider13WAIT와미완료Push/JNI/Strict조건을유지한다. 최종stage scan/원장·diff확인→문서commit/동일handoff FFpush/HEAD일치와기존미추적3경로보존을검증한다. 추가dispatch없음.
+
+- 배치30 E 최종stage검증/커밋 직전: 명시7개문서blob text/JSONparse·원장64행·diff검사PASS,staged offline gitleaks 실제exit0/탐지0. Hosted 이후harness/test/SDK/workflow/baseline변화0,실제완료run과미실행scope·내부후속구현을분리했다. 최종문서commit뒤전체이번push범위scan·handoff FF가능성/remoteHEAD·tracked clean·초기미추적3경로보존을실제조회한다. 추가CI/Player/Provider/Release실행없음.

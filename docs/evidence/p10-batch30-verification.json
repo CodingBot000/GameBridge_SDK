@@ -75,11 +75,82 @@
       "reason": "automatic batch Editor path still unverified; GUI + explicitly user-authorized one notice ACK is not unattended Strict"
     },
     "p10T01": "IN_PROGRESS/PARTIAL",
-    "p10T02": "IN_PROGRESS/PARTIAL; production refactor not entered"
+    "p10T02": "IN_PROGRESS/PARTIAL; production refactor not entered",
+    "pushGuiAdapter": "NOT_IMPLEMENTED; internal follow-up, not user authentication"
   },
   "hosted": {
-    "status": "NOT_RUN",
-    "dispatches": 0
+    "sourceHead": "a1cc004139193d175f6964cf11be7051f6e5b5f7",
+    "runId": 44115202057,
+    "url": "https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44115202057",
+    "status": "completed",
+    "conclusion": "success",
+    "release_validation": false,
+    "dispatches": 1,
+    "jobs": [
+      {
+        "name": "android-native",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "inventory-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "backend-postgres",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "swift-ios-simulator",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "unity-e2e",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "basic-ci",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "release-readiness",
+        "status": "completed",
+        "conclusion": "skipped"
+      }
+    ],
+    "python": {
+      "modules": 49,
+      "tests": 187,
+      "failureSummaries": 0,
+      "fetchExitCode": 0
+    },
+    "swiftPackage": {
+      "tests": 37,
+      "failures": 0,
+      "skipped": 0,
+      "candidateAuthTests": 20
+    },
+    "syntheticIosHost": {
+      "status": "PASS",
+      "tests": "UNMEASURED from quiet public log; job checked xcresult total>0 and failure/skip0",
+      "scope": "native synthetic host, not Unity iOS Player or real APNs"
+    },
+    "testcontainers": {
+      "executedTests": 11,
+      "expectedMutationFailures": 1,
+      "mutantExitCode": 1,
+      "normalRestorationExitCode": 0,
+      "scope": "synthetic local and sandbox fixtures, not real store sandbox"
+    },
+    "unity": "SKIPPED",
+    "release": "SKIPPED",
+    "selfHosted": "NOT_RUN",
+    "codeTestsChangedAfterCiSource": false
   },
   "secretAudit": {
     "pushRangeExitCode": 0,
@@ -89,5 +160,6 @@
     "classification": "exact known b1e3c73 source SHA256 metadata; hashes independently recalculated; no history rewrite or ignore"
   },
   "realProviders": "13 WAITING_USER",
-  "preserved": "P05-T03 FAIL / ENV-STOREKIT-26 OPEN / StoreKit18.6 intermittent risk / self-hosted and Release unverified"
+  "preserved": "P05-T03 FAIL / ENV-STOREKIT-26 OPEN / StoreKit18.6 intermittent risk / self-hosted and Release unverified",
+  "overallSdkStatus": "BLOCKED_INTERNAL (pre-existing incomplete internal tasks preserved; this batch does not claim SDK completion)"
 }

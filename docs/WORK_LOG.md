@@ -4065,3 +4065,5 @@
 - 배치32 B2 첫준비경로도상위R09 wrapper의ACK옵션미인식argparse2로Player/Backend/설치前중단됐다(UTF8_A PID42438/5598·5599소유/boot는확인,실제JNI0·controller종료/데이터보존). B1과동일계열의입력연결누락이별도wrapper에남았음을확인했다. R09에도조건부명시전달을연결하고두상위wrapper parser를노출해privatecontroller가AVD생성前정확한인자계약을검사하도록보강한다. source/조건검증unit후새기기첫실제JNI를실행,timeout증가/기존성공AVD재사용없음.
 
 - 배치32 B2 CLI계약修復/커밋 전: R09상위parser/명령생성에명시ACK+GUI+진단필수조건을연결했고,Push/R09모두argument_parser를통해기기없이정확한인자검증이가능해졌다. GUI46unit PASS/skip0. 새controller는AVD생성前실제wrapper parser와명령구성을검사한뒤에만기동한다. A준비실패는원본/설치0/실JNI0으로유지,새B에서첫실제JNI를진행한다. Native候補넓은회귀47Android/43Swift도모두PASS이며미통합상태보존.
+
+- 배치32 B2 실제JNI PASS/exit0(sourceb6bd767): 새UTF8_B PID44685/serial5598/5598·5599 및sameSDKserver31840가드·정상교육안내1회ACK/원본GUIAPK0a4a8b1b...·필수GB_UTF8_JNI_ROUNDTRIP와전체mock callback/Backend/SQL원장1/delta100통과(artifacts/unity-android-e2e-oqkoqd_3,R09wrapperajz6mwxj). tracked-clean 시작·child실제PASS/Android만실행/新iOS실행아님. controller는자기AVD만종료·disk/DB/log보존. 최초UTF8_A argv2/Player0은유지. 다음새Push_C에동일원본APK/새harness source/명령timing추적·重複proof제거/거절조건동기를적용해근거있는재검증한다. iOSPush GUI project는준비/등록돼있으며Android서버변경을피해그실행후Editor전환한다.

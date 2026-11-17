@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "scope": "actual Unity Android UTF8 JNI + Native LOCAL_MOCK Backend/ledger; no real Google/store",
+  "sourceHead": "b6bd767935fbf09e663660ca4de74a6fba442289",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "PASS",
+  "realGoogleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "retainsTestDatabase": true,
+  "utf8Probe": true,
+  "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+  "emulatorPid": 44685,
+  "adbServerPid": 31840,
+  "emulatorAvd": "GameBridge_V2_B32_UTF8_B_20261118",
+  "emulatorSerial": "emulator-5598",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "unityBuildMode": "GUI_EXPLICIT_RECEIPT",
+  "guiBuildSourceHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+  "guiBuildRunId": "5eb6496c15694bb687e8ac5d62b0bc0b",
+  "guiBuildReceiptSha256": "7b991dbeeac2f4d3a379d216c5e12015f22afb5eb52a2cf05c34d271fe92d11b",
+  "unityApkSha256": "0a4a8b1b5e2319eccf21a4eadfd2a26a15279110e6e826900fc759d478aa23ac",
+  "backendJarSha256": "532fdbfe70fbf3373f4d918cb0813ffe23fecc12652d76523ea5b3590bbfc459",
+  "backend": "LOCAL_MOCK_READY",
+  "startupDiagnostics": "startup-diagnostics/summary.json",
+  "backendHealthConfirmedBeforeLaunch": true,
+  "unityMarkerCount": 34,
+  "backendTraceCounts": {
+    "mock-auth": 1,
+    "catalog": 1,
+    "entitlements": 2,
+    "verify": 1,
+    "logout": 1
+  },
+  "ledgerCount": 1,
+  "ledgerDelta": 100,
+  "evidence": "artifacts/unity-android-e2e-oqkoqd_3",
+  "r09WrapperEvidence": "artifacts/r09-utf8-ajz6mwxj",
+  "normalNoticeAcknowledgements": [
+    {
+      "kind": "explicit-known-fullscreen-notice",
+      "tapAttempts": 1,
+      "exitCode": 0,
+      "atSeconds": 15.858,
+      "unattendedCI": false
+    }
+  ]
+}

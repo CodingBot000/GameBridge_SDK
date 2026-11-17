@@ -39,6 +39,7 @@ def commands_for(args, env):
     stage=env.get('GAMEBRIDGE_UPM_STAGING');cache=env.get('GAMEBRIDGE_UNITY_PACKAGE_CACHE')
     if not stage:raise ValueError('staged SDK required')
     if bool(args.gui_project)!=bool(args.gui_build_receipt):raise ValueError('GUI project/receipt required together')
+    if getattr(args,'ack_known_fullscreen_notice',False) and not args.gui_project:raise ValueError('Notice input requires explicit GUI/owned binding')
     if args.platform=='ios' and args.gui_project:raise ValueError('Android GUI input cannot be used for iOS-only execution')
     commands=[]
     if args.platform!='ios':
@@ -48,6 +49,7 @@ def commands_for(args, env):
         if args.gui_project:
             if not args.expected_adb_server_pid:raise ValueError('GUI ADB server binding required')
             command+=['--gui-project',str(args.gui_project),'--gui-build-receipt',str(args.gui_build_receipt),'--expected-adb-server-pid',str(args.expected_adb_server_pid),'--startup-diagnostics']
+        if getattr(args,'ack_known_fullscreen_notice',False):command+=['--ack-known-fullscreen-notice']
         if args.adb:command+=['--adb',args.adb]
         commands.append(('android',command))
     if args.platform!='android':commands.append(('ios',[sys.executable,'harness/run-unity-ios-mock-push-e2e.py','--run-local','--staging',stage,*(['--package-cache',cache] if cache else [])]))
@@ -57,7 +59,7 @@ def commands_for(args, env):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--platform',choices=('android','ios','both'),default='both')
     p.add_argument('--gui-project',type=Path);p.add_argument('--gui-build-receipt',type=Path)
-    p.add_argument('--expected-adb-server-pid',type=int);p.add_argument('--adb');args=p.parse_args()
+    p.add_argument('--expected-adb-server-pid',type=int);p.add_argument('--adb');p.add_argument('--ack-known-fullscreen-notice',action='store_true');args=p.parse_args()
     if os.environ.get('GAMEBRIDGE_RUN_UNITY_PUSH_E2E')!='true':print('DEFERRED_ENV: explicit Unity push opt-in required');return 2
     try:commands=commands_for(args,os.environ)
     except ValueError as error:print('DEFERRED_ENV:',error);return 2

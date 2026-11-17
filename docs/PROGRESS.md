@@ -1862,3 +1862,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치32 B4 새전용기기 준비/정상안내 범위: 사용자최신“추가권한전부승인/권장안자율진행”을이번배치의새소유GameBridge 테스트AVD에한정해적용한다. 정확한android/SystemUI Viewingfull screen/Gotit교육안내만기존strict selector·매호출PID/양port/동일SDKserver가드의명시옵션으로각최대1회닫는다. 배치30의과거허가를재사용한것아니며계정/permission/법적약관/보안설정/타기기조작은포함하지않는다. Push도기존동일Collector의명시GUI+진단옵션에서만이ACK를지원하고기본입력0을유지한다. 해당보완의범위음성unit후commit된source로각새AVD검증을시작한다.
 
 - 배치32 B4 검증/실행 직전: 정상안내ACK입력범위8unit PASS/skip0. 현재5037은Unity6000.5.8f1 SDK adb PID31840 하나임을read-only확인했고local Docker unix context/Postgres gamebridge-sdk-local-postgres-1 healthy. 기존server기동/종료명령0·타기기조작0. 소유UTF8Editor는idle로유지해server변경을피한다. 새GameBridge_V2_B32_PUSH_A_20261118/5596·5597,UTF8_A/5598·5599를각따로생성하고매명령소유가드를입증한경우에만검증한다. 원래marker/DB/Proxy/timeout판정을유지하며새명시교육안내option만전달한다. 이commit후tracked-clean에서Push부터실행한다.
+
+- 배치32 B1 최초기기준비/진입FAIL: 새AVD A의소유PID34033/5596·5597/이름guard·boot통과후상위Push wrapper가새ACK옵션을미전달/미인식해argparse exit2로중단했다. Player/Backend/설치/ACK까지도달0이며SDKtest실패아님(내부CLI연결누락). 자기emulator만finally종료·AVD보존. 상위wrapper에도명시옵션검증/전달과CLI연결음성을추가하고새source commit후새B AVD에서첫실제Player시험을진행한다. 동일실패무조건재시도/기존AVD재사용없음.
+
+- 배치32 B1 CLI연결수정 검증/커밋 전: 상위Push wrapper가명시ACK옵션을파싱하고GUI/owned binding이있을때만Android자식에전달하도록보강,default입력0/다른platform승계0 유지. 관련GUI45unit PASS/skip0. 원본A는argparse2/Player0으로보존했고새B controller는별도로그/AVD명으로준비했다. 동일현재server31840과원본APK/receipt를검증한tracked-clean source에서첫실제Push를수행한다. 진행중에는primary source를동결하고격리candidate만독립작업한다.

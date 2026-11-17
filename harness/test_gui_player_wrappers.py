@@ -66,6 +66,20 @@ class GuiPlayerWrapperTests(unittest.TestCase):
             result=m.run_ios(Path(tmp));self.assertEqual(result['status'],'DEFERRED_ENV');self.assertEqual(result['ownedSimulatorShutdownExitCode'],0)
         self.assertFalse(any('delete' in cmd or 'erase' in cmd for cmd in commands))
 
+    def test_r09_ios_malformed_summary_fails_closed_and_preserves_cleanup(self):
+        m=module('r09-utf8');device='00000000-0000-0000-0000-000000000001'
+        with tempfile.TemporaryDirectory() as tmp:
+            out=Path(tmp)
+            def run(cmd,**kw):
+                if cmd[0]=='bash':return subprocess.CompletedProcess([],0,stdout='/owned/project')
+                if cmd[:3]==['xcrun','simctl','create']:return subprocess.CompletedProcess([],0,stdout=device)
+                if cmd[0]=='xcodebuild':(out/'result.xcresult').mkdir();return subprocess.CompletedProcess([],0,stdout='')
+                if cmd[:3]==['xcrun','xcresulttool','get']:return subprocess.CompletedProcess([],0,stdout='[]')
+                self.assertEqual(cmd,['xcrun','simctl','shutdown',device]);return subprocess.CompletedProcess([],0)
+            with patch.object(m.subprocess,'run',side_effect=run):
+                value=m.run_ios(out)
+            self.assertEqual(value['status'],'FAIL');self.assertEqual(value['errorCode'],'IOS_RESULT_UNAVAILABLE');self.assertEqual(value['ownedSimulatorShutdownExitCode'],0)
+
     def test_push_gui_forwarding_and_legacy_both_are_separate(self):
         m=module('unity-push-current');env={'GAMEBRIDGE_UPM_STAGING':'/stage','GAMEBRIDGE_PUSH_ANDROID_SERIAL':'emulator-5596','GAMEBRIDGE_PUSH_TEST_AVD_NAME':'GameBridge_V2_unit','GAMEBRIDGE_PUSH_EMULATOR_PID':'42'}
         a=arguments(gui_project=Path('/owned'),gui_build_receipt=Path('/receipt'),expected_adb_server_pid=43,adb='/unity/adb')

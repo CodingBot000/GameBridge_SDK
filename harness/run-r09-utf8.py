@@ -58,6 +58,7 @@ def run_ios(out):
         if r.returncode or not bundle.exists():result.update(errorCode='IOS_XCTEST_FAILED',exitCode=r.returncode or 1);return result
         report=subprocess.run(['xcrun','xcresulttool','get','test-results','summary','--path',str(bundle),'--format','json'],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         data=json.loads(report.stdout);(out/'ios-summary.json').write_text(json.dumps(data,indent=2)+'\n')
+        if not isinstance(data,dict) or any(type(data.get(k)) is not int for k in ('passedTests','failedTests','skippedTests')):raise ValueError('Invalid xcresult counts')
         if report.returncode or data.get('passedTests')!=1 or data.get('failedTests')!=0 or data.get('skippedTests')!=0:result.update(errorCode='IOS_TEST_COUNT_INVALID');return result
         result.update(status='PASS',exitCode=0,tests=1,failures=0,skipped=0,evidence=str(bundle.relative_to(ROOT)));return result
     except OSError:result.update(status='DEFERRED_ENV',exitCode=2,errorCode='IOS_COMMAND_UNAVAILABLE');return result

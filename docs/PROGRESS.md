@@ -4,15 +4,15 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (배치29 종료; GUI 양플랫폼 빌드·iOS E2E/Hosted PASS,Android실행timeout FAIL,T01/T02 PARTIAL)
+- 전체 상태: IN_PROGRESS (배치30 Android 재현 안내 ACK 후 E2E PASS; 과거 FAIL 보존, T01/T02 PARTIAL)
 - 현재 Phase / Task: 배치30 D / 사용자 허용 안내 ACK 후 Android 실제 E2E PASS; Core·호환성 및 환경 조건 검증
 - 마지막 갱신 시각: 2026-11-18 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: GUI probe dcc0b4c,Android build7263444/실행FAIL7520cbc,iOS export953a5a5/실행PASSd543556; Hosted3fd95f459355d5abdab98ff9c622a7bd5675d0d1 SUCCESS. 최종Python171 PASS.
+- 마지막 검증된 소스 커밋: 배치30 GUI APK c07a264 / 실제 Android PII E2E·Core6f813a7 PASS; Python187/49모듈 PASS. 이전 iOS d543556 PASS와 보호소스 diff0. Hosted는 배치30 아직 NOT_RUN.
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 현재 환경 블로커: DEP-P10-ANDROID-E2E(실제AndroidtimeoutFAIL원인미확정),원래batchIPC/Strict미완료,과거ADB시작경고영향미확정. iOS GUIexport/현재SimulatorE2E는PASS로분리.
-- 바로 다음 행동: Android최초managed marker미도달의새근거/진단·안전한UI/ADB소유확인부터진행한다. 원인미확정timeout무작정반복없음. 전체플랫폼/Strict/T01완료판정후에만T02제품codec/decoder진입.
+- 현재 환경 블로커: 원래batchIPC/Strict 미완료. Push 하네스는 자동batch빌드 경로만 지원하며 GUI receipt 입력 없음. R09용 새 UTF8 APK/설치 없는 전용AVD와 정상 UI 조작 조건 미확보. 현재 성공 AVD의 기존 설치 보존 gate를 우회하지 않는다. 과거ADB시작경고 영향 미확정.
+- 바로 다음 행동: Core/duplicate 결과와 API·ABI·source대조 및 최종Python 검증→문서/보안점검→handoff FFpush/Hosted false 1회. Push/JNI/Strict 미실행을 PASS로 바꾸지 않으며 T02 제품 변경은 보류.
 - 재개 행동: [배치29 현재결과](evidence/p10-batch29-integrated.md)를기준으로진행한다. 중단체크포인트는과거이력이며사용자재개로해제됐고,iOS GUIexport/실제Player는새증거로PASS다. Android실패를덮어쓰지않는다.
 
 ## 집계
@@ -1774,3 +1774,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치30 C 추가재검증 시작: 사용자명시전용ADB UI ACK요청범위에서새GUI B30B APK(현재source/147/nonce/hash검증)·새AVD B30_START_B_20261118_ACK·5594/5595·현재동일UnitySDK server98843을확인했다. 기존A/B29AVD·설치app/DB보존. 아래controller에서소유PID/양port/이름/serial을실측한뒤명시ACK옵션의E2E를1회만수행한다. 정상교육안내이외tap/권한/설정/서버변경없으며원래180초/기존auth-purchase-PII-원장조건유지. 허용추가1회를이실행에서사용하며더반복하지않는다.
 
 - 배치30 C 재검증 PASS/exit0: source6f813a79ffe2b8b932a7b562f326613950c7d7fc·GUI buildsource c07a264/APK f8f402fd. 새전용AVD에서정확한Viewing full screen 안내를사용자허용범위로1회tap(exit0,14.528s). 동일PID4479에서focus회복·안내소멸·Awake/Start/intent/SDK/init반환/auth진입관측,첫HTTP22.937s·완료27.976s·PII포함marker34·Backendauth/catalog/entitlements/verify/logout·원장1/delta100 PASS. 일반OS안내가이재현의managed진입을막았음은전후실측으로확인됐으나B29원본UI미수집때문에과거원인을소급확정하지않는다. 무인CI PASS아님/실Provider미검증. controller는자기PID99860만종료·AVD/DB/원본보존,첫진단FAIL도유지. 정제증거p10-batch30-android-e2e-b.json. D Core/duplicate·API/ABI/source대조를시작하고Push/JNI/Strict자동경로의미충족조건은별도평가한다.
+
+- 배치30 D Core 검증 PASS/exit0(artifacts/core-assertions-vkyulm0x,source6f813a7): Kotlin10건/helper50,Swift12건/helper122,managed checker1/helper418(정상198/예상오류220),stress100samples/helper316. duplicate-only 변이 process134 1회감지·정상probe0·원본SHA복원·복원418/분기419확인. 새Editor/Player/실Provider회귀와구분한다. Push는현재GUIreceipt 미지원의자동batch빌드전용,JNI는새UTF8 APK/설치없는전용기기·정상안내조작조건이남아 NOT_RUN/DEFERRED_ENV. 이미확인된batch실패를반복하거나설치보존gate/사용자ACK범위를넓혀우회하지않는다. Strict의자동batch정상선행조건미충족으로실행0/DEFERRED_ENV,T01/T02PARTIAL유지. C결과commit전원장명령첫호출은잘못된scripts/check-progress.py 경로라exit2였고실제scripts/verify-progress.py로정정검증한다(실패숨김없음). API/ABI/최종Python 검증을계속한다.
+
+- 배치30 E 검증 환경 정정: 최초 full Python은기본python3에jsonschema가없어module import1error/exit1(186loader항목)였다. 제품test실패가아니며원본final-python.log보존,이미준비된p01-schema-venv Python으로정확히같은suite를재실행한다. actionlint첫호출은PATH없음127,캐시binary 직접호출은기존custom self-hosted label 미등록오류1이므로기존허용label을명시한검증설정으로재검사한다(원본로그보존/워크플로우약화없음). 원장·API·manifest·meta·staging147검사는각exit0이다.
+
+- 배치30 D/E 결과/커밋 직전: 정확한venv의전체Python187건/49모듈PASS/skip0(16.309초),원장·API/source/wire·manifest·metadata·staging147·명시custom runner label actionlint 각exit0. 최초기본Python import실패와actionlint PATH/label실패는원본보존. 79shipping SHA·3Java class선정javap·양iOSslice Cexport4개가배치26보존artifact와일치,현재GUI APK source/receipt/147/hash 재검증PASS(새Native빌드아님). 현재iOS보호소스는d543556 실제PASS와diff0(새iOS실행아님). Core/duplicate 결과와환경상미실행Push/JNI/Strict를정확히분리했으며T01/T02PARTIAL·제품refactor0유지. 최종정제문서/보안점검/FF인계·falseHosted1회를이어간다.

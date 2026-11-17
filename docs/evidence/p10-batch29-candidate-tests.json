@@ -1,0 +1,23 @@
+{
+  "scope": "Independent P10-T02 candidate contract tests; production refactors NOT_RUN",
+  "kotlin": {
+    "tests": 18,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "newTests": 3,
+    "priorConfigFailure": "SDK location missing; tests 0; preserved; explicit subprocess ANDROID_HOME fixed"
+  },
+  "swift": {
+    "tests": 20,
+    "failures": 0,
+    "skipped": 0,
+    "newTests": 2
+  },
+  "testSourceHashes": {
+    "android/sdk-android/src/test/kotlin/com/gamebridge/android/auth/GoogleAuthProviderTest.kt": "ca2894387bc2a5460bb0b879ffebd4c172d038a2414785925a5b60c2d7e1051d",
+    "ios/Tests/GameBridgeCoreTests/AppleAuthProviderTests.swift": "c5dd7001078fcbcced61074557667f95a63ed3686d17a9294a4079dffada0764"
+  },
+  "platformProviderCalls": "NOT_RUN",
+  "finishPolicyChanged": false
+}

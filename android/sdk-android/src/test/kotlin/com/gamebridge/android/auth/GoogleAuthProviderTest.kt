@@ -65,6 +65,53 @@ private class StubBackend : GoogleAuthBackend {
 }
 class GoogleAuthProviderTest {
     private fun config(clientId: String? = "test.apps.googleusercontent.com") = GameBridgeConfig("demo", ProviderMode.PLATFORM_SANDBOX, "https://example.com", clientId)
+    @Test fun `stored binding fields reject foreign configuration before profile or refresh`() = runBlocking {
+        val store = MemoryStore(); val backend = StubBackend(); var profiles = 0
+        val observed = object : GoogleAuthBackend by backend {
+            override suspend fun profile(session: NativeSession): UserProfile { profiles++; return backend.profile(session) }
+        }
+        val provider = GoogleAuthProvider(config(), store, StubGateway(), observed)
+        provider.signIn(); val saved = store.stored!!
+        val replacements = listOf("\"appId\":\"demo\"" to "\"appId\":\"other\"",
+            "\"providerMode\":\"PLATFORM_SANDBOX\"" to "\"providerMode\":\"LOCAL_MOCK\"",
+            "\"backendBaseUrl\":\"https://example.com\"" to "\"backendBaseUrl\":\"https://other.example\"",
+            "\"provider\":\"GOOGLE\"" to "\"provider\":\"APPLE\"")
+        for ((before, after) in replacements) {
+            assertTrue(saved.contains(before)); store.stored = saved.replace(before, after)
+            assertEquals("SESSION_EXPIRED", assertFailsWith<SdkFailure> { provider.restore() }.code)
+            assertEquals(1, profiles); assertEquals(0, backend.refreshes)
+            assertEquals(saved.replace(before, after), store.stored)
+        }
+    }
+    @Test fun `malformed persisted credentials fail before authenticated backend work`() = runBlocking {
+        val store = MemoryStore(); val backend = StubBackend(); var profiles = 0
+        val observed = object : GoogleAuthBackend by backend {
+            override suspend fun profile(session: NativeSession): UserProfile { profiles++; return backend.profile(session) }
+        }
+        val provider = GoogleAuthProvider(config(), store, StubGateway(), observed)
+        provider.signIn(); val saved = store.stored!!
+        for ((before, after) in listOf("test-access" to "", "test-refresh" to "", "2030-01-01T00:00:00Z" to "invalid-time",
+                "d2719c4e-d533-47ee-9efd-838791ea79c8" to "D2719C4E-D533-47EE-9EFD-838791EA79C8")) {
+            assertTrue(saved.contains(before)); store.stored = saved.replace(before, after)
+            assertEquals("AUTH_FAILED", assertFailsWith<SdkFailure> { provider.restore() }.code)
+            assertEquals(1, profiles); assertEquals(0, backend.refreshes)
+        }
+    }
+    @Test fun `sign in validates profile before failed durable save without publishing a session`() = runBlocking {
+        val calls = mutableListOf<String>(); val backend = StubBackend()
+        val store = object : TokenStore {
+            override fun load(): String? = null
+            override fun save(value: String) { calls += "save"; throw SdkFailure("INTERNAL_ERROR") }
+            override fun clear() { calls += "clear" }
+        }
+        val observed = object : GoogleAuthBackend by backend {
+            override suspend fun profile(session: NativeSession): UserProfile { calls += "profile"; return backend.profile(session) }
+        }
+        val provider = GoogleAuthProvider(config(), store, StubGateway(), observed)
+        assertEquals("INTERNAL_ERROR", assertFailsWith<SdkFailure> { provider.signIn() }.code)
+        assertEquals(listOf("profile", "save"), calls)
+        assertNull(store.load()); assertEquals(0, backend.refreshes)
+    }
     @Test fun `server nonce is passed to gateway and session remains native`() = runBlocking {
         val store = MemoryStore(); val gateway = StubGateway(); val backend = StubBackend()
         val provider = GoogleAuthProvider(config(), store, gateway, backend)

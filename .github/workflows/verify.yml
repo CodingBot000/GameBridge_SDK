@@ -176,8 +176,8 @@ jobs:
       - name: Swift package contract and fake tests
         run: |
           set -o pipefail
-          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|StoreKitBillingProviderTests|PushRouterTests|OfflineFakeTests|BackendClientTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
-          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests StoreKitBillingProviderTests PushRouterTests OfflineFakeTests BackendClientTests
+          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|AppleAuthProviderTests|StoreKitBillingProviderTests|PushRouterTests|OfflineFakeTests|BackendClientTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
+          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests AppleAuthProviderTests StoreKitBillingProviderTests PushRouterTests OfflineFakeTests BackendClientTests
           bash scripts/smoke-ios-source-consumer.sh
       - name: Install pinned XcodeGen locally
         run: |

@@ -3891,3 +3891,13 @@
 - 배치29 B 실제GUI Android빌드PASS: source7263444/nonce85e0d5036b344ac7b90ef95da9cb035f,새GameBridgeGuiAndroidB29 project에서Androidtarget전환후기존BuildMockPlayer.Build를실제호출했다. originalBuilderReturned=true,packageFilesVerified147,APK27072192bytes/실제SHA·원본GB_MOCK_BUILD PASS·freshnonce시작/완료로그·project/source/staging/cache·builder/scenario/adapter SHA입력계약모두재검증PASS. tests0/check1/players0,CLI/batchPASS아님. 이전probe전용Editor만정상Quit했고새소비project는Hub로열었다. C는5037owner/동일ADB실행경로·전용AVD/PID양port소유입증후에만진행한다.
 
 - 배치29 C 안전경계 구현/검증·커밋 전: GUI APK소비경로는명시emulator PID/이름/serial/양port와기존5037 serverPID·동일SDK adb실행파일을모든ADB호출직전에재검증한다. 다른기기/SDKclient·server kill/start명령·owner변경은실행전차단하며실패입력의ADB/DB도달0을확인했다. 신규GUI계약15건및기존emulator binding5건PASS/skip0,CI연결했다. 기존CLI모드/Player결제원장·PII·callback검사본문은유지한다. 실제C조건부실행은새전용AVD소유입증후1회수행하며기존서버를기동/종료하지않는다.
+
+- 배치29 C 실제Android E2E FAIL/exit1: GUI APK입력검증·새AVD부팅(PID80979/serial5590/이름/5590·5591양port소유)·기존Unity SDK ADBserver79436同경로가드·설치Success·Activity Status:ok까지통과했으나180초내Player완료marker가없어UNITY_PLAYER_RESULT_TIMEOUT(artifacts/unity-android-e2e-eb3lua0b). batch빌드실패와다른실제실행FAIL로보존한다. CUA가Qt Emulator를제어가능앱으로노출하지않아UI확인/조작은불가했고UI원인으로단정하지않는다. 원본DB/AVD/로그보존,controller는자기emulator만종료,이후serialbinding없어추가ADB조회안함. DBread-only확인첫시도는prefix검사에서실행전중단됐고실제producer의gamebridge_ci_10hex규약대조후해당신규DB만조회했다. 근거없는동일실행반복없음. D제품변경은보류하고독립후보정상/음성test를진행하며iOS는별도GUIexport가능성을확인한다.
+
+- [P10-T02] 배치29 D 독립test 구현 시작: Android실행timeout으로T01완료조건미충족/PARTIAL이므로codec/decoder제품변경은하지않는다. 기존Nativeauth/HTTPSink 경로에저장binding/잘못된session/저장실패순서,GRANTED·ALREADY_GRANTED/잘못된grant/다른account/로그아웃후늦은HTTPgrant를정상음성case로구현한다. fakegateway/URLProtocol만사용하고실Provider·finalization정책변경없음. 전체Native149/self9를관성적으로반복하지않고변경된AuthProvider testclass와GUI하네스영향을검증한다.
+
+- 배치29 D test 검증: Swift AppleAuthProviderTests20건/실패skip0/exit0(신규grant정상·잘못된응답/다른account·logout후늦은HTTPgrant거부포함). Kotlin첫호출은ANDROID_HOME미지정으로task의존성계산단계exit1/테스트0건이었다. 소스/assertion수정없이기존설치SDK경로를해당subprocess환경에명시해재검증한다. 최초환경실패원본보존,성공으로위장하지않는다.
+
+- 배치29 B/C iOS 독립검증 시작: Android timeout을iOS결과로확대하지않고새전용iOS소비project에서기존BuildMockIosPlayer를GUI메뉴로호출하는export경로를구성한다. 출력설정은project-local/비밀아님,현재147패키지·builder/scenario·exporttree/PBX hash/nonce로그를검사한다. 원본Builder/SDK/finish정책변경없음. export가실제성공하고입력계약을검증한경우에만새ownedSimulator/DB로기존iOSE2E의원장·callback/PII검사를그대로진행한다. 아직iOSexport/Player NOT_RUN.
+
+- [P10-T02] 배치29 D 실제독립회귀/커밋 전: Android GoogleAuthProviderTest18건(신규3)/failure0/error0/skip0/Gradle0,Swift AppleAuthProviderTests20건(신규2)/failure0/skip0/exit0. stored binding/잘못된credentials의network전거부·profile후save실패순서,정상grant2status/잘못된grant·account및logout후늦은HTTPgrant CANCELED를실제주입경로로검증했다. SDK제품/refactor/finish순서변경0이며T02전체완료아님. 기존동시refresh/tombstone/같은idempotency retry회귀도같은class에서유지됐다. Swift20class를Hosted필터/required suite 검사에연결했다. Kotlin최초SDK설정실패는보존.

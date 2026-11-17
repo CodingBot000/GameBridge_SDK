@@ -3875,3 +3875,7 @@
 - 배치28 E 최종검증/커밋 직전: 공개문서/정제JSON만변경,제품/harness/test/scripts/workflow/baseline diff0. 정제JSON두개parse·원장64행·API/source/wire·metadata/manifest/diff검사PASS,Python149·Native42/38·Core/managed418·self9의scope를분리했다. 일반GUI정상과자동batch실패·ADB경고미확정·미실행B/Strict/C1C2·추가CI0을정확히기록했다. 원본log/화면·사용자project목록·라이선스/서명/빌드산출물을제외하고명시stage/scan/commit/FFpush후localremoteHEAD와Git상태를검증한다.
 
 - 배치28 E staged검증/커밋 직전: 명시stage8개는문서/정제JSON뿐이며gitleaks exit0/탐지0,binary/원본log/서명/license/생성물없음. baseline이후전체변경도문서10경로뿐이다. 마지막인계commit후전체범위scan→handoff동일branch FFpush→실제local/remoteSHA와tracked clean·기존미추적3경로보존을조회한다. GUI검증project는열린상태로남기며ADB추가명령/새Editor/Player/CI실행없음.
+
+- [P10-T01] 배치29 A 시작: 지시문·AGENTS/START_HERE·마지막원장/로그와branch/HEAD7fe7c4a/기존미추적3경로확인. GUI가열린전용artifact project만대상으로test-only메뉴를구성해실제C#컴파일·nonce/버전/소유경로·Unity객체생성/정리·메서드도달receipt를검증한다. batch전용Application.isBatchMode조건과GUI를구분하고새장시간batch는실행하지않는다. 이후현재소비projectGUI Player빌드,ADBread-only/전용기기소유증명조건부E2E,미충족시T02독립정상음성test까지연속수행한다.
+
+- 배치29 A 구현/검증·커밋 전: test-only GUI메뉴는실제UnityEngine객체생성/Transform조회/DestroyImmediate7조건과nonce·버전·projectpath·scriptSHA·Editor assembly/PID·시간receipt를검사한다. parser는GUI범위만PASS하며batch/Player로승격하지않는다. 누락runtime증거·stale source/nonce/script·다른project/version/batch·부분실패receipt음성5단위PASS/skip0,CI연결완료. 전용artifact project만준비하는명시도구를추가했다. 소스commit후기존열린project에복사·컴파일하여GUI에서메뉴를실제로실행한다. 제품SDK/라이선스/장시간batch수정없음.

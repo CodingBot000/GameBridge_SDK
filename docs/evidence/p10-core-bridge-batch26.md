@@ -43,3 +43,8 @@ source **dc45a2f1b97e035655b4b6b2a9d5381248b040dc**,tracked-clean. 현재NativeM
 [배치27](p10-batch27-integrated.md)에서공식direct/CLI각새project1회실제Editor smoke가210초/124및180초/6으로미도달했다. protocol거부/mutex실패/channel부재를관측했지만복구/전체원인은미확정이다. 추가수정0,B현재Player NOT_RUN/CStrict0/DEFERRED_ENV로P10-T01PARTIAL유지. 현재Core10/12·managed418·Native42/38·self9·Python149및보존artifact/current79source·API/선정ABI재대조는독립PASS이며과거Player·Strict를현재로재작성하지않는다. T02는선행차단으로제품변경없이[경계감사·후보2·회귀설계](p10-auth-purchase-push-batch27.md)만수행했다. 기존FAIL/외부대기유지.
 
 배치27 최종 [Hosted run44057317769](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44057317769),source50cd34c는SUCCESS(Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED),새진단6건포함Python43파일/149건확인. currentPlayer/Strict미실행및P10-T01PARTIAL은해소하지않는다. [최종인계](p10-batch27-integrated.md).
+
+
+## 배치28 후속
+
+사용자가정상실행확인을위임했고에이전트가새전용project를Hub에서열어6000.5.8f1 Scene/Hierarchy/Inspector정상UI를확인했다. 별도direct batch1회는210초timeout/receipt없음으로실패한상태를보존했다. B현재Player·Strict0/DEFERRED_ENV,T01PARTIAL로C1/C2제품진입은미실행이다. 독립Python149/Core10·12/managed418/Native42·38/self9 PASS와API/선정ABI재대조는[배치28 증거](p10-batch28-integrated.md)에source별기록했다. GUI시작의다른SDK ADBserver종료경고·대상영향미확정도분리했다. 코드변경0이라추가Hosted dispatch0/NOT_RUN,과거CI는비교기준만유지한다.

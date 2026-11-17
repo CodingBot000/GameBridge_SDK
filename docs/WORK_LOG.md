@@ -3868,4 +3868,10 @@
 
 - 배치28 D Core 검증: commit4d58d13 tracked-clean의core-assertions-7b_9fhgq exit0/PASS. Kotlin10/50helper,Swift12/122,managed418(198normal+220expected),복원418/branch419,stress100samples/helper316 및정확duplicate-only변이감지/원본hash복원확인. Editorinclude없음/JNI실제Player assertion UNMEASURED. 보존artifact의현재79source/checksum·javap3class/Cexport4x2재대조PASS(새build아님). Nativeauth/purchase/push회귀와self9는동일shippingcode에서계속한다.
 
-- 배치28 D Native検증/커밋 전: source4d58d13과동일shipping79hash전후실측에서Android선택session/auth/purchase/push JUnit42건/failure0/error0/skip0/exit0,Swift38건/failure0/skip0/exit0. 미커밋은결과문서뿐이며실기기/스토어/푸시서비스통과가아니다. 현재5037 listener PID68316을lsof/ps로만읽었고사전owner/종료대상은UNMEASURED;ADB실행/서버조작없음. 이결과문서commit후새격리DB/role self9만수행하며fullStrict/Player/추가Editor실행없음.
+- 배치28 D Native 검증/커밋 전: source4d58d13과동일shipping79hash전후실측에서Android선택session/auth/purchase/push JUnit42건/failure0/error0/skip0/exit0,Swift38건/failure0/skip0/exit0. 미커밋은결과문서뿐이며실기기/스토어/푸시서비스통과가아니다. 현재5037 listener PID68316을lsof/ps로만읽었고사전owner/종료대상은UNMEASURED;ADB실행/서버조작없음. 이결과문서commit후새격리DB/role self9만수행하며fullStrict/Player/추가Editor실행없음.
+
+- [P09-T08] 배치28 D/E 검증: self source2737429c873e272b1576b519e709582670cf75ac tracked-clean에서새격리DB/role self-only9/9PASS/exit0(artifacts/harness-self-ewkzqy1d,strict-isolated-9y2p_lsi). tests47/의도negative3/checks9/예상외failure0/skip0,checkererrors미측정유지. self-only로Simulator/Player/전체Strict없음. 이번제품/harness/test/workflow/baseline변경0이라E조건의Hosted추가dispatch0/NOT_RUN,기존배치27CI는역사증거로만유지한다. 현재local/remotehandoff는FF가능(0behind/2ahead),repo public CodingBot000/GameBridge_SDK확인. 정제회귀JSON·상태/다음행동·최종보고를갱신하고scan/commit/FF인계를마친다.
+
+- 배치28 E 최종검증/커밋 직전: 공개문서/정제JSON만변경,제품/harness/test/scripts/workflow/baseline diff0. 정제JSON두개parse·원장64행·API/source/wire·metadata/manifest/diff검사PASS,Python149·Native42/38·Core/managed418·self9의scope를분리했다. 일반GUI정상과자동batch실패·ADB경고미확정·미실행B/Strict/C1C2·추가CI0을정확히기록했다. 원본log/화면·사용자project목록·라이선스/서명/빌드산출물을제외하고명시stage/scan/commit/FFpush후localremoteHEAD와Git상태를검증한다.
+
+- 배치28 E staged검증/커밋 직전: 명시stage8개는문서/정제JSON뿐이며gitleaks exit0/탐지0,binary/원본log/서명/license/생성물없음. baseline이후전체변경도문서10경로뿐이다. 마지막인계commit후전체범위scan→handoff동일branch FFpush→실제local/remoteSHA와tracked clean·기존미추적3경로보존을조회한다. GUI검증project는열린상태로남기며ADB추가명령/새Editor/Player/CI실행없음.

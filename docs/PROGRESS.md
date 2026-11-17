@@ -4,16 +4,16 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (배치28 진행; Hub 일반 GUI 정상 확인, 자동 batch 미확인·B/C 진입 보류, D 독립 회귀)
-- 현재 Phase / Task: 배치28 D / 자동 batch 환경 대기와 독립 회귀·증거 인계
+- 전체 상태: IN_PROGRESS (배치28 종료; Hub 일반GUI 정상, 자동batch/Player·Strict 환경 대기, T01/T02 PARTIAL, 독립 D 회귀 PASS)
+- 현재 Phase / Task: 배치28 종료 / 일반GUI와자동batch 차이 및 미실행 Player/Strict 인계
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 배치27 Core/Native ffed5c2e83c1b02ec1f68edb590a918e9556174c / self9 b540e7bd1682a6305c49c9377282b710bee3a982 / 실제 IPC 비교 cf276b7 (제품 source 동일); Hosted 50cd34c2f3c97eca36708d4a2ed377da392247d7 SUCCESS
+- 마지막 검증된 소스 커밋: 배치28 direct/Hub GUI 3955e4e(제품 source 동일), Core/Native 4d58d132859aa0990ced6a1b7fa67652030eb5a3 / self9 2737429c873e272b1576b519e709582670cf75ac; 이번Hosted NOT_RUN(코드변경0)
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — CLI active이나 direct210초/124·CLI180초/6 모두 smoke 미도달. 배치26 raw build FAIL 보존, 배치27 B Player NOT_RUN/C Strict0·DEFERRED_ENV. DEP-P10-T01로 T02 제품 진입 보류.
-- 바로 다음 행동: USER_SETUP의 ENV-UNITY-LICENSE-IPC를 실제 Editor 실행으로 복구한 후 현재 SDK staging과 소유 기기에서 영향 Android JNI/Unity Player를 검증한다. 이번 full Strict 실행0/DEFERRED_ENV, 이번 Hosted Unity/Release SKIPPED 및 P05 FAIL/18.6 간헐 위험/Provider13 대기 유지.
-- 재개 행동: AGENTS.md·START_HERE.md와 [배치27](evidence/p10-batch27-integrated.md), [T02 감사](evidence/p10-auth-purchase-push-batch27.md), USER_SETUP에서 IPC 복구·미실행 Player/Strict 조건을 확인한다. old staging/과거 Player를 현재 실행으로 재사용하지 않는다.
+- 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — HubGUI 정상이나direct210초/outer124·receipt없음. Player NOT_RUN/Strict0·DEFERRED_ENV,DEP-P10-T01로C1/C2보류. ENV-UNITY-ADB-STARTUP의대상/영향미확정.
+- 바로 다음 행동: USER_SETUP의HubGUI/자동batch구분과ADB경고를확인하고정상자동receipt→currentPlayer/Strict→T01판정→C1/C2를재개한다. 이번Hosted추가0,기존P05 FAIL/18.6위험/Provider13대기유지.
+- 재개 행동: AGENTS.md·START_HERE.md와 [배치28](evidence/p10-batch28-integrated.md), [Editor관측](evidence/p10-batch28-editor.json), USER_SETUP부터확인한다. 검증용GUI project는artifact경로로열린상태이고과거Player/CI를현재실행으로치환하지않는다.
 
 ## 집계
 
@@ -128,7 +128,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | DEP-P09-SK18 | DEP | P09-T04 | 배치24 18.6 timeout 원인 미확정, 배치25 동일 제한의 두 경로 PASS | 최초/후속 증거 및 checkpoint 분리 유지 | 정지 구간·기기 상태/부하 관측으로 간헐 원인 분류 | OPEN |
 | DEP-P10-T01 | DEP | P10-T02 | 배치27 실제 Editor 미복구로 current Player·Strict 완료 증거 없음 | 제품 변경 없이 책임 감사/후보2/회귀설계만 완료 | P10-T01 current Player·Strict 및 로컬 완료 조건 확인 후 후보별 진입 | OPEN |
 | ENV-UNITY-ADB-STARTUP | ENV | P10-T01·전용 기기 시험 | 배치28 Hub GUI Editor 상태바에서 다른 SDK ADB server 인스턴스 종료 경고 관측, 대상/영향 미확정 | 에이전트 ADB명령 없음, 추가 기기/서버 조작 보류 | 후속 기기 시험 전 SDK·ADB process 및 전용 serial/PID/양port 소유 확인 | OPEN |
-| ENV-UNITY-LICENSE-IPC | ENV | P10-T01·현재 Unity Player/Strict | 배치27 CLI active이나 direct210초/124·CLI180초/6 모두 실제 smoke receipt/marker 없음; IPC/mutex 실패·정확 원인 미확정 | 원본실패보존, 각비교1/추가수정0, Player NOT_RUN/Strict0·DEFERRED_ENV | USER_SETUP의 정상 IPC 환경 및 실제 Editor smoke 확인 후 current Player·Strict 재검증 | OPEN |
+| ENV-UNITY-LICENSE-IPC | ENV | P10-T01·현재 Unity Player/Strict | 배치28 Hub GUI6000.5.8f1 정상UI, direct batch210초/outertimeout124·receipt없음·IPC/mutex실패 | raw보존/자동1회·GUI별도1회,Player NOT_RUN/Strict0·DEFERRED_ENV | 일반GUI와자동batch차이확인·정상자동receipt후current Player/Strict | OPEN |
 | ENV-P09-RUNNER | ENV | P09-T07 | 전용 self-hosted 격리·실제 Unity CI/Release 미검증 | Hosted-only 및 local CI 경로 유지 | 전용 runner 준비와 별도 명시 검증 | OPEN |
 | ENV-P09-AVD | ENV | P09-T05 | 배치24 serial/PID/실제 port 불일치 | 배치25 새 AVD의 PID·이름·console/ADB 양 port 소유를 확인한 current Push PASS | 재실행마다 소유 검증·새 앱 상태 유지; 무인 CI 별도 | RESOLVED |
 | ENV-STOREKIT-26 | ENV | P05-T03 | iOS 26.5 simulator SKTestSession 설정 저장 Code 3 및 상품 조회 실패; 별도 iOS 18.6 전용 simulator 상품 조회 1건 통과 | 다른 독립 구현 진행; 실패 시험 보존 | 호환 환경에서 StoreKit local 재시험 | OPEN |
@@ -1674,4 +1674,10 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - 배치28 D Core 검증: commit4d58d13 tracked-clean의core-assertions-7b_9fhgq exit0/PASS. Kotlin10/50helper,Swift12/122,managed418(198normal+220expected),복원418/branch419,stress100samples/helper316 및정확duplicate-only변이감지/원본hash복원확인. Editorinclude없음/JNI실제Player assertion UNMEASURED. 보존artifact의현재79source/checksum·javap3class/Cexport4x2재대조PASS(새build아님). Nativeauth/purchase/push회귀와self9는동일shippingcode에서계속한다.
 
-- 배치28 D Native検증/커밋 전: source4d58d13과동일shipping79hash전후실측에서Android선택session/auth/purchase/push JUnit42건/failure0/error0/skip0/exit0,Swift38건/failure0/skip0/exit0. 미커밋은결과문서뿐이며실기기/스토어/푸시서비스통과가아니다. 현재5037 listener PID68316을lsof/ps로만읽었고사전owner/종료대상은UNMEASURED;ADB실행/서버조작없음. 이결과문서commit후새격리DB/role self9만수행하며fullStrict/Player/추가Editor실행없음.
+- 배치28 D Native 검증/커밋 전: source4d58d13과동일shipping79hash전후실측에서Android선택session/auth/purchase/push JUnit42건/failure0/error0/skip0/exit0,Swift38건/failure0/skip0/exit0. 미커밋은결과문서뿐이며실기기/스토어/푸시서비스통과가아니다. 현재5037 listener PID68316을lsof/ps로만읽었고사전owner/종료대상은UNMEASURED;ADB실행/서버조작없음. 이결과문서commit후새격리DB/role self9만수행하며fullStrict/Player/추가Editor실행없음.
+
+- [P09-T08] 배치28 D/E 검증: self source2737429c873e272b1576b519e709582670cf75ac tracked-clean에서새격리DB/role self-only9/9PASS/exit0(artifacts/harness-self-ewkzqy1d,strict-isolated-9y2p_lsi). tests47/의도negative3/checks9/예상외failure0/skip0,checkererrors미측정유지. self-only로Simulator/Player/전체Strict없음. 이번제품/harness/test/workflow/baseline변경0이라E조건의Hosted추가dispatch0/NOT_RUN,기존배치27CI는역사증거로만유지한다. 현재local/remotehandoff는FF가능(0behind/2ahead),repo public CodingBot000/GameBridge_SDK확인. 정제회귀JSON·상태/다음행동·최종보고를갱신하고scan/commit/FF인계를마친다.
+
+- 배치28 E 최종검증/커밋 직전: 공개문서/정제JSON만변경,제품/harness/test/scripts/workflow/baseline diff0. 정제JSON두개parse·원장64행·API/source/wire·metadata/manifest/diff검사PASS,Python149·Native42/38·Core/managed418·self9의scope를분리했다. 일반GUI정상과자동batch실패·ADB경고미확정·미실행B/Strict/C1C2·추가CI0을정확히기록했다. 원본log/화면·사용자project목록·라이선스/서명/빌드산출물을제외하고명시stage/scan/commit/FFpush후localremoteHEAD와Git상태를검증한다.
+
+- 배치28 E staged검증/커밋 직전: 명시stage8개는문서/정제JSON뿐이며gitleaks exit0/탐지0,binary/원본log/서명/license/생성물없음. baseline이후전체변경도문서10경로뿐이다. 마지막인계commit후전체범위scan→handoff동일branch FFpush→실제local/remoteSHA와tracked clean·기존미추적3경로보존을조회한다. GUI검증project는열린상태로남기며ADB추가명령/새Editor/Player/CI실행없음.

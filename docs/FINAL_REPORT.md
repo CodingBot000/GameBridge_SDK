@@ -1,5 +1,16 @@
 # GameBridge SDK 개발 보고서
 
+## 최신 인계 — 배치28 (2026-11-17)
+
+**P10-T01·T02 PARTIAL / 자동 검증 환경 대기.** 사용자가위임한정상실행확인에서새전용project를Hub로열어Unity6000.5.8f1 Scene/Hierarchy/Inspector정상GUI를확인했다. 별도direct자동smoke1회는210초outertimeout124/검증2·receipt없음이었고정상자동receipt는미확인이다. [Editor정제관측](evidence/p10-batch28-editor.json)과[통합결과·커밋](evidence/p10-batch28-integrated.md)에두scope를구분했다.
+
+지시에따라B현재Player/R09플랫폼영향·전체Strict(0회)/C1Android세션codec·C2Swiftgrantdecoder제품변경은진행하지않았다. 독립D에서는Python149,CoreKotlin10/Swift12(helpers50/122)·managed418,Native42/38,self9(47test/의도negative3/check9),mutation복원·lifecycle100samples/live0·API/wire/선정ABI재대조PASS. 과거Player/Strict를현재로바꾸지않는다.
+
+GUI상태바에는다른SDK의ADBserver종료경고가있었고후속read-only5037listener는Unity내장SDK adb였다. 에이전트ADB명령은없으나사전owner/종료대상/기기영향은미확정으로보존했다. 검증GUI Editor는artifact전용project로열어두었다. 기존사용자project/계정/라이선스설정·개인파일을삭제/변경하지않았다.
+
+이번제품/harness/test/workflow/baseline코드변경0이므로추가Hosted dispatch0/NOT_RUN. 배치27Hosted SUCCESS는역사증거다. P05FAIL/ENV26OPEN/18.6간헐위험/실Provider13WAIT/self-hosted·실기기·Release미검증유지. 재개는GUI/자동차이확인·자동receipt→ADB/기기격리→currentPlayer/Strict→T01판정→C1/C2순서다. [PROGRESS](PROGRESS.md)와[USER_SETUP](USER_SETUP.md)에다음행동을남겼다.
+
+
 ## 최신 인계 — 배치27 (2026-11-17)
 
 **IN_PROGRESS / P10-T01·T02 PARTIAL.** [통합 결과·작업별커밋](evidence/p10-batch27-integrated.md),[정제 IPC 관측](evidence/p10-batch27-ipc.json),[독립회귀](evidence/p10-batch27-regressions.json),[T02 감사·설계](evidence/p10-auth-purchase-push-batch27.md)가현재기준이다. 이하이전배치는각실행당시기록이다.

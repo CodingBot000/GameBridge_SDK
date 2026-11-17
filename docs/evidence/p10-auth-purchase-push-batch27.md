@@ -40,3 +40,8 @@ attemptId는auth closure 밖에서1회생성,proof/account precheck·server endp
 Push의 OS host forwarding/Backend registration/router는 이미 책임이 분리돼 있다. 실제 혼재·중복 근거가 약해 세번째 후보로 늘리지 않는다. timeout/cancel/retry/retention/동시성·스토어 finalization 정책은이미승인된값을유지한다.
 
 C에서 current Player·전체Strict 및P10-T01완료판정이충족된뒤에만후보별(최대2) 별도baseline→정상/음성test→작은제품변경→같은회귀/API·보안/원장대조→독립commit으로재개한다. 이번에는후보감사/설계까지완료했으며T02제품변경0·추가설계case미실행·성능개선미측정이다.
+
+
+## 배치28 후속
+
+사용자가정상실행확인을위임했고에이전트가새전용project를Hub에서열어6000.5.8f1 Scene/Hierarchy/Inspector정상UI를확인했다. 별도direct batch1회는210초timeout/receipt없음으로실패한상태를보존했다. B현재Player·Strict0/DEFERRED_ENV,T01PARTIAL로C1/C2제품진입은미실행이다. 독립Python149/Core10·12/managed418/Native42·38/self9 PASS와API/선정ABI재대조는[배치28 증거](p10-batch28-integrated.md)에source별기록했다. GUI시작의다른SDK ADBserver종료경고·대상영향미확정도분리했다. 코드변경0이라추가Hosted dispatch0/NOT_RUN,과거CI는비교기준만유지한다.

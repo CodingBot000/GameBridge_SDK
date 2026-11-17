@@ -109,3 +109,8 @@ C 전체Strict는호출0/DEFERRED_ENV. 신규제품회귀테스트실패는선�
 | `50cd34c2f3c97eca36708d4a2ed377da392247d7` | docs(ci): [P09-T07] record batch27 safe handoff preflight |
 
 실제IPC비교sourcecf276b7,Core/Nativeffed5c2,self9b540e7b,Hosted50cd34c. 제품source는배치시작과동일이다. 새진단runner는6unit/정상음성계약및실제실패log재분석을검증했으며이runner로Editor를추가실행하지않았다. 최종문서commit SHA는Git/채팅마지막인계에서조회한다.
+
+
+## 배치28 후속
+
+사용자가정상실행확인을위임했고에이전트가새전용project를Hub에서열어6000.5.8f1 Scene/Hierarchy/Inspector정상UI를확인했다. 별도direct batch1회는210초timeout/receipt없음으로실패한상태를보존했다. B현재Player·Strict0/DEFERRED_ENV,T01PARTIAL로C1/C2제품진입은미실행이다. 독립Python149/Core10·12/managed418/Native42·38/self9 PASS와API/선정ABI재대조는[배치28 증거](p10-batch28-integrated.md)에source별기록했다. GUI시작의다른SDK ADBserver종료경고·대상영향미확정도분리했다. 코드변경0이라추가Hosted dispatch0/NOT_RUN,과거CI는비교기준만유지한다.

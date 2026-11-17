@@ -159,3 +159,8 @@ P09-T01/T02/T03/T05/T06/T08 **IMPLEMENTED/PASS**. P09-T04/T07 **IMPLEMENTED/PART
 | `c34b419e3a2c719e5d615362f179b38f59b1a241` | test(ci): [P09-T07] record batch26 verification and wire source gate |
 
 A baseline은b6fd537,C1/C2코드는f985c3c/34b8267,새build/post계측은dc45a2f,self/C ABI는d86ccc2,Hosted는c34b419 source다. C1/C2 전후418 동일cohort와391 초기baseline+27matrix의관계를구분한다. 이후변경은문서뿐이다.
+
+
+## 배치27 후속
+
+[배치27](p10-batch27-integrated.md)에서공식direct/CLI각새project1회실제Editor smoke가210초/124및180초/6으로미도달했다. protocol거부/mutex실패/channel부재를관측했지만복구/전체원인은미확정이다. 추가수정0,B현재Player NOT_RUN/CStrict0/DEFERRED_ENV로P10-T01PARTIAL유지. 현재Core10/12·managed418·Native42/38·self9·Python149및보존artifact/current79source·API/선정ABI재대조는독립PASS이며과거Player·Strict를현재로재작성하지않는다. T02는선행차단으로제품변경없이[경계감사·후보2·회귀설계](p10-auth-purchase-push-batch27.md)만수행했다. 기존FAIL/외부대기유지.

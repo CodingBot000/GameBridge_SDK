@@ -58,3 +58,12 @@ lifecycle `lifecycle-stress.IDb0Hp`: 5warmup/100samples에서helper316(15+300+1)
 이어같은shipping code의 Native fake/session/store/push 선택회귀 `artifacts/batch27/native`에서 Android42JUnit/failure0/error0/skip0/exit0,Swift38XCTest/failure0/skip0/exit0. 기록중미커밋변경은진행문서뿐이며79shipping hash를전후실측확인했다. 실제Google/Apple로그인·StoreKit/PlayStore결제·FCM/APNs·OS권한시험은아니다. 새T02설계case를이기존test42/38로대체하지않는다.
 
 ABI/source re-inspection은 `artifacts/batch27/artifact-inspection.json`: 기존dc45a2f산출물의79shippinghash·UPMmanifest/checksum147현재일치,Nativejavap3class표면및nm C-export4개양slice이전비교와동일. 새Nativebuild/현재Player성공으로주장하지않는다. 보존staging이현재SDKsource와일치함을확인한B준비inspection의연장이다. public/internal API/wire baseline파일변경없음.
+
+
+### 자체시험9 및 로컬 완료 범위
+
+source **b540e7bd1682a6305c49c9377282b710bee3a982**,tracked-clean의새격리DB/role에서 `run-strict-local-isolated.py --run-local --self-check` exit0. self-only라Simulator생성/Unity Editor/Player/fullStrict호출없음. `harness-self-natvatov`,orchestration `strict-isolated-sj48fr5f`:9/9PASS,tests47(정상44+의도negative3)/checks9/예상외failure0/skip0. checker별errors는UNMEASURED/null을그대로유지하고전역0으로위장하지않는다. DB/role/원본log는보존했으며기존개발DB를시험DB로사용하지않았다.
+
+[정제회귀JSON](p10-batch27-regressions.json)에Core·Native·self·artifact출처와test/helper/check/sample/Player구분을기록했다. Python149에는새진단계약6건이포함되며제품test149건이아니다. 자체시험과Core변이의예상negative는따로기록하고실제EditorIPC실패를PASS로전환하지않는다. R01~R12의범위/한계는batch26측정계약을그대로유지한다.
+
+C 전체Strict는호출0/DEFERRED_ENV. 신규제품회귀테스트실패는선택실행범위에서0이지만모든현재Player/lane이통과한Strict가있다고주장하지않는다. 원본P05-T03기록FAIL·ENV26OPEN,18.6간헐원인미확정,Provider13WAIT,self-hosted/실기기/Release미검증유지. P10-T01과P10-T02모두IN_PROGRESS/PARTIAL,후자는이번제품수정0/감사만REVIEW_ONLY다.

@@ -36,3 +36,8 @@ source **dc45a2f1b97e035655b4b6b2a9d5381248b040dc**,tracked-clean. 현재NativeM
 새 package/source의 managed Editor2/32 및 전체418 smoke는 PASS이고, 동일 shipping code d86ccc2에서 freshDB self9 PASS와 신규18.6 Simulator C ABI1 PASS를 확인했다. 실제 Android Unity Player는 새 Editor LicensingClient IPC 연결 실패로 APK 생성 전 차단됐다. raw runner FAIL/exit1을 보존하며 실제 Player는 NOT_RUN/DEFERRED_ENV다. 전체 Strict 호출은0/DEFERRED_ENV이며 과거 batch25 Player·Strict를 이번 refactor 실행으로 대체하지 않는다. 관련 현재 iOS Unity Player도 이번 batch에서 실행하지 않았다.
 
 공개/internal API·wire·선정 javap/nm 표면 변경 없음은 검증 범위의 사실이며, 모든 OS·binary ABI·실기기 동작 보증은 아니다. T01 첫 두 private 개선은 구현 및 관련 로컬 회귀 확인을 마쳤으나 현재 Unity 전체 Player 영향 검증을 남겨 Task 전체 IN_PROGRESS/PARTIAL을 유지한다. 이후 P10-T02~T04를 이번 배치 완료로 표시하지 않는다. Native coordinator 등 제외 영역은 위 선정 근거를 유지한다.
+
+
+## 배치27 후속
+
+[배치27](p10-batch27-integrated.md)에서공식direct/CLI각새project1회실제Editor smoke가210초/124및180초/6으로미도달했다. protocol거부/mutex실패/channel부재를관측했지만복구/전체원인은미확정이다. 추가수정0,B현재Player NOT_RUN/CStrict0/DEFERRED_ENV로P10-T01PARTIAL유지. 현재Core10/12·managed418·Native42/38·self9·Python149및보존artifact/current79source·API/선정ABI재대조는독립PASS이며과거Player·Strict를현재로재작성하지않는다. T02는선행차단으로제품변경없이[경계감사·후보2·회귀설계](p10-auth-purchase-push-batch27.md)만수행했다. 기존FAIL/외부대기유지.

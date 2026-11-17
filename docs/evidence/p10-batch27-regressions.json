@@ -1,0 +1,167 @@
+{
+  "scope": "Batch27 independent local verification; no Editor/Player/full Strict pass claim",
+  "core": {
+    "sourceHead": "ffed5c2e83c1b02ec1f68edb590a918e9556174c",
+    "status": "PASS",
+    "rawEvidence": "artifacts/core-assertions-_jnkfd1a/result.json",
+    "executions": [
+      {
+        "name": "kotlin",
+        "status": "PASS",
+        "tests": 10,
+        "checks": 1,
+        "normalAssertions": 37,
+        "expectedErrorChecks": 13,
+        "assertionsExecuted": 50
+      },
+      {
+        "name": "swift",
+        "status": "PASS",
+        "tests": 12,
+        "checks": 1,
+        "normalAssertions": 112,
+        "expectedErrorChecks": 10,
+        "assertionsExecuted": 122
+      },
+      {
+        "name": "csharp",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "normalAssertions": 198,
+        "expectedErrorChecks": 220,
+        "assertionsExecuted": 418
+      },
+      {
+        "name": "lifecycle-stress",
+        "tests": 0,
+        "checks": 1,
+        "samples": 100,
+        "assertions": {
+          "executed": 316,
+          "warmup": 15,
+          "samples": 300,
+          "finalChecks": 1,
+          "outcomes": "UNMEASURED"
+        }
+      },
+      {
+        "name": "duplicate-guard-mutation",
+        "tests": 0,
+        "checks": 1,
+        "expectedProcessFailures": 1,
+        "normalProbeExitCode": 0,
+        "mutatedProcessExitCode": 134,
+        "sourceUnchanged": true
+      },
+      {
+        "name": "normal-after-mutation",
+        "tests": 0,
+        "checks": 1,
+        "normalAssertions": 198,
+        "expectedErrorChecks": 220,
+        "assertionsExecuted": 418,
+        "sourceUnchanged": true
+      },
+      {
+        "name": "conditional-branch-control",
+        "tests": 0,
+        "checks": 1,
+        "normalAssertions": 199,
+        "expectedErrorChecks": 220,
+        "assertionsExecuted": 419
+      }
+    ],
+    "assertionOutcomes": "UNMEASURED",
+    "editor": "NOT_RUN"
+  },
+  "native": {
+    "sourceHead": "ffed5c2e83c1b02ec1f68edb590a918e9556174c",
+    "shippingSourceChanged": false,
+    "android": {
+      "exitCode": 0,
+      "tests": 42,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "scope": "Native fake/session/host forwarding tests; no real OAuth/store/push/OS UI",
+    "swift": {
+      "exitCode": 0,
+      "tests": 38,
+      "failures": 0,
+      "errorModel": "included-in-failures",
+      "skipped": 0
+    },
+    "status": "PASS",
+    "shippingHashMatchesBeforeAfter": true
+  },
+  "selfCheck": {
+    "sourceHead": "b540e7bd1682a6305c49c9377282b710bee3a982",
+    "rawEvidence": "artifacts/harness-self-natvatov/result.json",
+    "status": "PASS",
+    "exitCode": 0,
+    "lanes": 9,
+    "tests": 47,
+    "checks": 9,
+    "expectedFailures": 3,
+    "failures": 0,
+    "skipped": 0,
+    "errors": "per-lane model; checker/unmeasured remain null, not globally zero"
+  },
+  "artifactInspection": {
+    "sourceHead": "ffed5c2e83c1b02ec1f68edb590a918e9556174c",
+    "artifactBuildSourceHead": "dc45a2f1b97e035655b4b6b2a9d5381248b040dc",
+    "scope": "Retained batch26 native artifacts, re-inspected with unchanged shipping source; not a fresh build",
+    "shippingHashMatches": true,
+    "stagingManifestHashMatches": true,
+    "javaSurfaces": {
+      "core": {
+        "classes": [
+          "com.gamebridge.SdkCoordinator",
+          "com.gamebridge.BridgeProtocol"
+        ],
+        "sha256": "042989015af957a16fef264e2e25fcf6a5bfe63efa41610e5c507e2c447ea56a",
+        "matchesPrior": true
+      },
+      "bridge": {
+        "classes": [
+          "com.gamebridge.bridge.BridgeFacade"
+        ],
+        "sha256": "3d8bc5f52b397628518bcd3a3d4cb6bd7bf5f03227f177e056ce45880197ff24",
+        "matchesPrior": true
+      }
+    },
+    "swiftCExports": {
+      "ios-arm64": [
+        "GB_Dispatch",
+        "GB_ProtocolVersion",
+        "GB_SetCallback",
+        "GB_Shutdown"
+      ],
+      "ios-arm64_x86_64-simulator": [
+        "GB_Dispatch",
+        "GB_ProtocolVersion",
+        "GB_SetCallback",
+        "GB_Shutdown"
+      ]
+    },
+    "status": "PASS"
+  },
+  "fullStrict": {
+    "status": "DEFERRED_ENV",
+    "invocations": 0
+  },
+  "players": {
+    "android": "NOT_RUN",
+    "ios": "NOT_RUN",
+    "jniCAbiPlayerImpact": "NOT_RUN"
+  },
+  "python": {
+    "suites": 43,
+    "tests": 149,
+    "failures": 0,
+    "skipped": 0,
+    "rawEvidence": "artifacts/batch27/python-all.log"
+  }
+}

@@ -7,13 +7,13 @@
 - 전체 상태: IN_PROGRESS (배치27 진행; A IPC 미복구, B/C 환경 대기, D 책임 감사, E 독립 회귀·인계)
 - 현재 Phase / Task: 배치27 E / P10-T01·T02 독립 회귀 및 Hosted 인계
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: 계측·새 패키지 dc45a2f1b97e035655b4b6b2a9d5381248b040dc / self9·독립 iOS C ABI d86ccc23ceb14dc6a81d93c2317de0c78f5d708e (shipping code 동일); Hosted c34b419e3a2c719e5d615362f179b38f59b1a241 SUCCESS
+- 마지막 검증된 소스 커밋: 배치27 Core/Native ffed5c2e83c1b02ec1f68edb590a918e9556174c / self9 b540e7bd1682a6305c49c9377282b710bee3a982 / 실제 IPC 비교 cf276b7 (제품 source 동일); 이번 Hosted는 아직 NOT_RUN
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — CLI license active이나 새 Editor IPC 재연결 실패, Android APK/Player 미실행. raw runner FAIL/exit1 보존. 이번 전체 Strict 실행0/DEFERRED_ENV.
+- 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — CLI active이나 direct210초/124·CLI180초/6 모두 smoke 미도달. 배치26 raw build FAIL 보존, 배치27 B Player NOT_RUN/C Strict0·DEFERRED_ENV. DEP-P10-T01로 T02 제품 진입 보류.
 - 바로 다음 행동: USER_SETUP의 ENV-UNITY-LICENSE-IPC를 실제 Editor 실행으로 복구한 후 현재 SDK staging과 소유 기기에서 영향 Android JNI/Unity Player를 검증한다. 이번 full Strict 실행0/DEFERRED_ENV, 원격 Unity/Release SKIPPED 및 P05 FAIL/18.6 간헐 위험/Provider13 대기 유지.
-- 재개 행동: AGENTS.md·START_HERE.md와 [배치26](evidence/p09-batch26-integrated.md), [Core 비교](evidence/p10-core-bridge-batch26.md)에서 미실행 Player 및 전용 runner 조건을 확인한다. old staging/과거 Player를 현재 실행으로 재사용하지 않는다.
+- 재개 행동: AGENTS.md·START_HERE.md와 [배치27](evidence/p10-batch27-integrated.md), [T02 감사](evidence/p10-auth-purchase-push-batch27.md), USER_SETUP에서 IPC 복구·미실행 Player/Strict 조건을 확인한다. old staging/과거 Player를 현재 실행으로 재사용하지 않는다.
 
 ## 집계
 
@@ -1638,3 +1638,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치27 E Core/API 실제검증: sourceffed5c2 tracked-clean의core-assertions-_jnkfd1a exit0/PASS. Kotlin10test/50helper,Swift12/122,managed0test/check1/418(198normal+220expected),duplicate정상2/0→변이부분1/nonzero→원본hash동일/정상복원418,분기419/추가OFF0ON1,stress100samples/316. Editor는include하지않아NOT_RUN. 보존batch26artifact의shipping79hash·UPMmanifest/checksum147·javap3class·Cexport4개양slice현재재대조PASS(새build아님). E뒤이은Native회귀는같은shipping code이며현재미커밋변경은이결과문서뿐이다.
 
 - 배치27 E Native 검증/커밋 전: ffed5c2와같은shipping79hash(전후실측동일)에서Android선택Core/session·auth·purchase·push fake JUnit42건/실패error skip0·Gradle0,Swift선택Native/session/store/push XCTest38건/실패skip0·exit0. 현재미커밋은결과문서뿐이며실제OS/Provider/Player실행은아니다. lifecycle100samples/liveClient·Transport0·helper316 및API/선정ABI대조도기록한다. 이독립회귀증거commit후새격리DB/role의self9만수행하고전체Strict/Editor/Player는A미충족으로재실행하지않는다.
+
+- [P09-T08] 배치27 E self검증/커밋 전: sourceb540e7b tracked-clean의새DB/role에서self-only9/9PASS/exit0(harness-self-natvatov,strict-isolated-sj48fr5f),tests47/의도negative3/checks9/예상외failure0/skip0. checkererrors null은미측정으로보존,fullStrict호출0·Simulator/Player생성없음. Core/Native/ABI·자가시험정제JSON을추가했다. repository CodingBot000/GameBridge_SDK public,변수0/runner0 정상API응답확인;remotehandoff CF276b7이local조상(0behind/3ahead). 모든소스commit후증거/문서를scan하고FFpush/falseHosted1회를요청한다.

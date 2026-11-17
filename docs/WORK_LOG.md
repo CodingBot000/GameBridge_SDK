@@ -4115,3 +4115,5 @@
 - 배치32 CLI후속단계 사전조건: 현재5037listener0으로기존server31840을재사용하지않는다. 새AVD前한정SDK server를loopback에직접foreground server nodaemon으로생성해OS bind가경쟁時실패하도록하고기존daemon을kill/restart하지않는다(공식ADB -L/foreground문법확인). 생성된자기PID/실행파일만실측·기록하고기기명령은같은guard를통과시킨다. 실효환경의server socket/host/port override는사전거부해검증한5037과다른endpoint로명령이가지않도록보강한다. Mac잠금중새GUI조작아닌명시CLI batch 소비로분리/기존성공기기보존/시간상한유지. 첫파일수정호출은작업디렉터리오타로process생성前거부돼변경0이었고정확한저장소로정정했다.
 
 - 배치32 후속CLI 명시binding 검증/커밋 전: CLI/GUI동일Guard3기본검사와실효env endpoint변경거부/legacybinding검사총9건PASS/skip0. 사용자Mac잠금을해제하거나GUI조작을대체하는스크립트가아니라이미정상확인한원래자동batch builder를명시선택한다. 실제SDK코드/가격/retention/시간제한/marker·PII·SQL조건변경0. 다음새own foreground SDK서버/새PostNativePII AVD와현재147staging을사용하고자기서버·기기만종료해기존daemon/process는건드리지않는다. 현코드commit뒤초기tracked-clean을확인한실제플랫폼검증을수행한다.
+
+- 배치32 CLI후속서버최초준비FAIL/기기0: foreground -L tcp:127.0.0.1:5037을설치된adb36이“specified hostname unsupported”로bind前거부했다. 기존5037listener0/daemon교체0/AVD생성0/Player0으로원본보존. 같은foreground OS bind방식에서지원되는tcp:5037(기본localhost, -a없음)으로정정하고실제listen주소가loopback임을추가확인한다. UI/SDK/시간제한변경아닌테스트서비스시작인자수정이며다른server를kill/restart하지않는다.

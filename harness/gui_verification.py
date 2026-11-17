@@ -114,12 +114,21 @@ def embedded_versions(project):
     return versions
 
 
+ANDROID_SCENARIOS = {'standard':'UnityAndroidMockConsumer', 'pii':'UnityAndroidPiiConsumer',
+                     'utf8':'UnityAndroidUtf8Consumer', 'push':'UnityAndroidPushConsumer'}
+
+
+def auxiliary_sources(variant):
+    if variant == 'pii':return [('PiiProbe.cs','tests/UnityPiiProbe/PiiProbe.cs'),('link.xml','tests/UnityLateCallbackPlayer/link.xml')]
+    if variant == 'push':return [('LateCallbackProbe.cs','tests/UnityLateCallbackPlayer/LateCallbackProbe.cs'),('link.xml','tests/UnityLateCallbackPlayer/link.xml')]
+    return []
+
+
 def verify_auxiliary_sources(project, root, variant):
-    if variant != 'pii':return
-    for target, source in [('PiiProbe.cs','tests/UnityPiiProbe/PiiProbe.cs'),('link.xml','tests/UnityLateCallbackPlayer/link.xml')]:
+    for target, source in auxiliary_sources(variant):
         path=Path(project)/'Assets'/target
         if path.is_symlink() or file_hash(path)!=file_hash(Path(root)/source):
-            raise ValueError('GUI PII auxiliary source differs from checkout')
+            raise ValueError('GUI auxiliary source differs from checkout')
 
 
 def load_android_build(project, receipt_path, staging, current_head, variant):
@@ -142,7 +151,7 @@ def load_android_build(project, receipt_path, staging, current_head, variant):
     protected = ['unity/Packages/com.gamebridge.sdk', 'android/sdk-core/src/main', 'android/sdk-android/src/main',
                  'android/sdk-unity-bridge/src/main', 'ios/Sources', 'ios/UnityBridge', 'contracts',
                  'tests/UnityGuiVerification/GameBridgeGuiVerification.cs', 'tests/UnityGuiVerification/GuiAndroidBuild.cs', 'tests/UnityAndroidMockConsumer', 'tests/UnityAndroidPiiConsumer',
-                 'tests/UnityAndroidUtf8Consumer', 'tests/UnityPiiProbe', 'tests/UnityLateCallbackPlayer']
+                 'tests/UnityAndroidUtf8Consumer', 'tests/UnityAndroidPushConsumer', 'tests/UnityPiiProbe', 'tests/UnityLateCallbackPlayer']
     if subprocess.run(['git','merge-base','--is-ancestor',config['sourceHead'],current_head],cwd=root,capture_output=True).returncode:
         raise ValueError('GUI build source is not current checkout ancestor')
     for args in ([config['sourceHead'], current_head], ['HEAD']):
@@ -157,7 +166,7 @@ def load_android_build(project, receipt_path, staging, current_head, variant):
                              ('Assets/Editor/GuiAndroidBuild.cs','tests/UnityGuiVerification/GuiAndroidBuild.cs'),
                              ('Assets/Editor/BuildMockPlayer.cs','tests/UnityAndroidMockConsumer/BuildMockPlayer.cs')]:
         if file_hash(project/relative) != file_hash(root/source): raise ValueError('GUI build helper differs from checkout')
-    folder={'standard':'UnityAndroidMockConsumer','pii':'UnityAndroidPiiConsumer','utf8':'UnityAndroidUtf8Consumer'}[variant]
+    folder=ANDROID_SCENARIOS[variant]
     if file_hash(project/'Assets/MockPlayerScenario.cs') != file_hash(root/'tests'/folder/'MockPlayerScenario.cs'):
         raise ValueError('GUI scenario differs from checkout')
     verify_auxiliary_sources(project,root,variant)

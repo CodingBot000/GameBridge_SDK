@@ -301,7 +301,7 @@ def main():
         "status": "NOT_RUN", "scope": "Unity Android Player -> Kotlin Bridge -> LOCAL_MOCK Backend/PostgreSQL",
         "sourceHead": source, "sourceTrackedDirty": tracked_dirty,
         "unityPlayer": "NOT_RUN", "realGoogleLogin": "NOT_RUN",
-        "realStorePurchase": "NOT_RUN", "retainsTestDatabase": True,
+        "realStorePurchase": "NOT_RUN", "retainsTestDatabase": True, "utf8Probe": args.utf8_probe,
     }
     backend_process = None
     backend_log = None

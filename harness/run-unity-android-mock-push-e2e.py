@@ -19,30 +19,50 @@ def guarded_call(command, adb, serial, expected_avd, failure_code=None, expected
     return common.must(command,failure_code,**kwargs) if failure_code else common.run(command,**kwargs)
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--run-local',required=True,action='store_true');parser.add_argument('--staging',type=Path,required=True);parser.add_argument('--serial',required=True);parser.add_argument('--expected-avd',required=True);args=parser.parse_args()
-    out=Path(tempfile.mkdtemp(prefix='unity-android-push-',dir=ROOT/'artifacts'));server=None;log=None;proxy=None;network_changed=False;adb=None;serial=None
-    expected_pid=os.environ.get('GAMEBRIDGE_PUSH_EMULATOR_PID')
+    parser=argparse.ArgumentParser();parser.add_argument('--run-local',required=True,action='store_true');parser.add_argument('--staging',type=Path,required=True);parser.add_argument('--serial',required=True);parser.add_argument('--expected-avd',required=True)
+    parser.add_argument('--gui-project',type=Path);parser.add_argument('--gui-build-receipt',type=Path)
+    parser.add_argument('--adb');parser.add_argument('--expected-emulator-pid',type=int)
+    parser.add_argument('--expected-adb-server-pid',type=int);parser.add_argument('--startup-diagnostics',action='store_true')
+    args=parser.parse_args()
+    if bool(args.gui_project)!=bool(args.gui_build_receipt):parser.error('GUI project and receipt must be supplied together')
+    out=Path(tempfile.mkdtemp(prefix='unity-android-push-',dir=ROOT/'artifacts'));server=None;log=None;proxy=None;network_changed=False;adb=None;serial=None;diagnostics=None;key=password=admin=bearer=None
+    expected_pid=str(args.expected_emulator_pid or os.environ.get('GAMEBRIDGE_PUSH_EMULATOR_PID',''))
     def run(command,**kwargs):return guarded_call(command,adb,serial,args.expected_avd,expected_pid=expected_pid,**kwargs)
     def must(command,failure_code,**kwargs):return guarded_call(command,adb,serial,args.expected_avd,failure_code,expected_pid=expected_pid,**kwargs)
     head=must(['git','rev-parse','HEAD'],'GIT_HEAD').strip();dirty=bool(must(['git','status','--porcelain','--untracked-files=no'],'GIT_STATUS').strip()); result={'status':'FAIL','scope':'Unity Android LOCAL_MOCK push; not FCM','sourceHead':head,'sourceTrackedDirty':dirty,'player':'NOT_RUN','background':'NOT_RUN','networkRecovery':'NOT_RUN','processRestart':'NOT_RUN'}
     try:
         if not expected_pid or not expected_pid.isdecimal():raise common.GateError('EXPECTED_EMULATOR_PID_REQUIRED','DEFERRED_ENV')
         stage=args.staging.resolve();must(['python3','harness/check-staging.py',stage],'STAGING_INVALID');common.verify_staged_source_matches_checkout(stage)
-        adb=common.locate_adb(None)
+        gui_input=None
+        if args.gui_project:
+            try:gui_input=common.load_android_build(args.gui_project,args.gui_build_receipt,stage,head,'push')
+            except (OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError) as error:raise common.GateError('GUI_BUILD_INPUT_INVALID') from error
+            if not args.expected_adb_server_pid:raise common.GateError('GUI_OWNED_DEVICE_AND_SERVER_BINDING_REQUIRED','DEFERRED_ENV')
+        adb=common.locate_adb(args.adb)
         if not adb: raise common.GateError('ADB_MISSING','DEFERRED_ENV')
+        if gui_input is not None:
+            common._GUI_ADB_GUARD=common._binding.GuiAdbGuard(adb,args.expected_adb_server_pid,args.serial,args.expected_avd,int(expected_pid))
+            result['adbServerPid']=args.expected_adb_server_pid
         serial,avd=common.wait_for_dedicated_device(adb,args.serial,args.expected_avd);result['avd']=avd
         try:result['emulatorBinding']=inspect_binding(serial,avd,expected_pid)
         except BindingError as error:raise common.GateError(str(error),'DEFERRED_ENV') from None
-        env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage)
-        prepared=must(['bash','scripts/prepare-unity-android-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
-        if not match:raise common.GateError('CONSUMER_PATH')
-        project=Path(match.group(1))
-        if env.get('GAMEBRIDGE_UNITY_PACKAGE_CACHE'):
-            try: result['embeddedCachedPackages']=proxy_module.embed_cached_packages(Path(env['GAMEBRIDGE_UNITY_PACKAGE_CACHE']).resolve(),project)
-            except proxy_module.common.GateError as error: raise common.GateError(str(error),error.category) from error
-        shutil.copy2(ROOT/'tests/UnityAndroidPushConsumer/MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/LateCallbackProbe.cs',project/'Assets/LateCallbackProbe.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
-        apk=out/'push-consumer.apk';build=run(['bash','scripts/build-unity-android-mock.sh',project,apk],timeout=1200,env=env);(out/'unity-build.log').write_text(build.stdout)
-        if build.returncode: raise common.GateError('UNITY_BUILD_FAILED')
+        if gui_input is not None:
+            apk=gui_input['apk'];proof=gui_input['receipt']
+            result.update(unityBuildMode='GUI_EXPLICIT_RECEIPT',guiBuildSourceHead=proof['sourceHead'],
+                guiBuildRunId=proof['runId'],guiBuildReceiptSha256=common.sha256(args.gui_build_receipt),
+                embeddedCachedPackages=gui_input['embeddedCachedPackages'],stagingManifestSha256=common.sha256(stage/'SHA256SUMS'))
+            (out/'unity-build.log').write_text(gui_input['logSegment'])
+        else:
+            env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage)
+            prepared=must(['bash','scripts/prepare-unity-android-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
+            if not match:raise common.GateError('CONSUMER_PATH')
+            project=Path(match.group(1))
+            if env.get('GAMEBRIDGE_UNITY_PACKAGE_CACHE'):
+                try: result['embeddedCachedPackages']=proxy_module.embed_cached_packages(Path(env['GAMEBRIDGE_UNITY_PACKAGE_CACHE']).resolve(),project)
+                except proxy_module.common.GateError as error: raise common.GateError(str(error),error.category) from error
+            shutil.copy2(ROOT/'tests/UnityAndroidPushConsumer/MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/LateCallbackProbe.cs',project/'Assets/LateCallbackProbe.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
+            apk=out/'push-consumer.apk';build=run(['bash','scripts/build-unity-android-mock.sh',project,apk],timeout=1200,env=env);(out/'unity-build.log').write_text(build.stdout)
+            if build.returncode: raise common.GateError('UNITY_BUILD_FAILED')
         result['apkSha256']=common.sha256(apk);result['player']='BUILT_NOT_RUN'
         must(['backend/gradlew','-p','backend','bootJar'],'BACKEND_BUILD',timeout=240);db,password=common.create_isolated_database('gamebridge-sdk-local-postgres-1','gamebridge',54329);result['database']=db
         installation=str(uuid.uuid4());admin='local-admin-'+secrets.token_hex(24);os.environ['GAMEBRIDGE_DEV_PUSH_ADMIN_KEY']=admin;os.environ['GAMEBRIDGE_DEV_PUSH_ALLOWLIST']=installation
@@ -63,16 +83,24 @@ def main():
         installed=run([adb,'-s',serial,'install',apk],timeout=120);(out/'adb-install.log').write_text(installed.stdout)
         if installed.returncode or 'Success' not in installed.stdout:raise common.GateError('INSTALL_FAILED')
         must([adb,'-s',serial,'logcat','-c'],'LOGCAT_CLEAR')
+        if args.startup_diagnostics:
+            diagnostics=common._startup.Collector(run,adb,serial,common.PACKAGE,out/'startup-diagnostics',(key,password,admin,bearer))
+            result['startupDiagnostics']='startup-diagnostics/summary.json'
+            diagnostics.capture('installed-before-launch',backend_log=out/'server.log')
         launch=run([adb,'-s',serial,'shell','am','start','-W','-n',common.PACKAGE+'/com.unity3d.player.UnityPlayerGameActivity','--es','gamebridge_mock_url',f'http://10.0.2.2:{proxyport}','--es','gamebridge_mock_key',key,'--es','gamebridge_installation',installation],timeout=30)
         (out/'adb-launch.log').write_text(launch.stdout.replace(key,'[REDACTED]'))
         if launch.returncode or not re.search(r'^Status:\s*ok\s*$',launch.stdout,re.M):raise common.GateError('LAUNCH_FAILED')
+        if diagnostics:diagnostics.capture('activity-response',ui=True,backend_log=out/'server.log')
         def logs():
             text=must([adb,'-s',serial,'logcat','-d','-v','brief','-s','Unity:I','*:S'],'LOGCAT_FAILED',timeout=20)
             if key in text or password in text or admin in text or bearer in text or common._redaction.contains_mock_credential(text):raise common.GateError('SYNTHETIC_SECRET_IN_PLAYER_LOG')
             return '\n'.join(line for line in text.splitlines() if 'GB_PUSH_' in line)
         def wait(marker,seconds=90):
-            deadline=time.monotonic()+seconds
+            deadline=time.monotonic()+seconds;next_capture=time.monotonic()+10
             while time.monotonic()<deadline:
+                if diagnostics and time.monotonic()>=next_capture:
+                    diagnostics.capture('waiting-for-push-marker',ui=True,backend_log=out/'server.log');next_capture=time.monotonic()+15
+                    if time.monotonic()>=deadline:break
                 text=logs()
                 if 'GB_PUSH_RESULT FAIL' in text:raise common.GateError('PLAYER_REPORTED_FAILURE')
                 if marker in text:return text
@@ -134,10 +162,14 @@ def main():
         if any(secret in trace for secret in (key,password,admin,bearer,bearer_b)) or common._redaction.contains_mock_credential(trace):raise common.GateError('SYNTHETIC_SECRET_IN_SERVER_LOG')
         dbcheck=must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'PUSH_DB_QUERY',input_text='SELECT count(*) FROM device_tokens;\n')
         if dbcheck.strip()!='0':raise common.GateError('PUSH_TOKEN_NOT_DELETED')
+        if diagnostics:diagnostics.capture('completed',backend_log=out/'server.log')
         result.update(status='PASS',player='PASS',mockPush='PASS',deduplication='PASS',mainThread='PASS',unregisterLogout='PASS',background='PASS',networkRecovery='PASS',reconnectFailure='PASS',sessionSwitch='PASS',deviceTokens=0)
     except common.GateError as error:result.update(status=error.category,errorCode=str(error))
     except Exception as error:result['errorCode']=type(error).__name__
     finally:
+        if diagnostics and result['status']!='PASS':
+            try:diagnostics.capture('failure',ui=True,backend_log=out/'server.log')
+            except Exception as error:result['startupFinalCaptureError']=type(error).__name__
         if network_changed and adb and serial:
             try:
                 run([adb,'-s',serial,'shell','svc','wifi','enable'],timeout=15)
@@ -151,6 +183,7 @@ def main():
             try:server.wait(timeout=10)
             except subprocess.TimeoutExpired:server.kill();server.wait()
         if log:log.close()
+        common._GUI_ADB_GUARD=None
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     print('RESULT',result['status'],result.get('errorCode',''),'EVIDENCE',out.relative_to(ROOT));return 0 if result['status']=='PASS' else 2 if result['status']=='DEFERRED_ENV' else 1
 if __name__=='__main__':raise SystemExit(main())

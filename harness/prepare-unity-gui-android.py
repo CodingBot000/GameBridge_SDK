@@ -9,7 +9,7 @@ import re
 import shutil
 import subprocess
 import uuid
-from gui_verification import file_hash
+from gui_verification import file_hash, ANDROID_SCENARIOS, auxiliary_sources
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -19,7 +19,7 @@ def main():
     p.add_argument('--prepare', required=True, action='store_true')
     p.add_argument('--staging', required=True, type=Path)
     p.add_argument('--package-cache', required=True, type=Path)
-    p.add_argument('--variant', choices=('standard', 'pii', 'utf8'), default='pii')
+    p.add_argument('--variant', choices=tuple(ANDROID_SCENARIOS), default='pii')
     p.add_argument('--project-label', default='GameBridgeGuiAndroidB29')
     a = p.parse_args(); stage = a.staging.resolve()
     if not re.fullmatch(r'GameBridgeGuiAndroid[A-Za-z0-9_-]*',a.project_label):raise SystemExit('Owned test project label required')
@@ -37,12 +37,9 @@ def main():
     spec=importlib.util.spec_from_file_location('cache',ROOT/'harness/run-unity-ios-mock-push-e2e.py')
     cache=importlib.util.module_from_spec(spec); spec.loader.exec_module(cache)
     packages=cache.embed_cached_packages(a.package_cache.resolve(),project)
-    if a.variant!='standard':
-        folder='UnityAndroidPiiConsumer' if a.variant=='pii' else 'UnityAndroidUtf8Consumer'
-        shutil.copyfile(ROOT/'tests'/folder/'MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs')
-    if a.variant=='pii':
-        shutil.copyfile(ROOT/'tests/UnityPiiProbe/PiiProbe.cs',project/'Assets/PiiProbe.cs')
-        shutil.copyfile(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
+    shutil.copyfile(ROOT/'tests'/ANDROID_SCENARIOS[a.variant]/'MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs')
+    for target, original in auxiliary_sources(a.variant):
+        shutil.copyfile(ROOT/original, project/'Assets'/target)
     for name in ('GameBridgeGuiVerification.cs','GuiAndroidBuild.cs'):
         shutil.copyfile(ROOT/'tests/UnityGuiVerification'/name,project/'Assets/Editor'/name)
     shutil.copyfile(stage/'SHA256SUMS',project/'GameBridgeStaging.SHA256SUMS')

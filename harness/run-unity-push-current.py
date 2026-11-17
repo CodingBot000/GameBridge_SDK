@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Run both real Unity LOCAL_MOCK push Players in this invocation, or defer."""
-import json, os, re, subprocess, sys
+import argparse, json, os, re, subprocess, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 REQUIRED=('GB_PUSH_STEP receive-deduplicate-main-thread PASS','GB_PUSH_STEP background-foreground-main-thread PASS',
@@ -35,15 +35,33 @@ def check_result(output,code,head,platform,expected_pid=None):
             and data.get('sessionSwitch')=='PASS' and type(data.get('deviceTokens')) is int and data['deviceTokens']==0
             and all(marker in markers for marker in REQUIRED))
 
+def commands_for(args, env):
+    stage=env.get('GAMEBRIDGE_UPM_STAGING');cache=env.get('GAMEBRIDGE_UNITY_PACKAGE_CACHE')
+    if not stage:raise ValueError('staged SDK required')
+    if bool(args.gui_project)!=bool(args.gui_build_receipt):raise ValueError('GUI project/receipt required together')
+    if args.platform=='ios' and args.gui_project:raise ValueError('Android GUI input cannot be used for iOS-only execution')
+    commands=[]
+    if args.platform!='ios':
+        serial=env.get('GAMEBRIDGE_PUSH_ANDROID_SERIAL');avd=env.get('GAMEBRIDGE_PUSH_TEST_AVD_NAME');pid=env.get('GAMEBRIDGE_PUSH_EMULATOR_PID','')
+        if not serial or not avd or not avd.startswith('GameBridge_V2_') or not pid.isdecimal():raise ValueError('fresh dedicated push AVD binding required')
+        command=[sys.executable,'harness/run-unity-android-mock-push-e2e.py','--run-local','--staging',stage,'--serial',serial,'--expected-avd',avd,'--expected-emulator-pid',pid]
+        if args.gui_project:
+            if not args.expected_adb_server_pid:raise ValueError('GUI ADB server binding required')
+            command+=['--gui-project',str(args.gui_project),'--gui-build-receipt',str(args.gui_build_receipt),'--expected-adb-server-pid',str(args.expected_adb_server_pid),'--startup-diagnostics']
+        if args.adb:command+=['--adb',args.adb]
+        commands.append(('android',command))
+    if args.platform!='android':commands.append(('ios',[sys.executable,'harness/run-unity-ios-mock-push-e2e.py','--run-local','--staging',stage,*(['--package-cache',cache] if cache else [])]))
+    return commands
+
+
 def main():
+    p=argparse.ArgumentParser();p.add_argument('--platform',choices=('android','ios','both'),default='both')
+    p.add_argument('--gui-project',type=Path);p.add_argument('--gui-build-receipt',type=Path)
+    p.add_argument('--expected-adb-server-pid',type=int);p.add_argument('--adb');args=p.parse_args()
     if os.environ.get('GAMEBRIDGE_RUN_UNITY_PUSH_E2E')!='true':print('DEFERRED_ENV: explicit Unity push opt-in required');return 2
-    stage=os.environ.get('GAMEBRIDGE_UPM_STAGING');serial=os.environ.get('GAMEBRIDGE_PUSH_ANDROID_SERIAL');avd=os.environ.get('GAMEBRIDGE_PUSH_TEST_AVD_NAME')
-    pid=os.environ.get('GAMEBRIDGE_PUSH_EMULATOR_PID','')
-    if not stage or not serial or not avd or not avd.startswith('GameBridge_V2_') or not pid.isdecimal():
-        print('DEFERRED_ENV: staged SDK and fresh dedicated push AVD required');return 2
-    head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();cache=os.environ.get('GAMEBRIDGE_UNITY_PACKAGE_CACHE')
-    commands=[('android',[sys.executable,'harness/run-unity-android-mock-push-e2e.py','--run-local','--staging',stage,'--serial',serial,'--expected-avd',avd]),
-              ('ios',[sys.executable,'harness/run-unity-ios-mock-push-e2e.py','--run-local','--staging',stage,*(['--package-cache',cache] if cache else [])])]
+    try:commands=commands_for(args,os.environ)
+    except ValueError as error:print('DEFERRED_ENV:',error);return 2
+    head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();pid=os.environ.get('GAMEBRIDGE_PUSH_EMULATOR_PID')
     for platform,command in commands:
         print('Running fresh Unity '+platform+' LOCAL_MOCK push...',flush=True)
         try:result=subprocess.run(command,cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=1500)
@@ -51,5 +69,7 @@ def main():
         print(result.stdout,end='',flush=True)
         if result.returncode==2:return 2
         if not check_result(result.stdout,result.returncode,head,platform,pid if platform=='android' else None):print('FAIL: '+platform+' Unity push evidence incomplete');return 1
-    print('Unity push current-run PASS: Android and iOS LOCAL_MOCK Players, 2 tests');return 0
+    if args.platform=='both':print('Unity push current-run PASS: Android and iOS LOCAL_MOCK Players, 2 tests')
+    else:print('Unity push current-run PASS:',args.platform,'LOCAL_MOCK Player, 1 test; other platform NOT_RUN')
+    return 0
 if __name__=='__main__':raise SystemExit(main())

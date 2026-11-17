@@ -5,14 +5,14 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치30 Android 재현 안내 ACK 후 E2E PASS; 과거 FAIL 보존, T01/T02 PARTIAL)
-- 현재 Phase / Task: 배치30 E / 로컬·Hosted false 단1회 SUCCESS, 최종 문서 인계
+- 현재 Phase / Task: 배치31 A/B/C / GUI Push·JNI 명시 입력 계약 구현
 - 마지막 갱신 시각: 2026-11-18 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 배치30 GUI APK c07a264 / 실제 Android PII E2E·Core6f813a7 PASS; Python187/49모듈 PASS. 이전 iOS d543556 PASS와 보호소스 diff0. Hosted 배치30 run44115202057/sourcea1cc004 SUCCESS (Unity/Release SKIPPED).
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
 - 현재 환경 블로커: 원래batchIPC/Strict 미완료. Push 하네스는 자동batch빌드 경로만 지원하며 GUI receipt 입력 없음. R09용 새 UTF8 APK/설치 없는 전용AVD와 정상 UI 조작 조건 미확보. 현재 성공 AVD의 기존 설치 보존 gate를 우회하지 않는다. 과거ADB시작경고 영향 미확정.
-- 바로 다음 행동: Core/duplicate·API·ABI/source·Python187·보안점검과handoff FFpush 완료. Hosted run44115202057 SUCCESS 확인. 최종 문서커밋/동일handoff FFpush·최종HEAD확인. Push/JNI/Strict 미실행을 PASS로 바꾸지 않으며 T02 제품 변경은 보류.
+- 바로 다음 행동: Core/duplicate·API·ABI/source·Python187·보안점검과handoff FFpush 완료. Hosted run44115202057 SUCCESS 확인. 배치31 GUI Push/JNI 구현·음성 fixture→새GUI APK/각새소유AVD→조건별P10판정. 과거 결과와 새 실행을 분리한다.
 - 재개 행동: [배치30 현재결과·남은 조건](evidence/p10-batch30-integrated.md)를따른다. 과거FAIL/중단이력과현재성공을분리한다. 자동batch·Push/JNI/Strict·T01전체조건확인후에만T02제품변경진입.
 
 ## 집계
@@ -1800,3 +1800,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - [P09-T07] 배치30 E 최종원격검증/문서커밋 전: run44115202057/sourcea1cc004139193d175f6964cf11be7051f6e5b5f7,false 단1회 SUCCESS. Hosted4/basic SUCCESS,Unity/ReleaseSKIPPED,공식Python49모듈187·Swift37(auth20포함)·TC11/의도변이1·정상복원확인. synthetic iOS host step/xcresultgatePASS이지만quietlog의정확test수UNMEASURED·Unity실행아님. 이후code/test변화0,최종정제보고/USER_SETUP/원장/로그만변경. T01/T02PARTIAL·전체BLOCKED_INTERNAL/P05FAIL/Provider13WAIT와미완료Push/JNI/Strict조건을유지한다. 최종stage scan/원장·diff확인→문서commit/동일handoff FFpush/HEAD일치와기존미추적3경로보존을검증한다. 추가dispatch없음.
 
 - 배치30 E 최종stage검증/커밋 직전: 명시7개문서blob text/JSONparse·원장64행·diff검사PASS,staged offline gitleaks 실제exit0/탐지0. Hosted 이후harness/test/SDK/workflow/baseline변화0,실제완료run과미실행scope·내부후속구현을분리했다. 최종문서commit뒤전체이번push범위scan·handoff FF가능성/remoteHEAD·tracked clean·초기미추적3경로보존을실제조회한다. 추가CI/Player/Provider/Release실행없음.
+
+- [P10-T01] 배치31 A/B/C 시작: 지시문·AGENTS/START_HERE·계획0~4와배치30결과/현재handoff HEAD089f1a8/기존미추적3경로확인. 구매PII Player PASS와원본FAIL·단일AVD ACK범위를고정한다. Push는자동batch전용이며GUIreceipt미지원,UTF8개별E2E는GUI지원하지만R09 wrapper가전달하지않고Android실패시iOS판정도없다는공백확인. 원본Builder·현재147/staging/cache·source/nonce/receipt/hash·매ADB소유가드를재사용해명시GUI입력을추가하고defaultbatch/fallback·기존DB/Proxy/Player판정은유지한다. 새AVD안내ACK는기존허가를확대하지않으며실제새안내가관측되면해당UI입력만보류한다. 아직새실제빌드/Player/Strict/제품refactor/원격작업NOT_RUN.
+
+- 배치31 B/C 입력계약 구현/검증·커밋 전: GUI preparer에push variant/LateCallbackProbe/link를추가하고shared loader가주/보조scenario·147package/cache·receipt/APK/source/nonce를동일검사한다. Push명시GUI 경로는batch를호출하지않고기존Backend/Proxy/DB/Player전체본문을실행하며동일SDKserver/AVDPID·양port가드를매ADB전유지한다. wrapper기본both/CLI는그대로이고platform명시별실행·R09 GUI전달/필수UTF8 marker/probe·현재clean원장검사·Android/iOS독립결과와소유Simulator만shutdown을추가했다. 새GUI 계약fixtures/기존GUI36건PASS/skip0(exit0),누락aux/변조APK·다른scenario/오래된receipt/source·invalidGUI의ADB/Backend전거부/별도platform실행을검증했고CI에연결했다. 아직실제새GUI컴파일/APK/Player는NOT_RUN,ACK자동확대0·SDK제품변경0. commit후각새GUI project에서원본Builder를실제로실행한다.

@@ -1,6 +1,6 @@
 {
   "sourceHead": "ff2d0d5aa864b42ad048faf4dea713e851deaa95",
-  "scope": "fresh handoff Native source build and compatibility; post-change Unity new-package execution pending Mac unlock",
+  "scope": "fresh handoff Native build/selected consumers/ABI/checksums; current post-change CLI Player evidence separately linked",
   "status": "PASS",
   "androidBuildExitCode": 0,
   "r8ConsumerExitCode": 0,
@@ -73,5 +73,8 @@
   },
   "sourceWorkingTree": "documentation edits only; product sources equal ff2d0d5",
   "phaseTransition": "Original closed Core guard + exact four reviewed Native changes; baseline unchanged",
-  "limits": "Selected surfaces and consumers only; no all-binary ABI/real provider or post-change GUI Player completion claim."
+  "limits": "Selected surfaces and consumers only; no all-binary ABI/real provider or post-change GUI Player completion claim.",
+  "postChangeAndroidPurchasePii": "p10-batch32-post-native-android.json",
+  "postChangeIosPurchasePii": "p10-batch32-post-native-ios.json",
+  "postChangeGuiVisual": "NOT_RUN due Mac GUI lock; explicit CLI results are not relabelled as GUI"
 }

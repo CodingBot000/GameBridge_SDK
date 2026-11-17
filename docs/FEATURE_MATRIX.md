@@ -1,6 +1,6 @@
 # 기능 호출 경로 1차 조사 — 개발 중
 
-현재 source와 범위는 [배치32 통합 증거](evidence/p10-batch32-integrated.md)를 따른다. 아래 역사적 기능 실행 근거를 모든 후속 소스/산출물의 새 실행으로 바꾸지 않는다. 현재 Core의 Android Push·UTF8 JNI/iOS Unity Push가 새 기기에서 PASS했고, Native codec/grant decoder 정식 변경은 Native 단위·별도 후보와 handoff 신규 패키징으로 검증했다. Native 변경 후 새 package GUI 소비는 Mac잠금 때문에 대기다. 실제 Provider13은 WAITING_USER, StoreKit26.5 실패·자동Strict/self-hosted·실기기·Release/Native profiling 미검증을 유지한다.
+현재 source와 범위는 [배치32 통합 증거](evidence/p10-batch32-integrated.md)를 따른다. 아래 역사적 기능 실행 근거를 모든 후속 소스/산출물의 새 실행으로 바꾸지 않는다. 현재 Core의 Android Push·UTF8 JNI/iOS Unity Push가 새 기기에서 PASS했고, Native codec/grant decoder 정식 변경은 Native 단위·별도 후보와 handoff 신규 패키징으로 검증했다. Native 변경 후 새 package Android/iOS 구매PII는 명시CLI batch로실제PASS이며 별도 GUI 시각검증은Mac잠금으로미실행이다. 실제 Provider13은 WAITING_USER, StoreKit26.5 실패·자동Strict/self-hosted·실기기·Release/Native profiling 미검증을 유지한다.
 
 
 2026-11-12 소스 및 WORK_LOG 기준. Unity Android LOCAL_MOCK 전체 흐름은 전용 에뮬레이터에서 PASS했다 ([증거](evidence/px-t04-unity-android-local-mock.md)); Unity iOS Simulator LOCAL_MOCK 전체 흐름도 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). 양 플랫폼의 LOCAL_MOCK Push/Lifecycle도 별도 Player에서 검증했다 ([Android](evidence/px-t08-unity-android-mock-push.md), [iOS](evidence/px-t12-unity-ios-mock-push.md)); 실제 제공자와 실기기는 별도다. `PARTIAL`은 일부 경로만 구현하거나 완료 검증이 남았다는 뜻이다. Fake·LOCAL_MOCK·실제 플랫폼 결과는 서로 대체하지 않는다. 이 문서는 최종 P11 감사가 아니다.

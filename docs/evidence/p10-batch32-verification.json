@@ -1,0 +1,92 @@
+{
+  "codeSourceHead": "daf3cd97a3811da6f235ff21e4e901a539373773",
+  "scope": "batch32 actual-source scoped local verification; not full SDK/Strict/Release readiness",
+  "python": {
+    "tests": 237,
+    "modules": 57,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "seconds": 25.101,
+    "evidence": "artifacts/batch32/python-post-cli-final.log",
+    "priorRun": {
+      "tests": 229,
+      "modules": 55,
+      "seconds": 18.532,
+      "evidence": "artifacts/batch32/python-final.log",
+      "note": "before additional CLI owned endpoint/build isolation; preserved as prior source"
+    }
+  },
+  "native": {
+    "baseline": "3639a1d; Android18/Swift20",
+    "candidateAfter": "Android20/Swift23 plus broad47/43, local branch only until Core closure",
+    "formalAfter": "Android20/Swift23 and broad47/43, failure/skip0",
+    "formalProductCommits": [
+      "5ef87e5",
+      "ff2d0d5"
+    ],
+    "evidence": "p10-batch32-native-refactor.json"
+  },
+  "core": "p10-batch32-core.json",
+  "selfNine": [
+    "p10-batch32-self-nine.json",
+    "p10-batch32-self-nine-post-native.json"
+  ],
+  "testcontainers": {
+    "executedTests": 11,
+    "normalTests": 10,
+    "expectedMutationFailures": 1,
+    "mutantExitCode": 1,
+    "normalRestorationExitCode": 0,
+    "evidence": "artifacts/purchase-testcontainers-nslcm5ja",
+    "scope": "owned synthetic LOCAL_MOCK/sandbox fixtures; not real store sandbox"
+  },
+  "currentCorePlayers": {
+    "androidJni": "p10-batch32-android-jni.json",
+    "androidPush": "p10-batch32-android-push-c.json",
+    "iosPush": "p10-batch32-ios-push.json"
+  },
+  "postNativePlayers": {
+    "androidPurchasePii": "p10-batch32-post-native-android.json",
+    "iosPurchasePii": "p10-batch32-post-native-ios.json",
+    "buildMode": "explicit original CLI batch; not GUI receipt",
+    "staging": "fresh handoff147, d11a2b063b488f3a80b75eb9afa30f262c47fccbe3f6a947d7da1f80bcf04959"
+  },
+  "performance": "p10-batch32-performance.json",
+  "candidatePackage": "p10-batch32-candidate-package.json",
+  "handoffPackage": "p10-batch32-handoff-package.json",
+  "sourceGuards": {
+    "p08PublicApi": "PASS",
+    "originalCoreBaseline": "unchanged; checked at immutable closing4485b2f",
+    "reviewedNativeTransition": "PASS exact4 paths/before-after hashes; other Core/Native/wire unchanged",
+    "selectedJavaAndCAbi": "PASS selected surfaces only"
+  },
+  "editorAutomation": {
+    "direct": "p10-batch32-editor-direct.json",
+    "cli": "p10-batch32-editor-cli.json",
+    "status": "PASS actual compiled batch methods; not full Strict"
+  },
+  "strict": {
+    "invocations": 0,
+    "status": "NOT_RUN / DEFERRED_ENV with internal orchestration setup pending",
+    "reason": "Full original multi-lane controller has not propagated/verified current owned server/build endpoint lifecycle and all required OS/StoreKit contexts; not made optional",
+    "blocker": "DEP-STRICT-OWNED-ENV"
+  },
+  "macGui": "CUA locked; manual unlock pending; standard headless paths verified independently",
+  "p10": {
+    "T01": "IMPLEMENTED/PASS product criteria at4485b2f",
+    "T02": "IMPLEMENTED/PASS selected responsibility refactors+affected regressions/post-source E2E",
+    "T03": "IN_PROGRESS/PARTIAL, preliminary measured fake/loopback scope",
+    "T04": "IN_PROGRESS/PARTIAL, fresh packaging verified; T03/full task limits remain"
+  },
+  "p11": "preliminary audit complete; full tasks PARTIAL, OpenAPI machine contract missing",
+  "realProviders": "13 WAITING_USER",
+  "preserved": "P05-T03 FAIL/ENV-STOREKIT-26 OPEN/18.6 intermittent risk/remote Unity self-hosted and Release unverified",
+  "hosted": {
+    "status": "NOT_RUN",
+    "dispatches": 0,
+    "policy": "single dispatch after all final code/tests and review"
+  },
+  "overallSdkStatus": "BLOCKED_INTERNAL"
+}

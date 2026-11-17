@@ -8,7 +8,7 @@ Android/iOS 샘플의 `LOCAL_MOCK` 로그인·구매·복원은 로컬 Backend�
 
 [배치32 source별 통합 기록](docs/evidence/p10-batch32-integrated.md)과 [P10-T01 제품 판정](docs/evidence/p10-batch32-t01-decision.md)을 최신 기준으로 봅니다. Unity6000.5.8f1 GUI에서 원본 Builder로 Android Push/UTF8 APK와 iOS Push export를 생성하고, 새 전용 기기의 LOCAL_MOCK Push/Lifecycle·Android JNI 전용 marker·iOS token/session/late callback을 검증했습니다. 이전 timeout/입력 오류도 삭제하지 않았습니다. 이는 실제 FCM/APNs·스토어·실기기 성공이나 자동 Strict/Release 통과가 아닙니다.
 
-Google 저장 세션 codec과 Apple grant decode는 별도 후보 baseline·Native 회귀·패키징을 확인한 뒤 T01 명시 제품 조건 충족에 따라 정식 통합했습니다. 현재 소스의 새 Maven/R8·무서명 XCFramework 양 slice·Swift 소비·UPM147 checksum을 검증합니다. 생성된 바이너리·DB·원본 로그·라이선스는 Git에 넣지 않습니다. Mac 잠금으로 새 package의 변경 후 GUI 소비는 대기 중이며 Native/CI와 검증 범위를 구분합니다.
+Google 저장 세션 codec과 Apple grant decode는 별도 후보 baseline·Native 회귀·패키징을 확인한 뒤 T01 명시 제품 조건 충족에 따라 정식 통합했습니다. 현재 소스의 새 Maven/R8·무서명 XCFramework 양 slice·Swift 소비·UPM147 checksum을 검증합니다. 생성된 바이너리·DB·원본 로그·라이선스는 Git에 넣지 않습니다. Mac 잠금으로 GUI 조작은 대기했지만, 원래 자동 batch 경로의 정상 실행을 확인한 뒤 새 package의 변경 후 Android/iOS 구매·PII를 명시 CLI에서 실제 검증했습니다. GUI/CLI/Native/CI 범위를 구분합니다.
 
 [사전 계측](docs/evidence/p10-batch32-performance.md)은 .NET EDITOR_OFFLINE와 localhost HTTP/PostgreSQL의 warmup20·100 samples·p50/p95/max·잔존0을 기록합니다. Native 메모리·실제 UI jank·Unity startup·상용 안정성이나 성능 개선 수치로 해석하지 않습니다. P11 사전 감사에서 발견한 기계 OpenAPI 문서 부재와 추가 플랫폼 검증은 남아 있습니다.
 

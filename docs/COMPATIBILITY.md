@@ -4,9 +4,9 @@
 
 | 대상 | 확인한 범위 | 미확인·한계 |
 | --- | --- | --- |
-| Android | JDK21.0.10/JVM17·compile/target API36·min26, 새 Maven/AAR/sample 및 소스 없는 R8 release 소비 빌드. Unity6000.5.8f1 현재 Core의 GUI APK/새 emulator LOCAL_MOCK Push·JNI/구매PII 근거 | 실제 Google/Play/FCM·실기기 미검증. Native T02 변경 뒤 새 package GUI 소비는 Mac잠금으로 대기 |
-| iOS | Xcode26.6(17F113)/Swift6.3.3, device arm64·simulator arm64/x86_64 무서명 static XCFramework/4 Cexports·새 Swift source 소비와 simulatorSDK binary module typecheck. 현재 Core의 Unity Simulator Push/Lifecycle 및 독립CABI/기존구매PII 근거 | 실제 Apple/StoreKit/APNs·서명 실기기 미검증. iOS Push 망차단은 로컬 TCP proxy 범위이며 OS전체차단이 아님. post-T02 새 package GUI 소비 대기 |
-| Unity | 6000.5.8f1 실제 GUI C# 메뉴 컴파일·원본 Android/iOS Builder와 source/nonce/147SDK/hash/receipt 검사·새 LOCAL_MOCK Player 실행 | 다른 설치버전6000.4/미설치6.3지원 미검증. 자동 batch Editor/전체Strict·self-hosted와Release 미검증. Native memory/UI jank/startup 프로파일링 NOT_RUN |
+| Android | JDK21.0.10/JVM17·compile/target API36·min26, 새 Maven/AAR/sample 및 소스 없는 R8 release 소비 빌드. Unity6000.5.8f1 현재 Core의 GUI APK/새 emulator LOCAL_MOCK Push·JNI/구매PII 근거 | 실제 Google/Play/FCM·실기기 미검증. Native T02 변경 뒤 새 package CLI 구매PII는 PASS, 별도 GUI 시각검증은 Mac잠금으로 미실행 |
+| iOS | Xcode26.6(17F113)/Swift6.3.3, device arm64·simulator arm64/x86_64 무서명 static XCFramework/4 Cexports·새 Swift source 소비와 simulatorSDK binary module typecheck. 현재 Core의 Unity Simulator Push/Lifecycle 및 독립CABI/기존구매PII 근거 | 실제 Apple/StoreKit/APNs·서명 실기기 미검증. iOS Push 망차단은 로컬 TCP proxy 범위이며 OS전체차단이 아님. post-T02 새 package CLI 구매PII PASS, 별도 GUI 시각검증 미실행 |
+| Unity | 6000.5.8f1 실제 GUI C# 메뉴 컴파일·원본 Android/iOS Builder와 source/nonce/147SDK/hash/receipt 검사·새 LOCAL_MOCK Player 실행 | 다른 설치버전6000.4/미설치6.3지원 미검증. 자동 batch Editor direct/cli 정상과 새CLI Builder는확인. 전체Strict·self-hosted/Release는미검증. Native memory/UI jank/startup 프로파일링 NOT_RUN |
 | Backend | JDK21/Spring Boot3.5.16, 격리PostgreSQL17 계열·synthetic/LOCAL_MOCK 원장/소유권/멱등·loopback 실측 | 운영·외부store인증·다중서버 미검증. 실제 검증 수/expected mutation은 개별 증거로 구분 |
 
 P08 public API snapshot, 닫힌 Core source, 정확히 승인된 Native4파일 전이 검사는 별도 경계다. [원본 Core 제품 판정](evidence/p10-batch32-t01-decision.md) 후의 Native 변경은 원본 baseline을 덮어쓰지 않고 고정된 전후hash·나머지Core/Native/wire 불변으로 검사한다. 선정 Java 표면/C ABI·소비 빌드를 모든 binary ABI 호환성으로 확대하지 않는다.

@@ -1,5 +1,18 @@
 # GameBridge SDK 개발 보고서
 
+## 최신 인계 — 배치32 (2026-11-18)
+
+**P10-T01·T02 구현/로컬 PASS, P10-T03·T04·P11 PARTIAL, 전체 SDK BLOCKED_INTERNAL 유지.** [배치32 A~J·source별 결과·커밋·남은 실제 작업](evidence/p10-batch32-integrated.md), [정제 검증](evidence/p10-batch32-verification.json)이 현재 기준이다.
+
+새 Android GUI Push/UTF8 APK와 iOS GUI Push export를 생성한 뒤 새 기기의 실제 LOCAL_MOCK Push/Lifecycle·JNI·late callback·token0을 검증했다. 기존 Core 기준과 현재 회귀/변이복원·추가 Player gap을 대조해 계획의 T01 제품 조건을 종결했다. 전체 Strict/Release 상태를 바꾼 것은 아니다.
+
+격리 로컬 후보에서 Google 저장 session codec과 Apple grant decode를 실제 구현·전후18→20/20→23 및 넓은47/43·fresh패키징으로 검증한 뒤 같은 bytes를 handoff의 정식5ef87e5/ff2d0d5로 각각 반영했다. 원본 Core baseline을 덮지 않고 닫힌 Core Git tree와 승인 Native4파일의 정확한 전후hash를 연결해 검사한다. 현재 source의 새 Maven/AAR/R8·무서명 양slice XCFramework·Swift source/binary·147checksum, 변경 후 새package Android/iOS 구매PII·Backend·원장1/100도 명시 CLI batch로 실제 PASS했다. Mac 잠금을 해제하거나 GUI 결과로 위장하지 않았다.
+
+현재 Python237/57모듈, Native47/43, Core10/12·managed418·duplicate 감지/복원·lifecycle100/316, 필수self9·TC11/의도변이1을 검증했다. 최초 wrapper/fixture/문자열수량/서버수명·post Android 창환경 실패를 보존하고 실제 수정·대조와 연결했다. [사전계측](evidence/p10-batch32-performance.md)은 warmup20+100·실제monotonic p50/p95/max·잔존0 및 loopback멱등/409를 기록하며, Native memory/UI jank/Unity startup·실제Provider나 성능 향상을 주장하지 않는다.
+
+자동 Editor의 direct/cli 정상은 회복했지만 원래 fullStrict의 전체기기/서버수명·필수OS/StoreKit컨텍스트 전이가 완비되지 않아 전체Strict0/NOT_RUN·DEFERRED_ENV/내부설정대기를 유지한다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN·18.6간헐위험·Provider13 WAITING_USER·self-hosted/실기기·Release미검증을 보존했다. P11 사전감사에서 64Task/증거와 문서의110→147·Unity미검증표기를 정정했고 기계OpenAPI파일부재는 BUG-017로 남겼다. 최종 Hosted1회/FF인계 결과는 후속 기록을 따른다.
+
+
 ## 최신 인계 — 배치31 (2026-11-18)
 
 **GUI Push/JNI 입력 구현·fixture 검증 완료, 실제 GUI 빌드/Player는 NOT_RUN/DEFERRED_ENV. P10-T01/T02 PARTIAL·전체 SDK BLOCKED_INTERNAL 유지.** [배치31 통합결과·정확한 재개 지점·커밋](evidence/p10-batch31-integrated.md),[정제 검증](evidence/p10-batch31-verification.json)이 최신 기준이다.

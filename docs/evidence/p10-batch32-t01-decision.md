@@ -13,7 +13,7 @@
 - Android 구매·PII: 배치30source6f813a7 실제PASS/원장1·100. 배치32시점제품source/consumer보호경로동일이며과거timeoutFAIL은보존한다.
 - iOS 구매·PII: 배치29sourced543556 실제PASS/원장1·100. 같은보호source범위유효,새실행으로바꾸지않았다.
 - [Android UTF8 JNI](p10-batch32-android-jni.json): 배치32새소유AVD·현재GUIAPK에서전용marker/Nativecallback·Backend/원장1·100 PASS.
-- [Android Push/Lifecycle](p10-batch32-android-push-c.json): 같은SDK/原APK의새C기기에서6필수marker/소유session·중복/mainthread·BG/FG·망차단복구/reconnect거절·latecallback·token0 PASS. B의network90초FAIL와wrapper진입오류들은별도로보존했다.
+- [Android Push/Lifecycle](p10-batch32-android-push-c.json): 같은SDK/기존 APK의새C기기에서6필수marker/소유session·중복/mainthread·BG/FG·망차단복구/reconnect거절·latecallback·token0 PASS. B의network90초FAIL와wrapper진입오류들은별도로보존했다.
 - [현재 iOS Unity Push/Lifecycle](p10-batch32-ios-push.json): source01892c8 새GUIexport·Xcode/Simulator/DB의6marker와token0·자기기기종료PASS. 이전e46 source를새Registry성공으로재사용하지않았다.
 - iOS C ABI: 배치31sourcea812cdd의실제UTF8/synthetic host XCTest1 PASS와제품/CABI source동일. UnityPlayer/실APNs와구분한다.
 - [현재 self9](p10-batch32-self-nine.json): 새격리DB/role에서9필수negative/정상복구검사PASS/exit0. expected nonzero를실제감지하고원상복구했다. P09-T08의로컬기능의존을확인했다.

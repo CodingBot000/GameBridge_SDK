@@ -35,5 +35,20 @@
     "fullStrict automatic batch env unresolved",
     "native memory/UI profiling NOT_RUN"
   ],
-  "p11TaskStatus": "IN_PROGRESS/PARTIAL"
+  "p11TaskStatus": "IN_PROGRESS/PARTIAL",
+  "finalReviewedStatus": {
+    "taskCount": 64,
+    "implementationCounts": {
+      "IMPLEMENTED": 24,
+      "IN_PROGRESS": 40
+    },
+    "localCounts": {
+      "PASS": 22,
+      "PARTIAL": 41,
+      "FAIL": 1
+    },
+    "sourceHead": "daf3cd97a3811da6f235ff21e4e901a539373773"
+  },
+  "docCorrectionsApplied": true,
+  "newInternalGap": "BUG-017 planned machine OpenAPI contract absent"
 }

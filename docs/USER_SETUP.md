@@ -434,3 +434,14 @@ E2E의GUI입력은기본CLI실패fallback이아니다. Android는 `--gui-project
 신규 Push GUI/R09 harness 구현은 내부 완료했고 새iOSPush GUI/현재Player 영향 검증은 내부 후속/환경 작업이다. 이를 실Provider13건 인증 준비와 섞지 않는다. 새 AVD의 정상 전체화면 안내는 실제 관측 뒤 별도 허용을 받아야 한다. 기존 승인 범위를 확대하지 않는다. T01 전체 조건·현재iOSPush 및 자동Strict 조건을 확인한 후에만 T02 codec/decoder 제품 refactor에 진입한다.
 
 사용자 응답은 “직접 약관 확인·동의 후 알려줄게”였다. 완료 통지를 기다리며 에이전트가 동의하지 않는다. 기다리는 동안 R09 iOS 독립 runner의 UUID 문제를 수정했고 새18.6 Simulator의 C ABI XCTest1건을 실제PASS했다. 첫 destination70 실패/시험0은 보존했다. GUI/Android/Unity Push는 미실행이다. Hosted run44126492891/source5af3aff는203건에서SUCCESS지만 이후UUID수정은원격CI미검증,최종로컬204/CABI1범위로구분한다. 추가dispatch는하지않았다.
+
+
+### 배치32 현재 로컬 완료 범위와 후속 환경
+
+[배치32 A~J/source/커밋/재개 우선순위](evidence/p10-batch32-integrated.md). Hub4의 정상 Projects·실제 GUI Builder를 확인했고 약관 버튼을 에이전트가 누르지 않았다. 이후 Mac 잠금이 CUA에 관측돼 수동 해제를 요청했다. 잠금/비밀번호/보안설정 우회는 하지 않았다. 그동안 새 환경의 실제 direct/cli batch nonce 메서드가 모두 PASS해 원래 headless CLI 경로로 새 패키지의 Android/iOS 구매PII를 실제 검증했다. 이 결과는 GUI 검증과 구분한다. 선택적 시각 검증이 필요하면 Mac을 직접 해제한 뒤 준비된 post-Pii 프로젝트를 사용할 수 있다.
+
+CLI Android batch 종료가 ADB 서버를 종료하는 증거를 확인해 빌드용5038과런타임5037을 명시분리했다. 기존listener가있으면임의교체하지않고같은SDK의자기foregroundPID만관리한다. 모든실제device명령은PID/AVD/양port/server/executable 및환경endpoint를재검증한다. 특정좌표/과거PID/기존성공AVD를재사용하지않는다. 배치32의일반추가실행허용은새소유기기의정확한비구속전체화면교육안내1회에만적용했고계정/권한/약관/보안설정으로확장하지않았다.
+
+T01·T02는명시제품기준으로로컬PASS이며실Provider13건·전체SDK/Release완료와다르다. Native session/grant 내부분리후가격/동시성/보존/refresh·finalization/finish정책변경은없다. 사전계측은.NET fake/loopback범위이고Native memory/UI프로파일링은남는다. 원래 fullStrict의전체lane build/runtime분리·binding/OS·StoreKit컨텍스트전파는내부후속작업(DEP-STRICT-OWNED-ENV)이며외부인증대기로넘기지않는다. 자동Editor회복만으로전체Strict를PASS로쓰지않는다.
+
+StoreKit26.5 FAIL/18.6간헐위험·실제Google/Apple/FCM/APNs·실기기·self-hosted/Release미검증과계획OpenAPI문서부재는계속기록한다. 키/토큰/서명/license/원본로그·DB·APK/IPA/Xcode출력은Git에넣지않는다. 새키나비밀번호를채팅에보내지않는다.

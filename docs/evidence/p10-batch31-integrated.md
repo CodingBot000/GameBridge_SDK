@@ -99,3 +99,8 @@ CI 진행 중 UUID state 비교의 대소문자 경계 결함을 추가 음성�
 5af3aff를 origin089f1a8에서 handoff로 FFpush하고 local/remote 일치를 확인했다. 후속 수정/결과 문서를 명시 stage·scan·commit한 뒤 동일 handoff로 FFpush하고 최종 local/remote HEAD와 tracked-clean·미추적 Demo/cache3경로 보존을 조회한다. 새 법적 동의·AVD ACK 확대·main/force/Release/runner등록/실Provider 호출은 없다. 원장 삽입 중 P09-T07 셀에 잘못 들어간 문서 행은 검사기가 감지해 정확한 blocker-table 앵커로 복구했고64Task 집계를 유지했다.
 
 현재 T01/T02 PARTIAL·전체 SDK BLOCKED_INTERNAL/P05FAIL·Provider13WAIT·self-hosted/Release 미검증을 유지한다. 다음 의존 작업은 사용자 약관 처리 완료 통지 뒤 두 GUI 빌드와 각 새 owned AVD의 Push/JNI 실측이다. 별도로 current iOS Unity Push 및 자동 batch/Strict 제한이 남는다. `artifacts/batch31/run-owned-android.py`는 실제 receipt와 현재 동일 SDK server가 있을 때만 각 새 AVD를 생성·가드하는 로컬 controller로 준비했고, 문법 검사만 했으며 아직 실행0/UI입력0이다.
+
+
+## 배치32 후속
+
+[배치32 통합 기록](p10-batch32-integrated.md)이 최신이다. 원격검증되지 않았던 배치31 UUID 후속수정은 이번 최종 코드/테스트·단일Hosted범위에 포함한다. 현재 Core Android Push/JNI와 iOS Unity Push를 새기기에서 검증했고 T01 명시제품조건을 종결했다. Native 두후보는 격리개발/전후회귀/패키징 뒤 정식통합했고 새handoff package의변경후양플랫폼구매PII도명시CLI batch로PASS했다. 이전배치31의PARTIAL/실패는당시source이력으로보존한다. 실제Provider/StoreKit위험/전체Strict와Release/P11미완료는남는다.

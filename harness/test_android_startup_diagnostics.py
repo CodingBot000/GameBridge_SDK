@@ -97,3 +97,29 @@ class AndroidStartupDiagnosticsTests(unittest.TestCase):
             def unbound(command,timeout):raise ValueError('GUI_DEVICE_OR_ADB_BINDING_CHANGED')
             c.run=unbound
             with self.assertRaises(ValueError):c.capture('unbound',ui=True)
+
+    def test_notice_input_requires_opt_in_and_is_single_scoped_ack(self):
+        xml='<hierarchy><node package="android" text="Viewing full screen"/><node package="android" text="Got it" enabled="true" bounds="[100,200][300,260]"/></hierarchy>'
+        for allowed in (False,True):
+            with tempfile.TemporaryDirectory() as tmp:
+                taps=[]
+                def runner(command,timeout):
+                    if command[3:6]==['shell','input','tap']:
+                        taps.append(command);return subprocess.CompletedProcess(command,0,'')
+                    if command[3:5]==['shell','cat']:return subprocess.CompletedProcess(command,0,xml if not taps else '<hierarchy/>')
+                    return self.fake_runner(command,timeout)
+                c=Collector(runner,'/sdk/adb','emulator-5592',PACKAGE,Path(tmp)/'diag',allow_notice_ack=allowed)
+                c.capture('before',ui=True);c.capture('again',ui=True)
+                self.assertEqual(len(taps),1 if allowed else 0)
+                if allowed:self.assertEqual(taps[0],['/sdk/adb','-s','emulator-5592','shell','input','tap','200','230'])
+
+    def test_notice_input_does_not_handle_permission_or_other_app_prompt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            calls=[]
+            def runner(command,timeout):
+                calls.append(command)
+                if command[3:5]==['shell','cat']:return subprocess.CompletedProcess(command,0,'<hierarchy><node package="com.android.permissioncontroller" text="Allow"/></hierarchy>')
+                return self.fake_runner(command,timeout)
+            c=Collector(runner,'/sdk/adb','emulator-5592',PACKAGE,Path(tmp)/'diag',allow_notice_ack=True)
+            c.capture('permission',ui=True)
+            self.assertFalse(any('input' in command for command in calls))

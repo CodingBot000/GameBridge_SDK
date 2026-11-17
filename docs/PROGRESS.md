@@ -1766,3 +1766,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치30 E 독립최종회귀: 변경harness관련전체Python185건/49모듈PASS/skip0(16.813초),startup10·정상안내선택4음성/정상unit포함. API/source/wire·staging147·manifest/meta·progress/actionlint/diffPASS. 현재UIACK방식응답대기로추가E2E/Push/JNI/CoreNative/Strict는NOT_RUN·T01/T02PARTIAL유지. C첫실패는마지막확인Nativeengine/graphics+PID/Activity와최초미확인Scene/Awake/Start로분리했고UI안내ACK/인과회복검증은미실행이다. 독립순수selector는좌표만식별해실제입력0이며CI에연결했다.
 
 - 배치30 UI입력대기 체크포인트: 독립Python185·compile-only/API/staging검증은완료했으나정상OS안내ACK방식사용자응답전실제UI입력/추가C실행을하지않는다. 과거첫진단AVD는종료/원본보존,현재B30A GUI는idle. docs/evidence/p10-batch30-ui-handoff.md에사실/마지막확인단계/미측정/응답후최대1추가재검증과D/E순서를기록했다. 향후조건부코드변경이남아전체code/test최종commit후1회원격CI/push는아직시작하지않았다. 배치완료선언/사용자요청pause로오표기하지않는다.
+
+- 사용자 명시요청 수신(2026-11-18 Asia/Seoul): “이 전용 AVD에 한해 ADB UI 입력으로 안내를 닫아줘”. CUA대체기술범위가이전용재검증AVD의정확한비구속Viewingfullscreen/Gotit ACK에한해허용됐다. 다른app/권한/설정/서버조작허용아님. 새source/APK/새전용AVD·기존동일SDKserver/양port를재검증하고허용된추가E2E최대1회만진행한다. before/after UI·tap1/foreground/조기marker·Backend/원장을실측하고원본첫FAIL은보존한다.
+
+- 배치30 C 명시ACK구현/검증·커밋 전: --ack-known-fullscreen-notice는GUIreceipt/진단/소유바인딩이모두있는경로의명시옵션일때만작동한다. 실제freshXML의정상교육header·단일enabled Gotit/bounds만식별하고같은run guard를통해1회tap,전후XML/시간/exit·unattendedCI=false를기록한다. default입력0/권한·타app prompt입력0/단일정확serial좌표음성검증PASS. 실제UI입력은아직0이며허용된추가C검증을위해새B30B project/APK를생성한다. 기존첫FAIL·AVD·DB/로그보존,SDK제품/await/성공/timeout조건변경0.

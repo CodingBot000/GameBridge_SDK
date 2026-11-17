@@ -3,6 +3,10 @@ import json
 import re
 import time
 import xml.etree.ElementTree as ET
+import importlib.util
+from pathlib import Path
+_notice_spec=importlib.util.spec_from_file_location('known_fullscreen_notice',Path(__file__).with_name('android_fullscreen_notice.py'))
+_notice=importlib.util.module_from_spec(_notice_spec);_notice_spec.loader.exec_module(_notice)
 
 POINTS = ('awake','start_enter','intent_read','intent_checked','sdk_create_enter','sdk_created',
           'initialize_call','initialize_returned','backend_auth_call','exception',
@@ -66,10 +70,11 @@ def last_confirmed(summary):
 
 
 class Collector:
-    def __init__(self, run, adb, serial, package, output, secrets=()):
+    def __init__(self, run, adb, serial, package, output, secrets=(), allow_notice_ack=False):
         self.run=run;self.adb=adb;self.serial=serial;self.package=package;self.output=output
         self.output.mkdir(parents=True,exist_ok=False);self.secrets=tuple(x for x in secrets if x)
         self.start=time.monotonic();self.snapshots=[];self.first_http=None
+        self.allow_notice_ack=allow_notice_ack;self.ack_attempted=False;self.ack_actions=[]
 
     def command(self, args, timeout=12):
         return self.run([self.adb,'-s',self.serial,*args],timeout=timeout)
@@ -124,5 +129,18 @@ class Collector:
         self.snapshots.append(summary)
         (self.output/'summary.json').write_text(json.dumps({'scope':'startup observations only; never E2E PASS',
             'snapshots':self.snapshots,'firstHttpTraceObservedAfterSeconds':self.first_http,
-            'processExitObserved':any(x['appPids'] for x in self.snapshots[:-1]) and not summary['appPids']},indent=2)+'\n')
+            'processExitObserved':any(x['appPids'] for x in self.snapshots[:-1]) and not summary['appPids'],
+            'normalNoticeAcknowledgements':self.ack_actions},indent=2)+'\n')
+        if self.allow_notice_ack and not self.ack_attempted and summary['knownFullscreenGuideObserved'] is True:
+            # Caller opt-in is scoped to this exact non-binding education notice.
+            # The injected runner re-attests emulator/server ownership before input.
+            x,y=_notice.known_guide_button(xml)
+            self.ack_attempted=True;self.save('notice-before.xml',xml)
+            result=self.command(['shell','input','tap',str(x),str(y)])
+            action=dict(kind='explicit-known-fullscreen-notice',tapAttempts=1,exitCode=result.returncode,
+                        atSeconds=round(time.monotonic()-self.start,3),unattendedCI=False)
+            self.ack_actions.append(action)
+            (self.output/'notice-action.json').write_text(json.dumps(action,indent=2)+'\n')
+            if result.returncode:raise DiagnosticsUnavailable('known notice acknowledgement failed')
+            self.capture('after-normal-notice-ack',ui=True,backend_log=backend_log)
         return summary

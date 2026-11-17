@@ -283,11 +283,14 @@ def main():
     parser.add_argument("--expected-emulator-pid", type=int)
     parser.add_argument("--expected-adb-server-pid", type=int)
     parser.add_argument("--startup-diagnostics", action="store_true", help="Collect owned-device startup stages/all-buffer logs; never a success substitute")
+    parser.add_argument("--ack-known-fullscreen-notice", action="store_true", help="Explicit opt-in for one ordinary fullscreen education notice on the bound owned AVD")
     parser.add_argument("--timeout-seconds", type=int, default=180)
     args = parser.parse_args()
     if sum((args.utf8_probe, args.native_demo_probe, args.pii_probe)) > 1: parser.error("choose one specialized probe")
     if bool(args.gui_project) != bool(args.gui_build_receipt): parser.error("GUI project and receipt must be supplied together")
     if args.gui_project and args.native_demo_probe: parser.error("GUI Native Demo input is not supported")
+    if args.ack_known_fullscreen_notice and not (args.startup_diagnostics and args.gui_project):
+        parser.error("Notice input requires explicit GUI receipt, startup diagnostics and owned-device binding")
 
     (ROOT / "artifacts").mkdir(exist_ok=True)
     output = Path(tempfile.mkdtemp(prefix="unity-android-e2e-", dir=ROOT / "artifacts"))
@@ -423,7 +426,7 @@ def main():
         # Safe because this is exclusively a dedicated test AVD.
         must([adb, "-s", serial, "logcat", "-c"], "LOGCAT_CLEAR_FAILED", timeout=20)
         if args.startup_diagnostics:
-            diagnostics = _startup.Collector(run, adb, serial, PACKAGE, output / "startup-diagnostics", (key, password))
+            diagnostics = _startup.Collector(run, adb, serial, PACKAGE, output / "startup-diagnostics", (key, password), allow_notice_ack=args.ack_known_fullscreen_notice)
             summary["startupDiagnostics"] = "startup-diagnostics/summary.json"
             summary["backendHealthConfirmedBeforeLaunch"] = True
             try: diagnostics.capture("installed-before-launch", backend_log=output / "server.log")

@@ -1,5 +1,7 @@
 # 배치27 Unity IPC 복구 및 P10 조건부 진입
 
+최종: **A DEFERRED_ENV / B NOT_RUN / C Strict0·DEFERRED_ENV / D 경계감사 완료(REVIEW_ONLY,제품변경0) / E 독립회귀·Hosted SUCCESS**. P10-T01·T02는IN_PROGRESS/PARTIAL이다. 초기NOT_RUN/Hosted대기는아래시각별이력이며최종결과와구분한다.
+
 기준 cf276b7ca8e5dc92c6bbd13306c8fc0a869d0faf,branch handoff/p09-resume-20261113. 기존 미추적 Demo/cache3경로와 사용자 기기·DB·인증/라이선스 파일을 보존한다.
 
 ## A 시작
@@ -67,3 +69,43 @@ source **b540e7bd1682a6305c49c9377282b710bee3a982**,tracked-clean의새격리DB/
 [정제회귀JSON](p10-batch27-regressions.json)에Core·Native·self·artifact출처와test/helper/check/sample/Player구분을기록했다. Python149에는새진단계약6건이포함되며제품test149건이아니다. 자체시험과Core변이의예상negative는따로기록하고실제EditorIPC실패를PASS로전환하지않는다. R01~R12의범위/한계는batch26측정계약을그대로유지한다.
 
 C 전체Strict는호출0/DEFERRED_ENV. 신규제품회귀테스트실패는선택실행범위에서0이지만모든현재Player/lane이통과한Strict가있다고주장하지않는다. 원본P05-T03기록FAIL·ENV26OPEN,18.6간헐원인미확정,Provider13WAIT,self-hosted/실기기/Release미검증유지. P10-T01과P10-T02모두IN_PROGRESS/PARTIAL,후자는이번제품수정0/감사만REVIEW_ONLY다.
+
+
+## E Hosted-only 최종 결과
+
+[run44057317769](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44057317769),source **50cd34c2f3c97eca36708d4a2ed377da392247d7**,`release_validation=false` 단1회,전체 **SUCCESS**. repo변수0/runner0 정상응답을확인한뒤실행했고변경·등록·추가dispatch는없다.
+
+| Job | 최종 결과 |
+|---|---|
+| inventory-contracts | SUCCESS |
+| backend-postgres | SUCCESS |
+| android-native | SUCCESS |
+| swift-ios-simulator | SUCCESS |
+| basic-ci | SUCCESS |
+| unity-e2e | SKIPPED |
+| release-readiness | SKIPPED |
+
+공식inventory로그에서43파일/149 Python건PASS/FAILED요약0·새진단6건·Core source/API/wire gatePASS를확인했다. Android Maven/R8,Backend fixture 및Testcontainers11건(의도변이failure1),Swift fake 및synthetic Simulator host step도최종SUCCESS다. 원본job로그는ignored artifacts/batch27에만보존한다. Hosted성공은실제local UnityEditor/Player·fullStrict·remoteUnity/Release·실Provider통과가아니다. 원격재실행없음,마지막후속commit은문서뿐이며CI실행소스는위50cd34c로고정한다.
+
+
+## 완료 범위·미완료·재개
+
+이번배치에서진단도구/실패분류·T02감사/회귀설계·독립local검증·Hosted및Git인계를수행했다. 전체Task의신규완료승격은없다. P09local6PASS(T01/T02/T03/T05/T06/T08)/2PARTIAL(T04/T07),P10-T01/T02IN_PROGRESS/PARTIAL유지. 전체64Task IMPLEMENTED22/IN_PROGRESS42,localPASS20/FAIL1/PARTIAL43,실Provider13WAITING_USER다.
+
+선택실행한Python149·Core10/12·Native42/38·self9의예상외실패/skip는없고guard/원장변이예상negative는별도증명했다. 그러나현재Editor비교2회는실패/환경미완료이며Player/fullStrict는미실행이므로전체신규회귀0/Release완료를선언하지않는다. P05-T03FAIL/ENV26OPEN·18.6간헐원인미확정·P09-T07전용self-hosted/실기기/실Provider/Release미검증을유지한다.
+
+재개: USER_SETUP의IPC환경확인→실제Editor method receipt/marker/exit0→current source/checksum·기기소유확인→Android/iOS PII·구매/Push/Lifecycle·R09현재Player→별도전체Strict최대1회→T01완료판정→T02후보별baseline/추가정상음성test/작은변경/동일회귀/독립commit. A실제PASS전B강행및C완료전T02제품변경없다.
+
+기존Demo·Python cache3미추적경로,사용자Hub/Client/Editor·AVD/Simulator·개발DB·라이선스/개인파일을보존했다. 이번Player용기기생성0,새DB/role은self9전용으로만생성·보존했고ownedBackend만정상종료했다. broadkill/ADB server변경/main병합/force/Release/실자격증명호출/runner등록은없다. 원본로그/서명/실키/라이선스/빌드산출물은commit하지않는다.
+
+## 작업별 커밋·실행 source
+
+| Commit | 범위 |
+|---|---|
+| `39a3076ec00f78842687230e19720f97f665175c` | test(harness): [P10-T01] distinguish actual Editor IPC verdicts from active license |
+| `ffed5c2e83c1b02ec1f68edb590a918e9556174c` | docs(refactor): [P10-T02] audit native service responsibilities behind prerequisite gate |
+| `b540e7bd1682a6305c49c9377282b710bee3a982` | test(bridge): [P10-T01] preserve current native and managed regression evidence |
+| `7e2db42b9ab8b31ee7cab116abea7e9659268a0d` | test(harness): [P09-T08] record isolated batch27 self-check and explicit deferred lanes |
+| `50cd34c2f3c97eca36708d4a2ed377da392247d7` | docs(ci): [P09-T07] record batch27 safe handoff preflight |
+
+실제IPC비교sourcecf276b7,Core/Nativeffed5c2,self9b540e7b,Hosted50cd34c. 제품source는배치시작과동일이다. 새진단runner는6unit/정상음성계약및실제실패log재분석을검증했으며이runner로Editor를추가실행하지않았다. 최종문서commit SHA는Git/채팅마지막인계에서조회한다.

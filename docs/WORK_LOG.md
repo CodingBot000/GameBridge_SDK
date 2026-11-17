@@ -3836,4 +3836,19 @@
 
 - [P09-T08] 배치27 E self검증/커밋 전: sourceb540e7b tracked-clean의새DB/role에서self-only9/9PASS/exit0(harness-self-natvatov,strict-isolated-sj48fr5f),tests47/의도negative3/checks9/예상외failure0/skip0. checkererrors null은미측정으로보존,fullStrict호출0·Simulator/Player생성없음. Core/Native/ABI·자가시험정제JSON을추가했다. repository CodingBot000/GameBridge_SDK public,변수0/runner0 정상API응답확인;remotehandoff CF276b7이local조상(0behind/3ahead). 모든소스commit후증거/문서를scan하고FFpush/falseHosted1회를요청한다.
 
-- 배치27 E push검사/커밋 전: cf276b7이후4commit gitleaks exit0/탐지0,11개text경로에제품/baseline변경·key/서명/Unitylicense/원본log/cache/binary/산출물없음. PII후보3개는기존원장/로그의변경없는synthetic설명2개와새sanitizer시험용invalid-domain값1개뿐이다. 첫전파일패턴검사는기존기록후보를신규후보로보아assertionexit1이었으며line별기준source대조로확인했다. 전체Python43module/149건확인,Actions변수정상응답0/runner0. 현재commit후handoffFFpush/falseHosted단1회만실행한다.
+- 배치27 E push검사/커밋 전: cf276b7이후4commit gitleaks exit0/탐지0,13개text경로에제품/baseline변경·key/서명/Unitylicense/원본log/cache/binary/산출물없음. PII후보3개는기존원장/로그의변경없는synthetic설명2개와새sanitizer시험용invalid-domain값1개뿐이다. 첫전파일패턴검사는기존기록후보를신규후보로보아assertionexit1이었으며line별기준source대조로확인했다. 전체Python43module/149건확인,Actions변수정상응답0/runner0. 현재commit후handoffFFpush/falseHosted단1회만실행한다.
+
+- 배치27 E FFpush 검증/Hosted Task 시작: local/remote handoff HEAD50cd34c2f3c97eca36708d4a2ed377da392247d7 일치,cf276b7→50cd34c FF성공. 코드/테스트/CI변경모두commit됐고기존미추적3경로외tracked clean. repo변수정상응답0재확인. release_validation=false Hosted-only1회를지금요청하며Unity/Release최종SKIPPED확인전전체원격PASS로기록하지않는다.
+
+- 배치27 E Hosted dispatch1회수락: run44057317769/source50cd34c2f3c97eca36708d4a2ed377da392247d7,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44057317769 . 현재in_progress,최종결과대기이며추가dispatch/재실행/runner등록/Release활성화없음. 직전push검사문구의경로개수오기를실제audit13개로정정했다(관측실패삭제없음).
+
+- 배치27 E 원격중간검증: run44057317769/source50cd34c,inventorySUCCESS·공식joblog43파일/149건PASS/FAILED요약0·신규진단6건연결·Core source/API/wire gatePASS. UnitySKIPPED. 나머지Android/Backend/Swift 및basic/Release최종상태는대기하며전체PASS로선기록하지않는다. 원격재실행없음.
+
+- 배치27 E 원격중간검증2: Android/Maven·R8와Backend최종SUCCESS,공식Backend로그에Testcontainers11건/의도mutationfailure1·정상복원receipt확인. Swift package fake stepSUCCESS이나syntheticSimulatorhost는아직진행중,전체job/Basic·Release최종상태대기. 단일dispatch유지. 별도조회에서오입력job ID의404는현재workflow실패가아니며공식run metadata의실제Swift job ID로상태를다시대조했다.
+
+
+- [P09-T07] 배치27 E 최종검증/문서커밋 전: 단일run44057317769/source50cd34c2f3c97eca36708d4a2ed377da392247d7,release_validation=false전체SUCCESS. Hosted4+basic SUCCESS,Unity/Release SKIPPED,inventory43파일/149건·진단6건·CoregatePASS를공식job/로그로확인했다. A/B/C환경대기·T01/T02PARTIAL·P05FAIL/ENV26OPEN/18.6간헐위험/Provider13WAIT/self-hosted미검증유지. 최종문서에모든commit/source/미실행·UNMEASURED를구분하고앞선경로개수오기13으로정정했다. 제품/test/harness/workflow는CI소스이후변경0,이문서만scan·commit·handoffFFpush후local/remoteHEAD및미추적3경로보존을확인한다. 추가원격실행없음.
+
+- 배치27 E 최종문서검증/커밋 직전: 원장/manifest/meta·두API/source baseline·정제JSON·diff검사PASS,CI이후제품/harness/test/workflow변경0. IPC JSON의124는direct실제Editor반환값이아닌outer timeout wrapper코드이고CLI6은실제CLI반환값임을명시했다. 두경로Editor child 종료값은미수집/UNMEASURED로분리했다. 최종문서와정제증거만명시stage·secret/생성물검사후commit/FFpush하고실제HEAD일치및Git상태를보고한다. 새실행/승격/재dispatch없음.
+
+- 배치27 최종커밋 직전: staged8개는Markdown/정제JSON문서뿐,secret검사exit0/탐지0·binary/원본로그/서명/license/build산출물없음. CI이후소스변경0,원장/두APIbaseline/diffPASS. 마지막문서commit후전체batchrange scan·handoff FFpush와remoteHEAD일치를검증하고,기존미추적Demo/cache만보존된Git상태를최종보고한다.

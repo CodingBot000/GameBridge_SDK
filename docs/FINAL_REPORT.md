@@ -1,5 +1,18 @@
 # GameBridge SDK 개발 보고서
 
+## 최신 인계 — 배치27 (2026-11-17)
+
+**IN_PROGRESS / P10-T01·T02 PARTIAL.** [통합 결과·작업별커밋](evidence/p10-batch27-integrated.md),[정제 IPC 관측](evidence/p10-batch27-ipc.json),[독립회귀](evidence/p10-batch27-regressions.json),[T02 감사·설계](evidence/p10-auth-purchase-push-batch27.md)가현재기준이다. 이하이전배치는각실행당시기록이다.
+
+A 실제새Editor 비교는direct210초/124와CLI180초/6 모두메서드미도달로DEFERRED_ENV,추가수정0/복구없음. IPC protocol거부/mutex획득실패/channel부재를관측했으나정확한전체원인은미확정이다. 계정/라이선스/Hub·사용자프로세스는조작하지않았다. B현재Player NOT_RUN/CStrict호출0·DEFERRED_ENV로T01PARTIAL유지. D는선행차단에따라제품변경없이Native책임경계·후보2·기존회귀/추가설계까지REVIEW_ONLY로완료했다.
+
+E Python149/진단6,KotlinCore10·SwiftCore12/managed418,NativeAndroid42·Swift38,self9(47test/의도negative3/check9),mutation감지/원본복원·lifecycle100samples/live0가독립PASS. test/helper/check/sample/실제Player는서로구분한다. public API/wire·79shipping source변경0,보존artifact/checksum147/선정javap·C ABI재대조PASS이며새Player/build보증은아니다.
+
+[Hosted44057317769](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44057317769),source50cd34c2f3c97eca36708d4a2ed377da392247d7,false입력1회SUCCESS. Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED,공식Python43파일149건확인. P05FAIL/ENV26OPEN/18.6간헐위험/실Provider13WAIT/실기기·전용self-hosted/Release미검증유지. 전체64Task 집계는IMPLEMENTED22/IN_PROGRESS42,localPASS20/FAIL1/PARTIAL43다.
+
+재개는USER_SETUP의IPC환경확인및실제Editor smokePASS→currentPlayer→별도Strict→T01판정→T02후보별제한변경순서다. 기존Demo/cache/기기·DB·라이선스/개인파일을보존했다. handoff에만FFpush,main/force/Release없음. 최종local/remote문서HEAD는Git/채팅마지막인계에서조회한다.
+
+
 ## 최신 인계 — 배치26 (2026-11-17)
 
 **프로젝트 IN_PROGRESS / P10-T01 PARTIAL.** [배치26 통합 결과·R01~R12·작업별 커밋](evidence/p09-batch26-integrated.md), [리팩토링 전후](evidence/p10-core-bridge-batch26.md), [구조화 계측](evidence/p09-batch26-assertions.json)을 현재 기준으로 본다. 이하 기존 보고서는 각 실행 당시의 역사 기록이다.

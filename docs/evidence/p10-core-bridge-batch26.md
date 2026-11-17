@@ -41,3 +41,5 @@ source **dc45a2f1b97e035655b4b6b2a9d5381248b040dc**,tracked-clean. 현재NativeM
 ## 배치27 후속
 
 [배치27](p10-batch27-integrated.md)에서공식direct/CLI각새project1회실제Editor smoke가210초/124및180초/6으로미도달했다. protocol거부/mutex실패/channel부재를관측했지만복구/전체원인은미확정이다. 추가수정0,B현재Player NOT_RUN/CStrict0/DEFERRED_ENV로P10-T01PARTIAL유지. 현재Core10/12·managed418·Native42/38·self9·Python149및보존artifact/current79source·API/선정ABI재대조는독립PASS이며과거Player·Strict를현재로재작성하지않는다. T02는선행차단으로제품변경없이[경계감사·후보2·회귀설계](p10-auth-purchase-push-batch27.md)만수행했다. 기존FAIL/외부대기유지.
+
+배치27 최종 [Hosted run44057317769](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44057317769),source50cd34c는SUCCESS(Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED),새진단6건포함Python43파일/149건확인. currentPlayer/Strict미실행및P10-T01PARTIAL은해소하지않는다. [최종인계](p10-batch27-integrated.md).

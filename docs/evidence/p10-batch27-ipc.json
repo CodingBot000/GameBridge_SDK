@@ -22,7 +22,9 @@
       "compilerErrors": 0,
       "ipcTimeouts": 3,
       "rawEvidence": "artifacts/batch27/smoke-direct",
-      "reanalysisStatus": "DEFERRED_ENV"
+      "reanalysisStatus": "DEFERRED_ENV",
+      "exitCodeMeaning": "outer diagnostic timeout code; actual terminated Editor process return code UNMEASURED",
+      "editorChildExitCode": "UNMEASURED"
     },
     {
       "mode": "cli",
@@ -38,7 +40,9 @@
       "compilerErrors": 0,
       "ipcTimeouts": 3,
       "rawEvidence": "artifacts/batch27/smoke-cli",
-      "reanalysisStatus": "DEFERRED_ENV"
+      "reanalysisStatus": "DEFERRED_ENV",
+      "exitCodeMeaning": "actual Unity CLI process return code; Editor child return code UNMEASURED",
+      "editorChildExitCode": "UNMEASURED"
     }
   ],
   "correctiveAttempts": 0,

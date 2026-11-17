@@ -1,25 +1,33 @@
 {
-  "codeSourceHead": "4b64d3701b4099036334dfb12293c050cb18f6f4",
+  "codeSourceHead": "a812cddc0215dcaf3e340dfc0308f89d2830dac1",
   "scope": "GUI input/dispatch fixture and independent Core checks; no new GUI build or Player execution",
   "python": {
-    "tests": 203,
+    "tests": 204,
     "modules": 51,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
     "exitCode": 0,
-    "seconds": 17.37,
-    "evidence": "artifacts/batch31/python-final.log",
-    "workingTreeAtExecution": "3a47266 plus exact R09 malformed-summary patch committed in 4b64d3701b4099036334dfb12293c050cb18f6f4",
-    "priorRun": {
-      "tests": 202,
-      "exitCode": 0,
-      "seconds": 16.704,
-      "evidence": "artifacts/batch31/python-all.log"
-    }
+    "seconds": 17.466,
+    "evidence": "artifacts/batch31/python-current-final.log",
+    "workingTreeAtExecution": "a812cdd with result-document edits only; same final code tree",
+    "priorRuns": [
+      {
+        "tests": 202,
+        "exitCode": 0,
+        "seconds": 16.704,
+        "evidence": "artifacts/batch31/python-all.log"
+      },
+      {
+        "tests": 203,
+        "exitCode": 0,
+        "seconds": 17.37,
+        "evidence": "artifacts/batch31/python-final.log"
+      }
+    ]
   },
   "guiContracts": {
-    "tests": 38,
+    "tests": 39,
     "exitCode": 0,
     "scope": "byte fixtures only, including both Push/UTF8 positive inputs and rejection/dispatch/independent outcome checks",
     "reproducedFailure": {
@@ -29,7 +37,14 @@
       "stage": "R09 malformed iOS summary array caused AttributeError before result.json save",
       "evidence": "artifacts/batch31/r09-malformed-before.log"
     },
-    "repaired": "FAIL/IOS_RESULT_UNAVAILABLE recorded; owned Simulator cleanup preserved"
+    "repaired": "FAIL/IOS_RESULT_UNAVAILABLE recorded; owned Simulator cleanup preserved",
+    "uuidBoundaryFailure": {
+      "tests": 10,
+      "failures": 1,
+      "exitCode": 1,
+      "evidence": "artifacts/batch31/r09-uppercase-before.log",
+      "repaired": "preserve exact simctl UUID in Xcode commands; casefold only for state comparison; real Simulator revalidation PASS"
+    }
   },
   "core": "p10-batch31-core.json",
   "artifactInspection": "p10-batch31-artifact-inspection.json",
@@ -71,9 +86,10 @@
     "observedAfterRestartVersion": "4.0.1",
     "screen": "Unity Hub Software License Terms",
     "termsAcceptedByAgent": false,
-    "explicitApproval": "PENDING",
+    "explicitApproval": "USER_WILL_HANDLE_DIRECTLY; completion notification still pending",
     "guiStatus": "NOT_RUN/DEFERRED_ENV",
-    "policy": "CUA Confirmation Required at Action time: Accepts a legally binding agreement"
+    "policy": "CUA Confirmation Required at Action time: Accepts a legally binding agreement",
+    "userReply": "직접 약관 확인·동의 후 알려줄게"
   },
   "registration": [
     {
@@ -100,8 +116,89 @@
   "p10T02": "IN_PROGRESS/PARTIAL; E1/E2 production changes NOT_RUN_PREREQUISITE",
   "overallSdkStatus": "BLOCKED_INTERNAL (prior incomplete work preserved)",
   "hosted": {
-    "status": "NOT_RUN",
-    "dispatches": 0
+    "sourceHead": "5af3aff08686d330d107bee2bb6482c7e6ed1383",
+    "runId": 44126492891,
+    "url": "https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44126492891",
+    "status": "completed",
+    "conclusion": "success",
+    "release_validation": false,
+    "dispatches": 1,
+    "jobs": [
+      {
+        "name": "swift-ios-simulator",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "backend-postgres",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "inventory-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "android-native",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "unity-e2e",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "basic-ci",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "release-readiness",
+        "status": "completed",
+        "conclusion": "skipped"
+      }
+    ],
+    "python": {
+      "modules": 51,
+      "tests": 203,
+      "failureSummaries": 0,
+      "fetchExitCode": 0
+    },
+    "swiftPackage": {
+      "tests": 37,
+      "failures": 0,
+      "skipped": 0
+    },
+    "syntheticIosHost": {
+      "status": "PASS",
+      "tests": "UNMEASURED in quiet public log; job validated xcresult total>0 failure/skip0"
+    },
+    "testcontainers": {
+      "tests": 11,
+      "expectedMutationFailures": 1,
+      "mutantExitCode": 1,
+      "normalRestoreExitCode": 0
+    },
+    "unity": "SKIPPED",
+    "release": "SKIPPED",
+    "postCiSourceHead": "a812cddc0215dcaf3e340dfc0308f89d2830dac1",
+    "postCiCodeDelta": [
+      "harness/run-r09-utf8.py",
+      "harness/test_gui_player_wrappers.py"
+    ],
+    "postCiRemoteValidation": "NOT_RUN: batch single-dispatch limit retained",
+    "postCiLocalValidation": {
+      "pythonTests": 204,
+      "modules": 51,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "iosCabiTests": 1,
+      "iosCabiStatus": "PASS"
+    },
+    "coverageLimitation": "Hosted SUCCESS applies to 5af3aff (203 Python tests). Later UUID cleanup/destination fixes and added regression are locally verified only; not all final code was Hosted-tested."
   },
   "secretAudit": {
     "newRangeExitCode": 0,
@@ -110,5 +207,8 @@
     "knownSourceHashMetadataFalsePositives": 2,
     "noIgnoreOrHistoryRewrite": true
   },
-  "preserved": "P05-T03 FAIL/ENV-STOREKIT-26 OPEN/18.6 intermittent risk/Provider13 WAITING_USER/self-hosted and Release unverified/old devices DB Demo caches and license"
+  "preserved": "P05-T03 FAIL/ENV-STOREKIT-26 OPEN/18.6 intermittent risk/Provider13 WAITING_USER/self-hosted and Release unverified/old devices DB Demo caches and license",
+  "r09IosActual": "p10-batch31-r09-ios.json",
+  "newOwnedIosSimulators": 2,
+  "newIosCabiTestExecutions": 1
 }

@@ -20,7 +20,7 @@ Push E2E에 명시 GUI project/receipt·ADB executable·emulator/server PID 입�
 
 R09 wrapper의 명시 GUI 경로는 기존 UTF8 consumer와 `--utf8-probe`를 사용하고 strict receipt·소유 binding을 전달한다. Android 결과는 현재 source/tracked-clean·실제 Player/원장 검사에 더해 utf8Probe=true와 전용 `GB_UTF8_JNI_ROUNDTRIP PASS` marker를 요구한다. 일반 구매 marker만으로 R09 PASS가 될 수 없다.
 
-`--platform android|ios|both`를 지원하며 기본 both 성공은 두 실제 경로가 모두 PASS일 때뿐이다. Android 실패 뒤에도 명시된 iOS는 독립 판정한다. iOS는 새로 만든 자기 Simulator만 shutdown하고 삭제하지 않는다. 새 summary는 testcase 수와 오류를 검증해 저장한다. 이번 구현의 단위시험은 실제 JNI/C ABI 실행 증거가 아니다.
+`--platform android|ios|both`를 지원하며 기본 both 성공은 두 실제 경로가 모두 PASS일 때뿐이다. Android 실패 뒤에도 명시된 iOS는 독립 판정한다. iOS는 새로 만든 자기 Simulator만 shutdown하고 삭제하지 않는다. 새 summary는 testcase 수와 오류를 검증해 저장한다. 단위시험은 실제 JNI/C ABI 실행 증거가 아니며, 이후 별도 실제 iOS C ABI 재검증 결과는 아래 최종 기록으로 구분한다.
 
 새 음성 fixture에서 xcresult가 배열일 때 AttributeError로 결과 저장이 중단되는 하네스 결함(error1/exit1)을 재현했다. object/integer count 검증을 추가해 FAIL/IOS_RESULT_UNAVAILABLE를 기록하고 cleanup을 유지하도록 수정했다. 원본 실패 로그를 보존했다.
 
@@ -45,7 +45,7 @@ Strict는0회/DEFERRED_ENV다. 자동 batch Editor의 실제 정상 receipt 및 
 | Android 구매·PII | 배치30 실제 PASS와 제품·scenario 동일 범위 유지; 이번 재실행0 |
 | iOS 구매·PII | 배치29 실제 PASS d543556와 보호 source diff0; 이번 재실행0 |
 | Android Push/Lifecycle·JNI | 새 GUI 입력 구현/fixture PASS, 실제 빌드·Player NOT_RUN/환경 대기 |
-| iOS 독립 C ABI | 배치26 actual XCTest1 PASS d86ccc2와 보호 source diff0; 신규 실행0 |
+| iOS 독립 C ABI | 배치26 source동일 비교 후 새 독립XCTest1 실제PASS/a812cdd; 하단 최종실행 기록 참조 |
 | 현재 iOS Unity Push/Lifecycle | 미검증. 배치25 e46cb65 PASS 뒤 RequestRegistry.cs 변경1개가 남아 그대로 승계 불가 |
 | 전체 Strict | 0회/DEFERRED_ENV; 자동 batch 정상 미확인 |
 
@@ -53,7 +53,7 @@ Strict는0회/DEFERRED_ENV다. 자동 batch Editor의 실제 정상 receipt 및 
 
 ## F — 독립 통합 검증과 인계
 
-[정제 검증](p10-batch31-verification.json): 최종 Python203건/51모듈, failure/error/skip0 PASS(17.370초). GUI38건은 여기에 포함된다. 잘못된 receipt/variant·누락/변조 보조 소스·APK bytes·package/cache·stale 결과/source·유효 GUI의 Backend 도달/batch0·invalid GUI의 ADB/Backend전 거부·각 플랫폼 독립 결과를 검증했다. 기존202PASS와 새 malformed-summary 재현error1/수정 후203PASS는 다른 실행이다. 코드 수정 없이 full Python을 반복하지 않았다.
+[정제 검증](p10-batch31-verification.json): 초기 최종검사 Python203건/51모듈, failure/error/skip0 PASS(17.370초). GUI38건은 여기에 포함된다. 잘못된 receipt/variant·누락/변조 보조 소스·APK bytes·package/cache·stale 결과/source·유효 GUI의 Backend 도달/batch0·invalid GUI의 ADB/Backend전 거부·각 플랫폼 독립 결과를 검증했다. 기존202PASS와 새 malformed-summary 재현error1/수정 후203PASS는 다른 실행이다. 코드 수정 없이 full Python을 반복하지 않았다.
 
 [Core](p10-batch31-core.json): Kotlin10/helper50·Swift12/helper122, managed checker/helper418(정상198/예상오류220), lifecycle100samples/helper316, duplicate-only process134 예상실패1 감지·정상probe0·원본 SHA 복원·복원418/분기419 PASS. 실행 시 harness/test/doc 미커밋 변경이 있었고 SDK shipping79 SHA는 동일임을 별도로 확인했다. helper/test/check/sample/예상 음성 process를 합산하거나 실제 Player assertion 수로 쓰지 않는다.
 
@@ -61,7 +61,7 @@ Strict는0회/DEFERRED_ENV다. 자동 batch Editor의 실제 정상 receipt 및 
 
 새 push 범위 gitleaks exit0/finding0. 이전 이력 포함 scan은 정확한 b1e3c73 source-SHA metadata 오탐2건/실제 exit1을 보존한다. ignore/amend/이력 삭제 없이 기존 검토 근거를 유지한다. 키·토큰·서명·license·원본 로그/DB·Unity/Xcode/Android 빌드 산출물은 올리지 않는다. 기존 Demo/cache3경로를 보존한다.
 
-이 문단 작성시 새 handoff push/Hosted는 아직 NOT_RUN이다. 모든 code/test commit 후 FFpush하고 정상 API의 repo public/Unity vars0를 재확인해 false Hosted-only를1회 실행한다. 수락/최종 결과는 아래 후속 기록을 따른다. main/force/runner등록/Release/실Provider 호출은 하지 않는다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN·18.6간헐 위험·Provider13 WAITING_USER·self-hosted/실기기/Release 미검증을 유지한다.
+초기 작성시 새 handoff push/Hosted는 NOT_RUN이었다. 실제 결과와 후속 code coverage 제한은 하단 최종 기록이 최신이다. 모든 code/test commit 후 FFpush하고 정상 API의 repo public/Unity vars0를 재확인해 false Hosted-only를1회 실행한다. 수락/최종 결과는 아래 후속 기록을 따른다. main/force/runner등록/Release/실Provider 호출은 하지 않는다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN·18.6간헐 위험·Provider13 WAITING_USER·self-hosted/실기기/Release 미검증을 유지한다.
 
 ## 재개할 정확한 지점
 
@@ -80,3 +80,22 @@ Strict는0회/DEFERRED_ENV다. 자동 batch Editor의 실제 정상 receipt 및 
 | `4b64d3701b4099036334dfb12293c050cb18f6f4` | fix(harness): [P10-T01] retain independent failure evidence for malformed xcresult summaries |
 
 최종 문서/CI 커밋 및 local/remote HEAD는 후속 기록과 최종 채팅에서 실제 조회한다.
+
+
+## 최종 독립 실행과 원격 인계 결과
+
+사용자는 새 약관에 “직접 약관 확인·동의 후 알려줄게”라고 답했다. 이는 에이전트의 동의 허용이나 처리 완료 통지가 아니다. Hub 조작을 보류하고 직접 처리에 간섭하지 않았으며 현재 실제 GUI/APK/Android Player는 여전히 NOT_RUN이다. 두 project는 등록·준비된 상태로 보존한다.
+
+CI 진행 중 UUID state 비교의 대소문자 경계 결함을 추가 음성시험으로 재현했다(failure1/exit1). 비교만 casefold하도록 고쳤으나 실제 독립 iOS 시험의 첫 실행 source7e07c70은 Xcode destination ID를 소문자로 전달해 기기 선택에서 exit70/시험0 FAIL이었다. 원본과 소유 기기는 보존했다. simctl 반환 표기를 명령에 그대로 유지하고 비교만 양쪽 casefold하는 수정으로 새 전용 기기에서 근거 있는 재검증1회를 수행했다.
+
+[실제 iOS C ABI 증거](p10-batch31-r09-ios.json): source `a812cddc0215dcaf3e340dfc0308f89d2830dac1`, tracked-clean, artifacts/r09-utf8-70ipi4ww. iOS18.6 새 소유기기/xcresult 실제 deviceId가 일치했고 testHostPushEventRoutingAndDedup1건(한글·emoji UTF8 bytes/복사·callback/event/중복 route) PASS/failure0/skip0/exit0. 자기 Simulator shutdown149 뒤 조회의 Shutdown을 확인했다. 두 시도 디스크·기존 사용자 Simulator를 보존했다. Android JNI 및 Unity iOS Push/Player 성공으로 승격하지 않는다.
+
+최종 source a812cdd의 **Python204건/51모듈 PASS/skip0(17.466초), GUI39건 포함**. 이전202·203 및 UUID 수정 전204와 구분한다. 코드 변경·실제 결함 수정 뒤에만 재검증했다. Core/SDK/ABI는 변경되지 않아 불필요하게 반복하지 않았다.
+
+[Hosted run44126492891](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44126492891), source `5af3aff08686d330d107bee2bb6482c7e6ed1383`, false 단1회 SUCCESS. Hosted4+basic SUCCESS, Unity/Release SKIPPED. 공식 로그 Python51모듈203건·Swift package37·TC11/의도변이1·정상복원 확인. quiet native synthetic iOS host의 정확 testcase 수는 UNMEASURED이며 Unity Player 실행이 아니다.
+
+**CI를 기다리며 찾은 후속 UUID 수정2commit(7e07c70/a812cdd)은 이 Hosted source에 포함되지 않았다.** 변경 경로는 harness/run-r09-utf8.py와 harness/test_gui_player_wrappers.py 두 개다. 마지막 수정은 로컬204건과 실제 iOS C ABI1건으로 검증했으며 원격 CI는 NOT_RUN이다. 추가 dispatch/재실행 없이 배치1회 제약을 유지했다. 따라서 최종 HEAD 전체가 Hosted 검증됐다고 주장하지 않는다. [정제 CI coverage](p10-batch31-hosted.json)에 정확한 source와 한계를 남겼다.
+
+5af3aff를 origin089f1a8에서 handoff로 FFpush하고 local/remote 일치를 확인했다. 후속 수정/결과 문서를 명시 stage·scan·commit한 뒤 동일 handoff로 FFpush하고 최종 local/remote HEAD와 tracked-clean·미추적 Demo/cache3경로 보존을 조회한다. 새 법적 동의·AVD ACK 확대·main/force/Release/runner등록/실Provider 호출은 없다. 원장 삽입 중 P09-T07 셀에 잘못 들어간 문서 행은 검사기가 감지해 정확한 blocker-table 앵커로 복구했고64Task 집계를 유지했다.
+
+현재 T01/T02 PARTIAL·전체 SDK BLOCKED_INTERNAL/P05FAIL·Provider13WAIT·self-hosted/Release 미검증을 유지한다. 다음 의존 작업은 사용자 약관 처리 완료 통지 뒤 두 GUI 빌드와 각 새 owned AVD의 Push/JNI 실측이다. 별도로 current iOS Unity Push 및 자동 batch/Strict 제한이 남는다. `artifacts/batch31/run-owned-android.py`는 실제 receipt와 현재 동일 SDK server가 있을 때만 각 새 AVD를 생성·가드하는 로컬 controller로 준비했고, 문법 검사만 했으며 아직 실행0/UI입력0이다.

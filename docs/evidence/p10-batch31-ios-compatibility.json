@@ -15,9 +15,14 @@
     "priorSourceHead": "d86ccc23ceb14dc6a81d93c2317de0c78f5d708e",
     "priorEvidence": "artifacts/batch26/r09-ios-independent/summary.json",
     "sourceDelta": [],
-    "currentExecution": "NOT_RUN",
+    "currentExecution": "PASS",
     "status": "SOURCE_UNCHANGED_PRIOR_SCOPE_RETAINED",
-    "limitation": "prior result retained; never relabelled as a new Player execution"
+    "limitation": "prior result retained; never relabelled as a new Player execution",
+    "currentSourceHead": "a812cddc0215dcaf3e340dfc0308f89d2830dac1",
+    "currentEvidence": "p10-batch31-r09-ios.json",
+    "currentTests": 1,
+    "currentFailures": 0,
+    "currentSkipped": 0
   },
   {
     "scope": "ios-unity-push",

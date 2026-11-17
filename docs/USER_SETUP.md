@@ -432,3 +432,5 @@ E2E의GUI입력은기본CLI실패fallback이아니다. Android는 `--gui-project
 실제GUI/APK/Player는 아직 미실행이다. 두 소유 project는 공식 unity-cli projects add로 등록(exit0)됐으며 Hub에서 GameBridgeGuiAndroidB31Push 및 GameBridgeGuiAndroidB31Utf8를 검색할 수 있다. Editor는6000.5.8f1을 유지하고 nonce/receipt/147SDK·원본Builder·scenario/APK hash를 실제 빌드 후 확인한다. 현재5037listener0으로 과거PID를 재사용하지 말고 새기기 시험 전 동일SDK server/AVD PID·serial/양port를 실제 입증해야 한다. 기존 성공/실패AVD·설치app·DB를 덮지 않는다.
 
 신규 Push GUI/R09 harness 구현은 내부 완료했고 새iOSPush GUI/현재Player 영향 검증은 내부 후속/환경 작업이다. 이를 실Provider13건 인증 준비와 섞지 않는다. 새 AVD의 정상 전체화면 안내는 실제 관측 뒤 별도 허용을 받아야 한다. 기존 승인 범위를 확대하지 않는다. T01 전체 조건·현재iOSPush 및 자동Strict 조건을 확인한 후에만 T02 codec/decoder 제품 refactor에 진입한다.
+
+사용자 응답은 “직접 약관 확인·동의 후 알려줄게”였다. 완료 통지를 기다리며 에이전트가 동의하지 않는다. 기다리는 동안 R09 iOS 독립 runner의 UUID 문제를 수정했고 새18.6 Simulator의 C ABI XCTest1건을 실제PASS했다. 첫 destination70 실패/시험0은 보존했다. GUI/Android/Unity Push는 미실행이다. Hosted run44126492891/source5af3aff는203건에서SUCCESS지만 이후UUID수정은원격CI미검증,최종로컬204/CABI1범위로구분한다. 추가dispatch는하지않았다.

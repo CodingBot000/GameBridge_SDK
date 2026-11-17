@@ -4,11 +4,11 @@
 
 **GUI Push/JNI 입력 구현·fixture 검증 완료, 실제 GUI 빌드/Player는 NOT_RUN/DEFERRED_ENV. P10-T01/T02 PARTIAL·전체 SDK BLOCKED_INTERNAL 유지.** [배치31 통합결과·정확한 재개 지점·커밋](evidence/p10-batch31-integrated.md),[정제 검증](evidence/p10-batch31-verification.json)이 최신 기준이다.
 
-Push GUI preparer/strict receipt·기존 Backend/Proxy/DB 검사 연결과 R09 UTF8 GUI 전달·각 플랫폼 독립 결과/정확한 실패 저장을 구현했다. 최종 Python203/51모듈·GUI38 포함, CoreKotlin10/Swift12·managed418·duplicate 감지/복원·lifecycle100samples·API/wire/선정 ABI/staging147 PASS. malformed iOS summary의 새 음성 오류를 재현·수정한 뒤203건으로 복구했다. fixture 통과를 실제 JNI/Player 통과로 쓰지 않는다.
+Push GUI preparer/strict receipt·기존 Backend/Proxy/DB 검사 연결과 R09 UTF8 GUI 전달·각 플랫폼 독립 결과/정확한 실패 저장을 구현했다. 최종 Python204/51모듈·GUI39 포함, CoreKotlin10/Swift12·managed418·duplicate 감지/복원·lifecycle100samples·API/wire/선정 ABI/staging147 PASS. malformed iOS summary의 새 음성 오류를 재현·수정한 뒤203건으로 복구했다. fixture 통과를 실제 JNI/Player 통과로 쓰지 않는다.
 
-Hub3.22.6 파일선택 실패 뒤 정상 재시작에서4.0.1 새 Software License Terms가 나타나 약관 동의를 보류하고 사용자 직접 처리/명시 허용을 요청했다. 새동의·우회·license조작·실제APK/AVD/ACK/Player 실행0. 공식 CLI로 두 소유 프로젝트 등록만 완료했고 source/nonce/hash를 보존했다. iOS구매PII/CABI 과거PASS와 source동일 범위는 유지하되, 과거iOSPush는Registry 변경이 있어 현재 검증으로 승계하지 않는다. Strict0, E1/E2 제품 refactor 진입0이다.
+Hub3.22.6 파일선택 실패 뒤 정상 재시작에서4.0.1 새 Software License Terms가 나타나 약관 동의를 보류하고 사용자 직접 처리/명시 허용을 요청했다. 새동의·우회·license조작·실제APK/AVD/ACK/UnityPlayer 실행0. 후속 독립 iOS C ABI는 새18.6 Simulator에서1건 실제PASS(a812cdd)했고 최초destination70/시험0 실패를 보존했다. 공식 CLI로 두 소유 프로젝트 등록만 완료했고 source/nonce/hash를 보존했다. iOS구매PII/CABI 과거PASS와 source동일 범위는 유지하되, 과거iOSPush는Registry 변경이 있어 현재 검증으로 승계하지 않는다. Strict0, E1/E2 제품 refactor 진입0이다.
 
-GitHub handoff FF/Hosted false 단1회 결과는 후속 기록으로 갱신한다. P05FAIL/ENV26OPEN·18.6위험/Provider13WAIT·self-hosted/Release 미검증과 기존 Demo/cache/기기/DB/실패원본을 보존한다.
+[Hosted run44126492891](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44126492891), source5af3aff,false 단1회SUCCESS: Hosted4/basic성공,Unity/ReleaseSKIPPED. 공식Python203/Swift37/TC11·의도변이1확인. 이후 UUID수정2commit은원격CI미검증이며최종로컬204·실제CABI1로검증했다. 최종HEAD전체 Hosted검증으로표시하지않는다. handoff FFpush/최종SHA는마지막 Git인계에서조회한다. P05FAIL/ENV26OPEN·18.6위험/Provider13WAIT·self-hosted/Release 미검증과 기존 Demo/cache/기기/DB/실패원본을 보존한다.
 
 
 ## 최신 인계 — 배치30 (2026-11-18)

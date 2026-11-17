@@ -5,13 +5,13 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치31 GUI 입력/fixture PASS·새 Hub 약관 확인 대기; 실제 새 Player 미실행, 전체 SDK BLOCKED_INTERNAL)
-- 현재 Phase / Task: 배치31 F / GUI 입력 구현·독립 검증 완료, Hub 새약관 확인 대기 및 Git 인계
+- 현재 Phase / Task: 배치32 A / 기준선·환경 확인, 격리 Native 후보·계측·패키징·감사 준비
 - 마지막 갱신 시각: 2026-11-18 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 배치31 최종codea812cdd의Python204/51모듈·GUI39 PASS/새iOSCABI1PASS,Core8aadcf4(문서/harness편집별도)·shipping79/ABI PASS. Hosted run44126492891/source5af3aff SUCCESS(203건); 후속UUID 수정은원격CI미검증·최종local204/iOSCABI1PASS로분리. 배치30 Android actual6f813a7 PASS/이전 iOS d543556 PASS 범위 보존.
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 현재 환경 블로커: ENV-HUB-NEW-TERMS(Hub4.0.1 새 약관 동의의 행동시점 확인 대기); 실제 새GUI/APK/Player 미실행. 자동batch/Strict 미완료·현재iOSUnityPush Registry변경 영향 미검증. 현재5037listener0으로 과거PID 재사용 불가.
+- 현재 환경 블로커: Hub4.0.1 정상Projects/6000.5.8f1 GUI 확인으로약관UI차단해소관측(agent동의0); Android새APK2개생성,실제Player는대기. 자동batch/Strict 미완료·현재iOSUnityPush Registry변경 영향 미검증. 현재5037listener0으로 과거PID 재사용 불가.
 - 바로 다음 행동: 모든code/test를인계하고Hosted false1회·결과문서/HEAD확인. 약관직접처리/명시허용후등록된두GUI project 실제빌드→각새AVD Push/JNI. T01/T02는PARTIAL이며제품refactor는보류.
 - 재개 행동: [배치31 현재결과·정확한경로/명령](evidence/p10-batch31-integrated.md)를따른다. 새약관을기존개발/AVD ACK허가로처리하지않는다.
 
@@ -1844,3 +1844,17 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - [P09-T07/P10-T01] 배치31 F 최종결과/문서커밋 전: run44126492891/source5af3aff08686d330d107bee2bb6482c7e6ed1383,false 단1회SUCCESS(Hosted4/basicSUCCESS,Unity/ReleaseSKIPPED),공식Python203/Swift37/TC11·변이1확인. CI요청뒤UUID후속2commit은포함되지않아최종code전체원격검증이라고기록하지않는다. sourcea812cdd최종localPython204/GUI39·새iOSCABI1실제PASS/ownedcleanup확인,최초destination70/시험0FAIL보존. 사용자직접약관처리완료통지는대기·GUI/APK/Android Player/Strict0/T01T02PARTIAL유지. code후속diff2파일과정제모든scope·원장복구/64집계를문서로정리했고stage scan/commit/동일handoffFFpush/HEAD일치·초기미추적3경로보존을확인한다. 추가CI/약관동의/main/force/Release없음.
 
 - 배치31 F 최종stage검증/커밋 직전: 명시9개문서는text/JSONparse·원장64행·diff PASS,staged scanner실제exit0/탐지0. 최종sourcea812cdd local204/실제CABI1과Hosted source5af3aff203건SUCCESS의범위를구분했고후속2파일의원격미검증을명시했다. 두실제시도/실패0tests·성공1test/ownedcleanup·사용자직접약관완료대기·현재GUI미실행/Strict0/T01T02PARTIAL을보존한다. 문서commit후전체이번range scan·freshfetch/FF확인/동일handoffpush·localremoteHEAD/초기미추적3경로보존을조회한다. 추가dispatch/약관동의/사용자조작간섭없음.
+
+- [P10-T01/P10-T02] 배치32 A 시작: 지시문A~J·AGENTS/START_HERE·계획계약/마지막원장·배치31/책임감사27·현재HEAD3639a1d/동일handoff/초기미추적3경로확인. 사용자는일반권장설정과추가실행권한을위임했다. 새법적약관은기존직접처리완료미통지상태라동의/우회하지않고현재UI를확인한다. GUI의존단계대기시에도Task32명시범위에따라격리local branch D1/D2제품후보baseline/실제구현/회귀·E사전계측·F분리패키징·G/P11사전감사·H검증을진행한다. 후보제품은T01PARTIAL이면handoff에통합/push하지않는다. 원격CI는배치31 UUID후속수정을포함한모든최종handoff code/test정리뒤1회만수행한다. 기존P05FAIL/Provider13WAIT/Strict·self-hosted미검증/사용자기기·DB·license보존.
+
+- 배치32 A/B 환경확인: CUA에서Hub4.0.1은새약관화면대신정상Projects와등록된두소유project를실제로보여준다. 에이전트약관동의0/우회0이며현재동의버튼조작이필요없음을확인해GUI개발을이어간다. Stage147/source/Builder/scenario/LateCallback/link/cache·source8aadancestor/보호경로diff0/출력미존재를재검증PASS. Hub의두project Editor선택이비어있어설치된6000.5.8f1을명시한뒤새GUI빌드부터실행한다. 이미승인된기술적설정과일반권한은재질문하지않는다.
+
+- [P10-T02] 배치32 D 격리후보 시작: T01은현재PARTIAL이므로Task32명시허용에따라candidate/p10-t02-batch32-20261118 worktree(기준3639a1d)를생성했다. handoff의Native제품파일은변경하지않고후보별기존Kotlin18/Swift20 baseline→내부codec/grantdecode분리→동일회귀/음성/API검사→각localcommit으로보존한다. T01PASS전handoff통합/push없음. A/B GUI Push빌드는소유project에서기존Builder실행중이며후보baseline은독립적으로진행한다.
+
+- 배치32 B1 검증/후보D baseline: PushGUI原Builder실제PASS,nonceac3018583bfa47cca483c96521536726/source8aadcf4/147files/APK27074492bytes/SHA97a2e42a76f71c72aae68769c4574787562f18ef263fab77e46d72ab333bc648. strictreceipt/current-source/cache/주·보조scenario·hash검사PASS(tests0/check1/Player0). 격리candidate baseline은KotlinGoogleAuthProvider18/SwiftAppleAuthProvider20·실패skip0/각exit0,보고서/hash/원본XML보존. 실제개선은각후보branch에서만진행하고handoff제품변경0유지. 다음UTF8GUI와B3iOSPush GUI입력구현/음성검증을계속한다.
+
+- 배치32 B3 구현 시작: 기존iOSPush는batch export만지원하고cleanup에서소유Simulator종료가없어,새GUI push variant/보조소스·strict export receipt를명시입력으로추가한다. 기존원본Builder/실제Xcodead-hoc Simulator build·Backend/Proxy·모든marker·token0판정은유지한다. GUI실패→CLI fallback0,잘못된receipt는Xcode/DB/기기전거부,새로생성한자기Simulator만종료/상태확인한다. helper C# Builder/SDK제품은수정하지않고기존공급scene를재사용한다. UTF8 GUI는별도소유project로전환/컴파일중이다.
+
+- 배치32 B3 입력시험 최초결과: GUI43unit중새iOS positive fixture1건이macOS /var→/private/var canonical path 비교불일치로실패(exit1). 실제validator는소유export를정규화해올바르게반환했고fixture의기대path만.resolve가빠졌다. validator/판정조건은변경하지않고기대경로를정규화해재확인한다. 기존42건은PASS이며원본로그보존. UTF8실제GUI APK는별도로PASS/27073808bytes/SHA0a4a8b1b5e2319eccf21a4eadfd2a26a15279110e6e826900fc759d478aa23ac,147/receipt/source관계통과·JNI실행은아직NOT_RUN이다.
+
+- 배치32 A/B3 검증/커밋 전: 두Android실제GUI APK(Push/UTF8)·147/cache/source/receipt검증PASS·Player미실행과iOSPush새명시export입력/보조소스/트리hash/기기cleanup fixture43PASS를분리했다. 최초fixture경로1실패는기대값정규화로복구/validator변경0. 잘못된export의Xcode/DB/Simulator/batch前거부와자기UUID/이름/Shutdown확인검증추가,CI연결했다. Hub는정상Projects/Editor실행상태로약관버튼조작없이진행했다. 후보D1제품은격리local e6e1de7(기존18+추가2/API PASS)로handoff미통합. handoff제품/원장/지급·finish정책변경0,이harnesscommit뒤새iOSPush GUI project를준비한다.

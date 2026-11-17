@@ -2,6 +2,7 @@
 """Opt-in Unity iOS Simulator LOCAL_MOCK push/lifecycle; never APNs."""
 import argparse, importlib.util, json, os, re, secrets, select, shutil, socket, socketserver, subprocess, tempfile, threading, time, urllib.error, urllib.request, uuid
 from pathlib import Path
+from gui_verification import load_ios_export
 ROOT=Path(__file__).resolve().parent.parent
 _redaction_spec = importlib.util.spec_from_file_location('local_mock_redaction', ROOT/'harness/local_mock_redaction.py')
 _redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.loader.exec_module(_redaction)
@@ -71,19 +72,37 @@ def embed_cached_packages(cache, project):
         resolved[name]=version
     return resolved
 
+def shutdown_owned_simulator(run, sim, name):
+    uuid.UUID(sim)
+    if not name.startswith('GameBridge-Unity-iOS-Push-'):raise ValueError('Owned Simulator name required')
+    stopped=run(['xcrun','simctl','shutdown',sim],timeout=20)
+    listing=run(['xcrun','simctl','list','devices','-j'],timeout=20)
+    owned=[x for group in json.loads(listing.stdout)['devices'].values() for x in group if str(x.get('udid','')).lower()==sim.lower()]
+    if stopped.returncode not in (0,149) or listing.returncode or len(owned)!=1 or owned[0].get('name')!=name or owned[0].get('state')!='Shutdown':raise ValueError('Owned Simulator cleanup unconfirmed')
+    return stopped.returncode
+
+
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--run-local',required=True,action='store_true');ap.add_argument('--staging',required=True,type=Path);ap.add_argument('--package-cache',type=Path,help='Existing exact-version Unity PackageCache to copy into isolated project');args=ap.parse_args()
-    out=Path(tempfile.mkdtemp(prefix='unity-ios-push-',dir=ROOT/'artifacts'));must=common.must;run=common.run;server=log=proxy=player=None;markers=[];leaks=[]
+    ap=argparse.ArgumentParser();ap.add_argument('--run-local',required=True,action='store_true');ap.add_argument('--staging',required=True,type=Path);ap.add_argument('--package-cache',type=Path,help='Existing exact-version Unity PackageCache to copy into isolated project');ap.add_argument('--gui-project',type=Path);ap.add_argument('--gui-export-receipt',type=Path);args=ap.parse_args()
+    if bool(args.gui_project)!=bool(args.gui_export_receipt):ap.error('GUI project/export receipt required together')
+    out=Path(tempfile.mkdtemp(prefix='unity-ios-push-',dir=ROOT/'artifacts'));must=common.must;run=common.run;server=log=proxy=player=None;sim=None;markers=[];leaks=[]
     head=must(['git','rev-parse','HEAD'],'GIT_HEAD').strip();dirty=bool(must(['git','status','--porcelain','--untracked-files=no'],'GIT_STATUS').strip());result={'status':'FAIL','scope':'Unity iOS Simulator LOCAL_MOCK push; not APNs','sourceHead':head,'sourceTrackedDirty':dirty,'player':'NOT_RUN','background':'NOT_RUN','networkRecovery':'NOT_RUN','processRestart':'NOT_RUN'}
     try:
         stage=args.staging.resolve();must(['python3','harness/check-staging.py',stage],'STAGING_INVALID');common.verify_staged_source_matches_checkout(stage)
-        env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage);prepared=must(['bash','scripts/prepare-unity-ios-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
-        if not match:raise common.GateError('CONSUMER_PATH')
-        project=Path(match.group(1))
-        if args.package_cache:result['embeddedCachedPackages']=embed_cached_packages(args.package_cache.resolve(),project)
-        shutil.copy2(ROOT/'tests/UnityIosPushConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/LateCallbackProbe.cs',project/'Assets/LateCallbackProbe.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml');xcode=out/'xcode'
-        export=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],timeout=1200,env=env);(out/'unity-export.log').write_text(export.stdout)
-        if export.returncode:raise common.GateError('UNITY_EXPORT_FAILED')
+        if args.gui_project:
+            try:proof=load_ios_export(args.gui_project,args.gui_export_receipt,stage,head,'push')
+            except (OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError) as error:raise common.GateError('GUI_EXPORT_INPUT_INVALID') from error
+            xcode=proof['output'];receipt=proof['receipt']
+            result.update(unityBuildMode='GUI_EXPLICIT_RECEIPT',guiBuildSourceHead=receipt['sourceHead'],guiBuildRunId=receipt['runId'],guiExportReceiptSha256=common.sha256(args.gui_export_receipt),exportSha256=receipt['artifactSha256'],embeddedCachedPackages=proof['embeddedCachedPackages'])
+            (out/'unity-export.log').write_text(proof['logSegment'])
+        else:
+            env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage);prepared=must(['bash','scripts/prepare-unity-ios-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
+            if not match:raise common.GateError('CONSUMER_PATH')
+            project=Path(match.group(1))
+            if args.package_cache:result['embeddedCachedPackages']=embed_cached_packages(args.package_cache.resolve(),project)
+            shutil.copy2(ROOT/'tests/UnityIosPushConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/LateCallbackProbe.cs',project/'Assets/LateCallbackProbe.cs');shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml');xcode=out/'xcode'
+            export=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],timeout=1200,env=env);(out/'unity-export.log').write_text(export.stdout)
+            if export.returncode:raise common.GateError('UNITY_EXPORT_FAILED')
         derived=out/'Derived';build=run(['xcodebuild','-project',xcode/'Unity-iPhone.xcodeproj','-scheme','Unity-iPhone','-configuration','Debug','-sdk','iphonesimulator','-derivedDataPath',derived,'ARCHS=arm64','CODE_SIGN_IDENTITY=-','CODE_SIGNING_REQUIRED=YES','build','-quiet'],timeout=600);(out/'xcodebuild.log').write_text(build.stdout)
         if build.returncode:raise common.GateError('XCODE_BUILD_FAILED')
         products=derived/'Build/Products/Debug-iphonesimulator';app=next(products.glob('*.app'));binary=products/'UnityFramework.framework/UnityFramework'
@@ -172,6 +191,12 @@ def main():
             try:server.wait(timeout=10)
             except subprocess.TimeoutExpired:server.kill();server.wait()
         if log:log.close()
+        if sim:
+            try:
+                result['ownedSimulatorShutdownExitCode']=shutdown_owned_simulator(run,sim,'GameBridge-Unity-iOS-Push-'+suffix)
+                result['ownedSimulatorShutdownConfirmed']=True
+            except Exception:
+                result.update(status='FAIL',cleanupErrorCode='OWNED_SIMULATOR_SHUTDOWN_UNCONFIRMED')
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     print('RESULT',result['status'],result.get('errorCode',''),'EVIDENCE',out.relative_to(ROOT));return 0 if result['status']=='PASS' else 2 if result['status']=='DEFERRED_ENV' else 1
 if __name__=='__main__':raise SystemExit(main())

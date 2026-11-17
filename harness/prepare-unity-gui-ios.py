@@ -2,14 +2,15 @@
 """Prepare a fresh GUI Simulator export consumer; never launches an Editor."""
 import argparse, importlib.util, json, os, re, shutil, subprocess, uuid
 from pathlib import Path
-from gui_verification import file_hash
+from gui_verification import file_hash, IOS_SCENARIOS, auxiliary_sources
 ROOT=Path(__file__).resolve().parent.parent
 
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--prepare',required=True,action='store_true')
     p.add_argument('--staging',required=True,type=Path);p.add_argument('--package-cache',required=True,type=Path)
-    p.add_argument('--variant',choices=('standard','pii'),default='pii');a=p.parse_args();stage=a.staging.resolve()
+    p.add_argument('--variant',choices=tuple(IOS_SCENARIOS),default='pii');p.add_argument('--project-label',default='GameBridgeGuiIosB29');a=p.parse_args();stage=a.staging.resolve()
+    if not re.fullmatch(r'GameBridgeGuiIos[A-Za-z0-9_-]*',a.project_label):raise SystemExit('Owned GUI iOS project label required')
     subprocess.run(['python3','harness/check-staging.py',str(stage)],cwd=ROOT,check=True)
     spec=importlib.util.spec_from_file_location('source',ROOT/'harness/run-unity-android-mock-e2e.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.verify_staged_source_matches_checkout(stage)
     subprocess.run(['python3','scripts/verify-xcframework.py',str(stage/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework')],cwd=ROOT,check=True)
@@ -19,11 +20,10 @@ def main():
     if not match:raise SystemExit('Prepared project path missing')
     old=Path(match.group(1)).resolve()
     if not old.is_relative_to(ROOT/'artifacts'):raise SystemExit('Owned artifact project required')
-    project=old.with_name('GameBridgeGuiIosB29');old.rename(project)
+    project=old.with_name(a.project_label);old.rename(project)
     spec=importlib.util.spec_from_file_location('cache',ROOT/'harness/run-unity-ios-mock-push-e2e.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);packages=m.embed_cached_packages(a.package_cache.resolve(),project)
-    if a.variant=='pii':
-        shutil.copyfile(ROOT/'tests/UnityIosPiiConsumer/MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
-        shutil.copyfile(ROOT/'tests/UnityPiiProbe/PiiProbe.cs',project/'Assets/PiiProbe.cs');shutil.copyfile(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
+    shutil.copyfile(ROOT/'tests'/IOS_SCENARIOS[a.variant]/'MockIosPlayerScenario.cs',project/'Assets/MockIosPlayerScenario.cs')
+    for target,source in auxiliary_sources(a.variant):shutil.copyfile(ROOT/source,project/'Assets'/target)
     for name in ('GameBridgeGuiVerification.cs','GuiIosExport.cs'):shutil.copyfile(ROOT/'tests/UnityGuiVerification'/name,project/'Assets/Editor'/name)
     shutil.copyfile(stage/'SHA256SUMS',project/'GameBridgeStaging.SHA256SUMS')
     c=dict(schemaVersion=1,operation='ios',runId=uuid.uuid4().hex,sourceHead=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),projectRoot=str(project),expectedUnityVersion='6000.5.8f1',variant=a.variant,

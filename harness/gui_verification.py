@@ -114,6 +114,8 @@ def embedded_versions(project):
     return versions
 
 
+IOS_SCENARIOS = {'standard':'UnityIosMockConsumer', 'pii':'UnityIosPiiConsumer', 'push':'UnityIosPushConsumer'}
+
 ANDROID_SCENARIOS = {'standard':'UnityAndroidMockConsumer', 'pii':'UnityAndroidPiiConsumer',
                      'utf8':'UnityAndroidUtf8Consumer', 'push':'UnityAndroidPushConsumer'}
 
@@ -223,7 +225,7 @@ def load_ios_export(project, receipt_path, staging, current_head, variant):
     v=json.loads(expected.read_text(encoding='utf-8-sig'));validate_ios_receipt(v,c)
     if c['operation']!='ios' or c['variant']!=variant or Path(c['projectRoot']).resolve()!=project:raise ValueError('GUI iOS variant/project mismatch')
     protected=['unity/Packages/com.gamebridge.sdk','ios/Sources','ios/UnityBridge','ios/Framework','contracts',
-        'tests/UnityIosMockConsumer','tests/UnityIosPiiConsumer','tests/UnityPiiProbe','tests/UnityLateCallbackPlayer',
+        'tests/UnityIosMockConsumer','tests/UnityIosPiiConsumer','tests/UnityIosPushConsumer','tests/UnityPiiProbe','tests/UnityLateCallbackPlayer',
         'tests/UnityGuiVerification/GameBridgeGuiVerification.cs','tests/UnityGuiVerification/GuiIosExport.cs']
     if subprocess.run(['git','merge-base','--is-ancestor',c['sourceHead'],current_head],cwd=root,capture_output=True).returncode:raise ValueError('GUI export source not checkout ancestor')
     for args in ([c['sourceHead'],current_head],['HEAD']):
@@ -231,7 +233,7 @@ def load_ios_export(project, receipt_path, staging, current_head, variant):
     pairs=[('Assets/Editor/GameBridgeGuiVerification.cs','scriptSha256','tests/UnityGuiVerification/GameBridgeGuiVerification.cs'),
            ('Assets/Editor/GuiIosExport.cs','adapterSha256','tests/UnityGuiVerification/GuiIosExport.cs'),
            ('Assets/Editor/BuildMockIosPlayer.cs','buildScriptSha256','tests/UnityIosMockConsumer/BuildMockIosPlayer.cs'),
-           ('Assets/MockIosPlayerScenario.cs','scenarioSha256','tests/'+('UnityIosPiiConsumer' if variant=='pii' else 'UnityIosMockConsumer')+'/MockIosPlayerScenario.cs')]
+           ('Assets/MockIosPlayerScenario.cs','scenarioSha256','tests/'+IOS_SCENARIOS[variant]+'/MockIosPlayerScenario.cs')]
     for relative,key,source in pairs:
         if file_hash(project/relative)!=c[key] or c[key]!=file_hash(root/source):raise ValueError('GUI iOS builder/scenario differs')
     verify_auxiliary_sources(project,root,variant)

@@ -32,6 +32,8 @@ _gui = importlib.util.module_from_spec(_gui_spec); _gui_spec.loader.exec_module(
 load_android_build = _gui.load_android_build
 _binding_spec = importlib.util.spec_from_file_location('gui_binding', ROOT/'harness/emulator_binding.py')
 _binding = importlib.util.module_from_spec(_binding_spec); _binding_spec.loader.exec_module(_binding)
+_startup_spec = importlib.util.spec_from_file_location('startup_diagnostics', ROOT/'harness/android_startup_diagnostics.py')
+_startup = importlib.util.module_from_spec(_startup_spec); _startup_spec.loader.exec_module(_startup)
 _GUI_ADB_GUARD = None
 
 PACKAGE = "com.gamebridge.sdk.mockconsumer"
@@ -229,7 +231,7 @@ def scan_unity_log(adb, serial, key, password, pii_probe=False):
     if key in result or password in result or _redaction.contains_mock_credential(result) or (pii_probe and any(value in result for value in ("synthetic-person@example.invalid", "+1-202-555-0107"))):
         raise GateError("SYNTHETIC_SECRET_IN_PLAYER_LOG")
     return [line for line in result.splitlines()
-            if re.search(r"\b(?:GB_MOCK_(?:STEP|RESULT|NATIVE|REDACTION)|GB_UTF8_JNI_ROUNDTRIP|GB_NATIVE_DEMO_FLOW|GB_PII_PROBE)\b", line)]
+            if re.search(r"\b(?:GB_BOOT|GB_MOCK_(?:STEP|RESULT|NATIVE|REDACTION)|GB_UTF8_JNI_ROUNDTRIP|GB_NATIVE_DEMO_FLOW|GB_PII_PROBE)\b", line)]
 
 
 def check_player_markers(lines):
@@ -280,6 +282,7 @@ def main():
     parser.add_argument("--gui-build-receipt", type=Path, help="Actual GUI build result; never a fallback for a failed CLI build")
     parser.add_argument("--expected-emulator-pid", type=int)
     parser.add_argument("--expected-adb-server-pid", type=int)
+    parser.add_argument("--startup-diagnostics", action="store_true", help="Collect owned-device startup stages/all-buffer logs; never a success substitute")
     parser.add_argument("--timeout-seconds", type=int, default=180)
     args = parser.parse_args()
     if sum((args.utf8_probe, args.native_demo_probe, args.pii_probe)) > 1: parser.error("choose one specialized probe")
@@ -299,6 +302,8 @@ def main():
     }
     backend_process = None
     backend_log = None
+    diagnostics = None
+    lines = []
     try:
         if not args.staging or not args.staging.is_dir() or not (args.staging / "SHA256SUMS").is_file():
             raise GateError("UPM_STAGING_REQUIRED", "DEFERRED_ENV")
@@ -417,6 +422,12 @@ def main():
         summary["unityPlayer"] = "INSTALLED_NOT_RUN"
         # Safe because this is exclusively a dedicated test AVD.
         must([adb, "-s", serial, "logcat", "-c"], "LOGCAT_CLEAR_FAILED", timeout=20)
+        if args.startup_diagnostics:
+            diagnostics = _startup.Collector(run, adb, serial, PACKAGE, output / "startup-diagnostics", (key, password))
+            summary["startupDiagnostics"] = "startup-diagnostics/summary.json"
+            summary["backendHealthConfirmedBeforeLaunch"] = True
+            try: diagnostics.capture("installed-before-launch", backend_log=output / "server.log")
+            except _startup.DiagnosticsUnavailable as error: raise GateError("ANDROID_STARTUP_DIAGNOSTICS_UNAVAILABLE") from error
         # The key is synthetic and passed only to this dedicated test app; never print the argv.
         launched = run([adb, "-s", serial, "shell", "am", "start", "-W", "-n",
                         PACKAGE + "/com.unity3d.player.UnityPlayerGameActivity",
@@ -427,7 +438,16 @@ def main():
             raise GateError("UNITY_LAUNCH_FAILED")
         summary["unityPlayer"] = "LAUNCHED_PENDING"
         deadline = time.monotonic() + args.timeout_seconds
+        if diagnostics:
+            try: diagnostics.capture("activity-response", ui=True, backend_log=output / "server.log")
+            except _startup.DiagnosticsUnavailable as error: raise GateError("ANDROID_STARTUP_DIAGNOSTICS_UNAVAILABLE") from error
+        next_capture = time.monotonic() + 10
         while time.monotonic() < deadline:
+            if diagnostics and time.monotonic() >= next_capture:
+                try: diagnostics.capture("poll", ui=True, backend_log=output / "server.log")
+                except _startup.DiagnosticsUnavailable as error: raise GateError("ANDROID_STARTUP_DIAGNOSTICS_UNAVAILABLE") from error
+                next_capture = time.monotonic() + 15
+                if time.monotonic() >= deadline: raise GateError("UNITY_PLAYER_RESULT_TIMEOUT")
             lines = scan_unity_log(adb, serial, key, password, args.pii_probe)
             if check_player_markers(lines):
                 if args.utf8_probe and not any("GB_UTF8_JNI_ROUNDTRIP PASS" in line for line in lines):
@@ -444,6 +464,9 @@ def main():
         else:
             raise GateError("UNITY_PLAYER_RESULT_TIMEOUT")
 
+        if diagnostics:
+            try: diagnostics.capture("completed", backend_log=output / "server.log")
+            except _startup.DiagnosticsUnavailable as error: raise GateError("ANDROID_STARTUP_DIAGNOSTICS_UNAVAILABLE") from error
         backend_log.flush()
         summary["backendTraceCounts"] = server_trace_status(output / "server.log", key, password)
         assert_wallet_ledger(args.postgres_container, args.postgres_admin, database)
@@ -457,6 +480,10 @@ def main():
         summary["status"] = "FAIL"
         summary["errorCode"] = type(error).__name__
     finally:
+        if diagnostics and summary["status"] != "PASS":
+            try: diagnostics.capture("failure", ui=True, backend_log=output / "server.log")
+            except Exception as error: summary["startupFinalCaptureError"] = type(error).__name__
+        if lines: (output / "unity-test-markers.log").write_text("\n".join(lines) + "\n", encoding="utf-8")
         _GUI_ADB_GUARD = None
         if backend_process:
             backend_process.terminate()

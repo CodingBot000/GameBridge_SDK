@@ -5,7 +5,7 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS (배치29 종료; GUI 양플랫폼 빌드·iOS E2E/Hosted PASS,Android실행timeout FAIL,T01/T02 PARTIAL)
-- 현재 Phase / Task: 배치29 인계 / Android미도달 원인·현재플랫폼/Strict 잔여 조건, T02 제품 변경 보류
+- 현재 Phase / Task: 배치30 A / Android 최초 실행 원본·단계별 관측 분석
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: GUI probe dcc0b4c,Android build7263444/실행FAIL7520cbc,iOS export953a5a5/실행PASSd543556; Hosted3fd95f459355d5abdab98ff9c622a7bd5675d0d1 SUCCESS. 최종Python171 PASS.
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
@@ -1744,3 +1744,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - [P09-T07] 배치29 E 최종원격검증/문서커밋 전: run44096116650/source3fd95f459355d5abdab98ff9c622a7bd5675d0d1,false입력1회전체SUCCESS. Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED. 공식Python47모듈171/Swift37(후보20포함)/TC11·의도변이1및정상복원확인. 신규code/test모두검증source에포함됐고이후문서변경뿐이다. AndroidFAIL/Strict미실행·T01/T02PARTIAL·P05FAIL/ENV26OPEN/18.6위험/Provider13WAIT/self-hosted미검증보존. 단계별source·모든commit·남은작업을최종문서에기록후stage scan/localcommit/handoffFFpush와localremoteHEAD/미추적보존을검증한다. 추가dispatch없음.
 
 - 배치29 E 최종stage검증/커밋 직전: 명시11개파일은Markdown/정제JSON문서뿐,staged gitleaks 실제exit0/탐지0·diff0오류. 전체이력의b1e3c73 sourcehash2건오탐(actualexit1)은별도재계산근거로유지했다. 원장64행집계22구현/42진행·local20PASS/1FAIL/43PARTIAL일치. CI이후code/test/harness/workflow delta0. 마지막문서commit후handoff동일branch FFpush/localremoteHEAD·tracked clean/기존미추적3경로보존을확인한다. 추가CI/실기기/Provider/Release실행없음.
+
+- [P10-T01] 배치30 A 시작: 지시문·AGENTS/START_HERE/원장/마지막로그·branch/HEAD2c8e7a7/기존미추적3경로대조완료. B29 원본/소비scenario/builder/harness와B25PASS를읽고설치/Activity·process/runtime/Scene/Awake/Start/intent/SDK객체/init/callback/HTTP를분리한다. 첫marker가init완료뒤라는코드상한계를확인했으며Start미도달로단정하지않는다. 원본을보존하고필요한진단만추가→새GUI APK·새전용AVD1회,원인별수정후최대1추가실행조건을지킨다. SDK제품/timeout/성공조건/서버/타기기변경없음.
+
+- 배치30 A 대조결과: B25/B29 모두Unity6000.5.8f1 serializedversion/arm64IL2CPP·같은선택PlayerSettings와동일Pii scenario SHA,Scene에올바른script GUID참조확인. libmain/libc++동일이지만libunity/libgame/libil2cpp/swappy바이트는달라전체Native동일로주장하지않는다. debugger대기/nativeWait0 등선택boot옵션동일,build GUID/network주소는공개제외. B29설치/Activity응답확인외실제PID생존·Scene/Awake/Start/intent/SDK/init는UNMEASURED,emulator VkInstance관측은graphics호출부분증거뿐이다. initialize는HTTP없고첫dev-auth는SignInAPI뒤이므로DB0을Start미도달로단정하지않는다. B의조기단계/다중로그관측이필요하다.
+
+- 배치30 B 구현 시작: Android전용표준/PII/UTF8소비scenario에실제Awake/sceneIndex·Start/focus/pause·intent존재/유효성(bool만)·SDK생성·init호출/반환/예외·첫auth API직전marker를추가한다. 제품SDK/await순서/완료시점/기존성공·실패marker는바꾸지않는다. 하네스는동일소유guard하의PID생존·resumed/focus·모든logcatbuffer/AndroidRuntime/ANR/native-load·UI hierarchy·Backendhealth/첫trace관측을ignored raw와정제범주로분리한다. 로그수집불가를정상으로판정하지않는다.
+
+- 배치30 B 진단계약검증/커밋 전: startup진단8건/GUI입력7건PASS/skip0(무marker는UNMEASURED,init호출과반환구분,package crash/ANR·knownSystemUI증거,raw비공개/secretredaction·PID종료관측·log수집불가거부·HTTP첫관측시간미위조). 원래180초deadline은Activity응답직후로유지해진단수집으로대기창을늘리지않는다. defaultCLI옵션은유지하고 --startup-diagnostics를명시한다. 새marker는고정point/유효성bool/engineelapsed뿐이며기존성공/실패조건·SDK/await순서변경0. CI연결및별도GUI projectlabel검증추가. commit된source에서새B30A소비project/APK를준비한다.

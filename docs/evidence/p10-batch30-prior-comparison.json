@@ -1,0 +1,129 @@
+{
+  "b25": {
+    "apkSha256": "420f5d38f616804979f8e4a725645cabde45d1823d9c88599b2bb7cdd031c760",
+    "size": 27070552,
+    "nativeLibraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libgame.so",
+      "lib/arm64-v8a/libil2cpp.so",
+      "lib/arm64-v8a/libmain.so",
+      "lib/arm64-v8a/libswappywrapper.so",
+      "lib/arm64-v8a/libunity.so"
+    ],
+    "scriptingBackend": "IL2CPP (libil2cpp.so present)",
+    "safeBootOptions": {
+      "player-connection-mode": "Listen",
+      "player-connection-debug": "0",
+      "gfx-threading-mode": "4",
+      "wait-for-native-debugger": "0",
+      "hdr-display-enabled": "0",
+      "gc-max-time-slice": "3",
+      "android-preferred-data-location": "1"
+    },
+    "selectedProjectSettings": [
+      "m_ActiveColorSpace: 0",
+      "androidApplicationEntry: 2",
+      "runInBackground: 0",
+      "applicationIdentifier:",
+      "Android: com.gamebridge.sdk.mockconsumer",
+      "AndroidMinSdkVersion: 26",
+      "AndroidTargetSdkVersion: 0",
+      "stripEngineCode: 1",
+      "m_BuildTargetGraphicsAPIs: []",
+      "scriptingBackend: {}",
+      "managedStrippingLevel: {}"
+    ],
+    "scenarioSha256": "ed4a3f01eb05b717270d766c6732b58e6f9283e59b7c091027cd459c76ce7d1a",
+    "sceneFilePresent": true,
+    "sceneReferencesExpectedScenarioGuid": true
+  },
+  "b29": {
+    "apkSha256": "dd09b532c842ee60116e57785e5b7add25f40a7f7d0deab486872e16c4b628e4",
+    "size": 27072192,
+    "nativeLibraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libgame.so",
+      "lib/arm64-v8a/libil2cpp.so",
+      "lib/arm64-v8a/libmain.so",
+      "lib/arm64-v8a/libswappywrapper.so",
+      "lib/arm64-v8a/libunity.so"
+    ],
+    "scriptingBackend": "IL2CPP (libil2cpp.so present)",
+    "safeBootOptions": {
+      "player-connection-mode": "Listen",
+      "player-connection-debug": "0",
+      "gfx-threading-mode": "4",
+      "wait-for-native-debugger": "0",
+      "hdr-display-enabled": "0",
+      "gc-max-time-slice": "3",
+      "android-preferred-data-location": "1"
+    },
+    "selectedProjectSettings": [
+      "m_ActiveColorSpace: 0",
+      "androidApplicationEntry: 2",
+      "runInBackground: 0",
+      "applicationIdentifier:",
+      "Android: com.gamebridge.sdk.mockconsumer",
+      "AndroidMinSdkVersion: 26",
+      "AndroidTargetSdkVersion: 0",
+      "stripEngineCode: 1",
+      "m_BuildTargetGraphicsAPIs: []",
+      "scriptingBackend: {}",
+      "managedStrippingLevel: {}"
+    ],
+    "scenarioSha256": "ed4a3f01eb05b717270d766c6732b58e6f9283e59b7c091027cd459c76ce7d1a",
+    "sceneFilePresent": true,
+    "sceneReferencesExpectedScenarioGuid": true
+  },
+  "nativeLibraryByteEquality": {
+    "lib/arm64-v8a/libc++_shared.so": true,
+    "lib/arm64-v8a/libgame.so": false,
+    "lib/arm64-v8a/libil2cpp.so": false,
+    "lib/arm64-v8a/libmain.so": true,
+    "lib/arm64-v8a/libswappywrapper.so": false,
+    "lib/arm64-v8a/libunity.so": false
+  },
+  "stageEvidence": [
+    {
+      "stage": "APK installation",
+      "result": "CONFIRMED"
+    },
+    {
+      "stage": "Activity start response",
+      "result": "CONFIRMED"
+    },
+    {
+      "stage": "actual process/PID survival",
+      "result": "UNMEASURED"
+    },
+    {
+      "stage": "Unity runtime initialization",
+      "result": "PARTIAL: emulator saw Unity Vulkan VkInstance create/destroy; completion UNMEASURED"
+    },
+    {
+      "stage": "first Scene load",
+      "result": "UNMEASURED"
+    },
+    {
+      "stage": "Awake/Start",
+      "result": "UNMEASURED"
+    },
+    {
+      "stage": "Intent validation",
+      "result": "UNMEASURED"
+    },
+    {
+      "stage": "SDK object creation",
+      "result": "UNMEASURED"
+    },
+    {
+      "stage": "Native initialize/callback",
+      "result": "UNMEASURED"
+    },
+    {
+      "stage": "Backend dev-auth",
+      "result": "no successful request observed; DB users/sessions 0"
+    }
+  ],
+  "limitations": "No PID/lifecycle/all-tag crash/UI snapshot was preserved. Missing post-initialize success marker cannot locate the stop. APK/library/graphics observations do not prove runtime success."
+}

@@ -9,28 +9,52 @@ using UnityEngine;
 // Dedicated LOCAL_MOCK test consumer, never a production app.
 public sealed class MockPlayerScenario : MonoBehaviour
 {
+    private void Awake()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        Debug.Log("GB_BOOT point=awake sceneIndex=" + gameObject.scene.buildIndex + " t=" + Time.realtimeSinceStartup.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
+#endif
+    }
+    private void OnApplicationFocus(bool value)
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        Trace(value ? "focus_gained" : "focus_lost");
+#endif
+    }
+    private void OnApplicationPause(bool value)
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        Trace(value ? "pause_enter" : "pause_exit");
+#endif
+    }
     private async void Start()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
+        Trace("start_enter");
         GameBridgeClient client = null;
         string stage = "configuration";
         try
         {
-            stage = "android-intent";
+            stage = "android-intent"; Trace("intent_read");
             using var unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             using var activity = unity.GetStatic<AndroidJavaObject>("currentActivity");
             using var intent = activity.Call<AndroidJavaObject>("getIntent");
             var url = intent.Call<string>("getStringExtra", "gamebridge_mock_url");
             var key = intent.Call<string>("getStringExtra", "gamebridge_mock_key");
+            Debug.Log("GB_BOOT point=intent_checked urlPresent=" + (!string.IsNullOrEmpty(url) ? "1" : "0") +
+                " keyPresent=" + (!string.IsNullOrEmpty(key) ? "1" : "0") +
+                " urlValid=" + (!string.IsNullOrEmpty(url) && url.StartsWith("http://10.0.2.2:", StringComparison.Ordinal) ? "1" : "0") +
+                " keyValid=" + (!string.IsNullOrEmpty(key) && key.Length >= 32 ? "1" : "0") +
+                " t=" + Time.realtimeSinceStartup.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
             if (string.IsNullOrEmpty(url) || !url.StartsWith("http://10.0.2.2:", StringComparison.Ordinal) || string.IsNullOrEmpty(key) || key.Length < 32)
                 throw new InvalidOperationException("CONFIG_REQUIRED");
             stage = "config-validation";
             var config = new GameBridgeConfig("gamebridge-sample", ProviderMode.LocalMock, url, 30000, key, "A");
             var syntheticKey = key; key = null;
-            stage = "native-transport";
-            client = GameBridgeSdk.Create(config);
-            stage = "initialize"; await client.InitializeAsync(config); Log(stage);
-            stage = "login"; var profile = await client.SignInAsync(AuthProvider.MOCK); RejectSecret(profile, syntheticKey); Log(stage);
+            stage = "native-transport"; Trace("sdk_create_enter");
+            client = GameBridgeSdk.Create(config); Trace("sdk_created");
+            stage = "initialize"; Trace("initialize_call"); await client.InitializeAsync(config); Trace("initialize_returned"); Log(stage);
+            stage = "login"; Trace("backend_auth_call"); var profile = await client.SignInAsync(AuthProvider.MOCK); RejectSecret(profile, syntheticKey); Log(stage);
             stage = "utf8-jni";
             const string unicode = "한글 🎮🚀";
             var utf8Event = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -57,8 +81,8 @@ public sealed class MockPlayerScenario : MonoBehaviour
             foreach (var item in events) if (item.RequestId.HasValue) Debug.Log("GB_MOCK_NATIVE kind=" + item.Kind + " outcome=" + item.Outcome + " requestId=" + item.RequestId.Value);
             Debug.Log("GB_MOCK_RESULT PASS LOCAL_MOCK");
         }
-        catch (SdkException failure) { Debug.LogError("GB_MOCK_RESULT FAIL stage=" + stage + " code=" + failure.Code); }
-        catch (Exception error) { Debug.LogError("GB_MOCK_RESULT FAIL stage=" + stage + " code=INTERNAL_ERROR type=" + error.GetType().Name); }
+        catch (SdkException failure) { Trace("exception"); Debug.LogError("GB_MOCK_RESULT FAIL stage=" + stage + " code=" + failure.Code); }
+        catch (Exception error) { Trace("exception"); Debug.LogError("GB_MOCK_RESULT FAIL stage=" + stage + " code=INTERNAL_ERROR type=" + error.GetType().Name); }
         finally { client?.Dispose(); }
 #else
         await Task.Yield();
@@ -70,5 +94,6 @@ public sealed class MockPlayerScenario : MonoBehaviour
         if (string.IsNullOrEmpty(secret) || JsonConvert.SerializeObject(value).Contains(secret))
             throw new InvalidOperationException("SENSITIVE_RESULT");
     }
+    private static void Trace(string point) => Debug.Log("GB_BOOT point=" + point + " t=" + Time.realtimeSinceStartup.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
     private static void Log(string stage) => Debug.Log("GB_MOCK_STEP " + stage + " PASS");
 }

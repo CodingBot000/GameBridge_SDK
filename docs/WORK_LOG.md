@@ -3865,3 +3865,7 @@
 - 배치28 실제관측부작용: 새GUIEditor상태바에Multiple ADB server instances 및다른SDK인스턴스종료경고가표시됐다. 에이전트가ADB kill/restart/설치·네트워크명령을호출하지않았으나Unity시작의자동동작관측이므로ADB상태완전불변이라고주장하지않는다. 대상SDK/프로세스/기기영향은미확정이며확인없이추가ADB조작하지않는다. 사용자에게commentary로알렸고정제JSON에분리기록했다.
 
 - 배치28 A/D 커밋 직전: 실제direct1회실패와HubGUI1회정상UI를서로다른scope로공개정제기록했다. 자동receipt/B/Strict/C조건미충족·실제ADB시작경고미확정도유지한다. Python149·문서/두API/staging/actionlint/diff통과,제품코드변경0. 이관측/설정인계를별도commit후고정source독립Core·Native·자가시험을검증한다. 원본화면/개인project목록/원시log/라이선스는commit하지않는다.
+
+- 배치28 D Core 검증: commit4d58d13 tracked-clean의core-assertions-7b_9fhgq exit0/PASS. Kotlin10/50helper,Swift12/122,managed418(198normal+220expected),복원418/branch419,stress100samples/helper316 및정확duplicate-only변이감지/원본hash복원확인. Editorinclude없음/JNI실제Player assertion UNMEASURED. 보존artifact의현재79source/checksum·javap3class/Cexport4x2재대조PASS(새build아님). Nativeauth/purchase/push회귀와self9는동일shippingcode에서계속한다.
+
+- 배치28 D Native検증/커밋 전: source4d58d13과동일shipping79hash전후실측에서Android선택session/auth/purchase/push JUnit42건/failure0/error0/skip0/exit0,Swift38건/failure0/skip0/exit0. 미커밋은결과문서뿐이며실기기/스토어/푸시서비스통과가아니다. 현재5037 listener PID68316을lsof/ps로만읽었고사전owner/종료대상은UNMEASURED;ADB실행/서버조작없음. 이결과문서commit후새격리DB/role self9만수행하며fullStrict/Player/추가Editor실행없음.

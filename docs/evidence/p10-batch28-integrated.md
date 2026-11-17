@@ -26,3 +26,14 @@ A자동receipt조건은미충족/DEFERRED_ENV이므로지시대로BPlayer·R09�
 ## D 독립 검증 진행
 
 Python149건PASS/skip0,원장/manifest50/meta/두API-source-wire baseline/staging147/actionlint/diffPASS. Core/Native/cohort418·mutation/self9는고정source에서이어확인한다. 실제Editor/Player환경대기를독립fake PASS로대체하지않는다. 현재제품/하네스/테스트/workflow변경0이며코드변경조건의추가Hosteddispatch는계획하지않는다.
+
+
+### D Core·Native·호환성 결과
+
+source **4d58d132859aa0990ced6a1b7fa67652030eb5a3**의Core collector `core-assertions-7b_9fhgq` exit0/PASS. Kotlin10test/helper50(37normal+13expected),Swift12/122(112+10),managed0test/check1/helper418(198+220),복원418,조건분기419(추가OFF0/ON1). duplicate-only 정상0/변이nonzero·예상negative1/원본hash동일·정상전체복원확인. lifecycle100samples/helper316(15+300+1),liveClients0/liveTransports0. assertion outcomes/래퍼밖/JNI실제Player범위는UNMEASURED다. Editorinclude없음.
+
+같은shippingcode/전후79hash일치에서Native선택회귀 `artifacts/batch28/native` Android42JUnit/Swift38XCTest 모두exit0·실패skip0(추가진행문서만미커밋). 실제OS인증UI/결제·FCM/APNs/권한·Player는아니다. C1/C2새설계case를실행/구현한것으로표시하지않는다.
+
+`artifacts/batch28/artifact-inspection.json`은기존dc45a2fNative산출물의현재source79hash/UPMmanifest·checksum147/javap3class/Cexport4개양slice를재검사해동일확인했다. 새빌드/새현재Player성공은아니다. 제품API/wire/source변경0이며P10-T01baseline은덮어쓰지않았다.
+
+GUI후ADB읽기전용후속에서는5037에adb PID68316 listener가있음을관측했다. 사전owner/종료대상/기기영향은여전히미측정이며lsof/ps외ADB명령은실행하지않았다. 이관측만으로원래server가복원됐다고주장하지않는다.

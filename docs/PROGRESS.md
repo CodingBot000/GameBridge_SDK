@@ -4,8 +4,8 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (배치26 수행 종료; P09 local 6 PASS/2 PARTIAL, P10-T01 PARTIAL, 현재 Player·Strict 환경 대기)
-- 현재 Phase / Task: 배치27 A / P10-T01 Unity IPC 제한 진단 및 복구
+- 전체 상태: IN_PROGRESS (배치27 진행; A IPC 미복구, B/C 환경 대기, D 책임 감사, E 독립 회귀·인계)
+- 현재 Phase / Task: 배치27 E / P10-T01·T02 독립 회귀 및 Hosted 인계
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
 - 마지막 검증된 소스 커밋: 계측·새 패키지 dc45a2f1b97e035655b4b6b2a9d5381248b040dc / self9·독립 iOS C ABI d86ccc23ceb14dc6a81d93c2317de0c78f5d708e (shipping code 동일); Hosted c34b419e3a2c719e5d615362f179b38f59b1a241 SUCCESS
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
@@ -91,7 +91,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P09-T07 | CI 설정·플랫폼 lane 분리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-ci-modes.md, WORK_LOG P09-T07 | ENV-P09-RUNNER |
 | P09-T08 | Fail-closed 하네스 자체 시험 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08 | - |
 | P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-core-bridge-batch26.md, WORK_LOG P10-T01 | ENV-UNITY-LICENSE-IPC |
-| P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T02 | - |
+| P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-auth-purchase-push-batch27.md, WORK_LOG P10-T02 | DEP-P10-T01 |
 | P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
 | P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | ENV-002 |
 | P11-T01 | 전체 Task·TODO·계약 누락 최종 감사 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T01 | - |
@@ -126,6 +126,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | USER-PUSH-RETENTION | USER | P02-T05 | 사용자 결정: 등록 해제·로그아웃 시 해당 토큰 즉시 삭제 | local-mock 세션별 삭제와 경쟁 상황 검증 완료 | 실제 FCM/APNs 경로 별도 구현 | RESOLVED |
 | USER-RETRY | USER | P02-T04 | 사용자 결정: 동시 1개, 5초 시작 지수 백오프 | local-mock worker·재시작·동시성 검증 완료 | 실제 store finalizer 별도 구현 | RESOLVED |
 | DEP-P09-SK18 | DEP | P09-T04 | 배치24 18.6 timeout 원인 미확정, 배치25 동일 제한의 두 경로 PASS | 최초/후속 증거 및 checkpoint 분리 유지 | 정지 구간·기기 상태/부하 관측으로 간헐 원인 분류 | OPEN |
+| DEP-P10-T01 | DEP | P10-T02 | 배치27 실제 Editor 미복구로 current Player·Strict 완료 증거 없음 | 제품 변경 없이 책임 감사/후보2/회귀설계만 완료 | P10-T01 current Player·Strict 및 로컬 완료 조건 확인 후 후보별 진입 | OPEN |
 | ENV-UNITY-LICENSE-IPC | ENV | P10-T01·현재 Unity Player/Strict | CLI license active이나 새 owned Editor의 LicensingClient IPC channel 부재·reconnect 실패 | raw build FAIL 보존, APK/Player NOT_RUN·Strict 실행0/DEFERRED_ENV, 계정/라이선스 변경 없음 | 정상 Editor IPC 복구 후 현재 SDK staging으로 영향 Player 재검증; USER_SETUP 참고 | OPEN |
 | ENV-P09-RUNNER | ENV | P09-T07 | 전용 self-hosted 격리·실제 Unity CI/Release 미검증 | Hosted-only 및 local CI 경로 유지 | 전용 runner 준비와 별도 명시 검증 | OPEN |
 | ENV-P09-AVD | ENV | P09-T05 | 배치24 serial/PID/실제 port 불일치 | 배치25 새 AVD의 PID·이름·console/ADB 양 port 소유를 확인한 current Push PASS | 재실행마다 소유 검증·새 앱 상태 유지; 무인 CI 별도 | RESOLVED |
@@ -1631,3 +1632,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치27 E 검증/커밋 전: Python전체149건PASS/skip0,새진단6건은Hosted inventory에연결했다. 원장64행·manifest50·meta·Core source/API/wire·actionlint·diff PASS,staging147/currentSDKsource·exactCache일치. A실제direct/CLI는각1회DEFERRED_ENV(124/6),다시실행없음. 공개정제IPC JSON·T02감사/설계를추가했고shipping제품/baseline파일변경0. 원본log/개인정보/라이선스파일은추적하지않는다. 진단도구는미래재개용이며이번실제비교는보존된artifact wrapper명령으로수행했음을분리한다. commit후고정source에서Core·Native·managed/mutation/self9를검증한다.
 
 - 배치27 A/E 커밋 직전: 두실제Editor비교DEFERRED_ENV·추가수정0·B/C미실행과raw보존/정제IPC JSON을기록했다. 신규진단하네스는6unit/전체Python149PASS·actionlint/API/progress검사PASS이며현재실패log재분석만추가(Editor추가실행0). 이진단/CI연결과A증거를독립commit하고D감사문서를다음별도commit으로남긴뒤고정source의E실행을수행한다. 공개에는원본Client/Hub/CLI로그·라이선스·개인정보를올리지않는다.
+
+- [P10-T02] 배치27 D 검증/독립 커밋 전: 책임감사문서의호출경로·후보2·기존testcase·미실행설계·선행차단근거를확인했다. T02원장은IN_PROGRESS/PARTIAL유지,감사활동만REVIEW_ONLY이며DEP-P10-T01을명시했다. 제품source/API/baseline파일변경0. A진단commit39a3076 이후이문서와진행기록만별도commit하고고정sourceE검증으로계속한다.

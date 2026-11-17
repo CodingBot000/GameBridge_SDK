@@ -3827,3 +3827,5 @@
 - 배치27 E 검증/커밋 전: Python전체149건PASS/skip0,새진단6건은Hosted inventory에연결했다. 원장64행·manifest50·meta·Core source/API/wire·actionlint·diff PASS,staging147/currentSDKsource·exactCache일치. A실제direct/CLI는각1회DEFERRED_ENV(124/6),다시실행없음. 공개정제IPC JSON·T02감사/설계를추가했고shipping제품/baseline파일변경0. 원본log/개인정보/라이선스파일은추적하지않는다. 진단도구는미래재개용이며이번실제비교는보존된artifact wrapper명령으로수행했음을분리한다. commit후고정source에서Core·Native·managed/mutation/self9를검증한다.
 
 - 배치27 A/E 커밋 직전: 두실제Editor비교DEFERRED_ENV·추가수정0·B/C미실행과raw보존/정제IPC JSON을기록했다. 신규진단하네스는6unit/전체Python149PASS·actionlint/API/progress검사PASS이며현재실패log재분석만추가(Editor추가실행0). 이진단/CI연결과A증거를독립commit하고D감사문서를다음별도commit으로남긴뒤고정source의E실행을수행한다. 공개에는원본Client/Hub/CLI로그·라이선스·개인정보를올리지않는다.
+
+- [P10-T02] 배치27 D 검증/독립 커밋 전: 책임감사문서의호출경로·후보2·기존testcase·미실행설계·선행차단근거를확인했다. T02원장은IN_PROGRESS/PARTIAL유지,감사활동만REVIEW_ONLY이며DEP-P10-T01을명시했다. 제품source/API/baseline파일변경0. A진단commit39a3076 이후이문서와진행기록만별도commit하고고정sourceE검증으로계속한다.

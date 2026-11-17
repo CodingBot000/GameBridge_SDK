@@ -1,10 +1,18 @@
 """Read-only process/port attestation for an explicitly owned local emulator."""
 import re
+import os
 import shlex
 import subprocess
 from pathlib import Path
 
 class BindingError(ValueError):pass
+
+
+def validate_adb_environment(environment=None):
+    env=os.environ if environment is None else environment
+    # Guarded commands use the attested local endpoint, never an ambient override.
+    if env.get('ADB_SERVER_SOCKET') or env.get('ANDROID_ADB_SERVER_ADDRESS') or any(env.get(name) not in (None,'','5037') for name in ('ANDROID_ADB_SERVER_PORT','ADB_SERVER_PORT')):
+        raise BindingError('ADB_SERVER_ENDPOINT_OVERRIDE_REFUSED')
 
 
 class GuiAdbGuard:
@@ -14,6 +22,7 @@ class GuiAdbGuard:
         self.serial=serial; self.avd=avd; self.emulator_pid=int(emulator_pid)
 
     def attest(self, command):
+        validate_adb_environment()
         inspect_binding(self.serial,self.avd,self.emulator_pid)
         if _port_owners(5037)!={self.server_pid}:
             raise BindingError('ADB_SERVER_PORT_OWNER_CHANGED')

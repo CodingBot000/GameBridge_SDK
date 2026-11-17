@@ -50,7 +50,9 @@ class GateError(Exception):
 def run(command, timeout=120, input_text=None, env=None):
     if _GUI_ADB_GUARD is not None and command and (Path(str(command[0])).name == 'adb' or
             Path(str(command[0])).resolve() == _GUI_ADB_GUARD.adb):
-        try: _GUI_ADB_GUARD.attest(command)
+        try:
+            _binding.validate_adb_environment(env)
+            _GUI_ADB_GUARD.attest(command)
         except _binding.BindingError as error:
             raise GateError("GUI_DEVICE_OR_ADB_BINDING_CHANGED", "DEFERRED_ENV") from error
     try:

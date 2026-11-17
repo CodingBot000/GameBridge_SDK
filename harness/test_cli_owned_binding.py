@@ -20,4 +20,15 @@ class CliOwnedBindingTests(unittest.TestCase):
             def must(cmd,*a,**kw):return 'head' if cmd[:3]==['git','rev-parse','HEAD'] else ''
             argv=['probe','--run-local','--staging',str(root/'absent'),'--serial','emulator-5600','--expected-avd','GameBridge_V2_unit','--expected-emulator-pid','42','--expected-adb-server-pid','43','--startup-diagnostics','--ack-known-fullscreen-notice']
             with patch.object(m,'ROOT',root),patch('sys.argv',argv),patch.object(m,'must',side_effect=must),patch.object(m,'locate_adb') as adb,contextlib.redirect_stdout(io.StringIO()):self.assertEqual(m.main(),2);adb.assert_not_called()
+    def test_effective_environment_cannot_redirect_an_attested_adb_command(self):
+        class Guard:
+            adb=Path('/unit/adb').resolve()
+            def attest(self,command):pass
+        with patch.object(m,'_GUI_ADB_GUARD',Guard()),patch.object(m.subprocess,'run') as process:
+            with self.assertRaises(m.GateError):m.run(['/unit/adb','-s','emulator-5600','logcat','-d'],env={'ADB_SERVER_SOCKET':'tcp:localhost:9999'})
+            process.assert_not_called()
+        for env in ({'ANDROID_ADB_SERVER_PORT':'9999'},{'ANDROID_ADB_SERVER_ADDRESS':'remote'},{'ADB_SERVER_PORT':'9999'}):
+            with self.assertRaises(m._binding.BindingError):m._binding.validate_adb_environment(env)
+        m._binding.validate_adb_environment({'ANDROID_ADB_SERVER_PORT':'5037'})
+
 if __name__=='__main__':unittest.main()

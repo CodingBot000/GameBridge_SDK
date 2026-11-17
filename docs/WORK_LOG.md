@@ -4131,3 +4131,15 @@
 - 배치32 I/J 최종scan/커밋 전: 전체코드최종237/57모듈연결·Native47/43·현재source/패키지/양플랫폼post E2E와정확한Source/실패한계·AJ/15항목·후보→정식커밋맵을통합문서에정리했다. 신규range scanner0/탐지0,역사range scanner1/기존hash오탐2는현재test SHA독립재계산일치로검토/보존. 全commit text/금지생성물0,원장64/구현24·진행40/localPASS22·FAIL1·PARTIAL41정합,57module全CI연결확인. repo public/vars0/runners0·handoffFF이력확인. 명시stage/scan/문서commit後allcode포함sourceFFpush·정상vars0再확인·falseHosted1회만수행한다. Macunlock필수대기는CLI회복/실제검증완료로해소했지만GUI잠금자체를해제했다고claim하지않는다.
 
 - 배치32 I/J stage검증/커밋 직전: 명시16개README/정제문서·JSON의파싱/text·원장/누락경로·diff 검사PASS,실제staged blob scanner exit0/탐지0. 코드/테스트는현재최종Source에서237검증됐고이후변경은결과문서뿐이다. 모든개발키/로그/DB/라이선스/빌드출력·기존Demo/cache는stage하지않았다. 마지막문서commit후전체이번범위재scan·freshfetch/FF확인·동일handoffpush·localremote 일치확인→vars정상응답0뒤singlefalseHosted로배치31UUID후속/전체현재Native·harness/test를함께검증한다.
+
+- 배치32 I FFpush확인/단일Hosted시작: local/remote handoff HEAD2017771d355cb56865f44ef1ddf9e4faad78442d 일치,3639a1d→2017771 FFpush exit0. 모든현재code/test/배치31UUID후속·정식Native변경과새전이guard가해당source에포함됐고trackedclean/초기미추적3경로보존. 마지막전체range scan0/탐지0·정상vars API0/total0 재확인. release_validation=false Hosted-only 단1회를이source에서요청하며최종결과前PASS기록없음. 추가실Provider/OS잠금조작/main/force/runner/Release없음.
+
+- 배치32 I Hosted dispatch1회수락: run44165459795/source2017771d355cb56865f44ef1ddf9e4faad78442d,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44165459795 . 현재최종결과대기이며추가dispatch/retry/Unity활성변수/runner/Release없음. 소스동결후코드변경0,최종결과와local/remoteHEAD만기록한다.
+
+- 배치32 I 원격중간검증: run44165459795 inventory-contracts SUCCESS/UnitySKIPPED. 공식job logs API exit0에서Python57모듈237건 및닫힌原Core기준+정확Native전이guard PASS를확인했다. 新KotlinCodec/SwiftDecoder 포함native job과Backend/기본집계최종결과는대기이며추가dispatch/소스변경없음. 원격수와로컬237일치,배치31UUID후속을포함한최종source2017771검증이다.
+
+- 배치32 I 원격추가관측: Android-native/Backend-postgres SUCCESS. 공식logs에서필수StoredGoogleSessionCodecTest/JUnit gate와TC11/의도변이1/정상복원을확인했다. Swift package단계도SUCCESS후syntheticSimulatorhost최종대기이며전체PASS를앞서기록하지않는다. 추가dispatch0/현재code tree2017771불변,검토한local문서링크누락0.
+
+- 배치32 I/J 최종원격결과/문서커밋 전: run44165459795/source2017771d355cb56865f44ef1ddf9e4faad78442d,false 단1회SUCCESS. Hosted4/basic SUCCESS,Unity/ReleaseSKIPPED. 공식Python57모듈237·原Core＋Native전이guard·신규KotlinCodec/JUnit·Swift40/Decoder3·TC11/의도변이1/정상복원·synthetic iOShost job확인. quiet host정확test수UNMEASURED/Unity실행아님. 배치31UUID후속과전체현재code/test포함,이후코드변경0. AJ/15항목·후보→정식커밋맵·64Task24/40/local22/1/41 및모든실패/미완료scope를문서로정리했고최종문서stage scan/commit/동일handoffFFpush/localremoteHEAD·원래미추적3경로보존을검증한다. 추가CI/실Provider/main/force/Release없음.
+
+- 배치32 J 최종stage검증/커밋 직전: 명시7개결과문서text/JSONparse·64Task원장·diff PASS,실제staged scanner exit0/탐지0. 검증source2017771뒤SDK/harness/tests/workflow/baseline코드변경0이다. 마지막문서commit後freshfetch·전체이번range scan·handoffFF가능성·push·최종remoteHEAD/추적파일clean·초기미추적3경로와candidate로컬branch보존을실제조회한다. 추가dispatch/원격branch/candidatepush/실Provider/main/force/Release없음.

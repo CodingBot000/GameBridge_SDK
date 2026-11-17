@@ -445,3 +445,5 @@ CLI Android batch 종료가 ADB 서버를 종료하는 증거를 확인해 빌�
 T01·T02는명시제품기준으로로컬PASS이며실Provider13건·전체SDK/Release완료와다르다. Native session/grant 내부분리후가격/동시성/보존/refresh·finalization/finish정책변경은없다. 사전계측은.NET fake/loopback범위이고Native memory/UI프로파일링은남는다. 원래 fullStrict의전체lane build/runtime분리·binding/OS·StoreKit컨텍스트전파는내부후속작업(DEP-STRICT-OWNED-ENV)이며외부인증대기로넘기지않는다. 자동Editor회복만으로전체Strict를PASS로쓰지않는다.
 
 StoreKit26.5 FAIL/18.6간헐위험·실제Google/Apple/FCM/APNs·실기기·self-hosted/Release미검증과계획OpenAPI문서부재는계속기록한다. 키/토큰/서명/license/원본로그·DB·APK/IPA/Xcode출력은Git에넣지않는다. 새키나비밀번호를채팅에보내지않는다.
+
+배치32 최종 Hosted source2017771/run44165459795는 false 단1회 SUCCESS였다. Python237/Swift40·필수새Codec/Decoder/원장변이를검증했으며Unity/Release는SKIPPED이다. 이후코드변경0. 자동Editor/개별Player회복과전체Strict/실Provider·Release제약을혼동하지않으며미완료내부orchestration/프로파일링/OpenAPI/P11업무는통합문서우선순위를따른다.

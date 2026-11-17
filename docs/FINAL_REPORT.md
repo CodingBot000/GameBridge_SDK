@@ -10,7 +10,7 @@
 
 현재 Python237/57모듈, Native47/43, Core10/12·managed418·duplicate 감지/복원·lifecycle100/316, 필수self9·TC11/의도변이1을 검증했다. 최초 wrapper/fixture/문자열수량/서버수명·post Android 창환경 실패를 보존하고 실제 수정·대조와 연결했다. [사전계측](evidence/p10-batch32-performance.md)은 warmup20+100·실제monotonic p50/p95/max·잔존0 및 loopback멱등/409를 기록하며, Native memory/UI jank/Unity startup·실제Provider나 성능 향상을 주장하지 않는다.
 
-자동 Editor의 direct/cli 정상은 회복했지만 원래 fullStrict의 전체기기/서버수명·필수OS/StoreKit컨텍스트 전이가 완비되지 않아 전체Strict0/NOT_RUN·DEFERRED_ENV/내부설정대기를 유지한다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN·18.6간헐위험·Provider13 WAITING_USER·self-hosted/실기기·Release미검증을 보존했다. P11 사전감사에서 64Task/증거와 문서의110→147·Unity미검증표기를 정정했고 기계OpenAPI파일부재는 BUG-017로 남겼다. 최종 Hosted1회/FF인계 결과는 후속 기록을 따른다.
+자동 Editor의 direct/cli 정상은 회복했지만 원래 fullStrict의 전체기기/서버수명·필수OS/StoreKit컨텍스트 전이가 완비되지 않아 전체Strict0/NOT_RUN·DEFERRED_ENV/내부설정대기를 유지한다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN·18.6간헐위험·Provider13 WAITING_USER·self-hosted/실기기·Release미검증을 보존했다. P11 사전감사에서 64Task/증거와 문서의110→147·Unity미검증표기를 정정했고 기계OpenAPI파일부재는 BUG-017로 남겼다. [Hosted run44165459795](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44165459795), source2017771d355cb56865f44ef1ddf9e4faad78442d,false단1회SUCCESS: Hosted4+basic성공,Unity/ReleaseSKIPPED. 공식Python237/Swift40·신규KotlinCodec/TC11·변이복원확인. 코드변경은모두이source에포함됐고이후문서변경뿐이다. 동일handoffFFpush/최종localremote문서HEAD는마지막Git/채팅인계에서조회한다.
 
 
 ## 최신 인계 — 배치31 (2026-11-18)

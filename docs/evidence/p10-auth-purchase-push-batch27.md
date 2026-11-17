@@ -45,3 +45,8 @@ C에서 current Player·전체Strict 및P10-T01완료판정이충족된뒤에만
 ## 배치28 후속
 
 사용자가정상실행확인을위임했고에이전트가새전용project를Hub에서열어6000.5.8f1 Scene/Hierarchy/Inspector정상UI를확인했다. 별도direct batch1회는210초timeout/receipt없음으로실패한상태를보존했다. B현재Player·Strict0/DEFERRED_ENV,T01PARTIAL로C1/C2제품진입은미실행이다. 독립Python149/Core10·12/managed418/Native42·38/self9 PASS와API/선정ABI재대조는[배치28 증거](p10-batch28-integrated.md)에source별기록했다. GUI시작의다른SDK ADBserver종료경고·대상영향미확정도분리했다. 코드변경0이라추가Hosted dispatch0/NOT_RUN,과거CI는비교기준만유지한다.
+
+
+## 배치29 GUI 경로 후속
+
+[배치29 최종결과](p10-batch29-integrated.md): GUI 실제컴파일·메서드/Unity7조건PASS,현재AndroidAPK 및iOSexport생성PASS,실제iOSSimulator PII·Backend원장1/delta100 PASS. Android는설치/Activity시작후180초marker timeoutFAIL·새DB모든원장0·원인미확정으로보존. batch/전체Strict/나머지플랫폼조건미완료로T01/T02PARTIAL,제품refactor변경0이다. 독립후보test Kotlin18/Swift20(신규3+2)와하네스Python171 PASS. source3fd95f4의단일Hosted run44096116650 SUCCESS(Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED)는로컬Android실패를해소하지않는다. 기존P05/StoreKit위험/실Provider13대기유지.

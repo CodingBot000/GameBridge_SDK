@@ -61,3 +61,8 @@ P10-T01은자동batch/현재Player/Strict완료증거가없어IN_PROGRESS/PARTIA
 | `2737429c873e272b1576b519e709582670cf75ac` | test(bridge): [P10-T01] record batch28 independent regression boundaries |
 
 후속최종문서commit SHA와local/remoteHEAD는Git/채팅마지막인계에서조회한다. main/force/Release/runner등록/실Provider호출은없으며원본log/화면·개인project목록·서명/license/빌드산출물은commit하지않는다.
+
+
+## 배치29 GUI 경로 후속
+
+[배치29 최종결과](p10-batch29-integrated.md): GUI 실제컴파일·메서드/Unity7조건PASS,현재AndroidAPK 및iOSexport생성PASS,실제iOSSimulator PII·Backend원장1/delta100 PASS. Android는설치/Activity시작후180초marker timeoutFAIL·새DB모든원장0·원인미확정으로보존. batch/전체Strict/나머지플랫폼조건미완료로T01/T02PARTIAL,제품refactor변경0이다. 독립후보test Kotlin18/Swift20(신규3+2)와하네스Python171 PASS. source3fd95f4의단일Hosted run44096116650 SUCCESS(Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED)는로컬Android실패를해소하지않는다. 기존P05/StoreKit위험/실Provider13대기유지.

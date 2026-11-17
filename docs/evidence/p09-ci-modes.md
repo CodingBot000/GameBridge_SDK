@@ -69,3 +69,20 @@ Unity self-hosted 경로는 GAMEBRIDGE_PUSH_EMULATOR_PID를job별전용emulator�
 | release-readiness | SKIPPED |
 
 공식inventory로그에서43파일/149 Python건PASS/FAILED요약0·새진단6건·Core source/API/wire gatePASS를확인했다. Android Maven/R8,Backend fixture 및Testcontainers11건(의도변이failure1),Swift fake 및synthetic Simulator host step도최종SUCCESS다. 원본job로그는ignored artifacts/batch27에만보존한다. Hosted성공은실제local UnityEditor/Player·fullStrict·remoteUnity/Release·실Provider통과가아니다. 원격재실행없음,마지막후속commit은문서뿐이며CI실행소스는위50cd34c로고정한다.
+
+
+## Hosted-only 최종 결과
+
+[run44096116650](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650),source **3fd95f459355d5abdab98ff9c622a7bd5675d0d1**,`release_validation=false` 단1회,workflow **SUCCESS**. 호출전repo변수0/runner0 정상응답확인,설정변경/runner등록/추가dispatch/재실행없음.
+
+| Job | 최종 결과 |
+|---|---|
+| inventory-contracts | SUCCESS |
+| backend-postgres | SUCCESS |
+| android-native | SUCCESS |
+| swift-ios-simulator | SUCCESS |
+| basic-ci | SUCCESS |
+| unity-e2e | SKIPPED |
+| release-readiness | SKIPPED |
+
+공식job로그에서Python47파일/171건PASS(신규GUI4모듈포함)/FAILED요약0,Backend Testcontainers11건/의도mutationfailure1 및정상복원,Swift package37건/failure0(신규후보2건포함)를확인했다. Android의선택GoogleAuthProvider회귀·Maven/R8와synthetic iOSSimulatorhost step도SUCCESS다. 이는원격Unity/Release·실기기/실Provider통과가아니며로컬Android실제timeoutFAIL을해소하지않는다. 이후최종commit은문서만변경한다.

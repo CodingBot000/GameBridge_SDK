@@ -397,3 +397,18 @@ GUI상태바에는다른SDK의ADBserver인스턴스를Unity가종료했다는경
 ### 배치29 GUI 실제 메서드·APK 및 사용자 요청 중단
 
 GUI nonce/소유project/Unity7조건·실제C#메뉴실행과기존Builder의27,072,192byte AndroidAPK 생성은PASS다. batch/StrictPASS는아니다. Android새AVD의설치/launch는성공했으나180초Player marker timeoutFAIL,새DB users/sessions/purchases/ledger 각0·원인미확정이다. Qt Emulator가CUA표면으로노출되지않았다는한계도원인확정과구분한다. 사용자중단요청으로[재개명령/상태](evidence/p10-batch29-resume.md)를저장했다. 새iOS GUI helper코드는unit검증만됐고실제export/Player는NOT_RUN,이번CI/push도0회다. 사용자재개전새실행을시작하지않는다.
+
+
+### 배치29 재개 후 GUI 빌드 경로와 실제 Player 판정
+
+[배치29 통합결과](evidence/p10-batch29-integrated.md)를현재기준으로본다. GUI test-only 메뉴에서실제C#컴파일/Unity객체7조건/nonce·소유경로·버전·receipt를확인했다. Android는기존BuildMockPlayer 그대로27,072,192byte APK생성PASS, iOS는기존BuildMockIosPlayer 그대로3,076file Xcodeexport와hash검증PASS다. GUI성공은batch라이선스/자동Strict성공이아니다.
+
+Android의새AVD 실제설치/Activity시작은성공했지만180초Player marker timeoutFAIL이었다. 원인미확정/새DB users·sessions·purchases·ledger모두0,Qt emulator가CUA앱으로노출되지않은한계도확정원인과구분한다. 해당AVD/DB/APK/로그는보존·emulator종료됐다. 같은controller/설치된기기를무작정재실행하거나uninstall하지않는다. 추가조사는새근거와전용기기/원본stage·UI/NativeRuntime관측이필요하다.
+
+iOS는새owned18.6Simulator와DB에서기존GUIexport를명시적으로검증해Xcode ad-hoc build/C ABI4symbol·auth/purchase/wallet/logout·PII marker·Backendtrace·원장1/delta100을PASS했다. receipt의UUID/name소유를확인한뒤그Simulator만shutdown/데이터보존했다. 실제Apple로그인/AppStore/APNs/실기기는아니다.
+
+GUI프로젝트는전용artifact에만만든다. 새Android준비는 `harness/prepare-unity-gui-android.py --prepare --staging <현재staging> --package-cache <exactcache> --variant pii`, iOS는대응 `prepare-unity-gui-ios.py`다. Hub로해당project만열고 `GameBridge Verification/Switch Android Target` 또는 `Switch iOS Target` 후실제컴파일/대상확인→`Build Android Mock`/`Export iOS Mock`를실행한다. 출력경로는project-local non-secret설정에서검증하며Hub가셸환경을상속한다고가정하지않는다. 완료nonce로같은메뉴를재클릭하면기존산출물/receipt보호로거부된다.
+
+E2E의GUI입력은기본CLI실패fallback이아니다. Android는 `--gui-project`/`--gui-build-receipt`/`--expected-emulator-pid`/`--expected-adb-server-pid`/전용serial·avd명·현재5037동일SDK adb가모두필요하다. iOS는 `--gui-project`/`--gui-export-receipt`/`--adhoc`로검증된export만소비한다. source ancestor/보호SDK와test source diff0·147package/checksum·정확cache·Builder/주·보조scenario·nonce로그·APK 또는PBX/exporttreehash가달라지면거부한다. 실제빌드receipt가없는PASS문자열을입력할수없다.
+
+현재 GUI Editor는 `artifacts/unity-ios-mock.1j6lHu/GameBridgeGuiIosB29`로idle이며Android전용GUI는정상종료했다. batch28의과거다른SDK ADB종료대상영향은미확정으로유지한다. 본시험은기존5037서버를시작/종료하지않았고device명/PID/양port/서버경로를재검증했다. Root원인과사용자기기소유확인없이ADB전체재시작·다른SDK client접근·사용자AVD정리를하지않는다. T01/T02제품완료조건과self-hosted/Release/실Provider13대기는유지한다.

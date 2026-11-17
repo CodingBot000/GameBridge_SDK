@@ -3924,3 +3924,16 @@
 - 배치29 E 현재결과/커밋 전: A GUI컴파일메서드·AndroidAPK·iOSexport와실제iOSPlayer는PASS,AndroidPlayer는timeoutFAIL로보존,StrictNOT_RUN·T01/T02PARTIAL. 후보제품변경0/신규test3+2는18/20class에서PASS,GUI22/전체Python171 PASS와이전169PASS를분리했다. API/source/wire·manifest/meta/actionlint/diffPASS. source별정제JSON/인계문서를갱신했다. 원격repo public/변수0/runner0/behind0 ahead9 확인,전체이력scan실제exit1의2finding은정확한b1e3c73 test-sourceSHA metadata와재계산일치(신규finding0)로review,원래이력삭제/ignore없음. 문서commit후명시handoffFFpush/falseHosted1회만수행한다.
 
 - 배치29 E push전검사/커밋 전: 전체변경경로는text의하네스/test/CI·정제문서뿐이며SDK제품/contract·binary·금지키/서명/license/원본로그/캐시/APK/Xcode산출물delta0. PII gate첫검사는기존harness합성identity설명을새후보로보아중단됐고기준source같은line/invalid-domain값대조로검토했다. 모든후보는변경없는합성fixture/설명이다. gitleaks는정확히b1e3c73 sourceSHA metadata2건오탐만재확인(실제exit1보존),새finding없음. repo public/변수0/runner0·FF이력확인. 이문서commit후handoffFFpush,새소스와test를포함한falseHosted단1회로검증한다.
+
+- 배치29 E FFpush 검증/Hosted 시작: local/remote handoff HEAD3fd95f459355d5abdab98ff9c622a7bd5675d0d1일치,7fe7c4a→3fd95f4 FF성공. 코드/test/CI변경모두commit됐고기존미추적3경로외tracked clean. 변수정상API응답0을재확인했다. release_validation=false Hosted-only단1회를지금요청하며최종job결과대기전원격PASS로기록하지않는다. runner등록/main/force/Release실행없음.
+
+- 배치29 E Hosted dispatch1회수락: run44096116650/source3fd95f459355d5abdab98ff9c622a7bd5675d0d1,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650 . 현재진행중이며최종결과대기,추가dispatch/재실행/runner등록/Unity활성변수변경/Release없음.
+
+- 배치29 E 원격중간검증: run44096116650/source3fd95f4 inventorySUCCESS,공식job로그47파일/171건PASS/FAILED요약0와GUI4모듈연결확인. UnitySKIPPED,나머지Hosted/basic/Release최종상태대기이며전체PASS선기록없음. 단일dispatch유지.
+
+- 배치29 E 추가정적관측: 보존APK의arm64 libgame/libmain/libunity/libil2cpp·manifest UnityPlayerGameActivity/native lib=game을read-only대조했다. 현재자료에서해당누락/mismatch가관측되지않았다는범위이며timeout원인/정상실행증명아님,추가device실행없음. 원격Android/Backend SUCCESS,Swift package단계SUCCESS·host시험대기,코드변경/추가dispatch없음.
+
+
+- [P09-T07] 배치29 E 최종원격검증/문서커밋 전: run44096116650/source3fd95f459355d5abdab98ff9c622a7bd5675d0d1,false입력1회전체SUCCESS. Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED. 공식Python47모듈171/Swift37(후보20포함)/TC11·의도변이1및정상복원확인. 신규code/test모두검증source에포함됐고이후문서변경뿐이다. AndroidFAIL/Strict미실행·T01/T02PARTIAL·P05FAIL/ENV26OPEN/18.6위험/Provider13WAIT/self-hosted미검증보존. 단계별source·모든commit·남은작업을최종문서에기록후stage scan/localcommit/handoffFFpush와localremoteHEAD/미추적보존을검증한다. 추가dispatch없음.
+
+- 배치29 E 최종stage검증/커밋 직전: 명시11개파일은Markdown/정제JSON문서뿐,staged gitleaks 실제exit0/탐지0·diff0오류. 전체이력의b1e3c73 sourcehash2건오탐(actualexit1)은별도재계산근거로유지했다. 원장64행집계22구현/42진행·local20PASS/1FAIL/43PARTIAL일치. CI이후code/test/harness/workflow delta0. 마지막문서commit후handoff동일branch FFpush/localremoteHEAD·tracked clean/기존미추적3경로보존을확인한다. 추가CI/실기기/Provider/Release실행없음.

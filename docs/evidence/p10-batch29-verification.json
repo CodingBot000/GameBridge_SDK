@@ -204,7 +204,38 @@
     "C2": "NOT_RUN_PREREQUISITE; independent contract tests implemented"
   },
   "hosted": {
-    "status": "NOT_RUN",
-    "dispatches": 0
+    "status": "SUCCESS",
+    "dispatches": 1,
+    "runId": 44096116650,
+    "url": "https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650",
+    "sourceHead": "3fd95f459355d5abdab98ff9c622a7bd5675d0d1",
+    "releaseValidation": false,
+    "jobs": {
+      "inventory-contracts": "success",
+      "backend-postgres": "success",
+      "android-native": "success",
+      "swift-ios-simulator": "success",
+      "basic-ci": "success",
+      "unity-e2e": "skipped",
+      "release-readiness": "skipped"
+    },
+    "pythonModules": 47,
+    "pythonTests": 171,
+    "swiftPackageTests": 37,
+    "testcontainersExecutedTests": 11,
+    "testcontainersExpectedMutationFailures": 1
+  },
+  "androidStaticInspection": {
+    "scope": "read-only retained APK/owned consumer settings; no device restarted",
+    "unityRuntimeAbi": "arm64-v8a",
+    "nativeLibrariesPresent": [
+      "libgame.so",
+      "libil2cpp.so",
+      "libmain.so",
+      "libunity.so"
+    ],
+    "manifestActivity": "com.unity3d.player.UnityPlayerGameActivity",
+    "manifestNativeLibrary": "game",
+    "rootCause": "UNCONFIRMED; no missing listed runtime library/activity mismatch observed"
   }
 }

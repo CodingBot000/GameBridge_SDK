@@ -4,15 +4,15 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS (배치29 재개 진행; GUI 양플랫폼 빌드·iOS E2E PASS,Android timeout FAIL,T01/T02 PARTIAL)
-- 현재 Phase / Task: 배치29 E / 최종 검증·비밀정보 점검·Hosted-only 및 handoff 인계
+- 전체 상태: IN_PROGRESS (배치29 종료; GUI 양플랫폼 빌드·iOS E2E/Hosted PASS,Android실행timeout FAIL,T01/T02 PARTIAL)
+- 현재 Phase / Task: 배치29 인계 / Android미도달 원인·현재플랫폼/Strict 잔여 조건, T02 제품 변경 보류
 - 마지막 갱신 시각: 2026-11-17 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: GUI probe dcc0b4c / Android APK7263444 / Android E2E timeout7520cbc / Native 후보 tests b1e3c73(신규test source hash 별도기록). iOS 실제 검증 NOT_RUN.
+- 마지막 검증된 소스 커밋: GUI probe dcc0b4c,Android build7263444/실행FAIL7520cbc,iOS export953a5a5/실행PASSd543556; Hosted3fd95f459355d5abdab98ff9c622a7bd5675d0d1 SUCCESS. 최종Python171 PASS.
 - 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
 - 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
 - 최신 로컬 UPM staging: `artifacts/batch26/upm-current` (현재 SDK source·147 checksum 확인); package cache: `artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache`
-- 현재 환경 블로커: ENV-UNITY-LICENSE-IPC — HubGUI 정상이나direct210초/outer124·receipt없음. Player NOT_RUN/Strict0·DEFERRED_ENV,DEP-P10-T01로C1/C2보류. ENV-UNITY-ADB-STARTUP의대상/영향미확정.
-- 바로 다음 행동: 모든코드/test/증거commit→범위secret/생성물/PII·FF확인→handoff push→비활성변수확인후falseHosted1회. Androidtimeout/Strict미실행·T01/T02PARTIAL을유지한다.
+- 현재 환경 블로커: DEP-P10-ANDROID-E2E(실제AndroidtimeoutFAIL원인미확정),원래batchIPC/Strict미완료,과거ADB시작경고영향미확정. iOS GUIexport/현재SimulatorE2E는PASS로분리.
+- 바로 다음 행동: Android최초managed marker미도달의새근거/진단·안전한UI/ADB소유확인부터진행한다. 원인미확정timeout무작정반복없음. 전체플랫폼/Strict/T01완료판정후에만T02제품codec/decoder진입.
 - 재개 행동: [배치29 현재결과](evidence/p10-batch29-integrated.md)를기준으로진행한다. 중단체크포인트는과거이력이며사용자재개로해제됐고,iOS GUIexport/실제Player는새증거로PASS다. Android실패를덮어쓰지않는다.
 
 ## 집계
@@ -90,8 +90,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P09-T06 | 검증 집계·진행 원장 강제 검사 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T06 | - |
 | P09-T07 | CI 설정·플랫폼 lane 분리 | IMPLEMENTED | PARTIAL | N/A | docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-ci-modes.md, WORK_LOG P09-T07 | ENV-P09-RUNNER |
 | P09-T08 | Fail-closed 하네스 자체 시험 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08 | - |
-| P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-core-bridge-batch26.md, WORK_LOG P10-T01 | ENV-UNITY-LICENSE-IPC |
-| P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-auth-purchase-push-batch27.md, WORK_LOG P10-T02 | DEP-P10-T01 |
+| P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-batch29-integrated.md; docs/evidence/p10-core-bridge-batch26.md, WORK_LOG P10-T01 | DEP-P10-ANDROID-E2E; ENV-UNITY-LICENSE-IPC |
+| P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IN_PROGRESS | PARTIAL | N/A | docs/evidence/p10-batch29-candidate-tests.json; docs/evidence/p10-auth-purchase-push-batch27.md, WORK_LOG P10-T02 | DEP-P10-T01 |
 | P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
 | P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | ENV-002 |
 | P11-T01 | 전체 Task·TODO·계약 누락 최종 감사 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T01 | - |
@@ -128,6 +128,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | DEP-P09-SK18 | DEP | P09-T04 | 배치24 18.6 timeout 원인 미확정, 배치25 동일 제한의 두 경로 PASS | 최초/후속 증거 및 checkpoint 분리 유지 | 정지 구간·기기 상태/부하 관측으로 간헐 원인 분류 | OPEN |
 | DEP-P10-T01 | DEP | P10-T02 | 배치27 실제 Editor 미복구로 current Player·Strict 완료 증거 없음 | 제품 변경 없이 책임 감사/후보2/회귀설계만 완료 | P10-T01 current Player·Strict 및 로컬 완료 조건 확인 후 후보별 진입 | OPEN |
 | ENV-UNITY-ADB-STARTUP | ENV | P10-T01·전용 기기 시험 | 배치28 Hub GUI Editor 상태바에서 다른 SDK ADB server 인스턴스 종료 경고 관측, 대상/영향 미확정 | 에이전트 ADB명령 없음, 추가 기기/서버 조작 보류 | 후속 기기 시험 전 SDK·ADB process 및 전용 serial/PID/양port 소유 확인 | OPEN |
+| DEP-P10-ANDROID-E2E | DEP | P10-T01 | 배치29 GUI APK설치/Activity시작후180초Player완료marker미도달FAIL,새DB모든원장0·원인미확정 | APK/AVD/DB/log보존,기존서버/타기기조작없음·반복없음 | scoped stage/NativeRuntime·UI/focus 새근거·전용소유조건후재검증 | OPEN |
 | ENV-UNITY-LICENSE-IPC | ENV | P10-T01·현재 Unity Player/Strict | 배치28 Hub GUI6000.5.8f1 정상UI, direct batch210초/outertimeout124·receipt없음·IPC/mutex실패 | raw보존/자동1회·GUI별도1회,Player NOT_RUN/Strict0·DEFERRED_ENV | 일반GUI와자동batch차이확인·정상자동receipt후current Player/Strict | OPEN |
 | ENV-P09-RUNNER | ENV | P09-T07 | 전용 self-hosted 격리·실제 Unity CI/Release 미검증 | Hosted-only 및 local CI 경로 유지 | 전용 runner 준비와 별도 명시 검증 | OPEN |
 | ENV-P09-AVD | ENV | P09-T05 | 배치24 serial/PID/실제 port 불일치 | 배치25 새 AVD의 PID·이름·console/ADB 양 port 소유를 확인한 current Push PASS | 재실행마다 소유 검증·새 앱 상태 유지; 무인 CI 별도 | RESOLVED |
@@ -1730,3 +1731,16 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치29 E 현재결과/커밋 전: A GUI컴파일메서드·AndroidAPK·iOSexport와실제iOSPlayer는PASS,AndroidPlayer는timeoutFAIL로보존,StrictNOT_RUN·T01/T02PARTIAL. 후보제품변경0/신규test3+2는18/20class에서PASS,GUI22/전체Python171 PASS와이전169PASS를분리했다. API/source/wire·manifest/meta/actionlint/diffPASS. source별정제JSON/인계문서를갱신했다. 원격repo public/변수0/runner0/behind0 ahead9 확인,전체이력scan실제exit1의2finding은정확한b1e3c73 test-sourceSHA metadata와재계산일치(신규finding0)로review,원래이력삭제/ignore없음. 문서commit후명시handoffFFpush/falseHosted1회만수행한다.
 
 - 배치29 E push전검사/커밋 전: 전체변경경로는text의하네스/test/CI·정제문서뿐이며SDK제품/contract·binary·금지키/서명/license/원본로그/캐시/APK/Xcode산출물delta0. PII gate첫검사는기존harness합성identity설명을새후보로보아중단됐고기준source같은line/invalid-domain값대조로검토했다. 모든후보는변경없는합성fixture/설명이다. gitleaks는정확히b1e3c73 sourceSHA metadata2건오탐만재확인(실제exit1보존),새finding없음. repo public/변수0/runner0·FF이력확인. 이문서commit후handoffFFpush,새소스와test를포함한falseHosted단1회로검증한다.
+
+- 배치29 E FFpush 검증/Hosted 시작: local/remote handoff HEAD3fd95f459355d5abdab98ff9c622a7bd5675d0d1일치,7fe7c4a→3fd95f4 FF성공. 코드/test/CI변경모두commit됐고기존미추적3경로외tracked clean. 변수정상API응답0을재확인했다. release_validation=false Hosted-only단1회를지금요청하며최종job결과대기전원격PASS로기록하지않는다. runner등록/main/force/Release실행없음.
+
+- 배치29 E Hosted dispatch1회수락: run44096116650/source3fd95f459355d5abdab98ff9c622a7bd5675d0d1,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650 . 현재진행중이며최종결과대기,추가dispatch/재실행/runner등록/Unity활성변수변경/Release없음.
+
+- 배치29 E 원격중간검증: run44096116650/source3fd95f4 inventorySUCCESS,공식job로그47파일/171건PASS/FAILED요약0와GUI4모듈연결확인. UnitySKIPPED,나머지Hosted/basic/Release최종상태대기이며전체PASS선기록없음. 단일dispatch유지.
+
+- 배치29 E 추가정적관측: 보존APK의arm64 libgame/libmain/libunity/libil2cpp·manifest UnityPlayerGameActivity/native lib=game을read-only대조했다. 현재자료에서해당누락/mismatch가관측되지않았다는범위이며timeout원인/정상실행증명아님,추가device실행없음. 원격Android/Backend SUCCESS,Swift package단계SUCCESS·host시험대기,코드변경/추가dispatch없음.
+
+
+- [P09-T07] 배치29 E 최종원격검증/문서커밋 전: run44096116650/source3fd95f459355d5abdab98ff9c622a7bd5675d0d1,false입력1회전체SUCCESS. Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED. 공식Python47모듈171/Swift37(후보20포함)/TC11·의도변이1및정상복원확인. 신규code/test모두검증source에포함됐고이후문서변경뿐이다. AndroidFAIL/Strict미실행·T01/T02PARTIAL·P05FAIL/ENV26OPEN/18.6위험/Provider13WAIT/self-hosted미검증보존. 단계별source·모든commit·남은작업을최종문서에기록후stage scan/localcommit/handoffFFpush와localremoteHEAD/미추적보존을검증한다. 추가dispatch없음.
+
+- 배치29 E 최종stage검증/커밋 직전: 명시11개파일은Markdown/정제JSON문서뿐,staged gitleaks 실제exit0/탐지0·diff0오류. 전체이력의b1e3c73 sourcehash2건오탐(actualexit1)은별도재계산근거로유지했다. 원장64행집계22구현/42진행·local20PASS/1FAIL/43PARTIAL일치. CI이후code/test/harness/workflow delta0. 마지막문서commit후handoff동일branch FFpush/localremoteHEAD·tracked clean/기존미추적3경로보존을확인한다. 추가CI/실기기/Provider/Release실행없음.

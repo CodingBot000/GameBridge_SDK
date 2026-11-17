@@ -1,6 +1,6 @@
 # 배치29 Unity GUI 빌드 경로 검증과 P10 재개
 
-## 현재 결과 — 재개 후 E 인계 준비
+## 최종 결과 — 재개 후 배치29 인계
 
 사용자중단요청은재개지시로해제됐다. 아래초기NOT_RUN/중단표시는시각별이력이며현재판정과구분한다.
 
@@ -14,7 +14,7 @@
 | D P10-T01 | IN_PROGRESS/PARTIAL | Android실행FAIL·전체플랫폼/Strict미완료,GUI성공으로우회없음 |
 | D P10-T02 | IN_PROGRESS/PARTIAL,제품변경0 | 독립후보test Kotlin18/Swift20 PASS(신규3+2),코드리팩토링진입없음 |
 | E 영향회귀 | Python171/47module PASS/skip0,GUI22+관련단위포함 | 이전169PASS후새가드/aux변경으로최종171재검증;fullNative/self9/418미재실행 |
-| E Hosted | 아직NOT_RUN/dispatch0 | 모든소스commit후비활성변수정상응답확인·false단1회예정 |
+| E Hosted | SUCCESS/dispatch1,source3fd95f4 | [run44096116650](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650),Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED |
 
 [구조화된전체범위](p10-batch29-verification.json)에source와검사종류를기록했다. GUI/batch,build/export/Player,현재/과거,실제실패/예상negative/미실행을합산하지않는다.
 
@@ -58,3 +58,52 @@ Kotlin18/Swift20건은새test source hash로확인했다. 신규Kotlin3건은저
 [후보계약tests](p10-batch29-candidate-tests.json): Kotlin18/Swift20 PASS(신규3+2). codec/decoder제품변경0이며T01/T02 PARTIAL이다. GUI19개영향단위와cache2/binding5등을검증했으나기존전체149/fullNative/self9/Strict를현재실행으로표시하지않는다.
 
 iOS GUI test-only helper/준비·receipt/exporttree·명시E2E입력·음성4건은코드로보존하되실제Unity컴파일/export/Xcode/Simulator실행NOT_RUN이다. 현재Android소비GUI는idle로열려있고진행중빌드/Player/Backend작업은없다. 네트워크중단예정사용자요청에따라새네트워크/Hosted/push를시작하지않았다(각0회). 재개지시후[정확한명령·남은순서](p10-batch29-resume.md)로계속한다.
+
+
+## E 원격 진행 중 추가 대조
+
+공식inventory47모듈/171건PASS(새GUI4모듈포함),Android및Backend jobSUCCESS,Swiftpackage단계SUCCESS·synthetic Simulatorhost대기다. 코드변경/추가dispatch없이최종상태를확인한다.
+
+Android timeout APK를읽기전용으로확인해arm64 libgame/libmain/libunity/libil2cpp와manifest의UnityPlayerGameActivity·native library=game이존재함을대조했다. 이정적확인만으로runtime정상이나UI원인을증명하지않는다. 원인미확정FAIL과DB0/marker미도달을유지하며기기재실행없음.
+
+
+## Hosted-only 최종 결과
+
+[run44096116650](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650),source **3fd95f459355d5abdab98ff9c622a7bd5675d0d1**,`release_validation=false` 단1회,workflow **SUCCESS**. 호출전repo변수0/runner0 정상응답확인,설정변경/runner등록/추가dispatch/재실행없음.
+
+| Job | 최종 결과 |
+|---|---|
+| inventory-contracts | SUCCESS |
+| backend-postgres | SUCCESS |
+| android-native | SUCCESS |
+| swift-ios-simulator | SUCCESS |
+| basic-ci | SUCCESS |
+| unity-e2e | SKIPPED |
+| release-readiness | SKIPPED |
+
+공식job로그에서Python47파일/171건PASS(신규GUI4모듈포함)/FAILED요약0,Backend Testcontainers11건/의도mutationfailure1 및정상복원,Swift package37건/failure0(신규후보2건포함)를확인했다. Android의선택GoogleAuthProvider회귀·Maven/R8와synthetic iOSSimulatorhost step도SUCCESS다. 이는원격Unity/Release·실기기/실Provider통과가아니며로컬Android실제timeoutFAIL을해소하지않는다. 이후최종commit은문서만변경한다.
+
+
+## 최종 상태·남은 작업·Git 인계
+
+배치29가능한작업을마쳤으며전체SDK완료선언은아니다. **P10-T01/T02 IN_PROGRESS/PARTIAL**. T01에는현재Android실행FAIL,미실행Push/Lifecycle·R09전체플랫폼조합/Strict조건이남았다. T02는후보정상음성test만구현했고생산codec/decoder는변경하지않았다. P09local6PASS/2PARTIAL,64Task IMPLEMENTED22/IN_PROGRESS42·localPASS20/FAIL1/PARTIAL43,실Provider13WAITING_USER그대로다.
+
+남은내부/환경작업은Android최초managed marker미도달의stage/NativeRuntime·focus/UI진단,안전한UI제어표면/전용ADB확인후근거있는재시험,원래batch/Strict경로와전체플랫폼조건확인이다. GUI성공을기존Strict미실행대체로사용하지않는다. P05-T03FAIL/ENV-STOREKIT-26OPEN·18.6간헐위험/self-hosted·실기기·Release미검증도보존한다.
+
+모든code/test/CI변경은3fd95f4까지handoff에FFpush했고원격단1회검증했다. 이후문서만최종commit/동일branch FF인계한다. main/fix브랜치·사용자project/기기/DB/라이선스·미추적Demo/cache는보존했고force/Release/실Provider호출없음. 원본log/화면·APK/Xcode/서명/license·캐시는추적하지않는다. 전체이력gitleaks actualexit1의정확b1e3c73 두finding은sourceSHA metadata와독립재계산일치로review했고원래scan실패/이력을삭제·ignore하지않았다. 최종문서stage도별도로검사한다.
+
+| Commit | 변경 단위 |
+|---|---|
+| `4a5bacb96cdb6f0b22c5cc347309066ab7b3be33` | test(unity): [P10-T01] add correlated GUI engine probe menu |
+| `dcc0b4cabaaf8dba463fe42276f64c00042876cb` | fix(test): [P10-T01] use Unity 6.5 engine object identity in GUI probe |
+| `7263444dbf2262e7eae1539616ae7b0946d8cec9` | test(unity): [P10-T01] bind GUI Android build to explicit E2E artifact input |
+| `7520cbc27d9cfb9e04e98d5fd36ebb74328fba72` | test(harness): [P10-T01] attest GUI Player emulator and existing ADB server |
+| `b1e3c738fa9a0c17ec2d7eed99da16672ef9faa0` | test(auth): [P10-T02] characterize session codec and grant response boundaries |
+| `d14328b2a75df4addc7d51ec64834353af4ca197` | test(unity): [P10-T01] checkpoint unrun GUI iOS export path for safe resume |
+| `953a5a5535ceb1698ec8ea84a0a1a8b3c2d73b9e` | docs(handoff): [P10-T01] finalize user-requested pause and offline scan review |
+| `d543556580f72142507c57f57537891fb7d1c1e7` | test(unity): [P10-T01] verify GUI iOS export provenance and dependency versions |
+| `14548a6b6b681b76cae363e1fe61832ece74102a` | fix(harness): [P10-T01] reject renamed ADB clients and changed PII auxiliaries |
+| `35113abff6d002568366ffbbbbdcbe7043820c49` | docs(harness): [P10-T01] reconcile batch29 GUI and actual Player outcomes |
+| `3fd95f459355d5abdab98ff9c622a7bd5675d0d1` | docs(ci): [P09-T07] record batch29 reviewed handoff preflight |
+
+Source별실제실행은위표/정제JSON을따른다. 최종문서commit SHA/localremoteHEAD는Git/채팅최종보고에서조회한다.

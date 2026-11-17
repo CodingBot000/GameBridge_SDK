@@ -1,5 +1,18 @@
 # GameBridge SDK 개발 보고서
 
+## 최신 인계 — 배치29 (2026-11-17)
+
+**P10-T01/T02 PARTIAL, 로컬 Android 실행 FAIL 잔여.** [GUI·플랫폼·작업별source/commit 통합결과](evidence/p10-batch29-integrated.md)와[정제검증](evidence/p10-batch29-verification.json)을현재기준으로본다. 이전중단문서와아래이전배치는시각별이력이다.
+
+실제GUI메뉴의C#컴파일·nonce/소유project/version/Unity객체7조건을확인했고기존Builder그대로AndroidAPK(27,072,192bytes)와iOS Xcodeexport(3,076files)를생성했다. batch자동화PASS와구분한다. iOS는현재GUIexport를명시입력검증해Xcode ad-hoc Simulator build/C ABI4symbol·PII/인증·구매/Backendtrace·원장1/delta100 PASS,새소유Simulator만shutdown/데이터보존했다.
+
+Android는GUIAPK/source/hash·현재ADBserver/동일SDK·새전용AVD/PID/양port를검사해설치/launch성공후180초Playermarker timeoutFAIL이었다. 새DB users/sessions/purchases/ledger 각0,원인미확정·Qt CUA표면한계도단정하지않는다. 원본보존·동일실행재시도없음. 전체Strict/남은Push·Lifecycle/R09조합미완료로T01PARTIAL,따라서T02제품codec/decoder는변경하지않았다. 독립후보test Kotlin18/Swift20(신규3+2)와GUI입력/ADB가드·음성계약을구현·검증했다.
+
+영향최종Python47모듈/171건PASS,SDK shipping/API/wire변경0·기존baseline보존. 전체Native/self9/managed418를관성재실행하지않았고이전증거로만표시했다. [Hosted run44096116650](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650),source3fd95f459355d5abdab98ff9c622a7bd5675d0d1,false1회SUCCESS:Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED,공식Python171/Swift37/TC11·의도변이1확인. 원격Unity/실기기/Provider13/Release미검증,P05FAIL/ENV26OPEN/StoreKit18.6간헐위험유지.
+
+현재전용iOS GUI만idle,관련testSimulator/AVD는정지/원본데이터보존했다. handoff에만FFpush,main/force/Release/runner등록/실Provider호출없음. 다음작업은Android첫managed marker미도달의새진단근거·안전한UI/ADB/기기소유조건확인부터다. T01전체조건충족후에만T02제품변경으로진입한다. 최종local/remote문서HEAD는Git/채팅마지막인계에서조회한다.
+
+
 ## 최신 인계 — 배치28 (2026-11-17)
 
 **P10-T01·T02 PARTIAL / 자동 검증 환경 대기.** 사용자가위임한정상실행확인에서새전용project를Hub로열어Unity6000.5.8f1 Scene/Hierarchy/Inspector정상GUI를확인했다. 별도direct자동smoke1회는210초outertimeout124/검증2·receipt없음이었고정상자동receipt는미확인이다. [Editor정제관측](evidence/p10-batch28-editor.json)과[통합결과·커밋](evidence/p10-batch28-integrated.md)에두scope를구분했다.

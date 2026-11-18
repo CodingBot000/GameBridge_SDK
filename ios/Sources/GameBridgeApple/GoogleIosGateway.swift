@@ -14,6 +14,12 @@ import GameBridgeCore
     private var attempt:UUID?
     private static var activeAttempt:UUID?
     init(presenter:UIViewController?,clientId:String,serverClientId:String) {self.presenter=presenter;resolveActive=presenter==nil;self.clientId=clientId;self.serverClientId=serverClientId}
+    func preflight() throws {
+        let reversed=clientId.components(separatedBy:".").reversed().joined(separator:".")
+        let types=Bundle.main.object(forInfoDictionaryKey:"CFBundleURLTypes") as? [[String:Any]] ?? []
+        let schemes=types.flatMap {$0["CFBundleURLSchemes"] as? [String] ?? []}
+        guard clientId.hasSuffix(".apps.googleusercontent.com"),serverClientId.hasSuffix(".apps.googleusercontent.com"),schemes.contains(reversed) else {throw SdkFailure("CONFIG_REQUIRED")}
+    }
     func authorize(nonce:String) async throws -> SocialCredential {
         guard attempt==nil,Self.activeAttempt==nil else {throw SdkFailure("BUSY")}
         var host=presenter
@@ -22,10 +28,7 @@ import GameBridgeCore
             while let next=host?.presentedViewController {host=next}
         }
         guard let presenter=host,presenter.viewIfLoaded?.window != nil,!nonce.isEmpty else {throw SdkFailure("CONFIG_REQUIRED")}
-        let reversed=clientId.components(separatedBy:".").reversed().joined(separator:".")
-        let types=Bundle.main.object(forInfoDictionaryKey:"CFBundleURLTypes") as? [[String:Any]] ?? []
-        let schemes=types.flatMap {$0["CFBundleURLSchemes"] as? [String] ?? []}
-        guard clientId.hasSuffix(".apps.googleusercontent.com"),serverClientId.hasSuffix(".apps.googleusercontent.com"),schemes.contains(reversed) else {throw SdkFailure("CONFIG_REQUIRED")}
+        try preflight()
         if let existing=GIDSignIn.sharedInstance.configuration {
             guard existing.clientID==clientId,existing.serverClientID==serverClientId else {throw SdkFailure("CONFIG_REQUIRED")}
         } else { GIDSignIn.sharedInstance.configuration=GIDConfiguration(clientID:clientId,serverClientID:serverClientId) }
@@ -65,6 +68,10 @@ public extension SocialAuthProvider {
 }
 /// Host forwards its existing URL callback; the SDK does not install or replace an AppDelegate.
 public enum GameBridgeGoogleHost {
-    @MainActor public static func handle(_ url:URL) -> Bool {GIDSignIn.sharedInstance.handle(url)}
+    @MainActor public static func handle(_ url:URL) -> Bool {
+        guard let id=Bundle.main.object(forInfoDictionaryKey:"GIDClientID") as? String,url.scheme==id.components(separatedBy:".").reversed().joined(separator:".") else {return false}
+        _ = GIDSignIn.sharedInstance.handle(url)
+        return true // consume recognized stale callbacks; never bubble OAuth data into Unity
+    }
 }
 #endif

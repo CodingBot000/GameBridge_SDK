@@ -1994,3 +1994,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 시작dc3ed4224d1c676e33ee92e8aa7aa6ceaa3c7855, branch feature/social-login-20261119. 기존 Demo/cache 보존. 각 배치 로컬 commit만, push/PR/main/Release/실Provider 없음.
 - A IN_PROGRESS: GoogleSignIn9.2.0 공식 nonce 시그니처·iOS 최소버전 호환 검토. Host URL callback은 명시적 forwarding, 새 Provider session은 별도 저장과 기존 Backend 세션/원장 권위를 사용한다.
 - 소셜 A 결과: iOS Google Native session/GoogleSDKnonce·공통Native store/push account 접근·C ABI router/HostURLforward/UI sample 구현. Swift29(신규Social5/기존Apple20/CBridge4)PASS,기존JWT/Audience unit PASS. device/simulator新XCFramework·Google resource 포함source consumer·고립binary consumer build·Unity PBX hookcompile·staging147 PASS. 실제Google/새UnityPlayer는미실행,계정설정WAITING_USER. B로진행하며최종FB의존성추가후패키지는별도판정한다.
+- 소셜 B 시작: Facebook Classic access token/limited OIDC JWT를명시proofType으로구분한다. Classic은nonceclaim을가정하지않고매번Meta debug검증+proofType에결속된challenge원자소비를사용한다. 유효bearer를새challenge에서다시쓰는OAuth특성은제한으로명시한다. 동일FBAppID의여러app scope중복설정은거부,SDKsession갱신은기존세션을사용. Meta App Secret은Backend에만설정한다.
+
+- 소셜 B IMPLEMENTED: Android Classic/iOS Limited·Classic, 증명분리·server app/subject 결속·Native session/store/push 재사용. Backend unit3/합성HTTP3·Android unit·Swift30·C# routing PASS. Meta remote download 지연은 공식SHA/codesign 확인 cache로 local archive 검증, 원격 DEFERRED_ENV. 실Facebook WAITING_USER. C로 진행한다.
+
+- B 최종 소스 재검사: Facebook HTTP3 exit0/owned DB gamebridge_ci_abaf17e7c9, build-android.sh --mock Maven+R8 consumer exit0, 최신 Simulator archive exit0. 실제 Provider·새UnityPlayer未실행.

@@ -15,7 +15,7 @@ import java.security.MessageDigest
 import java.time.Clock
 import java.time.Duration
 
-enum class IdentityProvider { GOOGLE, APPLE }
+enum class IdentityProvider { GOOGLE, APPLE, FACEBOOK }
 data class VerifiedIdentity(val provider: IdentityProvider, val issuer: String, val subject: String, val audience: String)
 class IdentityVerificationException(val code: String) : IllegalArgumentException(code)
 
@@ -34,6 +34,7 @@ class IdentityVerifier(private val decoders: Map<IdentityProvider, JwtDecoder>, 
         val validIssuers = when (provider) {
             IdentityProvider.GOOGLE -> setOf("https://accounts.google.com", "accounts.google.com")
             IdentityProvider.APPLE -> setOf("https://appleid.apple.com")
+            IdentityProvider.FACEBOOK -> setOf("https://www.facebook.com")
         }
         val subject = jwt.subject?.takeIf { it.isNotBlank() } ?: throw IdentityVerificationException("AUTH_FAILED")
         val nonce = jwt.claims["nonce"] as? String ?: throw IdentityVerificationException("AUTH_FAILED")
@@ -44,7 +45,7 @@ class IdentityVerifier(private val decoders: Map<IdentityProvider, JwtDecoder>, 
         if (jwt.headers["alg"] != "RS256" || issuer !in validIssuers || jwt.expiresAt?.isAfter(clock.instant()) != true ||
             audience == null || !MessageDigest.isEqual(nonceHash, expectedNonceHash)) throw IdentityVerificationException("AUTH_FAILED")
         val canonicalIssuer = if (provider == IdentityProvider.GOOGLE) "https://accounts.google.com" else issuer
-        return VerifiedIdentity(provider, canonicalIssuer, subject, audience)
+        return VerifiedIdentity(provider, canonicalIssuer, if(provider==IdentityProvider.FACEBOOK) "$audience:$subject" else subject, audience)
     }
 }
 
@@ -61,6 +62,7 @@ class IdentityVerifierConfiguration {
         return IdentityVerifier(mapOf(
             IdentityProvider.GOOGLE to decoder("https://www.googleapis.com/oauth2/v3/certs"),
             IdentityProvider.APPLE to decoder("https://appleid.apple.com/auth/keys"),
+            IdentityProvider.FACEBOOK to decoder("https://www.facebook.com/.well-known/oauth/openid/jwks/"),
         ))
     }
 }

@@ -71,3 +71,7 @@ SSE는 수신/heartbeat마다 session·installation 소유권을 재확인하고
 새iOS Google은기존GOOGLE enum/legacy challenge·exchange(idToken)를유지하며nonce 검증도그대로사용한다. Native provider 저장은iOS Google전용Keychain service와app/mode/Backend/client-ID 결속을사용한다. Native Store/Push는access-token/userId만담은내부세션protocol로기존서버의계정/원장권위를재사용한다. Apple 공개API/Keychain 상태와섞지않는다.
 
 GB_HandleAuthURL은Host native URL callback용추가C ABI이며원래4개함수는그대로다. rawURL은Unitypublic callback/result로전달하지않는다. 새경로검증은README 확장표와social-login evidence를따르며이전CI648의검증으로승격하지않는다.
+
+## 문서37 소셜 확장 B
+
+FACEBOOK enum3 추가. /v1/auth/challenges의 proofType, /v1/auth/exchange의 명시 proofType+accessToken을 추가하며 기존 GOOGLE/APPLE idToken 호출은 그대로다. Facebook Classic과 Limited는 별도 검증하고 UserProfile 외 원본 증명은 Unity에 노출하지 않는다.

@@ -13,7 +13,7 @@ def dto_shapes(root):
             fields={}
             for field in re.finditer(r'\bval (\w+)\s*:\s*([\w?]+)(\s*=\s*[^,]+)?',text[match.end():end-1]):
                 typ=field[2];nullable=typ.endswith('?');base=typ.rstrip('?')
-                fields[field[1]]={'kotlinType':base,'type':{'String':'string','UUID':'string','Boolean':'boolean','Int':'integer','IdentityProvider':'string'}.get(base),'nullable':nullable,'required':not nullable and not field[3]}
+                fields[field[1]]={'kotlinType':base,'type':{'String':'string','UUID':'string','Boolean':'boolean','Int':'integer','IdentityProvider':'string','AuthProofType':'string'}.get(base),'nullable':nullable,'required':not nullable and not field[3]}
             result[match[1]]=fields
     return result
 

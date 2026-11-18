@@ -1778,6 +1778,15 @@
           },
           "provider": {
             "type": "string"
+          },
+          "proofType": {
+            "type": "string",
+            "enum": [
+              "ID_TOKEN",
+              "FACEBOOK_ACCESS_TOKEN",
+              "FACEBOOK_LIMITED_ID_TOKEN"
+            ],
+            "default": "ID_TOKEN"
           }
         },
         "required": [
@@ -1815,18 +1824,33 @@
           },
           "idToken": {
             "type": "string",
-            "writeOnly": true
+            "writeOnly": true,
+            "nullable": true
           },
           "displayName": {
             "type": "string",
             "nullable": true
+          },
+          "proofType": {
+            "type": "string",
+            "enum": [
+              "ID_TOKEN",
+              "FACEBOOK_ACCESS_TOKEN",
+              "FACEBOOK_LIMITED_ID_TOKEN"
+            ],
+            "default": "ID_TOKEN"
+          },
+          "accessToken": {
+            "type": "string",
+            "nullable": true,
+            "writeOnly": true
           }
         },
         "required": [
           "challengeId",
-          "provider",
-          "idToken"
-        ]
+          "provider"
+        ],
+        "description": "Legacy Google/Apple idToken stays compatible. Facebook requires explicit proofType. Classic uses accessToken/Meta debug, no nonce claim. Limited uses signed idToken/nonce; challenge proof type blocks downgrade. Valid Classic bearer reuse needs a new challenge and new Meta validation; same challenge replay is rejected."
       },
       "WalletSnapshot": {
         "type": "object",

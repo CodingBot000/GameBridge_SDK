@@ -191,3 +191,17 @@ Unity의 실제 APNs host 경로는 `NativeDemoIosPush`/`IosPushHostAdapter`를 
 | StoreKit 실패 | iOS Runtime·scheme·local StoreKit 모드·원본 시험 | P05-T03 FAIL과18.6 위험을 유지. LOCAL_MOCK 성공으로 해제하지 않음 |
 
 오류 코드별 의미와 요청/재시도 경계는 [API](API.md), 실 Provider를 선택하는 경우의 준비 순서는 [USER_SETUP](USER_SETUP.md)에 있습니다.
+
+## 소셜 확장 B — Facebook (문서37)
+
+Android Meta Login18.3.0은 Host의 `implementation("com.facebook.android:facebook-login:18.3.0")`이 필요하다. SDK는 compileOnly로 사용해 기존 Mock 앱에 Meta 초기화를 강제하지 않는다. Host Manifest에 공식 FacebookAppID/ClientToken 및 FacebookActivity·CustomTabActivity 설정을 제공하고 Meta 콘솔에 package name과 debug/release signing key hash를 등록한다. App Secret은 앱에 넣지 않는다. Host의 onActivityResult에서 `BridgeFacade.onSocialActivityResult(requestCode,resultCode,data)`를 먼저 호출하고 false일 때 기존 처리를 계속한다. Native 직접 사용은 `PlatformAuthProviders.facebook(context,config,tokenStore)` 후 `attachHost(activity)`이다.
+
+iOS는 공식 SPM FacebookLogin18.1.1을 링크한다. Info.plist에 FacebookAppID, FacebookClientToken, CFBundleURLTypes의 `fb<APP_ID>`를 설정하고 Host didFinishLaunching에서 `GameBridgeFacebookHost.initialize`를 호출한다. Host URL callback은 `GB_HandleAuthURL` 또는 Swift Facebook/Google helper로 전달한다. Host delegate를 SDK가 교체하지 않는다. `GameBridgeFacebookLoginMode`는 기본 LIMITED, 명시 CLASSIC도 지원한다. Limited는 JWT+서버 nonce, Classic은 Meta debug access token 검증이다. ATT 등에 따라 Classic 요청의 실제 결과가 Limited이면 실제 증명 종류를 전송한다. Meta App Secret은 Backend 전용이다.
+
+Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하고 `GAMEBRIDGE_FACEBOOK_AUTH_CONFIG_JSON`은 서버 비밀 저장소에서 `{ "gamebridge-sample": { "appId": "123456789", "appSecret": "<server-only>", "requiredScopes": ["public_profile"] } }` 형태로 제공한다. 같은 Meta App ID를 서로 다른 GameBridge 앱에 중복 설정하지 않는다. 실제 값은 Git/Unity 에셋/명령 로그에 넣지 않는다. Meta 개발모드에는 로그인 테스트 계정·권한·플랫폼 등록이 필요하다.
+
+검증 명령: `ANDROID_HOME="$HOME/Library/Android/sdk" android/gradlew -p android :sdk-android:testDebugUnitTest :sdk-unity-bridge:testDebugUnitTest`, `backend/gradlew -p backend test --tests '*FacebookVerifierTest'`, opt-in 소유 DB의 `FacebookAuthHttpTest`, `swift test --package-path ios --filter 'SocialAuthProviderTests|AppleAuthProviderTests|CBridgeTests'`. Fake/계약/빌드는 실로그인 증거가 아니다. 실제 Android/iOS Facebook 로그인·취소·앱 복귀는 콘솔 설정 후 별도 확인해야 한다.
+
+의존성 환경: SwiftPM 원격 Meta binary 다운로드가 지연되어 공식 ZIP 6개의 upstream SHA256과 codesign을 확인한 뒤 upstream의 `USE_LOCAL_FB_BINARIES=1` 기능으로 로컬 검증했다. 제품 manifest는 공식 URL/exact version을 유지한다. 기본 원격 다운로드 경로는 DEFERRED_ENV이며 서명 검사 해제·SDK 소스 패치는 하지 않았다.
+
+공식 근거: [Meta Android Login](https://developers.facebook.com/docs/facebook-login/android/), [Meta Limited Login](https://developers.facebook.com/docs/facebook-login/limited-login/), [iOS SDK18.1.1](https://github.com/facebook/facebook-ios-sdk/releases/tag/v18.1.1). 증명 계약은 [social-auth](../contracts/social-auth.md)를 따른다.

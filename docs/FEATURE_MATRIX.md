@@ -14,3 +14,7 @@
 | 패키지·API·계약 | Maven/AAR/XCFramework/UPM, public API/Bridge schema/HTTP OpenAPI |147 checksum·선정JVM4/C ABI4·R8/Swift·OpenAPI24 성공 구조 | 모든 ABI/Unity/OS·SSE/Map 세부 기계 검사 |
 
 주요 소스 연결은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 재현 명령과 source별 증거는 [COMPATIBILITY](COMPATIBILITY.md)에 모았습니다. 과거 GUI/CLI/Player/StoreKit/Provider의 범위를 한 개의 PASS로 합치지 않습니다. 이 표로 원장의 PARTIAL/FAIL을 일괄 승격하지 않습니다.
+
+## 문서37 소셜 확장 B
+
+Android Facebook Classic / iOS Facebook Limited·Classic: IMPLEMENTED, Fake/Contract PASS, 실제 로그인 WAITING_USER. 기존 Android Google/iOS Apple/LOCAL_MOCK 유지.

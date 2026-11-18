@@ -3,6 +3,8 @@ package com.gamebridge.android.purchase
 import com.gamebridge.BackendClient
 import com.gamebridge.SdkFailure
 import com.gamebridge.android.auth.GoogleAuthProvider
+import com.gamebridge.android.auth.BackendSessionAccess
+import com.gamebridge.android.auth.GoogleSessionAccess
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
@@ -12,12 +14,14 @@ import java.util.UUID
 
 /** Native-only proof transport; token is sent exclusively to configured Backend. */
 internal class GoogleHttpProofSink(
-    private val auth: GoogleAuthProvider,
+    private val auth: BackendSessionAccess,
     private val request: suspend (path: String, body: String, accessToken: String, attemptId: String?) -> String,
 ) : PlayProofSink {
-    constructor(auth: GoogleAuthProvider, client: BackendClient) : this(auth, { path, body, accessToken, attemptId ->
+    constructor(auth: BackendSessionAccess, client: BackendClient) : this(auth, { path, body, accessToken, attemptId ->
         client.request(path, "POST", body, accessToken = accessToken, idempotencyKey = attemptId).json
     })
+    constructor(auth:GoogleAuthProvider,client:BackendClient):this(GoogleSessionAccess(auth),client)
+    constructor(auth:GoogleAuthProvider,request:suspend(String,String,String,String?)->String):this(GoogleSessionAccess(auth),request)
     suspend fun ensureReady(storeProductId: String) {
         val ready = auth.withAuthenticatedSession { session ->
             val body = buildJsonObject { put("storeProductId", storeProductId) }.toString()

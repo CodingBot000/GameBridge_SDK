@@ -29,20 +29,21 @@ private final class SocialProtocol:URLProtocol {
 }
 private final class SocialStore:TokenStore {var value:String?;func load()throws->String?{value};func save(_ value:String)throws{self.value=value};func clear()throws{value=nil}}
 @MainActor private final class SocialGateway:SocialCredentialGateway {
-    var canceled=false;var fail=false;var blocked=false;var suspended:CheckedContinuation<SocialCredential,Error>?
-    func authorize(nonce:String)async throws->SocialCredential {SocialProtocol.nonce=nonce;if blocked {return try await withCheckedThrowingContinuation {suspended=$0}};if fail{throw SdkFailure("CANCELED")};return SocialCredential(value:"synthetic-google-id-token",proofType:"ID_TOKEN")}
+    var kind="ID_TOKEN";var canceled=false;var fail=false;var blocked=false;var suspended:CheckedContinuation<SocialCredential,Error>?
+    var challengeProofType:String {kind}
+    func authorize(nonce:String)async throws->SocialCredential {SocialProtocol.nonce=nonce;if blocked {return try await withCheckedThrowingContinuation {suspended=$0}};if fail{throw SdkFailure("CANCELED")};return SocialCredential(value:"synthetic-provider-proof",proofType:kind)}
     func cancel(){canceled=true};func logout(){}
 }
 @MainActor final class SocialAuthProviderTests:XCTestCase {
-    private func make(_ store:SocialStore,_ gateway:SocialGateway,app:String="test",binding:String="ios|server")throws->SocialAuthProvider {
+    private func make(_ store:SocialStore,_ gateway:SocialGateway,app:String="test",binding:String="ios|server",name:String="GOOGLE")throws->SocialAuthProvider {
         let configuration=URLSessionConfiguration.ephemeral;configuration.protocolClasses=[SocialProtocol.self]
-        return try SocialAuthProvider(config:GameBridgeConfig(appId:app,mode:.platformSandbox,backendBaseURL:"https://backend.invalid"),provider:"GOOGLE",settingsBinding:binding,store:store,gateway:gateway,sessionConfiguration:configuration)
+        return try SocialAuthProvider(config:GameBridgeConfig(appId:app,mode:.platformSandbox,backendBaseURL:"https://backend.invalid"),provider:name,settingsBinding:binding,store:store,gateway:gateway,sessionConfiguration:configuration)
     }
     override func setUp(){SocialProtocol.requests=[];SocialProtocol.meUnauthorized=false;SocialProtocol.wrongUser=false;SocialProtocol.nonce=""}
     func testNonceAndOpaqueSessionStayNativeAndRestoreRefreshLogout()async throws {
         let store=SocialStore();let gateway=SocialGateway();let provider=try make(store,gateway)
         let profile=try await provider.signIn();XCTAssertEqual(profile.provider,"GOOGLE");XCTAssertEqual(SocialProtocol.nonce,"server-nonce")
-        XCTAssertFalse(store.value!.contains("synthetic-google-id-token"));XCTAssertFalse(String(describing:profile).contains("synthetic-native"))
+        XCTAssertFalse(store.value!.contains("synthetic-provider-proof"));XCTAssertFalse(String(describing:profile).contains("synthetic-native"))
         SocialProtocol.meUnauthorized=true;let restored=try await provider.restore();XCTAssertEqual(restored?.userId,SocialProtocol.user)
         XCTAssertEqual(SocialProtocol.requests.filter{$0=="/v1/auth/refresh"}.count,1)
         try await provider.signOut();XCTAssertNil(store.value);XCTAssertTrue(gateway.canceled)
@@ -73,6 +74,16 @@ private final class SocialStore:TokenStore {var value:String?;func load()throws-
         gateway.suspended?.resume(returning:SocialCredential(value:"late-google-id-token",proofType:"ID_TOKEN"));gateway.suspended=nil
         do {_ = try await task.value;XCTFail("late")} catch let error as SdkFailure {XCTAssertEqual(error.code,"CANCELED")}
         XCTAssertNil(store.value);XCTAssertFalse(SocialProtocol.requests.contains("/v1/auth/exchange"))
+    }
+    func testFacebookKindsAndProviderMismatchAreNotSilentlyConverted()async throws {
+        for kind in ["FACEBOOK_ACCESS_TOKEN","FACEBOOK_LIMITED_ID_TOKEN"] {
+            let store=SocialStore();let gateway=SocialGateway();gateway.kind=kind
+            let profile=try await make(store,gateway,binding:"fb123",name:"FACEBOOK").signIn()
+            XCTAssertEqual(profile.provider,"FACEBOOK");XCTAssertFalse(store.value!.contains("synthetic-provider-proof"))
+        }
+        let store=SocialStore();let gateway=SocialGateway();gateway.kind="FACEBOOK_ACCESS_TOKEN"
+        do {_ = try await make(store,gateway).signIn();XCTFail("wrong provider kind")} catch let error as SdkFailure {XCTAssertEqual(error.code,"AUTH_FAILED")}
+        XCTAssertNil(store.value)
     }
     func testRefreshPendingLogoutClearsLocallyAndReportsUnconfirmed()async throws {
         let store=SocialStore();store.value="{\"state\":\"refresh_pending\"}"

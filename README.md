@@ -5,14 +5,14 @@
 | 새 인증 경로 | 구현 | 로컬 검증 | Native/패키지 | 실제 계정 |
 | --- | --- | --- | --- | --- |
 | iOS Google | A 구현, 공식GoogleSignIn9.2.0/custom nonce | Swift29·기존JWT/Audience 회귀 PASS | device/sim XCFramework·source/binary 소비 build·UPM147 PASS (Player未실행) | WAITING_USER |
-| Android Facebook | B 대기 | NOT_RUN | NOT_RUN | WAITING_USER |
-| iOS Facebook | B 대기 | NOT_RUN | NOT_RUN | WAITING_USER |
+| Android Facebook | B 구현, Meta18.3.0 Classic | Kotlin/Backend HTTP·C# PASS | Maven/R8 소비 PASS | WAITING_USER |
+| iOS Facebook | B 구현, Meta18.1.1 Limited/Classic | Swift30·서버 증명 분리 PASS | 공식 검증 binary cache로 Simulator archive PASS; 원격 다운로드 지연 | WAITING_USER |
 | Android Apple | C 대기 | NOT_RUN | NOT_RUN | WAITING_USER |
 
 ```csharp
 await sdk.SignInAsync(AuthProvider.GOOGLE); // 기존Android / 새iOS 경로
 await sdk.SignInAsync(AuthProvider.APPLE);  // 기존iOS / C배치Android 웹 경로
-// FACEBOOK은 B배치에서 enum·Native·서버 계약을 함께 추가한다.
+await sdk.SignInAsync(AuthProvider.FACEBOOK);
 ```
 
 

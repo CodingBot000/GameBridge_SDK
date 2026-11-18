@@ -13,3 +13,7 @@
 - 포트폴리오 최종화는 문서·제한 조사·동일 바이너리의 로컬 DEV_RC 정리입니다. 제품/하네스/계약 코드는 마지막 Hosted 검증 code648bb80 이후 변경하지 않습니다.
 
 실제 Provider13 WAITING_USER, P05-T03/StoreKit 환경 위험, 전체 Strict·self-hosted/Release 및 미실행 profiling은 [최종 보고](FINAL_REPORT.md)에 명시합니다.
+
+## 문서37 소셜 확장 B
+
+SOC-B: Meta Android18.3.0/iOS18.1.1 Native adapter, explicit Facebook proof types, server debug/OIDC verification, Native account-session reuse, Host callback integration, forward V10 migration 및 부정 테스트 추가. 실계정 미실행.

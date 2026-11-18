@@ -4318,3 +4318,13 @@
 - 최초archive65는SDKSwiftenum명GIDSignInErrorCode를GIDSignInError로정정. consumer actor warning은Sendable callback에서값만복사후MainActor hop으로수정해재빌드0. 초기실패/로그보존. 소스하드닝별checkpoint출력을새폴더에보존했고최종Native는ios-a-delivery device/sim archive/XCFramework0.
 - Source iOS sample build0/Google resource bundles확인,별도SocialBinaryConsumer가packagedXCF+GoogleSPM만import/link하여Simulator build0(실행없음). 설치된Unity PBX assembly로IosHook.csproj compile+기존PBX/plist멱등검사0. package-sdk.sh 새Native+source변경없는AndroidMaven→upm-a 147checksum0. 전체UnityPlayer/GoogleUI/계정실연동은NOT_RUN/WAITING_USER.
 - A evidence docs/evidence/social-login/a-ios-google.json. sourceSnapshot은base dc3+포함변경/fileSHA이며커밋identity는Git에서조회한다. 원래64행/이전포트폴리오실패·Source648증거를이번기능PASS로덮지않았다. 새실계정시험·remote push없음.
+- B 설계 검토 정정(미배포 코드): Classic access token을전역1회소비하면Meta의정상재로그인/동일token재발급을막으므로초기fingerprint-blacklist초안을폐기했다. 실제로는challenge에proof_type을결속하고매시도Meta debug로valid/app/user/expiry/scopes를다시검증한다. 같은challenge재생은거부하고Limited→Classic downgrade도거부한다. 유효Classic bearer의새challenge 재사용은OAuth성질상허용하며nonce결속을보장한다고주장하지않는다. Native/TLS/로그비노출·iOSLimited권장으로위험범위를명시한다. 기존사용자DB/계정/원장은건드리지않고새테스트DB의forward migration만추가한다.
+
+## 소셜 B — 로컬 검증과 의존성 제한
+
+- FACEBOOK enum append/C#3; Classic accessToken와 Limited idToken proofType, V10 forward migration. Meta debug와 공식RS256 JWKS 검증, FBAppID:subject로 양경로 identity 일치·이메일 병합 없음. 공통 Native 세션 access로 기존 원장/구매/푸시 권위 재사용.
+- Android Kotlin 기존Google/Bridge+Social3 테스트 exit0, Backend FacebookVerifier3 exit0, 합성 소유DB HTTP3 exit0(초기 공유rate-limit429 실패는 테스트context격리로 수정; rate를 높이지 않음). C# AuthProvider routing/비밀 payload 차단 계약 exit0. iOS 생산 manifest+검증된 공식 localbinary cache Swift30 exit0.
+- Meta 원격 SPM download 지연: owned Swift/Xcode 프로세스만 중지. ZIP SHA2566개 upstream과 일치. 첫 Python unzip의symlink손실로 codesign 실패65, ditto로 원래서명 복원후6개검증0/Simulator archive0. 원본실패 보존. 서명disable/resign/SDKpatch 없음. 원격기본 경로 DEFERRED_ENV; 실Facebook WAITING_USER.
+- B 커밋 전 최신 Backend identity namespace HTTP·Android staging/R8·Simulator source 재검사를 수행한다. 다음 C만 진행하며 옛64Task 상태/Strict/CI는 재개하지 않는다.
+
+- B 최종 소스 재검사: Facebook HTTP3 exit0/owned DB gamebridge_ci_abaf17e7c9, build-android.sh --mock Maven+R8 consumer exit0, 최신 Simulator archive exit0. 실제 Provider·새UnityPlayer未실행.

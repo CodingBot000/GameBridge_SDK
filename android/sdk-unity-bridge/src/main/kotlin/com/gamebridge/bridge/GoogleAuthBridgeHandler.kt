@@ -41,7 +41,7 @@ internal class ModeBridgeHandler(private val local: BridgeOperationHandler, priv
     }
 }
 
-internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, Map<String, String>?, UUID?) -> GoogleAuthBridgeApi) : BridgeOperationHandler {
+internal class GoogleAuthBridgeHandler(private val providerName:String="GOOGLE",private val factory: (GameBridgeConfig, Map<String, String>?, UUID?) -> GoogleAuthBridgeApi) : BridgeOperationHandler {
     private var provider: GoogleAuthBridgeApi? = null
     private var config: GameBridgeConfig? = null
     private var productIds: Map<String, String>? = null
@@ -54,7 +54,7 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
                 val auth = provider ?: throw SdkFailure("NOT_INITIALIZED")
                 when (operation) {
                     "auth.signIn" -> {
-                        if (payload.string("provider") != "GOOGLE") throw SdkFailure("UNSUPPORTED_PROVIDER")
+                        if (payload.string("provider") != providerName) throw SdkFailure("UNSUPPORTED_PROVIDER")
                         Json.encodeToJsonElement(UserProfile.serializer(), auth.signIn())
                     }
                     "auth.restore" -> {
@@ -146,11 +146,11 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
         if (provider != null && (config != next || productIds != mapping || installationId != installation)) throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG")
         if (provider == null) { provider = factory(next, mapping, installation); config = next; productIds = mapping; installationId = installation }
         return buildJsonObject {
-            put("state", "READY"); put("mode", "PLATFORM_SANDBOX"); put("provider", "GOOGLE")
+            put("state", "READY"); put("mode", "PLATFORM_SANDBOX"); put("provider", providerName)
             put("capabilities", buildJsonObject {
                 for (name in listOf("auth", "store", "push", "config")) {
                     val supported = name == "auth" || name == "store" || name == "push" || name == "config"
-                    val configured = when (name) { "auth" -> clientId != null; "store" -> clientId != null && mapping != null; "push" -> installation != null; "config" -> true; else -> false }
+                    val configured = when (name) { "auth" -> providerName != "GOOGLE" || clientId != null; "store" -> (providerName != "GOOGLE" || clientId != null) && mapping != null; "push" -> installation != null; "config" -> true; else -> false }
                     put(name, buildJsonObject {
                         put("supported", supported); put("configured", configured); put("mode", "PLATFORM_SANDBOX")
                         put("reason", when {
@@ -159,7 +159,7 @@ internal class GoogleAuthBridgeHandler(private val factory: (GameBridgeConfig, M
                             name == "push" -> JsonPrimitive("installationId required")
                             name == "auth" -> JsonPrimitive("googleServerClientId required")
                             name == "store" -> JsonPrimitive(buildList {
-                                if (clientId == null) add("googleServerClientId")
+                                if (providerName=="GOOGLE" && clientId == null) add("googleServerClientId")
                                 if (mapping == null) { add("coinsStoreProductId"); add("premiumStoreProductId") }
                             }.joinToString(", ") + " required")
                             supported -> JsonPrimitive("Configuration required")

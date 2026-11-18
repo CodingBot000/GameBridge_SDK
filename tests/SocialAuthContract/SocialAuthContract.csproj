@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+<ItemGroup><Compile Include="Program.cs"/><Compile Include="../../unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs"/><Compile Include="../../unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs"/><Compile Include="../../unity/Packages/com.gamebridge.sdk/Runtime/Models.cs"/><Compile Include="../../unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs"/><Compile Include="../../unity/Packages/com.gamebridge.sdk/Runtime/Core/IWireTransport.cs"/><Compile Include="../../unity/Packages/com.gamebridge.sdk/Runtime/Core/WireModels.cs"/>
+<Reference Include="Newtonsoft.Json"><HintPath>$(GAMEBRIDGE_NEWTONSOFT_DLL)</HintPath></Reference></ItemGroup></Project>

@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict><key>CFBundleDisplayName</key><string>GameBridge</string><key>GIDClientID</key><string>$(GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID)</string>
-<key>GIDServerClientID</key><string>$(GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID)</string>
-<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLSchemes</key><array><string>$(GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID)</string></array></dict></array>
-</dict></plist>
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>GameBridge</string>
+	<key>GIDClientID</key>
+	<string>$(GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID)</string>
+	<key>GIDServerClientID</key>
+	<string>$(GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$(GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID)</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb$(GAMEBRIDGE_FACEBOOK_APP_ID)</string>
+			</array>
+		</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>$(GAMEBRIDGE_FACEBOOK_APP_ID)</string>
+	<key>FacebookClientToken</key>
+	<string>$(GAMEBRIDGE_FACEBOOK_CLIENT_TOKEN)</string>
+	<key>FacebookDisplayName</key>
+	<string>GameBridge</string>
+	<key>GameBridgeFacebookLoginMode</key>
+	<string>LIMITED</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<false/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<false/>
+</dict>
+</plist>

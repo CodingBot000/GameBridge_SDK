@@ -87,7 +87,7 @@ public sealed class NativeDemo : MonoBehaviour
         appId = Input(content.transform, "App ID", "gamebridge-sample", false);
         backend = Input(content.transform, "Backend URL (required)", "", false);
         developmentKey = Input(content.transform, "Local development key (runtime only)", "", true);
-        clientId = Input(content.transform, "Google server client ID (Android sandbox)", "", false);
+        clientId = Input(content.transform, "Google server client ID (sandbox)", "", false);
         coinsId = Input(content.transform, "Coins store product ID (sandbox)", "", false);
         premiumId = Input(content.transform, "Premium store product ID (sandbox)", "", false);
         installationId = Input(content.transform, "Installation UUID (push)", "", false);
@@ -96,6 +96,7 @@ public sealed class NativeDemo : MonoBehaviour
         Button(content.transform, "Sign in", () => { _ = Run(async () => { await RequireClient().SignInAsync(Provider()); status.text = "Signed in"; try { await RefreshWallet(); } catch (SdkException error) { status.text = "Signed in; balance: " + error.Code; } }); });
         Button(content.transform, "Google sign in (sandbox)", () => { _ = Run(async () => { if (!sandbox) throw new SdkException("UNSUPPORTED_PROVIDER"); await RequireClient().SignInAsync(AuthProvider.GOOGLE); status.text = "Google signed in"; }); });
         Button(content.transform, "Apple sign in (sandbox)", () => { _ = Run(async () => { if (!sandbox) throw new SdkException("UNSUPPORTED_PROVIDER"); await RequireClient().SignInAsync(AuthProvider.APPLE); status.text = "Apple signed in"; }); });
+        Button(content.transform, "Facebook sign in (sandbox)", () => { _ = Run(async () => { if (!sandbox) throw new SdkException("UNSUPPORTED_PROVIDER"); await RequireClient().SignInAsync(AuthProvider.FACEBOOK); status.text = "Facebook signed in"; }); });
         Button(content.transform, "Restore session", () => { _ = Run(async () => { var session = await RequireClient().RestoreSessionAsync(); status.text = session.signedIn ? "Session restored" : "No session"; if (session.signedIn) { try { await RefreshWallet(); } catch (SdkException error) { status.text = "Session restored; balance: " + error.Code; } } }); });
         products = Label(content.transform, "Products not loaded", 80);
         Button(content.transform, "Load products", () => { _ = Run(async () => { var items = await RequireClient().GetProductsAsync(); products.text = string.Join(" / ", items.Select(x => x.productId + ": " + x.localizedPrice)); }); });

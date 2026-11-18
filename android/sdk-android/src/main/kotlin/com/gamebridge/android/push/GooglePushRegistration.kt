@@ -3,6 +3,8 @@ package com.gamebridge.android.push
 import com.gamebridge.BackendClient
 import com.gamebridge.SdkFailure
 import com.gamebridge.android.auth.GoogleAuthProvider
+import com.gamebridge.android.auth.BackendSessionAccess
+import com.gamebridge.android.auth.GoogleSessionAccess
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.buildJsonObject
@@ -13,13 +15,15 @@ import java.util.UUID
 
 /** Installation identity is supplied by the host; neither token nor credentials are exposed to Unity. */
 internal class GooglePushRegistration(
-    private val auth: GoogleAuthProvider,
+    private val auth: BackendSessionAccess,
     private val installationId: UUID,
     private val request: suspend (path: String, method: String, body: String?, accessToken: String) -> String,
 ) {
-    constructor(auth: GoogleAuthProvider, installationId: UUID, client: BackendClient) : this(auth, installationId, { path, method, body, token ->
+    constructor(auth: GoogleAuthProvider, installationId: UUID, client: BackendClient) : this(GoogleSessionAccess(auth), installationId, { path, method, body, token ->
         client.request(path, method, body, accessToken = token).json
     })
+    constructor(auth:GoogleAuthProvider,installationId:UUID,request:suspend(String,String,String?,String)->String):this(GoogleSessionAccess(auth),installationId,request)
+    constructor(auth:BackendSessionAccess,installationId:UUID,client:BackendClient):this(auth,installationId,{path,method,body,token->client.request(path,method,body,accessToken=token).json})
     private val path get() = "/v1/devices/$installationId/push-token"
     suspend fun register(token: String): String {
         if (token.isBlank()) throw SdkFailure("INVALID_ARGUMENT")
@@ -46,6 +50,10 @@ internal class GooglePushRegistration(
 /** Host-managed FCM registration; raw tokens remain within the Native SDK. */
 class GooglePushClient internal constructor(private val registration: GooglePushRegistration) {
     companion object {
+        internal fun createSocial(auth:BackendSessionAccess,config:com.gamebridge.GameBridgeConfig,installationId:UUID):GooglePushClient {
+            if(!auth.usesConfiguration(config))throw SdkFailure("CONFIG_REQUIRED")
+            return GooglePushClient(GooglePushRegistration(auth,installationId,BackendClient(config)))
+        }
         @JvmStatic fun create(auth: GoogleAuthProvider, config: com.gamebridge.GameBridgeConfig, installationId: UUID): GooglePushClient {
             if (config.mode != com.gamebridge.ProviderMode.PLATFORM_SANDBOX || !auth.usesConfiguration(config)) throw SdkFailure("CONFIG_REQUIRED")
             return GooglePushClient(GooglePushRegistration(auth, installationId, BackendClient(config)))

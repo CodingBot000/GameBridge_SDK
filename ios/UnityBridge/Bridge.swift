@@ -291,7 +291,10 @@ public func GB_HandleAuthURL(_ pointer: UnsafePointer<UInt8>?, _ length: Int32) 
     #if canImport(UIKit) && canImport(GoogleSignIn)
     guard Thread.isMainThread,let pointer,length>0,length<=8192,
           let value=String(data:Data(bytes:pointer,count:Int(length)),encoding:.utf8),let url=URL(string:value) else {return 0}
-    return MainActor.assumeIsolated {GameBridgeGoogleHost.handle(url) ? 1:0}
+    return MainActor.assumeIsolated {
+        if GameBridgeFacebookHost.handle(url) {return 1}
+        return GameBridgeGoogleHost.handle(url) ? 1:0
+    }
     #else
     return 0
     #endif

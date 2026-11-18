@@ -12,10 +12,13 @@ struct SocialCredential: CustomStringConvertible {
     var description: String { "SocialCredential([redacted])" }
 }
 @MainActor protocol SocialCredentialGateway: AnyObject {
+    var challengeProofType:String {get}
+    func preflight() throws
     func authorize(nonce: String) async throws -> SocialCredential
     func cancel()
     func logout()
 }
+extension SocialCredentialGateway {var challengeProofType:String {"ID_TOKEN"};func preflight() throws {}}
 struct SocialChallenge: Decodable { let challengeId, nonce, expiresAt: String }
 private struct SocialWireSession: Codable { let accessToken, refreshToken, expiresAt, userId: String }
 private struct SocialStoredSession: Codable {
@@ -33,6 +36,7 @@ private struct SocialStoredSession: Codable {
     private let http: BackendClient
     let uiGate = AppleUiGate()
     private(set) var sessionGeneration = 0
+    private var closed=false
     private var current: SocialWireSession?
     private var refreshFlight: (UUID, Task<SocialWireSession, Error>)?
     init(config: GameBridgeConfig, provider: String, settingsBinding: String, store: TokenStore,
@@ -50,24 +54,28 @@ private struct SocialStoredSession: Codable {
         UUID(uuidString:value.userId) != nil && !value.accessToken.isEmpty && !value.refreshToken.isEmpty && value.expiresAt.hasSuffix("Z") &&
         (ISO8601DateFormatter().date(from:value.expiresAt) != nil || {let f=ISO8601DateFormatter();f.formatOptions=[.withInternetDateTime,.withFractionalSeconds];return f.date(from:value.expiresAt) != nil}())
     }
+    public func validateSignInConfiguration() throws {try gateway.preflight()}
     public func signIn() async throws -> UserProfile {
+        try gateway.preflight()
+        guard !closed else {throw SdkFailure("CANCELED")}
         try uiGate.acquire(); defer { uiGate.release() }
         sessionGeneration += 1; let epoch=sessionGeneration
         if refreshFlight != nil { current=nil }; refreshFlight?.1.cancel(); refreshFlight=nil
-        let challenge=try decode(SocialChallenge.self,try await http.request(path:"/v1/auth/challenges",method:"POST",body:encode(["appId":config.appId,"provider":provider])).json)
+        let challenge=try decode(SocialChallenge.self,try await http.request(path:"/v1/auth/challenges",method:"POST",body:encode(["appId":config.appId,"provider":provider,"proofType":gateway.challengeProofType])).json)
         let dateParser=ISO8601DateFormatter(); dateParser.formatOptions=[.withInternetDateTime,.withFractionalSeconds]
         let expiry=dateParser.date(from:challenge.expiresAt) ?? ISO8601DateFormatter().date(from:challenge.expiresAt)
         guard UUID(uuidString:challenge.challengeId) != nil, !challenge.nonce.isEmpty, let expiry, expiry>Date() else { throw SdkFailure("AUTH_FAILED") }
         let credential=try await gateway.authorize(nonce:challenge.nonce)
         guard !Task.isCancelled else { throw SdkFailure("CANCELED") }
-        guard epoch==sessionGeneration, !credential.value.isEmpty else { throw SdkFailure("CANCELED") }
+        guard !closed,epoch==sessionGeneration, !credential.value.isEmpty else { throw SdkFailure("CANCELED") }
+        guard (provider=="GOOGLE" && credential.proofType=="ID_TOKEN") || (provider=="FACEBOOK" && ["FACEBOOK_ACCESS_TOKEN","FACEBOOK_LIMITED_ID_TOKEN"].contains(credential.proofType)) else {throw SdkFailure("AUTH_FAILED")}
         var body:[String:Any] = ["challengeId":challenge.challengeId,"provider":provider]
         if credential.proofType=="ID_TOKEN" { body["idToken"]=credential.value }
         else { body["proofType"]=credential.proofType;body[credential.proofType=="FACEBOOK_ACCESS_TOKEN" ? "accessToken":"idToken"]=credential.value }
         let value=try decode(SocialWireSession.self,try await http.request(path:"/v1/auth/exchange",method:"POST",body:encode(body)).json)
         guard valid(value) else { throw SdkFailure("AUTH_FAILED") }
         let profile=try await profile(value)
-        guard epoch==sessionGeneration, !Task.isCancelled else { throw SdkFailure("CANCELED") }
+        guard !closed,epoch==sessionGeneration, !Task.isCancelled else { throw SdkFailure("CANCELED") }
         try persist(value);current=value;return profile
     }
     private func profile(_ session:SocialWireSession) async throws -> UserProfile {
@@ -87,7 +95,7 @@ private struct SocialStoredSession: Codable {
         try store.save(String(decoding:JSONEncoder().encode(stored),as:UTF8.self))
     }
     private func refresh(_ old:SocialWireSession,epoch:Int) async throws -> SocialWireSession {
-        guard epoch==sessionGeneration else {throw SdkFailure("CANCELED")}
+        guard !closed,epoch==sessionGeneration else {throw SdkFailure("CANCELED")}
         if let current,current.accessToken != old.accessToken {return current}
         let flight:(UUID,Task<SocialWireSession,Error>)
         if let existing=refreshFlight {flight=existing}
@@ -101,7 +109,7 @@ private struct SocialStoredSession: Codable {
         }
         do {
             let value=try await flight.1.value
-            guard epoch==sessionGeneration else {throw SdkFailure("CANCELED")}
+            guard !closed,epoch==sessionGeneration else {throw SdkFailure("CANCELED")}
             if refreshFlight?.0==flight.0 {try persist(value);current=value;refreshFlight=nil}
             return value
         } catch {
@@ -111,14 +119,15 @@ private struct SocialStoredSession: Codable {
     }
     public func restore() async throws -> UserProfile? { try await withBackendSession { _ in guard let value=self.current else {throw SdkFailure("SESSION_EXPIRED")};return try await self.profile(value) } }
     func withBackendSession<T>(_ action:(BackendAccountSession) async throws -> T) async throws -> T? {
+        guard !closed else {throw SdkFailure("CANCELED")}
         guard let value=try load() else {return nil};let epoch=sessionGeneration
         do {
             let result=try await action(BackendAccountSession(accessToken:value.accessToken,userId:value.userId))
-            guard epoch==sessionGeneration else {throw SdkFailure("CANCELED")};return result
+            guard !closed,epoch==sessionGeneration else {throw SdkFailure("CANCELED")};return result
         } catch let error as SdkFailure where error.code=="SESSION_EXPIRED" {
             let value=try await refresh(value,epoch:epoch)
             let result=try await action(BackendAccountSession(accessToken:value.accessToken,userId:value.userId))
-            guard epoch==sessionGeneration else {throw SdkFailure("CANCELED")};return result
+            guard !closed,epoch==sessionGeneration else {throw SdkFailure("CANCELED")};return result
         }
     }
     public func signOut() async throws {
@@ -134,7 +143,7 @@ private struct SocialStoredSession: Codable {
             } catch {throw SdkFailure("NETWORK_UNAVAILABLE",nativeCode:"REVOCATION_UNCONFIRMED",retryable:true)}
         }
     }
-    public func close() {sessionGeneration += 1;refreshFlight?.1.cancel();refreshFlight=nil;current=nil;gateway.cancel()}
+    public func close() {closed=true;sessionGeneration += 1;refreshFlight?.1.cancel();refreshFlight=nil;current=nil;gateway.cancel()}
     public func storeSession() throws -> AppleStoreSession {try AppleStoreSession(access:self,config:config)}
     public func pushClient(installationId:UUID) throws -> ApplePushClient {try ApplePushClient(access:self,config:config,installationId:installationId)}
 }

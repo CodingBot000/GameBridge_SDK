@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace GameBridge
 {
-    public enum AuthProvider { MOCK, GOOGLE, APPLE }
+    public enum AuthProvider { MOCK, GOOGLE, APPLE, FACEBOOK }
     public sealed class CapabilityStatus
     {
         public bool Supported { get; }

@@ -1970,3 +1970,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치34 A 시작: 3313c84에서 재개, 기존 실패·미추적 경로 보존. binding을 source/profile/header 의미로 정규화하고 누락·중복을 fail-closed 검사한다. HTTP 실제 응답 수집과 schema 대조를 추가한다.
 - 배치34 A: 의미기반 binding 누락/중복·중첩순서와 Kotlin DTO field/type/nullable/required 검사 추가. 실제 LOCAL_MOCK HTTP24 operation 대응표와 성공/오류 schema 대조 완료. 누락 Idempotency-Key가 INTERNAL_ERROR500이던 내부 오류를 INVALID_ARGUMENT400으로 수정/회귀 확인. 합성Sandbox의 성공·오류 전수는 남아 BUG-017 OPEN 유지.
 - 배치34 B: 64 Task를 각 완료기준/실제근거/남은조건별로 검토한 개별감사 JSON 작성. P00-T03의 최소프로젝트 build조건은 기존Native·Backend/Unity실행으로충족되어 IMPLEMENTED/PASS로개별정정, RESOLVED ENV-002/003을현재 blocker에서 제거. 나머지65가아닌64행을유지하며 blanket승격0. 현재25 IMPLEMENTED/39 IN_PROGRESS, localPASS23/FAIL1/PARTIAL40. P11-T01은 남은기준별근거공백/내부FAIL로PARTIAL.
+- 배치34 C: 새전용 iOS18.6/실제패키지 C ABI init/status/shutdown 각warmup20+측정100,120session/360callback·harness outstanding0. Nativeprivatepending/Taskcancel/continuation·Androidheap·Unityscene/frame은미측정. T03 PARTIAL유지.

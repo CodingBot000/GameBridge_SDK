@@ -4221,3 +4221,9 @@
 - [P00-T03] 최소프로젝트 조건은 배치33 Android/sample/독립R8, iOS source/archive, 현재 Backend bootJar, 기존 양Unity LOCAL_MOCK Player로 충족했다. `git diff daf3cd9 -- android ios unity`0으로 현재Native/UPM동일source임을 확인(새실행주장아님). 기존ENV-002/003은 원장에도RESOLVED였으므로해당행만IMPLEMENTED/PASS로정정했다.
 - P05-T03 FAIL, 외부13 WAITING_USER, P09-T07 self-hosted/Release PARTIAL유지. 기타Task의내부미완료와검증미완료는개별gap에구분했으며P11전체완료로승격하지않는다. FEATURE_MATRIX의OpenAPI부재라는오래된문구정정.
 - B 후속 원장검사는 행25/39로바꾼뒤상단선언24/40을갱신하지않아exit1이었다. 상단구현25/진행39·로컬23/1/40으로정정하고재검사한다. 이전실패를성공으로소급하지않는다.
+
+## 배치34 C — 실제 packaged C ABI 계측
+
+- `python3 harness/run-swift-cabi-performance.py --run-local`: exit0, artifacts/swift-cabi-performance-661607840ecb4676aebaa5695c555370. 기존SwiftCore실험을반복하지않고배치33simulator framework를링크한새실행파일로GB_SetCallback/Dispatch/Shutdown을호출했다.
+- 새전용iPhone16/iOS18.6 UUID/name검증후실행/자기UUID만shutdown. init/status/shutdown 각warmup20·sample100,120session·360correlatedcallback,측정harnessoutstanding0. p50/p95/max·peakRSS JSON보존. peakRSS증가를누수로판정하지않는다. Nativeprivatepending/Taskcancel/continuation은NOT_RUN/NOT_OBSERVED이며잔존0으로위장하지않는다.
+- 도구소스는당시untracked/HEAD3313c84이며Native배포bytes변경없음을분리했다. C1Android는D의신규JNI소비자환경port소유충돌로생성전차단, C3Unityscene/frame계측은아직미실행. T03 PARTIAL.

@@ -4182,3 +4182,9 @@
 - 새 Maven으로 `scripts/smoke-android-maven-consumer.sh`: exit0, 새 독립 release APK와 mapping/manifest 검사. `scripts/smoke-ios-source-consumer.sh`: exit0/macOS source 소비. 새 simulator framework import 및 GameBridgeConfig 사용 `xcrun swiftc ... -c`: exit0.
 - `scripts/package-sdk.sh` 새 Maven/XCFramework→artifacts/batch33/upm: exit0. `python3 harness/check-staging.py artifacts/batch33/upm`: exit0/147파일. verify-xcframework device arm64/sim arm64+x86_64 및 4 export PASS.
 - `git diff a83561a -- android ios unity` empty. 빌드 도중 도구/문서 변경은 있었으나 shipping source 동일. 이전 패키지 bytes 재사용0. binary API 전체·신규 Unity 소비는 미실행. T04 PARTIAL.
+
+## 배치33 E/F — 읽기 전용 inventory와 차단 근거
+
+- `python3 harness/strict-preflight.py --staging artifacts/batch33/upm --output artifacts/batch33/preflight.json`: exit2. git/source, Docker daemon, 실행파일 존재, staging checker 실제 관측을 기록했다. E1/E2 전체 환경 계약 완성은 아니다.
+- Unity 실행파일은 있지만 license/module attestation 미완료, source staging attestation/전체 required lane 환경/ADB PID와 양 endpoint/별도 AVD·StoreKit Simulator/DB role·Backend secret scope 계약 미완료를 구체적으로 기록했다. 임시 bool로 통과시키지 않는다.
+- E2 생성0, 전체 Strict 제품 실행0/NOT_RUN. a83561a guard 유지. 기존 P05 FAIL과 ENV-STOREKIT-26 및18.6 간헐 위험은 보존. E3 확장 fixture는 아직 미완료다.

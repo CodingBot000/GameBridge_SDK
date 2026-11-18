@@ -3,7 +3,7 @@
 import json
 import re
 from pathlib import Path
-from openapi_dto import check_dtos
+from openapi_dto import check_dtos, check_request_bindings
 ROOT = Path(__file__).resolve().parents[1]
 
 def inventory(root=ROOT):
@@ -41,6 +41,7 @@ def canonical_bindings(bindings):
 
 def check(doc, root=ROOT):
     check_dtos(doc, root)
+    check_request_bindings(doc, root)
     actual = inventory(root)
     defined = {(p,m) for p, ops in doc['paths'].items() for m in ops if m in ('get','post','put','delete','patch')}
     assert defined == set(actual), 'path/method drift'

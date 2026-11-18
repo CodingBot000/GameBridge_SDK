@@ -4243,3 +4243,11 @@
 - license/서로다른AVD·secret·소유계획/TC준비관측은미완료여서E1대기. E2실제자원생성및全wrapperidentity배선도미완료라guard를해제하지않았고전체Strict제품실행0. fixtures를실환경완료로부르지않는다.
 - Android후속은관측상ADB port가free로변해1회새output으로재확인했으나현재E미커밋변경으로tracked-clean guard가exit1,생성0이었다. source고정후가용성을다시검사할예정이며기존실패원본보존.
 - 배치34 D 실제조건변화후검증: source fd7a55f tracked-clean으로고정하고free port를재검사한 `python3 artifacts/batch34/run-owned-android-c.py` exit0. artifacts/unity-android-e2e-kh0h6vqc의신규UPMimport→CLIbuild→실제JNI LOCAL_MOCK PII Player PASS. runtime5037/build5038·emulator5602/5603·PID/name소유검증후자기AVD/ADB종료. 원본a/b실패는보존하며새Player성공으로덮지않는다. 이번새소비Android/iOS각1PASS,성능계측과는별개.
+
+## 배치34 A2 후속 — 합성 Sandbox 직렬화 응답 대조
+
+- test-only OpenApiCapture는실제TestRestTemplate 응답을읽어body type/field구조만수집하고모든문자열값을redacted로바꾼다. 원본response는다시읽을수있도록복원하며raw token/proof/requestbody를기록하지않는다. env미설정이면아무interceptor도추가하지않는다.
+- 첫임시실행은Sandbox와LOCAL_MOCK을같은DB에묶어제품의DBprofile소유guard가실패(10tests/5failure)했다. guard를완화하지않고별도새DB/role그룹으로분리했다. 후속Sandbox5tests는PASS였으나literal /purchases/bindings와/{purchaseId}가동시에매치된검사기오류로exit1. Spring의literal우선규칙을반영해정정,원본vap1ywf4/07fil6v8보존.
+- `artifacts/batch33-tools/bin/python harness/run-openapi-synthetic.py --run-local`: exit0/artifacts/openapi-synthetic-tdhrysda. Sandbox5+Local5/실패·error·skip0,실제응답132건shape/schema/requestId대조PASS. 기존LOCAL_MOCK32관측과합쳐24operation모두성공200범위가있다. synthetic proof/verifier/HTTP adapter이며실Provider아님.
+- `backend/gradlew -p backend test --tests '*OpenApiCaptureTest' --tests '*HttpInfrastructureTest' --rerun-tasks`: exit0/4시험. 문자열증빙제거·schema타입보존과누락header400을확인했다. request body reference/required도실Controller DTO에대조하고누락음성을추가해OpenAPI16unit PASS.
+- SSE event payload전체및동적Map필드의보다엄밀한계약이남아BUG-017 OPEN. 모든default오류분기를실행했다고주장하지않는다.

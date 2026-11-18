@@ -1,0 +1,1320 @@
+{
+  "sourceHead": "fd7a55f426e6bbb87e61456094d2e0246e8dc0e2",
+  "sourceState": "HEAD plus current test-only capture changes",
+  "status": "PASS",
+  "groups": [
+    {
+      "profile": "sandbox",
+      "exitCode": 0,
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "database": "gamebridge_ci_2f7d29f8d4"
+    },
+    {
+      "profile": "local-mock",
+      "exitCode": 0,
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "database": "gamebridge_ci_f34e5c7291"
+    }
+  ],
+  "operations": [
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 401,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/config",
+      "method": "get",
+      "profile": "sandbox",
+      "status": 503,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 404,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/me",
+      "method": "get",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/bindings",
+      "method": "get",
+      "profile": "sandbox",
+      "status": 401,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/bindings",
+      "method": "get",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 503,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "delete",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "sandbox",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/refresh",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 401,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 409,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 401,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 401,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/readiness",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/readiness",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 404,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 409,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/entitlements",
+      "method": "get",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/catalog",
+      "method": "get",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/{purchaseId}",
+      "method": "get",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/{purchaseId}",
+      "method": "get",
+      "profile": "sandbox",
+      "status": 404,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/readiness",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "sandbox",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/account",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 403,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/account",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/account",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 409,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/wallet",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/wallet",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 409,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 409,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/wallet",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/wallet",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/entitlements",
+      "method": "get",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 401,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 403,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 403,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 400,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 403,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 429,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "local-mock",
+      "status": 403,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "profile": "local-mock",
+      "status": 200,
+      "serializedShape": "PASS",
+      "requestId": "PASS"
+    }
+  ],
+  "rawResponseStrings": "NEVER_WRITTEN",
+  "lastResponse": {
+    "path": "/v1/dev/push/send",
+    "method": "post",
+    "status": 200
+  },
+  "coverage": [
+    {
+      "path": "/health",
+      "method": "get",
+      "statuses": [
+        200
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "statuses": [
+        200,
+        404
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "statuses": [
+        200,
+        401,
+        404,
+        409
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "statuses": [
+        200,
+        400,
+        403
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "delete",
+      "statuses": [
+        200,
+        403
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "statuses": [
+        200,
+        400,
+        401,
+        403,
+        429,
+        503
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/dev/push/stream",
+      "method": "get",
+      "statuses": [
+        200
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/config",
+      "method": "get",
+      "statuses": [
+        200,
+        503
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/catalog",
+      "method": "get",
+      "statuses": [
+        200
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/entitlements",
+      "method": "get",
+      "statuses": [
+        200
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/purchases/{purchaseId}",
+      "method": "get",
+      "statuses": [
+        200,
+        404
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/purchases/bindings",
+      "method": "get",
+      "statuses": [
+        200,
+        401
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/purchases/verify",
+      "method": "post",
+      "statuses": [
+        200,
+        400,
+        409
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/account",
+      "method": "post",
+      "statuses": [
+        200,
+        403
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "statuses": [
+        200,
+        400,
+        409
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/wallet",
+      "method": "post",
+      "statuses": [
+        200
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/purchases/google/readiness",
+      "method": "post",
+      "statuses": [
+        200,
+        404
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "statuses": [
+        200,
+        400,
+        404
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/purchases/apple/readiness",
+      "method": "post",
+      "statuses": [
+        200,
+        404
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "statuses": [
+        200,
+        400,
+        404,
+        409,
+        503
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/auth/refresh",
+      "method": "post",
+      "statuses": [
+        200,
+        401
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/me",
+      "method": "get",
+      "statuses": [
+        200,
+        401
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "statuses": [
+        200
+      ],
+      "success200": true
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "statuses": [
+        200,
+        400,
+        403,
+        404
+      ],
+      "success200": true
+    }
+  ]
+}

@@ -39,6 +39,9 @@ class OpenApiTests(unittest.TestCase):
     def test_response_dto_type_mutated(self):
         self.doc['components']['schemas']['SessionTokens']['properties']['accessToken']['type']='integer'
         with self.assertRaises(AssertionError): module.check(self.doc)
+    def test_operation_request_body_removed(self):
+        del self.doc['paths']['/v1/purchases/verify']['post']['requestBody']
+        with self.assertRaises(AssertionError): module.check(self.doc)
     def test_path_removed(self):
         del self.doc['paths']['/health']
         with self.assertRaises(AssertionError): module.check(self.doc)

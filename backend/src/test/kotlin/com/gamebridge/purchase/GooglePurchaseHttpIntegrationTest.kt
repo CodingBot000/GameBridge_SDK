@@ -53,6 +53,7 @@ internal class FakeGoogleFinalizerConfiguration {
 @Import(FakeGoogleFinalizerConfiguration::class)
 @EnabledIfEnvironmentVariable(named = "GAMEBRIDGE_RUN_AUTH_DB_TESTS", matches = "true")
 class GooglePurchaseHttpIntegrationTest {
+    @org.junit.jupiter.api.BeforeEach fun captureOpenApiShape() { com.gamebridge.contracts.OpenApiCapture.install(rest) }
     @Autowired lateinit var rest: TestRestTemplate
     @Autowired lateinit var db: JdbcTemplate
     @Autowired lateinit var sessions: SessionService

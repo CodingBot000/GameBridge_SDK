@@ -5,13 +5,7 @@ from pathlib import Path
 from jsonschema import Draft4Validator, RefResolver
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('local_backend',ROOT/'harness/run-unity-android-mock-e2e.py');common=importlib.util.module_from_spec(spec);spec.loader.exec_module(common)
-def compatible(value):
-    if isinstance(value,list):return [compatible(x) for x in value]
-    if not isinstance(value,dict):return value
-    result={k:compatible(v) for k,v in value.items() if k!='nullable'}
-    if value.get('nullable'):
-        return {'anyOf':[result,{'type':'null'}]}
-    return result
+from run_openapi_adapter import compatible
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--run-local',required=True,action='store_true');parser.parse_args()

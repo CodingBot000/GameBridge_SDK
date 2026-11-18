@@ -4267,3 +4267,4 @@
 - runtimeUnity Profiler API의total allocated/managed used를forcedGC전후관측했다. pendingAfterCompletedCallsMax0, weakclients1. 전체누수·프레임안정성·CPU blocking을증명하지않고추가root분석대기로기록한다. 첫app초기화는baselineflow라시간을수집하지않았고이값은후속반복계측이다. Profiler GUI실행없음.
 - 실제저장결과에summary수치계약을후적용해PASS. rawsample은보관하지않아percentile재계산검증은NOT_CHECKED로명시한다. 잘못된count/NaN/pending양수/메모리boolean거부와weak1관측보존1시험추가,기존5와총6PASS. 기존GUI wrapper/cache14시험도PASS. 新UUID/name/DBsuffix/runtime일치후자기Simulator만shutdown0.
 - GitHub CLI fetch는github.com443 timeout,뒤의varsAPI도timeout이었다. connectedGitHub read에서실제handoff HEAD3313c847e77c17be5130451b091196db8eee0383확인. 이후CLIvars정상0이재확인돼최신codecommit후FFpush/단1회Hosted를이어간다. 아직dispatch0.
+- 추가Player계측과summaryguard뒤최종Python263/16.708초 PASS/0이며scope의첫app-init/CPUblocking/raw-percentile재계산미검증·weak1관측을9문서/RC/통합문서에반영했다. Gitfetch정상회복후originancestor확인0. 모든코드/test/workflow를고정한새source에서falseHosted1회및동일source자체시험/TC/Core를마지막으로확인한다. 이뒤코드변경없이결과문서만갱신한다.

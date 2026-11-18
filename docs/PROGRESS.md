@@ -8,11 +8,11 @@
 - 현재 Phase / Task: 배치34 G/H. OpenAPI DTO23·실제24operation 성공 구조 대조, 새 양Unity 소비, C ABI 계측과 Strict 계약 보강 완료 범위를 검증 중.
 - 마지막 갱신: 2026-11-18 (Asia/Seoul).
 - 현재 source: 기능 변경은 누락 필수 HTTP header를400으로 분류하는 수정. Native/UPM shipping source는 배치33 build source a83561a와 동일.
-- 현재 검증: Python262/실패·오류0, OpenAPI16 unit/문법PASS, 합성HTTP10시험·132응답구조, 별도LOCAL_MOCK32관측, Native Core/managed/자체시험/TC 결과는 배치34 통합 증거 참조.
+- 현재 검증: Python263/실패·오류0, OpenAPI16 unit/문법PASS, 합성HTTP10시험·132응답구조, 별도LOCAL_MOCK32관측, Native Core/managed/자체시험/TC 결과는 배치34 통합 증거 참조.
 - 최신 staging: artifacts/batch33/upm, 147파일. 새 배치34 양Unity 소비에서 실제 사용했으며 새 Native 재빌드로 표현하지 않는다.
 - 작업 트리: handoff/p09-resume-20261113; 기존 미추적 Demo·Python 캐시 보존.
 - 현재 모드: LOCAL_MOCK·synthetic Sandbox, 실제 Provider 호출 없음.
-- 미완료: Android JNI heap/시간, iOS Task·continuation, Unity Scene/Frame/Profiler, Strict E2 자원생성/전체 소유권 전파, SSE·동적Map 세부 HTTP 계약. P10-T03/T04·P11 PARTIAL, BUG-017 OPEN.
+- 미완료: Android JNI heap/시간, iOS Task·continuation, Unity weak client1 잔존 원인·CPU blocking, Strict E2 자원생성/전체 소유권 전파, SSE·동적Map 세부 HTTP 계약. P10-T03/T04·P11 PARTIAL, BUG-017 OPEN.
 - 다음 행동: 소스 고정 후 마지막 회귀·안전검토·handoff FF push·Unity opt-in 비활성 확인 후 최신source false Hosted1회. 결과 문서만 후속 갱신.
 
 ## 집계

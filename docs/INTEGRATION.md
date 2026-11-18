@@ -1,6 +1,6 @@
 # 통합 안내 — 개발 중
 
-배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI 시간은 측정했지만 Task/continuation·Android heap·Unity Scene/Frame 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI와 실제 Unity Scene/Frame·runtime 메모리를 측정했고 weak client1개 잔존을 관측했다. 원인·누수 여부는 미확정이다. Task/continuation·Android heap·CPU blocking 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
 
 
 ## 앱과 인증 정보의 소유권

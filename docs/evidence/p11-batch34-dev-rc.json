@@ -1,7 +1,7 @@
 {
   "status": "DEV_RC",
   "sdkVersion": "0.1.0-dev",
-  "verifiedAgainstRepo": "6b8d884b8d8a15dadfd1e3c0dddf74d15bc81bff",
+  "verifiedAgainstRepo": "06f712095857c1a7cebf9593031336925f26c5b1",
   "sdkBuildSource": "a83561a31c6b34fafcc85988b419fff20c7e059f",
   "shippingNativeUpmDiff": "EMPTY",
   "sdkPackageFiles": 147,
@@ -18,5 +18,6 @@
     "Real providers13 WAITING_USER; self-hosted/Release unverified"
   ],
   "backendChange": "Missing required HTTP header now returns400 INVALID_ARGUMENT; Backend binary not included in this UPM candidate",
-  "outerManifestSha256": "e2d74818f484fbdc8b7368f9e1b065fe0ee921fb4697469777f8e4b5086aad0c"
+  "unityPerformance": "Actual iOS Player100 cycles and1000 frames measured; weak clients1 observed, leak conclusion unknown; CPU blocking/first app init not measured",
+  "outerManifestSha256": "e7e6858ab2dbff46f4661a6cba09f1675d1b7050aa4782a21d5e052cae0be329"
 }

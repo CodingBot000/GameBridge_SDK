@@ -4214,3 +4214,9 @@
 - `artifacts/batch33-tools/bin/python harness/run-openapi-http.py --run-local`: 최초 local-mock에서 sandbox auth route의503예상과 달리404라 fixture 기대값을 실제Profile에 맞췄다(원본 artifacts/openapi-http-d4elgpn4). 후속7c5ql0ck는 PASS이지만 누락필수헤더가500임을 관측했다. 실제ApiErrors의 MissingRequestHeaderException 분류를 고쳐400/INVALID_ARGUMENT으로 회귀했다.
 - `backend/gradlew -p backend test --tests '*HttpInfrastructureTest' --rerun-tasks`: exit0. 새 MockMvc 누락header 시험 포함. 이후 HTTP runner exit0/artifacts/openapi-http-jr324w0t,24operation별 runtime scope 기록/성공·오류 body schema·requestId 대조. raw body/token/key는 결과에 저장하지 않는다.
 - 관측한 오류HTTP status를 OpenAPI에 개별 추가했고 문법검사 exit0. 합성Sandbox 성공/Provider설정실패의 추가실행과 SSE payload 전체 대조가 남아 BUG-017 OPEN을 유지한다. profile absence404를 Sandbox 성공으로 세지 않는다.
+
+## 배치34 B — 64 Task 개별 완료기준 검토
+
+- 계획의64개 완료기준을 원장/기존증거와 대조해 각각 충족범위·미충족조건·사용자/환경의존·권장상태를 docs/evidence/p11-batch34-task-audit.json에 기록했다. 근거전수연결이 부족한 Task는 그 부족을 명시적으로 남겼으며 완료로 해석하지 않는다.
+- [P00-T03] 최소프로젝트 조건은 배치33 Android/sample/독립R8, iOS source/archive, 현재 Backend bootJar, 기존 양Unity LOCAL_MOCK Player로 충족했다. `git diff daf3cd9 -- android ios unity`0으로 현재Native/UPM동일source임을 확인(새실행주장아님). 기존ENV-002/003은 원장에도RESOLVED였으므로해당행만IMPLEMENTED/PASS로정정했다.
+- P05-T03 FAIL, 외부13 WAITING_USER, P09-T07 self-hosted/Release PARTIAL유지. 기타Task의내부미완료와검증미완료는개별gap에구분했으며P11전체완료로승격하지않는다. FEATURE_MATRIX의OpenAPI부재라는오래된문구정정.

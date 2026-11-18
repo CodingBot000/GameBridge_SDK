@@ -1,0 +1,1249 @@
+{
+  "sourceHead": "ec4a03676c01a0b9c2e033bb53a85de8ca0e2a41",
+  "auditKind": "Individual completion-criterion review with explicit unresolved evidence gaps; not all product criteria passed",
+  "tasks": [
+    {
+      "id": "P00-T01",
+      "title": "저장소 보존·작업 원장 초기화",
+      "completionCriterion": "현재 디렉터리와 실제 Git root가 일치하고 기존 파일이 보존됐는지 확인한다. 모든 계획 Task ID가 진행 원장에 한 번씩 존재해야 한다. Git identity가 없으면 USER-GIT에 기록하고 이후 코드 개발을 계속한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P00-T01",
+      "evidencePaths": [],
+      "reviewedFulfilled": "보존 Git 이력과 원장64개 일치",
+      "unfulfilledOrScopeLimit": "없음",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P00-T02",
+      "title": "도구·라이선스·버전 조합 확정",
+      "completionCriterion": "TOOLCHAIN에 실제 버전/출처/확인 명령이 있고 ENVIRONMENT에 가능·불가 검증이 구분되어 있어야 한다. 버전 미확정 항목은 이유와 후속 Task를 남긴다. 라이선스/로그인이 필요한 도구는 대기로 분류한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/TOOLCHAIN.md, WORK_LOG P00-T02",
+      "evidencePaths": [
+        {
+          "path": "docs/TOOLCHAIN.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "고정 버전·설치/미설치 구분 문서 존재",
+      "unfulfilledOrScopeLimit": "현재 Unity license/IPC의 모든 실행조건은 별도 E1 미확인",
+      "knownBlocker": "ENV-001",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P00-T03",
+      "title": "빌드 가능한 최소 프로젝트 구성",
+      "completionCriterion": "가능한 도구에서 빈 앱/라이브러리/Backend 기본 빌드를 실행한다. 실제 원격 wrapper 다운로드가 막히면 문제를 기록하고 가짜 wrapper JAR를 만들지 않는다. Unity 프로젝트가 없으면 생성 script를 제공하고 미실행 상태로 남긴다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P00-T03",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Native와Backend 실제 build 및 기존 Unity 양플랫폼 LOCAL_MOCK build 증거",
+      "unfulfilledOrScopeLimit": "최소 scaffold 조건은 충족; 전체 서비스 완료와 구분",
+      "knownBlocker": "ENV-002, ENV-003",
+      "recommendedStatus": "IMPLEMENTED/PASS; minimum scaffold criteria met",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P00-T04",
+      "title": "진행 문서 검사·기본 명령 진입점",
+      "completionCriterion": "정상 원장은 통과하고 Task 행 누락·증거 없는 PASS·잘못된 상태는 임시 복사본에서 실패해야 한다. 원본 문서를 망가뜨린 채 남기지 않는다. 도구 부재와 명령 실패의 종료 코드가 구분되는지 확인한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p00-entrypoints.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p00-entrypoints.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "원장검사와 누락/잘못된상태 음성 fixture",
+      "unfulfilledOrScopeLimit": "없음",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P00-T05",
+      "title": "모드·비밀정보·설정 격리",
+      "completionCriterion": "설정이 전혀 없어도 명시적 mock 앱/서버 빌드가 가능해야 한다. real provider 선택 시 누락 key 이름이 CONFIG_REQUIRED로 나타나고 mock으로 fallback하지 않아야 한다. git diff에 비밀값이 없는지 확인한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p00-mode-config-isolation.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p00-mode-config-isolation.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "profile 분리 및 비밀설정 예제·ignore",
+      "unfulfilledOrScopeLimit": "실제 key 주입/Provider는 외부 대기",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P01-T01",
+      "title": "공통 모델·오류·상태 schema",
+      "completionCriterion": "동일 JSON fixture의 product/purchase/error/profile을 각 가능한 언어에서 decode/encode한다. 한글·emoji·null·큰 정수 문자열이 보존돼야 한다. 필수 필드 누락을 성공으로 해석하지 않는다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P01-T01; artifacts/contracts-72sh1hus",
+      "evidencePaths": [
+        {
+          "path": "artifacts/contracts-72sh1hus",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "3언어 공통 fixture 및 모델 schema",
+      "unfulfilledOrScopeLimit": "없음; 새 HTTP DTO23개는 Bridge 모델과 별도",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P01-T02",
+      "title": "Bridge wire protocol·공용 fixture",
+      "completionCriterion": "schema validation과 최소 parser smoke로 정상/비정상 fixture를 구분한다. ok=false인데 error가 없거나 requestId가 다른 결과는 거부/격리해야 한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P01-T02; artifacts/contracts-gmjhtcvv",
+      "evidencePaths": [
+        {
+          "path": "artifacts/contracts-gmjhtcvv",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "Bridge schema·parser와 정상/음성 fixture",
+      "unfulfilledOrScopeLimit": "없음; HTTP OpenAPI와 구분",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P01-T03",
+      "title": "SDK 상태기계·Provider interface",
+      "completionCriterion": "초기화 전 API 오류, 동일 설정 중복 init, 다른 설정 init 거부, shutdown 중복, shutdown 후 새 초기화에 대해 가능한 최소 smoke를 수행한다. 상호 배제 상태가 데이터 race로 깨지지 않는지 코드와 실행으로 확인한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P01-T03",
+      "evidencePaths": [],
+      "reviewedFulfilled": "coordinator init/shutdown·상태 smoke 및 Swift 측정",
+      "unfulfilledOrScopeLimit": "모든 언어 race/동일·다른설정 완료조건의 단일 근거집합 최종 확인 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P01-T04",
+      "title": "결정적인 Fake Provider",
+      "completionCriterion": "계정/스토어 없이 login→products→purchase→entitlement→push event 흐름이 실행되어야 한다. 같은 Fake transaction을 재처리해도 재지급되지 않는 최소 동작을 확인한다. 표시된 모드는 반드시 Fake다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P01-T04",
+      "evidencePaths": [],
+      "reviewedFulfilled": "결정적 Fake와 managed local 흐름",
+      "unfulfilledOrScopeLimit": "세언어 fake 재지급불변 조건별 최종 근거 연결 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P01-T05",
+      "title": "Native HTTP·저장소·세션 소유권 기반",
+      "completionCriterion": "mock transport로 200/401/timeout/invalid JSON을 확인한다. 샘플 로컬 storage에 token 평문이 없는지 확인한다. 개발 HTTP 예외는 debug/local로만 제한하고 TLS 검증을 비활성화하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P01-T05",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Native BackendClient·Keystore/Keychain·HTTP 회귀",
+      "unfulfilledOrScopeLimit": "평문저장 부재·TLS 예외조건의 전체 플랫폼 근거 연결 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P02-T01",
+      "title": "Backend·PostgreSQL·migration 기동",
+      "completionCriterion": "로컬 compose 기동, migration, health, 두 번째 시작 시 migration idempotency를 확인한다. PostgreSQL이 없으면 실행 대기로 기록하며 H2 통과로 대체하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P02-T01",
+      "evidencePaths": [],
+      "reviewedFulfilled": "격리 DB migration/health 실제 HTTP",
+      "unfulfilledOrScopeLimit": "동일 DB 두번째기동 migration멱등성을 이번 HTTP실행만으로 입증 못함",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P02-T02",
+      "title": "Mock 사용자·opaque 세션·갱신",
+      "completionCriterion": "curl/script로 login→me→refresh→old-refresh 재사용 거부→logout을 실행한다. 두 사용자 데이터가 섞이지 않아야 한다. sandbox 프로필에서 dev/auth가 404 또는 명시 차단인지 확인한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P02-T02",
+      "evidencePaths": [],
+      "reviewedFulfilled": "실제 login/me/refresh/logout·세션폐기 응답",
+      "unfulfilledOrScopeLimit": "old-refresh replay와 사용자A/B 격리 및 sandbox 차단은 별도 기존시험 증거",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P02-T03",
+      "title": "상품·재화·구매 원장 서비스",
+      "completionCriterion": "같은 거래를 두 번 검증 요청해 coin 100만 지급되는지 확인한다. 다른 사용자 재전송은 409이고 원장 변화가 없어야 한다. premium 재요청도 한 entitlement로 유지돼야 한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p02-mock-ledger.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p02-mock-ledger.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "Mock 원장·멱등성 및 TC 구매회귀",
+      "unfulfilledOrScopeLimit": "없음; 실Store 검증과 구분",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P02-T04",
+      "title": "purchase 재시도·finalization queue",
+      "completionCriterion": "동일 key+다른 body 거부, 서로 다른 key+같은 거래의 한 번 지급, worker 재시작 후 처리 재개, 이미 지급된 거래의 finalization 재시도에서 원장 불변을 확인한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P02-T04",
+      "evidencePaths": [],
+      "reviewedFulfilled": "idempotency conflict 실제409·worker 소스",
+      "unfulfilledOrScopeLimit": "worker재시작·다른key동일거래·finalization금액불변 전수 연결 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P02-T05",
+      "title": "device token·config·개발 푸시 API",
+      "completionCriterion": "token 회전과 로그아웃 연결 해제, 다른 사용자 삭제 거부, unauthenticated send 거부, config cache metadata를 확인한다. 네트워크로 실제 외부 푸시는 보내지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P02-T05",
+      "evidencePaths": [],
+      "reviewedFulfilled": "실제 등록/해제·다른상태403·config200",
+      "unfulfilledOrScopeLimit": "token회전/logout 연계·admin allowlist 송신은 별도 기존회귀",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P02-T06",
+      "title": "로컬 Backend 통합 smoke 명령",
+      "completionCriterion": "서버·DB를 통과한 명령의 exit code와 실제 assert 수를 기록한다. 틀린 기대 잔액을 임시로 주면 실패해야 한다. 서버가 없다고 PASS하지 않는다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p02-backend-smoke.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p02-backend-smoke.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "로컬 Backend smoke와 음성잔액 증거",
+      "unfulfilledOrScopeLimit": "없음",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P03-T01",
+      "title": "Kotlin SDK의 LOCAL_MOCK 수직 연결",
+      "completionCriterion": "Android sample mock build, 가능한 emulator/device에서 localhost backend를 통한 한 흐름을 확인한다. 실행이 불가하면 빌드와 runtime을 구분한다. UI가 DB 금액 대신 자체 카운터를 더하지 않아야 한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P03-T01",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Kotlin SDK·Compose source와 Mock 소비자build",
+      "unfulfilledOrScopeLimit": "standalone Compose UI의 서버잔액·재시작 조건 검증 범위 미완결",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P03-T02",
+      "title": "Swift SDK의 LOCAL_MOCK 수직 연결",
+      "completionCriterion": "지원되는 Xcode에서 simulator build와 가능한 실행을 확인한다. Mock login→purchase→server balance까지 확인하고 저장/재시작 흐름을 기록한다. 순수 Swift package test만으로 UIKit 동작 PASS를 기록하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P03-T02",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Swift source/XCFramework·Native Mock 소비",
+      "unfulfilledOrScopeLimit": "SwiftUI 실제 sample 저장/재시작은 C ABI standalone 측정으로 대체 불가",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P03-T03",
+      "title": "Android JNI 왕복 transport",
+      "completionCriterion": "Unity Android export/build가 가능하면 sdk.status 및 지연 echo/인증 요청을 왕복한다. 아직 release package 전이면 임시 local Maven 소비로 확인한다. Native standalone 성공만으로 JNI 성공이라고 쓰지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P03-T03",
+      "evidencePaths": [],
+      "reviewedFulfilled": "실제 JNI Player의 batch32 성공 및 source diff0",
+      "unfulfilledOrScopeLimit": "이번 batch33 package의 새 Android소비 실행은 기존ADB 포트소유 충돌로未실행",
+      "knownBlocker": "ENV-002",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P03-T04",
+      "title": "Swift C ABI 왕복 transport",
+      "completionCriterion": "가능한 Xcode archive와 exported symbol 확인을 수행한다. Unity iOS 빌드가 가능하면 sdk.status 및 한글 callback을 왕복한다. device/simulator/engine 검증 범위를 별도로 기록한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P03-T04",
+      "evidencePaths": [],
+      "reviewedFulfilled": "실제 packaged C ABI callback360 및 기존Unity iOS",
+      "unfulfilledOrScopeLimit": "Unicode Unity callback과 현package 새소비는 별도 Player근거 필요",
+      "knownBlocker": "ENV-002",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P03-T05",
+      "title": "Unity facade·dispatcher·request registry",
+      "completionCriterion": "Editor mock에서 init→login→purchase→shutdown을 실행하고 duplicate/late callback으로 Task가 두 번 끝나지 않는지 확인한다. scene 전환·Domain Reload 설정에 관계없이 dispatcher가 중복되지 않아야 한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P03-T05",
+      "evidencePaths": [],
+      "reviewedFulfilled": "request registry·메인스레드queue·managed418",
+      "unfulfilledOrScopeLimit": "scene교체/DomainReload 조합 조건의 전체 실증 필요",
+      "knownBlocker": "ENV-002",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P03-T06",
+      "title": "Unity 최소 Demo·Native 경로 분기",
+      "completionCriterion": "Editor에서 사용자가 순서대로 클릭 가능한 최소 scene을 확인한다. Android/iOS native smoke는 가능한 환경에서 실행하고 부재는 대기로 기록한다. UI만 돌아가면 전체 Native 연동 완료라고 쓰지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P07-T02",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Demo·mode 배너·공개facade 경로",
+      "unfulfilledOrScopeLimit": "README 순서의 실제사용자 클릭/시각검증 미완료",
+      "knownBlocker": "ENV-002",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P04-T01",
+      "title": "실제 Android Google 로그인 adapter",
+      "completionCriterion": "실키 없이 컴파일·mock credential adapter 테스트가 가능해야 한다. 실제 로그인 UI/서버 검증은 USER-AUTH-GOOGLE에 남긴다. 설정 key를 채우면 동작할 실제 호출 코드가 존재해야 한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P04-T01",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Google native adapter·nonce·fake Gateway회귀",
+      "unfulfilledOrScopeLimit": "실로그인UI는 USER-AUTH-GOOGLE, local 완료기준 묶음 추가확인",
+      "knownBlocker": "USER-AUTH-GOOGLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P04-T02",
+      "title": "실제 iOS Apple 로그인 adapter",
+      "completionCriterion": "code-signing 없는 범위의 build와 provider fake callback 확인을 수행한다. Sign in with Apple capability·계정 실기기 검증은 사용자 대기로 남긴다. 미설정 entitlement를 정상 로그인처럼 처리하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P04-T02",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Apple delegate/anchor·fake callback회귀",
+      "unfulfilledOrScopeLimit": "실계정/capability는 USER-AUTH-APPLE, lifecycle완료증거 최종대조",
+      "knownBlocker": "USER-AUTH-APPLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P04-T03",
+      "title": "서버 실제 identity 검증·nonce 재사용 방어",
+      "completionCriterion": "local test key 또는 verifier stub으로 정상/잘못된 aud/만료/재사용/키조회 실패를 확인한다. 자체 서명 fixture 통과는 Google/Apple 실제 서명 검증 PASS와 구분한다. 외부 인증 결과를 조작해 만들지 않는다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "docs/evidence/p04-t03-identity-verifier.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p04-t03-identity-verifier.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "synthetic identity 검증·nonce replay보안회귀",
+      "unfulfilledOrScopeLimit": "실Google/Apple 서명은 WAITING_USER",
+      "knownBlocker": "USER-AUTH-GOOGLE, USER-AUTH-APPLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P04-T04",
+      "title": "세션 복원·single-flight 갱신·로그아웃",
+      "completionCriterion": "로컬 서버로 동시 만료 요청, refresh rotation, 저장소 재읽기, 오프라인 로그아웃을 확인한다. C#에 token이 반환되거나 PlayerPrefs에 저장되지 않는지 확인한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P04-T04",
+      "evidencePaths": [],
+      "reviewedFulfilled": "single-flight/rotation/offline logout 코드·회귀",
+      "unfulfilledOrScopeLimit": "동시만료·storage reread·C# token비노출 완료조건 전수대조",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P04-T05",
+      "title": "인증 Native·Unity 소비자 통합",
+      "completionCriterion": "Mock 전 흐름은 로컬에서 확인하고 실제 provider의 UI·토큰 교환은 설정 후 실행할 단계와 명령으로 남긴다. Android Kotlin 및 Swift standalone 앱과 Unity 경로를 별도로 추적한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P04-T05",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Native/Unity Mock인증 및 PII회귀",
+      "unfulfilledOrScopeLimit": "3샘플 provider선택·standalone UI별 증거분리 미완료; 실인증대기",
+      "knownBlocker": "USER-AUTH-GOOGLE, USER-AUTH-APPLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P05-T01",
+      "title": "구매 상태·account binding 계약",
+      "completionCriterion": "최소 상태 전이 smoke로 pending에서 grant 불가, granted 재진입 시 재지급 불가, account mismatch 거부를 확인한다. 단순 boolean purchased로 되돌리지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P05-T01",
+      "evidencePaths": [],
+      "reviewedFulfilled": "account binding·세상태 모델 및 native/server회귀",
+      "unfulfilledOrScopeLimit": "pending/account mismatch·재진입 smoke를 한 완료기준별표로 보강 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P05-T02",
+      "title": "실제 Google Play Billing adapter",
+      "completionCriterion": "컴파일과 fake BillingClient 경계 smoke를 수행한다. Play Console/internal testing 설치가 없으면 실제 구매는 사용자 대기다. item unavailable를 성공으로 무시하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P05-T02",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Play Billing adapter·fakeBilling 경계회귀",
+      "unfulfilledOrScopeLimit": "PlayConsole/internaltesting 실결제대기; local fake/compile완료조건 전수대조",
+      "knownBlocker": "USER-BILLING-GOOGLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P05-T03",
+      "title": "StoreKit 2·로컬 .storekit 시나리오",
+      "completionCriterion": "가능한 Xcode simulator에서 purchase/cancel/pending/finish의 로컬 흐름을 확인한다. 로컬 StoreKit만 통과하면 실 App Store 검증은 WAITING_USER로 남긴다. AppStore.sync를 앱 시작마다 호출하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "FAIL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P05-T03",
+      "evidencePaths": [],
+      "reviewedFulfilled": "StoreKit 구현과18.6 부분실행",
+      "unfulfilledOrScopeLimit": "26.5 기록FAIL/18.6간헐 위험을 유지; 실AppStore대기",
+      "knownBlocker": "USER-BILLING-APPLE, ENV-STOREKIT-26",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P05-T04",
+      "title": "실제 Google·Apple 구매 검증 서버",
+      "completionCriterion": "가짜 HTTP 응답/서명 fixture로 mapping과 거부 경로를 검증한다. unknown product, wrong account, wrong environment, forged proof는 grant 없이 끝나야 한다. 실제 서명/스토어 조회는 사용자 대기로 남긴다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P05-T04",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Google/Apple 공식검증기·syntheticHTTP/서명회귀",
+      "unfulfilledOrScopeLimit": "실Store자격대기; 모든 거부조건의 현source 매핑 미완료",
+      "knownBlocker": "USER-BILLING-GOOGLE, USER-BILLING-APPLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P05-T05",
+      "title": "지급 원자성·동시성·서버 finalizer 연결",
+      "completionCriterion": "로컬 DB에서 동시 중복 요청 10개에 원장 1개, 응답 유실 후 재요청에도 원장 1개, finalizer 실패 후 재시도에도 금액 불변을 확인한다. 원인과 SQL 결과를 증거로 남긴다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P05-T05",
+      "evidencePaths": [],
+      "reviewedFulfilled": "transaction/unique·durable finalizer 및 TC회귀",
+      "unfulfilledOrScopeLimit": "동시10·응답유실·재시작후불변을 기준별 현source 매핑 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P05-T06",
+      "title": "Native 복구·store finish·timeout 이후 처리",
+      "completionCriterion": "Fake/로컬 StoreKit에서 지급 후 응답 유실, finish 전 종료, 재시작, 계정 변경을 시뮬레이션한다. 원래 Task 종료 횟수와 실제 지급 횟수를 따로 확인한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P05-T06",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Native pending journal·grant후finish·복구회귀",
+      "unfulfilledOrScopeLimit": "실제StoreKit중단·계정전환·Task완료수와지급수 전체대조 미완료",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P05-T07",
+      "title": "Unity·Native 상점 완성",
+      "completionCriterion": "LOCAL_MOCK에서 두 상품 전체 흐름과 서버 잔액/entitlement를 확인한다. 실제 스토어 product query·purchase·restore는 Android/iOS 각각 USER_SETUP에 실행 순서를 남긴다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P05-T07",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Mock 상점·서버잔액 Player증거",
+      "unfulfilledOrScopeLimit": "세샘플 두상품·localizedPrice·restore UI전수 미완료; 실스토어대기",
+      "knownBlocker": "USER-BILLING-GOOGLE, USER-BILLING-APPLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P06-T01",
+      "title": "실제 FCM 등록·수신·권한 adapter",
+      "completionCriterion": "compile·mock token rotate·message mapping·permission denied를 확인한다. google-services.json 부재가 mock build를 깨지 않는지 확인한다. 실제 token 발급/원격 수신은 사용자 대기다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P06-T01",
+      "evidencePaths": [],
+      "reviewedFulfilled": "FCM adapter·host init·permission denied회귀",
+      "unfulfilledOrScopeLimit": "실token/원격수신대기, mock rotate및manifest 전체대조 필요",
+      "knownBlocker": "USER-PUSH-GOOGLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P06-T02",
+      "title": "Swift APNs 등록·Host forwarding",
+      "completionCriterion": "로컬 payload 주입 및 가능한 알림 권한 UI를 확인한다. 토큰 발급이 없는 경우 실제 APNs 등록으로 기록하지 않는다. delegate completion handler를 누락하지 않는지 확인한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P06-T02",
+      "evidencePaths": [],
+      "reviewedFulfilled": "APNs host forwarding·payload/권한 회귀",
+      "unfulfilledOrScopeLimit": "실APNs대기, delegate completion 전수대조 필요",
+      "knownBlocker": "USER-PUSH-APPLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P06-T03",
+      "title": "Unity iOS Push Host Adapter",
+      "completionCriterion": "Editor/Android에서 iOS 전용 코드가 compile error를 만들지 않아야 한다. iOS export에서 package 연결을 확인하고 실원격 동작은 대기로 남긴다. fake event 주입으로 route 파이프라인은 확인한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P06-T03",
+      "evidencePaths": [],
+      "reviewedFulfilled": "Unity notification패키지 고정·iOS Push Player",
+      "unfulfilledOrScopeLimit": "실원격대기; 각platform컴파일과현재export근거 연결 필요",
+      "knownBlocker": "USER-PUSH-APPLE, ENV-002",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P06-T04",
+      "title": "Backend FCM·APNs 실제 sender",
+      "completionCriterion": "mock HTTP/transport로 성공·invalid token·429·timeout을 확인한다. production profile에서 개발 발송 endpoint가 비활성인지 확인한다. 실제 발송 성공을 credential 없이 주장하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P06-T04",
+      "evidencePaths": [],
+      "reviewedFulfilled": "실sender·lazy credential·synthetic HTTP회귀",
+      "unfulfilledOrScopeLimit": "실발송대기;429/timeout·production차단 근거별대조 필요",
+      "knownBlocker": "USER-PUSH-GOOGLE, USER-PUSH-APPLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P06-T05",
+      "title": "수명주기·콜드스타트·클릭 라우팅",
+      "completionCriterion": "로컬 event 주입으로 초기화 전/후, scene 변경, 같은 messageId 중복을 확인한다. 실제 notification tap과 강제종료 이후 동작은 실제 OS 조건에서 별도로 검증해야 한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "WAITING_USER"
+      },
+      "evidenceLocator": "WORK_LOG P06-T05",
+      "evidencePaths": [],
+      "reviewedFulfilled": "allowlist·dedupe·session/cold-start 코드/주입회귀",
+      "unfulfilledOrScopeLimit": "scene교체·실알림tap/강제종료는 별도 OS검증",
+      "knownBlocker": "USER-PUSH-GOOGLE, USER-PUSH-APPLE",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P07-T01",
+      "title": "진단·redaction·점검 설정 완성",
+      "completionCriterion": "민감 토큰 모양의 입력이 로그에 남지 않는지 확인한다. config offline cache와 maintenance 중 recovery 허용을 확인한다. 측정하지 않은 성능 수치를 문서에 넣지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P07-T01",
+      "evidencePaths": [],
+      "reviewedFulfilled": "redaction ring/config cache/maintenance 코드·PII회귀",
+      "unfulfilledOrScopeLimit": "offline cache·recovery허용의 모든조건별 검증 근거 보강",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P07-T02",
+      "title": "세 샘플 전체 사용자 흐름 연결",
+      "completionCriterion": "사용자가 README 순서대로 LOCAL_MOCK을 실행할 수 있는지 직접 따라한다. 기능마다 source mode와 상태를 확인하고 UI의 실제 서비스 주장/가짜 리뷰/가짜 성과 수치를 제거한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P07-T02",
+      "evidencePaths": [],
+      "reviewedFulfilled": "3샘플·NativeDemo/OfflineDemo import 경로",
+      "unfulfilledOrScopeLimit": "README 사용자순서 시각/클릭 및두화면흐름 미완료",
+      "knownBlocker": "ENV-002",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P07-T03",
+      "title": "연동 문서·오류·소유권 가이드",
+      "completionCriterion": "문서의 모든 예제 API가 실제 source와 일치하고 임의 클래스명/미구현 함수가 없는지 확인한다. 없는 release URL·완료되지 않은 real test를 성공 사례로 넣지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P07-T03",
+      "evidencePaths": [],
+      "reviewedFulfilled": "설치/API/security/소유권 문서존재",
+      "unfulfilledOrScopeLimit": "모든 예제API의 소스동기화 전수검사 미완료",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P07-T04",
+      "title": "구현 누락 1차 점검",
+      "completionCriterion": "기능→public API→Native/Server 구현→sample 사용 경로의 traceability 표를 만든다. 발견한 미구현은 BUG/PX Task로 기록하고 독립 개발을 진행한 뒤 반드시 재검토한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/FEATURE_MATRIX.md, WORK_LOG P07-T04",
+      "evidencePaths": [
+        {
+          "path": "docs/FEATURE_MATRIX.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "기능matrix·source marker0·공개호출경로",
+      "unfulfilledOrScopeLimit": "matrix에 남은 오래된OpenAPI부재문구 수정; 완전traceability 전수대조 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P08-T01",
+      "title": "Android Maven 산출물·소비 build",
+      "completionCriterion": "깨끗한 소비 build에서 전이 의존성·manifest·R8 release build를 확인한다. AAR만 복사해 unresolved class가 발생하면 해결 전 PASS하지 않는다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p08-android-maven-consumer.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p08-android-maven-consumer.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "새Maven 독립R8/manifest 소비PASS",
+      "unfulfilledOrScopeLimit": "없음; 실기기성공과구분",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P08-T02",
+      "title": "Swift Package·static XCFramework 산출물",
+      "completionCriterion": "source consumer build, XCFramework slice·symbol·별도 consumer link를 실제 확인한다. signing 없는 archive와 signed device 실행을 구분한다. 환경이 없어 archive를 못 했으면 산출물이 생성됐다고 기록하지 않는다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p08-ios-xcframework-consumer.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p08-ios-xcframework-consumer.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "source/binary 소비와device/sim slice/exportPASS",
+      "unfulfilledOrScopeLimit": "없음; signeddevice와구분",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P08-T03",
+      "title": "UPM staging·멱등 build hook",
+      "completionCriterion": "Editor import, asmdef/platform 조건, hook 두 번 실행, .meta 안정성, checksum을 확인한다. Git source install과 바이너리 완결 staging install을 README에서 구분한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p08-upm-staging.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p08-upm-staging.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "UPM147 checksum·멱등hook·이전import",
+      "unfulfilledOrScopeLimit": "없음; 산출물별후속Unity재검증은T04",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P08-T04",
+      "title": "신규 Unity 프로젝트 재설치 검증",
+      "completionCriterion": "clean Editor import→mock scene→Android export/build→iOS export/build를 가능한 범위에서 실행한다. Unity/target module/license 부재는 ENV로 기록한다. 패키지 파일 누락은 BUG로 분류한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/consumer-install.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/consumer-install.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "독립소비프로젝트 Android/iOS LOCAL_MOCK 설치증거",
+      "unfulfilledOrScopeLimit": "없음; 새제품모든OS보증 아님",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P08-T05",
+      "title": "기능 개발 기준점 고정",
+      "completionCriterion": "P00~P08 모든 행을 확인하고 NOT_STARTED를 묵시적으로 누락하지 않는다. 내부 미구현을 사용자 인증 부족이라고 쓰지 않는다. 가능한 build/smoke baseline 결과와 API snapshot이 존재해야 한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/feature-baseline-current-20261113.md",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/feature-baseline-current-20261113.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "기능baseline과publicAPI/wire snapshots",
+      "unfulfilledOrScopeLimit": "없음; 기능baseline은releasegate와별개",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P09-T01",
+      "title": "후반 하네스 manifest·공통 contract test",
+      "completionCriterion": "모든 required 시나리오에 ID와 실행 entry가 있고 잘못된 fixture에서 실패해야 한다. 도구가 없는 platform을 자동 제외해 전체 green으로 만들지 않는다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T01",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p09-batch25-integrated.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "required scenario50과실행entry·음성fixture",
+      "unfulfilledOrScopeLimit": "없음",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P09-T02",
+      "title": "Core·Bridge 회귀·실패 주입",
+      "completionCriterion": "의도적으로 duplicate completion guard를 제거한 임시 mutation에서 해당 검증이 실패하는지 확인하고 복원한다. PASS/FAIL/assert count를 기록한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-batch26-assertions.json, WORK_LOG P09-T02",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p09-batch26-integrated.md",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence/p09-batch26-assertions.json",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "Core/Bridge fault mutation·복원·계측cohort",
+      "unfulfilledOrScopeLimit": "없음; Native/Player assertion수는UNMEASURED유지",
+      "knownBlocker": "측정 밖 assertion은 UNMEASURED; 현재 JNI Player 대기",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P09-T03",
+      "title": "인증·세션·개발모드 차단 회귀",
+      "completionCriterion": "로컬 fixture suite를 실제 실행하고 fake token을 sandbox에 제출했을 때 거부되는지 확인한다. 실제 Google/Apple 테스트는 미설정이면 WAITING_USER다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T03",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p09-batch25-integrated.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "auth/session/profile synthetic회귀",
+      "unfulfilledOrScopeLimit": "실외부인증은WAITING_USER와별개",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P09-T04",
+      "title": "구매·DB 동시성·복구 회귀",
+      "completionCriterion": "원장 unique/지급 순서를 임시로 손상한 음성 검증에서 실패하는지 확인한다. Docker 부재는 DEFERRED_ENV이며 통합 suite zero-test 성공을 허용하지 않는다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p09-batch26-integrated.md, WORK_LOG P09-T04",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p09-batch26-integrated.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "TC11/의도변이/복원·native복구fixture",
+      "unfulfilledOrScopeLimit": "StoreKit18.6회복/26실패 및 실제restart 영역 미완료",
+      "knownBlocker": "DEP-P09-SK18",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P09-T05",
+      "title": "Push·Lifecycle·패키징 회귀",
+      "completionCriterion": "mock event는 fake test로 표시하고 실제 OS notification와 구분한다. 필요한 binary를 임시 staging에서 제거했을 때 packaging 검증이 실패해야 한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T05",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p09-batch25-integrated.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "Push/Lifecycle/package음성 회귀",
+      "unfulfilledOrScopeLimit": "실OS알림/실Provider는독립대기",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P09-T06",
+      "title": "검증 집계·진행 원장 강제 검사",
+      "completionCriterion": "PASS, 실패 한 개, required skip, 외부 설정 대기 네 경우를 각각 확인한다. --strict-local에서는 required local skip을 성공으로 돌려주면 안 된다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T06",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p09-batch25-integrated.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "failclosed 집계·count/error/exit guard",
+      "unfulfilledOrScopeLimit": "원래Strict full환경계약은E에서별도 미완료",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P09-T07",
+      "title": "CI 설정·플랫폼 lane 분리",
+      "completionCriterion": "workflow static validation과 가능한 로컬 대응 명령을 확인한다. push 권한을 사용하지 않으므로 원격 Actions 성공을 만들어내지 않는다. Unity lane 미실행은 aggregate에서 명시적으로 대기여야 한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p09-batch26-integrated.md; docs/evidence/p09-ci-modes.md, WORK_LOG P09-T07",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p09-batch26-integrated.md",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence/p09-ci-modes.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "Hosted분리·Unityoptin·안전workflow",
+      "unfulfilledOrScopeLimit": "self-hosted/Release 미검증유지, 새Hosted34결과별도",
+      "knownBlocker": "ENV-P09-RUNNER",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P09-T08",
+      "title": "Fail-closed 하네스 자체 시험",
+      "completionCriterion": "각 부정 시험이 실제 nonzero인지 기록한다. 원상 복구 후 정상 suite를 재실행한다. 감지 못한 사례는 하네스 버그로 수정하고 재확인한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p09-batch25-integrated.md",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "9필수lane·음성/정상복원·provenance guard",
+      "unfulfilledOrScopeLimit": "없음; 전체Strict와별개",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P10-T01",
+      "title": "검증 기준 유지하며 Core·Bridge 리팩토링",
+      "completionCriterion": "baseline contract diff와 관련 회귀 tests가 통과해야 한다. 성능 개선을 이유로 취소/late event semantics를 바꾸지 않는다. 변경 전후 commit과 결과를 남긴다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p10-batch32-t01-decision.md; docs/evidence/p10-batch32-core.json, WORK_LOG P10-T01",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p10-batch32-t01-decision.md",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence/p10-batch32-core.json",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "닫힌Corebaseline과동일cohort/양Player 검증",
+      "unfulfilledOrScopeLimit": "없음; 전체Strict/Release는독립gate",
+      "knownBlocker": "추가 전체Strict/Release는 ENV-UNITY-LICENSE-IPC/ENV-P09-RUNNER로 별도 유지",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P10-T02",
+      "title": "인증·결제·푸시 책임과 보안 정리",
+      "completionCriterion": "security/purchase/push 관련 suite와 LOCAL_MOCK E2E를 재실행한다. transaction/idempotency/finalization 순서가 유지되는지 확인한다.",
+      "ledger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A"
+      },
+      "evidenceLocator": "docs/evidence/p10-batch32-native-refactor.md; docs/evidence/p10-batch32-post-native-android.json; docs/evidence/p10-batch32-post-native-ios.json",
+      "evidencePaths": [
+        {
+          "path": "docs/evidence/p10-batch32-native-refactor.md",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence/p10-batch32-post-native-android.json",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence/p10-batch32-post-native-ios.json",
+          "exists": true
+        }
+      ],
+      "reviewedFulfilled": "정식Native책임분리·47/43회귀·postPlayer",
+      "unfulfilledOrScopeLimit": "없음; 실Provider는대기",
+      "knownBlocker": "실제Provider/전체SDK·Release별도; fullStrict는DEP-STRICT-OWNED-ENV",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P10-T03",
+      "title": "측정 기반 수명주기·메모리·응답 확인",
+      "completionCriterion": "기기/OS/build/mode/sample count와 p50/p95 또는 관측값을 기록한다. 실행하지 못한 profiling은 NOT_RUN이다. 측정 없는 99.9% 안정성이나 대규모 운영 성과를 만들지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P10-T03",
+      "evidencePaths": [],
+      "reviewedFulfilled": "managed/Backend/SwiftCore/CABI 실측",
+      "unfulfilledOrScopeLimit": "AndroidJNIheap·Task/continuation·Unityscene/frame/Profiler未측정",
+      "knownBlocker": "ENV-002",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P10-T04",
+      "title": "리팩토링 후 재패키징·호환성 재검증",
+      "completionCriterion": "리팩토링 전 artifact를 재사용해 통과시키지 않는다. API source compatibility, Android artifact 소비, Swift module/binary 소비, Unity build를 실제 수행 범위별로 표시한다. 모든 Unity/OS 버전 호환을 주장하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P10-T04",
+      "evidencePaths": [],
+      "reviewedFulfilled": "새Native패키지147과선정JVM public표면동일",
+      "unfulfilledOrScopeLimit": "T03미완료·신규UnityAndroid차단, iOS새소비결과별도",
+      "knownBlocker": "ENV-002",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P11-T01",
+      "title": "전체 Task·TODO·계약 누락 최종 감사",
+      "completionCriterion": "계획 Task 총수와 원장 총수가 같아야 한다. 구현/로컬/실연동 수치가 각각 계산돼야 한다. 증거 경로가 존재하고 실제 명령 결과와 맞아야 한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P11-T01",
+      "evidencePaths": [],
+      "reviewedFulfilled": "64행 계획기준/증거 연결·개별gap검토",
+      "unfulfilledOrScopeLimit": "다수Task의기준별실행증거완결과BUG-017·기존내부FAIL 남음",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P11-T02",
+      "title": "사용자 설정·실연동 재개 runbook 완성",
+      "completionCriterion": "verify-external --check-config는 비밀값을 출력하지 않고 readiness만 확인한다. 실키 없는 상태로 실제 로그인/결제를 시도하지 않는다. 외부 readiness pass와 live test pass를 혼동하지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P11-T02",
+      "evidencePaths": [],
+      "reviewedFulfilled": "USER_SETUP 도메인별가이드·7항목shape검사",
+      "unfulfilledOrScopeLimit": "사용자환경직접실행성 확인은미완료; Provider시험과분리",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P11-T03",
+      "title": "최종 문서·release candidate 로컬 패키지",
+      "completionCriterion": "source/version/checksum/설치 절차가 일치하고 실제 생성하지 못한 artifact를 포함됐다고 쓰지 않아야 한다. 외부 대기이면 release-candidate 또는 dev 상태로 표시한다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P11-T03",
+      "evidencePaths": [],
+      "reviewedFulfilled": "DEV_RC·설치/API/보안/manifest",
+      "unfulfilledOrScopeLimit": "Strict/감사미완료와최신문서 동기화검토 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    },
+    {
+      "id": "P11-T04",
+      "title": "마지막 검증·커밋·인계",
+      "completionCriterion": "미검증을 PASS로 바꾸지 않고 완료/미완료/사용자 대기/환경 대기/내부 실패를 각각 나열한다. 다음 행동은 USER_SETUP의 첫 미완료 항목 또는 재개 Task여야 한다. 단계 승인 질문으로 끝내지 않는다.",
+      "ledger": {
+        "implementation": "IN_PROGRESS",
+        "local": "PARTIAL",
+        "external": "N/A"
+      },
+      "evidenceLocator": "WORK_LOG P11-T04",
+      "evidencePaths": [],
+      "reviewedFulfilled": "검증/독립commit/FF 인계과정",
+      "unfulfilledOrScopeLimit": "현재배치최종회귀/Hosted결과확인후인계 필요",
+      "knownBlocker": "-",
+      "recommendedStatus": "RETAIN",
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+    }
+  ],
+  "beforeCounts": {
+    "implementation": {
+      "IMPLEMENTED": 24,
+      "IN_PROGRESS": 40
+    },
+    "local": {
+      "PASS": 22,
+      "PARTIAL": 41,
+      "FAIL": 1
+    }
+  },
+  "promotions": [
+    "P00-T03 only; minimal project build conditions already demonstrated by Native/Backend builds and retained Unity Player evidence"
+  ],
+  "remainingReview": "Where notes request complete source-to-scenario mapping, the audit has identified the gap rather than fabricated proof."
+}

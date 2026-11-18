@@ -36,7 +36,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 |---|---|---|---|---|---|---|
 | P00-T01 | 저장소 보존·작업 원장 초기화 | IMPLEMENTED | PASS | N/A | WORK_LOG P00-T01 | - |
 | P00-T02 | 도구·라이선스·버전 조합 확정 | IMPLEMENTED | PASS | N/A | docs/TOOLCHAIN.md, WORK_LOG P00-T02 | ENV-001 |
-| P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P00-T03 | ENV-002, ENV-003 |
+| P00-T03 | 빌드 가능한 최소 프로젝트 구성 | IMPLEMENTED | PASS | N/A | docs/evidence/p10-batch33-package.json; docs/evidence/p10-batch32-post-native-android.json; docs/evidence/p10-batch32-post-native-ios.json; WORK_LOG P00-T03 | - |
 | P00-T04 | 진행 문서 검사·기본 명령 진입점 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-entrypoints.md | - |
 | P00-T05 | 모드·비밀정보·설정 격리 | IMPLEMENTED | PASS | N/A | docs/evidence/p00-mode-config-isolation.md | - |
 | P01-T01 | 공통 모델·오류·상태 schema | IMPLEMENTED | PASS | N/A | WORK_LOG P01-T01; artifacts/contracts-72sh1hus | - |
@@ -1969,3 +1969,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치33 최종 원격: run44269328731/source deb9074 FAILURE. Backend·Android·Swift/iOS Simulator SUCCESS, inventory/basic FAIL, Unity/Release SKIPPED. 후속84e1026은 FF push/로컬248+frozen self9 PASS, 원격 미검증. 미완료 task 상태·BUG-017/P05/StoreKit/Provider 대기는 그대로 유지한다.
 - 배치34 A 시작: 3313c84에서 재개, 기존 실패·미추적 경로 보존. binding을 source/profile/header 의미로 정규화하고 누락·중복을 fail-closed 검사한다. HTTP 실제 응답 수집과 schema 대조를 추가한다.
 - 배치34 A: 의미기반 binding 누락/중복·중첩순서와 Kotlin DTO field/type/nullable/required 검사 추가. 실제 LOCAL_MOCK HTTP24 operation 대응표와 성공/오류 schema 대조 완료. 누락 Idempotency-Key가 INTERNAL_ERROR500이던 내부 오류를 INVALID_ARGUMENT400으로 수정/회귀 확인. 합성Sandbox의 성공·오류 전수는 남아 BUG-017 OPEN 유지.
+- 배치34 B: 64 Task를 각 완료기준/실제근거/남은조건별로 검토한 개별감사 JSON 작성. P00-T03의 최소프로젝트 build조건은 기존Native·Backend/Unity실행으로충족되어 IMPLEMENTED/PASS로개별정정, RESOLVED ENV-002/003을현재 blocker에서 제거. 나머지65가아닌64행을유지하며 blanket승격0. 현재25 IMPLEMENTED/39 IN_PROGRESS, localPASS23/FAIL1/PARTIAL40. P11-T01은 남은기준별근거공백/내부FAIL로PARTIAL.

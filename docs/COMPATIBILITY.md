@@ -1,20 +1,59 @@
-# 호환성 확인 범위 — 개발 중
+# 버전·호환성·검증 범위
 
-배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI와 실제 Unity Scene/Frame·runtime 메모리를 측정했고 weak client1개 잔존을 관측했다. 원인·누수 여부는 미확정이다. Task/continuation·Android heap·CPU blocking 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+**SDK0.1.0-dev / Bridge protocol1 / 로컬 DEV_RC.** 아래는 실제 확인한 조합이며 모든 단말·OS·Unity 버전을 지원한다는 보증이 아닙니다. [최종 보고](FINAL_REPORT.md)는 포트폴리오 종료와 SDK 제품화 상태를 따로 판정합니다.
 
+## 패키지와 source
 
-현재 기준은 [배치32 source/산출물별 기록](evidence/p10-batch32-integrated.md)이다. 빌드·실행·소스 검사·기존 증거의 source 동일성을 구분한다. 다음 표는 모든 버전·ABI·실기기 지원 보증이 아니다.
+| 항목 | 확정한 기준 |
+| --- | --- |
+| Native/UPM 바이너리 build source | `a83561a31c6b34fafcc85988b419fff20c7e059f` |
+| 최종 기능·하네스 검증 code | `648bb807baeab4e83b037856a9ae04f84e8a2154` |
+| 두 source 사이 Native/UPM 관계 | Android·iOS·Unity shipping source diff0. Backend의 누락 HTTP header400 수정은 별도이며 Backend binary는 UPM에 포함하지 않음 |
+| 패키지 manifest | SDK147파일, SHA256SUMS hash `6fc4cb4b8a6765ce6526c988c0df2b43d19e4a35cf7263cd276181a775751fba` |
+| 배포 상태 | 로컬 후보 `artifacts/portfolio-final/DEV_RC`. 공개 Maven/UPM registry·GitHub Release·스토어 배포 없음 |
 
-| 대상 | 확인한 범위 | 미확인·한계 |
+[패키지 빌드 증거](evidence/p10-batch33-package.json), [RC source/checksum](evidence/portfolio-finalization.json). 이 환경에서는 `python3 harness/check-staging.py artifacts/portfolio-final/DEV_RC/upm`으로 내부147 checksum을 확인할 수 있습니다. 외부 checkout의 재생성 명령은 [INTEGRATION](INTEGRATION.md)에 있습니다. 기존 빌드를 날짜 변경 목적으로 반복하지 않습니다.
+
+## 플랫폼별 실제 범위
+
+| 대상 | 확인한 환경·결과 | 경계 |
 | --- | --- | --- |
-| Android | JDK21.0.10/JVM17·compile/target API36·min26, 새 Maven/AAR/sample 및 소스 없는 R8 release 소비 빌드. Unity6000.5.8f1 현재 Core의 GUI APK/새 emulator LOCAL_MOCK Push·JNI/구매PII 근거 | 실제 Google/Play/FCM·실기기 미검증. Native T02 변경 뒤 새 package CLI 구매PII는 PASS, 별도 GUI 시각검증은 Mac잠금으로 미실행 |
-| iOS | Xcode26.6(17F113)/Swift6.3.3, device arm64·simulator arm64/x86_64 무서명 static XCFramework/4 Cexports·새 Swift source 소비와 simulatorSDK binary module typecheck. 현재 Core의 Unity Simulator Push/Lifecycle 및 독립CABI/기존구매PII 근거 | 실제 Apple/StoreKit/APNs·서명 실기기 미검증. iOS Push 망차단은 로컬 TCP proxy 범위이며 OS전체차단이 아님. post-T02 새 package CLI 구매PII PASS, 별도 GUI 시각검증 미실행 |
-| Unity | 6000.5.8f1 실제 GUI C# 메뉴 컴파일·원본 Android/iOS Builder와 source/nonce/147SDK/hash/receipt 검사·새 LOCAL_MOCK Player 실행 | 다른 설치버전6000.4/미설치6.3지원 미검증. 자동 batch Editor direct/cli 정상과 새CLI Builder는확인. 전체Strict·self-hosted/Release는미검증. Native memory/UI jank/startup 프로파일링 NOT_RUN |
-| Backend | JDK21/Spring Boot3.5.16, 격리PostgreSQL17 계열·synthetic/LOCAL_MOCK 원장/소유권/멱등·loopback 실측 | 운영·외부store인증·다중서버 미검증. 실제 검증 수/expected mutation은 개별 증거로 구분 |
+| Android | AGP8.13.0/Gradle8.13/Kotlin2.1.20, JDK21·JVM17, min26/compile·target36. Maven3모듈·AAR/JAR/POM, 독립 unsigned R8 소비. Unity Player는 API34 arm64 Google APIs AVD에서 LOCAL_MOCK JNI·구매·서버잔액·PII 확인 | min/target SDK는 실제 실행한 OS 버전과 다름. 실기기·Google/Play/FCM 실연동 미검증 |
+| iOS | Xcode26.6(17F113)/Swift6.3.3. static XCFramework device arm64·simulator arm64/x86_64, Swift source consumer와 simulator module/binary 소비. iOS18.6(22G86) arm64 Simulator의 새 Unity Player·C ABI 확인 | device archive는 signed iPhone 실행이 아님. x86_64 slice가 있어도 해당 Player 실행을 뜻하지 않음. 실제 Apple/StoreKit/APNs 별도 |
+| Unity |6000.5.8f1. 새 Android/iOS 소비 프로젝트의 UPM import·CLI build/export·실제 LOCAL_MOCK Player. 이전 GUI Builder/영수증·Push/UTF8 결과도 각 source별 보존 | 다른 Unity 버전·모든 Scene/Domain Reload 조합·상용 앱을 검증한 것은 아님 |
+| Backend | Kotlin2.1.20/Spring Boot3.5.16/JDK21, PostgreSQL17.6-alpine3.22의 격리 DB/Testcontainers. 세션·멱등 원장·synthetic verifier/HTTP 검증 | 외부 Provider 서명·운영 DB·다중 서버·클라우드 운영 성과는 미검증 |
+| Unity package 의존성 | Newtonsoft JSON3.2.2, Mobile Notifications2.5.0. Native Demo UI는UGUI2.5.0 사용 | package.json의 Unity6000.5 요구가 여러 설치 버전의 실제 호환 시험을 대신하지 않음 |
 
-P08 public API snapshot, 닫힌 Core source, 정확히 승인된 Native4파일 전이 검사는 별도 경계다. [원본 Core 제품 판정](evidence/p10-batch32-t01-decision.md) 후의 Native 변경은 원본 baseline을 덮어쓰지 않고 고정된 전후hash·나머지Core/Native/wire 불변으로 검사한다. 선정 Java 표면/C ABI·소비 빌드를 모든 binary ABI 호환성으로 확대하지 않는다.
+[새 Android](evidence/p10-batch34-unity-android.json), [새 iOS](evidence/p10-batch34-unity-ios.json), [실제 Player 계측](evidence/p10-batch34-unity-performance.json). 샘플 UI의 프로그램 방식 초기화·구매 callback과 사용자의 실제 포인터/화면 렌더링 검증은 구분합니다.
 
-P05-T03 StoreKit26.5 FAIL/ENV-STOREKIT-26 OPEN, 18.6 간헐 위험, Provider13 WAITING_USER와 기존 내부/문서 gap을 유지한다. 전체 SDK와 local/Release gate를 통과한 것으로 표시하지 않는다. 생성된 artifact/source/checksum은 [진행 원장](PROGRESS.md), [사용자 설정](USER_SETUP.md) 및 최신 source별 증거를 따른다.
+## 호환성 검사의 의미
 
+- Kotlin 선정 JVM public 표면4개(`SdkCoordinator`, `BridgeProtocol`, `BridgeFacade`, `GoogleAuthProvider`)가 전후 Maven에서 동일했습니다. [비교 hash](evidence/p10-batch34-binary-api.json). 모든 Kotlin metadata ABI를 검사한 것은 아닙니다.
+- Swift C ABI는 `GB_ProtocolVersion/GB_SetCallback/GB_Dispatch/GB_Shutdown`4개를 slice별 확인했습니다. 새 packaged C ABI callback·session 교체 실측은 [별도 증거](evidence/p10-batch34-cabi-performance.json)입니다.
+- 기존 coordinate 기반 Android R8 소비, Swift source/binary 소비를 보존하고 새 Unity 양 소비를 수행했습니다. 같은 Native source임을 확인했으며 옛 Player 결과를 새 패키지 실행으로 재사용하지 않았습니다.
+- public API/wire baseline과 승인된 Native refactor 전이는 [baseline](../contracts/baseline), [source guard](../harness/check-feature-refactor-transition.py)로 검사합니다. source·binary·설치·실행 결과는 서로 대체하지 않습니다.
 
-배치33 연속 작업 결과는 [통합 증거](evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.
+## 검증 결과 요약
+
+| 구분 | 실제 기록 | 해석 |
+| --- | --- | --- |
+| Python |263 tests, local 및 Ubuntu inventory PASS | 서로 다른 source의 실행 수를 합산하지 않음 |
+| Core·managed | Kotlin10/Swift12, managed418 검사, duplicate 변이 감지·정상 복원 | helper/assertion은 독립 시험 수가 아님 |
+| Self-check |9 lane/47test(정상44·예상 음성3)/check9 PASS | 전체 Strict 아님 |
+| Testcontainers |11실행 중 정상10·예상 변이1, 정상 복원·자기 container 정리 | 실제 스토어 sandbox 거래 아님 |
+| HTTP |24 operation 성공 근거, DTO23, LOCAL32관측·합성10시험/132구조·오류 MockMvc4 | SSE/Map 세부와 모든 오류 분기의 완전 검증 아님 |
+| 성능 | managed·Backend·Swift Core·C ABI·실제 Unity Player/Scene/frame | paired 전후 실험이 아니므로 향상률 없음. weak1은 미확정 |
+| Hosted | [44287600414 SUCCESS](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44287600414), code648bb80 | inventory/Backend/Android/Swift-iOS/basic PASS. Unity/Release SKIPPED |
+
+수치·명령·source의 상세는 [회귀](evidence/p10-batch34-regression.json), [Hosted](evidence/p10-batch34-hosted.json)에 있습니다. 최종화의 문서 변경은 이 코드와 분리하며 새 제품/하네스 코드가 없으면 CI를 반복하지 않습니다.
+
+## 버전 변경 시 Host 확인 원칙
+
+현재 공개 버전은0.1.0-dev 하나이며 정식 버전 간 마이그레이션 실적은 없습니다. 향후 배포를 선택하면 다음을 확인합니다.
+
+1. `VERSION`, Maven coordinate, UPM `package.json`, Native version 표면과 manifest/checksum을 함께 대조합니다. wire protocol 버전은 SDK 버전과 별개입니다.
+2. 공개 API·필수 모델·error/async 의미, min OS/Unity·의존성, Host Activity/Delegate와 build hook 변경을 비교합니다.
+3. 기존 consumer source compile, 선정 JVM/C ABI·slice·R8, 새 UPM import/export/Player의 필요한 범위를 다시 검증합니다.
+4. 저장된 session/pending 단서의 환경·계정 결속과 재인증 조건을 확인합니다. 새 형식에 맞추려고 기존 데이터를 임의 삭제/이전하지 않습니다.
+
+0.x-dev에 대해 무조건적인 하위 호환을 약속하지 않습니다. 실제 확인한 표면과 위험·설치 변경을 [CHANGELOG](CHANGELOG.md)에 기록합니다. StoreKit26 FAIL/18.6 위험·전체 Strict·실 Provider·self-hosted 등 Known Limitations는 [ENGINEERING_NOTES](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)에서 관리합니다.

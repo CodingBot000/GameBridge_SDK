@@ -1,68 +1,62 @@
-# GameBridge SDK — 개발 중
+# GameBridge SDK
 
-배치34의 최신 검증·제약은 [통합 증거](docs/evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI와 실제 Unity Scene/Frame·runtime 메모리를 측정했고 weak client1개 잔존을 관측했다. 원인·누수 여부는 미확정이다. Task/continuation·Android heap·CPU blocking 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+Kotlin Android·Swift iOS·C# Unity를 연결하는 **개인 게임 서비스 SDK 포트폴리오**입니다. 인증·구매·Push의 공통 인터페이스, Native Plugin, 서버의 세션·지급 권위, 설치·소비·회귀 검증을 함께 구현했습니다.
 
+포트폴리오 최종 판정은 [최종 보고](docs/FINAL_REPORT.md), 실제 지원·미검증 범위는 [호환성](docs/COMPATIBILITY.md)을 따릅니다. 상용 적용 SDK나 정식 출시 결과로 제시하지 않습니다.
 
-Android, iOS 및 Unity 게임을 위한 SDK와 Backend를 개발하고 있습니다. 현재 프로젝트는 완성품이 아닙니다. 각 기능의 구현·실행·실패 상태는 [진행 원장](docs/PROGRESS.md)과 [작업 기록](docs/WORK_LOG.md)을 확인하세요. 외부 계정·서명·키 등은 [사용자 설정](docs/USER_SETUP.md)에 정리되어 있습니다.
+## 먼저 볼 자료
 
-Android/iOS 샘플의 `LOCAL_MOCK` 로그인·구매·복원은 로컬 Backend를 사용합니다. 실제 Google/Apple 인증, 스토어 결제 및 원격 푸시 성공을 뜻하지 않습니다. Unity Native bridge에는 LOCAL_MOCK의 초기화·인증·상품·구매·서버 잔액·로그아웃 경로가 연결돼 있습니다. Unity Android Player에서 LOCAL_MOCK 초기화부터 로그인·상품·구매·서버 잔액·로그아웃까지 검증했습니다. Unity iOS Simulator의 LOCAL_MOCK 동일 흐름도 통과했습니다. 실제 iOS 기기와 실제 제공자 연동은 미검증입니다. iOS 26.5의 로컬 StoreKit 상품 조회 시험은 실패 상태입니다.
+1. [Quick Start / Host 통합](docs/INTEGRATION.md) — 패키지 설치, LOCAL_MOCK 실행, 플랫폼별 연결과 오류 진단
+2. [설계·Edge Case·문제 해결](docs/ENGINEERING_NOTES.md) — 계층별 소유권, 대표 난제3개, weak client 제한 조사
+3. [API 계약](docs/API.md) / [보안 경계](docs/SECURITY.md) — 호출·상태·오류, 세션·증빙·토큰의 권위
+4. [버전·호환성·검증 결과](docs/COMPATIBILITY.md) — 환경과 source/checksum, 실제 Player와 CI의 차이
 
-## 현재 검증과 개발 범위
+개발 이력 전체가 필요할 때만 [64 Task 원장](docs/PROGRESS.md)과 [WORK_LOG](docs/WORK_LOG.md)를 읽으면 됩니다.
 
-[배치32 source별 통합 기록](docs/evidence/p10-batch32-integrated.md)과 [P10-T01 제품 판정](docs/evidence/p10-batch32-t01-decision.md)을 최신 기준으로 봅니다. Unity6000.5.8f1 GUI에서 원본 Builder로 Android Push/UTF8 APK와 iOS Push export를 생성하고, 새 전용 기기의 LOCAL_MOCK Push/Lifecycle·Android JNI 전용 marker·iOS token/session/late callback을 검증했습니다. 이전 timeout/입력 오류도 삭제하지 않았습니다. 이는 실제 FCM/APNs·스토어·실기기 성공이나 자동 Strict/Release 통과가 아닙니다.
+## 구조
 
-Google 저장 세션 codec과 Apple grant decode는 별도 후보 baseline·Native 회귀·패키징을 확인한 뒤 T01 명시 제품 조건 충족에 따라 정식 통합했습니다. 현재 소스의 새 Maven/R8·무서명 XCFramework 양 slice·Swift 소비·UPM147 checksum을 검증합니다. 생성된 바이너리·DB·원본 로그·라이선스는 Git에 넣지 않습니다. Mac 잠금으로 GUI 조작은 대기했지만, 원래 자동 batch 경로의 정상 실행을 확인한 뒤 새 package의 변경 후 Android/iOS 구매·PII를 명시 CLI에서 실제 검증했습니다. GUI/CLI/Native/CI 범위를 구분합니다.
-
-[사전 계측](docs/evidence/p10-batch32-performance.md)은 .NET EDITOR_OFFLINE와 localhost HTTP/PostgreSQL의 warmup20·100 samples·p50/p95/max·잔존0을 기록합니다. Native 메모리·실제 UI jank·Unity startup·상용 안정성이나 성능 개선 수치로 해석하지 않습니다. P11 사전 감사에서 발견한 기계 OpenAPI 문서 부재와 추가 플랫폼 검증은 남아 있습니다.
-
-## 로컬 개발
-
-도구와 버전은 [TOOLCHAIN](docs/TOOLCHAIN.md)을 참고하세요. Backend 실행 전 Docker와 전용 로컬 DB 비밀번호, 32자 이상의 로컬 개발 인증키, Base64로 인코딩한 32바이트 로컬 token 암호화 키를 비밀 환경에 준비합니다. 기존 DB 비밀번호 및 암호화 키는 재시작할 때 유지해야 합니다. 실제 키는 소스나 채팅에 넣지 않습니다.
-
-```sh
-# GAMEBRIDGE_DB_PASSWORD, GAMEBRIDGE_DEV_AUTH_KEY,
-# SERVER_TOKEN_ENCRYPTION_KEY와 GAMEBRIDGE_MAINTENANCE_ENABLED를
-# 현재 셸에 명시적으로 설정한 다음 실행
-bash scripts/run-demo-backend.sh
+```text
+Unity C# Public API ─┬─ Android JNI → Kotlin SDK ─┐
+                    └─ iOS Swift C ABI → Swift SDK ─┤
+Android/iOS 단독 Host → Native SDK ──────────────┤
+                                               Backend → PostgreSQL
 ```
 
-별도 셸에서 다음 명령으로 Native build와 일부 검사를 실행할 수 있습니다.
+- Unity는 typed API·요청 수명·main-thread 전달을, Native는 OS Provider·HTTP·보안 저장소를 소유합니다.
+- Backend는 인증·계정 binding·구매 검증·멱등 지급·token 소유권을 확인합니다. UI callback이 서버 잔액을 대신하지 않습니다.
+- Host는 Activity/window·Delegate·Firebase 초기화·알림 권한·사용자 동의와 화면을 소유합니다.
 
-```sh
-bash scripts/build-android.sh --mock
-bash scripts/generate-ios-project.sh
-bash scripts/build-ios.sh --simulator
-./backend/gradlew -p backend test
-```
+## 공고 요구와 실제 대응
 
-Backend 일반 시험에는 명시적으로 활성화하지 않은 DB 통합 시험이 skip될 수 있습니다. `scripts/smoke-local.sh`는 전용 local 서버와 Docker DB를 대상으로 하며 `GAMEBRIDGE_LOCAL_SMOKE_OPT_IN=1`과 개발키가 필요합니다. Backend 하위 검사만 집계하며 Unity Player·실제 provider·원격 푸시는 실행하지 않습니다. 격리 실행은 `python3 harness/run-backend-smoke-isolated.py --run-local`을 사용하며 새 테스트 DB와 role을 보존합니다. 별도 Unity LOCAL_MOCK Player 결과는 아래 증거를 참고하세요. 개발 발송 endpoint의 local-mock 응답은 SIMULATED이며 원격 전송이 아닙니다. 세부 실행 조건과 실제 확인 범위는 [USER_SETUP](docs/USER_SETUP.md) 및 [WORK_LOG](docs/WORK_LOG.md)를 참고하세요.
+사용자가 제공한 `Recruit2개회사.md`의 W(웹젠)·G(그라비티) 스냅샷을 기준으로 정리했습니다.
 
-## 패키징
+| 요구 | 프로젝트가 보여주는 근거 | 범위 |
+| --- | --- | --- |
+| W/G: SDK·Library·API 설계 | Kotlin/Swift Core, C# 공통 facade, JNI/C ABI, 역할·상태·wire 계약 | [설계와 실제 소스](docs/ENGINEERING_NOTES.md) |
+| W: Edge Case와 정밀한 테스트 | 중복/취소/late/session 격리, duplicate guard 변이·복원, 원장 unique·멱등성 | [Edge Case 표](docs/ENGINEERING_NOTES.md#대표-edge-case) |
+| W: 데이터 기반 난제 해결 | ADB build/runtime 수명 분리, OS별 source-binding 순서 오류, 전체화면 안내와 reconnect 실패 분리 | [실제 사례3개](docs/ENGINEERING_NOTES.md) |
+| W: 기술 스펙·연동 문서화 | Host/SDK/Backend 책임, 실행 가능한 기존 샘플·설치 순서·오류 진단 | [통합 가이드](docs/INTEGRATION.md). 실제 외부 조직 협업 실적으로 바꾸어 말하지 않음 |
+| G: Unity·Android·iOS SDK 및 공통 기능 | 공통 인증·상점·Push, Native bridge, LOCAL_MOCK 양 Player 검증 | [기능 범위](docs/FEATURE_MATRIX.md) |
+| G: Client–Server·REST | Spring Boot Kotlin/PostgreSQL, HTTP OpenAPI24 operation·DTO23·합성 응답 대조 | [API](docs/API.md) |
+| G: 호환성·버전·빌드/배포 체계 | Maven/AAR·static XCFramework·UPM147 checksum, 독립 R8/Swift 소비, 선정 ABI와 신규 Unity 소비 | [호환성](docs/COMPATIBILITY.md). 로컬 DEV_RC이며 공개 배포 운영은 아님 |
+| W/G: 언어 이해·엔진·Native Plugin 우대 | Kotlin·Swift·C#, Unity6000.5.8f1, 직접 작성한 JNI/Swift C ABI 연결 | Objective-C/C++·Unreal·Godot·Windows Native를 개발했다고 주장하지 않음 |
+| W/G: 실제 플랫폼 기능·Backend 우대 | Google/Apple/Billing/StoreKit/FCM/APNs adapter·실제 호출 코드와 synthetic 경계, Spring Boot | 실제 Provider13건·출시·AWS/GCP/Kubernetes 운영은 미검증/범위 밖 |
+| 경력3/7년·상용 개발/출시·대외 협업·해외근무 조건 | 이 프로젝트만으로 증명할 수 없음 | 기존 이력서·출시/경력 증빙 및 본인 확인과 별도로 평가 |
 
-`build-android.sh --mock`은 새 `artifacts/maven-build.*` 경로에 SDK를 발행하고 별도 소비 앱의 release 빌드를 검사합니다. `GAMEBRIDGE_MAVEN_REPO`에 존재하지 않는 절대 경로를 지정할 수도 있으며, 기존 출력은 덮어쓰지 않습니다. `generate-ios-project.sh`와 `build-ios.sh`는 기존 프로젝트를 덮어쓰지 않고 `artifacts/ios-project.*`에 격리 Xcode project를 생성합니다. `build-ios.sh --xcframework`는 별도 출력 디렉터리에 무서명 static XCFramework를 만듭니다. 기존 출력 경로는 덮어쓰지 않으며 `GAMEBRIDGE_IOS_OUTPUT_DIR`로 새 경로를 지정할 수 있습니다. `scripts/package-sdk.sh`는 두 산출물을 Unity 패키지 staging에 묶습니다. 신규 소비 프로젝트에서 Sample API import와 Android/iOS LOCAL_MOCK Player 빌드·실행을 확인했습니다 ([증거](docs/evidence/consumer-install.md)). 생성된 `artifacts/`는 로컬 전용이며 배포하지 않습니다.
+## 확인한 결과
 
-Git 저장소의 `unity/Packages/com.gamebridge.sdk`는 소스 패키지이며 생성된 Android Maven과 iOS XCFramework 바이너리를 포함하지 않습니다. Native 기능을 사용하는 소비자는 빌드한 두 산출물로 `scripts/package-sdk.sh`가 만든 staging 패키지를 설치해야 합니다. 소스만 Git으로 설치한 상태를 바이너리 완결 staging과 동일하게 취급하지 않습니다.
+| 확인 범위 | 근거 |
+| --- | --- |
+| 새 Android/iOS Unity LOCAL_MOCK Player → Native → Backend → 원장 | [Android](docs/evidence/p10-batch34-unity-android.json), [iOS](docs/evidence/p10-batch34-unity-ios.json): 실제 소비·구매·서버 잔액/PII 경계 |
+| 원장·취소/중복·session·변이 복원 | [회귀 증거](docs/evidence/p10-batch34-regression.json): Python263, Kotlin10/Swift12, managed418 검사, self9, TC11 등 서로 다른 범위를 구분 |
+| 최신 코드 Hosted CI | [44287600414 SUCCESS](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44287600414), code648bb80. Unity/Release는 SKIPPED |
+| 패키지·호환성 | [새 패키지147](docs/evidence/p10-batch33-package.json), [선정 JVM4개](docs/evidence/p10-batch34-binary-api.json), device/simulator C ABI4개와 실제 소비 |
+| 제한된 실측 | [C ABI](docs/evidence/p10-batch34-cabi-performance.json), [실제 Player/Scene/frame](docs/evidence/p10-batch34-unity-performance.json). weak1 관측·누수 미확정 |
 
-현재 API와 통합상의 제한은 [API](docs/API.md), [통합 안내](docs/INTEGRATION.md), [보안 경계](docs/SECURITY.md)를 참고하세요.
+실제 Google/Apple 계정·스토어·FCM/APNs·실기기 PASS와 구분합니다. 전체 Strict0회, P05-T03 StoreKit FAIL/환경 위험, self-hosted 미검증과 weak1은 [Known Limitations](docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)에 공개합니다.
 
-## 로컬 회귀 집계
+## 사용·검토 시작
 
-`bash scripts/verify-all.sh --available` 또는 `--strict-local`은 실제 실행한 suite, 필수 미실행·미구현·기존 실패, 외부 설정 대기를 구분해 `artifacts/verify-all-*`에 기록합니다. 격리 DB와 local server가 필요한 lane은 명시적인 test 환경 설정이 없으면 건너뛰며, 전체 성공으로 처리하지 않습니다. LOCAL_MOCK Push는 Unity Android 에뮬레이터와 iOS Simulator에서 등록·수신·중복·lifecycle·세션 전환·연결 복구를 검증했습니다. 실제 FCM/APNs와 실기기는 미검증입니다.
+로컬 DEV_RC는 `artifacts/portfolio-final/DEV_RC`에 구성하며 생성 바이너리는 Git에 넣지 않습니다. 다른 checkout에서는 [통합 가이드](docs/INTEGRATION.md)의 기존 build/package 명령으로 준비합니다. Git의 `unity/Packages/com.gamebridge.sdk` 소스 설치와 Native 바이너리를 포함한 staging 설치는 다릅니다.
 
-### Unity Android LOCAL_MOCK 통합 확인 준비
-
-별도 소비 프로젝트 생성과 빌드 절차는 [사용자 설정의 Unity Android LOCAL_MOCK 절차](docs/USER_SETUP.md#unity-android-local_mock-재실행-준비-px-t01)를 참고하세요. 전용 Android 에뮬레이터에서 Unity Player → Kotlin Native Bridge → local Backend/PostgreSQL 흐름이 통과했습니다. 자세한 범위와 한계는 [검증 증거](docs/evidence/px-t04-unity-android-local-mock.md)를 참조하세요.
-
-
-### 추가 검증 도구 (Unity Android LOCAL_MOCK)
-
-준비가 완료된 Unity 환경에서 전체 Player 흐름을 확인하기 위한 별도 Runner는 harness/run-unity-android-mock-e2e.py이다. 전용 AVD 및 staging 무결성 확인, 격리 소비 프로젝트 생성, APK 빌드·설치·실행, Unity 마커·Backend trace 및 DB 1건/100코인 대조까지 수행하며 하나라도 누락되면 PASS가 아니다. **해당 source의 Unity Android LOCAL_MOCK Player 검증은 PASS다.** 초기 PX 실행의 전체화면 안내는 수동으로 닫았으며, 이후 배치32에서는 새 승인 범위의 전용 기기에서 알려진 교육 안내만 가드된 명시 옵션으로 닫았습니다. Unity iOS LOCAL_MOCK 및 실제 제공자는 각각 별도 검증 범위다. 명령·비밀정보 분리·전용 환경 준비는 docs/USER_SETUP.md의 PX-T04~PX-T06 절을 따른다.
-
-Android Native-only 재실행기는 harness/run-android-mock-bridge-e2e.py로, 기존 고정된 adb/에뮬레이터/DB 경로를 환경변수나 실행 옵션으로 변경할 수 있다. 다만 해당 수정본 재실행은 아직 NOT_RUN이다. 실제 PASS를 확보한 뒤 검증 증거의 민감정보를 제거하고 커밋하려면 harness/export-mock-e2e-evidence.py를 사용한다. 원본 로그·APK·로컬 DB는 Git에 올리지 않는다.
-
-Unity iOS Simulator의 LOCAL_MOCK 전체 흐름과 로컬 ad-hoc 서명 범위는 [검증 증거](docs/evidence/px-t07-unity-ios-local-mock.md)를 참조하세요. 실제 Apple 로그인·App Store 결제·APNs는 검증하지 않았습니다.
-
-Unity LOCAL_MOCK Push/Lifecycle의 실제 Player 검증 범위는 [Android evidence](docs/evidence/px-t08-unity-android-mock-push.md)와 [iOS evidence](docs/evidence/px-t12-unity-ios-mock-push.md)에 있습니다. 프로세스 종료/pending은 별도 시험이며 지연 callback은 합성 주입입니다. iOS 연결 차단은 테스트 TCP 경로에 한정됩니다.
-
-
-배치33 연속 작업 결과는 [통합 증거](docs/evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.
+[Native Demo](<unity/Packages/com.gamebridge.sdk/Samples~/Native Demo/README.md>)와 [Offline Demo](<unity/Packages/com.gamebridge.sdk/Samples~/Offline Demo/README.md>)를 재사용합니다. 실제 Provider를 연결하려는 경우에만 [USER_SETUP](docs/USER_SETUP.md)을 사용합니다. 남은 개선 사항은 선택적 backlog이며 포트폴리오 개발을 자동으로 재개하는 조건이 아닙니다.

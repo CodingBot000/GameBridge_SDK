@@ -28,6 +28,16 @@ C# public result에는 access/refresh token, ID token, purchase proof, Push toke
 
 공통 wire는 UTF-8 JSON과 `protocolVersion`, `sdkSessionId`, `requestId`를 사용한다. Android는 C# `AndroidJavaProxy`→Kotlin callback, iOS는 Swift `@_cdecl`→AOT delegate→즉시 byte 복사→main-thread pump다. 생성된 IL2CPP/C++ 코드를 직접 개발한 C++ SDK로 제시하지 않는다. [AndroidTransport](../unity/Packages/com.gamebridge.sdk/Runtime/Platforms/AndroidTransport.cs), [IosTransport](../unity/Packages/com.gamebridge.sdk/Runtime/Platforms/IosTransport.cs), [wire schema](../contracts/bridge.schema.json)를 함께 읽으면 경계를 확인할 수 있다.
 
+## 인증·구매·Push의 데이터 흐름
+
+| 기능 | 흐름 | 결과의 권위 |
+| --- | --- | --- |
+| 인증 | Host의 로그인 요청 → Native Provider/nonce challenge → Backend identity 검증·session 발급 → Native 보안 저장소 → C# user/session snapshot | Provider 증빙은 Native와 Backend에 남고 C#은 UI 상태만 표시 |
+| 구매 | 플랫폼 상품 조회/구매 → Native의 계정 binding·proof → Backend 검증·멱등 원장·지급 → Native finish/서버 finalizer → 결과·후속 이벤트 및 entitlement 조회 | 지급은 서버 원장. pending·Task timeout과 실제 거래 완료를 분리 |
+| Push | 명시적 권한/등록 → Host/Native token → Backend session·installation 결속 → sender/Host 수신 → Native route/dedupe → C# typed event | token은 서버/Native에만, UI에는 허용 route와 fingerprint·상태 |
+
+LOCAL_MOCK은 개발 auth·가짜 proof·simulated Push로 위 계층 경계를 확인한다. 실제 Provider의 키·서명·계정·원격 전달 성공은 별도다.
+
 ## 대표 Edge Case
 
 | 입력·상황 | 방어 조건 / 기대 동작 | 실제 근거·관측 |

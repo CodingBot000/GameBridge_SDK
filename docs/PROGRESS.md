@@ -1984,3 +1984,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 포트폴리오 상태: IN_PROGRESS. 기존 SDK의 BLOCKED_INTERNAL 및64 Task 상태/집계와 별도로 판정한다.
 - 범위: 제공 공고 W/G와 실제 코드·검증의 대응, Quick Start/책임·호환성/문제해결 문서, weak client 제한 조사, 최종 DEV_RC와 개발 종료 인계. 신규 기능/실Provider/추가 성능프로젝트는 포함하지 않는다.
 - 기존 제품·하네스·계약 source648bb80 및 배치34 결과를 보존하며, 날짜만 갱신하는 재검증은 하지 않는다. 남은 개선점을 자동 필수 배치로 전환하지 않는다.
+- 포트폴리오 문서 검토: README 공고대응/진입점, Quick Start/실제Host·API·SSE/Map/오류·버전·호환성·보안·선택적USER_SETUP을현재사실로정리했다. 과거generic Unity미검증/계획변수·NOT_STARTED 소개는현재문서에서제거하고원본Git/WORK_LOG/evidence는보존. local문서링크150/SDK호출명11/Python예제문법검사PASS(예제실행·새Player아님). portfolio판정은최종RC/일관성검토뒤확정한다.

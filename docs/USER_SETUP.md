@@ -1,468 +1,61 @@
-# GameBridge SDK — 마지막 사용자 설정 및 실연동 인계
-
-배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI와 실제 Unity Scene/Frame·runtime 메모리를 측정했고 weak client1개 잔존을 관측했다. 원인·누수 여부는 미확정이다. Task/continuation·Android heap·CPU blocking 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
-
-
-> 최초 인계 양식으로 작성된 문서다. 실제 구현 및 테스트의 최신 상태는 PROGRESS.md와 WORK_LOG.md가 우선한다. 아래 설정 대기는 구현 완료나 외부 서비스 테스트 성공을 뜻하지 않는다. 사용자만 처리할 계정/콘솔/서명을 구분한다.
-
-## 1. 역할 경계
-
-Codex는 실제 Provider 호출 코드, 설정 로더, 오류 처리, Mock, 빌드 설정, 검증 스크립트까지 작성한다. 사용자는 계정 로그인, 개발자 프로그램 가입/약관, 앱 등록, OAuth/스토어/푸시 권한, 인증서와 실제 key 제공, 실기기 인증·스토어 UI를 처리한다.
-
-외부 설정 부족은 전체 개발 중단 사유가 아니다. 코드 미구현은 사용자 설정 대기로 숨기지 않는다. 실제 key 값을 채팅·README·WORK_LOG에 기록하지 않는다. 사용자 로컬 secret 파일이나 환경 변수로만 전달한다. Codex는 private key를 SDK에 내장하거나 임의 발급·삭제·공개하지 않는다.
-
-## 2. 준비 상태 원장
-
-| 설정 ID | 준비 대상 | 코드 준비 | 설정 준비 | 실연동 검증 | 코드/실행 증거 |
-|---|---|---|---|---|---|
-| USER-GIT | 로컬 Git identity | NOT_STARTED | NOT_CHECKED | N/A | - |
-| USER-UNITY | Unity 설치·라이선스·target modules | IMPLEMENTED | READY | NOT_RUN | 6000.5.8f1 Android/iOS LOCAL_MOCK Player 및 Editor 확인; 6.3 LTS 별도 |
-| USER-DEVICE | Xcode·Android 도구·실기기·서명 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
-| USER-BACKEND | 로컬 서버·DB·개발/샌드박스 네트워크 | NOT_STARTED | NOT_CHECKED | NOT_RUN | - |
-| USER-AUTH-GOOGLE | Android Google 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
-| USER-AUTH-APPLE | iOS Apple 인증 | BLOCKED | WAITING_USER | NOT_RUN | - |
-| USER-BILLING-GOOGLE | Play 테스트 결제·검증 | BLOCKED | WAITING_USER | NOT_RUN | - |
-| USER-BILLING-APPLE | Apple Sandbox 결제·검증 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
-| USER-PUSH-GOOGLE | Android FCM 원격 전송 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
-| USER-PUSH-APPLE | iOS APNs 원격 전송 | NOT_STARTED | WAITING_USER | NOT_RUN | - |
-
-코드 준비는 NOT_STARTED / IMPLEMENTED / BLOCKED, 설정 준비는 NOT_CHECKED / WAITING_USER / READY, 실연동 검증은 NOT_RUN / PASS / FAIL / DEFERRED_ENV를 쓴다. 설정 READY와 실연동 PASS는 별개다.
-
-## 3. 마지막 설정 순서
-
-Git identity·도구/라이선스 → 앱 package/bundle ID·서명 → Backend 접근·환경 → Google/Apple 인증 → 테스트 상품·결제 검증 → FCM/APNs → Native sample 실연동 → Unity 실연동 → 최종 원장/보고서 갱신 순서다. 이미 준비된 항목은 다시 만들지 않는다.
-
-본 문서의 변수명은 **계획된 표준 이름**이다. Codex가 구현 중 실제 이름·경로를 바꿨다면 본문을 반드시 같이 갱신한다. `verify-external --check-config`는 값 자체를 출력하지 않고 존재/형식/상호 일치만 확인한다.
-
-## USER-GIT — 로컬 커밋 identity
-
-사용자가 현재 저장소에 사용할 author 이름/email을 확인한다. Codex는 기존 설정을 사용하되, 없으면 가짜 identity를 전역/로컬에 임의로 만들지 않는다. identity가 없더라도 개발은 계속하고 누락 commit을 기록한다.
-
-확인 명령: `git config user.name`, `git config user.email`, `git status --short`. 원격 GitHub 로그인은 로컬 commit의 전제 조건이 아니다. 이번 작업에서는 push를 자동 수행하지 않는다.
-
-설정 후: 미커밋 변경의 Task 기록과 diff를 대조하고 가능한 논리 단위로 commit한다. 파일 간 의존성 때문에 안전한 분리가 불가능하면 그 이유와 실제 구성대로 기록한다. 과거 시점의 commit을 수행했던 것처럼 조작하지 않는다.
-
-## USER-UNITY — Unity 환경
-
-사용자 할 일: 선택한 Unity LTS Editor와 Android/iOS build support, 필요한 라이선스를 준비한다. 2026-11-10 확인: 설치된 6000.5.8f1 Editor는 프로젝트 생성 시 라이선스 확인에 실패하여 종료 198을 반환했다 (ENV-002). 라이선스 활성화와 계정 로그인은 사용자가 수행한다. Codex가 license secret을 가져오거나 약관을 대신 수락하지 않는다.
-
-2026-11-11 재확인: Unity CLI는 로그인 상태지만 활성 라이선스가 0개이며, 설치된 6000.5.8f1과 6000.4.0f1에서 Android Build Support가 확인되지 않았다. 당시에는 Unity Hub 라이선스 활성화와 Android Build Support 및 SDK/NDK·JDK 설치가 필요했다. 모듈 설치에 필요한 약관 동의는 사용자가 처리한다. 이후 별도 Android 36 테스트 에뮬레이터를 생성·부팅해 ADB 연결과 host 10.0.2.2 도달을 확인했다. 기존 AVD는 변경하지 않았다.
-
-Unity Android LOCAL_MOCK 격리 소비 프로젝트는 `GAMEBRIDGE_UPM_STAGING=<절대 staging 경로> bash scripts/prepare-unity-android-mock.sh --prepare`로 생성할 수 있다. 이 명령은 파일 생성과 checksum 확인만 하며 Unity import·빌드·실행은 아니다. 생성된 project 경로와 새 절대 APK 경로를 `bash scripts/build-unity-android-mock.sh <project> <새 APK>`에 전달하면 라이선스·Android 모듈을 확인한 뒤 `BuildMockPlayer.Build`를 실행한다. 테스트 APK는 개발용 cleartext 설정을 포함하므로 배포하지 않는다. 실행 시 전용 local-mock 서버와 별도 테스트 DB, 사용자 준비 Android 에뮬레이터가 필요하며 synthetic 개발키는 intent extra로만 전달한다. 실제 Google 인증이나 스토어 결제의 검증은 아니다.
-
-2026-11-12 확인: 6000.5.8f1의 라이선스가 활성이고 Android Build Support·SDK/NDK·OpenJDK 및 iOS Build Support가 설치돼 있다. 당시 Unity Android LOCAL_MOCK Player는 전용 에뮬레이터에서 PASS했고 iOS Player는 미확인이었다. 이후 iOS Simulator LOCAL_MOCK Player도 별도로 PASS했다.
-
-설정: `UNITY_EDITOR_PATH`를 실제 실행파일로 지정한다. 정확한 버전은 TOOLCHAIN/ProjectVersion과 일치시킨다. 다른 Unity major/minor를 자동으로 설치해 기존 project를 올리지 않는다.
-
-실행 예정: `bash scripts/doctor.sh`, `bash scripts/build-unity.sh --editor-smoke`. 성공 조건: Editor import, C# compilation, 실제 테스트 수 > 0, Mock demo 및 platform-independent tests 통과. license 오류는 ENV, compiler 오류는 BUG다.
-
-후속: Android/iOS export와 native link 검증을 실행한다. Editor 성공만으로 IL2CPP·device 실행을 통과 처리하지 않는다.
-
-## USER-DEVICE — 앱 식별자·서명·실기기
-
-Android: package/application ID를 결정하고 USB debugging 또는 emulator를 준비한다. 디버그 키 fingerprint와 Play App Signing fingerprint를 구분한다. OS 보안/기기 신뢰 확인은 사용자가 한다.
-
-iOS: Xcode 선택·라이선스 동의·개발자 팀·Bundle ID·프로비저닝·실기기 Developer Mode/신뢰를 준비한다. Team ID 및 `.xcconfig`는 사용자 설정으로 공급한다. 샘플 개인 팀 서명으로 가능한 범위와 실제 Sign in with Apple/APNs/IAP에 필요한 capability를 구분한다.
-
-Unity와 Native sample이 다른 package/bundle ID면 **각각** 외부 앱 등록/인증/푸시/상품 설정이 필요할 수 있다. 하나의 설정을 다른 앱에 무조건 재사용하지 않는다. 같은 ID를 사용한다면 동시 설치가 안 되는 영향과 서명 일치를 문서화한다.
-
-Codex가 채울 항목: 최종 native sample ID, Unity sample ID, target OS, scheme, keystore 위치(값 아님), code signing 방식, device 목록의 비식별 요약. 실제 단말 식별자를 공개 문서에 불필요하게 남기지 않는다.
-
-## USER-BACKEND — 로컬 서버와 샌드박스 접근
-
-사용자 할 일: Docker/Compose 실행과 개발 DB를 준비한다. 기본은 개인 서비스와 분리된 로컬 PostgreSQL이다. 실기기에서 서버가 필요하면 개발 LAN/사용자 관리 HTTPS endpoint를 명시적으로 선택한다. Codex가 공인 tunnel이나 유료 cloud를 임의 생성하지 않는다.
-
-계획 설정:
-
-```text
-GAMEBRIDGE_PROFILE=local-mock 또는 sandbox
-DATABASE_URL=사용자 로컬 연결
-DATABASE_USERNAME=로컬 전용
-DATABASE_PASSWORD=비밀값
-GAMEBRIDGE_AUTH_AUDIENCES_JSON=앱별_공개_대상_설정_JSON
-SERVER_TOKEN_ENCRYPTION_KEY=비밀값
-DEVELOPMENT_ADMIN_KEY=개발용 비밀값
-GAMEBRIDGE_BACKEND_BASE_URL=기기에서 접근 가능한 주소
-```
-
-local-mock 기본 host port는 loopback이다. 실기기 접근을 위해 LAN으로 노출할 경우 fake identity/proof 수락 서버가 공개되지 않게 제한한다. sandbox는 real Provider와 별도 DB/schema/config를 사용한다. `allowAllTLS`, certificate trust 무시, 운영 cleartext 허용은 해결책이 아니다.
-
-현재 준비: `GAMEBRIDGE_DB_PASSWORD`와 local-mock 인증 시험용 `GAMEBRIDGE_DEV_AUTH_KEY`(32자 이상, 비밀값)를 로컬 환경에 설정한 뒤 `bash scripts/run-demo-backend.sh`로 local-mock 서버와 전용 DB를 기동할 수 있다. 최초 기동 시 적용한 DB 비밀번호와 이후 실행 값은 같아야 한다. local-mock A/B 로그인·회전·로그아웃, Mock 구매·중복 지급 및 세션별 Mock 토큰 삭제는 제한된 smoke로 확인했다. Native sample의 local-mock 흐름도 Android emulator와 iOS simulator에서 확인했다. 실제 인증·결제·푸시 전체 smoke와 실제 개발 push 발송은 미완료다. local-mock 개발 endpoint는 명시적으로 SIMULATED를 반환한다. 전용 volume 수명은 `infra/README.md`를 따른다. 환경 표식이 없는 기존 Flyway DB는 자동 변환하지 않고 기동을 차단하므로, 소유권과 마이그레이션 절차를 확인하기 전 기존 데이터를 재사용하지 않는다.
-
-확인 순서: doctor → server start → health → smoke-local → 기기 통신. 기대 결과: 로컬 원장 smoke 통과, 비밀값 미출력, profile 격리. 설정이 맞아도 실제 Google/Apple 검증이 통과했다는 뜻은 아니다.
-
-## USER-AUTH-GOOGLE — Android Google 로그인
-
-사용자 할 일: Google Cloud/OAuth 설정에서 실제 앱 package와 signing certificate fingerprint를 등록하고 서버용 client ID 및 필요한 동의 화면/테스트 사용자 설정을 준비한다. Native sample과 Unity 앱의 ID·서명이 다르면 각각 대응한다. Credential Manager에서 사용하는 ID의 종류와 Backend가 기대하는 audience를 일치시킨다.
-
-클라이언트 공개 설정: `GOOGLE_SERVER_CLIENT_ID`. 서버 설정: `GAMEBRIDGE_AUTH_AUDIENCES_JSON`의 해당 appId/GOOGLE 목록. `config/auth-audiences.example.json`은 공개 식별자 자리표시자이며 실제 값은 사용자 로컬 환경에서 공급한다. client ID는 공개 식별자지만 client secret은 앱에 넣지 않는다. Native ID token 검증에 불필요한 서비스 계정 비밀키를 억지로 요구하지 않는다.
-
-현재 준비: Android Credential Manager 실제 호출과 Native nonce 전달·서버 교환 adapter 및 stub 시험은 작성됐다. 서버 challenge/exchange와 Google 서명 검증은 구현하고 자체 서명 fixture로 시험했다. 샘플 실 Provider UI와 실제 Google 발급 토큰 검증은 아직 없어 코드 준비는 BLOCKED다. 실제 Google 계정 로그인은 실행하지 않았다.
-
-Codex 준비물: GoogleAuthProvider, nonce challenge, server verifier, error mapping, UI, config 검사. TODO 또는 “여기에 OAuth 구현”만 남아 있으면 코드 준비 IMPLEMENTED가 아니다.
-
-현재 Android Debug 샘플은 LOCAL_MOCK Backend 연결만 지원한다. emulator 기본 주소는 `http://10.0.2.2:18080`이며, 개발용 서버와 동일한 `GAMEBRIDGE_DEV_AUTH_KEY`를 앱에 직접 입력한다. HTTPS 또는 별도 기기 주소 사용 시 Host 네트워크 설정이 필요하며 실서비스 모드의 자동 Mock 전환은 없다.
-
-실제 검증: Android Native sample에서 Google 로그인→서버 `/me`→재실행 세션 복원→로그아웃. 이후 Unity Android에서 같은 흐름. 취소·audience 불일치·네트워크 실패도 확인한다.
-
-성공 증거: 검증된 provider subject와 서버 user의 비식별 대응, token 원문 없는 결과, 실제 환경/빌드/시각. Mock token이나 자체 서명 token 통과는 실제 Google 인증 증거가 아니다.
-
-## USER-AUTH-APPLE — iOS Apple 로그인
-
-사용자 할 일: 실제 Apple 개발자 팀과 App ID의 Sign in with Apple capability, signing/provisioning, 테스트할 Apple 계정을 준비한다. Native sample·Unity 앱의 bundle ID가 다르면 audience/앱 설정을 각각 확인한다.
-
-설정: `GAMEBRIDGE_AUTH_AUDIENCES_JSON`의 해당 appId/APPLE 목록, 각 bundle ID, Team ID. 네이티브 identityToken 공개키 검증과 authorization-code exchange/client-secret이 필요한 서버 기능을 구분한다. 구현이 후자를 사용하는 경우에만 해당 private key/key ID/team ID를 서버에 추가한다. 사용하지 않는 비밀키를 필수 요구하지 않는다.
-
-현재 준비: AuthenticationServices controller/delegate/anchor, 서버 nonce 전달, Native Keychain session 및 credential-state 처리 코드와 fake callback 시험, Simulator 컴파일이 준비됐다. `ios/SampleApp/SignInWithApple.entitlements.example`은 서명되지 않은 예제다. 서버 challenge/exchange와 Apple 서명 검증은 구현하고 자체 서명 fixture로 시험했다. 샘플/Unity 실 Provider 연결과 실제 Apple 발급 토큰 검증은 미완료이므로 코드 준비는 BLOCKED다.
-
-Codex 준비물: AuthenticationServices provider, presentation anchor, nonce, server verifier, credential state 처리, Unity snapshot 변환. Apple 이름/email이 한 번만 올 수 있는 경우에 대비해야 한다.
-
-현재 iOS Debug 샘플에는 LOCAL_MOCK 화면과 별도의 Apple Sandbox 설정/로그인/상점 화면이 있다. Sandbox 화면은 구성과 각 동작을 사용자가 명시적으로 시작하며 실제 Apple 계정·스토어 검증은 아직 실행하지 않았다. `bash scripts/generate-ios-project.sh`가 출력하는 `artifacts/ios-project.*`의 격리 XcodeGen 2.46.0 프로젝트를 연 뒤 Simulator에서 로컬 Backend URL과 별도로 설정한 개발키를 입력한다. Debug의 loopback HTTP 예외는 Release에 포함되지 않는다.
-
-실제 검증: Native Swift sample 로그인→서버 user 생성/재로그인 동일 계정→취소/복원/로그아웃. 이어 Unity iOS에서 확인한다. Apple token 원문을 출력하지 않는다. capability 부족과 서버 audience mismatch를 구분해 기록한다.
-
-## USER-BILLING-GOOGLE — Play 테스트 결제
-
-사용자 할 일: Play Console에 앱·one-time product 두 개·테스트 가능한 트랙/테스터를 설정한다. Play가 요구하는 상품·앱·정책/가입 상태는 현재 콘솔 기준으로 확인한다. 실제 금전 결제 대신 공식 테스트 계정/테스트 결제 경로를 사용한다. 스토어 업로드는 사용자가 수행한다.
-
-논리 상품: `coins_100`(consumable), `premium_unlock`(non-consumable). 실제 store product ID가 다르면 config mapping을 수정한다. 가격은 store product details에서 읽으며 client hard-coded price를 구매 검증에 쓰지 않는다.
-
-서버 자격증명: 필요한 범위의 Google Play Developer API 접근 권한과 credential 파일 경로. 보류 중인 Google 구매 증빙 암호화에는 별도의 Base64 32바이트 `SERVER_PURCHASE_ENCRYPTION_KEY`가 필요하며 운영 비밀 저장소에서 안정적으로 관리한다. 현재 verifier 설정은 `GAMEBRIDGE_GOOGLE_PURCHASE_CONFIG_JSON`에 앱 ID별 `packageName`, `productIds`, `credentialPath`를 명시한다. credential은 해당 앱 권한을 가진 서비스 계정 파일이어야 하며, 파일 내용을 채팅이나 Git에 넣지 않는다. 설정이 없으면 ambient credential을 자동으로 사용하지 않고 CONFIG_REQUIRED가 된다. FCM 권한이 있다고 Play API 권한도 있다고 가정하지 않는다. 최소 권한 원칙으로 필요한 앱 접근을 설정한다.
-
-현재 준비: Android Play Billing 9.1 실제 연결·상품 조회·구매 UI·callback·복구 gateway와 fake 경계 시험, 별도 Google Sandbox sample 화면이 있다. 빈 설정 차단만 emulator에서 확인했으며 실제 Google 인증·Play 거래는 미실행이다. 공식 Google 서버 조회 verifier 경계는 있으나 신규 인증 세션의 app scope 기반 binding 조회가 추가됐지만 Native 연결·proof sink·원장 연결과 샘플/Unity 통합이 미완료라 코드 준비는 BLOCKED이며, 이 상태에서는 실제 구매 UI를 시작하지 않는다.
-
-Codex 준비 상태: Play Billing provider, server verifier, purchase binding, 원장 transaction, finalization worker와 server consume/acknowledge 경계는 구현 및 fake 검증했다. 공개 sample/Unity 조립과 실제 Play 검증은 남았다. 앱에서 consume해서 서버 지급 확인을 건너뛰지 않는다.
-
-실제 시나리오: 상품 조회 → 소모성 구매 → 서버 원장 1개/코인 +100 → consume → 재구매 → 비소모성 구매/ack → 재설치 또는 재로그인 복원 → 구매 중 취소/보류 → 네트워크 단절 후 복구 → duplicate verification. 각 원장 변화가 예상과 같아야 한다.
-
-최소 증거: 실제 store 응답을 비밀정보 제거한 상태·purchase fingerprint·server purchase ID·ledger count·finalization status. 주문 ID만으로 중복을 판단하지 않는다. Play Store 설치 조건이 안 맞으면 환경/설정 대기로 남긴다.
-
-## USER-BILLING-APPLE — Apple Sandbox 결제
-
-사용자 할 일: App Store Connect 앱, 두 IAP 상품, Sandbox tester, 필요한 계약/계정/상품 상태를 준비한다. 실제 App Store 테스트에 사용하는 bundle ID와 상품 mapping을 맞춘다. Xcode scheme의 `.storekit` 선택을 실제 Sandbox 시험 시 어떻게 해제/전환하는지 확인한다.
-
-서버 검증 설정: app ID별 `bundleId`, 허용 `productIds`, Apple 공개 `rootCertificatePaths`, production의 양수 `appAppleId`를 서버 비밀 설정 `GAMEBRIDGE_APPLE_PURCHASE_CONFIG_JSON`에 지정한다. sandbox/production 환경은 서버 profile로 구분한다. 값이 없거나 root를 읽지 못하면 실제 verifier는 CONFIG_REQUIRED로 실패한다. App Store Server API 호출 경로에 필요한 경우 `APPLE_STORE_KEY_ID`, `APPLE_STORE_ISSUER_ID`, `APPLE_STORE_PRIVATE_KEY_PATH`를 서버에 둔다. 서명된 transaction JWS 검증과 서버 API 자격증명을 혼동하지 않는다. production용 appAppleId 요구 여부는 선택 라이브러리/환경에 맞춰 확인한다.
-
-Codex 준비물: StoreKit 2 provider, signed data 검증, appAccountToken 일치 확인, 지급 후 finish, unfinished 복구, restore. 현재 StoreKit API, Native proof sink, Apple 공식 서명 verifier 및 sandbox/production 전용 검증 endpoint와 원자 지급 경계가 부분 구현되어 있다. 앱별 실제 상품 catalog 데이터와 provider 조립·실 서명 검증은 아직 필요하다. iOS 18.6에서 Xcode 로컬 StoreKit과 local fake DB 지급·응답 유실 복구를 확인했으며 실제 Sandbox 시험은 실행되지 않았다.
-
-실제 시나리오: Sandbox 상품 조회 → 소모성 구매 → 서버 검증/원장/finish → 반복 구매 → 비소모성 구매/복원 → 결제 중 종료 후 복구 → duplicate verify → 계정 mismatch 거부. 실제 사용자 금전 결제를 수행하지 않는다.
-
-**주의:** `.storekit` 로컬 성공은 App Store 서명·서버 검증 성공이 아니다. `XCODE_STOREKIT`과 `PLATFORM_SANDBOX`의 mode/provider/evidence를 반드시 구분한다. [공식 설명](https://developer.apple.com/documentation/storekit/testing-at-all-stages-of-development-with-xcode-and-the-sandbox)
-
-## USER-PUSH-GOOGLE — FCM
-
-사용자 할 일: Firebase project에 실제 Android package를 등록하고 host 앱용 client configuration을 준비한다. `google-services.json`은 해당 sample/Unity host 설정 경로에 제공한다. 서버 Firebase Admin 자격증명과 메시지 발송 권한을 준비한다. `GAMEBRIDGE_FCM_CONFIG_JSON`에 app ID별 `projectId`, `credentialPath`를 설정한다.
-
-설정: `FIREBASE_PROJECT_ID`, 적절한 server credential path, 실제 host config file. FCM 설정 때문에 Google identity 로그인이나 Play Billing 설정이 자동 완료되지는 않는다. 프로젝트와 앱 매핑을 각각 확인한다.
-
-현재 준비: host-owned Firebase 초기화를 전제로 한 Android adapter와 host service/manifest 예시가 있다. host가 `com.google.firebase:firebase-messaging:26.0.1` 및 Firebase 설정을 제공하고 기존 service에서 callback을 전달해야 한다. permission 결과·Backend token 등록·백그라운드/클릭 routing 및 실제 FCM은 미완료다. Mock 샘플 빌드는 Firebase 설정 없이 통과했다. 서버 Firebase Admin 단발 전송 경계와 오류 mapping은 fake 시험만 수행했다. sandbox/production 토큰 등록 경로는 synthetic sandbox HTTP fixture로만 검증했으며 Native 등록 client는 fake 시험을 통과했지만 host callback 조립과 실제 발송은 미완료다. Firebase의 기존 registration token API는 deprecated이고 FID 전환은 아직 구현하지 않았다.
-
-Codex 준비물: host-owned Firebase init, explicit registration, permission/channel, token rotation, foreground/background/click, Backend sender, 개발 발송 API 보호. 기존 host FirebaseMessagingService가 있으면 forwarding 방식으로 통합한다.
-
-실제 검증: Native Android 앱에서 token fingerprint 확인→허용된 자신의 test installation에 전송→foreground 수신→background notification 표시/클릭→재실행→로그아웃/다른 사용자 연결. 이후 Unity Android에서 동일하게 확인한다. 로컬 payload 주입은 원격 FCM 성공이 아니다.
-
-## USER-PUSH-APPLE — APNs
-
-사용자 할 일: 실제 App ID Push capability, provisioning/aps-environment, APNs 인증 key와 Team ID/Key ID를 준비한다. development/sandbox와 production APNs 환경·token이 일치해야 한다. .p8 key는 서버에만 둔다.
-
-계획 변수: `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_PRIVATE_KEY_PATH`, `APNS_TOPIC`, `APNS_ENVIRONMENT`. 앱 bundle ID와 topic의 불일치는 진단한다. Apple Sign in 또는 IAP용 key가 자동으로 APNs에도 유효하다고 가정하지 않는다.
-
-Codex 준비물: Swift host forwarding, token registration, 서버 HTTP/2 sender, invalid token 처리, Unity Mobile Notifications host adapter, click queue. host delegate를 몰래 교체하지 않는다.
-
-실제 검증: Native Swift 앱에서 권한/등록 → token fingerprint → 원격 APNs 전송 → foreground/background/click → cold-start route. 이어 Unity iOS에서 host-managed registration 및 동일 흐름. 로컬 알림이나 simulator payload injection을 실제 APNs 전송으로 기록하지 않는다.
-
-## 4. 설정 후 검증 원장
-
-| EXT ID | 실연동 체크 | Native 결과 | Unity 결과 | 증거 | 잔여 문제 |
-|---|---|---|---|---|---|
-| EXT-01 | Google 로그인+서버 검증 | NOT_RUN | NOT_RUN | - | - |
-| EXT-02 | Apple 로그인+서버 검증 | NOT_RUN | NOT_RUN | - | - |
-| EXT-03 | Play 소모성·비소모성+서버 완료처리 | NOT_RUN | NOT_RUN | - | - |
-| EXT-04 | Apple Sandbox 구매·복원·finish | NOT_RUN | NOT_RUN | - | - |
-| EXT-05 | FCM 원격 등록·수신·클릭 | NOT_RUN | NOT_RUN | - | - |
-| EXT-06 | APNs 원격 등록·수신·클릭 | NOT_RUN | NOT_RUN | - | - |
-| EXT-07 | 계정 변경·만료·앱 재실행 복구 | NOT_RUN | NOT_RUN | - | - |
-| EXT-08 | 실제 단말 생명주기·Bridge callbacks | NOT_RUN | NOT_RUN | - | - |
-
-외부 검증을 수행한 사람, 기기/OS, 빌드, 실행 시각, 결과와 실패 증거를 기록한다. 사용자 스크린샷/로그에 근거한 확인이라면 그 근거를 명시한다. 실행 도구가 직접 확인하지 않은 일을 직접 실행했다고 쓰지 않는다.
-
-## 5. 사용자 설정 완료 후 Codex 재개 지시문
-
-```text
-USER_SETUP.md의 실제 설정 준비 상태를 확인하고 verify-external --check-config를 실행해.
-비밀값은 출력하지 말고, 코드 준비된 항목부터 Native sample → Unity sample 순으로 외부 Sandbox 검증을 진행해.
-실기기 UI 등 내가 직접 조작해야 하는 부분만 정확히 분리해.
-실연동에서 발견한 버그를 수정하고 관련 회귀 검증·문서 갱신·로컬 커밋을 수행해.
-기존 완료 기능을 처음부터 다시 만들거나 새 기능으로 범위를 넓히지 마.
-실행하지 못한 검증은 대기로 유지하고 PROGRESS와 FINAL_REPORT를 실제 결과에 맞게 갱신해.
-```
-
-## USER-RETRY — 완료 처리 자동 재시도 정책
-
-사용자가 선택한 자동 worker 기본 동시 1개와 5초 시작 지수 백오프를 local-mock에 적용하고 DB 재시작·중복 지급 방지를 검증했다. `GAMEBRIDGE_FINALIZATION_CONCURRENCY`, `GAMEBRIDGE_FINALIZATION_INITIAL_BACKOFF_SECONDS`, `GAMEBRIDGE_FINALIZATION_POLL_INTERVAL_MS`로 조정할 수 있다. 같은 DB를 공유하는 모든 worker의 concurrency 설정은 일치해야 한다. Google 완료 처리 Provider와 재시도 worker는 구현하고 fake 경계로 확인했으나 실제 Play 호출은 미검증이다.
-
-## USER-PUSH-RETENTION — 등록 해제 후 토큰 보존
-
-사용자가 등록 해제·로그아웃 시 해당 토큰 즉시 삭제를 선택했다. local-mock 신규 등록 경로에서는 세션별 삭제와 다른 세션 보존을 검증했다. sandbox FCM/APNs token 등록·해제 코드는 연결됐으나 실제 원격 서비스 검증은 수행하지 않았다. 기존 local-mock 시험 DB의 session_id가 없는 토큰 2개는 어느 세션에 속하는지 알 수 없어 자동 삭제하지 않았다. Mock token 등록에는 별도 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하며, Base64로 인코딩한 32바이트 AES 키를 로컬 비밀 환경 변수로 공급한다. 예제나 로그에 실제 키를 넣지 않는다.
-
-## USER-AUTH-RATE — 인증 요청 제한
-
-사용자가 선택한 단일 서버 IP별 challenge 분당 30회·token 교환 분당 10회를 rolling 1분 제한으로 구현하고 단위 검증했다. `GAMEBRIDGE_AUTH_CHALLENGE_PER_MINUTE`, `GAMEBRIDGE_AUTH_EXCHANGE_PER_MINUTE`로 조정한다. IP는 메모리에서 hash로만 보유하며 process 재시작 시 초기화된다. reverse proxy 전달 header는 신뢰하지 않으므로 proxy 뒤에서는 모든 요청이 proxy IP로 집계될 수 있다. sandbox 인증 route와 HTTP 제한을 synthetic 데이터로 검증했다. 다중 서버 전역 제한은 구현하지 않았다.
-
-## USER-SESSION-TTL — refresh 만료 기준
-
-사용자가 refresh 기본 만료를 최초 로그인부터 7일로 고정하도록 결정했다. 성공적인 refresh는 이 만료 시각을 연장하지 않는다. 서버 설정으로 기간을 변경할 수 있다.
-
-## USER-VERIFY-CONCURRENCY — 구매 증빙 검증 동시성
-
-사용자가 기기별 서버 증빙 검증 기본 동시성을 1건으로 결정했다. 설정으로 변경 가능하다. 실제 구매 UI는 서버 verifier와 binding 연동이 준비되어야 사용할 수 있다.
-
-## USER-STOREKIT-TEST-PRICE — Xcode 로컬 시험 가격
-
-사용자가 로컬 시험 표시 가격으로 coins $0.99, premium $1.99를 선택했다. 실제 App Store 가격은 콘솔에서 별도로 설정하며 이 선택에 포함되지 않는다. 별도 `.storekit` 구성과 테스트 scheme을 작성했다. iOS 26.5 CLI 상품 조회 시험은 SKTestSession 설정 저장 오류(Code 3)로 실패했으며, 실제 Sandbox 및 로컬 구매 흐름은 아직 검증하지 않았다.
-
-### APNs 서버 전송 준비 상태
-
-서버의 ES256 provider JWT·HTTP/2 단발 전송 경계는 fake transport와 test key로 검증했다. `GAMEBRIDGE_APNS_CONFIG_JSON`에 app ID별 `privateKeyPath`, `topic`, `teamId`, `keyId`를 설정한다. 토큰 저장소와 재시도 worker는 코드에 연결했고 fake 경계로 확인했다. 실제 .p8·team/key ID·bundle topic·APNs 환경을 사용한 발송은 미실행이다.
-
-기존 app scope 없는 세션은 구매 binding을 조회할 수 없으며 재인증이 필요하다. 기존 세션을 자동 추정·삭제·이관하지 않는다.
-
-Google 완료 처리가 확인되면 암호화 증빙을 즉시 삭제하기로 사용자가 결정했다. Google worker는 fake store와 격리 DB에서 실패 시 증빙 유지 및 완료 확인 시 즉시 삭제를 검증했다. 실제 Play Developer API 확인은 미실행이다.
-
-사용자 정책 결정: 푸시 재시도 최대 3회, 5초부터 지수 백오프(APNs 5xx는 최소 15분 후); 개발 발송 API는 관리자 키별 분당 10회; 세션 푸시 중복 ID 최근 200개; 사용 가능한 config가 없으면 신규 구매 차단. 서버 retry 정책은 sandbox 개발 발송 worker에 연결해 fake provider로 검증했다. 분당 10회 제한은 보호된 local-mock 개발 endpoint에서 HTTP 검증했다. 세션 dedup router는 Android/iOS 단위 검증했고 실제 callback 연결은 미완료다. 실제 Native store runtime은 사용 가능한 config가 없으면 신규 구매를 차단한다. 서버는 점검 상태를 명시한 경우 기본 5분 expiry를 반환하고, 미설정 시 CONFIG_REQUIRED로 응답한다. Native local-mock과 실제 store runtime에 신규 구매 gate를 연결했다. 실제 플랫폼 발송은 미실행이다.
-
-local-mock 개발 push endpoint를 사용하려면 `GAMEBRIDGE_DEV_PUSH_ADMIN_KEY`(기존 개발 인증키와 다른 32자 이상 비밀값)와 쉼표로 구분한 `GAMEBRIDGE_DEV_PUSH_ALLOWLIST` installation UUID 목록을 설정한다. 사용자 인증·소유권도 필요하며 응답 SIMULATED는 원격 전달이 아니다. sandbox sender는 앱별 FCM/APNs 설정이 없으면 CONFIG_REQUIRED이고 설정되어야 QUEUED를 반환한다. QUEUED는 전달 성공이 아니다. 재시도 대기열은 서버 메모리에만 있어 재시작하면 사라진다. 이미 시작된 원격 요청의 취소는 보장하지 않는다.
-
-사용자 결정: config cache 기본 TTL은 5분, push 발송·재시도 worker 기본 동시성은 1건이다. 코드·설정·검증에 반영 중이다.
-
-서버 점검 상태가 명시되지 않으면 신규 구매를 차단하기로 사용자가 결정했다. 로컬 시험에서 구매를 허용하려면 `GAMEBRIDGE_MAINTENANCE_ENABLED=false`를 명시하며 실제 운영 상태는 운영자가 결정한다.
-
-Unity iOS host adapter는 `com.unity.mobile.notifications` 2.5.0 API를 대상으로 작성했다. 알림 권한/등록은 host가 명시적으로 요청한다. Unity의 `OnRemoteNotificationReceived` 구독은 foreground 기본 알림 표시를 억제한다. Swift bridge의 `host.pushReceived`/`host.pushOpened`는 synthetic route·중복 제거 시험을 통과했으나 `host.pushToken`은 Native Backend 등록에 연결했고 fake 경계만 확인했다. Unity public permission/register facade는 host driver에 연결했지만 Unity iOS Simulator의 실제 OS 권한 거부 coroutine과 등록 차단은 확인했다. 실제 APNs 및 실기기는 미검증이다.
-
-### Unity Android 개발 전용 LOCAL_MOCK
-
-개발 서버의 `GAMEBRIDGE_DEV_AUTH_KEY`는 로컬 환경에서만 제공하고 채팅·Git·Unity 에셋에 넣지 않는다. Android의 `GameBridgeConfig` 6인자 생성자에 같은 개발 전용 키와 Mock subject `A` 또는 `B`를 명시적으로 전달한다. 에뮬레이터에서는 Backend 주소에 `10.0.2.2`를 사용하고 host의 개발 전용 네트워크 보안 설정을 준비한다. 이 연결은 실제 Google 로그인이 아니며 현재 Unity 라이선스 대기로 JNI 실동작 미검증이고 push 등록·해제와 구매 sync bridge는 구현했으나 Unity 실행은 미검증이며 Mock push의 Backend→Native 수신은 전용 DB에서 확인했다. config 조회의 NETWORK/CACHE 경로는 synthetic 시험으로 확인했다. iOS의 같은 생성자도 LOCAL_MOCK을 Swift C ABI로 전달한다. Swift handler와 local Backend/DB는 검증했으나 C ABI→Keychain→Backend 전체 흐름과 Unity iOS 실행은 미검증이다.
-
-### Unity Android Google 인증 bridge
-
-`PLATFORM_SANDBOX` 구성의 `GameBridgeConfig` 7인자 overload에 Google OAuth 서버 client ID를 설정한다(개발키는 null). SDK는 선택한 sandbox 서버와 Android Credential Manager를 사용하며 Mock으로 자동 전환하지 않는다. Google 서버 client ID가 없으면 auth capability가 미설정으로 표시된다. 현재 fake provider와 컴파일만 확인했으며 Unity JNI·실제 Google 계정/콘솔 인증은 USER-AUTH-GOOGLE과 Unity 라이선스 준비 후 별도 실행해야 한다. 상점은 상품 조회·구매·잔액 및 검증 완료 이벤트 경로를 연결했으나 사용자 복원/sync bridge는 fake 분기와 simulator compile만 확인했고 푸시 bridge도 구현했으나 실제 Unity 및 외부 서비스 실행은 미검증이다.
-
-### Unity iOS Apple 인증 bridge
-
-`PLATFORM_SANDBOX`의 HTTPS Backend URL과 app ID를 구성하고 활성 foreground window에서 Apple 로그인을 호출한다. C ABI는 AppleAuthProvider를 사용하고 identity token과 session을 Unity에 반환하지 않는다. fake provider 및 simulator framework compile만 통과했으며 실제 Apple 계정·서명·Unity iOS는 USER-AUTH-APPLE과 Unity 라이선스 준비 후 별도 검증해야 한다. 상점은 상품 조회·구매·잔액 및 검증 완료 이벤트 경로를 연결했으나 사용자 복원/sync bridge는 fake 분기와 simulator compile만 확인했고 푸시 bridge도 구현했으나 실제 Unity 및 외부 서비스 실행은 미검증이다.
-
-### Unity Android Play Billing 브리지
-
-`PLATFORM_SANDBOX`에서 `GameBridgeConfig` 9인자 생성자에 Google OAuth 서버 client ID와 `coins_100`, `premium_unlock`에 대응하는 서로 다른 실제 Play 상품 ID를 전달한다. 로그인 후 상품 조회·구매·서버 잔액 API를 호출할 수 있다. 구매 창 응답은 서버 지급 확인 전 대기 상태이며, 검증된 결과는 `PurchaseUpdated` 이벤트에서 받는다. purchase sync/recovery bridge는 Native 조회·검증 결과와 서버 잔액을 반환하며 fake 시험만 통과했다. 동시 복구 single-flight와 caller 취소는 fake 시험을 통과했으며 실제 Play 복구는 미검증이다. 사용자 본인의 Play Console 테스트 앱·테스트 계정·테스트 상품과 Backend verifier 설정을 준비한 후 테스트 결제를 실행하고, Unity JNI 및 실제 Play 결과를 별도로 기록한다.
-
-### Unity iOS StoreKit bridge
-
-`PLATFORM_SANDBOX`의 9인자 `GameBridgeConfig`에 Apple 테스트 앱에 등록한 `coins_100`, `premium_unlock`의 서로 다른 StoreKit 상품 ID를 전달한다(Google client ID는 null). Native StoreKit이 상품·가격을 조회하며, 서버 지급 확인과 finish 후에만 구매 완료를 반환한다. 서버 검증이 일시 실패한 거래는 검증 대기로 남고, 추후 확인된 거래는 `PurchaseUpdated` 이벤트로 알린다. 사용자 복원/sync bridge는 구현했고 fake 분기 및 simulator compile만 확인했다. 실제 Apple Sandbox 거래, Unity iOS 실행, StoreKit 26.5 local 환경 실패는 별도 검증이 필요하다.
-
-Android LOCAL_MOCK의 session과 보류 구매 단서는 별도 Keystore namespace에 저장한다. 직접 Native client를 만드는 경우 네 번째 생성자 인자로 별도 암호화 TokenStore를 제공해야 재시작 복구가 동작한다. 기존 3인자 생성자에는 구매 단서 영속 저장소가 없으며 `recoverPending`은 CONFIG_REQUIRED를 반환한다. Unity/Android sample은 별도 저장소를 구성한다. iOS도 별도 Keychain pending 저장소를 추가했고 synthetic 및 격리 local DB 복구를 확인했다. Android emulator Keystore 및 iOS simulator Keychain의 인스턴스 재생성·격리 DB 복구 시험은 통과했다. 실제 기기의 프로세스 재시작 및 Unity player 검증은 아직 남았다. 직접 Swift client를 만드는 경우 `pendingStore`에 session과 별도 KeychainTokenStore를 전달한다.
-
-Unity iOS host-managed APNs를 사용하려면 `GameBridgeConfig` 10인자 생성자에 host가 안정적으로 관리하는 installation UUID를 명시한다. `IosPushHostAdapter.RequestRegistration()`은 명시적 사용자 동작에서만 호출하며, Native는 host token을 인증된 Backend에 등록하고 `UnregisterPushAsync()`는 해당 등록을 해제한다. token 원문을 로그·저장소·공개 결과에 넣지 않는다. 현재 Unity Editor/실기기 및 원격 APNs 검증은 수행하지 않았다.
-
-Unity iOS에서는 활성 `IosPushHostAdapter`를 SDK client에 `Attach`한 후 `RequestPushPermissionAsync()` 또는 `RegisterPushAsync()`를 사용한다. adapter 연결만으로 권한 창은 열리지 않는다. 등록 결과의 시각은 Backend 등록 응답을 받은 클라이언트 시각이다. 등록 도중 호출자 취소는 이미 시작된 OS/네트워크 작업의 취소를 보장하지 않는다.
-
-Unity Android sandbox는 host가 초기화한 Firebase Messaging과 10인자 `GameBridgeConfig`의 installation UUID를 사용한다. host manifest에 `android.permission.POST_NOTIFICATIONS`를 선언하고 `RequestPushPermissionAsync()`로 OS 권한을 명시적으로 요청한 뒤 `RegisterPushAsync()`를 호출하면 Native가 FCM token을 가져와 인증된 Backend에 등록한다. Firebase 미설정·권한 거부는 오류이며 token 원문은 공개하지 않는다. Unity Android emulator에서 실제 OS 권한 dialog 거부·등록 차단·재요청을 확인했다. 실기기 권한과 실제 FCM은 미검증이다. 기존 FirebaseMessagingService 및 Activity에 `android/host-examples/UnityPushForwarding.kt.example`의 token rotation/수신/열기 호출을 직접 연결해야 한다. FID 전환 및 실제 FCM 시험은 미완료다. 등록 응답 시각은 클라이언트 시각이다.
-
-Android host callback의 `forwardFcmToken` 반환값 true는 큐 접수이며 Backend 등록 성공이 아니다. 결과는 `PushTokenChanged`의 fingerprint 또는 오류로 확인한다. SDK session이 없을 때 token은 저장하지 않으므로 로그인 후 명시적 `RegisterPushAsync()`로 현재 token을 다시 가져온다. 알림 route는 home/store만 허용하며 cold-start queue는 프로세스 메모리에서 최대 100건이다.
-
-LOCAL_MOCK에서도 `GameBridgeConfig` 10인자 생성자에 installation UUID를 제공하면 Native Mock token을 local Backend에 등록·해제할 수 있다. permission은 OS dialog가 없는 simulated 결과이며 등록 해제와 logout은 서버 token을 즉시 삭제한다. 서버에는 local 전용 `SERVER_TOKEN_ENCRYPTION_KEY`가 필요하다. Mock send의 SIMULATED 응답은 실제 기기 알림이 아니며 Backend→Android·Swift Native simulated delivery는 전용 로컬 DB에서 확인했으며 Unity player는 미검증이다.
-
-UPM의 `Native Mock and Sandbox Demo`는 Android/iOS player용이다. Unity UI package와 호환 EventSystem을 준비하고 `NativeDemo`를 scene의 빈 GameObject에 붙인다. 사용자가 실행 중 URL·개발키·상품 ID·installation UUID를 입력하며 기존 `unity/Demo`는 변경하지 않았다. iOS host push는 `NativeDemoIosPush`를 명시적으로 추가해야 한다. Editor에서는 Native 사용 차단과 안내를, Android/iOS LOCAL_MOCK Player에서는 프로그램 방식의 설정·구매 callback을 확인했다. 실제 포인터·화면 렌더링과 실기기 UI는 미검증이다.
-
-## 실연동 준비 상태 확인
-
-서버를 실행할 동일한 로컬 환경에서 `bash scripts/verify-external.sh --check-config`를 실행한다. 이 명령은 설정 항목과 credential 파일의 존재·기본 형태만 확인하고 값과 경로를 출력하지 않으며, 네트워크 요청이나 실제 로그인·구매·발송을 수행하지 않는다. 누락 또는 형식 오류가 있으면 종료 코드 2다. `PRESENT_SHAPE_ONLY`는 자격 증명 유효성이나 실연동 성공을 뜻하지 않는다. Android/iOS host의 앱 ID·서명·기기·Unity 라이선스 및 각 항목의 실제 검증은 위 절의 안내를 따로 수행해야 한다. Xcode StoreKit과 Mock push의 Unity 실행 검증은 남아 있으므로 사용자 설정만으로 완료되지 않는다.
-
-LOCAL_MOCK simulated push 전달 정책은 앱이 연결 중일 때만 전달하고 연결이 없으면 즉시 버리는 것으로 사용자가 선택했다. 서버 스트림과 Native 수신은 전용 로컬 DB E2E를 통과했고 Unity E2E는 미검증이며 실제 FCM/APNs 전달과 별개다. 연결 확인 기본 간격은 30초이며 `GAMEBRIDGE_MOCK_PUSH_HEARTBEAT_SECONDS`로 변경할 수 있다.
-
-## XCODE_STOREKIT 개발 전용 구성
-
-Xcode local `.storekit` 환경에서만 사용한다. iOS 18 이상과 host Info.plist의 `SKIncludeConsumableInAppPurchaseHistory = true`가 필요하며, 미설정 또는 구버전이면 구매 전에 CONFIG_REQUIRED 또는 UNSUPPORTED_PLATFORM으로 차단된다. Unity iOS에서 `GAMEBRIDGE_XCODE_STOREKIT` scripting define과 Development Build를 함께 설정하면 build hook이 이 옵션을 추가한다. 다른 빌드는 변경하지 않으며 define을 넣고 Development Build를 끄면 build가 실패한다. 별도 local-mock Backend와 개발키, `GameBridgeConfig`의 `XcodeStoreKit` 모드 및 Mock A/B 계정을 명시하고 Xcode scheme에 `ios/StoreKit/GameBridge.storekit`을 지정한다. 거래는 StoreKit 클라이언트에서 검증되고 서버 지급은 개발용 fake 경로에서 이뤄진다. 서버가 Xcode JWS를 Apple 서버 서명으로 검증하는 것은 아니다. 같은 거래 후보 키에 둘 이상의 거래가 있거나 다른 시도가 동일 키를 쓰면 지급을 거부한다. Xcode 데이터는 일반 Mock 사용자·지갑과 분리된다. 실제 Unity player·프로세스 강제 종료 및 Apple sandbox는 별도 미검증이다.
-
-### Unity Android LOCAL_MOCK 재실행 준비 (PX-T01)
-
-1. Unity Hub에서 6000.5.8f1 라이선스와 Android Build Support를 확인한다. 2026-11-12에는 모두 준비된 상태였으며, 라이선스·약관 조작이 다시 필요하면 사용자가 직접 진행한다. 별도 Android 36 테스트 에뮬레이터를 사용한다.
-2. 최신 SDK Maven/XCFramework를 `scripts/package-sdk.sh`로 새 staging에 묶고 `GAMEBRIDGE_UPM_STAGING=<staging 절대경로> bash scripts/prepare-unity-android-mock.sh --prepare`를 실행한다. 출력한 project 경로를 보존한다. 이 단계는 Unity import가 아니다.
-3. `bash scripts/build-unity-android-mock.sh <project 절대경로> <새 APK 절대경로>`를 실행한다. 성공 시에만 전용 에뮬레이터에 APK를 설치한다. Unity 6000.5.8f1에서 실제 Android Player 빌드에 사용했다.
-4. 별도 local-mock 서버와 테스트 DB를 준비하고 `GAMEBRIDGE_LOCAL_TRACE_ENABLED=true`를 명시한다. API trace는 opt-in이고 local-mock profile에서만 켜지며 요청 경로별 고정 operation, method, 서버 request ID, status만 출력한다. 응답·요청 본문, token, 개발키는 기록하지 않는다.
-5. 테스트 앱의 실행 intent에 `gamebridge_mock_url` (`http://10.0.2.2:<포트>`)과 **전용 synthetic 개발키** `gamebridge_mock_key`를 전달한다. 실제 서비스 키를 사용하지 말고 intent가 로컬 기기 도구에 노출될 수 있음을 고려한다. 앱 logcat의 `GB_MOCK_STEP` 및 `GB_MOCK_NATIVE`와 서버의 `LOCAL_MOCK_TRACE`를 모아 각 요청의 성공과 서버 지급을 독립 확인한다. `GB_MOCK_RESULT PASS LOCAL_MOCK`만으로는 서버 DB 검증을 대체하지 않는다.
-
-Android instrumentation 대조 시험은 전용 에뮬레이터에서 Kotlin bridge→local Backend 및 DB 지급을 확인했다 ([증거](evidence/px-t03-android-mock-bridge.md)). 이것은 Unity 실행이 아니다.
-
-Unity Android Player import·빌드·실행 및 서버 지급 대조는 2026-11-12 전용 에뮬레이터에서 **LOCAL_MOCK PASS**다 ([증거](evidence/px-t04-unity-android-local-mock.md)). Unity iOS Simulator LOCAL_MOCK 경로도 PASS했으며 실제 제공자는 NOT_RUN이다. 개발키와 세션 토큰을 로그·Git·공개 보고서에 넣지 않는다. 이 경로는 Google 로그인이나 실제 스토어 결제가 아니다.
-
-
-## Unity Android LOCAL_MOCK 전체 E2E 및 공개 증거 — PX-T04~PX-T06
-
-**상태: Unity Android Player LOCAL_MOCK E2E PASS.** [공개 검증 증거](evidence/px-t04-unity-android-local-mock.md). 초기 전체화면 안내는 수동으로 닫았다. 기존 PX-T03 Android instrumentation PASS는 Unity를 경유하지 않은 별도 결과다. Unity iOS Simulator LOCAL_MOCK은 별도 PASS이며 실제 Google 로그인·스토어 결제는 NOT_RUN이다.
-
-### 사용자 환경 준비
-
-1. Unity Hub에서 사용하는 Editor(기본 6000.5.8f1)의 라이선스를 정상 활성화하고 Android Build Support, 해당 SDK/NDK 및 OpenJDK 모듈을 설치한다. 로그인 여부와 활성 라이선스는 다르다. 약관·계정 동의는 사용자가 처리한다.
-2. 기존 사용자 기기/앱을 변경하지 않도록 새 전용 GameBridge_V2_ Android AVD를 사용한다. 이 테스트는 대상 AVD에 com.gamebridge.sdk.mockconsumer 앱이 이미 설치돼 있으면 거부한다. 기존 앱을 자동 삭제하거나 덮어쓰지 않는다.
-3. 전용 로컬 Docker Compose PostgreSQL을 준비한다. 이미 존재하는 volume이나 개인 DB는 삭제하지 않는다. docker compose -p gamebridge-sdk-local -f infra/compose.yaml up -d --wait 실행 시 GAMEBRIDGE_DB_PASSWORD가 로컬 환경에 미리 설정돼 있어야 한다. 테스트는 gamebridge-sdk-local-postgres-1에 무작위 신규 DB·역할을 만들고 종료 뒤에도 보존한다.
-4. 현재 코드로 빌드한 Android Maven, iOS XCFramework를 사용하여 scripts/package-sdk.sh로 새 Unity UPM staging을 만든다. staging은 SHA256SUMS가 있는 절대 경로여야 한다. 오래된 패키지로 검증하지 않도록 소스·산출물 SHA를 확인한다.
-5. Unity CLI(unity 명령), Java, Android adb, Docker 및 Python 3.9 이상이 사용 가능해야 한다. 기존 사용자 Unity 프로젝트는 수정하지 않는다.
-
-### 실행
-
-모든 경로·이름은 아래의 예시를 본인 환경의 실제 값으로 지정한다. 비밀번호, 개발키, 토큰은 명령에 직접 넣지 않는다.
-
-~~~sh
-export UNITY_EDITOR_PATH="/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/MacOS/Unity"
-export UNITY_EDITOR_VERSION="6000.5.8f1"
-export GAMEBRIDGE_UPM_STAGING="/absolute/path/to/fresh-upm-staging"
-export GAMEBRIDGE_ANDROID_SERIAL="emulator-5598"   # 실제 전용 에뮬레이터 serial로 변경
-export GAMEBRIDGE_TEST_AVD_NAME="GameBridge_V2_example"  # 실제 전용 AVD 이름
-# 필요할 때만:
-# export GAMEBRIDGE_ADB="/absolute/path/to/adb"
-# export GAMEBRIDGE_TEST_POSTGRES_CONTAINER="gamebridge-sdk-local-postgres-1"
-# export GAMEBRIDGE_TEST_POSTGRES_PORT="54329"
-
-python3 harness/run-unity-android-mock-e2e.py --run-local \
-  --staging "$GAMEBRIDGE_UPM_STAGING" \
-  --serial "$GAMEBRIDGE_ANDROID_SERIAL" \
-  --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME"
-~~~
-
-Runner의 실제 실행 순서는 전용 AVD 및 staging 검사 → 격리 소비 프로젝트 준비 → Unity Player APK 빌드 → Backend bootJar 빌드 → 무작위 독립 PostgreSQL DB 생성 및 LOCAL_MOCK Backend 실행 → 전용 AVD에 APK 신규 설치 → Player 실행 → Unity 단계·Native 진단 마커 수집 → Backend HTTP 200 trace와 원장 1건·100코인 대조이다. 새로운 APK를 빌드하지 못한 경우 실제 Unity 성공으로 처리하지 않는다.
-
-- Exit 0 / PASS: 위 전체 검증 완료. 실제 Google/Apple 인증·스토어 테스트를 의미하지 않는다.
-- Exit 2 / DEFERRED_ENV: 활성 Unity 라이선스·Android 모듈·전용 기기 등 환경이 준비되지 않아 실행 불가.
-- Exit 1 / FAIL: 빌드/실행/검증 조건 실패. result.json의 errorCode와 로컬 로그를 점검한다.
-
-결과는 artifacts/unity-android-e2e-*/result.json에 기록된다. 원본 build/server 로그는 해당 로컬 artifacts 내부에만 남기며 Git에 포함하지 않는다. E2E 성공 시 로그는 Unity의 GB_MOCK_RESULT, GB_MOCK_STEP, GB_MOCK_NATIVE 이벤트와 Backend LOCAL_MOCK_TRACE 및 DB 원장을 각각 대조한다. Native request ID와 서버 HTTP request ID는 다른 계층에서 발행되므로 같은 값이라고 주장하지 않는다.
-
-Kotlin Native-only 재실행은 기존 빌드된 sample-app.apk와 AndroidTest APK, Backend jar 및 아직 대상 앱이 없는 새로운 전용 GameBridge_V2_ AVD가 필요하다. 다음 명령은 Unity Player가 아니라 Kotlin bridge 시험이다.
-
-~~~sh
-python3 harness/run-android-mock-bridge-e2e.py --run-local \
-  --serial "$GAMEBRIDGE_ANDROID_SERIAL" \
-  --expected-avd "$GAMEBRIDGE_TEST_AVD_NAME"
-~~~
-
-### 공개 증거 만들기
-
-실제 PASS 후, **추적 파일 변경이 없는 커밋된 checkout에서 실행한 결과**에 한해서 아래 export를 수행한다. 현재 저장소의 결과를 검사하므로 소스 HEAD가 다르면 거절한다. 실패·미실행 상태에서 증거 문서를 미리 만들지 않는다.
-
-~~~sh
-python3 harness/export-mock-e2e-evidence.py \
-  --kind unity \
-  --result artifacts/unity-android-e2e-실제생성경로/result.json \
-  --output docs/evidence/px-t04-unity-android-local-mock.md
-~~~
-
-Native-only 결과를 공개할 때에는 --kind native 및 별도 신규 파일명을 사용한다. 이 생성기는 PASS·DB 지급·필수 로컬 원본 파일을 검사하고 공개 가능한 제한된 필드만 Markdown에 기록한다. 원본 로그의 전체 내용, 개발키, APK, DB 식별·접속 정보, 개인 기기 경로를 복사하지 않는다.
-
-Runner와 exporter의 문법·오프라인 입력 검증은 GitHub Actions의 Linux lane에 추가했다. Unity runtime 필수 lane의 미구현 상태 및 전체 gate FAIL은 별개로 유지한다. 실제 성공 후 PROGRESS.md·WORK_LOG.md·FINAL_REPORT.md에 실행 환경, 검증 명령, 새 근거를 반영해야 한다.
-
-### Unity iOS Simulator LOCAL_MOCK (PX-T07)
-
-Unity 6000.5.8f1, Xcode 26.6 및 iOS 18.6 ARM64 Simulator에서 전용 local-mock 전체 경로가 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging <UPM staging 절대경로>`는 신규 Simulator·로컬 DB를 만들고 보존한다. 무서명 시도는 로그인 INTERNAL_ERROR였고 성공 시험에는 Apple 계정이나 개인키가 필요 없는 Simulator 로컬 ad-hoc 서명을 사용했다. 테스트 앱의 ATS는 loopback만 허용한다. Unity Android emulator와 iOS Simulator의 LOCAL_MOCK push/lifecycle은 별도 검증했다 ([Android](evidence/px-t08-unity-android-mock-push.md), [iOS](evidence/px-t12-unity-ios-mock-push.md)). 실제 Apple 로그인, App Store 결제, APNs 및 실제 기기 검증은 별도 NOT_RUN이다.
-
-PX-T07의 최초 전용 Simulator 시도에서 Unity Mobile Notifications 패키지의 기본 프로젝트 설정이 시작 시 권한 창을 표시했다. 최종 테스트 소비 앱은 plist의 자동 알림 권한 요청 설정을 끈 뒤 별도의 사용자 UI 조작 없이 통과했다. 이는 테스트 앱 설정이며, 실제 host는 Unity Notifications 설정과 AppDelegate/권한 요청 정책을 직접 확인해야 한다. APNs 검증은 아니다.
-
-
-### 배치26 Unity Editor LicensingClient IPC 환경 대기
-
-`unity license status --format json`은 active/exit0이었으나 새 전용 Android 소비 프로젝트의 실제 Editor는 LicenseClient IPC channel 부재와 재연결 실패를 반복했다. APK/Player는 미실행이며 raw runner FAIL은 `artifacts/unity-android-e2e-0tikbq7v`에 보존했다. 계정 로그인·라이선스 재활성화·파일 수정은 수행하지 않았다. 현재 기기/Player 상태를 과거 PASS로 덮지 않는다.
-
-사용자 환경에서 Unity Hub/Editor의 정상 라이선스 통신을 복구한 뒤 상태 조회와 실제 전용 프로젝트 실행을 각각 확인한다. 토큰·라이선스 원본·Editor 원본 로그를 Git에 올리지 않는다. 영향 재검증은 `harness/run-r09-utf8.py` 및 `scripts/ci-unity-e2e.sh`의 기존 명시 opt-in/전용 기기 소유 조건을 사용하고, current SDK source와 일치하는 `artifacts/batch26/upm-current` 또는 재생성 staging으로 수행한다. AVD명·PID·console/ADB port 소유 및 PackageCache 확인 없이 실행하지 않는다. 이번 전체 Strict는 실행0/DEFERRED_ENV이고, 후속 실행은 별도 evidence/source로 남긴다. 전용 self-hosted 등록·실 Provider·Release는 이 환경 복구로 승인되는 항목이 아니다.
-
-
-### 배치27 Unity IPC 제한 진단 결과와 재개
-
-[정제관측](evidence/p10-batch27-ipc.json)과[비교결과](evidence/p10-batch27-integrated.md)를확인한다. CLI active/exit0이나새공식direct Editor smoke(timeout210초/124)와CLI run(timeout180초/6)은각1회모두실제메서드receipt/marker가없었다. protocol거부/globalmutex획득실패/channel부재를확인했으나mutex소유자및완전한원인은미확정이다. 추가수정시도0이며Hub·Client/사용자프로세스종료,계정로그아웃·재활성화,라이선스파일삭제/수정은하지않았다.
-
-사용자환경/Unity지원에서Hub·Editor Client간호환성과정상IPC서비스상태를확인하고복구해야한다. 토큰/원본로그/라이선스파일을Git이나채팅에올리지않는다. 정상환경에서아래명령을각1회·순차실행해실제Editor메서드완료를확인한다. 새전용project만만들며Player/SDK test 통과와는별개다. 이batch에서는아래새도구의unit만검증했고이미시행한두Editor비교를반복하지않았다.
+# 선택적 실서비스 연동 준비
+
+포트폴리오 개발 종료 후 **실제 Provider 연동을 선택할 때만** 사용하는 절차입니다. 설정 준비와 실연동 PASS는 별개이며 현재13개 Task의 WAITING_USER를 유지합니다. 로컬 실행은 [Quick Start](INTEGRATION.md), 증명된 결과는 [COMPATIBILITY](COMPATIBILITY.md)가 기준입니다.
+
+## 준비·권한 경계
+
+| ID | 코드/로컬 준비 | 사용자가 할 일 | 현재 실연동 |
+| --- | --- | --- | --- |
+| USER-GIT | 실제 identity로 commit/FF 인계 및 Hosted 기록 존재 | 이미 설정된 계정/identity 유지 | 포트폴리오 Git 인계와 Provider 인증은 별개 |
+| USER-UNITY |6000.5.8f1·모듈·새 양 Player 실제 검증 | 자기 환경의 Editor·module·license 준비, 약관/로그인 직접 처리 | 전용 self-hosted/Release는 미검증 |
+| USER-DEVICE | Android API34 AVD/iOS18.6 Simulator, 무서명 archive·ad-hoc Simulator | 실제 단말·앱 ID·서명·capability·기기 신뢰 | 실기기 미검증 |
+| USER-BACKEND | local/synthetic profile·DB·HTTP·verifier/sender 코드 | sandbox URL·별도 DB/role·secret 범위와 Provider 권한 준비 | 운영/외부 연결 미검증 |
+| USER-AUTH-GOOGLE | Credential Manager/nonce·서버 verifier·fake 경계 | OAuth client ID·audience·package·서명 fingerprint·테스트 계정 | WAITING_USER |
+| USER-AUTH-APPLE | AuthenticationServices·nonce·서버 verifier·fake 경계 | Bundle/App ID·Sign in with Apple capability·audience·서명·계정 | WAITING_USER |
+| USER-BILLING-GOOGLE | Play Billing·검증/Google finalizer·synthetic 회귀 | 앱/internal testing·일회성 두 상품·테스터·서버 서비스 계정 권한 | WAITING_USER |
+| USER-BILLING-APPLE | StoreKit2·검증/finish·Xcode 로컬 일부 | App Store 상품·Sandbox tester·Bundle/환경·검증 신뢰 설정 | WAITING_USER, P05-T03 FAIL 별도 유지 |
+| USER-PUSH-GOOGLE | FCM adapter/sender·fake HTTP | Firebase 프로젝트/앱·Host 초기화·google-services 설정·서버 권한 | WAITING_USER |
+| USER-PUSH-APPLE | APNs adapter/sender·Host forwarding·fake HTTP | Push capability·aps-environment·topic/Team/Key·서버 .p8·실기기 | WAITING_USER |
+
+실제 key·서명·계정 정보를 생성하거나 ChatGPT로 전송할 필요가 없습니다. 사용자가 자기 로컬 secret 파일/환경에서 설정합니다. Codex는 계정 로그인·약관 동의·키 발급/삭제를 대신하지 않습니다. 실서비스 시험은 별도로 명시 승인된 범위에서만 실행합니다.
+
+## 현재 구현의 실제 설정 이름
+
+아래는 [verify-external-config.py](../scripts/verify-external-config.py)와 현재 Backend loader가 사용하는 이름입니다. 과거 계획 변수명을 새 설정 이름으로 혼동하지 않습니다.
+
+| 변수 | 앱별 JSON/파일 형태 | 연결 |
+| --- | --- | --- |
+| `GAMEBRIDGE_AUTH_AUDIENCES_JSON` | appId→GOOGLE/APPLE의 비어 있지 않은 문자열 배열 | OAuth/Apple audience와 서버 identity 검증 |
+| `GAMEBRIDGE_GOOGLE_PURCHASE_CONFIG_JSON` | appId→packageName·productIds 문자열 배열·credentialPath | Google purchase/finalizer |
+| `GAMEBRIDGE_APPLE_PURCHASE_CONFIG_JSON` | appId→bundleId·productIds 배열·rootCertificatePaths 파일 배열 | Apple server library 검증 |
+| `GAMEBRIDGE_FCM_CONFIG_JSON` | appId→projectId·credentialPath | Firebase Admin 발송 |
+| `GAMEBRIDGE_APNS_CONFIG_JSON` | appId→teamId·keyId·topic·privateKeyPath | APNs token-auth 발송 |
+| `SERVER_PURCHASE_ENCRYPTION_KEY` | Base64 decode32 bytes | 서버 구매 증빙 암호화 |
+| `SERVER_TOKEN_ENCRYPTION_KEY` | Base64 decode32 bytes | 서버 Push token 암호화 |
+
+값은 예제 repository의 실제 서비스 credential이 아닙니다. 파일은 서버 로컬의 읽기 가능한 경로로 공급하며 SDK/UPM/Host 앱에 서버 credential을 내장하지 않습니다. 기존 DB 비밀번호·암호화키를 재실행 때 임의로 바꾸지 않습니다.
 
 ```sh
-python3 harness/run-unity-editor-smoke.py --run-local --mode direct
-python3 harness/run-unity-editor-smoke.py --run-local --mode cli
+bash scripts/verify-external.sh --check-config
 ```
 
-실제smokePASS후에만현재staging/source·기기소유조건을확인해미실행Android/iOS Unity Player를실행하고전체Strict를별도source/evidence로진행한다. A미복구상태에서는P10-T01PARTIAL/P10-T02제품진입보류다. 원격self-hosted등록/Release/실Provider호출은별도이며이도구가활성화하지않는다.
+값을 출력하거나 Provider에 요청하지 않는 존재/기본 자료형 검사입니다. 마지막 실제 실행은7항목 모두 `MISSING_OR_INVALID`, exit2였습니다. 올바른 JSON과 파일이 있어도 identity·권한·앱 등록·상품·서명·네트워크·실제 기능 PASS가 되지는 않습니다. 배열 대신 문자열 등 잘못된 자료형은 성공으로 처리하지 않습니다.
 
+## 실제 연동을 선택할 때의 순서
 
-### 배치28 — Hub GUI는 정상, 자동 batch는 미확인
+1. **도구·Host:** 기존 앱과 분리한 sandbox 앱/단말을 선택하고 app/package/bundle ID·서명·capability를 맞춥니다. Unity는 staged Native package와 같은 설치 조건을 사용합니다.
+2. **Backend:** production과 다른 sandbox DB/role/URL·암호화키·최소 Provider 권한을 로컬에서 준비합니다. profile 표식 충돌은 기존 데이터를 지워 해결하지 않습니다.
+3. **인증:** Google server client ID와 서버 audience, Apple bundle/audience/nonce를 맞춥니다. 실제 로그인→서버 검증→복원·갱신→취소·logout을 Native 앱과 Unity에서 각각 확인합니다. 토큰 원문은 기록하지 않습니다.
+4. **스토어:** `coins_100/premium_unlock` 논리 ID를 실제 테스트 product ID에 매핑합니다. 가격은 스토어 localized price를 표시합니다. 정상/pending/cancel/재시작·복구/계정 불일치/지급 후 응답 유실과 서버 원장·완료 처리를 확인합니다. 실제 Google consume/ack는 서버 소유입니다.
+5. **FCM/APNs:** Host의 기존 service/Activity 또는 Delegate/completion을 연결합니다. 권한 거부·token 회전·명시적 등록/해제·foreground/열기·logout 후 소유 해제를 확인하고, 원격 전달은 실제 단말에서 별도로 확인합니다.
+6. **증거:** 사용한 source/package/checksum/OS·mode, 요청별 익명 requestId·status·원장 결과를 정제해 기록합니다. 준비 상태와 실제 PASS를 별도로 바꿉니다.
 
-사용자가정상실행확인을위임해에이전트가새전용project를Hub에서열었고6000.5.8f1 Scene/Hierarchy/Inspector정상UI를확인했다. 검증용Editor는 `artifacts/unity-editor-smoke-w2bupii_/project` 경로로열린상태다. 기존사용자project는열지않았다.
+개발 send는 admin key·allowlist가 있어야 하고 LOCAL_MOCK의 `SIMULATED`/Sandbox의 `QUEUED`는 단말 전달 성공이 아닙니다. Xcode 로컬 StoreKit은 별도 개발 모드이며 실제 Apple 서버 증빙 검증을 대신하지 않습니다. iOS26.5 실패·18.6 간헐 위험은 [Known Limitations](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)에 남겨 두었습니다.
 
-같은배치의앞선direct자동smoke1회는210초outertimeout124/검증2,receipt/marker부재였다. GUI정상과자동smoke/Player성공은다르므로T01PARTIAL/C1C2진입보류다. 이번추가자동smoke/Player반복은없다. [정제관측](evidence/p10-batch28-editor.json)에서Clientbundle버전과실제product버전·종료값미측정범위를구분했다.
+## 안전한 재실행 도구
 
-GUI상태바에는다른SDK의ADBserver인스턴스를Unity가종료했다는경고가있었다. 에이전트가ADB명령을보낸것은아니며대상과영향은미확정이다. 이후기기시험전에기존SDK/ADB process와전용serial/PID/양port소유를확인해야한다. 확인없이ADB전체재시작이나기존기기정리를하지않는다. 계정/라이선스파일조작도없다. 자동smoke환경복구확인→current Player→Strict→T01판정후에만C1/C2를구현한다.
+[Android 소비 runner](../harness/run-unity-android-mock-e2e.py)는 staging과 명시한 전용 serial/AVD/PID·ADB 실행파일 및 build/runtime endpoint를 검증합니다. [iOS 소비 runner](../harness/run-unity-ios-mock-e2e.py)는 새 소비 프로젝트·Simulator·DB를 사용합니다. 실제 검증 명령·결과는 [배치34 증거](evidence/p10-batch34-integrated.md)에 있습니다. 자신의 환경에서 소유권과 조건을 확인하지 않은 채 과거 PID/UUID를 복사해 실행하지 않습니다.
 
+원래 Strict는58개 required lane과 recorded P05 실패를 보존합니다. [preflight](../harness/strict-preflight.py)의 E2 생성/전 wrapper 소유권 계약이 아직 미완성이므로 전체 실행0회입니다. self-check9개 PASS를 전체 Strict로 해석하지 않습니다. self-hosted 등록·Unity opt-in·Release 준비는 이 포트폴리오 종료 작업에서 수행하지 않습니다.
 
-### 배치29 GUI 실제 메서드·APK 및 사용자 요청 중단
-
-GUI nonce/소유project/Unity7조건·실제C#메뉴실행과기존Builder의27,072,192byte AndroidAPK 생성은PASS다. batch/StrictPASS는아니다. Android새AVD의설치/launch는성공했으나180초Player marker timeoutFAIL,새DB users/sessions/purchases/ledger 각0·원인미확정이다. Qt Emulator가CUA표면으로노출되지않았다는한계도원인확정과구분한다. 사용자중단요청으로[재개명령/상태](evidence/p10-batch29-resume.md)를저장했다. 새iOS GUI helper코드는unit검증만됐고실제export/Player는NOT_RUN,이번CI/push도0회다. 사용자재개전새실행을시작하지않는다.
-
-
-### 배치29 재개 후 GUI 빌드 경로와 실제 Player 판정
-
-[배치29 통합결과](evidence/p10-batch29-integrated.md)를현재기준으로본다. GUI test-only 메뉴에서실제C#컴파일/Unity객체7조건/nonce·소유경로·버전·receipt를확인했다. Android는기존BuildMockPlayer 그대로27,072,192byte APK생성PASS, iOS는기존BuildMockIosPlayer 그대로3,076file Xcodeexport와hash검증PASS다. GUI성공은batch라이선스/자동Strict성공이아니다.
-
-Android의새AVD 실제설치/Activity시작은성공했지만180초Player marker timeoutFAIL이었다. 원인미확정/새DB users·sessions·purchases·ledger모두0,Qt emulator가CUA앱으로노출되지않은한계도확정원인과구분한다. 해당AVD/DB/APK/로그는보존·emulator종료됐다. 같은controller/설치된기기를무작정재실행하거나uninstall하지않는다. 추가조사는새근거와전용기기/원본stage·UI/NativeRuntime관측이필요하다.
-
-iOS는새owned18.6Simulator와DB에서기존GUIexport를명시적으로검증해Xcode ad-hoc build/C ABI4symbol·auth/purchase/wallet/logout·PII marker·Backendtrace·원장1/delta100을PASS했다. receipt의UUID/name소유를확인한뒤그Simulator만shutdown/데이터보존했다. 실제Apple로그인/AppStore/APNs/실기기는아니다.
-
-GUI프로젝트는전용artifact에만만든다. 새Android준비는 `harness/prepare-unity-gui-android.py --prepare --staging <현재staging> --package-cache <exactcache> --variant pii`, iOS는대응 `prepare-unity-gui-ios.py`다. Hub로해당project만열고 `GameBridge Verification/Switch Android Target` 또는 `Switch iOS Target` 후실제컴파일/대상확인→`Build Android Mock`/`Export iOS Mock`를실행한다. 출력경로는project-local non-secret설정에서검증하며Hub가셸환경을상속한다고가정하지않는다. 완료nonce로같은메뉴를재클릭하면기존산출물/receipt보호로거부된다.
-
-E2E의GUI입력은기본CLI실패fallback이아니다. Android는 `--gui-project`/`--gui-build-receipt`/`--expected-emulator-pid`/`--expected-adb-server-pid`/전용serial·avd명·현재5037동일SDK adb가모두필요하다. iOS는 `--gui-project`/`--gui-export-receipt`/`--adhoc`로검증된export만소비한다. source ancestor/보호SDK와test source diff0·147package/checksum·정확cache·Builder/주·보조scenario·nonce로그·APK 또는PBX/exporttreehash가달라지면거부한다. 실제빌드receipt가없는PASS문자열을입력할수없다.
-
-현재 GUI Editor는 `artifacts/unity-ios-mock.1j6lHu/GameBridgeGuiIosB29`로idle이며Android전용GUI는정상종료했다. batch28의과거다른SDK ADB종료대상영향은미확정으로유지한다. 본시험은기존5037서버를시작/종료하지않았고device명/PID/양port/서버경로를재검증했다. Root원인과사용자기기소유확인없이ADB전체재시작·다른SDK client접근·사용자AVD정리를하지않는다. T01/T02제품완료조건과self-hosted/Release/실Provider13대기는유지한다.
-
-
-### 배치30 정상 OS 안내 회복과 남은 자동 환경 조건
-
-[현재 결과와 정확한 재개 순서](evidence/p10-batch30-integrated.md). 사용자가 전용 AVD 한정 ADB UI 입력을 명시 요청한 후, 새 B30B APK/새 AVD에서 정상 Viewing full screen/Got it 안내만1회 닫았고 동일 PID의 managed entry·SDK·Backend·구매원장1/delta100·PII E2E가 PASS했다. 사용자 ACK가 포함돼 무인 CI의 성공 조건을 확보한 것은 아니다. 다른 AVD/권한/계정/설정 조작 허가로 확대하지 않는다.
-
-원래 자동 batch Editor IPC/receipt 정상은 아직 미확인, Strict 실행0이다. 기존 Push runner는 batch builder 전용으로 GUI receipt 경로가 없고, JNI는 별도 UTF8 APK와 설치 없는 전용 AVD가 필요하다. 기존 설치/AVD 보존 gate를 우회하지 않는다. 이 내부 하네스 작업과 실행 환경은 다음 재개 대상으로 남겼으며 실Provider 13건의 인증·콘솔 준비와 구분한다. T01 전체 검증 충족 전 T02 제품 refactor는 보류한다. 새 실제 키/서명·license/토큰을 Git이나 채팅에 넣지 않는다.
-
-현재 B30B GUI project는 artifacts/unity-android-mock.3JQWTU/GameBridgeGuiAndroidB30B로 idle, 두 시험 AVD/controller/Backend는 종료했고 디스크/DB/원본 증거를 보존했다. 최초 timeout과 환경 검증 오류도 보존한다. 코드/test를 변경하지 않은 iOS는 배치29 actual PASS와 보호 source diff0로 대조했고 새로운 실행으로 표시하지 않는다.
-
-배치30 원격 Hosted-only run44115202057/sourcea1cc004는 false 단1회 SUCCESS였다. Hosted4+basic만 성공, Unity/Release SKIPPED이므로 자동 batch/Strict·self-hosted·실Provider 조건을 해소하지 않는다. 결과 문서 이후 코드/test 변화0과 현재 미완료/재개 조건을 통합보고에 기록했다.
-
-
-### 배치31 새 Hub 약관과 GUI Push/JNI 재개
-
-[최신 구현·검증·재개 순서](evidence/p10-batch31-integrated.md). Hub3.22.6 파일선택 문제 후 정상 재시작에서 Hub4.0.1의 새 Unity Hub Software License Terms가 나타났다. CUA의 `Confirmation Required at Action time: Accepts a legally binding agreement` 규칙에 따라 에이전트는 동의하지 않았고 사용자 직접 확인·동의 또는 새 약관에 대한 명시 허용을 요청했다. 이전의 일반 개발 지시나 배치30 단일AVD ACK 허용을 새법적동의로 취급하지 않는다. 응답/직접처리 전에는 해당 GUI 단계만 보류한다. 계정/라이선스 파일/저장 설정을 조작해 우회하지 않는다.
-
-실제GUI/APK/Player는 아직 미실행이다. 두 소유 project는 공식 unity-cli projects add로 등록(exit0)됐으며 Hub에서 GameBridgeGuiAndroidB31Push 및 GameBridgeGuiAndroidB31Utf8를 검색할 수 있다. Editor는6000.5.8f1을 유지하고 nonce/receipt/147SDK·원본Builder·scenario/APK hash를 실제 빌드 후 확인한다. 현재5037listener0으로 과거PID를 재사용하지 말고 새기기 시험 전 동일SDK server/AVD PID·serial/양port를 실제 입증해야 한다. 기존 성공/실패AVD·설치app·DB를 덮지 않는다.
-
-신규 Push GUI/R09 harness 구현은 내부 완료했고 새iOSPush GUI/현재Player 영향 검증은 내부 후속/환경 작업이다. 이를 실Provider13건 인증 준비와 섞지 않는다. 새 AVD의 정상 전체화면 안내는 실제 관측 뒤 별도 허용을 받아야 한다. 기존 승인 범위를 확대하지 않는다. T01 전체 조건·현재iOSPush 및 자동Strict 조건을 확인한 후에만 T02 codec/decoder 제품 refactor에 진입한다.
-
-사용자 응답은 “직접 약관 확인·동의 후 알려줄게”였다. 완료 통지를 기다리며 에이전트가 동의하지 않는다. 기다리는 동안 R09 iOS 독립 runner의 UUID 문제를 수정했고 새18.6 Simulator의 C ABI XCTest1건을 실제PASS했다. 첫 destination70 실패/시험0은 보존했다. GUI/Android/Unity Push는 미실행이다. Hosted run44126492891/source5af3aff는203건에서SUCCESS지만 이후UUID수정은원격CI미검증,최종로컬204/CABI1범위로구분한다. 추가dispatch는하지않았다.
-
-
-### 배치32 현재 로컬 완료 범위와 후속 환경
-
-[배치32 A~J/source/커밋/재개 우선순위](evidence/p10-batch32-integrated.md). Hub4의 정상 Projects·실제 GUI Builder를 확인했고 약관 버튼을 에이전트가 누르지 않았다. 이후 Mac 잠금이 CUA에 관측돼 수동 해제를 요청했다. 잠금/비밀번호/보안설정 우회는 하지 않았다. 그동안 새 환경의 실제 direct/cli batch nonce 메서드가 모두 PASS해 원래 headless CLI 경로로 새 패키지의 Android/iOS 구매PII를 실제 검증했다. 이 결과는 GUI 검증과 구분한다. 선택적 시각 검증이 필요하면 Mac을 직접 해제한 뒤 준비된 post-Pii 프로젝트를 사용할 수 있다.
-
-CLI Android batch 종료가 ADB 서버를 종료하는 증거를 확인해 빌드용5038과런타임5037을 명시분리했다. 기존listener가있으면임의교체하지않고같은SDK의자기foregroundPID만관리한다. 모든실제device명령은PID/AVD/양port/server/executable 및환경endpoint를재검증한다. 특정좌표/과거PID/기존성공AVD를재사용하지않는다. 배치32의일반추가실행허용은새소유기기의정확한비구속전체화면교육안내1회에만적용했고계정/권한/약관/보안설정으로확장하지않았다.
-
-T01·T02는명시제품기준으로로컬PASS이며실Provider13건·전체SDK/Release완료와다르다. Native session/grant 내부분리후가격/동시성/보존/refresh·finalization/finish정책변경은없다. 사전계측은.NET fake/loopback범위이고Native memory/UI프로파일링은남는다. 원래 fullStrict의전체lane build/runtime분리·binding/OS·StoreKit컨텍스트전파는내부후속작업(DEP-STRICT-OWNED-ENV)이며외부인증대기로넘기지않는다. 자동Editor회복만으로전체Strict를PASS로쓰지않는다.
-
-StoreKit26.5 FAIL/18.6간헐위험·실제Google/Apple/FCM/APNs·실기기·self-hosted/Release미검증과계획OpenAPI문서부재는계속기록한다. 키/토큰/서명/license/원본로그·DB·APK/IPA/Xcode출력은Git에넣지않는다. 새키나비밀번호를채팅에보내지않는다.
-
-배치32 최종 Hosted source2017771/run44165459795는 false 단1회 SUCCESS였다. Python237/Swift40·필수새Codec/Decoder/원장변이를검증했으며Unity/Release는SKIPPED이다. 이후코드변경0. 자동Editor/개별Player회복과전체Strict/실Provider·Release제약을혼동하지않으며미완료내부orchestration/프로파일링/OpenAPI/P11업무는통합문서우선순위를따른다.
-
-## 배치33 설정 형태 감사
-
-`bash scripts/verify-external.sh --check-config`는 현재 7항목 모두 MISSING_OR_INVALID, exit 2다. 아래 값은 로컬 비밀 환경/파일로만 준비한다. 실제 값이나 파일 내용을 채팅·Git에 넣지 않는다.
-
-| 항목 | 준비할 설정 | 검사 범위 | 사용자가 완료할 작업 |
-| --- | --- | --- | --- |
-| 인증 audience | GAMEBRIDGE_AUTH_AUDIENCES_JSON | 앱별 GOOGLE/APPLE의 비어 있지 않은 문자열 배열 | Google OAuth 및 Apple audience를 실제 앱에 맞게 등록 |
-| Google 구매 | GAMEBRIDGE_GOOGLE_PURCHASE_CONFIG_JSON | packageName, productIds 문자열 배열, 읽기 가능한 credentialPath | Play 앱·상품·테스터·서버 권한 연결 |
-| Apple 구매 | GAMEBRIDGE_APPLE_PURCHASE_CONFIG_JSON | bundleId, productIds 배열, rootCertificatePaths 파일 배열 | Bundle·상품·Sandbox tester·신뢰 인증서 준비 |
-| FCM | GAMEBRIDGE_FCM_CONFIG_JSON | projectId, credentialPath 파일 | Firebase 앱 연결 및 서버 발송 권한 |
-| APNs | GAMEBRIDGE_APNS_CONFIG_JSON | teamId/keyId/topic, privateKeyPath 파일 | Apple 앱 capability·인증키·환경 연결 |
-| 구매 암호화 | SERVER_PURCHASE_ENCRYPTION_KEY | Base64 decode 32 bytes | 서버 로컬 secret store에서 준비 |
-| 푸시 암호화 | SERVER_TOKEN_ENCRYPTION_KEY | Base64 decode 32 bytes | 서버 로컬 secret store에서 준비 |
-
-검사 구현은 scripts/verify-external-config.py, 실행 entrypoint는 scripts/verify-external.sh다. 준비 완료는 파일 내용·권한·실제 앱 연결·Provider 통신 성공을 증명하지 않는다. 실제 Provider 13건은 WAITING_USER를 유지한다. 배열 대신 문자열이나 문자열 필드 대신 배열이 들어오면 실패한다.
+과거 설정 지시는 Git의 이전 `USER_SETUP.md`와 WORK_LOG에 보존했습니다. 이후 작업은 명시적으로 실서비스 연동을 선택한 경우에만 진행하며, 위 목록을 자동 필수 배치로 전환하지 않습니다.

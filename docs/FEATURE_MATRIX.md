@@ -1,36 +1,16 @@
-# 기능 호출 경로 1차 조사 — 개발 중
+# 구현·호출 경로와 실제 범위
 
-배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI와 실제 Unity Scene/Frame·runtime 메모리를 측정했고 weak client1개 잔존을 관측했다. 원인·누수 여부는 미확정이다. Task/continuation·Android heap·CPU blocking 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+이 표는 기능을 찾기 위한 현재 지도입니다. 기존64 Task의 별도 상태는 [PROGRESS](PROGRESS.md), 포트폴리오 종료 판정은 [FINAL_REPORT](FINAL_REPORT.md)를 따릅니다.
 
+| 기능 | 공개 진입점·실제 구현 | 확인한 범위 | 남은 범위 |
+| --- | --- | --- | --- |
+| 초기화·종료·상태 | `GameBridgeSdk`/`GameBridgeClient`, Native coordinator·BridgeFacade/Swift C ABI | Core/managed·실제 양 Player·C ABI·Player100cycle | first app init·CPU blocking·weak1 root 미확정 |
+| 로그인·세션 | `SignInAsync/RestoreSessionAsync/SignOutAsync`, Native HTTP/storage·Backend session/identity | LOCAL_MOCK Player·test key/synthetic·refresh/session 회귀 | 실 Google/Apple와 모든 세션/실기기 조합 |
+| 상점·지급·복구 | `GetProductsAsync/PurchaseAsync/GetEntitlementsAsync/SyncPurchasesAsync`, Native store adapters·Backend verifier/원장/finalizer | local 구매/잔액·원장1/100·TC 변이복원·LOCAL_MOCK 복구 증거 | 실스토어·StoreKit 기존 실패/환경 위험·일부 복구 조건 |
+| Push 권한·등록·해제 | facade Push API, AndroidPushHostAdapter/IosPushHostAdapter·Native backend registration | mocked 권한·simulated 등록/삭제·OS 조건별 기존 시험 | 실 token·FCM/APNs·실기기 |
+| Push 수신·열기 | `PushReceived/PushOpened/PushTokenChanged`, Native/host forwarding·PushRouter | LOCAL_MOCK 양 Player의 dedupe/main thread/session·연결 복구 | 실제 notification tap·remote·모든 OS/lifecycle |
+| 설정·진단·PII | `GetServiceConfigAsync/GetDiagnostics/GetNativeDiagnosticsAsync`, cache/maintenance/typed ring·정제 오류 | Native/fake/HTTP·Player PII/진단 | 실제 운영 보안 심사·모든 장애 시나리오 |
+| 샘플·설치 | NativeDemo/OfflineDemo, Compose/SwiftUI sample, Gradle/Xcode hook | 새 양 Unity 소비·Native sample build·프로그램 방식 demo callback | 실제 사용자 포인터/렌더링·상용 UX 검증 |
+| 패키지·API·계약 | Maven/AAR/XCFramework/UPM, public API/Bridge schema/HTTP OpenAPI |147 checksum·선정JVM4/C ABI4·R8/Swift·OpenAPI24 성공 구조 | 모든 ABI/Unity/OS·SSE/Map 세부 기계 검사 |
 
-현재 source와 범위는 [배치32 통합 증거](evidence/p10-batch32-integrated.md)를 따른다. 아래 역사적 기능 실행 근거를 모든 후속 소스/산출물의 새 실행으로 바꾸지 않는다. 현재 Core의 Android Push·UTF8 JNI/iOS Unity Push가 새 기기에서 PASS했고, Native codec/grant decoder 정식 변경은 Native 단위·별도 후보와 handoff 신규 패키징으로 검증했다. Native 변경 후 새 package Android/iOS 구매PII는 명시CLI batch로실제PASS이며 별도 GUI 시각검증은Mac잠금으로미실행이다. 실제 Provider13은 WAITING_USER, StoreKit26.5 실패·자동Strict/self-hosted·실기기·Release/Native profiling 미검증을 유지한다.
-
-
-2026-11-12 소스 및 WORK_LOG 기준. Unity Android LOCAL_MOCK 전체 흐름은 전용 에뮬레이터에서 PASS했다 ([증거](evidence/px-t04-unity-android-local-mock.md)); Unity iOS Simulator LOCAL_MOCK 전체 흐름도 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). 양 플랫폼의 LOCAL_MOCK Push/Lifecycle도 별도 Player에서 검증했다 ([Android](evidence/px-t08-unity-android-mock-push.md), [iOS](evidence/px-t12-unity-ios-mock-push.md)); 실제 제공자와 실기기는 별도다. `PARTIAL`은 일부 경로만 구현하거나 완료 검증이 남았다는 뜻이다. Fake·LOCAL_MOCK·실제 플랫폼 결과는 서로 대체하지 않는다. 이 문서는 최종 P11 감사가 아니다.
-
-| 기능/Unity 공개 표면 | Editor offline | Android/iOS Native bridge | 확인한 범위와 잔여 작업 |
-|---|---|---|---|
-| 초기화·상태·종료 | in-memory fake | LOCAL_MOCK과 PLATFORM_SANDBOX 경로, session/종료 경계 구현 | 독립 .NET 및 Native fake/C ABI, Unity Editor 및 Android/iOS LOCAL_MOCK Player 경계 확인. 실기기·다른 모드는 별도 |
-| 로그인·복원·로그아웃 | fake | LOCAL_MOCK 서버, Android Google, iOS Apple Native facade 연결 | 양 Native Mock local DB·fake provider 및 Android/iOS Unity LOCAL_MOCK Player 로그인 확인. 실제 Google/Apple 계정은 미검증 |
-| 상품·구매·잔액 | fake 두 상품 | LOCAL_MOCK 서버, Play Billing 및 StoreKit sandbox facade 연결; 검증 전 대기와 검증 후 이벤트 구분 | Mock local DB·fake 및 Android/iOS Unity LOCAL_MOCK Player 구매 확인. 실제 Play/Apple 거래는 미검증; iOS 26.5 local StoreKit 시험은 ENV-STOREKIT-26 FAIL |
-| 구매 복구 | fake | 양 Native Mock의 암호화 pending 단서·sync, Play/StoreKit recovery 및 동일 계정 single-flight | Unity Android emulator/iOS Simulator에서 서버 응답 유실 후 별도 프로세스 재시작·세션/pending 복구 및 원장 불변 확인. 실기기·실제 스토어 복구 미실행 (BUG-009 OPEN) |
-| push 권한·등록·해제 | fake | LOCAL_MOCK simulated 등록, Android FCM 및 iOS host-managed APNs sandbox 등록 코드 | Unity Android emulator/iOS Simulator LOCAL_MOCK 등록·해제·logout 후 DB token 삭제 확인. Android emulator·iOS Simulator OS 권한 dialog 거부, 등록 차단 및 재요청 확인; 독립 managed Mock 거부 PASS. OS 시험 자동 재현·원격 FCM/APNs·실기기는 미검증 |
-| push 수신·열기 | fake UI 경로 일부 | Android host forwarding/메모리 cold-start queue, iOS Unity Notifications host adapter 및 C ABI route 연결 | Unity Android emulator/iOS Simulator LOCAL_MOCK 수신·중복·main-thread·session 전환 확인. 실제 알림 클릭 및 remote FCM/APNs·실기기는 미검증 |
-| 점검 설정 | fake default | LOCAL_MOCK 및 sandbox 서버 조회·유효 cache와 구매 gate 연결 | server/fake 및 local HTTP→Unity decoder 확인. sandbox 공개 조회와 구매 gate는 같은 Native cache를 사용하며 실제 sandbox/Unity player는 미검증 |
-| 진단 | C# registry snapshot | Native typed ring과 Unity 비동기 snapshot 연결 | Native·독립 managed fake 및 Android/iOS LOCAL_MOCK Unity Player에서 Native 진단 조회 확인. 실기기·다른 모드는 미검증 |
-| 샘플 | Editor Offline UGUI 소스 | Android/iOS Native sample과 별도 UPM Native Demo 소스 | Native Mock sample의 과거 simulator/emulator UI 일부, Offline Demo는 격리 Unity Editor에서 모의 로그인·상품·구매 callback 확인. Native Demo의 Editor 사용 차단·안내 및 Android/iOS에서 같은 신규 프로젝트의 Sample API import 후 LOCAL_MOCK Player 설정/모의 구매 callback 확인. Package Manager Sample API import 확인; GUI 클릭과 실제 화면 렌더링·포인터는 미검증 |
-| 패키지 | UPM staging·export hooks | Android Maven/AAR, iOS static XCFramework script | 최신 Android Maven 독립 R8 consumer와 iOS device/simulator XCFramework·Swift consumer link 확인. 별도 UPM staging 147개 체크섬 확인. 별도 staged SDK의 Unity Android/iOS LOCAL_MOCK Player import/export 확인; 새 산출물마다 재검증 필요 |
-
-Backend의 Apple/Google synthetic verifier→인증 HTTP→DB grant 및 Google durable finalizer fake 시험은 실제 스토어 검증이 아니다. LOCAL_MOCK 개발 send에서 Android·Swift Native 수신까지 전용 local DB로 확인했다. `SIMULATED`는 FCM/APNs 원격 전달이 아니다. `scripts/smoke-local.sh`의 판정은 자체 필수 조건을 따르며 별도 Player 증거만으로 해당 명령을 통과 처리하지 않는다.
-
-`XCODE_STOREKIT`의 iOS 18.6 local 거래·fake DB 응답 유실 복구는 확인했으나 Unity player·실제 프로세스 종료는 미검증이다. 실제 플랫폼 자격증명 설정과 검증은 별도로 남았다. 외부 설정·재실행 절차는 `docs/USER_SETUP.md`, 남은 내부 문제와 환경 대기는 `docs/PROGRESS.md` 및 `docs/WORK_LOG.md`를 따른다.
-
-## 코드 책임 분리와 측정
-
-- Google session codec/binding과 Apple grant decode는 실제 Native 제품의 내부 책임 분리다. refresh single-flight·tombstone·account/attempt·grant→finish 정책과 공개 API는 유지했다. Native fake/주입회귀 통과를 실제 Provider 성공으로 표시하지 않는다.
-- P10-T01은 명시 제품 조건으로 로컬PASS이며, 전체SDK/Release/Strict 조건과 다르다. T02 후속 플랫폼 검증·T03/T04·P11전체감사는 별도 상태다.
-- [사전성능 실측](evidence/p10-batch32-performance.md)의 시간값과 lifecycle100/316helper 실행범위를 구분한다. Native memory·실제UI jank·Unity startup은 NOT_RUN이다.
-- contracts/openapi.yaml은 실제24operation과DTO/LOCAL_MOCK HTTP 대응 검사를 제공한다. 합성Sandbox 전수 및 SSE payload 대응이 남아 BUG-017 OPEN이다. Bridge JSON Schema와 별개다.
-
-
-배치33 연속 작업 결과는 [통합 증거](evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.
+주요 소스 연결은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 재현 명령과 source별 증거는 [COMPATIBILITY](COMPATIBILITY.md)에 모았습니다. 과거 GUI/CLI/Player/StoreKit/Provider의 범위를 한 개의 PASS로 합치지 않습니다. 이 표로 원장의 PARTIAL/FAIL을 일괄 승격하지 않습니다.

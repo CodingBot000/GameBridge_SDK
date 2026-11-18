@@ -54,5 +54,29 @@
     "No product/harness/contract code changes planned",
     "Portfolio integration docs and local DEV_RC finalization",
     "Optional backlog, no automatic next mandatory batch"
-  ]
+  ],
+  "integrationDocumentationReview": {
+    "localDocumentLinksChecked": 150,
+    "sdkCallNamesChecked": [
+      "Dispose",
+      "GetEntitlementsAsync",
+      "GetProductsAsync",
+      "InitializeAsync",
+      "PurchaseAsync",
+      "RegisterPushAsync",
+      "RequestPushPermissionAsync",
+      "ShutdownAsync",
+      "SignInAsync",
+      "SignOutAsync",
+      "UnregisterPushAsync"
+    ],
+    "errors": [],
+    "productHarnessContractDiffSinceCi": "EMPTY",
+    "scope": "Documentation link/API-name review; not compilation or a new Player run",
+    "pythonExampleSyntax": "PASS_NOT_EXECUTED",
+    "requestConfigConstructor": "Existing10-argument GameBridgeConfig overload reviewed",
+    "pushFlow": "Register/receive/unregister in SDK; sending requires separate local admin allowlist endpoint, no SDK send API invented",
+    "openApi": "Human-readable SSE/Map fields cross-checked against actual controllers; machine contract unchanged; BUG-017 OPEN",
+    "legacyStatusResolution": "Current entry documents replaced stale generic Unity-not-run claims; original evidence/work log/Git history retained"
+  }
 }

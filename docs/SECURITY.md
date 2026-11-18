@@ -1,36 +1,39 @@
-# 보안 및 신뢰 경계 — 개발 중
+# 보안과 데이터 소유권
 
-배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI와 실제 Unity Scene/Frame·runtime 메모리를 측정했고 weak client1개 잔존을 관측했다. 원인·누수 여부는 미확정이다. Task/continuation·Android heap·CPU blocking 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+현재 구현·검증의 경계이며 상용 보안 심사 결과는 아닙니다. 구조·소스는 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 설정 절차는 [USER_SETUP](USER_SETUP.md)을 따릅니다.
 
+## Host·Unity·Native·Backend
 
-이 문서는 현재 구현과 미완료 항목을 함께 기록한다. 상용 서비스의 보안 심사 또는 스토어 승인 결과가 아니다.
+| 데이터/권위 | 처리·보관 계층 | 공개 경계 |
+| --- | --- | --- |
+| OS 계정 UI·알림 권한·Activity/window·Delegate | Host가 제공, Native/명시적 host adapter가 호출 | SDK 초기화가 임의로 권한 창을 열지 않음 |
+| ID token·access/refresh token·세션 복원 | Native HTTP/세션 coordinator. Android Keystore 기반 암호화 저장소·iOS device-only Keychain | Unity에는 user/session snapshot만 전달. PlayerPrefs·로그에 token 원문을 저장하지 않음 |
+| 스토어 증빙·pending attempt·account binding | Native 복구 단서, Backend verifier/암호화 저장·원장 | C# 결과·이벤트에 raw proof를 넣지 않음 |
+| Push token | Host/Native 등록→Backend의 환경·installation·session 결속 암호화 저장 | 공개 결과는 fingerprint/등록 상태. raw token을 이벤트로 노출하지 않음 |
+| 구매 지급·재화/entitlement | Backend 검증·transaction·unique/멱등 원장 | UI callback/클라이언트 price·amount가 지급 권위가 아님 |
 
-## 실행 모드와 저장소
+[RequestRegistry](../unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs)는 session/request/operation을 검증하고 Task 중복 완료를 막습니다. Native callback bytes는 즉시 복사해 main thread에서 처리합니다. 세션 종료 뒤 이전 callback을 새 client에 넘기지 않습니다.
 
-- `LOCAL_MOCK`은 별도 PostgreSQL과 명시적 개발키를 사용한다. 개발 인증·가짜 구매·Mock 푸시 route는 `local-mock`에서만 등록된다. Sandbox/production에서 실제 Provider 실패를 Fake 성공으로 대체하지 않는다.
-- DB에 환경 표식을 두고 다른 profile에서 같은 DB를 사용하려 하면 migration 전에 거부한다. 기존 DB에 표식이 없는 경우 소유권을 임의로 추정하지 않는다.
-- Native session은 Android Keystore 기반 암호화 저장소 또는 iOS Keychain의 device-only 항목에 저장한다. Unity `PlayerPrefs`에 token을 저장하지 않는다. Native session은 app ID·모드·Backend 주소에 결속되며, 다른 환경의 저장값은 전송하거나 임의 삭제하지 않는다.
-- refresh 기본 만료는 최초 로그인부터 7일이며 회전 시 연장하지 않는다. refresh 전 저장소를 token 없는 `refresh_pending` 표식으로 원자 교체한다. 응답 유실·프로세스 종료 후 이전 refresh token을 재사용하지 않고 재인증한다. 저장소를 직접 구현하는 Host도 `save`를 원자적 전체 교체로 제공해야 한다.
-- 로그아웃은 로컬 session을 먼저 삭제한다. 서버 revoke가 확인되지 않으면 `REVOCATION_UNCONFIRMED`를 표시한다. 현재 이 경고의 재시작 후 영속 표시와 자동 revoke 재시도는 미구현이다.
-- 새 형식의 저장 session에만 provenance 검사가 적용된다. 이전 형식은 자동 이전·삭제하지 않으며 재인증이 필요하다.
+## 환경과 개발 경로
 
-## 인증과 구매
+- LOCAL_MOCK을 명시적으로 선택합니다. Google/Apple 실패나 설정 누락을 Mock 성공으로 바꾸지 않습니다.
+- DB의 profile 표식이 다르면 migration 전 거부합니다. 기존 DB의 소유권을 임의로 추정하지 않고, 시험은 새 전용 role/DB로 격리합니다.
+- 개발 auth/Xcode fake grant/Push stream은 local-mock에 한정하고, 개발 send는 local-mock/sandbox의 별도 admin key·allowlist·session 소유권을 확인합니다. production에는 개발 send가 없습니다.
+- 로컬 HTTP 소비자의 개발 예외와 production TLS를 구분합니다. 자동 Android test consumer의 cleartext 허용 manifest는 배포용이 아닙니다.
+- 자격증명·서명·개인 파일·DB·raw log·빌드 출력은 Git이나 최종 공개 문서에 넣지 않습니다. shape checker는 값·파일 내용·Provider 권한을 검증하지 않습니다.
 
-- 실제 인증 경로는 Google/Apple의 공개 JWKS, RS256 서명, issuer, app별 audience, 만료와 서버 challenge nonce hash를 확인한다. challenge 소비와 사용자 identity/session 생성은 DB transaction으로 묶는다. 실제 Provider 발급 token과 실기기 시험은 아직 사용자 설정 대기다.
-- 인증 rate limit은 사용자가 선택한 단일 프로세스 IP별 rolling 1분 challenge 30회·교환 10회가 기본이다. 전달 proxy header는 신뢰하지 않고 다중 서버 전역 제한은 지원하지 않는다.
-- 구매 원장·Google/Apple verifier 및 Google finalizer는 Mock·synthetic 데이터와 전용 DB 경계에서 검증했다. 실제 Google/Apple 거래·finalization은 실행하지 않았고 환불/취소 알림 운영은 범위 밖이다. Mock 지급을 실결제 성공으로 취급하지 않는다.
-- 사용자가 선택한 푸시 정책은 등록 해제·로그아웃 시 해당 session 토큰 즉시 삭제다. local-mock 신규 등록과 삭제는 검증했다. FCM/APNs sender와 등록 경계는 구현됐지만 실제 원격 연결은 미검증이며 과거 session 미연결 시험 행은 자동 삭제하지 않았다.
+## 세션·지급·삭제의 현재 계약
 
-## 현재 제한
+서버는 Google/Apple identity의 issuer/audience/만료/nonce와 서명을 검증하는 코드, challenge 원자 소비와 identity/session transaction을 갖습니다. 확인한 범위는 test key/synthetic/LOCAL_MOCK이며 실제 Provider 발급 결과는 대기입니다.
 
-- Mock 서버는 기본 loopback에만 노출한다. Android 및 iOS Debug 샘플의 HTTP 예외는 명시된 로컬 주소에만 적용되며, iOS Release에는 해당 예외가 없다. 실제 Provider에서는 TLS 검증을 무시하거나 오류를 Mock으로 전환하지 않는다.
-- Google/Apple Provider는 Native 및 Unity bridge에 연결됐으나 Unity Editor/JNI/IL2CPP 및 실제 기기 보안 저장소 시험, 실제 스토어 인증·결제·푸시, 키 rotation·운영 보안 심사는 미완료다.
-- 환불 자동화, Google RTDN 및 Apple Server Notifications 운영, 스토어 심사와 SLA는 이번 계획의 범위 밖이다.
+Native 저장 session은 app ID·모드·Backend에 결속됩니다. refresh 이전에 token 없는 `refresh_pending` 표식으로 원자 교체하므로 응답 유실 후 옛 refresh token을 강제 재사용하지 않습니다. 기본7일 만료는 최초 발급부터 고정이라는 기존 결정이며 새 정책을 추가하지 않았습니다. 이전 형식 session은 자동 이전/삭제하지 않고 재인증합니다.
 
-## Xcode StoreKit 개발 경계
+로그아웃은 로컬 session을 먼저 지웁니다. 서버 revoke 미확인 시 `REVOCATION_UNCONFIRMED`를 표시하지만 이 경고의 재시작 후 영속화·자동 재시도는 없습니다.
 
-Xcode 로컬 StoreKit은 iOS 18 이상과 host 소모품 이력 opt-in을 요구한다. StoreKit이 검증한 Xcode 거래만 Native가 받아 고정 필드 후보 식별자를 생성하고, 같은 식별자 이력의 단일성을 확인한다. 개발 서버는 Apple JWS를 검증하지 않는 fake 지급이며 별도 Xcode 사용자·지갑과 개발 DB profile에 격리된다. 서버는 시도 UUID와 거래 키를 원자적으로 연결해 다른 시도의 충돌을 거부하고, Native Keychain은 finish 확인 후 시도 단서를 삭제한다. 전용 simulator/local DB 응답 유실과 저장소 인스턴스 재생성 시험은 통과했으나 실제 프로세스 종료·Unity player·Apple sandbox는 미검증이다.
+구매는 검증·지급·스토어 완료를 구분합니다. Apple finish는 서버 지급 확인 후이며 Google 완료 처리는 서버 finalizer가 소유합니다. Google 증빙은 완료 확인 전 암호화 보존, 완료 후 삭제라는 기존 결정입니다. 해제/logout의 Push token은 해당 session 범위에서 삭제하며 다른 사용자 token을 삭제하지 않습니다. 정책 출처는 [DECISIONS](DECISIONS.md)입니다.
 
-## 배치33 계약·설정 점검
+## 로그와 제한
 
-OpenAPI의 x-source-bindings는 Controller profile을 보존한다. 개발용 auth/StoreKit fake grant/Push stream은 local-mock, 개발 Push send는 local-mock·sandbox에만 존재한다. 운영 인증·구매·기기 등록은 실제 서버 설정과 검증기를 요구한다. 설정 shape checker는 자격증명 내용이나 Provider 권한을 검증하지 않는다. productIds 및 certificate 경로는 배열, scalar 설정은 문자열이어야 하며 인증 증빙·Push token·키는 진단 로그에 출력하지 않는다.
+형식이 맞는 requestId·허용 operation·정제된 상태를 사용해 추적합니다. HTTP 공통 오류는 sanitized message와 requestId를 반환합니다. PII callback·server trace·synthetic 응답의 문자열 제거와 예외 원문 비노출을 [실제 증거](evidence/p11-batch34-openapi-synthetic.json) 및 [오류 시험](../backend/src/test/kotlin/com/gamebridge/config/HttpInfrastructureTest.kt)으로 확인했습니다.
+
+실제 계정·스토어·FCM/APNs·실기기·키 rotation·운영 보안 심사는 미검증입니다. RTDN/Apple Server Notifications 운영, 환불 자동화·SLA는 범위 밖입니다. 로컬 StoreKit의 개발 서버 지급은 Apple JWS 서버 검증이 아니며 P05-T03의 실패/환경 위험을 유지합니다. 전체 Strict가 통과했다는 주장도 하지 않습니다.

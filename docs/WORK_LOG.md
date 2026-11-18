@@ -4156,7 +4156,7 @@
 
 ## 배치33 A — HTTP 계약 초안 및 소스 guard
 
-- 실제 mapping 24 method/path, profile별 29 controller binding을 조사했다. `contracts/openapi.yaml`은 JSON 형식의 YAML 1.2이며 Bridge schema와 별개다.
+- 실제 mapping 24 method/path, profile별 28 controller binding을 조사했다. `contracts/openapi.yaml`은 JSON 형식의 YAML 1.2이며 Bridge schema와 별개다.
 - `artifacts/batch33-tools/bin/python -m openapi_spec_validator contracts/openapi.yaml`: 0 (openapi-spec-validator 0.7.2). 최초 빈 required 배열 오류는 수정한 뒤 재검증했다.
 - `python3 -m unittest discover -s harness -p test_openapi_contract.py -v`: 0, 정상1/음성6. path, method, security permitAll, 필수 수락 header, error schema, profile 변조 검출.
 - DTO 응답 shape와 endpoint별 오류 도달성의 실행 대응은 아직 완전하지 않다. default error와 catalog profile 설명에 한계를 명시했다. BUG-017은 OPEN/PARTIAL 유지하며 Provider 검증으로 승격하지 않는다.
@@ -4197,3 +4197,10 @@
 - README/START_HERE/API/INTEGRATION/SECURITY/COMPATIBILITY/FEATURE_MATRIX/USER_SETUP/FINAL_REPORT에 현재 증거·한계 반영. artifacts/batch33/DEV_RC에 새 staging+문서+manifest를 조합했고 소스 예제는 저장소 경로를 유지한다. 공개 게시0.
 - `gh api .../actions/variables`: 정상0개, `.../actions/runners`: 정상0개. 코드 commit 및 검토 후 fresh fetch/FF 확인하고 false Hosted 1회만 dispatch한다. H의 TC 변이·self9 등 요청 전부는 아직 실행하지 않았으며 부분 인계로 표시한다.
 - 추가 검토: diff의 private-key/AWS/Google/GitHub credential 패턴 매치0(제한된 패턴 검사이며 full scanner 아님). 신규 포함파일은 소스/문서/정제JSON뿐이고 빌드/DB/라이선스/기존미추적 경로는 제외했다. actionlint 실행은 기존 custom self-hosted label 미등록으로 exit1이며 변경한 Hosted 문법 문제는 관측하지 않았다. 해당 기존 label은 변경하지 않는다.
+
+## 배치33 H — 원격 실패 수정 및 독립 회귀
+
+- Hosted run44269328731/source deb907414706b132f4e1976e77bcc72524bb2587 단1회. inventory-contracts에서 source-bindings 파일 열거 순서가 macOS/Linux 간 달라 OpenAPI 정상 시험1이 실패했다. source 기준 정렬 비교와 정상 순서반전 fixture를 추가했다. 기존 profile/header/security 음성은 유지한다.
+- `python3 -m unittest discover -s harness -p test_openapi_contract.py -v`: exit0/8. 최종 `artifacts/batch33-tools/bin/python -m unittest discover -s harness -p 'test_*.py'`: exit0/248/18.795초. CI 이후 코드 수정이므로 원격 미검증으로 유지하며 재dispatch하지 않는다.
+- `... run-strict-local-isolated.py --run-local --self-check`: exit1, artifacts/harness-self-cwnajai_. 9개 lane 자체표시 PASS이나 실행 중 WORK_LOG의 binding count29→28 정정으로 전체 sourceDigest가 바뀌어 provenance 집계가 실패했다. 원본 결과 유지. 전체Strict 실행이 아니며 상태를 소급 PASS로 바꾸지 않는다.
+- `python3 harness/run-purchase-testcontainers.py --run-local`: exit0. artifacts/purchase-testcontainers-xvscmso9. 총11실행/정상10+의도변이1, mutation exit1/복원exit0, container 정리 검증. 소스 고정 후 자체시험만 재확인한다.

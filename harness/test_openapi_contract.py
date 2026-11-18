@@ -9,6 +9,10 @@ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class OpenApiTests(unittest.TestCase):
     def setUp(self): self.doc=json.loads((module.ROOT/'contracts/openapi.yaml').read_text())
     def test_current_source(self): self.assertEqual(module.check(self.doc),24)
+    def test_source_enumeration_order_is_irrelevant(self):
+        for ops in self.doc['paths'].values():
+            for op in ops.values(): op['x-source-bindings'].reverse()
+        self.assertEqual(module.check(self.doc),24)
     def test_path_removed(self):
         del self.doc['paths']['/health']
         with self.assertRaises(AssertionError): module.check(self.doc)

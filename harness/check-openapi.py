@@ -33,7 +33,7 @@ def check(doc, root=ROOT):
         op = doc['paths'][key[0]][key[1]]
         expected = [] if key[0] in permitted else [{'BearerSession': []}]
         assert op['security'] == expected, f'authentication drift: {key}'
-        assert op['x-source-bindings'] == bindings, f'profile/header binding drift: {key}'
+        assert sorted(op['x-source-bindings'], key=lambda b: b['source']) == sorted(bindings, key=lambda b: b['source']), f'profile/header binding drift: {key}'
         headers = {p['name'] for p in op.get('parameters',[]) if p['in']=='header' and p.get('required')}
         assert headers == {h for b in bindings for h in b['headers']}, f'header drift: {key}'
         for status, response in op['responses'].items():

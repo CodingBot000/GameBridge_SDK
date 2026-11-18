@@ -4242,3 +4242,4 @@
 - `python3 harness/strict-preflight.py --staging artifacts/batch33/upm --output artifacts/batch34/preflight.json`: exit2. UPMchecksum/원본source/Native Gitdiff,Editor실행파일·Android/iOSmodule,Runtime18.6,현재5037/5038/18080 listener를실관측했다. 모든check를항상실패시키는상수가아닌조건별판정으로변경했다.
 - license/서로다른AVD·secret·소유계획/TC준비관측은미완료여서E1대기. E2실제자원생성및全wrapperidentity배선도미완료라guard를해제하지않았고전체Strict제품실행0. fixtures를실환경완료로부르지않는다.
 - Android후속은관측상ADB port가free로변해1회새output으로재확인했으나현재E미커밋변경으로tracked-clean guard가exit1,생성0이었다. source고정후가용성을다시검사할예정이며기존실패원본보존.
+- 배치34 D 실제조건변화후검증: source fd7a55f tracked-clean으로고정하고free port를재검사한 `python3 artifacts/batch34/run-owned-android-c.py` exit0. artifacts/unity-android-e2e-kh0h6vqc의신규UPMimport→CLIbuild→실제JNI LOCAL_MOCK PII Player PASS. runtime5037/build5038·emulator5602/5603·PID/name소유검증후자기AVD/ADB종료. 원본a/b실패는보존하며새Player성공으로덮지않는다. 이번새소비Android/iOS각1PASS,성능계측과는별개.

@@ -1973,3 +1973,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치34 C: 새전용 iOS18.6/실제패키지 C ABI init/status/shutdown 각warmup20+측정100,120session/360callback·harness outstanding0. Nativeprivatepending/Taskcancel/continuation·Androidheap·Unityscene/frame은미측정. T03 PARTIAL유지.
 - 배치34 D: 선정JVM public4class가배치32/33Maven에서동일. 새전용Unity iOS UPMimport→CLIexport→Xcode ad-hoc→실제18.6Player 24marker/원장1·100 PASS. 새Android는5037/5038또는선택기기port기존소유로생성전중단(원본보존). T03의존/Android미실행으로T04 PARTIAL.
 - 배치34 E/F: required lane을실제verify-all AST에서추출하고20종 E1필수조건을판정하는순수계약/실관측을추가. 정상합성fixture PASS와필수조건누락/소유identity변조6시험 PASS. E2identity대조는구현됐지만자원생성/실관측배선미완료,license·소유계획등불충족으로실제E1 DEFERRED_ENV/2. 전체Strict0회.
+- 배치34 D 후속: source고정후실제free port를다시검사한새owned Androidcontroller c가exit0. 신규UPMimport/CLIAndroidbuild·PII Player PASS,자기AVD/ADB종료확인. 첫port충돌·미커밋guard실패원본은보존. Android와iOS새소비는각PASS이며T03의존으로T04 PARTIAL유지.

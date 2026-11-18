@@ -44,3 +44,32 @@
 새전용 iOS18.6 Unity6000.5.8f1 Player에서120회반복(20warmup/100측정),Native진단의메인스레드왕복/임시Scene생성·해제/SDK종료를측정했다. p50/p95는init66.493/66.669ms,Native진단왕복66.821/67.313ms,Scene66.527/66.717ms. frame1000개 p50/p95 33.333/33.456ms(max49.754ms). 이값은Simulator/Player프레임스케줄링포함 왕복이며순수Native실행시간·CPU blocking이아니다. UnityruntimeProfiler메모리및forcedGC후weak client1,완료후pending0을관측했다. 잔존1의원인/누수여부는미확정이고0으로바꾸지않았다. 첫app초기화시간·Task/continuation·Androidheap이남아T03/T04 PARTIAL유지. rawsample미보관으로수치계약은summary타입/범위/count검사이며percentile재계산은NOT_CHECKED다. p10-batch34-unity-performance.json참조.
 
 추가계측후최종Python263/16.708초 PASS,변경영향GUI/cache14시험및성능summary6시험 PASS. 새최신source를고정하고Hosted1회와동일source의self/TC/Core결과를후속기록한다.
+
+## 최종 동일source 및 원격 결과
+
+[Hosted44287600414](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44287600414), source648bb807baeab4e83b037856a9ae04f84e8a2154,release_validation=false dispatch1회 SUCCESS. inventory/Backend/Android/Swift-iOS/basic SUCCESS,Unity/Release SKIPPED. Ubuntu공식inventory job134744193895에서Python60모듈263시험·OpenAPI문법/정상·순서반전·중복·request body누락 fixture통과를확인했다. 최초배치33 이식성실패를새source에서검증했다. 합성HTTP10/MockMvc4의전부를Hosted가실행했다고주장하지않는다. Hosted는선정cohort,로컬은별도실행범위다.
+
+같은648bb80에서localCore(Kotlin10/Swift12/managed418+변이복원),self9/47test/check9,TC11/예상변이1·정상복원·container정리도각PASS. 원본은core-assertions-v3o3wh48,harness-self-cn8tm4r9,purchase-testcontainers-27qjah_h. 최종Python263은06f7120 code에서실행했고이후648은문서차이뿐이며Ubuntu도263으로일치한다. CI이후code/test/workflow변경0,최종결과문서만후속커밋한다.
+
+현재원장64/25 IMPLEMENTED·39 IN_PROGRESS/local23PASS·1FAIL·40PARTIAL,외부13WAITING_USER. P00-T03만개별완료기준으로승격했다. P10-T03/T04·P11 PARTIAL,BUG-017 OPEN,Strict E1/E2/E3는부분구현이며전체Strict0회. 기존P05FAIL/StoreKit26OPEN·18.6간헐위험·실Provider/self-hosted미검증을유지한다.
+
+GitHub CLI의일시적연결실패때connected read로원격3313c84를확인했고,복구후freshfetch/ancestor검사·648bb80 FFpush·local/remote동일·정상vars0뒤새CI를요청했다. 재실행·force·main변경·runner등록·Release생성0. 기존Demo/cache와이번Gradle생성backend/.kotlin도비추적상태로보존했다.
+
+최종문서commit SHA와local/remote HEAD는Git이력에서조회한다. 마지막인계는코드648bb80과의diff가문서/정제evidence뿐임을확인한뒤동일handoff로FFpush한다.
+
+## 작업별 커밋
+
+| SHA | 작업 |
+| --- | --- |
+| ec4a036 | fix(http): [P11-T01] validate DTO and HTTP contracts and classify missing headers |
+| 24de83a | docs(audit): [P11-T01] assess all task criteria and reconcile minimum project evidence |
+| ee36070 | docs(progress): [P11-T01] reconcile counts after individual task closure |
+| 950f816 | test(performance): [P10-T03] measure packaged C ABI callbacks on owned simulator |
+| f6934ac | test(compatibility): [P10-T04] verify selected JVM surfaces and fresh Unity iOS consumer |
+| fd7a55f | feat(harness): [P11-T04] evaluate strict prerequisites and validate owned identities |
+| 45c8e9d | test(android): [P10-T04] verify fresh owned consumer after endpoint availability returns |
+| 41eabe1 | test(openapi): [P11-T01] validate synthetic profile responses without retaining secrets |
+| 6b8d884 | docs(integration): [P11-T03] reconcile batch34 evidence and scoped dev candidate readiness |
+| 8f3685f | docs(validation): [P11-T04] record frozen local regression and dev candidate evidence |
+| 06f7120 | test(performance): [P10-T03] measure actual Player lifecycle scenes frames and memory |
+| 648bb80 | docs(performance): [P11-T03] record Player observations and freeze Hosted validation source |

@@ -1,0 +1,51 @@
+{
+  "databaseId": 44287600414,
+  "headSha": "648bb807baeab4e83b037856a9ae04f84e8a2154",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44287600414",
+  "jobs": [
+    {
+      "name": "android-native",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "inventory-contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "swift-ios-simulator",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "backend-postgres",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "unity-e2e",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "basic-ci",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "release-readiness",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "dispatches": 1,
+  "release_validation": false,
+  "inventoryPythonInvocations": 60,
+  "inventoryPythonTests": 263,
+  "openapiNormalOrderReversalDuplicateAndMissingBody": "CONFIRMED_IN_JOB_LOG_134744193895",
+  "localHttpSuiteScope": "Synthetic HTTP10 and MockMvc4 were local; Hosted is its selected cohorts, not every local suite",
+  "codeChangesAfterCiSource": 0
+}

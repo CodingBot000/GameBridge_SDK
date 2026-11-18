@@ -17,7 +17,30 @@
       "unfulfilledOrScopeLimit": "없음",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "AGENTS.md",
+          "exists": true
+        },
+        {
+          "path": "scripts",
+          "exists": true
+        },
+        {
+          "path": "config",
+          "exists": true
+        },
+        {
+          "path": "infra",
+          "exists": true
+        },
+        {
+          "path": "docs/TOOLCHAIN.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P00-T02",
@@ -39,7 +62,30 @@
       "unfulfilledOrScopeLimit": "현재 Unity license/IPC의 모든 실행조건은 별도 E1 미확인",
       "knownBlocker": "ENV-001",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "AGENTS.md",
+          "exists": true
+        },
+        {
+          "path": "scripts",
+          "exists": true
+        },
+        {
+          "path": "config",
+          "exists": true
+        },
+        {
+          "path": "infra",
+          "exists": true
+        },
+        {
+          "path": "docs/TOOLCHAIN.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P00-T03",
@@ -56,7 +102,36 @@
       "unfulfilledOrScopeLimit": "최소 scaffold 조건은 충족; 전체 서비스 완료와 구분",
       "knownBlocker": "ENV-002, ENV-003",
       "recommendedStatus": "IMPLEMENTED/PASS; minimum scaffold criteria met",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "AGENTS.md",
+          "exists": true
+        },
+        {
+          "path": "scripts",
+          "exists": true
+        },
+        {
+          "path": "config",
+          "exists": true
+        },
+        {
+          "path": "infra",
+          "exists": true
+        },
+        {
+          "path": "docs/TOOLCHAIN.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately.",
+      "afterAuditLedger": {
+        "implementation": "IMPLEMENTED",
+        "local": "PASS",
+        "external": "N/A",
+        "blocker": "-"
+      }
     },
     {
       "id": "P00-T04",
@@ -78,7 +153,30 @@
       "unfulfilledOrScopeLimit": "없음",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "AGENTS.md",
+          "exists": true
+        },
+        {
+          "path": "scripts",
+          "exists": true
+        },
+        {
+          "path": "config",
+          "exists": true
+        },
+        {
+          "path": "infra",
+          "exists": true
+        },
+        {
+          "path": "docs/TOOLCHAIN.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P00-T05",
@@ -100,7 +198,30 @@
       "unfulfilledOrScopeLimit": "실제 key 주입/Provider는 외부 대기",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "AGENTS.md",
+          "exists": true
+        },
+        {
+          "path": "scripts",
+          "exists": true
+        },
+        {
+          "path": "config",
+          "exists": true
+        },
+        {
+          "path": "infra",
+          "exists": true
+        },
+        {
+          "path": "docs/TOOLCHAIN.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P01-T01",
@@ -122,7 +243,26 @@
       "unfulfilledOrScopeLimit": "없음; 새 HTTP DTO23개는 Bridge 모델과 별도",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-core",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeCore",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/Core",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P01-T02",
@@ -144,7 +284,26 @@
       "unfulfilledOrScopeLimit": "없음; HTTP OpenAPI와 구분",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-core",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeCore",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/Core",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P01-T03",
@@ -161,7 +320,26 @@
       "unfulfilledOrScopeLimit": "모든 언어 race/동일·다른설정 완료조건의 단일 근거집합 최종 확인 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-core",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeCore",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/Core",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P01-T04",
@@ -178,7 +356,26 @@
       "unfulfilledOrScopeLimit": "세언어 fake 재지급불변 조건별 최종 근거 연결 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-core",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeCore",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/Core",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P01-T05",
@@ -195,7 +392,26 @@
       "unfulfilledOrScopeLimit": "평문저장 부재·TLS 예외조건의 전체 플랫폼 근거 연결 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-core",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeCore",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/Core",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P02-T01",
@@ -212,7 +428,18 @@
       "unfulfilledOrScopeLimit": "동일 DB 두번째기동 migration멱등성을 이번 HTTP실행만으로 입증 못함",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/resources/db/migration",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P02-T02",
@@ -229,7 +456,18 @@
       "unfulfilledOrScopeLimit": "old-refresh replay와 사용자A/B 격리 및 sandbox 차단은 별도 기존시험 증거",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/resources/db/migration",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P02-T03",
@@ -251,7 +489,18 @@
       "unfulfilledOrScopeLimit": "없음; 실Store 검증과 구분",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/resources/db/migration",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P02-T04",
@@ -268,7 +517,18 @@
       "unfulfilledOrScopeLimit": "worker재시작·다른key동일거래·finalization금액불변 전수 연결 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/resources/db/migration",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P02-T05",
@@ -285,7 +545,18 @@
       "unfulfilledOrScopeLimit": "token회전/logout 연계·admin allowlist 송신은 별도 기존회귀",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/resources/db/migration",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P02-T06",
@@ -307,7 +578,18 @@
       "unfulfilledOrScopeLimit": "없음",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/resources/db/migration",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P03-T01",
@@ -324,7 +606,30 @@
       "unfulfilledOrScopeLimit": "standalone Compose UI의 서버잔액·재시작 조건 검증 범위 미완결",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "android/sdk-unity-bridge",
+          "exists": true
+        },
+        {
+          "path": "ios/UnityBridge",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime",
+          "exists": true
+        },
+        {
+          "path": "android/sample-app",
+          "exists": true
+        },
+        {
+          "path": "ios/SampleApp",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P03-T02",
@@ -341,7 +646,30 @@
       "unfulfilledOrScopeLimit": "SwiftUI 실제 sample 저장/재시작은 C ABI standalone 측정으로 대체 불가",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "android/sdk-unity-bridge",
+          "exists": true
+        },
+        {
+          "path": "ios/UnityBridge",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime",
+          "exists": true
+        },
+        {
+          "path": "android/sample-app",
+          "exists": true
+        },
+        {
+          "path": "ios/SampleApp",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P03-T03",
@@ -358,7 +686,35 @@
       "unfulfilledOrScopeLimit": "이번 batch33 package의 새 Android소비 실행은 기존ADB 포트소유 충돌로未실행",
       "knownBlocker": "ENV-002",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "android/sdk-unity-bridge",
+          "exists": true
+        },
+        {
+          "path": "ios/UnityBridge",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime",
+          "exists": true
+        },
+        {
+          "path": "android/sample-app",
+          "exists": true
+        },
+        {
+          "path": "ios/SampleApp",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately.",
+      "postRunReview": {
+        "closed": "Fresh package Android Unity JNI/PII consumer PASS after actual endpoint availability returned",
+        "evidence": "p10-batch34-unity-android.json",
+        "remaining": "Task-specific sdk.status/delayed UTF8 proof still needs explicit linkage to retained R09 evidence; no blanket promotion"
+      }
     },
     {
       "id": "P03-T04",
@@ -375,7 +731,38 @@
       "unfulfilledOrScopeLimit": "Unicode Unity callback과 현package 새소비는 별도 Player근거 필요",
       "knownBlocker": "ENV-002",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "android/sdk-unity-bridge",
+          "exists": true
+        },
+        {
+          "path": "ios/UnityBridge",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime",
+          "exists": true
+        },
+        {
+          "path": "android/sample-app",
+          "exists": true
+        },
+        {
+          "path": "ios/SampleApp",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately.",
+      "postRunReview": {
+        "closed": "Fresh Unity iOS consumer and packaged C ABI status/lifecycle PASS",
+        "evidence": [
+          "p10-batch34-unity-ios.json",
+          "p10-batch34-cabi-performance.json"
+        ],
+        "remaining": "Explicit Unicode Unity callback/source linkage remains to be consolidated"
+      }
     },
     {
       "id": "P03-T05",
@@ -392,7 +779,30 @@
       "unfulfilledOrScopeLimit": "scene교체/DomainReload 조합 조건의 전체 실증 필요",
       "knownBlocker": "ENV-002",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "android/sdk-unity-bridge",
+          "exists": true
+        },
+        {
+          "path": "ios/UnityBridge",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime",
+          "exists": true
+        },
+        {
+          "path": "android/sample-app",
+          "exists": true
+        },
+        {
+          "path": "ios/SampleApp",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P03-T06",
@@ -409,7 +819,30 @@
       "unfulfilledOrScopeLimit": "README 순서의 실제사용자 클릭/시각검증 미완료",
       "knownBlocker": "ENV-002",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "android/sdk-unity-bridge",
+          "exists": true
+        },
+        {
+          "path": "ios/UnityBridge",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime",
+          "exists": true
+        },
+        {
+          "path": "android/sample-app",
+          "exists": true
+        },
+        {
+          "path": "ios/SampleApp",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P04-T01",
@@ -426,7 +859,26 @@
       "unfulfilledOrScopeLimit": "실로그인UI는 USER-AUTH-GOOGLE, local 완료기준 묶음 추가확인",
       "knownBlocker": "USER-AUTH-GOOGLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/auth",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/session",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P04-T02",
@@ -443,7 +895,26 @@
       "unfulfilledOrScopeLimit": "실계정/capability는 USER-AUTH-APPLE, lifecycle완료증거 최종대조",
       "knownBlocker": "USER-AUTH-APPLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/auth",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/session",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P04-T03",
@@ -465,7 +936,26 @@
       "unfulfilledOrScopeLimit": "실Google/Apple 서명은 WAITING_USER",
       "knownBlocker": "USER-AUTH-GOOGLE, USER-AUTH-APPLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/auth",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/session",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P04-T04",
@@ -482,7 +972,26 @@
       "unfulfilledOrScopeLimit": "동시만료·storage reread·C# token비노출 완료조건 전수대조",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/auth",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/session",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P04-T05",
@@ -499,7 +1008,26 @@
       "unfulfilledOrScopeLimit": "3샘플 provider선택·standalone UI별 증거분리 미완료; 실인증대기",
       "knownBlocker": "USER-AUTH-GOOGLE, USER-AUTH-APPLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/auth",
+          "exists": true
+        },
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/session",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P05-T01",
@@ -516,7 +1044,26 @@
       "unfulfilledOrScopeLimit": "pending/account mismatch·재진입 smoke를 한 완료기준별표로 보강 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/purchase",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "ios/StoreKit",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P05-T02",
@@ -533,7 +1080,26 @@
       "unfulfilledOrScopeLimit": "PlayConsole/internaltesting 실결제대기; local fake/compile완료조건 전수대조",
       "knownBlocker": "USER-BILLING-GOOGLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/purchase",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "ios/StoreKit",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P05-T03",
@@ -550,7 +1116,26 @@
       "unfulfilledOrScopeLimit": "26.5 기록FAIL/18.6간헐 위험을 유지; 실AppStore대기",
       "knownBlocker": "USER-BILLING-APPLE, ENV-STOREKIT-26",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/purchase",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "ios/StoreKit",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P05-T04",
@@ -567,7 +1152,26 @@
       "unfulfilledOrScopeLimit": "실Store자격대기; 모든 거부조건의 현source 매핑 미완료",
       "knownBlocker": "USER-BILLING-GOOGLE, USER-BILLING-APPLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/purchase",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "ios/StoreKit",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P05-T05",
@@ -584,7 +1188,26 @@
       "unfulfilledOrScopeLimit": "동시10·응답유실·재시작후불변을 기준별 현source 매핑 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/purchase",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "ios/StoreKit",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P05-T06",
@@ -601,7 +1224,26 @@
       "unfulfilledOrScopeLimit": "실제StoreKit중단·계정전환·Task완료수와지급수 전체대조 미완료",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/purchase",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "ios/StoreKit",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P05-T07",
@@ -618,7 +1260,26 @@
       "unfulfilledOrScopeLimit": "세샘플 두상품·localizedPrice·restore UI전수 미완료; 실스토어대기",
       "knownBlocker": "USER-BILLING-GOOGLE, USER-BILLING-APPLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/purchase",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "ios/StoreKit",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P06-T01",
@@ -635,7 +1296,26 @@
       "unfulfilledOrScopeLimit": "실token/원격수신대기, mock rotate및manifest 전체대조 필요",
       "knownBlocker": "USER-PUSH-GOOGLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/push",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/iOSHost",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P06-T02",
@@ -652,7 +1332,26 @@
       "unfulfilledOrScopeLimit": "실APNs대기, delegate completion 전수대조 필요",
       "knownBlocker": "USER-PUSH-APPLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/push",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/iOSHost",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P06-T03",
@@ -669,7 +1368,26 @@
       "unfulfilledOrScopeLimit": "실원격대기; 각platform컴파일과현재export근거 연결 필요",
       "knownBlocker": "USER-PUSH-APPLE, ENV-002",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/push",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/iOSHost",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P06-T04",
@@ -686,7 +1404,26 @@
       "unfulfilledOrScopeLimit": "실발송대기;429/timeout·production차단 근거별대조 필요",
       "knownBlocker": "USER-PUSH-GOOGLE, USER-PUSH-APPLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/push",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/iOSHost",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P06-T05",
@@ -703,7 +1440,26 @@
       "unfulfilledOrScopeLimit": "scene교체·실알림tap/강제종료는 별도 OS검증",
       "knownBlocker": "USER-PUSH-GOOGLE, USER-PUSH-APPLE",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "backend/src/main/kotlin/com/gamebridge/push",
+          "exists": true
+        },
+        {
+          "path": "android/sdk-android",
+          "exists": true
+        },
+        {
+          "path": "ios/Sources/GameBridgeApple",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Runtime/iOSHost",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P07-T01",
@@ -720,7 +1476,30 @@
       "unfulfilledOrScopeLimit": "offline cache·recovery허용의 모든조건별 검증 근거 보강",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "docs/FEATURE_MATRIX.md",
+          "exists": true
+        },
+        {
+          "path": "docs/API.md",
+          "exists": true
+        },
+        {
+          "path": "docs/INTEGRATION.md",
+          "exists": true
+        },
+        {
+          "path": "docs/SECURITY.md",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Samples~",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P07-T02",
@@ -737,7 +1516,30 @@
       "unfulfilledOrScopeLimit": "README 사용자순서 시각/클릭 및두화면흐름 미완료",
       "knownBlocker": "ENV-002",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "docs/FEATURE_MATRIX.md",
+          "exists": true
+        },
+        {
+          "path": "docs/API.md",
+          "exists": true
+        },
+        {
+          "path": "docs/INTEGRATION.md",
+          "exists": true
+        },
+        {
+          "path": "docs/SECURITY.md",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Samples~",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P07-T03",
@@ -754,7 +1556,30 @@
       "unfulfilledOrScopeLimit": "모든 예제API의 소스동기화 전수검사 미완료",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "docs/FEATURE_MATRIX.md",
+          "exists": true
+        },
+        {
+          "path": "docs/API.md",
+          "exists": true
+        },
+        {
+          "path": "docs/INTEGRATION.md",
+          "exists": true
+        },
+        {
+          "path": "docs/SECURITY.md",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Samples~",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P07-T04",
@@ -776,7 +1601,30 @@
       "unfulfilledOrScopeLimit": "matrix에 남은 오래된OpenAPI부재문구 수정; 완전traceability 전수대조 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "docs/FEATURE_MATRIX.md",
+          "exists": true
+        },
+        {
+          "path": "docs/API.md",
+          "exists": true
+        },
+        {
+          "path": "docs/INTEGRATION.md",
+          "exists": true
+        },
+        {
+          "path": "docs/SECURITY.md",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Samples~",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P08-T01",
@@ -798,7 +1646,26 @@
       "unfulfilledOrScopeLimit": "없음; 실기기성공과구분",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/package-sdk.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-android.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-ios.sh",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Editor",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P08-T02",
@@ -820,7 +1687,26 @@
       "unfulfilledOrScopeLimit": "없음; signeddevice와구분",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/package-sdk.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-android.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-ios.sh",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Editor",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P08-T03",
@@ -842,7 +1728,26 @@
       "unfulfilledOrScopeLimit": "없음; 산출물별후속Unity재검증은T04",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/package-sdk.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-android.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-ios.sh",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Editor",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P08-T04",
@@ -864,7 +1769,26 @@
       "unfulfilledOrScopeLimit": "없음; 새제품모든OS보증 아님",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/package-sdk.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-android.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-ios.sh",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Editor",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P08-T05",
@@ -886,7 +1810,26 @@
       "unfulfilledOrScopeLimit": "없음; 기능baseline은releasegate와별개",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/package-sdk.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-android.sh",
+          "exists": true
+        },
+        {
+          "path": "scripts/build-ios.sh",
+          "exists": true
+        },
+        {
+          "path": "unity/Packages/com.gamebridge.sdk/Editor",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P09-T01",
@@ -908,7 +1851,22 @@
       "unfulfilledOrScopeLimit": "없음",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": ".github/workflows",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P09-T02",
@@ -934,7 +1892,22 @@
       "unfulfilledOrScopeLimit": "없음; Native/Player assertion수는UNMEASURED유지",
       "knownBlocker": "측정 밖 assertion은 UNMEASURED; 현재 JNI Player 대기",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": ".github/workflows",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P09-T03",
@@ -956,7 +1929,22 @@
       "unfulfilledOrScopeLimit": "실외부인증은WAITING_USER와별개",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": ".github/workflows",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P09-T04",
@@ -978,7 +1966,22 @@
       "unfulfilledOrScopeLimit": "StoreKit18.6회복/26실패 및 실제restart 영역 미완료",
       "knownBlocker": "DEP-P09-SK18",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": ".github/workflows",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P09-T05",
@@ -1000,7 +2003,22 @@
       "unfulfilledOrScopeLimit": "실OS알림/실Provider는독립대기",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": ".github/workflows",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P09-T06",
@@ -1022,7 +2040,22 @@
       "unfulfilledOrScopeLimit": "원래Strict full환경계약은E에서별도 미완료",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": ".github/workflows",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P09-T07",
@@ -1048,7 +2081,22 @@
       "unfulfilledOrScopeLimit": "self-hosted/Release 미검증유지, 새Hosted34결과별도",
       "knownBlocker": "ENV-P09-RUNNER",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": ".github/workflows",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P09-T08",
@@ -1070,7 +2118,22 @@
       "unfulfilledOrScopeLimit": "없음; 전체Strict와별개",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": ".github/workflows",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P10-T01",
@@ -1096,7 +2159,26 @@
       "unfulfilledOrScopeLimit": "없음; 전체Strict/Release는독립gate",
       "knownBlocker": "추가 전체Strict/Release는 ENV-UNITY-LICENSE-IPC/ENV-P09-RUNNER로 별도 유지",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts/baseline",
+          "exists": true
+        },
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P10-T02",
@@ -1126,7 +2208,26 @@
       "unfulfilledOrScopeLimit": "없음; 실Provider는대기",
       "knownBlocker": "실제Provider/전체SDK·Release별도; fullStrict는DEP-STRICT-OWNED-ENV",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts/baseline",
+          "exists": true
+        },
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P10-T03",
@@ -1143,7 +2244,31 @@
       "unfulfilledOrScopeLimit": "AndroidJNIheap·Task/continuation·Unityscene/frame/Profiler未측정",
       "knownBlocker": "ENV-002",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts/baseline",
+          "exists": true
+        },
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately.",
+      "postRunReview": {
+        "closed": "Actual Unity100 cycles/scenes,1000 frames/runtime memory observed in addition to C ABI100 samples",
+        "evidence": "p10-batch34-unity-performance.json",
+        "remaining": "Android JNI timing/heaps; Task/continuation; first app init/CPU blocking; weak client1 root/leak interpretation unknown"
+      }
     },
     {
       "id": "P10-T04",
@@ -1160,7 +2285,35 @@
       "unfulfilledOrScopeLimit": "T03미완료·신규UnityAndroid차단, iOS새소비결과별도",
       "knownBlocker": "ENV-002",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "contracts/baseline",
+          "exists": true
+        },
+        {
+          "path": "harness",
+          "exists": true
+        },
+        {
+          "path": "tests",
+          "exists": true
+        },
+        {
+          "path": "docs/evidence",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately.",
+      "postRunReview": {
+        "closed": "Both new Unity consumers, selected4 JVM public surfaces and unchanged147 package sources PASS",
+        "evidence": [
+          "p10-batch34-unity-android.json",
+          "p10-batch34-unity-ios.json",
+          "p10-batch34-binary-api.json"
+        ],
+        "remaining": "P10-T03 dependency; task remains PARTIAL"
+      }
     },
     {
       "id": "P11-T01",
@@ -1177,7 +2330,26 @@
       "unfulfilledOrScopeLimit": "다수Task의기준별실행증거완결과BUG-017·기존내부FAIL 남음",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/verify-progress.py",
+          "exists": true
+        },
+        {
+          "path": "scripts/verify-external-config.py",
+          "exists": true
+        },
+        {
+          "path": "docs/USER_SETUP.md",
+          "exists": true
+        },
+        {
+          "path": "docs/FINAL_REPORT.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P11-T02",
@@ -1194,7 +2366,26 @@
       "unfulfilledOrScopeLimit": "사용자환경직접실행성 확인은미완료; Provider시험과분리",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/verify-progress.py",
+          "exists": true
+        },
+        {
+          "path": "scripts/verify-external-config.py",
+          "exists": true
+        },
+        {
+          "path": "docs/USER_SETUP.md",
+          "exists": true
+        },
+        {
+          "path": "docs/FINAL_REPORT.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P11-T03",
@@ -1211,7 +2402,26 @@
       "unfulfilledOrScopeLimit": "Strict/감사미완료와최신문서 동기화검토 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/verify-progress.py",
+          "exists": true
+        },
+        {
+          "path": "scripts/verify-external-config.py",
+          "exists": true
+        },
+        {
+          "path": "docs/USER_SETUP.md",
+          "exists": true
+        },
+        {
+          "path": "docs/FINAL_REPORT.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     },
     {
       "id": "P11-T04",
@@ -1228,7 +2438,26 @@
       "unfulfilledOrScopeLimit": "현재배치최종회귀/Hosted결과확인후인계 필요",
       "knownBlocker": "-",
       "recommendedStatus": "RETAIN",
-      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification."
+      "evidenceSourcePolicy": "Historical source proof retained; do not call it a new execution. Native/UPM diff daf3cd9..ec4a036 is empty; Backend changed only header error classification.",
+      "sourceInventoryRoots": [
+        {
+          "path": "scripts/verify-progress.py",
+          "exists": true
+        },
+        {
+          "path": "scripts/verify-external-config.py",
+          "exists": true
+        },
+        {
+          "path": "docs/USER_SETUP.md",
+          "exists": true
+        },
+        {
+          "path": "docs/FINAL_REPORT.md",
+          "exists": true
+        }
+      ],
+      "sourceInventoryScope": "Source association/path presence; execution and review limits are stated separately."
     }
   ],
   "beforeCounts": {
@@ -1245,5 +2474,18 @@
   "promotions": [
     "P00-T03 only; minimal project build conditions already demonstrated by Native/Backend builds and retained Unity Player evidence"
   ],
-  "remainingReview": "Where notes request complete source-to-scenario mapping, the audit has identified the gap rather than fabricated proof."
+  "remainingReview": "Where notes request complete source-to-scenario mapping, the audit has identified the gap rather than fabricated proof.",
+  "afterCounts": {
+    "implementation": {
+      "IMPLEMENTED": 25,
+      "IN_PROGRESS": 39
+    },
+    "local": {
+      "PASS": 23,
+      "FAIL": 1,
+      "PARTIAL": 40
+    },
+    "externalWaiting": 13
+  },
+  "postRunNote": "Initial per-task notes are retained as the audit checkpoint. postRunReview closes gaps proven later in this batch; unproven criteria remain explicit."
 }

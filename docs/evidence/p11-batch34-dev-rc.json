@@ -1,7 +1,7 @@
 {
   "status": "DEV_RC",
   "sdkVersion": "0.1.0-dev",
-  "verifiedAgainstRepo": "06f712095857c1a7cebf9593031336925f26c5b1",
+  "verifiedAgainstRepo": "648bb807baeab4e83b037856a9ae04f84e8a2154",
   "sdkBuildSource": "a83561a31c6b34fafcc85988b419fff20c7e059f",
   "shippingNativeUpmDiff": "EMPTY",
   "sdkPackageFiles": 147,
@@ -19,5 +19,8 @@
   ],
   "backendChange": "Missing required HTTP header now returns400 INVALID_ARGUMENT; Backend binary not included in this UPM candidate",
   "unityPerformance": "Actual iOS Player100 cycles and1000 frames measured; weak clients1 observed, leak conclusion unknown; CPU blocking/first app init not measured",
-  "outerManifestSha256": "e7e6858ab2dbff46f4661a6cba09f1675d1b7050aa4782a21d5e052cae0be329"
+  "hostedRun": "https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44287600414",
+  "hostedResult": "SUCCESS; selected Hosted lanes only, Unity/Release skipped",
+  "releaseReady": false,
+  "outerManifestSha256": "769aba621020f203b3c515cc6cd4bb8b9e84c94a7d09b9cf6caffaad1848346a"
 }

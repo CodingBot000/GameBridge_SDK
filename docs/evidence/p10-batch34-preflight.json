@@ -1,6 +1,6 @@
 {
-  "sourceHead": "f6934acbab10a19878f48fc042dccdcd209272e1",
-  "trackedClean": false,
+  "sourceHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
+  "trackedClean": true,
   "tools": {
     "java": true,
     "docker": true,
@@ -21,7 +21,6 @@
   "strict": "NOT_RUN",
   "exitCode": 2,
   "missingContracts": [
-    "sourceClean",
     "unityLicense",
     "distinctAvdPlan",
     "testcontainersAvailable",
@@ -92,7 +91,7 @@
   ],
   "requiredLaneCount": 58,
   "checks": {
-    "sourceClean": false,
+    "sourceClean": true,
     "stagingIntegrity": true,
     "stagingSourceMatch": true,
     "nativeSourceAttestation": true,

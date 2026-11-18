@@ -1,14 +1,17 @@
 {
-  "codeHead": "6b8d884b8d8a15dadfd1e3c0dddf74d15bc81bff",
+  "codeHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
   "python": {
-    "tests": 262,
+    "tests": 263,
     "failures": 0,
     "errors": 0,
-    "seconds": 17.004,
-    "exitCode": 0
+    "seconds": 16.708,
+    "exitCode": 0,
+    "localCodeHead": "06f7120",
+    "later648bb80Difference": "documentation only",
+    "hostedSameCodeTests": 263
   },
   "core": {
-    "sourceHead": "fd7a55f426e6bbb87e61456094d2e0246e8dc0e2",
+    "sourceHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
     "status": "PASS",
     "scope": "test-only helper invocation measurement",
     "executions": [
@@ -984,7 +987,7 @@
           "finalChecks": 1,
           "outcomes": "UNMEASURED"
         },
-        "evidence": "artifacts/lifecycle-stress.iFDkZ4/result.json"
+        "evidence": "artifacts/lifecycle-stress.jaRDIq/result.json"
       },
       {
         "name": "duplicate-guard-mutation",
@@ -1028,7 +1031,7 @@
     ]
   },
   "selfCheck": {
-    "sourceHead": "6b8d884b8d8a15dadfd1e3c0dddf74d15bc81bff",
+    "sourceHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
     "summary": {
       "status": "PASS",
       "exitCode": 0,
@@ -1139,17 +1142,23 @@
     ]
   },
   "testcontainers": {
-    "sourceHead": "fd7a55f426e6bbb87e61456094d2e0246e8dc0e2",
+    "sourceHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
     "status": "PASS",
     "tests": 11,
     "checks": 4,
     "expectedFailures": 1
   },
   "evidence": [
+    "artifacts/batch34-python-player-final.log",
+    "artifacts/core-assertions-v3o3wh48",
+    "artifacts/harness-self-cn8tm4r9",
+    "artifacts/purchase-testcontainers-27qjah_h"
+  ],
+  "earlierEvidenceRetained": [
     "artifacts/batch34-python-final.log",
     "artifacts/core-assertions-s21jc8dt",
     "artifacts/harness-self-mlczwg79",
     "artifacts/purchase-testcontainers-xkvwuum7"
   ],
-  "sourceScope": "Native shipping source unchanged; TC/Core earlier fd7a55f validated unchanged product code; later delta is test-only HTTP capture and contract checker changes. Latest self check is 6b8d884."
+  "scope": "Separate test/helper/check/sample/Player counts, never summed; no full Strict or Provider proof."
 }

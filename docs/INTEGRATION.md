@@ -1,5 +1,19 @@
 # 통합 안내 — 개발 중
 
+## 어디서 시작하나요?
+
+**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. Backend·실계정이 없어도 공개 API의 구조를 확인할 수 있지만, 현재 Unity Editor에서 실제 import/Play는 미검증입니다.
+
+| 하려는 일 | 먼저 읽을 곳 |
+| --- | --- |
+| Unity에서 Mock 로그인·상품 UI를 둘러보기 | [Editor Offline Demo](../unity/Packages/com.gamebridge.sdk/Samples~/Offline%20Demo/README.md) |
+| Android/iOS Native와 로컬 Backend 연결 준비 | 아래 **패키지 소비**와 **Unity Android LOCAL_MOCK** |
+| Google/Apple 인증·스토어·푸시 샌드박스 설정 | [USER_SETUP](USER_SETUP.md) |
+| C# 메서드·이벤트·오류 확인 | [API](API.md) |
+| 실제 완료/실패/미실행 확인 | [기능 매트릭스](FEATURE_MATRIX.md) · [진행 원장](PROGRESS.md) |
+
+> 이 페이지는 **Native/Host 통합 세부사항**을 다룹니다. Unity 패키지 소스만 가져온다고 Android AAR, iOS XCFramework 및 Host 설정이 자동으로 모두 준비되지는 않습니다. 실제 계정·스토어·원격 푸시 결과는 별도 검증이 필요합니다.
+
 ## 앱과 인증 정보의 소유권
 
 Host가 Android Activity 및 Firebase 초기화, iOS window와 AppDelegate/notification delegate를 소유한다. SDK에 화면·delegate를 전달하며 SDK가 Host delegate를 교체하지 않는다. 인증 토큰, 스토어 증빙 및 push 토큰을 Unity 이벤트, 로그 또는 `PlayerPrefs`에 기록하지 않는다. 각 플랫폼의 실제 앱 등록, 인증키, 콘솔 설정은 `USER_SETUP.md`를 따른다.

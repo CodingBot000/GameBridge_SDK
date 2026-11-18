@@ -4206,3 +4206,11 @@
 - `python3 harness/run-purchase-testcontainers.py --run-local`: exit0. artifacts/purchase-testcontainers-xvscmso9. 총11실행/정상10+의도변이1, mutation exit1/복원exit0, container 정리 검증. 소스 고정 후 자체시험만 재확인한다.
 - 소스 고정 84e1026 후 동일 신규격리 `--self-check` 재실행: exit0, artifacts/harness-self-yphsxwat/전체집계 PASS. 9lane/47test/check9/예상실패3(정상44)을 구분한다. DB/role 원본 유지, 자기 Backend만 종료. 첫 FAIL을 덮어쓰지 않았다. 이 명령은 fullStrict가 아니다. 후속 기록은 문서만 변경한다.
 - Hosted 최종44269328731/source deb907414706b132f4e1976e77bcc72524bb2587: FAILURE. Backend/Android/Swift-iOS-Simulator SUCCESS, inventory와basic FAILURE, Unity/Release SKIPPED. OpenAPI 문법 단계는 성공, 정상source비교 열거순서 오류는84e1026으로 수정/로컬248·self9로 확인했고 FFpush했다. 원격수정검증 NOT_RUN/재dispatch0. 최종결과 문서만 별도commit/동일handoff FFpush한다.
+
+## 배치34 A — OpenAPI 의미·DTO·실제 HTTP
+
+- 시작3313c847e77c17be5130451b091196db8eee0383. source/profile/header를 정규화하되 중복 binding/value는 거부한다. source만 정렬하던 비교를 보강했다. 정상 nested순서·누락·중복·DTO type/required 음성 포함15 unit PASS.
+- DTO 정적 checker는 실제 Kotlin data class의 필드·자료형·nullability·required를 대조한다. Map/동적 응답은 이 parser로 증명하지 않고 실제 HTTP fixture 범위를 따른다.
+- `artifacts/batch33-tools/bin/python harness/run-openapi-http.py --run-local`: 최초 local-mock에서 sandbox auth route의503예상과 달리404라 fixture 기대값을 실제Profile에 맞췄다(원본 artifacts/openapi-http-d4elgpn4). 후속7c5ql0ck는 PASS이지만 누락필수헤더가500임을 관측했다. 실제ApiErrors의 MissingRequestHeaderException 분류를 고쳐400/INVALID_ARGUMENT으로 회귀했다.
+- `backend/gradlew -p backend test --tests '*HttpInfrastructureTest' --rerun-tasks`: exit0. 새 MockMvc 누락header 시험 포함. 이후 HTTP runner exit0/artifacts/openapi-http-jr324w0t,24operation별 runtime scope 기록/성공·오류 body schema·requestId 대조. raw body/token/key는 결과에 저장하지 않는다.
+- 관측한 오류HTTP status를 OpenAPI에 개별 추가했고 문법검사 exit0. 합성Sandbox 성공/Provider설정실패의 추가실행과 SSE payload 전체 대조가 남아 BUG-017 OPEN을 유지한다. profile absence404를 Sandbox 성공으로 세지 않는다.

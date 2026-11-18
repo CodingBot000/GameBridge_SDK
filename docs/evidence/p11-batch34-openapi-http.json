@@ -1,0 +1,537 @@
+{
+  "sourceHead": "3313c847e77c17be5130451b091196db8eee0383",
+  "sourceState": "HEAD plus working changes",
+  "scope": "LOCAL_MOCK loopback; no provider credentials or live calls",
+  "operations": [
+    {
+      "path": "/health",
+      "method": "get",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        404
+      ],
+      "runtimeScope": "PROFILE_ABSENCE_OR_SELECTED_ERRORS_ONLY",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        404
+      ],
+      "runtimeScope": "PROFILE_ABSENCE_OR_SELECTED_ERRORS_ONLY",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "delete",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200,
+        403
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        503
+      ],
+      "runtimeScope": "PROFILE_ABSENCE_OR_SELECTED_ERRORS_ONLY",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/dev/push/stream",
+      "method": "get",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/config",
+      "method": "get",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/catalog",
+      "method": "get",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/entitlements",
+      "method": "get",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/purchases/{purchaseId}",
+      "method": "get",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        404
+      ],
+      "runtimeScope": "PROFILE_ABSENCE_OR_SELECTED_ERRORS_ONLY",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/purchases/bindings",
+      "method": "get",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/purchases/verify",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200,
+        400,
+        409
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/account",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/wallet",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/purchases/google/readiness",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        404
+      ],
+      "runtimeScope": "PROFILE_ABSENCE_OR_SELECTED_ERRORS_ONLY",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        404
+      ],
+      "runtimeScope": "PROFILE_ABSENCE_OR_SELECTED_ERRORS_ONLY",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/purchases/apple/readiness",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        404
+      ],
+      "runtimeScope": "PROFILE_ABSENCE_OR_SELECTED_ERRORS_ONLY",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        404
+      ],
+      "runtimeScope": "PROFILE_ABSENCE_OR_SELECTED_ERRORS_ONLY",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/auth/refresh",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200,
+        401
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/me",
+      "method": "get",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200,
+        401
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "staticBinding": "PASS",
+      "localHttpStatuses": [
+        200,
+        400,
+        403
+      ],
+      "runtimeScope": "LOCAL_MOCK_SUCCESS_AND_SELECTED_ERRORS",
+      "sandboxSuccess": "NOT_RUN",
+      "providerSuccess": "NOT_RUN"
+    }
+  ],
+  "observations": [
+    {
+      "path": "/health",
+      "method": "get",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/config",
+      "method": "get",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/me",
+      "method": "get",
+      "status": 401,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "status": 403,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "status": 400,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/dev/auth",
+      "method": "post",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/me",
+      "method": "get",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/catalog",
+      "method": "get",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/entitlements",
+      "method": "get",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/purchases/bindings",
+      "method": "get",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/auth/challenges",
+      "method": "post",
+      "status": 404,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/auth/exchange",
+      "method": "post",
+      "status": 404,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/purchases/verify",
+      "method": "post",
+      "status": 400,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/purchases/verify",
+      "method": "post",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/purchases/verify",
+      "method": "post",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/purchases/verify",
+      "method": "post",
+      "status": 409,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "put",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/dev/push/send",
+      "method": "post",
+      "status": 503,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/dev/push/stream",
+      "method": "get",
+      "status": 200,
+      "schema": "SSE_READY_HANDSHAKE_ONLY"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "delete",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/devices/{installationId}/push-token",
+      "method": "delete",
+      "status": 403,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/account",
+      "method": "post",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/grant",
+      "method": "post",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/dev/xcode-storekit/wallet",
+      "method": "post",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/readiness",
+      "method": "post",
+      "status": 404,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/purchases/apple/verify",
+      "method": "post",
+      "status": 404,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/readiness",
+      "method": "post",
+      "status": 404,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/purchases/google/verify",
+      "method": "post",
+      "status": 404,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/purchases/{purchaseId}",
+      "method": "get",
+      "status": 404,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    },
+    {
+      "path": "/v1/auth/refresh",
+      "method": "post",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "post",
+      "status": 200,
+      "schema": "PASS",
+      "requestIdCorrelation": "HEADER_UUID_PASS"
+    },
+    {
+      "path": "/v1/auth/refresh",
+      "method": "post",
+      "status": 401,
+      "schema": "PASS",
+      "requestIdCorrelation": "PASS"
+    }
+  ],
+  "status": "PASS",
+  "lastResponse": {
+    "method": "post",
+    "path": "/v1/auth/refresh",
+    "actual": 401,
+    "expected": 401
+  },
+  "database": "gamebridge_ci_3ddfa69284",
+  "observationsCount": 32,
+  "dtoShapesChecked": [
+    "SessionTokens",
+    "SessionProfile",
+    "RefreshInput",
+    "LogoutInput",
+    "MockInput",
+    "ChallengeInput",
+    "ChallengeOutput",
+    "ExchangeInput",
+    "WalletSnapshot",
+    "PurchaseBinding",
+    "MockPurchaseInput",
+    "MockPurchaseOutput",
+    "ApplePurchaseInput",
+    "GooglePurchaseInput",
+    "AppleReadinessInput",
+    "GoogleReadinessInput",
+    "AppleGrantResult",
+    "GoogleGrantResult",
+    "XcodeGrantInput",
+    "XcodeGrantOutput",
+    "DeviceRegistrationInput",
+    "MockDeviceInput",
+    "DevPushInput"
+  ]
+}

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 private class ValidationController {
     data class Input(@field:NotBlank val value: String)
     @PostMapping("/validation-test") fun post(@Valid @RequestBody input: Input) = input
+    @PostMapping("/header-test") fun header(@org.springframework.web.bind.annotation.RequestHeader("Idempotency-Key") key: String) = mapOf("accepted" to true)
     @PostMapping("/error-test") fun error(@RequestBody input: Input): Nothing = throw IllegalStateException(input.value)
 }
 
@@ -33,6 +34,13 @@ class HttpInfrastructureTest {
             val id = result.response.getHeader("X-Request-Id")!!
             check(result.response.contentAsString.contains(id))
         }
+    }
+    @Test fun `missing required header returns sanitized invalid argument`() {
+        val mvc = MockMvcBuilders.standaloneSetup(ValidationController()).setControllerAdvice(ApiErrors())
+            .addFilters<org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder>(RequestIdFilter()).build()
+        mvc.perform(post("/header-test"))
+            .andExpect(status().isBadRequest).andExpect(jsonPath("$.code").value("INVALID_ARGUMENT"))
+            .andExpect(header().exists("X-Request-Id"))
     }
     @Test fun `unexpected exception never exposes request secret in response or application error log`() {
         val secret = "synthetic-error-secret-93f4"

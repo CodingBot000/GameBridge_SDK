@@ -96,6 +96,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -147,6 +157,16 @@
           },
           "default": {
             "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
             "content": {
               "application/json": {
                 "schema": {
@@ -317,6 +337,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         },
         "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
@@ -374,6 +404,16 @@
           },
           "default": {
             "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
             "content": {
               "application/json": {
                 "schema": {
@@ -684,6 +724,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         },
         "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
@@ -791,6 +841,26 @@
           },
           "default": {
             "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1059,6 +1129,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -1133,6 +1213,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -1188,6 +1278,16 @@
           },
           "default": {
             "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1269,6 +1369,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -1319,6 +1429,16 @@
           },
           "default": {
             "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1380,6 +1500,16 @@
           },
           "default": {
             "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1496,6 +1626,26 @@
           },
           "default": {
             "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
             "content": {
               "application/json": {
                 "schema": {

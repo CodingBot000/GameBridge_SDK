@@ -3,6 +3,7 @@
 import json
 import re
 from pathlib import Path
+from openapi_dto import check_dtos
 ROOT = Path(__file__).resolve().parents[1]
 
 def inventory(root=ROOT):
@@ -23,7 +24,23 @@ def inventory(root=ROOT):
             result.setdefault(key, []).append({'source': str(file.relative_to(root)), 'profiles': profiles, 'headers': headers})
     return result
 
+def canonical_bindings(bindings):
+    """Unordered fields have set semantics; duplicate bindings/values are errors."""
+    normalized = []
+    for binding in bindings:
+        assert set(binding) == {'source', 'profiles', 'headers'}, 'invalid binding fields'
+        fields = []
+        for name in ('profiles', 'headers'):
+            values = binding[name]
+            assert isinstance(values, list) and all(isinstance(v, str) and v for v in values), 'invalid binding values'
+            assert len(values) == len(set(values)), 'duplicate binding value'
+            fields.append(tuple(sorted(values)))
+        normalized.append((binding['source'], *fields))
+    assert len(normalized) == len(set(normalized)), 'duplicate source binding'
+    return sorted(normalized)
+
 def check(doc, root=ROOT):
+    check_dtos(doc, root)
     actual = inventory(root)
     defined = {(p,m) for p, ops in doc['paths'].items() for m in ops if m in ('get','post','put','delete','patch')}
     assert defined == set(actual), 'path/method drift'
@@ -33,7 +50,7 @@ def check(doc, root=ROOT):
         op = doc['paths'][key[0]][key[1]]
         expected = [] if key[0] in permitted else [{'BearerSession': []}]
         assert op['security'] == expected, f'authentication drift: {key}'
-        assert sorted(op['x-source-bindings'], key=lambda b: b['source']) == sorted(bindings, key=lambda b: b['source']), f'profile/header binding drift: {key}'
+        assert canonical_bindings(op['x-source-bindings']) == canonical_bindings(bindings), f'profile/header binding drift: {key}'
         headers = {p['name'] for p in op.get('parameters',[]) if p['in']=='header' and p.get('required')}
         assert headers == {h for b in bindings for h in b['headers']}, f'header drift: {key}'
         for status, response in op['responses'].items():

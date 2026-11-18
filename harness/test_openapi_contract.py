@@ -13,6 +13,32 @@ class OpenApiTests(unittest.TestCase):
         for ops in self.doc['paths'].values():
             for op in ops.values(): op['x-source-bindings'].reverse()
         self.assertEqual(module.check(self.doc),24)
+    def test_nested_order_is_irrelevant(self):
+        for ops in self.doc['paths'].values():
+            for op in ops.values():
+                for b in op['x-source-bindings']:
+                    b['profiles'].reverse(); b['headers'].reverse()
+        self.assertEqual(module.check(self.doc),24)
+    def test_missing_binding(self):
+        self.doc['paths']['/v1/catalog']['get']['x-source-bindings'].pop()
+        with self.assertRaises(AssertionError): module.check(self.doc)
+    def test_duplicate_binding(self):
+        bindings=self.doc['paths']['/v1/catalog']['get']['x-source-bindings']
+        bindings.append(copy.deepcopy(bindings[0]))
+        with self.assertRaises(AssertionError): module.check(self.doc)
+    def test_duplicate_profile(self):
+        b=self.doc['paths']['/v1/catalog']['get']['x-source-bindings'][0]
+        b['profiles'].append(b['profiles'][0])
+        with self.assertRaises(AssertionError): module.check(self.doc)
+    def test_missing_profile(self):
+        self.doc['paths']['/v1/catalog']['get']['x-source-bindings'][0]['profiles']=[]
+        with self.assertRaises(AssertionError): module.check(self.doc)
+    def test_request_dto_required_field_removed(self):
+        self.doc['components']['schemas']['MockPurchaseInput']['required'].remove('proof')
+        with self.assertRaises(AssertionError): module.check(self.doc)
+    def test_response_dto_type_mutated(self):
+        self.doc['components']['schemas']['SessionTokens']['properties']['accessToken']['type']='integer'
+        with self.assertRaises(AssertionError): module.check(self.doc)
     def test_path_removed(self):
         del self.doc['paths']['/health']
         with self.assertRaises(AssertionError): module.check(self.doc)

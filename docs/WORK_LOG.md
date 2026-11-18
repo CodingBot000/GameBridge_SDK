@@ -4251,3 +4251,8 @@
 - `artifacts/batch33-tools/bin/python harness/run-openapi-synthetic.py --run-local`: exit0/artifacts/openapi-synthetic-tdhrysda. Sandbox5+Local5/실패·error·skip0,실제응답132건shape/schema/requestId대조PASS. 기존LOCAL_MOCK32관측과합쳐24operation모두성공200범위가있다. synthetic proof/verifier/HTTP adapter이며실Provider아님.
 - `backend/gradlew -p backend test --tests '*OpenApiCaptureTest' --tests '*HttpInfrastructureTest' --rerun-tasks`: exit0/4시험. 문자열증빙제거·schema타입보존과누락header400을확인했다. request body reference/required도실Controller DTO에대조하고누락음성을추가해OpenAPI16unit PASS.
 - SSE event payload전체및동적Map필드의보다엄밀한계약이남아BUG-017 OPEN. 모든default오류분기를실행했다고주장하지않는다.
+
+## 배치34 G/H 준비
+
+- 현재9문서와PROGRESS상단의배치32시점 stale checkpoint를배치34현재사실로정리했다. 기존실패/증거파일은유지한다. DEV_RC는동일Native bytes와실제147checksum·새양Unity소비범위를명시해보강하며공개Release는생성하지않는다.
+- 최종Python262/17.004초 exit0, OpenAPI16/문법PASS. 기존고정source fd7a55f에서Core/managed/변이복원·self9/TC11은통과했고제품Native source변경0이다. 추가HTTPcapture는test-only/no-op-by-default,실행시문자열값제거4unit과10syntheticHTTP시험으로확인했다.

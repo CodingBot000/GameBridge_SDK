@@ -1,5 +1,8 @@
 # GameBridge SDK — 개발 중
 
+배치34의 최신 검증·제약은 [통합 증거](docs/evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI 시간은 측정했지만 Task/continuation·Android heap·Unity Scene/Frame 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+
+
 Android, iOS 및 Unity 게임을 위한 SDK와 Backend를 개발하고 있습니다. 현재 프로젝트는 완성품이 아닙니다. 각 기능의 구현·실행·실패 상태는 [진행 원장](docs/PROGRESS.md)과 [작업 기록](docs/WORK_LOG.md)을 확인하세요. 외부 계정·서명·키 등은 [사용자 설정](docs/USER_SETUP.md)에 정리되어 있습니다.
 
 Android/iOS 샘플의 `LOCAL_MOCK` 로그인·구매·복원은 로컬 Backend를 사용합니다. 실제 Google/Apple 인증, 스토어 결제 및 원격 푸시 성공을 뜻하지 않습니다. Unity Native bridge에는 LOCAL_MOCK의 초기화·인증·상품·구매·서버 잔액·로그아웃 경로가 연결돼 있습니다. Unity Android Player에서 LOCAL_MOCK 초기화부터 로그인·상품·구매·서버 잔액·로그아웃까지 검증했습니다. Unity iOS Simulator의 LOCAL_MOCK 동일 흐름도 통과했습니다. 실제 iOS 기기와 실제 제공자 연동은 미검증입니다. iOS 26.5의 로컬 StoreKit 상품 조회 시험은 실패 상태입니다.

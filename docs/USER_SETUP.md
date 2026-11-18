@@ -1,5 +1,8 @@
 # GameBridge SDK — 마지막 사용자 설정 및 실연동 인계
 
+배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI 시간은 측정했지만 Task/continuation·Android heap·Unity Scene/Frame 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+
+
 > 최초 인계 양식으로 작성된 문서다. 실제 구현 및 테스트의 최신 상태는 PROGRESS.md와 WORK_LOG.md가 우선한다. 아래 설정 대기는 구현 완료나 외부 서비스 테스트 성공을 뜻하지 않는다. 사용자만 처리할 계정/콘솔/서명을 구분한다.
 
 ## 1. 역할 경계

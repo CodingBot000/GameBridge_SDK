@@ -4,16 +4,16 @@
 
 ## 현재 체크포인트
 
-- 전체 상태: IN_PROGRESS / 전체 SDK BLOCKED_INTERNAL (배치32 T01·T02 구현/로컬PASS, T03·T04·P11 PARTIAL; 실Provider·전체Strict/Release 미완료)
-- 현재 Phase / Task: 배치32 I/J / 현재코드237·Native47/43·양플랫폼변경후E2E/패키지 및Hosted 단1회SUCCESS, 최종문서 인계
-- 마지막 갱신 시각: 2026-11-18 (Asia/Seoul)
-- 마지막 검증된 소스 커밋: Native정식5ef87e5/ff2d0d5·T01closing4485b2f; 현재Core1ec/018소스실제Push/JNI·postNativeAndroid5bc3cd0/iOSdaf3cd9 실제구매PII PASS. 최종Python237/57모듈, 배치32Hosted run44165459795/source2017771 SUCCESS(237/Swift40/신규Codec 포함,Unity/ReleaseSKIPPED).
-- 현재 작업 트리 상태: handoff/p09-resume-20261113에서 작업별 commit; 기존 미추적 Demo·Python 캐시 보존
-- 현재 실행 모드: LOCAL_MOCK 및 격리된 fake 시험; 실제 Provider 미실행
-- 최신 로컬 UPM staging: artifacts/batch32/handoff/upm-current,147개/SHA d11a2b063b488f3a80b75eb9afa30f262c47fccbe3f6a947d7da1f80bcf04959. T01기존GUI실측의old80669 staging과별도로기록.
-- 현재 환경 블로커: Mac CUA잠금은GUI시각조작만미실행(CLI현재Player는검증). 자동Editor기본경로는회복. 전체Strict全lane소유/서버/OS·StoreKit컨텍스트는DEP-STRICT-OWNED-ENV, P05FAIL/ENV26OPEN·Provider13WAIT·self-hosted/Release·OpenAPI문서gap(BUG-017)유지.
-- 바로 다음 행동: 최종코드/증거/문서를검토·scan·현재handoffFFpush하고Unity비활성정상API후Hosted false1회. 최종run/source·localremoteHEAD·기존미추적3경로보존을조회.
-- 재개 행동: docs/evidence/p10-batch32-integrated.md의실제필요우선순위를따른다. 후보local21b5f71제품은정식5ef87e5/ff2d0d5에동일bytes로반영했으며별도원격branch/merge필요없음.
+- 전체 상태: IN_PROGRESS / 전체 SDK BLOCKED_INTERNAL. P05-T03 FAIL·StoreKit26 OPEN·실 Provider13 WAITING_USER 유지.
+- 현재 Phase / Task: 배치34 G/H. OpenAPI DTO23·실제24operation 성공 구조 대조, 새 양Unity 소비, C ABI 계측과 Strict 계약 보강 완료 범위를 검증 중.
+- 마지막 갱신: 2026-11-18 (Asia/Seoul).
+- 현재 source: 기능 변경은 누락 필수 HTTP header를400으로 분류하는 수정. Native/UPM shipping source는 배치33 build source a83561a와 동일.
+- 현재 검증: Python262/실패·오류0, OpenAPI16 unit/문법PASS, 합성HTTP10시험·132응답구조, 별도LOCAL_MOCK32관측, Native Core/managed/자체시험/TC 결과는 배치34 통합 증거 참조.
+- 최신 staging: artifacts/batch33/upm, 147파일. 새 배치34 양Unity 소비에서 실제 사용했으며 새 Native 재빌드로 표현하지 않는다.
+- 작업 트리: handoff/p09-resume-20261113; 기존 미추적 Demo·Python 캐시 보존.
+- 현재 모드: LOCAL_MOCK·synthetic Sandbox, 실제 Provider 호출 없음.
+- 미완료: Android JNI heap/시간, iOS Task·continuation, Unity Scene/Frame/Profiler, Strict E2 자원생성/전체 소유권 전파, SSE·동적Map 세부 HTTP 계약. P10-T03/T04·P11 PARTIAL, BUG-017 OPEN.
+- 다음 행동: 소스 고정 후 마지막 회귀·안전검토·handoff FF push·Unity opt-in 비활성 확인 후 최신source false Hosted1회. 결과 문서만 후속 갱신.
 
 ## 집계
 

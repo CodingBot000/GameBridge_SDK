@@ -1,5 +1,8 @@
 # 기능 호출 경로 1차 조사 — 개발 중
 
+배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI 시간은 측정했지만 Task/continuation·Android heap·Unity Scene/Frame 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+
+
 현재 source와 범위는 [배치32 통합 증거](evidence/p10-batch32-integrated.md)를 따른다. 아래 역사적 기능 실행 근거를 모든 후속 소스/산출물의 새 실행으로 바꾸지 않는다. 현재 Core의 Android Push·UTF8 JNI/iOS Unity Push가 새 기기에서 PASS했고, Native codec/grant decoder 정식 변경은 Native 단위·별도 후보와 handoff 신규 패키징으로 검증했다. Native 변경 후 새 package Android/iOS 구매PII는 명시CLI batch로실제PASS이며 별도 GUI 시각검증은Mac잠금으로미실행이다. 실제 Provider13은 WAITING_USER, StoreKit26.5 실패·자동Strict/self-hosted·실기기·Release/Native profiling 미검증을 유지한다.
 
 

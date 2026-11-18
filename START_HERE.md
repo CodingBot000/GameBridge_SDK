@@ -1,5 +1,8 @@
 # GameBridge SDK 개발 시작
 
+배치34의 최신 검증·제약은 [통합 증거](docs/evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI 시간은 측정했지만 Task/continuation·Android heap·Unity Scene/Frame 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+
+
 ## 이 패키지의 성격
 
 이 저장소에는 Kotlin Android SDK, Swift iOS SDK, Unity C# 패키지, Kotlin Backend와 회귀 하네스가 구현되어 있다. 이 문서는 초기 개발계획 양식에서 시작했으며, 현재 작업은 [진행 원장](docs/PROGRESS.md), [작업 로그](docs/WORK_LOG.md), [최종 보고](docs/FINAL_REPORT.md)와 최신 배치 증거에서 재개한다. 소스가 없는 초기 상태로 가정하거나 이미 검증된 작업을 다시 만들지 않는다.

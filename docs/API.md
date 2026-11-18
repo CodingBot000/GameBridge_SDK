@@ -1,5 +1,8 @@
 # 현재 API 범위
 
+배치34의 최신 검증·제약은 [통합 증거](evidence/p10-batch34-integrated.md)를 따른다. 실제24 HTTP operation의 성공 응답 구조, DTO23개, 새 양플랫폼 Unity LOCAL_MOCK 소비와 선정 JVM API를 확인했다. C ABI 시간은 측정했지만 Task/continuation·Android heap·Unity Scene/Frame 및 전체 Strict는 미완료이며 DEV_RC를 유지한다.
+
+
 구현과 검증 상태는 [PROGRESS](PROGRESS.md), 세부 실행 결과는 [WORK_LOG](WORK_LOG.md)를 따른다. Native fake와 실제 스토어 검증은 별개다.
 
 - Kotlin/Swift `LocalMockClient`는 로컬 Backend의 인증·상품·구매·복구·잔액과 Mock 푸시 등록을 제공한다. 사용자·앱·서버에 결속된 세션과 구매 단서는 Native 보안 저장소에 남는다.

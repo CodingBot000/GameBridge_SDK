@@ -4234,3 +4234,11 @@
 - 배치32의검증된소유controller를새name/port5602/staging33으로복제한`python3 artifacts/batch34/run-owned-android.py`: exit1,원본port소유검사가기존사용중endpoint를발견해자원생성전중단. 기존server/기기를kill/restart하지않았다. artifacts/batch34-android-controller.log원본보존,새Androidbuild/Player0.
 - `UNITY_EDITOR_PATH=...6000.5.8f1/... python3 harness/run-unity-ios-mock-e2e.py --run-local --staging artifacts/batch33/upm --package-cache artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache --pii-probe --adhoc`: exit0, artifacts/unity-ios-e2e-5gvhn9ti. 新consumer/UPMimport·batchCLIexport·Xcodebuild·새SimulatorPlayer,24marker/Backend trace/ledger1·100 PASS. GUI·실Apple아님.
 - 원본runner는신규Simulator를retained Booted로두므로후속에서생성DBsuffix와정확UUID/name/iOS18.6을대조해자기기기만shutdown0. 원본result변경없이정제증거에후속cleanup기록. 신규Native再build없고T03의존/새Android미실행으로T04 PARTIAL유지.
+
+## 배치34 E/F — 실제 E1 판정 및 E2 identity 계약
+
+- `strict_environment_contract.py`는실제verify-all의required_names/self_names를AST로추출한다. required누락·duplicate/20종필수조건의미확인을DEFERRED_ENV/2로판정하며모두실관측true인fixture는PASS/0이다. E2는source/ADB exe·PID/endpoint/별도AVD/Simulator/StoreKit/Backend/DB/checksum identity를대조해변조FAIL/1.
+- `python3 -m unittest discover -s harness -p test_strict_environment_contract.py -v`: exit0/6시험. 각필수조건누락및각identity변조는subTest로검사(시험수로중복합산안함). 원래결과0실행/error/parent-child guard는기존집계시험유지.
+- `python3 harness/strict-preflight.py --staging artifacts/batch33/upm --output artifacts/batch34/preflight.json`: exit2. UPMchecksum/원본source/Native Gitdiff,Editor실행파일·Android/iOSmodule,Runtime18.6,현재5037/5038/18080 listener를실관측했다. 모든check를항상실패시키는상수가아닌조건별판정으로변경했다.
+- license/서로다른AVD·secret·소유계획/TC준비관측은미완료여서E1대기. E2실제자원생성및全wrapperidentity배선도미완료라guard를해제하지않았고전체Strict제품실행0. fixtures를실환경완료로부르지않는다.
+- Android후속은관측상ADB port가free로변해1회새output으로재확인했으나현재E미커밋변경으로tracked-clean guard가exit1,생성0이었다. source고정후가용성을다시검사할예정이며기존실패원본보존.

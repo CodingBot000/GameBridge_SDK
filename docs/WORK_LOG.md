@@ -4259,3 +4259,11 @@
 - H 마지막소스고정 `...run-strict-local-isolated.py --run-local --self-check`: exit0/artifacts/harness-self-mlczwg79,source6b8d884.9lane/47test/정상44·예상음성3/check9. docs·code변경없이진행해provenance정상. fullStrict아님.
 - `run-core-assertions.py --run-local`: exit0/sourcefd7a55f/artifacts/core-assertions-s21jc8dt. Kotlin10/50helper,Swift12/122helper,managed418/복원418/분기419·duplicate mutation감지/100 lifecycle samples·316helper. `run-purchase-testcontainers.py --run-local`: exit0/sourcefd7a55f/artifacts/purchase-testcontainers-xkvwuum7/11실행·예상변이1·정상복원/container정리. 이후shipping product변경없음(HTTPcapture는test-only).
 - actionlint는검증된custom runner label을로컬config에명시해exit0. diff한정privatekey/AWS/Google/GitHub credential패턴0(전체secret scanner아님). 새진입코드/정제문서/JSON만stage하고생성물/원본log·DB·license/개인파일은제외한다. 기존Demo/cache보존. Unityopt-in정상API0개확인후FFpush/새falseHosted1회만예정.
+
+## 배치34 C3 추가 — 실제 Unity Player·Scene·Frame
+
+- GitHub CLI연결 timeout대기중 독립계측공백을줄였다. 새 `tests/UnityPlayerPerformance/PlayerPerformance.cs`와명시적 `--performance-probe`를전용CLI PII소비자에만추가했다. 실제stage의production SDK파일은바꾸지않았다.
+- `...run-unity-ios-mock-e2e.py --run-local --staging artifacts/batch33/upm --package-cache artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache --pii-probe --performance-probe --adhoc`: exit0/artifacts/unity-ios-e2e-wlv8tkox. 新project/Xcode/Simulator実Player,120 lifecycle/임시Scene,각warmup20·sample100,실제frame1000. main thread callback조건을확인했다.
+- runtimeUnity Profiler API의total allocated/managed used를forcedGC전후관측했다. pendingAfterCompletedCallsMax0, weakclients1. 전체누수·프레임안정성·CPU blocking을증명하지않고추가root분석대기로기록한다. 첫app초기화는baselineflow라시간을수집하지않았고이값은후속반복계측이다. Profiler GUI실행없음.
+- 실제저장결과에summary수치계약을후적용해PASS. rawsample은보관하지않아percentile재계산검증은NOT_CHECKED로명시한다. 잘못된count/NaN/pending양수/메모리boolean거부와weak1관측보존1시험추가,기존5와총6PASS. 기존GUI wrapper/cache14시험도PASS. 新UUID/name/DBsuffix/runtime일치후자기Simulator만shutdown0.
+- GitHub CLI fetch는github.com443 timeout,뒤의varsAPI도timeout이었다. connectedGitHub read에서실제handoff HEAD3313c847e77c17be5130451b091196db8eee0383확인. 이후CLIvars정상0이재확인돼최신codecommit후FFpush/단1회Hosted를이어간다. 아직dispatch0.

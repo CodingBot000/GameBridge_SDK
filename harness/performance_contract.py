@@ -27,3 +27,17 @@ def is_exact_coin_grant(body, purchase=None):
     if not isinstance(body,dict) or not isinstance(body.get('entitlements'),dict):return False
     # Wallet quantities are decimal strings in the existing API contract.
     return body['entitlements'].get('coinBalance')=='100' and isinstance(body.get('serverPurchaseId'),str) and (purchase is None or body['serverPurchaseId']==purchase)
+
+def validate_player_summary(data):
+    """Validate summary units/counts/bounds; raw samples are not archived in this probe."""
+    if data.get('warmup')!=20 or data.get('samples')!=100:raise ValueError('Player warmup/sample separation')
+    for name in ('initialize','nativeDiagnosticsRoundtripToMainThread','shutdown','sceneTransition','frameIntervals'):
+        item=data.get(name,{})
+        if type(item.get('samples')) is not int or item['samples']<100 or (name!='frameIntervals' and item['samples']!=100):raise ValueError('Player sample count')
+        values=[item.get(k) for k in ('p50Ms','p95Ms','maxMs')]
+        if any(type(v) not in (int,float) or not math.isfinite(v) or v<0 for v in values) or not values[0]<=values[1]<=values[2]:raise ValueError('Player percentile bounds')
+    for key in ('unityAllocatedBeforeBytes','unityAllocatedAfterBytes','managedUsedBeforeBytes','managedUsedAfterBytes','managedWeakClientsRetained','pendingAfterCompletedCallsMax'):
+        if type(data.get(key)) is not int or data[key]<0:raise ValueError('Player memory/counter type')
+    if data['pendingAfterCompletedCallsMax']!=0:raise ValueError('Player pending after completed operations')
+    if not data.get('unityVersion') or not data.get('platform'):raise ValueError('Player environment metadata')
+    return {'summaryContract':'PASS','rawSampleDerivation':'NOT_CHECKED','observedWeakClientsRetained':data['managedWeakClientsRetained'],'memoryLeakConclusion':'NOT_ESTABLISHED'}

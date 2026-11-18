@@ -1,5 +1,5 @@
 import copy,unittest
-from performance_contract import distribution,managed_summary,is_exact_coin_grant
+from performance_contract import distribution,managed_summary,is_exact_coin_grant,validate_player_summary
 
 class PerformanceContractTests(unittest.TestCase):
     def fixture(self):
@@ -30,4 +30,14 @@ class PerformanceContractTests(unittest.TestCase):
             elif kind=='p95':value['timings']['callbackProductQuery']['p95']=90
             else:value['measuredWorkload']['liveTransports']=1
             with self.assertRaises(ValueError):managed_summary(value,'head')
+    def test_actual_player_summary_preserves_retention_observation_and_rejects_bad_counts(self):
+        value=dict(warmup=20,samples=100,unityVersion='6000.5.8f1',platform='IPhonePlayer',unityAllocatedBeforeBytes=1,unityAllocatedAfterBytes=2,managedUsedBeforeBytes=1,managedUsedAfterBytes=2,managedWeakClientsRetained=1,pendingAfterCompletedCallsMax=0)
+        for name in ('initialize','nativeDiagnosticsRoundtripToMainThread','shutdown','sceneTransition','frameIntervals'):
+            value[name]=dict(samples=100,p50Ms=1.0,p95Ms=2.0,maxMs=3.0)
+        self.assertEqual(validate_player_summary(value)['observedWeakClientsRetained'],1)
+        for key,bad in [('samples',316),('pendingAfterCompletedCallsMax',1),('managedUsedAfterBytes',True)]:
+            changed=copy.deepcopy(value);changed[key]=bad
+            with self.assertRaises(ValueError):validate_player_summary(changed)
+        value['sceneTransition']['p95Ms']=float('nan')
+        with self.assertRaises(ValueError):validate_player_summary(value)
 if __name__=='__main__':unittest.main()

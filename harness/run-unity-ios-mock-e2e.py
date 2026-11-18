@@ -2,6 +2,7 @@
 """Opt-in fresh Unity iOS Simulator -> Swift -> LOCAL_MOCK Backend/DB test."""
 import argparse, base64, hashlib, importlib.util, json, os, re, secrets, socket, subprocess, sys, tempfile, threading, time, urllib.request
 from pathlib import Path
+from performance_contract import validate_player_summary
 ROOT=Path(__file__).resolve().parent.parent
 _redaction_spec = importlib.util.spec_from_file_location('local_mock_redaction', ROOT/'harness/local_mock_redaction.py')
 _redaction = importlib.util.module_from_spec(_redaction_spec); _redaction_spec.loader.exec_module(_redaction)
@@ -14,7 +15,8 @@ STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--pii-probe',action='store_true'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); parser.add_argument('--gui-project',type=Path);parser.add_argument('--gui-export-receipt',type=Path);args=parser.parse_args()
+    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--pii-probe',action='store_true'); parser.add_argument('--performance-probe',action='store_true',help='Dedicated Player measurements after the PII baseline'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); parser.add_argument('--gui-project',type=Path);parser.add_argument('--gui-export-receipt',type=Path);args=parser.parse_args()
+    if args.performance_probe and (not args.pii_probe or args.gui_project): parser.error('performance requires isolated CLI PII consumer')
     if sum((args.host_callback_probe,args.native_demo_probe,args.pii_probe)) > 1: parser.error('choose one specialized probe')
     if bool(args.gui_project)!=bool(args.gui_export_receipt):parser.error('GUI project and export receipt required together')
     if args.gui_project and (args.host_callback_probe or args.native_demo_probe):parser.error('GUI callback/demo variants not supported')
@@ -81,6 +83,14 @@ def main():
                 shutil.copy2(ROOT/'tests/UnityPiiProbe/PiiProbe.cs',project/'Assets/PiiProbe.cs')
                 shutil.copy2(ROOT/'tests/UnityLateCallbackPlayer/link.xml',project/'Assets/link.xml')
                 result['piiProbe']=True
+                if args.performance_probe:
+                    shutil.copy2(ROOT/'tests/UnityPlayerPerformance/PlayerPerformance.cs',project/'Assets/PlayerPerformance.cs')
+                    scenario=project/'Assets/MockIosPlayerScenario.cs';text=scenario.read_text()
+                    marker='            Debug.Log("GB_MOCK_RESULT PASS LOCAL_MOCK");'
+                    if text.count(marker)!=1:raise RuntimeError('PERFORMANCE_INJECTION_TARGET')
+                    text=text.replace(marker,'            await client.ShutdownAsync(); client.Dispose(); client = null;\n            await PlayerPerformance.Run(config, unityMainThread);\n'+marker)
+                    scenario.write_text(text);result['performanceProbe']=True
+
             xcode=out/'xcode'
             exported=run(['bash','scripts/build-unity-ios-mock.sh',project,xcode],env=env,timeout=1200)
             (out/'unity-export.log').write_text(exported.stdout)
@@ -145,6 +155,12 @@ def main():
         if 'GB_MOCK_MAIN_THREAD PASS' not in text: raise RuntimeError('UNITY_MAIN_THREAD_MISSING')
         for kind in ('INITIALIZE','AUTH','PURCHASE'):
             if not re.search(r'GB_MOCK_NATIVE kind='+kind+r' outcome=SUCCEEDED requestId=[0-9a-fA-F-]{36}',text): raise RuntimeError('NATIVE_DIAGNOSTIC_MISSING_'+kind)
+        if args.performance_probe:
+            match=re.search(r'GB_MOCK_PERFORMANCE_JSON (\{.*\})',text)
+            if not match:raise RuntimeError('PERFORMANCE_MARKER_MISSING')
+            result['performance']=json.loads(match.group(1))
+            try: result['performanceContract']=validate_player_summary(result['performance'])
+            except ValueError as error: raise RuntimeError('PERFORMANCE_CONTRACT_INVALID') from error
         serverlog.flush(); trace=(out/'server.log').read_text()
         if key in trace or password in trace or _redaction.contains_mock_credential(trace): raise RuntimeError('SYNTHETIC_SECRET_IN_SERVER_LOG')
         counts={op:len(re.findall(r'LOCAL_MOCK_TRACE operation='+re.escape(op)+r' method=(?:GET|POST) requestId=[0-9a-fA-F-]{36} status=200',trace)) for op in OPS}

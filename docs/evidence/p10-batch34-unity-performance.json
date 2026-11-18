@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "scope": "Unity iOS Simulator -> Swift C ABI -> LOCAL_MOCK Backend/PostgreSQL",
+  "sourceHead": "8f3685f07f2aa6a6b3cdef2d9a7a456f0855801d",
+  "sourceTrackedDirty": true,
+  "unityPlayer": "PASS",
+  "realAppleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "stagingManifestSha256": "6fc4cb4b8a6765ce6526c988c0df2b43d19e4a35cf7263cd276181a775751fba",
+  "iosSimulatorBinarySha256": "b57c3e1eda86b81cf8baca52ee9f00c5d286ac39ded429fbf4f522f25ae01446",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "piiProbe": true,
+  "performanceProbe": true,
+  "signing": "local-ad-hoc",
+  "unityBinarySha256": "bd2656e8618af168f80d0f0fe1e9db3460240eed7ad6696a089fe9681a292bd7",
+  "database": "gamebridge_ci_bd078ac175",
+  "simulator": "0C1CAE15-08A4-4236-AF5D-B6046D9E07F8",
+  "performance": {
+    "scope": "Actual Unity Player LOCAL_MOCK Native callback/lifecycle and temporary scene creation/unload; no real providers",
+    "warmup": 20,
+    "samples": 100,
+    "initialize": {
+      "samples": 100,
+      "p50Ms": 66.4932,
+      "p95Ms": 66.6687,
+      "maxMs": 66.87650000000001
+    },
+    "nativeDiagnosticsRoundtripToMainThread": {
+      "samples": 100,
+      "p50Ms": 66.821,
+      "p95Ms": 67.3126,
+      "maxMs": 67.5479
+    },
+    "shutdown": {
+      "samples": 100,
+      "p50Ms": 66.45190000000001,
+      "p95Ms": 66.6494,
+      "maxMs": 66.8856
+    },
+    "sceneTransition": {
+      "samples": 100,
+      "p50Ms": 66.52720000000001,
+      "p95Ms": 66.7171,
+      "maxMs": 66.9434
+    },
+    "frameIntervals": {
+      "samples": 1000,
+      "p50Ms": 33.33253785967827,
+      "p95Ms": 33.45649689435959,
+      "maxMs": 49.753714352846146
+    },
+    "unityAllocatedBeforeBytes": 48525032,
+    "unityAllocatedAfterBytes": 48589370,
+    "managedUsedBeforeBytes": 1232896,
+    "managedUsedAfterBytes": 1359872,
+    "managedWeakClientsRetained": 1,
+    "pendingAfterCompletedCallsMax": 0,
+    "unityVersion": "6000.5.8f1",
+    "platform": "IPhonePlayer",
+    "firstMeasuredInitializationMeaning": "Warmup excluded; app first initialization is the preceding baseline flow",
+    "memoryMeaning": "Runtime Profiler API snapshots after forced managed GC; not Native heap or leak proof; Unity Profiler UI not used",
+    "mainThreadCpuBlocking": "NOT_MEASURED"
+  },
+  "unityMarkerCount": 25,
+  "backendTraceCounts": {
+    "mock-auth": 1,
+    "catalog": 1,
+    "entitlements": 2,
+    "verify": 1,
+    "logout": 1
+  },
+  "ledgerCount": 1,
+  "ledgerDelta": 100,
+  "performanceContract": {
+    "summaryContract": "PASS",
+    "rawSampleDerivation": "NOT_CHECKED",
+    "observedWeakClientsRetained": 1,
+    "memoryLeakConclusion": "NOT_ESTABLISHED"
+  },
+  "ownedSimulatorShutdownExit": 0,
+  "measurementToolSha256": "169d1620014724f6f2bf8a93ac04155c7b59d1a20c8bc37c0c7ad7220790f937"
+}

@@ -4167,3 +4167,10 @@
 - `python3 harness/audit-ledger.py`: exit0, 64 Task/13 open blocker/제품 marker0. 각 Task 완료 기준을 JSON taskReview에 연결했다. 원장 inventory 검증은 완료 기준 충족의 전수 증명이 아니므로 상태 승격0.
 - `python3 -m unittest discover -s harness -p test_external_config.py -v`: exit0/2 tests. 실제 Backend 설정 parser의 productIds/rootCertificatePaths 배열 요구와 checker를 맞췄다.
 - `bash scripts/verify-external.sh --check-config`: exit2, 7항목 MISSING_OR_INVALID. 비밀값 출력/Provider 호출0. USER_SETUP에 항목별 사용자 작업과 검증 한계를 추가했다.
+
+## 배치33 C — Swift Core Simulator 계측
+
+- `xcrun swiftc -O -parse-as-library ...` 및 standalone macOS 측정 exit0. 후속 `python3 harness/run-swift-coordinator-performance.py --run-local` exit0, 증거 artifacts/swift-performance-f093e33f5dc04637b84d46d5a51f39df.
+- 명시한 새 iPhone16/iOS18.6 UUID/name 일치 후 boot/spawn, 자신이 만든 UUID만 shutdown했다. 원본 device 디스크 보존.
+- 실제 Core SdkCoordinator와 immediate fake provider, warmup20/measurement100, p50/p95/max 및 프로세스 peakRSS와 weak 잔존을 JSON에 기록했다. runtime/allocator와 peakRSS 증가를 누수로 판정하지 않는다. 실제 iPhone/C ABI/continuation/session/Unity/Android 계측으로 일반화하지 않는다.
+- 나머지 Native/Unity 성능 계측은 미완료이며 T03 PARTIAL, 개선율 주장 없음.

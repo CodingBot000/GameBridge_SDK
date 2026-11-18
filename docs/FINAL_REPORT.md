@@ -158,3 +158,5 @@ P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912
 
 
 배치33 연속 작업 결과는 [통합 증거](evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.
+
+배치33 최종 원격: [44269328731](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44269328731), source deb907414706b132f4e1976e77bcc72524bb2587, FAILURE. Backend·Android·Swift/iOS Simulator 성공, inventory의 OpenAPI 파일열거순서 차이로 basic도 실패. 후속84e1026에서 수정했고 로컬Python248/자체시험9/TC11 통과, 수정코드는 원격 미검증이다. 추가CI0회. 배치33 A~H는 부분 완료이며 남은 실제 구현·검증은 통합 증거의 다음 순서를 따른다.

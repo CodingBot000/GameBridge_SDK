@@ -447,3 +447,19 @@ T01·T02는명시제품기준으로로컬PASS이며실Provider13건·전체SDK/R
 StoreKit26.5 FAIL/18.6간헐위험·실제Google/Apple/FCM/APNs·실기기·self-hosted/Release미검증과계획OpenAPI문서부재는계속기록한다. 키/토큰/서명/license/원본로그·DB·APK/IPA/Xcode출력은Git에넣지않는다. 새키나비밀번호를채팅에보내지않는다.
 
 배치32 최종 Hosted source2017771/run44165459795는 false 단1회 SUCCESS였다. Python237/Swift40·필수새Codec/Decoder/원장변이를검증했으며Unity/Release는SKIPPED이다. 이후코드변경0. 자동Editor/개별Player회복과전체Strict/실Provider·Release제약을혼동하지않으며미완료내부orchestration/프로파일링/OpenAPI/P11업무는통합문서우선순위를따른다.
+
+## 배치33 설정 형태 감사
+
+`bash scripts/verify-external.sh --check-config`는 현재 7항목 모두 MISSING_OR_INVALID, exit 2다. 아래 값은 로컬 비밀 환경/파일로만 준비한다. 실제 값이나 파일 내용을 채팅·Git에 넣지 않는다.
+
+| 항목 | 준비할 설정 | 검사 범위 | 사용자가 완료할 작업 |
+| --- | --- | --- | --- |
+| 인증 audience | GAMEBRIDGE_AUTH_AUDIENCES_JSON | 앱별 GOOGLE/APPLE의 비어 있지 않은 문자열 배열 | Google OAuth 및 Apple audience를 실제 앱에 맞게 등록 |
+| Google 구매 | GAMEBRIDGE_GOOGLE_PURCHASE_CONFIG_JSON | packageName, productIds 문자열 배열, 읽기 가능한 credentialPath | Play 앱·상품·테스터·서버 권한 연결 |
+| Apple 구매 | GAMEBRIDGE_APPLE_PURCHASE_CONFIG_JSON | bundleId, productIds 배열, rootCertificatePaths 파일 배열 | Bundle·상품·Sandbox tester·신뢰 인증서 준비 |
+| FCM | GAMEBRIDGE_FCM_CONFIG_JSON | projectId, credentialPath 파일 | Firebase 앱 연결 및 서버 발송 권한 |
+| APNs | GAMEBRIDGE_APNS_CONFIG_JSON | teamId/keyId/topic, privateKeyPath 파일 | Apple 앱 capability·인증키·환경 연결 |
+| 구매 암호화 | SERVER_PURCHASE_ENCRYPTION_KEY | Base64 decode 32 bytes | 서버 로컬 secret store에서 준비 |
+| 푸시 암호화 | SERVER_TOKEN_ENCRYPTION_KEY | Base64 decode 32 bytes | 서버 로컬 secret store에서 준비 |
+
+검사 구현은 scripts/verify-external-config.py, 실행 entrypoint는 scripts/verify-external.sh다. 준비 완료는 파일 내용·권한·실제 앱 연결·Provider 통신 성공을 증명하지 않는다. 실제 Provider 13건은 WAITING_USER를 유지한다. 배열 대신 문자열이나 문자열 필드 대신 배열이 들어오면 실패한다.

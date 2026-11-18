@@ -18,7 +18,15 @@ def valid_json(name, fields, paths=()):
                 return False
             for key in fields:
                 item = config.get(key)
-                if not item or not isinstance(item, (str, list)):
+                if not item or not isinstance(item, (str, list)) or (isinstance(item, str) and not item.strip()):
+                    return False
+            for key in ('productIds', 'rootCertificatePaths'):
+                if key in fields:
+                    items = config.get(key)
+                    if not isinstance(items, list) or not items or any(not isinstance(v, str) or not v.strip() for v in items):
+                        return False
+            for key in fields:
+                if key not in ('productIds', 'rootCertificatePaths') and not isinstance(config[key], str):
                     return False
             for key in paths:
                 item = config.get(key)

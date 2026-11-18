@@ -4161,3 +4161,9 @@
 - `python3 -m unittest discover -s harness -p test_openapi_contract.py -v`: 0, 정상1/음성6. path, method, security permitAll, 필수 수락 header, error schema, profile 변조 검출.
 - DTO 응답 shape와 endpoint별 오류 도달성의 실행 대응은 아직 완전하지 않다. default error와 catalog profile 설명에 한계를 명시했다. BUG-017은 OPEN/PARTIAL 유지하며 Provider 검증으로 승격하지 않는다.
 - 전체 Python 시험 및 새 Android/iOS 패키징은 병행 실행 중이며 결과는 후속 기록한다.
+
+## 배치33 B — 원장 및 외부 설정 감사
+
+- `python3 harness/audit-ledger.py`: exit0, 64 Task/13 open blocker/제품 marker0. 각 Task 완료 기준을 JSON taskReview에 연결했다. 원장 inventory 검증은 완료 기준 충족의 전수 증명이 아니므로 상태 승격0.
+- `python3 -m unittest discover -s harness -p test_external_config.py -v`: exit0/2 tests. 실제 Backend 설정 parser의 productIds/rootCertificatePaths 배열 요구와 checker를 맞췄다.
+- `bash scripts/verify-external.sh --check-config`: exit2, 7항목 MISSING_OR_INVALID. 비밀값 출력/Provider 호출0. USER_SETUP에 항목별 사용자 작업과 검증 한계를 추가했다.

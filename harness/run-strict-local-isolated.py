@@ -35,6 +35,12 @@ def wait_health(base, process):
 def main():
     if sys.argv[1:] not in (['--run-local'],['--run-local','--self-check']):
         print('Usage: python3 harness/run-strict-local-isolated.py --run-local [--self-check] (retains dedicated test DBs and roles)'); return 2
+    # The full runner does not yet attest all required device, package, database,
+    # StoreKit and process ownership before creating resources. Fail closed until
+    # that contract is implemented; self-check remains a distinct diagnostic.
+    if '--self-check' not in sys.argv:
+        print('DEFERRED_ENV: full Strict ownership preflight is incomplete; no lanes executed')
+        return 2
     staging = Path(os.environ.get('GAMEBRIDGE_UPM_STAGING', ROOT/'artifacts/upm-validated-20261111'))
     if not staging.is_dir(): print('CONFIG_REQUIRED: latest local UPM staging missing'); return 2
     artifacts=ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)

@@ -4143,3 +4143,13 @@
 - 배치32 I/J 최종원격결과/문서커밋 전: run44165459795/source2017771d355cb56865f44ef1ddf9e4faad78442d,false 단1회SUCCESS. Hosted4/basic SUCCESS,Unity/ReleaseSKIPPED. 공식Python57모듈237·原Core＋Native전이guard·신규KotlinCodec/JUnit·Swift40/Decoder3·TC11/의도변이1/정상복원·synthetic iOShost job확인. quiet host정확test수UNMEASURED/Unity실행아님. 배치31UUID후속과전체현재code/test포함,이후코드변경0. AJ/15항목·후보→정식커밋맵·64Task24/40/local22/1/41 및모든실패/미완료scope를문서로정리했고최종문서stage scan/commit/동일handoffFFpush/localremoteHEAD·원래미추적3경로보존을검증한다. 추가CI/실Provider/main/force/Release없음.
 
 - 배치32 J 최종stage검증/커밋 직전: 명시7개결과문서text/JSONparse·64Task원장·diff PASS,실제staged scanner exit0/탐지0. 검증source2017771뒤SDK/harness/tests/workflow/baseline코드변경0이다. 마지막문서commit後freshfetch·전체이번range scan·handoffFF가능성·push·최종remoteHEAD/추적파일clean·초기미추적3경로와candidate로컬branch보존을실제조회한다. 추가dispatch/원격branch/candidatepush/실Provider/main/force/Release없음.
+
+## 배치33 부분 작업 — Strict 보호 및 API 문서
+
+- 시작 source `56c1a615d6818c018f627d80f1130ab9c2eb9870`. 기존 미추적 Demo와 캐시는 보존했다.
+- 전체 Strict의 필수 소유권 preflight가 아직 완성되지 않아 `--run-local`은 DB 등 자원 생성 전에 `DEFERRED_ENV`/2로 종료한다. 별도 `--self-check` 동작은 유지한다. 이는 소유권 검증 구현이나 전체 Strict 실행을 대체하지 않는다.
+- `python3 -m unittest discover -s harness -p 'test_strict_timeout.py' -v`: exit 0, 3 tests. 자원 생성 전 종료를 별도 프로세스로 확인했다.
+- `bash scripts/verify-external.sh --check-config`: exit 2, 7개 항목 모두 MISSING_OR_INVALID. 값 출력 및 Provider 호출 없음. 실제 연동 NOT_RUN.
+- `python3 scripts/verify-progress.py`: exit 0. 제품 검증과 별개다.
+- API 문서에서 배치32 Android/iOS LOCAL_MOCK Player와 Push 검증을 반영했다. StoreKit Player와 실 Provider는 여전히 미검증이다.
+- 재개: 전체 preflight 및 fixture, Native/Player 측정, 새 패키징, OpenAPI, 64 Task 감사, 회귀 및 Hosted CI가 남았다. 이번 부분 작업은 전체 배치 완료가 아니다.

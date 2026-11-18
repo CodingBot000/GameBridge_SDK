@@ -4174,3 +4174,11 @@
 - 명시한 새 iPhone16/iOS18.6 UUID/name 일치 후 boot/spawn, 자신이 만든 UUID만 shutdown했다. 원본 device 디스크 보존.
 - 실제 Core SdkCoordinator와 immediate fake provider, warmup20/measurement100, p50/p95/max 및 프로세스 peakRSS와 weak 잔존을 JSON에 기록했다. runtime/allocator와 peakRSS 증가를 누수로 판정하지 않는다. 실제 iPhone/C ABI/continuation/session/Unity/Android 계측으로 일반화하지 않는다.
 - 나머지 Native/Unity 성능 계측은 미완료이며 T03 PARTIAL, 개선율 주장 없음.
+
+## 배치33 D — 새 패키지와 소비자
+
+- GAMEBRIDGE_MAVEN_REPO=artifacts/batch33/maven의 절대경로로 `bash scripts/build-android.sh --mock`: exit0. publish 3모듈/sample/R8 성공.
+- GAMEBRIDGE_IOS_OUTPUT_DIR=artifacts/batch33/ios의 절대경로로 `bash scripts/build-ios.sh --xcframework`: exit0, device/simulator archive 및 신규 XCFramework 성공.
+- 새 Maven으로 `scripts/smoke-android-maven-consumer.sh`: exit0, 새 독립 release APK와 mapping/manifest 검사. `scripts/smoke-ios-source-consumer.sh`: exit0/macOS source 소비. 새 simulator framework import 및 GameBridgeConfig 사용 `xcrun swiftc ... -c`: exit0.
+- `scripts/package-sdk.sh` 새 Maven/XCFramework→artifacts/batch33/upm: exit0. `python3 harness/check-staging.py artifacts/batch33/upm`: exit0/147파일. verify-xcframework device arm64/sim arm64+x86_64 및 4 export PASS.
+- `git diff a83561a -- android ios unity` empty. 빌드 도중 도구/문서 변경은 있었으나 shipping source 동일. 이전 패키지 bytes 재사용0. binary API 전체·신규 Unity 소비는 미실행. T04 PARTIAL.

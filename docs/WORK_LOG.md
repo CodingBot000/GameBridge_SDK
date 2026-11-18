@@ -4153,3 +4153,11 @@
 - `python3 scripts/verify-progress.py`: exit 0. 제품 검증과 별개다.
 - API 문서에서 배치32 Android/iOS LOCAL_MOCK Player와 Push 검증을 반영했다. StoreKit Player와 실 Provider는 여전히 미검증이다.
 - 재개: 전체 preflight 및 fixture, Native/Player 측정, 새 패키징, OpenAPI, 64 Task 감사, 회귀 및 Hosted CI가 남았다. 이번 부분 작업은 전체 배치 완료가 아니다.
+
+## 배치33 A — HTTP 계약 초안 및 소스 guard
+
+- 실제 mapping 24 method/path, profile별 29 controller binding을 조사했다. `contracts/openapi.yaml`은 JSON 형식의 YAML 1.2이며 Bridge schema와 별개다.
+- `artifacts/batch33-tools/bin/python -m openapi_spec_validator contracts/openapi.yaml`: 0 (openapi-spec-validator 0.7.2). 최초 빈 required 배열 오류는 수정한 뒤 재검증했다.
+- `python3 -m unittest discover -s harness -p test_openapi_contract.py -v`: 0, 정상1/음성6. path, method, security permitAll, 필수 수락 header, error schema, profile 변조 검출.
+- DTO 응답 shape와 endpoint별 오류 도달성의 실행 대응은 아직 완전하지 않다. default error와 catalog profile 설명에 한계를 명시했다. BUG-017은 OPEN/PARTIAL 유지하며 Provider 검증으로 승격하지 않는다.
+- 전체 Python 시험 및 새 Android/iOS 패키징은 병행 실행 중이며 결과는 후속 기록한다.

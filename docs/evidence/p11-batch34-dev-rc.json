@@ -1,0 +1,22 @@
+{
+  "status": "DEV_RC",
+  "sdkVersion": "0.1.0-dev",
+  "verifiedAgainstRepo": "6b8d884b8d8a15dadfd1e3c0dddf74d15bc81bff",
+  "sdkBuildSource": "a83561a31c6b34fafcc85988b419fff20c7e059f",
+  "shippingNativeUpmDiff": "EMPTY",
+  "sdkPackageFiles": 147,
+  "sdkManifestSha256": "6fc4cb4b8a6765ce6526c988c0df2b43d19e4a35cf7263cd276181a775751fba",
+  "newConsumerEvidence": [
+    "p10-batch34-unity-android.json",
+    "p10-batch34-unity-ios.json"
+  ],
+  "limits": [
+    "BUG-017 OPEN for detailed SSE/dynamic Map contract",
+    "Native/Unity performance incomplete",
+    "Full Strict NOT_RUN; E2 ownership orchestration incomplete",
+    "P05 FAIL; StoreKit26 OPEN; iOS18.6 intermittent risk",
+    "Real providers13 WAITING_USER; self-hosted/Release unverified"
+  ],
+  "backendChange": "Missing required HTTP header now returns400 INVALID_ARGUMENT; Backend binary not included in this UPM candidate",
+  "outerManifestSha256": "e2d74818f484fbdc8b7368f9e1b065fe0ee921fb4697469777f8e4b5086aad0c"
+}

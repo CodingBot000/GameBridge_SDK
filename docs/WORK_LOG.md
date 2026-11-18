@@ -4256,3 +4256,6 @@
 
 - 현재9문서와PROGRESS상단의배치32시점 stale checkpoint를배치34현재사실로정리했다. 기존실패/증거파일은유지한다. DEV_RC는동일Native bytes와실제147checksum·새양Unity소비범위를명시해보강하며공개Release는생성하지않는다.
 - 최종Python262/17.004초 exit0, OpenAPI16/문법PASS. 기존고정source fd7a55f에서Core/managed/변이복원·self9/TC11은통과했고제품Native source변경0이다. 추가HTTPcapture는test-only/no-op-by-default,실행시문자열값제거4unit과10syntheticHTTP시험으로확인했다.
+- H 마지막소스고정 `...run-strict-local-isolated.py --run-local --self-check`: exit0/artifacts/harness-self-mlczwg79,source6b8d884.9lane/47test/정상44·예상음성3/check9. docs·code변경없이진행해provenance정상. fullStrict아님.
+- `run-core-assertions.py --run-local`: exit0/sourcefd7a55f/artifacts/core-assertions-s21jc8dt. Kotlin10/50helper,Swift12/122helper,managed418/복원418/분기419·duplicate mutation감지/100 lifecycle samples·316helper. `run-purchase-testcontainers.py --run-local`: exit0/sourcefd7a55f/artifacts/purchase-testcontainers-xkvwuum7/11실행·예상변이1·정상복원/container정리. 이후shipping product변경없음(HTTPcapture는test-only).
+- actionlint는검증된custom runner label을로컬config에명시해exit0. diff한정privatekey/AWS/Google/GitHub credential패턴0(전체secret scanner아님). 새진입코드/정제문서/JSON만stage하고생성물/원본log·DB·license/개인파일은제외한다. 기존Demo/cache보존. Unityopt-in정상API0개확인후FFpush/새falseHosted1회만예정.

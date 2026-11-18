@@ -34,3 +34,7 @@
 2. Android JNI/heap, iOS Task/continuation 수명, UnityScene/Frame·Profiler 계측. 현재CABI/harness카운트를대체증거로쓰지않는다.
 3. E1의license·AVD/secret/TC/소유계획 실관측과E2자원생성·전lane소유전파 완성 후에만 전체Strict최대1회.
 4. P11 감사JSON의각Task별 미충족근거를 실제시험으로 닫는다. P05FAIL·StoreKit26OPEN·18.6간헐위험·Provider13WAIT·self-hosted미검증은별도로유지.
+
+## 최종 로컬 회귀
+
+최종Python262/17.004초/exit0. OpenAPI16·문법0, HTTPcapture+오류MockMvc4시험0, 합성HTTP10시험0/132구조. Core는Kotlin10/50helper,Swift12/122helper,managed418/복원418·분기419,duplicate mutation감지 및100 lifecycle sample/316helper이다. self9는최신고정6b8d884에서47test(정상44/예상음성3)/checks9/exit0. TC는11실행(정상10/예상변이1)·정상복원exit0/자기container정리검증. 다른범위의test/check/helper/sample/Player 수를합산하지않는다. code/test가바뀌지않은범위만이전source근거를유지했다. 상세p10-batch34-regression.json.

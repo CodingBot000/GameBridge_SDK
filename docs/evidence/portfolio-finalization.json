@@ -1,0 +1,58 @@
+{
+  "portfolioStatus": "IN_PROGRESS",
+  "startingHead": "beba1ff949dc42721d3bb43cdd7727cff41ca1fc",
+  "requirementsSource": {
+    "providedFile": "Recruit2개회사.md",
+    "sha256": "6aafff5c5a17ffcb2cc6a7e560e8f9a6bc635575f27157c082605d9214356c8e",
+    "companyMapping": "Provided W/G requirements mapped to Webzen/Gravity per user instruction36; no claim of employment/years inferred"
+  },
+  "sdkStatus": "BLOCKED_INTERNAL",
+  "developmentTaskCount": 64,
+  "weakClientReview": {
+    "mode": "Existing evidence and source review only",
+    "additionalReproductionRuns": 0,
+    "productFixAttempts": 0,
+    "observation": {
+      "cycles": 120,
+      "warmup": 20,
+      "measuredCycles": 100,
+      "weakClients": 1,
+      "pendingAfterCalls": 0,
+      "unityAllocatedDeltaBytes": 64338,
+      "managedUsedDeltaBytes": 126976
+    },
+    "evidence": "docs/evidence/p10-batch34-unity-performance.json",
+    "sourceSha256": {
+      "unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeSdk.cs": "af869b09ca73387448be21f0fb6e678a64688134e3e9e6d3cedc177b67298389",
+      "unity/Packages/com.gamebridge.sdk/Runtime/Platforms/IosTransport.cs": "b9bce0171d1b79a2a579dc53b61db55945994e4153a55dc83791c007e2aba26c",
+      "unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs": "6aa89cbe0491cd1cb4cb4bd98d48226ce4a26e85ced919c43eb3e380e3cb29c1",
+      "tests/UnityPlayerPerformance/PlayerPerformance.cs": "169d1620014724f6f2bf8a93ac04155c7b59d1a20c8bc37c0c7ad7220790f937"
+    },
+    "hypotheses": [
+      "Live measurement async frame/last await or conservative runtime root; not confirmed",
+      "SDK or Native ownership retained indirectly; not excluded by source inspection"
+    ],
+    "verifiedSourceCleanup": [
+      "GameBridgeSdk.OnDisposed clears active and detaches driver",
+      "IosTransport.Dispose clears current, Message and queue",
+      "RequestRegistry removes pending owner and disposes timeout/cancel registrations through using"
+    ],
+    "missingEvidence": [
+      "Heap root chain",
+      "Cycle-by-cycle memory slope",
+      "Clean-stack control after measurement task returns"
+    ],
+    "conclusion": "Cause/leak status unknown; no new P0 established in reviewed evidence; retain Known Limitation and stop limited investigation"
+  },
+  "latestCodeCi": {
+    "source": "648bb807baeab4e83b037856a9ae04f84e8a2154",
+    "run": 44287600414,
+    "result": "SUCCESS",
+    "newRunRequiredForDocumentationOnly": false
+  },
+  "scope": [
+    "No product/harness/contract code changes planned",
+    "Portfolio integration docs and local DEV_RC finalization",
+    "Optional backlog, no automatic next mandatory batch"
+  ]
+}

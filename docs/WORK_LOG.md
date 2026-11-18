@@ -4277,3 +4277,11 @@
 - 최종E1 read-only재검사 source648/tracked-clean/required58·20조건의구체적누락exit2. E2creator/全wrapper실소유배선미완료로실제Strict0회. 정상fixture와실환경대기를구분했다.
 - 이후code/test/workflow변경0. 64Task감사후속에새소비/성능closed조건과정확한잔여를추가했고결과문서/정제evidence만commit/FFpush한다. 기존원본실패/기기/DB/Demo/cache·새backend/.kotlin보존.
 - 인계직전 `bash scripts/verify-external.sh --check-config`: exit2/7항목모두MISSING_OR_INVALID,실Provider호출0. DEV_RC최종문서·CI source648/실제SDKbuild sourcea835를분리하고outer SHA256와내부147checksum을모두재검사PASS. 정식ReleaseReady=false. 최종문서커밋이후CI code와diff가docs만인지확인후FFpush/remoteHEAD일치/미추적보존을조회한다.
+
+## 포트폴리오 최종화 시작 — 사용자 문서36 / [P11-T01] [P11-T02] [P11-T03]
+
+- 시작beba1ff949dc42721d3bb43cdd7727cff41ca1fc/handoff. tracked-clean, 기존미추적harness/cache·scripts/cache·unity/Demo 보존.
+- 로컬 Recruit2개회사.md의 W/G 자격/우대·직무를 확인했다. 경력3/7년·상용/출시·대외협업·해외근무조건은 이개인프로젝트로증명하지않는다. Kotlin/Swift/C#/SDK/Bridge/REST/연동문서·선정호환성의실제근거를중심으로재구성한다.
+- 기존README/INTEGRATION/CHANGELOG 등에배치34성과와이전Unity미검증문구가혼재하고USER_SETUP의초기계획NOT_STARTED/계획변수명이남아있음을확인했다. 최신설명은현재문서에통합하고과거실행/실패원본은evidence/Git/WORK_LOG에보존한다.
+- weak1은 기존120cycle/마지막weakcount1/pending0와cleanup소스를우선검토한다. async계측프레임이살아있는시점GC이며heap root/증가곡선이없어누수원인은미확정이다. 새로운P0재현근거가없으므로무근거제품수정/성능프로젝트를추가하지않고제한조사결과를기록한다.
+- [P11-T01] 조사결과확정: SDK static active/driver·iOS static transport/current/Message/queue와request pending/cancel 등록정리 경로를현재소스로대조했다. 테스트async Run이반환하기전GC/weak count라는참조가설을분리했고heap root/시간곡선/clean-stack 대조가없는한근본원인을확정하지않았다. 추가재현0/제품수정0,신규P0확인없음(누수없다는증명아님). 제공공고fingerprint·검토소스hash와관측범위를portfolio-finalization.json에기록,3사례·EdgeCase·미확정위험은ENGINEERING_NOTES에통합했다.

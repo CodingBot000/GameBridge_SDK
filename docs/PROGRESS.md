@@ -1978,3 +1978,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치34 H 최종로컬: 최신고정6b8d884 self9/47test·9check PASS/0. Python262,OpenAPI16·문법,HTTPcapture+오류MockMvc4,합성HTTP10/132구조,선정API/Core/managed/변이복원·TC11 및신규양Player 모두확인했다. 실제Strict는미실행,기존P05/StoreKit/Provider대기는유지. 최종코드/검토후단1회Hosted를실행한다.
 - 배치34 C3 추가: 원격네트워크대기동안새전용 iOSUnityPlayer에서warmup20+100회 init/Native진단왕복/shutdown/Scene생성·해제를실측했다. frame1000개·runtimeProfiler메모리관측·pending0, forcedGC후weakclient1이관측됐다. 이를누수라고단정하거나0으로정정하지않는다. first-app-init/CPU blocking·Androidheap/Taskcontinuation은未측정, T03 PARTIAL.
 - 배치34 최종Hosted44287600414/source648bb807baeab4e83b037856a9ae04f84e8a2154 SUCCESS. inventory/Backend/Android/Swift-iOS/basic PASS,Unity/Release SKIPPED. Ubuntu263와OpenAPI 정상/순서반전·음성 확인. 같은source 로컬Core/self9/TC11 PASS,CI후code/test/workflow변경0. 최종결과문서만FF인계한다. T03/T04/P11부분·BUG017/P05/StoreKit/Provider대기는그대로다.
+
+## 포트폴리오 최종화 — 문서36 사용자 종료 기준
+
+- 포트폴리오 상태: IN_PROGRESS. 기존 SDK의 BLOCKED_INTERNAL 및64 Task 상태/집계와 별도로 판정한다.
+- 범위: 제공 공고 W/G와 실제 코드·검증의 대응, Quick Start/책임·호환성/문제해결 문서, weak client 제한 조사, 최종 DEV_RC와 개발 종료 인계. 신규 기능/실Provider/추가 성능프로젝트는 포함하지 않는다.
+- 기존 제품·하네스·계약 source648bb80 및 배치34 결과를 보존하며, 날짜만 갱신하는 재검증은 하지 않는다. 남은 개선점을 자동 필수 배치로 전환하지 않는다.

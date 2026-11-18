@@ -28,3 +28,6 @@ Backend의 Apple/Google synthetic verifier→인증 HTTP→DB grant 및 Google d
 - P10-T01은 명시 제품 조건으로 로컬PASS이며, 전체SDK/Release/Strict 조건과 다르다. T02 후속 플랫폼 검증·T03/T04·P11전체감사는 별도 상태다.
 - [사전성능 실측](evidence/p10-batch32-performance.md)의 시간값과 lifecycle100/316helper 실행범위를 구분한다. Native memory·실제UI jank·Unity startup은 NOT_RUN이다.
 - 계획된 contracts/openapi.yaml은 아직 없고 실제Controller/docsAPI·Bridge JSON schema와 구분한다. 이 기계계약 문서 gap은 P11사전감사에 남긴다.
+
+
+배치33 연속 작업 결과는 [통합 증거](evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.

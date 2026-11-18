@@ -12,3 +12,6 @@
 P08 public API snapshot, 닫힌 Core source, 정확히 승인된 Native4파일 전이 검사는 별도 경계다. [원본 Core 제품 판정](evidence/p10-batch32-t01-decision.md) 후의 Native 변경은 원본 baseline을 덮어쓰지 않고 고정된 전후hash·나머지Core/Native/wire 불변으로 검사한다. 선정 Java 표면/C ABI·소비 빌드를 모든 binary ABI 호환성으로 확대하지 않는다.
 
 P05-T03 StoreKit26.5 FAIL/ENV-STOREKIT-26 OPEN, 18.6 간헐 위험, Provider13 WAITING_USER와 기존 내부/문서 gap을 유지한다. 전체 SDK와 local/Release gate를 통과한 것으로 표시하지 않는다. 생성된 artifact/source/checksum은 [진행 원장](PROGRESS.md), [사용자 설정](USER_SETUP.md) 및 최신 source별 증거를 따른다.
+
+
+배치33 연속 작업 결과는 [통합 증거](evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.

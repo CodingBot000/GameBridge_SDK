@@ -1963,3 +1963,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 배치33 C: 새 전용 iOS18.6 Simulator에서 Swift coordinator fake-provider warmup20/100회 실제 계측, weak 잔존0. C ABI/Task continuation·세션 전환·Android JNI/heap·Unity scene/frame 측정은 NOT_RUN. T03 PARTIAL 유지.
 - 배치33 D: 새 Maven/AAR/sample/R8, 새 device/simulator XCFramework, 독립 Android R8/Swift source/binary compile 및 UPM147 checksum PASS. 빌드 시작 source a83561a의 shipping source는 현재까지 동일하다. 신규 Unity 소비·선정 Kotlin binary API 비교는 미실행, T03 의존과 T04 PARTIAL 유지.
 - 배치33 E/F: 읽기 전용 preflight inventory 추가, 새 staging checksum/설치도구/Docker daemon 확인. E1의 license/module/source/required lane와 자원 소유 계약 미완료 → exit2 DEFERRED_ENV. E2·제품 lane·전체 Strict는 NOT_RUN/0회. 기존 조기 차단 유지. 완성된 preflight나 E3 음성 전체로 표시하지 않는다.
+- 배치33 G/H: artifacts/batch33/DEV_RC에 새 UPM/Maven/XCFramework·설치/API/호환성/설정 문서와 manifest를 조합했다. 정식 Release 아님. Python247(venv)/managed418/lifecycle100 확인. TC 변이·self9·Android/Unity 새 E2E 등 요청 전체 회귀는 미실행. 미완료 목록은 통합증거에 명시한다.

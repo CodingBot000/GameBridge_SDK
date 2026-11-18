@@ -9,3 +9,5 @@
 - Push host adapter는 권한·등록을 명시적으로 요청한다. 메시지는 `messageId`, `route`, `campaignId`만 소비하고 route는 `home` 또는 `store`만 허용한다. LOCAL_MOCK의 Backend→Android/Swift Native 수신은 전용 DB로 확인했다. LOCAL_MOCK Unity Android/iOS Player의 Push 경로도 확인했다. FCM/APNs 실제 원격 전달은 미검증이다.
 
 서버 `requestId`로 오류를 추적한다. SDK 오류에는 `CONFIG_REQUIRED`, `SESSION_EXPIRED`, `NETWORK_UNAVAILABLE`, `TIMEOUT`, `CANCELED`, `BUSY`, `UNSUPPORTED_OPERATION` 등이 있다. Unity `SdkException.NativeCode`는 `auth.signOut`의 `REVOCATION_UNCONFIRMED`만 보존하며, 이는 로컬 세션은 삭제됐지만 서버 revoke가 확인되지 않았다는 뜻이다. 이 경고의 재시작 후 영속 표시와 자동 재시도는 없다.
+
+HTTP API는 [contracts/openapi.yaml](../contracts/openapi.yaml)에 실제 24 method/path를 기술한다. JSON 형식의 YAML 1.2이며 Bridge 메시지용 JSON Schema와 별개다. `python3 harness/check-openapi.py`는 Controller mapping/profile/header 및 Security permitAll·오류 schema와 정적으로 비교한다. DTO 및 endpoint별 오류의 실제 HTTP 응답 전수 대응은 미완료여서 BUG-017은 OPEN이다. OpenAPI 문법 통과는 실제 Provider 통과가 아니다.

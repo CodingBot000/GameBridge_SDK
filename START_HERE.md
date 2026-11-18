@@ -57,3 +57,6 @@ Git 작업 트리를 확인하고 마지막 Task의 실제 구현과 검증 상�
 ## 사용자가 마지막에 확인할 파일
 
 `docs/FINAL_REPORT.md`에서 전체 결과를 보고, `docs/USER_SETUP.md` 순서대로 계정·콘솔·서명을 설정한다. `PROGRESS.md`의 실연동 대기 항목을 실제로 재실행한 뒤에만 검증 완료로 바꾼다. 설정값을 채팅에 붙여넣거나 Git에 넣지 않는다.
+
+
+배치33 연속 작업 결과는 [통합 증거](docs/evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.

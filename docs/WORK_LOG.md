@@ -4188,3 +4188,12 @@
 - `python3 harness/strict-preflight.py --staging artifacts/batch33/upm --output artifacts/batch33/preflight.json`: exit2. git/source, Docker daemon, 실행파일 존재, staging checker 실제 관측을 기록했다. E1/E2 전체 환경 계약 완성은 아니다.
 - Unity 실행파일은 있지만 license/module attestation 미완료, source staging attestation/전체 required lane 환경/ADB PID와 양 endpoint/별도 AVD·StoreKit Simulator/DB role·Backend secret scope 계약 미완료를 구체적으로 기록했다. 임시 bool로 통과시키지 않는다.
 - E2 생성0, 전체 Strict 제품 실행0/NOT_RUN. a83561a guard 유지. 기존 P05 FAIL과 ENV-STOREKIT-26 및18.6 간헐 위험은 보존. E3 확장 fixture는 아직 미완료다.
+
+## 배치33 G/H — 문서·로컬 후보·회귀
+
+- Python 기본 환경 첫 전체 실행 exit1/244 tests/error1: jsonschema 모듈 부재. 의존성 venv의 `artifacts/batch33-tools/bin/python -m unittest discover -s harness -p 'test_*.py'`: exit0/247 tests/27.730초. 추가 spec validator0.7.2를 schema requirements와 Hosted 문법 검사에 연결했다.
+- UNITY_EDITOR_PATH를 설치된6000.5.8f1로 명시한 `scripts/smoke-csharp-registry.sh` 및 `scripts/stress-csharp-lifecycle.sh`: 각각 exit0. managed418(정상198/예상오류220), lifecycle100이며 Unity Player 실행이 아니다.
+- `python3 harness/check-api-baseline.py --help`는 이 script에서 help 전용처리가 없어 실제 source baseline 검사로 실행됐고 exit0. binary compatibility로 확대하지 않는다.
+- README/START_HERE/API/INTEGRATION/SECURITY/COMPATIBILITY/FEATURE_MATRIX/USER_SETUP/FINAL_REPORT에 현재 증거·한계 반영. artifacts/batch33/DEV_RC에 새 staging+문서+manifest를 조합했고 소스 예제는 저장소 경로를 유지한다. 공개 게시0.
+- `gh api .../actions/variables`: 정상0개, `.../actions/runners`: 정상0개. 코드 commit 및 검토 후 fresh fetch/FF 확인하고 false Hosted 1회만 dispatch한다. H의 TC 변이·self9 등 요청 전부는 아직 실행하지 않았으며 부분 인계로 표시한다.
+- 추가 검토: diff의 private-key/AWS/Google/GitHub credential 패턴 매치0(제한된 패턴 검사이며 full scanner 아님). 신규 포함파일은 소스/문서/정제JSON뿐이고 빌드/DB/라이선스/기존미추적 경로는 제외했다. actionlint 실행은 기존 custom self-hosted label 미등록으로 exit1이며 변경한 Hosted 문법 문제는 관측하지 않았다. 해당 기존 label은 변경하지 않는다.

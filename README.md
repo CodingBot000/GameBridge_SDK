@@ -60,3 +60,6 @@ Android Native-only 재실행기는 harness/run-android-mock-bridge-e2e.py로, �
 Unity iOS Simulator의 LOCAL_MOCK 전체 흐름과 로컬 ad-hoc 서명 범위는 [검증 증거](docs/evidence/px-t07-unity-ios-local-mock.md)를 참조하세요. 실제 Apple 로그인·App Store 결제·APNs는 검증하지 않았습니다.
 
 Unity LOCAL_MOCK Push/Lifecycle의 실제 Player 검증 범위는 [Android evidence](docs/evidence/px-t08-unity-android-mock-push.md)와 [iOS evidence](docs/evidence/px-t12-unity-ios-mock-push.md)에 있습니다. 프로세스 종료/pending은 별도 시험이며 지연 callback은 합성 주입입니다. iOS 연결 차단은 테스트 TCP 경로에 한정됩니다.
+
+
+배치33 연속 작업 결과는 [통합 증거](docs/evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.

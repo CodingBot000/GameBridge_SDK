@@ -43,3 +43,7 @@ Sandbox의 `GetServiceConfigAsync()`와 Native 구매 gate는 같은 Backend-bac
 ## Xcode 로컬 StoreKit
 
 `XCODE_STOREKIT`은 일반 Mock과 구분된 개발 전용 서버 지급을 사용한다. iOS 18 이상, local-mock Backend 및 개발키, `.storekit` scheme과 소모품 이력 설정이 필요하다. Unity 개발 빌드에서 `GAMEBRIDGE_XCODE_STOREKIT` define을 설정하면 iOS hook이 Info.plist에 이력 옵션을 추가한다. 서버가 Apple 서명을 검증하는 것은 아니며 실제 Apple sandbox 결과와 구분한다. 자세한 실행 조건은 [USER_SETUP](USER_SETUP.md)을 따른다.
+
+## 배치33 로컬 패키지
+
+새 개발 산출물은 `artifacts/batch33/upm`에 있다. `scripts/package-sdk.sh`로 새 Maven과 device/simulator XCFramework를 조합했으며 `python3 harness/check-staging.py artifacts/batch33/upm`로 147개 checksum을 확인했다. Unity Package Manager에서 해당 경로의 `com.gamebridge.sdk/package.json`을 로컬 패키지로 선택한다. 새 Unity import/Player는 이번 배치에 실행하지 않았고 배치32의 LOCAL_MOCK E2E 범위는 해당 증거를 따른다. HTTP 소비는 contracts/openapi.yaml의 profile 조건과 USER_SETUP을 함께 적용한다.

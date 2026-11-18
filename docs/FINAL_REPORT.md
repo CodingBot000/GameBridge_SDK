@@ -155,3 +155,6 @@ P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912
 2026-11-12 Unity iOS 18.6 Simulator ARM64에서 Unity C# → Swift C ABI → LOCAL_MOCK Backend/PostgreSQL 전체 흐름이 PASS했다 ([증거](evidence/px-t07-unity-ios-local-mock.md)). 무서명 실행은 로그인에서 실패했고 성공 실행은 로컬 ad-hoc Simulator 서명을 사용했다. 실제 Apple 로그인·스토어 결제·APNs 및 실기기는 미검증이다.
 
 2026-11-12 Unity Android emulator 및 iOS Simulator에서 LOCAL_MOCK Push 등록·수신·중복 억제·main-thread·background/foreground·연결 복구·A→B 세션 전환 및 별도 process 종료/pending 복구를 검증했다 ([Android](evidence/px-t08-unity-android-mock-push.md), [iOS](evidence/px-t12-unity-ios-mock-push.md)). 늦은 이전-session callback은 test-only 합성 주입이며 iOS 연결 단절은 test-only TCP proxy로 재현했다. 실제 FCM/APNs, 실제 기기 및 실제 원격 지연 callback은 NOT_RUN이다. Android/iOS 인증·구매 LOCAL_MOCK Player 회귀도 별도 source에서 각각 PASS했다.
+
+
+배치33 연속 작업 결과는 [통합 증거](evidence/p10-batch33-integrated.md)를 따른다. 새 Native 패키지·독립 소비와 Swift Simulator Core 계측은 확인했으나 전체 Strict, OpenAPI의 HTTP 전수 대응, Native/Unity 성능 전체 및 P11 완료는 아직 PARTIAL이다. 기존 P05 실패·StoreKit 환경 위험·실 Provider 13건 대기는 유지한다.

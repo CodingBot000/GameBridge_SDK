@@ -27,3 +27,7 @@
 ## Xcode StoreKit 개발 경계
 
 Xcode 로컬 StoreKit은 iOS 18 이상과 host 소모품 이력 opt-in을 요구한다. StoreKit이 검증한 Xcode 거래만 Native가 받아 고정 필드 후보 식별자를 생성하고, 같은 식별자 이력의 단일성을 확인한다. 개발 서버는 Apple JWS를 검증하지 않는 fake 지급이며 별도 Xcode 사용자·지갑과 개발 DB profile에 격리된다. 서버는 시도 UUID와 거래 키를 원자적으로 연결해 다른 시도의 충돌을 거부하고, Native Keychain은 finish 확인 후 시도 단서를 삭제한다. 전용 simulator/local DB 응답 유실과 저장소 인스턴스 재생성 시험은 통과했으나 실제 프로세스 종료·Unity player·Apple sandbox는 미검증이다.
+
+## 배치33 계약·설정 점검
+
+OpenAPI의 x-source-bindings는 Controller profile을 보존한다. 개발용 auth/StoreKit fake grant/Push stream은 local-mock, 개발 Push send는 local-mock·sandbox에만 존재한다. 운영 인증·구매·기기 등록은 실제 서버 설정과 검증기를 요구한다. 설정 shape checker는 자격증명 내용이나 Provider 권한을 검증하지 않는다. productIds 및 certificate 경로는 배열, scalar 설정은 문자열이어야 하며 인증 증빙·Push token·키는 진단 로그에 출력하지 않는다.

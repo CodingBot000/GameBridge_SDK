@@ -17,6 +17,7 @@ private final class BridgeState {
     private var callback: GBCallback?
     private var generation: UInt64 = 0
     private var pending = 0
+    private var authOwner: UUID?
     private var eventSession: String?
     private var accountEpoch: UInt64 = 0
     private let pushRouter = PushRouter()
@@ -29,24 +30,30 @@ private final class BridgeState {
     private var xcodeHandler: XcodeStoreKitBridgeHandler?
     #endif
     #if canImport(UIKit) && canImport(AuthenticationServices)
-    private var appleHandler: AppleAuthBridgeHandler?
+    @MainActor private var platformHandler: PlatformAuthBridgeHandler?
     #endif
     func setCallback(_ value: GBCallback?) {
         lock.lock(); defer { lock.unlock() }
         generation &+= 1; callback = value
-        if value == nil { eventSession = nil; accountEpoch &+= 1 }
+        if value == nil { eventSession = nil; accountEpoch &+= 1
+            #if canImport(UIKit) && canImport(AuthenticationServices)
+            Task { @MainActor [weak self] in self?.platformHandler?.cancelInFlight() }
+            #endif
+        }
     }
     func dispatch(_ data: Data) {
+        let isLogin = ((try? BridgeProtocol.parse(data))?["operation"] as? String)=="auth.signIn"
+        let owner=isLogin ? UUID():nil
         lock.lock()
         let current = generation
-        if pending >= 100 {
+        if pending >= 100 || (isLogin && authOwner != nil) {
             lock.unlock()
             if let response = envelope(data, result: nil, failure: SdkFailure("BUSY", retryable: true)) { deliver(response, generation: current) }
             return
         }
-        pending += 1; lock.unlock()
+        pending += 1; if let owner {authOwner=owner}; lock.unlock()
         queue.async {
-            defer { self.lock.lock(); self.pending -= 1; self.lock.unlock() }
+            defer { self.lock.lock(); self.pending -= 1; if let owner,self.authOwner==owner {self.authOwner=nil}; self.lock.unlock() }
             self.lock.lock(); let valid = self.generation == current; self.lock.unlock()
             guard valid else { return }
             // The queue serializes actor calls without blocking Unity's main thread.
@@ -114,8 +121,7 @@ private final class BridgeState {
                     #endif
                 case "PLATFORM_SANDBOX":
                     #if canImport(UIKit) && canImport(AuthenticationServices)
-                    if appleHandler == nil { appleHandler = await makeAppleAuthBridgeHandler { self.purchaseEmitter() } }
-                    result = try await appleHandler!.invoke(operation, payload: payload)
+                    result = try await invokePlatform(operation,payload:payload)
                     #else
                     throw SdkFailure("UNSUPPORTED_PLATFORM")
                     #endif
@@ -173,8 +179,7 @@ private final class BridgeState {
             #endif
         case "PLATFORM_SANDBOX":
             #if canImport(UIKit) && canImport(AuthenticationServices)
-            guard let appleHandler else { throw SdkFailure("NOT_INITIALIZED") }
-            return try await appleHandler.invoke(operation, payload: payload)
+            return try await invokePlatform(operation,payload:payload)
             #else
             throw SdkFailure("UNSUPPORTED_PLATFORM")
             #endif
@@ -183,6 +188,12 @@ private final class BridgeState {
             throw SdkFailure("NOT_INITIALIZED")
         }
     }
+    #if canImport(UIKit) && canImport(AuthenticationServices)
+    @MainActor private func invokePlatform(_ operation:String,payload:[String:Any]) async throws -> Any {
+        if platformHandler==nil {platformHandler=makePlatformAuthBridgeHandler {self.purchaseEmitter()}}
+        return try await platformHandler!.invoke(operation,payload:payload)
+    }
+    #endif
     private func mockPushEmitter() -> (PushPayload) -> Void {
         lock.lock(); let expectedGeneration = generation; let expectedEpoch = accountEpoch; let session = eventSession; lock.unlock()
         return { [weak self] value in
@@ -273,3 +284,15 @@ public func GB_Dispatch(_ pointer: UnsafePointer<UInt8>?, _ length: Int32) {
 }
 @_cdecl("GB_Shutdown")
 public func GB_Shutdown() { BridgeState.shared.shutdown() }
+
+// Host-native callback only: raw OAuth URLs never pass through Unity's public API/events.
+@_cdecl("GB_HandleAuthURL")
+public func GB_HandleAuthURL(_ pointer: UnsafePointer<UInt8>?, _ length: Int32) -> Int32 {
+    #if canImport(UIKit) && canImport(GoogleSignIn)
+    guard Thread.isMainThread,let pointer,length>0,length<=8192,
+          let value=String(data:Data(bytes:pointer,count:Int(length)),encoding:.utf8),let url=URL(string:value) else {return 0}
+    return MainActor.assumeIsolated {GameBridgeGoogleHost.handle(url) ? 1:0}
+    #else
+    return 0
+    #endif
+}

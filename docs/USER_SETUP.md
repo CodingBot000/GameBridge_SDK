@@ -59,3 +59,11 @@ bash scripts/verify-external.sh --check-config
 원래 Strict는58개 required lane과 recorded P05 실패를 보존합니다. [preflight](../harness/strict-preflight.py)의 E2 생성/전 wrapper 소유권 계약이 아직 미완성이므로 전체 실행0회입니다. self-check9개 PASS를 전체 Strict로 해석하지 않습니다. self-hosted 등록·Unity opt-in·Release 준비는 이 포트폴리오 종료 작업에서 수행하지 않습니다.
 
 과거 설정 지시는 Git의 이전 `USER_SETUP.md`와 WORK_LOG에 보존했습니다. 이후 작업은 명시적으로 실서비스 연동을 선택한 경우에만 진행하며, 위 목록을 자동 필수 배치로 전환하지 않습니다.
+
+## 문서37 A — iOS Google (별도 승인 확장)
+
+공식 GoogleSignIn-iOS9.2.0을pin했다. Google OAuth의iOS Client ID,Backend용Server Client ID,Bundle ID와reversed iOS Client ID URL Scheme을Host에설정한다. sample은 GIDClientID/GIDServerClientID 및CFBundleURLTypes를 build setting GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID/GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID/GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID로받는다. 값은public client identifier이며서버secret이아니다.
+
+기존URL callback에서 Swift GameBridgeGoogleHost.handle 또는Native GB_HandleAuthURL을명시적으로forward한다. C#이rawOAuthURL/code를받거나로그에출력하지않는다. [Host예시](../ios/host-examples/SocialAuthCallbacks.md)를따른다. Backend GAMEBRIDGE_AUTH_AUDIENCES_JSON의GOOGLE 허용audience는실제발급토큰의server client ID와일치시킨다. custom nonce는기존server challenge 그대로전달하며JWTnonce가없거나다르면거부한다.
+
+계정/콘솔이없으면real login은WAITING_USER다. source fake와archive가실제로그인성공이아니다. 새Nativeframework는공식GoogleSignIn 및AppAuth/SPM resource를소비자에서link해야하며Unityhook은exact9.2.0 dependency를추가한다. 옛포트폴리오DEV_RC는이코드를포함하지않는다.

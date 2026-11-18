@@ -65,3 +65,9 @@ SDK 연동자가 실제 소비하는 범위를 현재 Controller와 대조했습
 SSE는 수신/heartbeat마다 session·installation 소유권을 재확인하고, 해제·로그아웃 등으로 소유가 사라지면 완료합니다. 연결 해제 시 listener/heartbeat를 정리하며 미연결 메시지를 저장 재전달하지 않습니다. `route`는 개발 send/SDK 경계에서 `home/store`만 허용합니다. raw token/proof를 payload에 추가하지 않습니다.
 
 24 operation 모두 성공 응답 근거가 있고, 합성 HTTP10시험에서132개의 직렬화 구조를 대조했습니다. 문자열 값은 제거한 구조 검증이라 의미·서명 검증으로 확대하지 않습니다. [HTTP 근거](evidence/p11-batch34-openapi-synthetic.json). **BUG-017은 OPEN**이며 SSE event별 자동 schema 대응·동적 Map의 세부 명세 검사를 Known Limitation으로 남깁니다. 포트폴리오 종료와 독립된 선택적 보강입니다.
+
+## 별도 소셜 확장 A
+
+새iOS Google은기존GOOGLE enum/legacy challenge·exchange(idToken)를유지하며nonce 검증도그대로사용한다. Native provider 저장은iOS Google전용Keychain service와app/mode/Backend/client-ID 결속을사용한다. Native Store/Push는access-token/userId만담은내부세션protocol로기존서버의계정/원장권위를재사용한다. Apple 공개API/Keychain 상태와섞지않는다.
+
+GB_HandleAuthURL은Host native URL callback용추가C ABI이며원래4개함수는그대로다. rawURL은Unitypublic callback/result로전달하지않는다. 새경로검증은README 확장표와social-login evidence를따르며이전CI648의검증으로승격하지않는다.

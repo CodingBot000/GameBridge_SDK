@@ -6,11 +6,11 @@ import GameBridgeCore
 /// Raw StoreKit JWS is transmitted only to the configured Backend over the Native channel.
 @MainActor
 final class AppleHttpProofSink: ApplePurchaseProofSink {
-    private let auth: AppleAuthProvider
+    private let auth: any BackendSessionAccess
     private let client: BackendClient
-    init(auth: AppleAuthProvider, client: BackendClient) { self.auth = auth; self.client = client }
+    init(auth: any BackendSessionAccess, client: BackendClient) { self.auth = auth; self.client = client }
     func ensureReady(storeProductId: String) async throws {
-        let ready: Bool? = try await auth.withAuthenticatedSession { session in
+        let ready: Bool? = try await auth.withBackendSession { session in
             let body = try JSONSerialization.data(withJSONObject: ["storeProductId": storeProductId])
             let response = try await client.request(path: "/v1/purchases/apple/readiness", method: "POST", body: body, accessToken: session.accessToken)
             struct Readiness: Decodable { let ready: Bool }
@@ -22,7 +22,7 @@ final class AppleHttpProofSink: ApplePurchaseProofSink {
     func verify(_ proof: ApplePurchaseProof, userId: UUID) async throws -> ServerGrant {
         guard !proof.signedTransaction.isEmpty else { throw SdkFailure("VERIFICATION_FAILED") }
         let attemptId = UUID().uuidString.lowercased()
-        let result: ServerGrant? = try await auth.withAuthenticatedSession { session in
+        let result: ServerGrant? = try await auth.withBackendSession { session in
             guard UUID(uuidString: session.userId) == userId else { throw SdkFailure("PURCHASE_ACCOUNT_MISMATCH") }
             let body = try JSONSerialization.data(withJSONObject: ["storeProductId": proof.productId, "signedTransaction": proof.signedTransaction])
             let response = try await client.request(path: "/v1/purchases/apple/verify", method: "POST", body: body,

@@ -1987,3 +1987,10 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 포트폴리오 문서 검토: README 공고대응/진입점, Quick Start/실제Host·API·SSE/Map/오류·버전·호환성·보안·선택적USER_SETUP을현재사실로정리했다. 과거generic Unity미검증/계획변수·NOT_STARTED 소개는현재문서에서제거하고원본Git/WORK_LOG/evidence는보존. local문서링크150/SDK호출명11/Python예제문법검사PASS(예제실행·새Player아님). portfolio판정은최종RC/일관성검토뒤확정한다.
 - 포트폴리오 최종판정 확정: PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS / DEVELOPMENT_CLOSED.9개종료기준을기존실행/source·현재가이드·제한공개와대조했다. 기존64 Task상태·집계/FAIL/WAITING_USER는변경하지않고이미RESOLVED인ENV-002를잔여사유로쓰던행의설명만실제남은조건으로정정했다. BUG-017은현재파일존재/24op검증및SSE/Map잔여로설명정정하되OPEN유지.
 - 포트폴리오 원격 인계: beba1ff→e45188b73b70f3e54061f9ed5298ec9207903d62를동일handoff로FFpush0,local/remote일치·tracked-clean·기존미추적3경로보존확인. 마지막인계기록만별도commit하며새제품/하네스/계약code와CI실행은0이다. 포트폴리오개발종료상태를유지한다.
+
+## 사용자 문서37 — 별도 소셜 로그인 확장
+
+- 범위: A iOS Google → B Android/iOS Facebook → C Android Apple 웹 OAuth. 기존 포트폴리오 종료와64 Task 원장은 유지하고 이 확장만 별도로 기록한다.
+- 시작dc3ed4224d1c676e33ee92e8aa7aa6ceaa3c7855, branch feature/social-login-20261119. 기존 Demo/cache 보존. 각 배치 로컬 commit만, push/PR/main/Release/실Provider 없음.
+- A IN_PROGRESS: GoogleSignIn9.2.0 공식 nonce 시그니처·iOS 최소버전 호환 검토. Host URL callback은 명시적 forwarding, 새 Provider session은 별도 저장과 기존 Backend 세션/원장 권위를 사용한다.
+- 소셜 A 결과: iOS Google Native session/GoogleSDKnonce·공통Native store/push account 접근·C ABI router/HostURLforward/UI sample 구현. Swift29(신규Social5/기존Apple20/CBridge4)PASS,기존JWT/Audience unit PASS. device/simulator新XCFramework·Google resource 포함source consumer·고립binary consumer build·Unity PBX hookcompile·staging147 PASS. 실제Google/새UnityPlayer는미실행,계정설정WAITING_USER. B로진행하며최종FB의존성추가후패키지는별도판정한다.

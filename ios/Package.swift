@@ -8,10 +8,11 @@ let package = Package(
                .library(name: "GameBridgeTesting", targets: ["GameBridgeTesting"]),
                .library(name: "GameBridgeApple", targets: ["GameBridgeApple"]),
                .library(name: "GameBridgeUnityBridge", type: .static, targets: ["GameBridgeUnityBridge"])],
+    dependencies: [.package(url: "https://github.com/google/GoogleSignIn-iOS", exact: "9.2.0")],
     targets: [
         .target(name: "GameBridgeCore"),
         .target(name: "GameBridgeTesting", dependencies: ["GameBridgeCore"]),
-        .target(name: "GameBridgeApple", dependencies: ["GameBridgeCore"]),
+        .target(name: "GameBridgeApple", dependencies: ["GameBridgeCore", .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS", condition: .when(platforms: [.iOS]))]),
         .target(name: "GameBridgeUnityBridge", dependencies: ["GameBridgeCore", "GameBridgeApple"], path: "UnityBridge"),
         .testTarget(name: "GameBridgeCoreTests", dependencies: ["GameBridgeCore", "GameBridgeTesting", "GameBridgeUnityBridge", "GameBridgeApple"]),
     ]

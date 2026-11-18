@@ -6,6 +6,9 @@ configs:
   Debug: debug
   Release: release
 packages:
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    exactVersion: 9.2.0
   GameBridge:
     path: ..
 targets:
@@ -55,6 +58,9 @@ targets:
   GameBridgeNative:
     type: framework.static
     platform: iOS
+    dependencies:
+      - package: GoogleSignIn
+        product: GoogleSignIn
     sources:
       - ../Sources/GameBridgeCore
       - ../Sources/GameBridgeApple

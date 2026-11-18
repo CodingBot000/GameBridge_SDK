@@ -9,4 +9,7 @@
       <key>localhost</key><dict><key>NSExceptionAllowsInsecureHTTPLoads</key><true/></dict>
     </dict>
   </dict>
+<key>GIDClientID</key><string>$(GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID)</string>
+<key>GIDServerClientID</key><string>$(GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID)</string>
+<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLSchemes</key><array><string>$(GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID)</string></array></dict></array>
 </dict></plist>

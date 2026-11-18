@@ -11,6 +11,8 @@ void GB_SetCallback(GBCallback callback);
 // Input bytes are copied before this function returns.
 void GB_Dispatch(const uint8_t *bytes, int32_t length);
 void GB_Shutdown(void);
+// Forward from the Host native openURL callback on the main thread. Never log the URL.
+int32_t GB_HandleAuthURL(const uint8_t *bytes, int32_t length);
 #ifdef __cplusplus
 }
 #endif

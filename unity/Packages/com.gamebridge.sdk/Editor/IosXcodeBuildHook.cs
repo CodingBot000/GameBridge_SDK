@@ -32,10 +32,29 @@ namespace GameBridge.Editor
             ArtifactCopy.CopyOrVerify(source, destination);
             if (string.IsNullOrEmpty(guid)) guid = project.AddFile(relative, relative, PBXSourceTree.Source);
             project.AddFileToBuild(project.GetUnityFrameworkTargetGuid(), guid);
+            EnsureGooglePackage(project, path, projectPath);
             project.WriteToFile(projectPath);
 #if GAMEBRIDGE_XCODE_STOREKIT
             File.WriteAllText(plistPath, EnableXcodeStoreKitHistory(File.ReadAllText(plistPath)));
 #endif
+        }
+        private static void EnsureGooglePackage(PBXProject project, string output, string projectPath)
+        {
+            const string url = "https://github.com/google/GoogleSignIn-iOS";
+            const string version = "9.2.0";
+            string marker = Path.Combine(output, "GameBridgeGooglePackage.txt");
+            string before = File.ReadAllText(projectPath);
+            if (File.Exists(marker))
+            {
+                string guid = File.ReadAllText(marker).Trim();
+                if (guid.Length != 24 || !before.Contains(guid) || !before.Contains(url) || !before.Contains(version))
+                    throw new BuildFailedException("GameBridge Google SPM ownership/version mismatch.");
+                return;
+            }
+            if (before.Contains(url)) throw new BuildFailedException("Host already configures GoogleSignIn. Resolve the exact9.2.0 dependency explicitly before running this hook; it will not overwrite Host packages.");
+            string packageGuid = project.AddRemotePackageReferenceAtVersion(url, version);
+            project.AddRemotePackageFrameworkToProject(project.GetUnityFrameworkTargetGuid(), "GoogleSignIn", packageGuid, false);
+            File.WriteAllText(marker, packageGuid);
         }
         internal static string EnableXcodeStoreKitHistory(string source)
         {

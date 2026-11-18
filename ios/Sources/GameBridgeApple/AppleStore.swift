@@ -16,7 +16,7 @@ public struct AppleStorePurchaseResult {
 /// Native facade. Product IDs are supplied by the host and prices come from StoreKit.
 @MainActor
 public final class AppleStore {
-    private let auth: AppleAuthProvider
+    private let auth: any BackendSessionAccess
     private let client: BackendClient
     private let runtime: AppleStoreRuntime
     private let updates: AppleStoreUpdates
@@ -25,7 +25,7 @@ public final class AppleStore {
         guard auth.usesConfiguration(config) else { throw SdkFailure("CONFIG_REQUIRED") }
         try self.init(auth: auth, client: BackendClient(config: config), productIds: productIds)
     }
-    internal init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String], serviceConfig: ServiceConfigurationRepository? = nil) throws {
+    internal init(auth: any BackendSessionAccess, client: BackendClient, productIds: [String: String], serviceConfig: ServiceConfigurationRepository? = nil) throws {
         self.auth = auth; self.client = client
         let updates = AppleStoreUpdates(); self.updates = updates
         runtime = try AppleStoreRuntime(auth: auth, client: client, productIds: productIds, serviceConfig: serviceConfig) { productId, grant in
@@ -45,7 +45,7 @@ public final class AppleStore {
         }
     }
     public func entitlements() async throws -> EntitlementSnapshot {
-        let value: EntitlementSnapshot? = try await auth.withAuthenticatedSession { session in
+        let value: EntitlementSnapshot? = try await auth.withBackendSession { session in
             let response = try await client.request(path: "/v1/entitlements", method: "GET", accessToken: session.accessToken)
             guard let snapshot = try? JSONDecoder().decode(EntitlementSnapshot.self, from: response.json), snapshot.userId == session.userId else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
             return snapshot
@@ -61,10 +61,11 @@ public final class AppleStore {
 
 /// Shares a Backend-backed maintenance cache between config queries and StoreKit purchases.
 @MainActor public final class AppleStoreSession {
-    private let auth: AppleAuthProvider
+    private let auth: any BackendSessionAccess
     private let client: BackendClient
     private let serviceConfig: ServiceConfigurationRepository
-    public init(auth: AppleAuthProvider, config: GameBridgeConfig) throws {
+    public convenience init(auth: AppleAuthProvider, config: GameBridgeConfig) throws { try self.init(access: auth, config: config) }
+    internal init(access auth: any BackendSessionAccess, config: GameBridgeConfig) throws {
         guard config.mode == .platformSandbox, auth.usesConfiguration(config) else { throw SdkFailure("CONFIG_REQUIRED") }
         let client = try BackendClient(config: config)
         self.auth = auth; self.client = client; self.serviceConfig = backendServiceConfiguration(client)

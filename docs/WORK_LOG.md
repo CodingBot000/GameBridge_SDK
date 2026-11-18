@@ -4304,3 +4304,17 @@
 - `git rev-parse HEAD`와`git ls-remote origin refs/heads/handoff/p09-resume-20261113`가e45188b73b70f3e54061f9ed5298ec9207903d62로일치했다. tracked-clean,기존harness/cache·scripts/cache·unity/Demo3경로비추적상태보존.
 - 이번전체diff는Markdown/정제portfolio JSON뿐이고기존evidence파일및제품/Native/Unity/Backend/harness/tests/contracts/workflow를수정하지않았다. 제한된credential패턴검사0·diff0·원장0,문서169link/11anchor와RC상위160/SDK147checksum검토PASS. 새테스트/Player/CI0이며마지막code648bb80의Hosted44287600414 SUCCESS근거를유지한다.
 - 문서최종화commit7a575b7(설계/제한조사),c744d29(통합가이드/공고대응),e45188b(판정/종료정책)을보존한다. 이번인계기록commit은Git이력에서별도조회하고동일handoff FFpush후최종local/remote를확인한다. PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS로개발을종료하며선택적backlog를자동재개하지않는다.
+
+## 사용자 문서37 / 소셜 확장 A 시작
+
+- 기존 종료 규칙 중 새 명시 요청의 범위만 재개. git switch -c feature/social-login-20261119 exit0. SDK64행/기존포트폴리오판정·실패원본과 미추적3경로 보존, remote변경없음.
+- 기존AppleAuth/GoogleAuth/JNI/C ABI/AuthFlow/JWT/구매account scope를 조사했다. 공식Google release/9.2.0 헤더의nonce overload 확인, iOS16유지를위해9.2.0 pin을권장선택했다. 서버nonce검증을생략하지않는다. Meta/Apple 공식 문서도 다음배치에참고하며 opaque access token·OIDC JWT·code를분리한다.
+
+## 소셜 확장 A — 구현/로컬 결과
+
+- GoogleSignIn9.2.0 exact SPM 및resolved transitive pins. customnonce가있는공식signIn overload사용,Bundle client/server ID·reversed scheme preflight,활성UIKitpresenter,논리취소/공유UI중복guard/late결과무시. Host callback은Swift helper/GB_HandleAuthURL만forward,rawOAuthURL/code는C#을통과하지않는다. 기존C ABI4개유지+추가함수1.
+- 새SocialAuthProvider는Google전용store·app/mode/backend/client-ID결속·opaqueGameBridge세션/refresh single-flight/tombstone/logout generation을사용한다. 기존Apple 공개constructor를보존하면서내부BackendSessionAccess에token/userId만전달해Apple store/push의기존원장/accountbinding을재사용한다. Provider전환은기존계정을로그아웃하고새proof를검증하며자동병합/Mockfallback없음.
+- swift test --package-path ios --filter 'SocialAuthProviderTests|AppleAuthProviderTests|CBridgeTests': exit0/29. 늦은credential afterclose는exchange/persist되지않고중복signin BUSY,앱/설정격리·refresh/logout검증. backend/gradlew -p backend test --tests '*IdentityVerifierTest' --tests '*AudiencePolicyTest':0,JWTnonce/issuer/audience서명기존경계유지.
+- 최초archive65는SDKSwiftenum명GIDSignInErrorCode를GIDSignInError로정정. consumer actor warning은Sendable callback에서값만복사후MainActor hop으로수정해재빌드0. 초기실패/로그보존. 소스하드닝별checkpoint출력을새폴더에보존했고최종Native는ios-a-delivery device/sim archive/XCFramework0.
+- Source iOS sample build0/Google resource bundles확인,별도SocialBinaryConsumer가packagedXCF+GoogleSPM만import/link하여Simulator build0(실행없음). 설치된Unity PBX assembly로IosHook.csproj compile+기존PBX/plist멱등검사0. package-sdk.sh 새Native+source변경없는AndroidMaven→upm-a 147checksum0. 전체UnityPlayer/GoogleUI/계정실연동은NOT_RUN/WAITING_USER.
+- A evidence docs/evidence/social-login/a-ios-google.json. sourceSnapshot은base dc3+포함변경/fileSHA이며커밋identity는Git에서조회한다. 원래64행/이전포트폴리오실패·Source648증거를이번기능PASS로덮지않았다. 새실계정시험·remote push없음.

@@ -4227,3 +4227,10 @@
 - `python3 harness/run-swift-cabi-performance.py --run-local`: exit0, artifacts/swift-cabi-performance-661607840ecb4676aebaa5695c555370. 기존SwiftCore실험을반복하지않고배치33simulator framework를링크한새실행파일로GB_SetCallback/Dispatch/Shutdown을호출했다.
 - 새전용iPhone16/iOS18.6 UUID/name검증후실행/자기UUID만shutdown. init/status/shutdown 각warmup20·sample100,120session·360correlatedcallback,측정harnessoutstanding0. p50/p95/max·peakRSS JSON보존. peakRSS증가를누수로판정하지않는다. Nativeprivatepending/Taskcancel/continuation은NOT_RUN/NOT_OBSERVED이며잔존0으로위장하지않는다.
 - 도구소스는당시untracked/HEAD3313c84이며Native배포bytes변경없음을분리했다. C1Android는D의신규JNI소비자환경port소유충돌로생성전차단, C3Unityscene/frame계측은아직미실행. T03 PARTIAL.
+
+## 배치34 D — 남은 Binary 및 신규 Unity 소비
+
+- 배치32 handoff Maven과새배치33Maven의sdk-core SdkCoordinator/BridgeProtocol, bridge BridgeFacade, android.auth.GoogleAuthProvider를`javap -public`으로선정비교했다. 4class출력동일/hash기록. 최초GoogleAuthProvider의잘못된package명은javap1로거부했고실제jar명단으로확인후정정했다. Kotlinmetadata전체ABI보증아님. `git diff a83561a -- android ios unity`0.
+- 배치32의검증된소유controller를새name/port5602/staging33으로복제한`python3 artifacts/batch34/run-owned-android.py`: exit1,원본port소유검사가기존사용중endpoint를발견해자원생성전중단. 기존server/기기를kill/restart하지않았다. artifacts/batch34-android-controller.log원본보존,새Androidbuild/Player0.
+- `UNITY_EDITOR_PATH=...6000.5.8f1/... python3 harness/run-unity-ios-mock-e2e.py --run-local --staging artifacts/batch33/upm --package-cache artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache --pii-probe --adhoc`: exit0, artifacts/unity-ios-e2e-5gvhn9ti. 新consumer/UPMimport·batchCLIexport·Xcodebuild·새SimulatorPlayer,24marker/Backend trace/ledger1·100 PASS. GUI·실Apple아님.
+- 원본runner는신규Simulator를retained Booted로두므로후속에서생성DBsuffix와정확UUID/name/iOS18.6을대조해자기기기만shutdown0. 원본result변경없이정제증거에후속cleanup기록. 신규Native再build없고T03의존/새Android미실행으로T04 PARTIAL유지.

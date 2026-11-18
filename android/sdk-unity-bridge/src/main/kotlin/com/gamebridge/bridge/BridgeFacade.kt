@@ -105,6 +105,7 @@ object BridgeFacade {
     private fun socialApi(name:String,config:com.gamebridge.GameBridgeConfig,ids:Map<String,String>?,installation:UUID?):GoogleAuthBridgeApi {
         val activity=host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED","HOST_ACTIVITY")
         val provider=when(name){
+            "APPLE"->com.gamebridge.android.auth.PlatformAuthProviders.apple(activity.applicationContext,config,KeystoreTokenStore(activity.applicationContext,"unity_apple_web"))
             "FACEBOOK"->com.gamebridge.android.auth.PlatformAuthProviders.facebook(activity.applicationContext,config,KeystoreTokenStore(activity.applicationContext,"unity_facebook"))
             else->throw com.gamebridge.SdkFailure("UNSUPPORTED_PROVIDER")
         }
@@ -148,6 +149,7 @@ object BridgeFacade {
         private fun store():KeystoreTokenStore {val activity=host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED");return KeystoreTokenStore(activity.applicationContext,"unity_social_selection")}
         override fun load()=store().load();override fun save(value:String)=store().save(value);override fun clear()=store().clear()
     }) {name->GoogleAuthBridgeHandler(name){config,ids,installation->socialApi(name,config,ids,installation)}}
+    @JvmStatic fun onSocialRedirect(url:String):Boolean = host?.get()?.let {com.gamebridge.android.auth.PlatformAuthProviders.forwardAppleRedirect(it,url)}?:false
     @JvmStatic fun onSocialActivityResult(requestCode:Int,resultCode:Int,data:android.content.Intent?):Boolean = com.gamebridge.android.auth.PlatformAuthProviders.forwardFacebookActivityResult(requestCode,resultCode,data)
     init { localMock.setMockPushSinkFactory { mockPushEmitter() } }
     private val dispatcher = BridgeDispatcher(ModeBridgeHandler(localMock, platform))

@@ -107,14 +107,14 @@ class AuthFlow(private val db: JdbcTemplate, private val tx: TransactionTemplate
     }
 }
 
-data class ChallengeInput(@field:NotBlank val appId: String, val provider: IdentityProvider, val proofType:AuthProofType=AuthProofType.ID_TOKEN)
+data class ChallengeInput(@field:NotBlank val appId: String, val provider: IdentityProvider, val proofType:AuthProofType?=null)
 enum class AuthProofType { ID_TOKEN, FACEBOOK_ACCESS_TOKEN, FACEBOOK_LIMITED_ID_TOKEN }
-data class ExchangeInput(val challengeId: UUID, val provider: IdentityProvider, val idToken: String? = null, val displayName: String? = null, val proofType: AuthProofType = AuthProofType.ID_TOKEN, val accessToken: String? = null) {
+data class ExchangeInput(val challengeId: UUID, val provider: IdentityProvider, val idToken: String? = null, val displayName: String? = null, val proofType: AuthProofType? = null, val accessToken: String? = null) {
     override fun toString() = "ExchangeInput([redacted])"
 }
 @RestController
 @Profile("sandbox", "production")
 class AuthFlowController(private val flow: AuthFlow) {
-    @PostMapping("/v1/auth/challenges") fun challenge(@Valid @RequestBody input: ChallengeInput) = flow.challenge(input.appId, input.provider,input.proofType)
-    @PostMapping("/v1/auth/exchange") fun exchange(@Valid @RequestBody input: ExchangeInput) = flow.exchange(input.challengeId, input.provider, input.idToken.orEmpty(), input.displayName,input.proofType,input.accessToken)
+    @PostMapping("/v1/auth/challenges") fun challenge(@Valid @RequestBody input: ChallengeInput) = flow.challenge(input.appId, input.provider,input.proofType ?: AuthProofType.ID_TOKEN)
+    @PostMapping("/v1/auth/exchange") fun exchange(@Valid @RequestBody input: ExchangeInput) = flow.exchange(input.challengeId, input.provider, input.idToken.orEmpty(), input.displayName,input.proofType ?: AuthProofType.ID_TOKEN,input.accessToken)
 }

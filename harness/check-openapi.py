@@ -55,6 +55,10 @@ def check(doc, root=ROOT):
         headers = {p['name'] for p in op.get('parameters',[]) if p['in']=='header' and p.get('required')}
         assert headers == {h for b in bindings for h in b['headers']}, f'header drift: {key}'
         for status, response in op['responses'].items():
+            if status == '303':
+                assert key==('/v1/auth/apple-web/callback','post'), 'unexpected redirect operation'
+                assert set(response['headers'])=={'Location','Cache-Control','Referrer-Policy'} and 'content' not in response, 'callback redirect drift'
+                continue
             if status != '200':
                 assert response['content']['application/json']['schema'] == {'$ref':'#/components/schemas/ApiError'}, 'error response drift'
     error = doc['components']['schemas']['ApiError']

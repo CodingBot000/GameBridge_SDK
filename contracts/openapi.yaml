@@ -1667,6 +1667,170 @@
         },
         "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
       }
+    },
+    "/v1/auth/apple-web/start": {
+      "post": {
+        "operationId": "post_apple_web_start",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/auth/AppleWebFlow.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppleWebStartInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Native-only authentication flow response; Cache-Control no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppleWebStartOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/apple-web/callback": {
+      "post": {
+        "operationId": "post_apple_web_callback",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/auth/AppleWebFlow.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/AppleWebCallbackForm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "303": {
+            "description": "Registered HTTPS App Link; contains only one-use verifier-bound opaque handle",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-referrer"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/apple-web/complete": {
+      "post": {
+        "operationId": "post_apple_web_complete",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/auth/AppleWebFlow.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppleWebCompleteInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Native-only authentication flow response; Cache-Control no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppleWebCompleteOutput"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1786,7 +1950,9 @@
               "FACEBOOK_ACCESS_TOKEN",
               "FACEBOOK_LIMITED_ID_TOKEN"
             ],
-            "default": "ID_TOKEN"
+            "default": "ID_TOKEN",
+            "nullable": true,
+            "description": "Omitted or null preserves legacy ID_TOKEN; Facebook requires an explicit non-ID_TOKEN proof type."
           }
         },
         "required": [
@@ -1838,7 +2004,9 @@
               "FACEBOOK_ACCESS_TOKEN",
               "FACEBOOK_LIMITED_ID_TOKEN"
             ],
-            "default": "ID_TOKEN"
+            "default": "ID_TOKEN",
+            "nullable": true,
+            "description": "Omitted or null preserves legacy ID_TOKEN; Facebook requires an explicit non-ID_TOKEN proof type."
           },
           "accessToken": {
             "type": "string",
@@ -2316,6 +2484,115 @@
           "fulfillmentStatus",
           "finalizationStatus"
         ]
+      },
+      "AppleWebStartInput": {
+        "type": "object",
+        "required": [
+          "appId",
+          "verifierChallenge"
+        ],
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "verifierChallenge": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$"
+          }
+        }
+      },
+      "AppleWebStartOutput": {
+        "type": "object",
+        "required": [
+          "flowId",
+          "authorizationUrl",
+          "returnUri",
+          "expiresAt"
+        ],
+        "properties": {
+          "flowId": {
+            "type": "string"
+          },
+          "authorizationUrl": {
+            "type": "string"
+          },
+          "returnUri": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        }
+      },
+      "AppleWebCompleteInput": {
+        "type": "object",
+        "required": [
+          "appId",
+          "flowId",
+          "handle",
+          "verifier"
+        ],
+        "properties": {
+          "appId": {
+            "type": "string",
+            "writeOnly": false
+          },
+          "flowId": {
+            "type": "string",
+            "writeOnly": false
+          },
+          "handle": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "verifier": {
+            "type": "string",
+            "writeOnly": true
+          }
+        }
+      },
+      "AppleWebCompleteOutput": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "CANCELED",
+              "FAILED"
+            ]
+          },
+          "session": {
+            "$ref": "#/components/schemas/SessionTokens",
+            "nullable": true
+          }
+        }
+      },
+      "AppleWebCallbackForm": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "code": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "error": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string",
+            "description": "Untrusted Apple first-consent data; ignored for identity"
+          }
+        }
       }
     }
   }

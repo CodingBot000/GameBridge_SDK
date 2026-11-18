@@ -9,9 +9,10 @@ import kotlin.test.*
 private class SocialMemory:TokenStore {var raw:String?=null;override fun load()=raw;override fun save(value:String){raw=value};override fun clear(){raw=null}}
 private class SocialFakeGateway:SocialCredentialGateway {
     override val binding="facebook-app-123"
+    var apple:NativeSession?=null
     var waiting:CompletableDeferred<NativeSocialCredential>?=null
     override fun attach(activity:Activity){};override fun detach(){};override fun cancel(){};override fun logout(){}
-    override suspend fun authorize(challenge:AuthChallenge?):NativeSocialCredential {assertEquals("server-nonce",challenge?.nonce);return waiting?.await() ?:NativeSocialCredential.FacebookAccess("opaque-fb-proof")}
+    override suspend fun authorize(challenge:AuthChallenge?):NativeSocialCredential {if(apple!=null){assertNull(challenge);return waiting?.await()?:NativeSocialCredential.AppleCompletion(apple!!)};assertEquals("server-nonce",challenge?.nonce);return waiting?.await() ?:NativeSocialCredential.FacebookAccess("opaque-fb-proof")}
 }
 class SocialAuthProviderTest {
     private val user="11111111-1111-4111-8111-111111111111"
@@ -43,4 +44,17 @@ class SocialAuthProviderTest {
     @Test fun `wrong profile never persists a new session`()=runBlocking {
         val store=SocialMemory();assertEquals("AUTH_FAILED",assertFailsWith<SdkFailure>{make(store,SocialFakeGateway(),wrongUser=true).signIn()}.code);assertNull(store.raw)
     }
+    @Test fun `Apple completed session is verified and old callback after shutdown cannot persist`()=runBlocking {
+        val store=SocialMemory();val gateway=SocialFakeGateway();gateway.apple=NativeSession("native-access","native-refresh","2035-01-01T00:00:00Z",user)
+        val requests=mutableListOf<String>()
+        fun provider()=SocialAuthProvider(GameBridgeConfig("game",ProviderMode.PLATFORM_SANDBOX,"https://backend.invalid"),"APPLE",store,gateway){path,_,_,_->
+            requests+=path;assertEquals("/v1/me",path);BackendResponse(null,"""{"userId":"$user","displayName":null}""")
+        }
+        val first=provider();assertEquals("APPLE",first.signIn().provider);assertEquals(listOf("/v1/me"),requests);assertFalse(store.raw!!.contains("code"))
+        first.close()
+        assertEquals("CANCELED",assertFailsWith<SdkFailure>{first.withAuthenticatedSession {error("closed account action must not run")}}.code)
+        store.clear();gateway.waiting=CompletableDeferred();val second=provider();val pending=async {runCatching {second.signIn()}};yield();second.close();gateway.waiting!!.complete(NativeSocialCredential.AppleCompletion(gateway.apple!!))
+        assertEquals("CANCELED",(pending.await().exceptionOrNull() as SdkFailure).code);assertNull(store.raw);assertEquals(1,requests.size)
+    }
+
 }

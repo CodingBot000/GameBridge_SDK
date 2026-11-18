@@ -27,6 +27,14 @@ internal class NativePlatformAuth(private val context:Context,private val config
     override fun close()=auth.close()
 }
 object PlatformAuthProviders {
+    @JvmStatic fun apple(context:Context,config:GameBridgeConfig,store:TokenStore):PlatformAuthProvider =
+        NativePlatformAuth(context.applicationContext,config,SocialAuthProvider(config,"APPLE",store,AppleWebGateway(context,config)))
+    @JvmStatic fun forwardAppleRedirect(context:Context,url:String):Boolean {
+        if(!AppleWebGateway.isReturn(context,url))return false
+        AppleWebGateway.forward(url) // Consume registered stale/canceled URLs without passing them to Unity.
+        return true
+    }
+
     @JvmStatic fun facebook(context:Context,config:GameBridgeConfig,store:TokenStore):PlatformAuthProvider {
         try {
             Class.forName("com.facebook.login.LoginManager",false,context.classLoader)

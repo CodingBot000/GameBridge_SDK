@@ -4328,3 +4328,19 @@
 - B 커밋 전 최신 Backend identity namespace HTTP·Android staging/R8·Simulator source 재검사를 수행한다. 다음 C만 진행하며 옛64Task 상태/Strict/CI는 재개하지 않는다.
 
 - B 최종 소스 재검사: Facebook HTTP3 exit0/owned DB gamebridge_ci_abaf17e7c9, build-android.sh --mock Maven+R8 consumer exit0, 최신 Simulator archive exit0. 실제 Provider·새UnityPlayer未실행.
+
+## 소셜 C 시작 — Android Apple 웹 인증
+
+- B commit121d2c6. Apple 공식 authorize/form_post/token 및 Services ID–Primary App ID 관계를 확인. AndroidX Browser1.9.0 stable 선택. 서버는 state/nonce+ES256 client secret/code exchange를 소유하고 Native에는 verifier-bound 일회용 handle만 복귀시킨다. 기존 SessionService/원장 재사용, code를 ID token으로 위장하지 않는다.
+- C 첫 컴파일은 테스트가 존재하지 않는 jackson Kotlin module을 import해 실패1; 기존 ObjectMapper 사용으로 수정. 첫 HTTP6은 ServletServerHttpRequest의 form parameter 재구성으로 replay body가 빈 것으로 처리되어400. callback만 bounded HttpServletRequest stream을 직접 읽도록 수정하고 OpenAPI form 계약 guard를 명시했다. 기존 JSON 필터를 약화하지 않음. 원본log/XML 보존.
+
+## 소셜 C 및 전체 확장 최종 검증
+
+- Android AppleGateway: 공식Custom Tabs1.9.0, Host소유AppLink forwarding·등록staleURL Native소비, 메모리verifier/시도flow결속, 브라우저닫기/lifecycle취소/180초timeout. Backend AppleWebFlow:5분state/nonce hash, codehash unique·교환전stage원자claim, ES256 server p8 clientsecret5분, HTTPS form_post boundedraw수신, 정확ServicesID JWT검증,60초handle+S256verifier 원자1회수령후 기존SessionService발급. V11 forward, 데이터reset/merge0.
+- 후속 HTTP실패는 테스트클라이언트가303을추적해존재하지않는합성도메인을조회한원인: 테스트redirect만비활성화후6test0. 원본별log/XML보존. 기존Google/Apple AuthHTTP2가proofType생략400임을발견(서버에Jackson Kotlin default지원없음): Controller입력nullable+명시ID_TOKEN기본값으로수정해HTTP2/AuthFlowDB1 PASS. 이중호환성을Kotlin함수default만으로주장하지않는다.
+- 최종Backend선정20(신규AppleHTTP6/FBHTTP3/설정2/JWT6/Audience1/Rate1/민감타입1)0failure/skip,exit0; 새ownedDB gamebridge_ci_22718d625e. 별도기존인증HTTP2+FlowDB1/Mock지급HTTP1+LedgerDB제약1모두exit0,각ownedDB/schema보존.
+- Android Native47+Bridge9 exit0/skip0(기존Google/구매/수명·새Apple URL/완료세션/선택marker·설정실패시기존identity유지포함). Swift최종31=Social7/Apple20/CBridge4 exit0. 공통challenge대기중shutdown후UI를열지않게양Nativeguard추가/늦은응답회귀PASS. C#enum/provider/typed비밀비노출/no-fallback exit0.
+- Native최종device/sim archive/XCF0, finalbinaryconsumer의Google+Meta link/resource/embed0. AndroidMaven/sample/기본R8+Meta포함별도consumerR8 모두0. Unity PBX hookcompile+기존PBX/plist멱등0(최초잘못된Native target smoke 입력실패는기록하고실제Sampletarget으로정정;제품수정없음). xcodegen PATH누락66은기존pinned tool사용으로정정. 새Unityexport/Player/실OAuth UI/instrumentation/실계정은미실행.
+- 최종upm-final의147checksum전부일치/packaging0. OpenAPI27operations sourceguard0,form/303본문비노출변이포함18test0. verify-progress.py0,기존64행상태변경없음. Meta remoteSPM지연DEFERRED_ENV·공식SHA/codesign검증cache우회아닌upstream기능사용,모든실ProviderWAITING_USER.
+- 문서USER_SETUP/API/INTEGRATION/FEATURE_MATRIX/CHANGELOG/README와SOCIAL_AUTH_HANDOFF,정제evidence C갱신. 한원인당수정3회제한유지. 남은선정internal빌드/테스트FAIL없음; Classic논리취소후물리callback대기BUSY·실기기/새Player/기본remoteSPM미검증제한명시. 기존미추적3경로보존,생성bin/obj만ignore추가. A9848e56/B121d2c6/C로배치별로컬commit만,원격작업0. 세배치종료후옛P00–P11은재개하지않는다.
+- 최종diff검토에서닫힌Android social account action이호출전에차단되도록closed/epochguard1개를보강하고같은Apple수명시험에action미실행assertion추가. 최종Native47+Bridge9 재검사0,최신maven-delivery/R8재빌드0. NativeDemoREADME에새버튼/Host설정/실연동미검증을추가하고최신binary+문서를upm-handoff147로재묶음/전checksum0(이전산출물보존). Markdown링크검사초안은정상angle-bracket경로를잘못판정해parser만정정;최종97개경로모두존재. 제품문서링크누락은없었다.

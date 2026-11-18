@@ -1,5 +1,8 @@
 # 변경 이력
 
+> 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
+
+
 ## 0.1.0-dev — 포트폴리오 동결 후보
 
 정식 릴리스나 여러 버전의 마이그레이션 실적은 없습니다. 실제 환경·source·ABI와 Host 확인 원칙은 [COMPATIBILITY](COMPATIBILITY.md)를 따릅니다.
@@ -17,3 +20,7 @@
 ## 문서37 소셜 확장 B
 
 SOC-B: Meta Android18.3.0/iOS18.1.1 Native adapter, explicit Facebook proof types, server debug/OIDC verification, Native account-session reuse, Host callback integration, forward V10 migration 및 부정 테스트 추가. 실계정 미실행.
+
+## 문서37 SOC-C / 확장 종료
+
+Android Apple Custom Tabs/App Links, 서버 Services ID/ES256/code exchange/form_post callback, verifier-bound one-use completion, V11 migration 추가. 기존 proofType 생략 HTTP 호환을 명시 null 기본 처리로 보장. 공통 challenge 대기 중 shutdown 시 UI를 열지 않도록 Android/iOS 수명 경계를 보강하고 회귀 검증했다. Live Provider/새UnityPlayer/원격배포 없이 A/B/C 로컬 구현·검증을 종료한다.

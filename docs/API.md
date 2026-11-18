@@ -1,5 +1,8 @@
 # SDK·HTTP·Bridge 계약
 
+> 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
+
+
 공개 Unity 표면은 [GameBridgeClient](../unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs), 설정은 [GameBridgeConfig](../unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs)가 기준입니다. 실제 사용 순서는 [Quick Start](INTEGRATION.md)를 따릅니다.
 
 ## Unity 공개 API
@@ -75,3 +78,17 @@ GB_HandleAuthURL은Host native URL callback용추가C ABI이며원래4개함수�
 ## 문서37 소셜 확장 B
 
 FACEBOOK enum3 추가. /v1/auth/challenges의 proofType, /v1/auth/exchange의 명시 proofType+accessToken을 추가하며 기존 GOOGLE/APPLE idToken 호출은 그대로다. Facebook Classic과 Limited는 별도 검증하고 UserProfile 외 원본 증명은 Unity에 노출하지 않는다.
+
+## 문서37 최종 소셜 계약
+
+Unity AuthProvider의 기존 MOCK0/GOOGLE1/APPLE2를 유지하고 FACEBOOK3을 추가했다. 기존 Google/Apple `/v1/auth/challenges`·`/v1/auth/exchange`에서 proofType 생략/null은 ID_TOKEN으로 명시 해석한다. Jackson Kotlin 기본 인자 처리에 의존하지 않는다. Facebook은 명시 FACEBOOK_ACCESS_TOKEN/accessToken 또는 FACEBOOK_LIMITED_ID_TOKEN/idToken만 허용한다. code를 idToken으로 받지 않는다. issuer/subject/app scope로 기존 세션과 원장에 결속하고 이메일 자동 병합/구매 이전은 하지 않는다.
+
+신규 sandbox/production API (무인증 시작/복귀이므로 state·verifier가 권한 증명이며 기존 rate/body 제한 적용):
+
+| POST | 입력 | 성공 응답 |
+| --- | --- | --- |
+| /v1/auth/apple-web/start | appId, verifierChallenge (Native S256/base64url43) | flowId, authorizationUrl, returnUri, expiresAt; no-store |
+| /v1/auth/apple-web/callback | application/x-www-form-urlencoded state+code 또는 error; user는 identity 근거로 사용하지 않음 | 303 Location: 등록HTTPS return?handle=opaque; no-store/no-referrer, body 없음 |
+| /v1/auth/apple-web/complete | appId, flowId, handle, verifier | status COMPLETE + 기존SessionTokens 또는 CANCELED/FAILED + session:null; no-store |
+
+코드·키·provider token과 SDK access/refresh는 Native/Backend만 다룬다. session 응답은 Native가 기존 `/v1/me`로 재확인해 보안 저장소에 저장한다. 공개 Unity 결과는 UserProfile뿐이다. 이전 C ABI4개와 C# API를 유지하고 iOS GB_HandleAuthURL, Android onSocialActivityResult/onSocialRedirect의 Native 전용 Host forwarding을 추가했다. JSON Schema의 UserProfile.provider는 기존부터 string이라 enum 축소/이전 fixture 변경이 필요 없다. HTTP DTO/form/redirect 계약은 [OpenAPI](../contracts/openapi.yaml), 증명 정책은 [social-auth](../contracts/social-auth.md)를 따른다.

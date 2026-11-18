@@ -1,0 +1,14 @@
+// Merge into YOUR existing Activity; do not replace it or forward URLs through C#.
+// For a Unity Host, retain the existing UnityPlayerActivity superclass.
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    if (BridgeFacade.onSocialActivityResult(requestCode, resultCode, data)) return
+    super.onActivityResult(requestCode, resultCode, data)
+}
+override fun onNewIntent(intent: Intent) {
+    // Registered Apple return URLs, including stale/invalid results, are consumed here.
+    if (intent.dataString?.let { BridgeFacade.onSocialRedirect(it) } == true) return
+    super.onNewIntent(intent)
+}
+// On cold launch after setHostActivity(this), consume the launch Intent in Native
+// before any Unity deep-link event dispatch. A previous process has no verifier;
+// its old callback cannot be redeemed. Do not log intent.dataString.

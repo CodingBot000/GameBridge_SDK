@@ -1,0 +1,20 @@
+<!-- Merge into the Host manifest, replacing public example IDs/domains. -->
+<application>
+  <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id" />
+  <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token" />
+  <meta-data android:name="com.gamebridge.apple.SERVICES_ID" android:value="com.example.web" />
+  <meta-data android:name="com.gamebridge.apple.RETURN_URI" android:value="https://app.example.invalid/auth/apple" />
+  <!-- Use YOUR existing Activity. singleTask preserves its in-memory verifier. -->
+  <activity android:name=".YourExistingActivity" android:launchMode="singleTask" android:exported="true">
+    <intent-filter android:autoVerify="true">
+      <action android:name="android.intent.action.VIEW" />
+      <category android:name="android.intent.category.DEFAULT" />
+      <category android:name="android.intent.category.BROWSABLE" />
+      <data android:scheme="https" android:host="app.example.invalid" android:path="/auth/apple" />
+    </intent-filter>
+  </activity>
+</application>
+<!-- Serve /.well-known/assetlinks.json for the actual package + SHA256 signing
+     certificate on the HTTPS return host. Never use a custom scheme or WebView.
+     Add official Meta FacebookActivity/CustomTabActivity settings from its docs.
+     No Apple private key/Meta App Secret belongs in this manifest. -->

@@ -4,6 +4,8 @@ import XCTest
 @testable import GameBridgeApple
 
 private final class SocialProtocol:URLProtocol {
+    static var pauseChallenge=false
+    static var waiting:SocialProtocol?
     static var meUnauthorized=false
     static var requests=[String]()
     static var wrongUser=false
@@ -12,6 +14,10 @@ private final class SocialProtocol:URLProtocol {
     override class func canInit(with request:URLRequest)->Bool {true}
     override class func canonicalRequest(for request:URLRequest)->URLRequest {request}
     override func startLoading() {
+        if Self.pauseChallenge && request.url!.path.hasSuffix("challenges") {Self.waiting=self;return}
+        respond()
+    }
+    func respond() {
         let path=request.url!.path;Self.requests.append(path)
         var status=200;var body:[String:Any]
         if path.hasSuffix("challenges") {body=["challengeId":"22222222-2222-4222-8222-222222222222","nonce":"server-nonce","expiresAt":"2035-01-01T00:00:00Z"]}
@@ -39,7 +45,7 @@ private final class SocialStore:TokenStore {var value:String?;func load()throws-
         let configuration=URLSessionConfiguration.ephemeral;configuration.protocolClasses=[SocialProtocol.self]
         return try SocialAuthProvider(config:GameBridgeConfig(appId:app,mode:.platformSandbox,backendBaseURL:"https://backend.invalid"),provider:name,settingsBinding:binding,store:store,gateway:gateway,sessionConfiguration:configuration)
     }
-    override func setUp(){SocialProtocol.requests=[];SocialProtocol.meUnauthorized=false;SocialProtocol.wrongUser=false;SocialProtocol.nonce=""}
+    override func setUp(){SocialProtocol.pauseChallenge=false;SocialProtocol.waiting=nil;SocialProtocol.requests=[];SocialProtocol.meUnauthorized=false;SocialProtocol.wrongUser=false;SocialProtocol.nonce=""}
     func testNonceAndOpaqueSessionStayNativeAndRestoreRefreshLogout()async throws {
         let store=SocialStore();let gateway=SocialGateway();let provider=try make(store,gateway)
         let profile=try await provider.signIn();XCTAssertEqual(profile.provider,"GOOGLE");XCTAssertEqual(SocialProtocol.nonce,"server-nonce")
@@ -90,4 +96,14 @@ private final class SocialStore:TokenStore {var value:String?;func load()throws-
         do {try await make(store,SocialGateway()).signOut();XCTFail("warning")} catch let error as SdkFailure {XCTAssertEqual(error.nativeCode,"REVOCATION_UNCONFIRMED")}
         XCTAssertNil(store.value)
     }
+    func testShutdownWhileChallengePendingNeverOpensProviderUI()async throws {
+        SocialProtocol.pauseChallenge=true
+        let store=SocialStore();let gateway=SocialGateway();let provider=try make(store,gateway)
+        let task=Task {try await provider.signIn()}
+        for _ in 0..<1000 {if SocialProtocol.waiting != nil {break};try await Task.sleep(nanoseconds:1_000_000)}
+        XCTAssertNotNil(SocialProtocol.waiting);provider.close();SocialProtocol.waiting?.respond();SocialProtocol.waiting=nil
+        do {_ = try await task.value;XCTFail("late challenge")} catch let e as SdkFailure {XCTAssertEqual(e.code,"CANCELED")}
+        XCTAssertEqual(SocialProtocol.nonce,"");XCTAssertNil(store.value);XCTAssertFalse(SocialProtocol.requests.contains("/v1/auth/exchange"))
+    }
+
 }

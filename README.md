@@ -1,21 +1,21 @@
 # GameBridge SDK
 > **명시 승인된 별도 확장 — 사용자 문서37 / feature/social-login-20261119**
-> 기존 아래 포트폴리오 판정·CI648은 동결 snapshot이다. 이 브랜치의 새 소셜 인증은 별도 구현·검증 중이며, 옛 DEV_RC로 새 기능을 검증한 것으로 취급하지 않는다. 원격 push/PR/Release는 하지 않는다.
+> 기존 아래 포트폴리오 판정·CI648은 동결 snapshot이다. 이 브랜치의 새 소셜 인증은 별도 로컬 구현·검증을 완료했으며, 옛 DEV_RC로 새 기능을 검증한 것으로 취급하지 않는다. 원격 push/PR/Release는 하지 않는다.
 
 | 새 인증 경로 | 구현 | 로컬 검증 | Native/패키지 | 실제 계정 |
 | --- | --- | --- | --- | --- |
-| iOS Google | A 구현, 공식GoogleSignIn9.2.0/custom nonce | Swift29·기존JWT/Audience 회귀 PASS | device/sim XCFramework·source/binary 소비 build·UPM147 PASS (Player未실행) | WAITING_USER |
+| iOS Google | A 구현, 공식GoogleSignIn9.2.0/custom nonce | Swift31·JWT/Audience·기존HTTP 회귀 PASS | device/sim XCFramework·source/binary 소비 build·UPM147 PASS (Player未실행) | WAITING_USER |
 | Android Facebook | B 구현, Meta18.3.0 Classic | Kotlin/Backend HTTP·C# PASS | Maven/R8 소비 PASS | WAITING_USER |
-| iOS Facebook | B 구현, Meta18.1.1 Limited/Classic | Swift30·서버 증명 분리 PASS | 공식 검증 binary cache로 Simulator archive PASS; 원격 다운로드 지연 | WAITING_USER |
-| Android Apple | C 대기 | NOT_RUN | NOT_RUN | WAITING_USER |
+| iOS Facebook | B 구현, Meta18.1.1 Limited/Classic | Swift31·서버 증명 분리 PASS | 공식 검증 cache로 device/sim XCF·binary 소비·UPM PASS; 원격 다운로드 대기 | WAITING_USER |
+| Android Apple | C 구현, 공식 웹 OAuth/Custom Tabs | 서버HTTP6·Native URL/세션/라우팅 PASS | Maven/R8·JNI·UPM PASS (OAuth UI/새Player未실행) | WAITING_USER |
 
 ```csharp
 await sdk.SignInAsync(AuthProvider.GOOGLE); // 기존Android / 새iOS 경로
-await sdk.SignInAsync(AuthProvider.APPLE);  // 기존iOS / C배치Android 웹 경로
+await sdk.SignInAsync(AuthProvider.APPLE);  // 기존iOS / 새Android 웹 경로
 await sdk.SignInAsync(AuthProvider.FACEBOOK);
 ```
 
-
+세부 명령·실패 이력·환경 제한은 [소셜 확장 인계](docs/SOCIAL_AUTH_HANDOFF.md), 콘솔/키 설정은 [USER_SETUP](docs/USER_SETUP.md)을 참고하세요.
 
 Kotlin Android·Swift iOS·C# Unity를 연결하는 **개인 게임 서비스 SDK 포트폴리오**입니다. 인증·구매·Push의 공통 인터페이스, Native Plugin, 서버의 세션·지급 권위, 설치·소비·회귀 검증을 함께 구현했습니다.
 

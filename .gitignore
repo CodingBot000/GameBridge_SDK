@@ -45,3 +45,5 @@ tests/UnityIosHost/bin/
 tests/UnityIosHost/obj/
 tests/UnityIosHostQueue/bin/
 tests/UnityIosHostQueue/obj/
+tests/SocialAuthContract/bin/
+tests/SocialAuthContract/obj/

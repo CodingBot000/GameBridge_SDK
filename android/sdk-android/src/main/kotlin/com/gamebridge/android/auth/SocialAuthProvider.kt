@@ -70,6 +70,7 @@ internal class SocialAuthProvider(private val config:GameBridgeConfig,private va
         try {
             val challenge=if(name=="FACEBOOK") decode<AuthChallenge>(request("/v1/auth/challenges","POST",buildJsonObject {put("appId",config.appId);put("provider",name);put("proofType","FACEBOOK_ACCESS_TOKEN")}.toString(),null).json) else null
             if(challenge!=null && (runCatching {UUID.fromString(challenge.challengeId);Instant.parse(challenge.expiresAt)>Instant.now()}.getOrDefault(false).not() || challenge.nonce.isBlank()))throw SdkFailure("AUTH_FAILED")
+            synchronized(state){requireEpoch(started)}
             val credential=gateway.authorize(challenge)
             synchronized(state){requireEpoch(started)}
             val session=when(credential) {
@@ -84,7 +85,7 @@ internal class SocialAuthProvider(private val config:GameBridgeConfig,private va
     }
     suspend fun restore():UserProfile?=withAuthenticatedSession {profile(it)}
     override suspend fun <T> withAuthenticatedSession(block:suspend(NativeSession)->T):T?=sessionLock.withLock {
-        val started=epoch();val old=load()?:return@withLock null
+        val started=epoch();synchronized(state){requireEpoch(started)};val old=load()?:return@withLock null
         val result=try {block(old)}catch(error:SdkFailure) {
             if(error.code!="SESSION_EXPIRED")throw error
             synchronized(state){requireEpoch(started);store.save("{\"state\":\"refresh_pending\"}")}

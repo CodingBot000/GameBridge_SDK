@@ -65,6 +65,7 @@ private struct SocialStoredSession: Codable {
         let dateParser=ISO8601DateFormatter(); dateParser.formatOptions=[.withInternetDateTime,.withFractionalSeconds]
         let expiry=dateParser.date(from:challenge.expiresAt) ?? ISO8601DateFormatter().date(from:challenge.expiresAt)
         guard UUID(uuidString:challenge.challengeId) != nil, !challenge.nonce.isEmpty, let expiry, expiry>Date() else { throw SdkFailure("AUTH_FAILED") }
+        guard !closed,epoch==sessionGeneration,!Task.isCancelled else {throw SdkFailure("CANCELED")}
         let credential=try await gateway.authorize(nonce:challenge.nonce)
         guard !Task.isCancelled else { throw SdkFailure("CANCELED") }
         guard !closed,epoch==sessionGeneration, !credential.value.isEmpty else { throw SdkFailure("CANCELED") }

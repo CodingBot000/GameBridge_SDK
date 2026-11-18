@@ -7,6 +7,7 @@ android { namespace = "com.gamebridge.sdk"; compileSdk = 36
 }
 dependencies {
     api(project(":sdk-core"))
+    implementation("androidx.browser:browser:1.9.0")
     implementation("androidx.credentials:credentials:1.6.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.6.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")

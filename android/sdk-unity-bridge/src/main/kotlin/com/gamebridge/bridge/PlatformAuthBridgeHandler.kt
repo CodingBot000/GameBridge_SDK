@@ -20,7 +20,7 @@ internal class PlatformAuthBridgeHandler(private val google:BridgeOperationHandl
                 val saved=try {Json.parseToJsonElement(it).jsonObject}catch(_:Exception){throw SdkFailure("SESSION_EXPIRED")}
                 if(saved["appId"]!=body["appId"] || saved["backendBaseUrl"]!=body["backendBaseUrl"])throw SdkFailure("SESSION_EXPIRED")
                 selected=saved["provider"]?.jsonPrimitive?.content ?: throw SdkFailure("SESSION_EXPIRED")
-                if(selected !in setOf("GOOGLE","FACEBOOK"))throw SdkFailure("SESSION_EXPIRED")
+                if(selected !in setOf("GOOGLE","FACEBOOK","APPLE"))throw SdkFailure("SESSION_EXPIRED")
             }
             val result=handler(selected).invoke(operation,body);payload=body;return result
         }
@@ -33,7 +33,7 @@ internal class PlatformAuthBridgeHandler(private val google:BridgeOperationHandl
         }
         if(operation=="auth.signIn") {
             val next=body["provider"]?.jsonPrimitive?.content ?:throw SdkFailure("UNSUPPORTED_PROVIDER")
-            if(next !in setOf("GOOGLE","FACEBOOK"))throw SdkFailure("UNSUPPORTED_PROVIDER")
+            if(next !in setOf("GOOGLE","FACEBOOK","APPLE"))throw SdkFailure("UNSUPPORTED_PROVIDER")
             if(next!=selected) {
                 val target=handler(next);target.invoke("sdk.initialize",initialization) // preflight before clearing the current identity
                 handler(selected).invoke("auth.signOut",buildJsonObject{})

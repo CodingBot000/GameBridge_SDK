@@ -8,17 +8,17 @@ spec=importlib.util.spec_from_file_location('openapi_guard',Path(__file__).with_
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class OpenApiTests(unittest.TestCase):
     def setUp(self): self.doc=json.loads((module.ROOT/'contracts/openapi.yaml').read_text())
-    def test_current_source(self): self.assertEqual(module.check(self.doc),24)
+    def test_current_source(self): self.assertEqual(module.check(self.doc),27)
     def test_source_enumeration_order_is_irrelevant(self):
         for ops in self.doc['paths'].values():
             for op in ops.values(): op['x-source-bindings'].reverse()
-        self.assertEqual(module.check(self.doc),24)
+        self.assertEqual(module.check(self.doc),27)
     def test_nested_order_is_irrelevant(self):
         for ops in self.doc['paths'].values():
             for op in ops.values():
                 for b in op['x-source-bindings']:
                     b['profiles'].reverse(); b['headers'].reverse()
-        self.assertEqual(module.check(self.doc),24)
+        self.assertEqual(module.check(self.doc),27)
     def test_missing_binding(self):
         self.doc['paths']['/v1/catalog']['get']['x-source-bindings'].pop()
         with self.assertRaises(AssertionError): module.check(self.doc)
@@ -59,5 +59,13 @@ class OpenApiTests(unittest.TestCase):
         with self.assertRaises(AssertionError): module.check(self.doc)
     def test_profile_mutated(self):
         self.doc['paths']['/v1/dev/auth']['post']['x-source-bindings'][0]['profiles']=['production']
+        with self.assertRaises(AssertionError): module.check(self.doc)
+    def test_apple_form_cannot_be_json(self):
+        body=self.doc['paths']['/v1/auth/apple-web/callback']['post']['requestBody']['content']
+        body['application/json']=body.pop('application/x-www-form-urlencoded')
+        with self.assertRaises((AssertionError,KeyError)): module.check(self.doc)
+    def test_apple_redirect_cannot_return_json_secrets(self):
+        response=self.doc['paths']['/v1/auth/apple-web/callback']['post']['responses']['303']
+        response['content']={'application/json':{'schema':{'$ref':'#/components/schemas/SessionTokens'}}}
         with self.assertRaises(AssertionError): module.check(self.doc)
 if __name__=='__main__': unittest.main()

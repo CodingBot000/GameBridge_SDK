@@ -1,5 +1,8 @@
 # Quick Start와 Host 통합
 
+> 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
+
+
 목표는 기존 샘플을 통해 LOCAL_MOCK의 초기화→로그인→상품/구매→서버 잔액→Push→종료 경계를 확인하는 것입니다. 실제 스토어 거래·원격 푸시를 실행하지 않습니다. 검증된 환경은 [COMPATIBILITY](COMPATIBILITY.md), 내부 소유권은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)을 따릅니다.
 
 ## 1. 패키지 준비
@@ -205,3 +208,35 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 의존성 환경: SwiftPM 원격 Meta binary 다운로드가 지연되어 공식 ZIP 6개의 upstream SHA256과 codesign을 확인한 뒤 upstream의 `USE_LOCAL_FB_BINARIES=1` 기능으로 로컬 검증했다. 제품 manifest는 공식 URL/exact version을 유지한다. 기본 원격 다운로드 경로는 DEFERRED_ENV이며 서명 검사 해제·SDK 소스 패치는 하지 않았다.
 
 공식 근거: [Meta Android Login](https://developers.facebook.com/docs/facebook-login/android/), [Meta Limited Login](https://developers.facebook.com/docs/facebook-login/limited-login/), [iOS SDK18.1.1](https://github.com/facebook/facebook-ios-sdk/releases/tag/v18.1.1). 증명 계약은 [social-auth](../contracts/social-auth.md)를 따른다.
+
+## 소셜 확장 C — Android Apple 웹 인증 (문서37)
+
+구현 완료, 로컬 Fake/Contract·Native/패키지 빌드 검증 완료. 실제 Apple 인증은 WAITING_USER다. iOS AuthenticationServices 경로는 유지한다. Android는 AndroidX Browser1.9.0 Custom Tabs를 사용하며 WebView를 만들지 않는다.
+
+1. Apple Developer에서 Sign in with Apple을 활성화한 Primary App ID와 웹 Services ID를 연결한다. Services ID는 Backend가 허용하는 APPLE audience에 별도로 등록한다. 네이티브 Bundle ID만 허용하면 웹 인증이 성공하지 않는다.
+2. Apple에 `https://auth.example.invalid/v1/auth/apple-web/callback` 형태의 실제 HTTPS callback domain/return URL을 등록한다. 예시 도메인을 실제 소유 도메인으로 바꾼다. Apple callback은 POST form으로 Backend까지 도달해야 한다. reverse proxy도 이 경로·본문을 보존하고 query/body·authorization 헤더를 로그에 남기지 않는다.
+3. Backend 비밀 저장소에 `GAMEBRIDGE_APPLE_WEB_CONFIG_JSON`을 아래 구조로 제공한다. 실제 p8와 App Secret은 Git/Unity/Android/iOS 설정에 넣지 않는다. 서버 프로세스만 p8를 읽게 한다. 코드가 ES256 client secret(5분)을 서버에서 생성한다.
+
+```json
+{
+  "gamebridge-sample": {
+    "servicesId": "com.example.web",
+    "callbackUri": "https://auth.example.invalid/v1/auth/apple-web/callback",
+    "returnUri": "https://app.example.invalid/auth/apple",
+    "teamId": "TEAM000000",
+    "keyId": "KEY0000000",
+    "privateKeyPath": "/run/secrets/apple-signin-key.p8"
+  }
+}
+```
+
+`GAMEBRIDGE_AUTH_AUDIENCES_JSON`에는 해당 GameBridge app의 `"APPLE": ["com.example.ios", "com.example.web"]`를 추가한다. Team ID/Key ID/p8 경로는 서버 설정이며 Native에는 Services ID와 HTTPS return URI만 둔다. 키가 없거나 잘못됐으면 start에서 CONFIG_REQUIRED로 실패한다.
+
+4. Android Host Manifest의 `com.gamebridge.apple.SERVICES_ID`, `com.gamebridge.apple.RETURN_URI`와 Backend 값을 일치시킨다. 기존 Activity에 autoVerify HTTPS App Link intent-filter와 singleTask를 설정하고 return host의 `/.well-known/assetlinks.json`에 실제 package와 debug/release SHA256 signing certificate를 등록한다. Host의 onNewIntent와 cold-launch intent를 Native에서 먼저 처리한다. [Host 예시](../android/host-examples/SocialAuthHost.kt.example), [Manifest 예시](../android/host-examples/social-auth-manifest.xml.example)를 기존 Host에 병합한다. SDK가 Activity를 교체하지 않는다. Native 직접 호출은 `PlatformAuthProviders.apple(context,config,tokenStore)` 후 attachHost/signIn이다.
+5. Unity에서는 `await sdk.SignInAsync(AuthProvider.APPLE)`만 호출한다. 완료 URL/handle/verifier/code를 C#에 전달하거나 로그에 남기지 않는다. 프로세스가 죽으면 verifier를 복원하지 않아 이전 callback을 수령해도 세션을 만들 수 없다. 등록된 stale/취소 URL도 Native에서 소비하고 Unity로 전달하지 않는다.
+
+흐름 수명은5분, 완료 handle은최대60초·1회, Native UI는180초다. start는 기존 challenge rate bucket(30/min), callback/complete는 기존 exchange bucket(10/min/IP)을 공유한다. 이 값은 이번 명시 승인 문서37의 권장 선택이며 신규 무제한 경로를 추가하지 않았다. callback의 state/code 재생과 handle 동시 수령을 DB에서 방어한다. handle은 시도별 verifier(SHA256 challenge)에 결속된다. callback에서는 검증된 identity만 저장하고 Native complete에서 기존 SessionService로 세션을 발급하므로 앱 종료 후 callback만으로 orphan SDK session을 발급하지 않는다.
+
+인증 취소/브라우저 닫기/timeout은 실패로 종료한다. Native logout은 SDK 세션을 폐기하며 브라우저의 Apple SSO 쿠키를 관리하지 않는다. 실기기 브라우저 복귀·App Link 검증·Apple 실제 로그인은 아직 실행하지 않았다. 신규 flow 행은 감사용 hash/verified identity를 보존하며 이번 코드가 기존 데이터나 흐름을 자동 삭제하지 않는다. 운영 보존 정책/정리 작업을 임의 도입하지 않았다.
+
+공식 근거: [다른 플랫폼 Apple 인증](https://developer.apple.com/documentation/signinwithapple/incorporating-sign-in-with-apple-into-other-platforms), [웹 Services ID 구성](https://developer.apple.com/help/account/capabilities/configure-sign-in-with-apple-for-the-web), [서버 code 교환](https://developer.apple.com/documentation/signinwithapplerestapi/generate-and-validate-tokens), [Android Browser 릴리스](https://developer.android.com/jetpack/androidx/releases/browser).

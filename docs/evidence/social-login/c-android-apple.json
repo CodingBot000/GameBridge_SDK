@@ -1,0 +1,176 @@
+{
+  "batch": "SOC-C",
+  "implementation": "IMPLEMENTED",
+  "liveProvider": "WAITING_USER",
+  "sourceBase": "121d2c6",
+  "sourceState": "base plus batch C; commit identity from Git",
+  "backendFinalAuth": {
+    "exit": 0,
+    "tests": 20,
+    "failures": 0,
+    "skipped": 0,
+    "counts": [
+      {
+        "name": "com.gamebridge.auth.FacebookAuthHttpTest",
+        "tests": "3",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.gamebridge.auth.AppleWebAuthHttpTest",
+        "tests": "6",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.gamebridge.auth.AudiencePolicyTest",
+        "tests": "1",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.gamebridge.auth.IdentityVerifierTest",
+        "tests": "6",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.gamebridge.auth.SensitiveAuthTypesTest",
+        "tests": "1",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.gamebridge.auth.AuthRateLimitTest",
+        "tests": "1",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.gamebridge.auth.AppleWebConfigurationTest",
+        "tests": "2",
+        "failures": "0",
+        "skipped": "0"
+      }
+    ],
+    "ownedDatabase": "gamebridge_ci_22718d625e"
+  },
+  "legacyRegression": [
+    {
+      "scope": "sandbox",
+      "database": "gamebridge_ci_ecb3f6b5d4",
+      "exit": 0,
+      "counts": [
+        {
+          "name": "com.gamebridge.auth.AuthHttpIntegrationTest",
+          "tests": "2",
+          "failures": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "scope": "sandbox",
+      "database": "gamebridge_ci_ecb3f6b5d4",
+      "exit": 0,
+      "counts": [
+        {
+          "name": "com.gamebridge.auth.AuthFlowDatabaseTest",
+          "tests": "1",
+          "failures": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "scope": "mock",
+      "database": "gamebridge_ci_253e0d01bd",
+      "exit": 0,
+      "counts": [
+        {
+          "name": "com.gamebridge.purchase.MockXcodeHttpIntegrationTest",
+          "tests": "1",
+          "failures": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "scope": "mock",
+      "database": "gamebridge_ci_253e0d01bd",
+      "exit": 0,
+      "counts": [
+        {
+          "name": "com.gamebridge.purchase.LedgerInvariantDatabaseTest",
+          "tests": "1",
+          "failures": "0",
+          "skipped": "0"
+        }
+      ]
+    }
+  ],
+  "android": {
+    "exit": 0,
+    "modules": {
+      "sdk-android": {
+        "tests": 47,
+        "failures": 0,
+        "skipped": 0
+      },
+      "sdk-unity-bridge": {
+        "tests": 9,
+        "failures": 0,
+        "skipped": 0
+      }
+    },
+    "mavenAndR8ConsumerExit": 0,
+    "metaIncludedR8ConsumerExit": 0
+  },
+  "swift": {
+    "exit": 0,
+    "tests": 31,
+    "failures": 0,
+    "officialLocalMetaBinaryCache": true,
+    "productionManifest": true
+  },
+  "ios": {
+    "deviceArchiveExit": 0,
+    "simulatorArchiveExit": 0,
+    "xcframeworkExit": 0,
+    "binaryConsumerExit": 0,
+    "sourceSdkPatched": false
+  },
+  "unityCsharpContractExit": 0,
+  "unityHookCompileAndExistingPbxPlistIdempotenceExit": 0,
+  "newUnityPlayer": "NOT_RUN",
+  "upm": {
+    "exit": 0,
+    "checksumCount": 147,
+    "path": "artifacts/social-login/upm-handoff",
+    "checksumsSha256": "bebae0a976551c7421722571fa3abe4b63b6be5b00ddf04fc6f426edb9a2e1b2"
+  },
+  "openApi": {
+    "operations": 27,
+    "mutationTests": 18,
+    "exit": 0
+  },
+  "providerUiInstrumentation": "NOT_RUN",
+  "remoteMetaSwiftPm": "DEFERRED_ENV",
+  "noPush": true,
+  "failedRunsPreserved": [
+    "test-only missing jackson module import -> ObjectMapper",
+    "callback servlet form reconstruction400 -> bounded raw stream",
+    "test303 auto redirect -> disable test follow",
+    "legacy omitted proofType400 -> nullable boundary explicit ID_TOKEN",
+    "binary consumer xcodegen not on PATH66 -> owned pinned generator",
+    "Unity PBX smoke wrong target input -> generated Sample target"
+  ],
+  "fileSha256": {
+    "backend/src/main/kotlin/com/gamebridge/auth/AppleWebFlow.kt": "5deacfc961b9a05010d63d4e144e5b970dc34f340f44e3573e160277320aea06",
+    "backend/src/main/kotlin/com/gamebridge/auth/AppleWebConfiguration.kt": "e48c1bf1710ab9378cb164585bde0cf65553920ea862e3822bcf759c2a8a2b5e",
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/AppleWebGateway.kt": "700142af13532470bf32ddab3b5132e0d2e9f42c89d815e9d69de3ee1f5db1be",
+    "contracts/openapi.yaml": "ccee9b10193b02a08903057e587bc354332b3d8328a7b511d699a704fba6da16",
+    "ios/Sources/GameBridgeApple/SocialAuthProvider.swift": "abc6292f2639e4e8292e3a82c46f43142dce827c3debd8add18f4ddbbb30bf13",
+    "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/SocialAuthProvider.kt": "0bab7c42594e3c38317d06a0e4436bcafb88c2d672d90c1c8f37a54dbde8f143"
+  }
+}

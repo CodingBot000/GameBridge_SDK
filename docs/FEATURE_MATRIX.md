@@ -1,5 +1,8 @@
 # 구현·호출 경로와 실제 범위
 
+> 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
+
+
 이 표는 기능을 찾기 위한 현재 지도입니다. 기존64 Task의 별도 상태는 [PROGRESS](PROGRESS.md), 포트폴리오 종료 판정은 [FINAL_REPORT](FINAL_REPORT.md)를 따릅니다.
 
 | 기능 | 공개 진입점·실제 구현 | 확인한 범위 | 남은 범위 |
@@ -18,3 +21,14 @@
 ## 문서37 소셜 확장 B
 
 Android Facebook Classic / iOS Facebook Limited·Classic: IMPLEMENTED, Fake/Contract PASS, 실제 로그인 WAITING_USER. 기존 Android Google/iOS Apple/LOCAL_MOCK 유지.
+
+## 문서37 최종 플랫폼 지원 (기존 동결 표보다 우선)
+
+| 경로 | 구현/Fake·계약 | Native/패키지 | 실제 계정 |
+| --- | --- | --- | --- |
+| iOS Google9.2.0 | IMPLEMENTED/PASS | device/sim XCF·binary consumer·UPM PASS | WAITING_USER |
+| Android Facebook18.3.0 | IMPLEMENTED/PASS | Maven·Meta포함R8 consumer PASS | WAITING_USER |
+| iOS Facebook18.1.1 | IMPLEMENTED/PASS | device/sim XCF·binary consumer PASS (공식 local SDK cache) | WAITING_USER |
+| Android Apple 웹 | IMPLEMENTED/PASS | Android Native/JNI·Maven/R8·UPM PASS | WAITING_USER |
+
+새 Unity Player와 실기기 OAuth UI/복귀 시험 NOT_RUN. Meta 기본원격SPM download DEFERRED_ENV, 공식 SHA/codesign 검증 cache만 사용. 기존64 Task·포트폴리오 동결 snapshot은 이 확장의 실연동 근거가 아니다.

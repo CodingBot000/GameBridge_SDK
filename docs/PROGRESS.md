@@ -5,15 +5,15 @@
 ## 현재 체크포인트
 
 - 전체 상태: IN_PROGRESS / 전체 SDK BLOCKED_INTERNAL. P05-T03 FAIL·StoreKit26 OPEN·실 Provider13 WAITING_USER 유지.
-- 현재 Phase / Task: 배치34 G/H. OpenAPI DTO23·실제24operation 성공 구조 대조, 새 양Unity 소비, C ABI 계측과 Strict 계약 보강 완료 범위를 검증 중.
+- 현재 Phase / Task: 포트폴리오 최종화 종료 / 사용자 문서36. SDK제품화 원장과 별도의 종료 판정이다.
 - 마지막 갱신: 2026-11-18 (Asia/Seoul).
 - 현재 source: 기능 변경은 누락 필수 HTTP header를400으로 분류하는 수정. Native/UPM shipping source는 배치33 build source a83561a와 동일.
-- 현재 검증: Python263/실패·오류0, OpenAPI16 unit/문법PASS, 합성HTTP10시험·132응답구조, 별도LOCAL_MOCK32관측, Native Core/managed/자체시험/TC 결과는 배치34 통합 증거 참조.
+- 현재 검증: 마지막 code648bb80의 Python263·Native/Core·managed·변이/원장/소비·Hosted SUCCESS 근거를 유지. 최종화는 문서 검토·동일패키지 checksum 확인이며 새 제품/하네스 실행이 아니다.
 - 최신 staging: artifacts/batch33/upm, 147파일. 새 배치34 양Unity 소비에서 실제 사용했으며 새 Native 재빌드로 표현하지 않는다.
 - 작업 트리: handoff/p09-resume-20261113; 기존 미추적 Demo·Python 캐시 보존.
 - 현재 모드: LOCAL_MOCK·synthetic Sandbox, 실제 Provider 호출 없음.
 - 미완료: Android JNI heap/시간, iOS Task·continuation, Unity weak client1 잔존 원인·CPU blocking, Strict E2 자원생성/전체 소유권 전파, SSE·동적Map 세부 HTTP 계약. P10-T03/T04·P11 PARTIAL, BUG-017 OPEN.
-- 다음 행동: 소스 고정 후 마지막 회귀·안전검토·handoff FF push·Unity opt-in 비활성 확인 후 최신source false Hosted1회. 결과 문서만 후속 갱신.
+- 다음 행동: 없음(포트폴리오 개발 종료). 명시적 새 요청이 있는 경우에만 선택적 제품화 backlog를 검토한다.
 
 ## 집계
 
@@ -52,10 +52,10 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P02-T06 | 로컬 Backend 통합 smoke 명령 | IMPLEMENTED | PASS | N/A | docs/evidence/p02-backend-smoke.md | - |
 | P03-T01 | Kotlin SDK의 LOCAL_MOCK 수직 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T01 | - |
 | P03-T02 | Swift SDK의 LOCAL_MOCK 수직 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T02 | - |
-| P03-T03 | Android JNI 왕복 transport | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T03 | ENV-002 |
-| P03-T04 | Swift C ABI 왕복 transport | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T04 | ENV-002 |
-| P03-T05 | Unity facade·dispatcher·request registry | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T05 | ENV-002 |
-| P03-T06 | Unity 최소 Demo·Native 경로 분기 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T02 | ENV-002 |
+| P03-T03 | Android JNI 왕복 transport | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T03 | sdk.status/UTF8 조건별 증거 연결 잔여; 새 Android 소비 PASS |
+| P03-T04 | Swift C ABI 왕복 transport | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T04 | Unicode 조건별 증거 연결 잔여; 새 iOS/C ABI 소비 PASS |
+| P03-T05 | Unity facade·dispatcher·request registry | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P03-T05 | Scene/Domain Reload 조합별 검증 잔여 |
+| P03-T06 | Unity 최소 Demo·Native 경로 분기 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T02 | 샘플 UI 직접 클릭/렌더링 검증 잔여 |
 | P04-T01 | 실제 Android Google 로그인 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P04-T01 | USER-AUTH-GOOGLE |
 | P04-T02 | 실제 iOS Apple 로그인 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P04-T02 | USER-AUTH-APPLE |
 | P04-T03 | 서버 실제 identity 검증·nonce 재사용 방어 | IMPLEMENTED | PASS | WAITING_USER | docs/evidence/p04-t03-identity-verifier.md | USER-AUTH-GOOGLE, USER-AUTH-APPLE |
@@ -70,11 +70,11 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P05-T07 | Unity·Native 상점 완성 | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P05-T07 | USER-BILLING-GOOGLE, USER-BILLING-APPLE |
 | P06-T01 | 실제 FCM 등록·수신·권한 adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T01 | USER-PUSH-GOOGLE |
 | P06-T02 | Swift APNs 등록·Host forwarding | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T02 | USER-PUSH-APPLE |
-| P06-T03 | Unity iOS Push Host Adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T03 | USER-PUSH-APPLE, ENV-002 |
+| P06-T03 | Unity iOS Push Host Adapter | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T03 | USER-PUSH-APPLE, Host/원격 조건별 검증 잔여 |
 | P06-T04 | Backend FCM·APNs 실제 sender | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T04 | USER-PUSH-GOOGLE, USER-PUSH-APPLE |
 | P06-T05 | 수명주기·콜드스타트·클릭 라우팅 | IN_PROGRESS | PARTIAL | WAITING_USER | WORK_LOG P06-T05 | USER-PUSH-GOOGLE, USER-PUSH-APPLE |
 | P07-T01 | 진단·redaction·점검 설정 완성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T01 | - |
-| P07-T02 | 세 샘플 전체 사용자 흐름 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T02 | ENV-002 |
+| P07-T02 | 세 샘플 전체 사용자 흐름 연결 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T02 | 샘플 UI/순서별 직접 시연 검증 잔여 |
 | P07-T03 | 연동 문서·오류·소유권 가이드 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P07-T03 | - |
 | P07-T04 | 구현 누락 1차 점검 | IN_PROGRESS | PARTIAL | N/A | docs/FEATURE_MATRIX.md, WORK_LOG P07-T04 | - |
 | P08-T01 | Android Maven 산출물·소비 build | IMPLEMENTED | PASS | N/A | docs/evidence/p08-android-maven-consumer.md | - |
@@ -92,8 +92,8 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 | P09-T08 | Fail-closed 하네스 자체 시험 | IMPLEMENTED | PASS | N/A | docs/evidence/p09-batch25-integrated.md, WORK_LOG P09-T08 | - |
 | P10-T01 | 검증 기준 유지하며 Core·Bridge 리팩토링 | IMPLEMENTED | PASS | N/A | docs/evidence/p10-batch32-t01-decision.md; docs/evidence/p10-batch32-core.json, WORK_LOG P10-T01 | 추가 전체Strict/Release는 ENV-UNITY-LICENSE-IPC/ENV-P09-RUNNER로 별도 유지 |
 | P10-T02 | 인증·결제·푸시 책임과 보안 정리 | IMPLEMENTED | PASS | N/A | docs/evidence/p10-batch32-native-refactor.md; docs/evidence/p10-batch32-post-native-android.json; docs/evidence/p10-batch32-post-native-ios.json | 실제Provider/전체SDK·Release별도; fullStrict는DEP-STRICT-OWNED-ENV |
-| P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | ENV-002 |
-| P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | ENV-002 |
+| P10-T03 | 측정 기반 수명주기·메모리·응답 확인 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T03 | 추가 profiling NOT_RUN·weak1 원인 미확정 |
+| P10-T04 | 리팩토링 후 재패키징·호환성 재검증 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P10-T04 | 선행 P10-T03 PARTIAL; 선정 ABI·새 양 소비 PASS |
 | P11-T01 | 전체 Task·TODO·계약 누락 최종 감사 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T01 | - |
 | P11-T02 | 사용자 설정·실연동 재개 runbook 완성 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T02 | - |
 | P11-T03 | 최종 문서·release candidate 로컬 패키지 | IN_PROGRESS | PARTIAL | N/A | WORK_LOG P11-T03 | - |
@@ -105,7 +105,7 @@ Task ID는 커밋 메시지에도 포함한다. 현재 커밋의 SHA를 그 커�
 |---|---|---|---|---|---|---|
 | USER-PUSH-CONCURRENCY | USER | P06-T04 | 기본 동시 1건 사용자 선택 | scheduler 설정·검증 진행 | 실제 원격 발송은 별도 | RESOLVED |
 | USER-CONFIG-TTL | USER | P07-T01 | 기본 유효기간 5분 사용자 선택 | 서버 설정·local-mock 통합 진행 | 실제 플랫폼 검증은 별도 | RESOLVED |
-| BUG-017 | BUG | P11-T01·P11-T03 | 계획된 contracts/openapi.yaml 부재(기존Core unavailable에도명시), 실제Controller/docsAPI/Bridge schema는존재 | 현재구현·검증범위문서정정/사전감사계속 | 실제Controller와동기화한기계OpenAPI계약작성·검증(초안존재만으로완료아님) | OPEN |
+| BUG-017 | BUG | P11-T01·P11-T03 | 최초 OpenAPI 부재는해소; 현재24operation/DTO23/응답구조검증존재, SSE/동적Map의세부기계검사잔여 | API.md에중요SSE/Map사용계약보강, portfolio Known Limitation으로유지 | 기존Source/DTO/HTTP검증보존; 상세SSE/Map자동검사확대는선택적제품화범위 | OPEN |
 | BUG-016 | BUG | P04-T04, P09-T03 | Native 실제 Provider의 profile 확인 이후 요청 401에서 refresh 누락 | Android/iOS 단일 refresh·1회 재시도 및 proof idempotency 유지 구현 | fake 동시 요청·계정 변경·반복 401·증빙 멱등키 검증 | RESOLVED |
 | BUG-015 | BUG | P07-T01, P10-T02 | Native 진단 ring의 Unity 공개 조회: Android 및 iOS Simulator LOCAL_MOCK Player 확인 | Native typed snapshot과 C# 제한 검사 유지 | 다른 모드·실제 기기 redaction 별도 | OPEN |
 | BUG-014 | BUG | P02-T06, P06-T05 | LOCAL_MOCK Unity Android emulator·iOS Simulator 전달 및 lifecycle 확인 | 인증·소유권·heartbeat 회귀 유지 | 실제 기기·FCM/APNs 및 iOS OS 전체 네트워크 차단 별도 | OPEN |
@@ -1981,7 +1981,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 ## 포트폴리오 최종화 — 문서36 사용자 종료 기준
 
-- 포트폴리오 상태: IN_PROGRESS. 기존 SDK의 BLOCKED_INTERNAL 및64 Task 상태/집계와 별도로 판정한다.
+- 포트폴리오 상태: PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS / DEVELOPMENT_CLOSED. 기존 SDK의 BLOCKED_INTERNAL 및64 Task 상태/집계와 별도로 판정한다.
 - 범위: 제공 공고 W/G와 실제 코드·검증의 대응, Quick Start/책임·호환성/문제해결 문서, weak client 제한 조사, 최종 DEV_RC와 개발 종료 인계. 신규 기능/실Provider/추가 성능프로젝트는 포함하지 않는다.
 - 기존 제품·하네스·계약 source648bb80 및 배치34 결과를 보존하며, 날짜만 갱신하는 재검증은 하지 않는다. 남은 개선점을 자동 필수 배치로 전환하지 않는다.
 - 포트폴리오 문서 검토: README 공고대응/진입점, Quick Start/실제Host·API·SSE/Map/오류·버전·호환성·보안·선택적USER_SETUP을현재사실로정리했다. 과거generic Unity미검증/계획변수·NOT_STARTED 소개는현재문서에서제거하고원본Git/WORK_LOG/evidence는보존. local문서링크150/SDK호출명11/Python예제문법검사PASS(예제실행·새Player아님). portfolio판정은최종RC/일관성검토뒤확정한다.
+- 포트폴리오 최종판정 확정: PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS / DEVELOPMENT_CLOSED.9개종료기준을기존실행/source·현재가이드·제한공개와대조했다. 기존64 Task상태·집계/FAIL/WAITING_USER는변경하지않고이미RESOLVED인ENV-002를잔여사유로쓰던행의설명만실제남은조건으로정정했다. BUG-017은현재파일존재/24op검증및SSE/Map잔여로설명정정하되OPEN유지.

@@ -132,7 +132,7 @@ PY_SEND
 
 이 예시는 문서의 호출 설명이며 이번 최종화에서 새 실행 결과로 세지 않습니다. 서버의 `accepted/SIMULATED`와 Player의 수신 표시를 각각 확인합니다. 동작·권한 경계는 [HTTP 계약](API.md#local_mock-sse와-map-응답)을 따릅니다. 실제 Provider 발송으로 전환하지 않습니다.
 
-사용자가 종료할 때 UI 구독을 해제하고 아래 순서로 정리합니다. 오류가 나도 `Dispose()`가 실행되도록 Host의 `try/finally`를 사용합니다. [Player 시나리오](../tests/UnityIosPiiConsumer/MockIosPlayerScenario.cs)에도 최종 Dispose가 있습니다.
+LOCAL_MOCK 시연에서 등록 해제·로그아웃까지 확인한 뒤 UI 구독과 SDK를 아래 순서로 정리합니다. `SignOutAsync()`는 계정 로그아웃, `ShutdownAsync()`/`Dispose()`는 SDK 수명 정리이므로 Host 동작에 맞게 구분합니다. 오류가 나도 `Dispose()`가 실행되도록 Host의 `try/finally`를 사용합니다. [Player 시나리오](../tests/UnityIosPiiConsumer/MockIosPlayerScenario.cs)에도 최종 Dispose가 있습니다.
 
 ```csharp
 try

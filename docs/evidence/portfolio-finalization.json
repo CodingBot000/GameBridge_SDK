@@ -1,5 +1,5 @@
 {
-  "portfolioStatus": "IN_PROGRESS",
+  "portfolioStatus": "PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS",
   "startingHead": "beba1ff949dc42721d3bb43cdd7727cff41ca1fc",
   "requirementsSource": {
     "providedFile": "Recruit2개회사.md",
@@ -78,5 +78,113 @@
     "pushFlow": "Register/receive/unregister in SDK; sending requires separate local admin allowlist endpoint, no SDK send API invented",
     "openApi": "Human-readable SSE/Map fields cross-checked against actual controllers; machine contract unchanged; BUG-017 OPEN",
     "legacyStatusResolution": "Current entry documents replaced stale generic Unity-not-run claims; original evidence/work log/Git history retained"
+  },
+  "portfolioDevelopment": "CLOSED",
+  "date": "2026-11-18",
+  "productHarnessContractChanges": false,
+  "newCiDispatches": 0,
+  "newPlayerOrPerformanceRuns": 0,
+  "automaticMandatoryNextBatch": false,
+  "closureCriteria": [
+    {
+      "criterion": "Core LOCAL_MOCK execution",
+      "assessment": "CONFIRMED_IN_SCOPE",
+      "evidence": [
+        "p10-batch34-unity-android.json",
+        "p10-batch34-unity-ios.json"
+      ]
+    },
+    {
+      "criterion": "Android/iOS/Unity bridge design",
+      "assessment": "CONFIRMED_IN_SCOPE",
+      "evidence": [
+        "docs/ENGINEERING_NOTES.md",
+        "p10-batch34-binary-api.json"
+      ]
+    },
+    {
+      "criterion": "Purchase/session invariants",
+      "assessment": "CONFIRMED_IN_SCOPE",
+      "evidence": [
+        "p10-batch34-regression.json"
+      ]
+    },
+    {
+      "criterion": "P0 review",
+      "assessment": "NO_NEW_P0_CONFIRMED_IN_BOUNDED_REVIEW",
+      "evidence": [
+        "docs/ENGINEERING_NOTES.md",
+        "p10-batch34-unity-performance.json"
+      ]
+    },
+    {
+      "criterion": "Package/source relation",
+      "assessment": "CONFIRMED_UNCHANGED_NATIVE_SOURCE",
+      "evidence": [
+        "p10-batch33-package.json",
+        "p11-batch34-dev-rc.json"
+      ]
+    },
+    {
+      "criterion": "API/Edge Cases",
+      "assessment": "CONFIRMED_IN_RECORDED_SCOPE",
+      "evidence": [
+        "docs/API.md",
+        "docs/ENGINEERING_NOTES.md"
+      ]
+    },
+    {
+      "criterion": "Integration guide matches source",
+      "assessment": "DOCUMENTATION_REVIEW_PASS",
+      "evidence": [
+        "docs/INTEGRATION.md"
+      ]
+    },
+    {
+      "criterion": "Real problem solving cases",
+      "assessment": "THREE_EVIDENCE_BASED_CASES",
+      "evidence": [
+        "docs/ENGINEERING_NOTES.md"
+      ]
+    },
+    {
+      "criterion": "Known limits and failures disclosed",
+      "assessment": "DISCLOSED_NOT_CLOSED",
+      "evidence": [
+        "docs/FINAL_REPORT.md",
+        "docs/PROGRESS.md"
+      ]
+    }
+  ],
+  "retainedLimits": [
+    "P05-T03 FAIL / ENV-STOREKIT-26 OPEN / iOS18.6 intermittent risk",
+    "BUG-017 OPEN; SSE/Map usage contract documented, detailed machine validation remaining",
+    "Full Strict NOT_RUN0; E2 ownership provisioning/orchestration incomplete",
+    "Real providers13 WAITING_USER; real devices/self-hosted/Release unverified",
+    "Weak clients1 observed; no leak conclusion or product fix",
+    "Android JNI heap/iOS continuation/Unity CPU blocking not run; no paired performance improvement claim"
+  ],
+  "optionalBacklog": "docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업",
+  "careerEvidenceBoundary": "No employment duration, commercial releases, external-team cooperation or cloud operation inferred from this project.",
+  "finalCandidate": {
+    "path": "artifacts/portfolio-final/DEV_RC",
+    "sdkFiles": 147,
+    "sdkManifestSha256": "6fc4cb4b8a6765ce6526c988c0df2b43d19e4a35cf7263cd276181a775751fba",
+    "outerChecksumEntries": 160,
+    "outerManifestSha256": "360c17e98db0c4a108306f4f4127a23326e1c27a700664d4dd4e98c69955ff0d",
+    "manifestSha256": "b0befd12a8b49ba36628e8e4dca21cd20d54491e2584b9203a3bb25849f0b0ad",
+    "nativeRebuilds": 0,
+    "docsAndManifestUpdated": true,
+    "rootChecksumIncludesSdkAndDocumentation": true
+  },
+  "finalDocumentationValidation": {
+    "localLinks": 169,
+    "anchors": 11,
+    "errors": 0,
+    "outerCandidateChecksums": "PASS",
+    "nativeSdkManifest147": "PASS",
+    "codeDiffSince648": "EMPTY",
+    "newCiRuns": 0,
+    "newProductOrHarnessTests": 0
   }
 }

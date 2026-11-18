@@ -4288,3 +4288,12 @@
 - [P11-T02] Quick Start와설계문서확정: 신규SDKAPI를만들지않고현재constructor10인자·facade11호출·기존NativeDemo/consumer/scripts를대조했다. MonoBehaviour context에서await·서버entitlement·명시적Push·Shutdown/Dispose를설명했다. MockPushBroker의user/app/installation scope와DevPushHTTP시험을검토해별도A sender session의개발발송설명을연결했고UI/Native token을추출하라고안내하지않는다.
 - SSE의ready/push/heartbeat·session ownership,Map catalog/purchase/device/send 필드를Controller와대조해API.md에보강했다. 기계schema/하네스는변경하지않고BUG-017 OPEN/세부자동검사잔여를KnownLimitation으로둔다.
 - 정적문서검토: local링크150 모두존재,SDK호출이름11개가현재source에존재,Python발송예제AST문법PASS. 이예제를실행했다고세지않는다. `python3 scripts/verify-progress.py`0,`git diff --check`0. Native/Backend/Unity/harness/tests/contracts/workflow는CI648과diff0이므로기존263·Core/원장/ABI/Player검증을날짜갱신목적으로반복하지않는다.
+
+## 포트폴리오 종료 판정·로컬 RC — [P11-T03] [P11-T04]
+
+- 사용자문서36의9종료기준을대조해PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS로확정하고개발종료를권고/기록했다. SDK원장BLOCKED_INTERNAL·64행25/39·local23/1/40·외부13WAIT를유지하며P11행도일괄PASS로바꾸지않았다.
+- 원장몇행의이미RESOLVED ENV-002는현재남은조건(특정UTF8/status근거연결·UI/DomainReload·추가profiling 등)설명으로정정하고상태는그대로뒀다. BUG-017의과거파일부재표현도현재24operation/검증/세부검사잔여로정정,OPEN유지. 원본실패와이력은삭제하지않았다.
+- AGENTS/START_HERE/DECISIONS에사용자승인종료범위를기록해P1/P2·Provider·Strict·추가성능을자동필수배치로재개하지않도록했다. 새로운명시적요청때만선택적backlog를다룬다.
+- artifacts/portfolio-final/DEV_RC는기존동일UPM147을복사하고최종README/가이드/판정/manifest를조합했다. SDK0.1.0-dev/Nativebuilda835/검증code648/SDKSHA6fc4...와문서checksum을분리했다. snapshot문서의repo-relative source/evidence참조는handoff GitHub링크로바꿔로컬묶음에서도열수있게했다. rootchecksum160항목및내부147sha전부일치,Native재빌드0.
+- 최종문서검토: local링크169/anchor11/오류0,SourceDiff648대비제품·Native·harness·tests·contracts·workflow0,원장검사0/diff검사0. 새제품·Player·성능·전체Strict·CI실행0. CI재사용은문서only변경조건에따르며기존실패/제한은따로공개했다.
+- 전체Strict는마지막preflight DEFERRED_ENV/2와E2미완료로0회유지. 현재소스조건상안전한전체실행을입증하지못하므로guard/required58/recorded P05FAIL을바꾸지않았다. weak추가재현0/수정0·누수미확정,새P0확인없음이라는제한조사결론을유지한다.

@@ -2,6 +2,8 @@
 
 Kotlin Android·Swift iOS·C# Unity를 연결하는 **개인 게임 서비스 SDK 포트폴리오**입니다. 인증·구매·Push의 공통 인터페이스, Native Plugin, 서버의 세션·지급 권위, 설치·소비·회귀 검증을 함께 구현했습니다.
 
+**PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS — 포트폴리오 개발 종료.** 전체 SDK 제품화 상태는 별도 BLOCKED_INTERNAL이며 알려진 제한과 실패를 유지합니다.
+
 포트폴리오 최종 판정은 [최종 보고](docs/FINAL_REPORT.md), 실제 지원·미검증 범위는 [호환성](docs/COMPATIBILITY.md)을 따릅니다. 상용 적용 SDK나 정식 출시 결과로 제시하지 않습니다.
 
 ## 먼저 볼 자료

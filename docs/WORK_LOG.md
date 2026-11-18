@@ -4220,3 +4220,4 @@
 - 계획의64개 완료기준을 원장/기존증거와 대조해 각각 충족범위·미충족조건·사용자/환경의존·권장상태를 docs/evidence/p11-batch34-task-audit.json에 기록했다. 근거전수연결이 부족한 Task는 그 부족을 명시적으로 남겼으며 완료로 해석하지 않는다.
 - [P00-T03] 최소프로젝트 조건은 배치33 Android/sample/독립R8, iOS source/archive, 현재 Backend bootJar, 기존 양Unity LOCAL_MOCK Player로 충족했다. `git diff daf3cd9 -- android ios unity`0으로 현재Native/UPM동일source임을 확인(새실행주장아님). 기존ENV-002/003은 원장에도RESOLVED였으므로해당행만IMPLEMENTED/PASS로정정했다.
 - P05-T03 FAIL, 외부13 WAITING_USER, P09-T07 self-hosted/Release PARTIAL유지. 기타Task의내부미완료와검증미완료는개별gap에구분했으며P11전체완료로승격하지않는다. FEATURE_MATRIX의OpenAPI부재라는오래된문구정정.
+- B 후속 원장검사는 행25/39로바꾼뒤상단선언24/40을갱신하지않아exit1이었다. 상단구현25/진행39·로컬23/1/40으로정정하고재검사한다. 이전실패를성공으로소급하지않는다.

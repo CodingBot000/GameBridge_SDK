@@ -18,8 +18,8 @@
 ## 집계
 
 - 계획 Task 총수: 64
-- 구현: NOT_STARTED 0 / IN_PROGRESS 40 / IMPLEMENTED 24 / BLOCKED 0
-- 로컬 검증: NOT_RUN 0 / PASS 22 / FAIL 1 / PARTIAL 41 / DEFERRED_ENV 0 / REVIEW_ONLY 0
+- 구현: NOT_STARTED 0 / IN_PROGRESS 39 / IMPLEMENTED 25 / BLOCKED 0
+- 로컬 검증: NOT_RUN 0 / PASS 23 / FAIL 1 / PARTIAL 40 / DEFERRED_ENV 0 / REVIEW_ONLY 0
 - 실연동 대상 Task: 13 / PASS 0 / WAITING_USER 13 / FAIL 0 / DEFERRED_ENV 0
 - 위 실연동 WAITING_USER는 계획된 인증 필요성을 표시하며, 해당 구현이 준비되었다는 뜻이 아니다.
 - 누락·추가 Task: P11 감사에서 BUG-013~015를 기존 Task의 미완료 항목으로 기록했다.

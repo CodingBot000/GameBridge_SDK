@@ -1,4 +1,18 @@
-# 문서37 소셜 인증 확장 인계
+# 소셜 인증 확장 — 구현·검증 인계
+
+> 아래의 **개발 당시 기록**은 PR #4 이전의 로컬 검증 이력을 보존한 것입니다. 당시 작성된 'push/PR/병합하지 않았다', '새 Unity Player 미실행' 문장은 **현재 상태가 아닙니다.** 기존 증거와 실패 이력을 삭제하거나 소급 변경하지 않습니다.
+
+## 현재 통합 상태 (2026-11-20)
+
+- [PR #4](https://github.com/CodingBot000/GameBridge_SDK/pull/4) 소셜 확장, [PR #5](https://github.com/CodingBot000/GameBridge_SDK/pull/5) Unity iOS Meta Embed 수정 모두 `main`에 병합됨. 통합 SHA `18e22af8800626a50364350f3ff56b596d00cf39`.
+- Android LOCAL_MOCK Unity Player: PR #4 병합 소스 `36ca836` 기준 별도 로컬 검증 **PASS**, 33개 marker·원장 1건/100코인. PR #5는 Android 소스를 수정하지 않았으며 Android 재실행 없음.
+- iOS LOCAL_MOCK Unity Player: 수정 Hook을 적용한 새 Simulator 테스트 **PASS**, 23개 marker, 원장 1건/100코인, logout 후 active session 0. [전체 로컬 기록](IOS_META_EMBED_FIX.md) / [정제 증거](evidence/ios-meta-embed-fix.json).
+- [PR #5 Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965): Backend·Android·Swift·Inventory·Basic SUCCESS; Unity E2E·Release SKIPPED. 로컬 Player PASS를 CI Player 성공으로 바꾸지 않습니다.
+- **실계정 Google·Apple·Facebook OAuth, 실제 스토어 거래 및 원격 푸시는 NOT_RUN/WAITING_USER**. 공식 Meta iOS 18.1.1 바이너리 6개는 [Hosted CI 44499923500](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44499923500/job/135476850100)에서 원격 다운로드·Swift Job 성공; 아래 캐시 사용은 당시 로컬 환경의 기록입니다.
+
+지금 확인해야 할 API/플랫폼 현황은 [기능 매트릭스](FEATURE_MATRIX.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)에서 확인하세요.
+
+## PR #4 이전 소셜 확장 개발 당시 기록 (원문)
 
 별도 feature/social-login-20261119 브랜치에서 A/B/C 구현·로컬 검증을 마쳤다. 기존 SDK64 Task/포트폴리오 종료/원본 실패는 유지하며 P00–P11을 자동 재개하지 않는다. 실제 계정 인증은 네 경로 모두 WAITING_USER다. 원격 push/PR/main/Release/실Provider 실행은 하지 않았다.
 

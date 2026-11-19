@@ -4371,3 +4371,11 @@
 - 실제신규E2E exit0/23marker/init-login-products-purchase-wallet-logout/redaction모두PASS,Backend mock-auth1/catalog1/entitlements2/verify1/logout1. Meta4개최종앱포함+codesign strict0,UnityFramework강LC_LOAD_DYLIB4개유지. SPM pin18.1.1/rev80d0ee82f6370d1bace1431a80cb80575f98ee90,Google9.2유지. vendor Info.plist라벨1.0은SDK릴리스와다름을관찰해잘못된사후검사assumption만정정;공식binary/version변경없음.
 - 새DB gamebridge_ci_6b30891c23 독립SQL원장1|100/session1|0확인. 신규sim F0292C8E-D65A-4901-84A2-FA43AA6BCA93의project런타임로그dyldfailure0확인후소유name/runtime대조해shutdown만실행,기기/DB데이터보존. 원본41실패/AndroidPASS·원본feature·미추적경로및Native산출물보존. 새UPM147 checksum997fd8dea785aafa859c7ddb319492a101583bc6b59978e799ff3c8952a8bf36.
 - 최종문서IOS_META_EMBED_FIX/evidence·INTEGRATION의관련staging/Embed제한만갱신. ios/Package.swift/project.yml·Native/Android/Backend/인증/CI/원본baseline변경0. main36+evidence의고정Hook/runner working hash로시험했으며최종commit파일과대조한다. 기존64Task상태일괄변경/추가개발0. 최소commit/push/PR생성후종료.
+
+## 2026-11-20 — 병합 후 문서 정합성 (docs/postmerge-verification-20261120)
+
+- 사용자 요청: 문서를 먼저 최신화하고, 이후 별도 단계에서 실계정 소셜 로그인을 진행. GitHub `main` HEAD `18e22af8800626a50364350f3ff56b596d00cf39`에서 문서 전용 브랜치 생성.
+- 자료 대조: README, 기능 매트릭스, 소셜 인증 인계, 호환성, 최종 보고, 통합 가이드, 사용자 설정, CI 및 변경 이력; PR#4/#5 이력 및 `docs/IOS_META_EMBED_FIX.md`, `docs/evidence/ios-meta-embed-fix.json` 확인.
+- 변경: 최신 LOCAL_MOCK Android/iOS Player PASS와 실제 OAuth WAITING_USER 분리, PR 병합 상태 정정, Meta Hosted 원격 다운로드/로컬 cache 구분, DEV_RC·과거 실패 스냅샷 보존, 실계정 설정 경로 표로 정리. SDK/Backend/Native/CI 소스와 기존 실패 원장은 건드리지 않음.
+- 읽기 전용 문서 검증: GitHub 트리 1119경로에서 상대 링크 172개 검사, 존재하지 않는 경로 0건. 관련 Markdown fence 개수 짝수, README 외부 이미지 참조 3개 보존. 이는 링크·구조 검사이며 예제 명령 또는 실제 계정/Player 테스트 실행 근거가 아님.
+- 코드 빌드·Unity Player·실OAuth·결제·푸시 새 실행: NOT_RUN. 기존 로컬 테스트 성공과 CI 결과는 별도 과거 증거로 인용.

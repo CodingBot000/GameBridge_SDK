@@ -18,6 +18,7 @@ import kotlin.test.*
 @ActiveProfiles("local-mock")
 @EnabledIfEnvironmentVariable(named = "GAMEBRIDGE_RUN_DB_TESTS", matches = "true")
 class MockXcodeHttpIntegrationTest {
+    @org.junit.jupiter.api.BeforeEach fun captureOpenApiShape() { com.gamebridge.contracts.OpenApiCapture.install(rest) }
     @Autowired lateinit var rest: TestRestTemplate
     companion object {
         private const val key = "synthetic-only-development-key-0123456789"

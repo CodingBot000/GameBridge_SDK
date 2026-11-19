@@ -4,17 +4,60 @@ import importlib.util
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
+
+from execution_evidence import metadata, valid_observation
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.dont_write_bytecode = True
 from result_aggregator import summarize
+from error_contract import valid_error_evidence
+from measurement_contract import measured_lane, attach_execution, valid_checker, last_execution
 spec = importlib.util.spec_from_file_location('auth_runner', ROOT/'harness/run-auth-regression.py')
 common = importlib.util.module_from_spec(spec); spec.loader.exec_module(common)
+
+
+def valid_contract_checker(lane, report_path, report):
+    observed=last_execution()
+    try:
+        receipt=lane['checkerEvidence']
+        return (valid_observation(observed) and report.get('runId')==observed['invocationId'] and
+                all(report.get(k)==observed[k] for k in ('sourceHead','sourceDigest')) and
+                observed['startedNs']<=report_path.stat().st_mtime_ns<=observed['finishedNs'] and
+                Path(receipt['path'])==report_path.parent/'csharp.log' and lane.get('command')==receipt['command'] and
+                observed['startedNs']<=receipt['startedNs']<=receipt['finishedNs']<=observed['finishedNs'] and
+                valid_observation(receipt,run_id=observed['invocationId']) and
+                lane.get('tests')==0 and lane.get('checks')==1 and lane.get('measurement')=='checker' and
+                receipt.get('marker') and receipt['marker'] in Path(receipt['path']).read_text())
+    except (OSError,ValueError,KeyError,TypeError):return False
+
+def summarize_lanes(lanes, expected):
+    return summarize(lanes, expected)
+
+
+def sandbox_report(path, started, code):
+    result = {'name':'sandbox-fake-token', 'required':True, 'status':'FAIL', 'exitCode':code,
+              'tests':0, 'failures':0, 'errors':0, 'skipped':0}
+    try:
+        if path.stat().st_mtime_ns < started: return result
+        xml = ET.parse(path).getroot()
+        for key in ('tests', 'failures', 'errors', 'skipped'): result[key] = int(xml.attrib[key])
+        cases = xml.findall('testcase')
+        exact = (len(cases) == 1 and cases[0].get('name') == 'sandbox rejects mock identity token with 401()' and
+                 cases[0].find('failure') is None and cases[0].find('error') is None and cases[0].find('skipped') is None)
+        if code == 0 and exact and result['tests'] == 1 and all(result[k] == 0 for k in ('failures','errors','skipped')):
+            result['status'] = 'PASS'
+        elif code == 2: result['status'] = 'DEFERRED_ENV'
+    except (OSError, ET.ParseError, KeyError, ValueError):
+        if code == 2: result['status'] = 'DEFERRED_ENV'
+    return result
+
 
 def main() -> int:
     artifacts = ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)
@@ -23,8 +66,34 @@ def main() -> int:
     def expect_marker(name, command, marker, environment=None):
         code, text, _ = common.run(command, environment or env, workspace/f'{name}.log')
         passed = code == 0 and marker in text
-        lanes.append({'name':name,'status':'PASS' if passed else ('DEFERRED_ENV' if code == 2 else 'FAIL'),
-                      'required':True,'tests':1 if passed else 0,'skipped':0,'exitCode':code})
+        lane = measured_lane(name,command,code,text,workspace/f'{name}.log',marker)
+        lane['failures'] = 0 if passed or code == 2 else 1
+        if passed and name in ('contract-negative', 'ledger-mutation'):
+            try:
+                if name == 'contract-negative':
+                    outer = re.search(r'^Negative evidence directory: (artifacts/negative-contract-[A-Za-z0-9_-]+)$', text, re.M)
+                    nested_text = (ROOT/outer.group(1)/'negative.log').read_text() if outer else ''
+                    nested = re.search(r'^Evidence directory: (artifacts/contracts-[A-Za-z0-9_-]+)$', nested_text, re.M)
+                    report_path=ROOT/nested.group(1)/'result.json' if nested else Path('/missing')
+                    contract_report=json.loads(report_path.read_text()) if nested else {}
+                    suites=contract_report.get('suites',[])
+                    natives = [x for x in suites if x['suite'] in ('kotlin','swift')]
+                    cs = [x for x in suites if x['suite'] == 'csharp']
+                    if (len(suites) != 3 or len(cs) != 1 or cs[0]['status'] != 'PASS' or cs[0]['exitCode'] != 0 or cs[0]['tests'] != 0 or cs[0].get('checks') != 1 or not valid_contract_checker(cs[0],report_path,contract_report) or
+                        len(natives) != 2 or {x['suite'] for x in natives} != {'kotlin','swift'} or
+                        any(x['status'] != 'FAIL' or x['exitCode'] != 1 or x['tests'] < 1 or x.get('failures') != 1 or (x.get('errors') != 0 and not (x.get('errors') is None and x.get('errorModel') == 'included-in-failures')) or x.get('skipped') != 0 for x in natives)):
+                        raise ValueError('negative contract counts')
+                    lane.update(measurement='tests',tests=sum(x['tests'] for x in natives), expectedFailures=2, producerEvidence=outer.group(1))
+                else:
+                    match = re.search(r'^Evidence directory: (artifacts/ledger-mutation-[A-Za-z0-9_-]+)$', text, re.M)
+                    if not match: raise ValueError('ledger evidence missing')
+                    files = [ET.parse(ROOT/match.group(1)/(name+'.junit.xml')).getroot() for name in ('mutation','normal')]
+                    if [(int(x.get('tests','-1')),int(x.get('failures','-1')),int(x.get('errors','-1')),int(x.get('skipped','-1'))) for x in files] != [(1,1,0,0),(1,0,0,0)]:
+                        raise ValueError('ledger counts')
+                    lane.update(measurement='tests',tests=2, expectedFailures=1, producerEvidence=match.group(1))
+            except (OSError, ValueError, KeyError, TypeError, ET.ParseError):
+                lane.update(status='FAIL', failures=1, tests=0)
+        lanes.append(lane)
     expect_marker('progress-negative',['python3','harness/check-progress-negative.py'],'Progress negatives PASS')
     expect_marker('manifest-negative',['python3','harness/check-manifest-negative.py'],'Negative manifest: missing R49 rejected')
     expect_marker('package-negative',['python3','harness/check-package-negative.py'],'Package negatives PASS')
@@ -42,25 +111,46 @@ def main() -> int:
     failed = subprocess.run([sys.executable,'-c','raise SystemExit(7)'],cwd=ROOT,check=False).returncode
     checks.append(failed == 7 and summarize([{'name':'failure','status':'FAIL','required':True,'tests':1,'exitCode':failed}])['exitCode'] == 1)
     good = all(checks)
-    lanes.append({'name':'failed-and-zero-test','status':'PASS' if good else 'FAIL','required':True,'tests':3 if good else 0,'skipped':0,'exitCode':0 if good else 1})
+    fixture_log = workspace/'failed-and-zero-test.log'
+    text = 'Failed and zero-test rejection PASS' if good else 'rejection FAIL'
+    fixture_log.write_text(text)
+    lane = measured_lane('failed-and-zero-test',['internal:reject-zero-failure'],0 if good else 1,text,fixture_log,'Failed and zero-test rejection PASS')
+    lane['assertions'] = len(checks)
+    lanes.append(lane)
     sandbox = env.get('GAMEBRIDGE_SANDBOX_TEST_DB_URL','')
     safe = bool(sandbox) and not re.search(r'(?i)([?&](?:user|password)=|://[^/]*@)',sandbox)
     if env.get('GAMEBRIDGE_RUN_AUTH_DB_TESTS') == 'true' and safe and all(env.get(k) for k in ('GAMEBRIDGE_TEST_DB_USER','GAMEBRIDGE_TEST_DB_PASSWORD')):
         lane_env = env.copy(); lane_env['GAMEBRIDGE_TEST_DB_URL'] = sandbox
-        code, _, started = common.run(['backend/gradlew','-p','backend','test','--rerun-tasks','--tests','com.gamebridge.auth.AuthHttpIntegrationTest'],lane_env,workspace/'sandbox-fake-token.log')
-        counts = common.junit_counts([ROOT/'backend/build/test-results/test/TEST-com.gamebridge.auth.AuthHttpIntegrationTest.xml'],started)
-        test_source = (ROOT/'backend/src/test/kotlin/com/gamebridge/auth/AuthHttpIntegrationTest.kt').read_text(encoding='utf-8')
-        if 'mock:identity:synthetic' not in test_source: counts = (0,0,0)
-        result = common.item('sandbox-fake-token',code,counts); result['name'] = result.pop('suite'); result['required'] = True; lanes.append(result)
+        code, _, started = common.run(['backend/gradlew','-p','backend','test','--rerun-tasks','--tests','*AuthHttpIntegrationTest.*sandbox rejects mock identity token with 401*'],lane_env,workspace/'sandbox-fake-token.log')
+        report_path = ROOT/'backend/build/test-results/test/TEST-com.gamebridge.auth.AuthHttpIntegrationTest.xml'
+        result = sandbox_report(report_path, started, code)
+        if report_path.is_file() and report_path.stat().st_mtime_ns >= started:
+            shutil.copyfile(report_path, workspace/'sandbox-fake-token.junit.xml')
+        result.update(measurement='tests',checks=1,samples=0,players=0,errorModel='separate')
+        attach_execution(result)
+        lanes.append(result)
     else: lanes.append({'name':'sandbox-fake-token','status':'DEFERRED_ENV','required':True,'tests':0,'skipped':0,'exitCode':2})
-    expect_marker('normal-contracts',['python3','harness/run-contracts.py'],'csharp: PASS')
+    code, text, _ = common.run(['python3','harness/run-contracts.py'], env, workspace/'normal-contracts.log')
+    match = re.search(r'^Evidence directory: (artifacts/contracts-[A-Za-z0-9_-]+)$', text, re.M)
+    try:
+        report_path=ROOT/match.group(1)/'result.json' if match else Path('/missing')
+        contract_report = json.loads(report_path.read_text()) if match else {}
+        suites = contract_report['suites']
+        valid = (code == 0 and len(suites) == 3 and {x['suite'] for x in suites} == {'kotlin','swift','csharp'} and
+                 all(x['status'] == 'PASS' and x['exitCode'] == 0 and (x['tests'] > 0 if x['suite'] != 'csharp' else x['tests'] == 0 and x.get('checks') == 1 and valid_contract_checker(x,report_path,contract_report)) and x.get('failures',0) == 0 and valid_error_evidence(x) and x.get('skipped',0) == 0 for x in suites))
+        tests = sum(x['tests'] for x in suites if x['suite'] != 'csharp') if valid else 0
+    except (OSError, ValueError, KeyError, TypeError): valid = False; tests = 0
+    lane = measured_lane('normal-contracts',['python3','harness/run-contracts.py'],code,text,workspace/'normal-contracts.log','Evidence directory:')
+    lane.update(status='PASS' if valid else ('DEFERRED_ENV' if code == 2 else 'FAIL'), measurement='tests',tests=tests,failures=0 if valid else 1)
+    lanes.append(lane)
     expected = {'progress-negative','manifest-negative','package-negative','contract-negative','bridge-mutation',
                 'ledger-mutation','failed-and-zero-test','sandbox-fake-token','normal-contracts'}
-    summary = summarize(lanes, expected)
-    report = {'scope':'harness-negative-self-check','sourceHead':subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip(),
+    # Checker invocations count as checks, not test cases; preserve fail-closed aggregation.
+    summary = summarize_lanes(lanes, expected)
+    report = {'scope':'harness-negative-self-check',**metadata(),
               'workingTree':'HEAD plus uncommitted changes may be present','timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'lanes':lanes,'summary':summary}
     (workspace/'result.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
-    for lane in lanes: print(f"{lane['name']}: {lane['status']} (tests={lane['tests']}, exit={lane['exitCode']})")
+    for lane in lanes: print(f"{lane['name']}: {lane['status']} (tests={lane['tests']}, checks={lane.get('checks',0)}, expected_failures={lane.get('expectedFailures',0)}, failures={lane.get('failures',0)}, errors={lane.get('errors',0)}, skipped={lane['skipped']}, exit={lane['exitCode']})")
     print('Evidence directory:',workspace.relative_to(ROOT))
     return summary['exitCode']
 

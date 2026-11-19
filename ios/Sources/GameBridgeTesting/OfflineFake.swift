@@ -23,6 +23,7 @@ public actor OfflineFake: SdkProvider {
     private var pushPermission = false
     private var pushRegistered = false
     private var seenMessages: Set<String> = []
+    private var messageOrder: [String] = []
     private var events: [FakePushEvent] = []
     public init() {}
     public func initialize(_ config: GameBridgeConfig) async throws -> InitSnapshot {
@@ -30,7 +31,7 @@ public actor OfflineFake: SdkProvider {
         ready = true
         return InitSnapshot(capabilities: ["fake": Capability(supported: true, configured: true, mode: config.mode, reason: "Offline fake only")])
     }
-    public func shutdown() async throws { ready = false; signedIn = false; pushRegistered = false; events.removeAll() }
+    public func shutdown() async throws { ready = false; signedIn = false; pushRegistered = false; events.removeAll(); seenMessages.removeAll(); messageOrder.removeAll() }
     public func signIn() throws -> UserProfile {
         try requireReady(); signedIn = true
         return UserProfile(userId: "d2719c4e-d533-47ee-9efd-838791ea79c8", displayName: "Mock User", provider: "MOCK")
@@ -66,8 +67,12 @@ public actor OfflineFake: SdkProvider {
     }
     public func receivePush(messageId: String, route: String) throws {
         try requireReady(); guard pushRegistered else { throw SdkFailure("PERMISSION_DENIED") }
-        guard !messageId.isEmpty, ["home", "store"].contains(route) else { throw SdkFailure("INVALID_ARGUMENT") }
-        if seenMessages.insert(messageId).inserted { events.append(FakePushEvent(messageId: messageId, route: route)) }
+        guard !messageId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, ["home", "store"].contains(route) else { throw SdkFailure("INVALID_ARGUMENT") }
+        if seenMessages.insert(messageId).inserted {
+            messageOrder.append(messageId)
+            if messageOrder.count > 200 { seenMessages.remove(messageOrder.removeFirst()) }
+            events.append(FakePushEvent(messageId: messageId, route: route))
+        }
     }
     public func drainPushEvents() throws -> [FakePushEvent] {
         try requireReady(); let result = events; events.removeAll(); return result

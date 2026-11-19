@@ -1,0 +1,32 @@
+[
+  {
+    "sourceHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+    "runId": "ac3018583bfa47cca483c96521536726",
+    "variant": "push",
+    "scenarioSha256": "586ac94e93b81c3780ecdb3cc4211d45382b8d304be9eac5148149cac0dd6374",
+    "buildScriptSha256": "74ffcb582f31ac7ac7b8ea74d0f0bcd99ca3b10aab9502fe0e0230215c264d85",
+    "adapterSha256": "f87264014091dba31657e0838920dfb371abbebfbbeb85f768e3f64f4e2d317c",
+    "scriptSha256": "ef9f616d6e92493506f3f0ec750cd262198d3371ba4cc51dbde87787e974c7fd",
+    "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+    "project": "artifacts/unity-android-mock.Vo5TLO/GameBridgeGuiAndroidB31Push",
+    "status": "PREPARED_NOT_BUILT",
+    "guiCompilation": "NOT_RUN",
+    "apk": "NOT_GENERATED",
+    "player": "NOT_RUN"
+  },
+  {
+    "sourceHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+    "runId": "5eb6496c15694bb687e8ac5d62b0bc0b",
+    "variant": "utf8",
+    "scenarioSha256": "faa2b77ef0f55509829222af1644207f8771a4c6420dece9fef6d8efa98c514f",
+    "buildScriptSha256": "74ffcb582f31ac7ac7b8ea74d0f0bcd99ca3b10aab9502fe0e0230215c264d85",
+    "adapterSha256": "f87264014091dba31657e0838920dfb371abbebfbbeb85f768e3f64f4e2d317c",
+    "scriptSha256": "ef9f616d6e92493506f3f0ec750cd262198d3371ba4cc51dbde87787e974c7fd",
+    "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+    "project": "artifacts/unity-android-mock.lb7A7f/GameBridgeGuiAndroidB31Utf8",
+    "status": "PREPARED_NOT_BUILT",
+    "guiCompilation": "NOT_RUN",
+    "apk": "NOT_GENERATED",
+    "player": "NOT_RUN"
+  }
+]

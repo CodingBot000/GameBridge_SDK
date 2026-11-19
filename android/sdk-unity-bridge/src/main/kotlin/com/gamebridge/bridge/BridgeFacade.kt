@@ -101,8 +101,58 @@ object BridgeFacade {
             override fun close() { dropStore(); scope.cancel(); provider.detachHost() }
         }
     }
+    @Volatile private var activeSocial:com.gamebridge.android.auth.PlatformAuthProvider?=null
+    private fun socialApi(name:String,config:com.gamebridge.GameBridgeConfig,ids:Map<String,String>?,installation:UUID?):GoogleAuthBridgeApi {
+        val activity=host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED","HOST_ACTIVITY")
+        val provider=when(name){
+            "APPLE"->com.gamebridge.android.auth.PlatformAuthProviders.apple(activity.applicationContext,config,KeystoreTokenStore(activity.applicationContext,"unity_apple_web"))
+            "FACEBOOK"->com.gamebridge.android.auth.PlatformAuthProviders.facebook(activity.applicationContext,config,KeystoreTokenStore(activity.applicationContext,"unity_facebook"))
+            else->throw com.gamebridge.SdkFailure("UNSUPPORTED_PROVIDER")
+        }
+        provider.attachHost(activity);activeSocial=provider
+        val session=provider.storeSession();val push=installation?.let {provider.pushClient(it)}
+        return object:GoogleAuthBridgeApi {
+            private val scope=CoroutineScope(SupervisorJob()+Dispatchers.Default)
+            private var store:GooglePlayStore?=null
+            private var events:Job?=null
+            private fun drop(){events?.cancel();events=null;store?.close();store=null}
+            private fun currentStore():GooglePlayStore {
+                val target=host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
+                return (store ?:session.createStore(ids ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).also {next->
+                    val emit=purchaseEmitter();events=scope.launch(start=CoroutineStart.UNDISPATCHED){next.events.collect {emit(it)}};store=next
+                }).also {it.attachHost(target)}
+            }
+            override suspend fun signIn():com.gamebridge.UserProfile {drop();provider.attachHost(host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED"));return provider.signIn()}
+            override suspend fun restore()=provider.restore()
+            override suspend fun signOut(){drop();provider.signOut()}
+            override suspend fun products()=currentStore().products()
+            override suspend fun purchase(productId:String)=currentStore().purchase(productId)
+            override suspend fun entitlements()=currentStore().entitlements()
+            override suspend fun recoverDetailed()=currentStore().recoverDetailed()
+            override suspend fun serviceSettings()=session.serviceSettings()
+            override suspend fun registerPush():String {
+                val target=push ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
+                val activity=host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
+                try {Class.forName("com.google.firebase.messaging.FirebaseMessaging")}catch(_:ClassNotFoundException){throw com.gamebridge.SdkFailure("CONFIG_REQUIRED","FIREBASE_HOST")}catch(_:LinkageError){throw com.gamebridge.SdkFailure("CONFIG_REQUIRED","FIREBASE_HOST")}
+                val token=try {withTimeout(config.requestTimeoutMs){suspendCancellableCoroutine<String>{completion->
+                    val adapter=AndroidPushHostAdapter({if(completion.isActive)completion.resume(it)},{_,_->},{if(completion.isActive)completion.resumeWithException(com.gamebridge.SdkFailure("CONFIG_REQUIRED"))})
+                    if(!adapter.hasNotificationPermission(activity))completion.resumeWithException(com.gamebridge.SdkFailure("PERMISSION_DENIED")) else adapter.register()
+                }}}catch(_:TimeoutCancellationException){throw com.gamebridge.SdkFailure("TIMEOUT",retryable=true)}
+                return target.register(token)
+            }
+            override suspend fun registerPushToken(token:String)=(push ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).register(token)
+            override suspend fun unregisterPush()=(push ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).unregister()
+            override fun close(){drop();scope.cancel();provider.close();if(activeSocial===provider)activeSocial=null}
+        }
+    }
+    private val platform=PlatformAuthBridgeHandler(google,object:com.gamebridge.TokenStore {
+        private fun store():KeystoreTokenStore {val activity=host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED");return KeystoreTokenStore(activity.applicationContext,"unity_social_selection")}
+        override fun load()=store().load();override fun save(value:String)=store().save(value);override fun clear()=store().clear()
+    }) {name->GoogleAuthBridgeHandler(name){config,ids,installation->socialApi(name,config,ids,installation)}}
+    @JvmStatic fun onSocialRedirect(url:String):Boolean = host?.get()?.let {com.gamebridge.android.auth.PlatformAuthProviders.forwardAppleRedirect(it,url)}?:false
+    @JvmStatic fun onSocialActivityResult(requestCode:Int,resultCode:Int,data:android.content.Intent?):Boolean = com.gamebridge.android.auth.PlatformAuthProviders.forwardFacebookActivityResult(requestCode,resultCode,data)
     init { localMock.setMockPushSinkFactory { mockPushEmitter() } }
-    private val dispatcher = BridgeDispatcher(ModeBridgeHandler(localMock, google))
+    private val dispatcher = BridgeDispatcher(ModeBridgeHandler(localMock, platform))
     private val callbackGeneration = AtomicLong()
     private val resetRequired = AtomicBoolean(false)
     @Volatile private var host: WeakReference<Activity>? = null
@@ -116,6 +166,7 @@ object BridgeFacade {
         callbackGeneration.incrementAndGet(); callback = value
         if (value == null) {
             eventSession = null; accountEpoch++; pushRouter.reset()
+            activeSocial?.close()
             resetRequired.set(true)
             try { executor.execute { resetIfRequired() } }
             catch (_: RejectedExecutionException) { /* next accepted request performs cleanup */ }

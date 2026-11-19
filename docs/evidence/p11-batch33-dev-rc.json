@@ -1,0 +1,15 @@
+{
+  "status": "DEV_RC",
+  "version": "0.1.0-dev",
+  "shippingSourceHead": "a83561a31c6b34fafcc85988b419fff20c7e059f",
+  "packageEvidence": "docs/evidence/p10-batch33-package.json",
+  "upmManifestSha256": "6fc4cb4b8a6765ce6526c988c0df2b43d19e4a35cf7263cd276181a775751fba",
+  "limits": [
+    "Full Strict NOT_RUN",
+    "OpenAPI DTO/runtime correspondence partial",
+    "Native and Unity profiling partial",
+    "Real providers WAITING_USER",
+    "P05 failure/StoreKit26 OPEN and18.6 intermittent risk retained"
+  ],
+  "contents": "UPM with Maven/XCFramework, docs, HTTP OpenAPI. Source consumer examples remain in repository."
+}

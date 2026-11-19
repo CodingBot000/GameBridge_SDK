@@ -7,8 +7,12 @@ import UserNotifications
 final class SampleAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     private let push = ApplePushHostAdapter()
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        _ = GameBridgeFacebookHost.initialize(application,options:launchOptions)
         UNUserNotificationCenter.current().delegate = self
         return true
+    }
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        GameBridgeFacebookHost.handle(url) || GameBridgeGoogleHost.handle(url)
     }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         push.didRegister(deviceToken: deviceToken)

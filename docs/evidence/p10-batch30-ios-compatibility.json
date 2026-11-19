@@ -1,0 +1,17 @@
+{
+  "priorIosPlayerEvidence": "artifacts/unity-ios-e2e-c4qqwuvs/result.json",
+  "priorIosPlayerSourceHead": "d543556580f72142507c57f57537891fb7d1c1e7",
+  "comparisonHead": "1a311f32559a49a389ec907e2caeca8e06e117c8",
+  "protectedSourceDelta": [],
+  "currentIosPlayerExecution": "NOT_RUN",
+  "reason": "no iOS product/common SDK or protected iOS consumer changes; retain prior verified scope",
+  "protectedSourcePaths": [
+    "unity/Packages/com.gamebridge.sdk",
+    "ios/Sources",
+    "ios/UnityBridge",
+    "tests/UnityIosMockConsumer",
+    "tests/UnityIosPiiConsumer",
+    "tests/UnityPiiProbe",
+    "tests/UnityLateCallbackPlayer"
+  ]
+}

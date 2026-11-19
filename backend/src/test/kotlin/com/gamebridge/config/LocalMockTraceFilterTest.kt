@@ -23,12 +23,13 @@ class LocalMockTraceFilterTest {
             val id = UUID.randomUUID().toString()
             val request = MockHttpServletRequest("POST", "/v1/dev/auth")
             request.setAttribute("requestId", id); request.queryString = "secret=SYNTHETIC_SECRET"
-            request.addHeader("Authorization", "SYNTHETIC_SECRET"); request.setContent("SYNTHETIC_SECRET".toByteArray())
+            val syntheticEmail = "synthetic-person@example.invalid"; val syntheticPhone = "+1-202-555-0107"
+            request.addHeader("Authorization", "SYNTHETIC_SECRET"); request.setContent("SYNTHETIC_SECRET $syntheticEmail $syntheticPhone".toByteArray())
             val response = MockHttpServletResponse()
             filter.doFilter(request, response, FilterChain { _, result -> (result as MockHttpServletResponse).status = 200 })
             val message = appender.list.single().formattedMessage
             assertTrue(message.contains("operation=mock-auth")); assertTrue(message.contains("requestId=$id")); assertTrue(message.contains("status=200"))
-            assertFalse(message.contains("SYNTHETIC_SECRET"))
+            assertFalse(message.contains("SYNTHETIC_SECRET")); assertFalse(message.contains(syntheticEmail)); assertFalse(message.contains(syntheticPhone))
             filter.doFilter(MockHttpServletRequest("GET", "/private/SYNTHETIC_SECRET"), MockHttpServletResponse(), FilterChain { _, _ -> })
             assertEquals(1, appender.list.size)
         } finally { logger.detachAppender(appender); appender.stop() }

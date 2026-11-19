@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scope": "Unity iOS Simulator -> Swift C ABI -> LOCAL_MOCK Backend/PostgreSQL",
+  "sourceHead": "ec4a03676c01a0b9c2e033bb53a85de8ca0e2a41",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "PASS",
+  "realAppleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "stagingManifestSha256": "6fc4cb4b8a6765ce6526c988c0df2b43d19e4a35cf7263cd276181a775751fba",
+  "iosSimulatorBinarySha256": "b57c3e1eda86b81cf8baca52ee9f00c5d286ac39ded429fbf4f522f25ae01446",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "piiProbe": true,
+  "signing": "local-ad-hoc",
+  "unityBinarySha256": "9014527a54e9bb311789fc775100bb72aece110f8b885092ed7f16e0b8e8df0c",
+  "database": "gamebridge_ci_f02c84b89b",
+  "simulator": "DA947747-B114-435B-8419-67A9F018756A",
+  "unityMarkerCount": 24,
+  "backendTraceCounts": {
+    "mock-auth": 1,
+    "catalog": 1,
+    "entitlements": 2,
+    "verify": 1,
+    "logout": 1
+  },
+  "ledgerCount": 1,
+  "ledgerDelta": 100,
+  "ownedSimulatorName": "GameBridge-Unity-iOS-f02c84b89b",
+  "ownedRuntime": "com.apple.CoreSimulator.SimRuntime.iOS-18-6",
+  "ownedSimulatorShutdownExit": 0
+}

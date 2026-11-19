@@ -13,13 +13,18 @@ import time
 import urllib.request
 import xml.etree.ElementTree as ET
 
+from process_output import timeout_output
+from ios_test_diagnostics import Timeline,toolchain,configuration_hash
+
 ROOT = Path(__file__).resolve().parent.parent
 CONTAINER = 'gamebridge-sdk-local-postgres-1'
 
 def main():
-    if sys.argv[1:] != ['--run-local']:
+    if sys.argv[1:] not in (['--run-local'],['--run-local','--diagnose']):
         print('Usage: python3 harness/run-xcode-storekit-e2e.py --run-local (retains dedicated test DB, role and simulator)')
         return 2
+    diagnostic=Timeline();diagnose='--diagnose' in sys.argv
+    diagnostic.mark('runner-start')
     artifacts = ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)
     output = Path(tempfile.mkdtemp(prefix='xcode-storekit-e2e-',dir=artifacts))
     suffix = secrets.token_hex(5); name = 'gamebridge_ci_' + suffix; password = secrets.token_hex(24)
@@ -51,10 +56,10 @@ def main():
     created_sim = subprocess.run(['xcrun','simctl','create','GameBridge-StoreKit-DB-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],
                                  cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     if created_sim.returncode: print('iOS 18.6 simulator unavailable; evidence:',output.relative_to(ROOT)); return 2
-    simulator = created_sim.stdout.strip(); print('Retained dedicated simulator:',simulator,flush=True)
+    simulator = created_sim.stdout.strip();diagnostic.mark('simulator-created',simulator); print('Retained dedicated simulator:',simulator,flush=True)
     log = (output/'backend.log').open('w')
     server = subprocess.Popen(['java','-jar',str(ROOT/'backend/build/libs/gamebridge-backend.jar')],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT)
-    status='FAIL'; test_code=1; summary={}
+    status='FAIL'; test_code=1; summary={};diagnostic_failure=None
     try:
         deadline = time.monotonic()+45
         while time.monotonic() < deadline:
@@ -63,20 +68,32 @@ def main():
                 with urllib.request.urlopen(base+'/health',timeout=1) as response:
                     if response.status == 200: break
             except Exception: time.sleep(.25)
-        else: print('Backend health timeout; evidence:',output.relative_to(ROOT)); return 1
-        if server.poll() is not None: print('Backend exited before health; evidence:',output.relative_to(ROOT)); return 1
+        else: raise RuntimeError('BACKEND_HEALTH_TIMEOUT')
+        if server.poll() is not None:raise RuntimeError('BACKEND_EXITED_BEFORE_HEALTH')
+        diagnostic.mark('backend-health-ready',simulator)
+        if diagnose:
+            for action in (['boot',simulator],['bootstatus',simulator,'-b']):
+                prepared=subprocess.run(['xcrun','simctl']+action,cwd=ROOT,text=True,capture_output=True,timeout=180)
+                if prepared.returncode:raise RuntimeError('diagnostic boot preparation failed')
+            diagnostic.mark('owned-simulator-boot-ready',simulator)
         result_path=output/'result.xcresult'
         command=['xcodebuild','-project',str(project),'-scheme','GameBridgeStoreKit','-destination',f'platform=iOS Simulator,id={simulator}',
                  '-resultBundlePath',str(result_path),'CODE_SIGN_IDENTITY=-','CODE_SIGNING_REQUIRED=YES','-only-testing:GameBridgeStoreKitTests/XcodeStoreKitLocalDatabaseTests','test','-quiet']
+        if diagnose:command += ['-parallel-testing-enabled','NO','-derivedDataPath',str(output/'Derived')]
+        diagnostic.mark('xctest-invocation-start',simulator)
         print('Running Xcode local StoreKit + local database recovery E2E...',flush=True)
         try: result=subprocess.run(command,cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180); test_code=result.returncode; (output/'xcodebuild.log').write_text(result.stdout)
-        except subprocess.TimeoutExpired: (output/'xcodebuild.log').write_text('Xcode test timed out.\n'); test_code=124
+        except subprocess.TimeoutExpired as exc: (output/'xcodebuild.log').write_text(timeout_output(exc)); test_code=124
+        diagnostic.mark('xctest-invocation-return',simulator)
         if result_path.exists():
             report=subprocess.run(['xcrun','xcresulttool','get','test-results','summary','--path',str(result_path),'--format','json'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             if report.returncode == 0:
                 try: summary=json.loads(report.stdout)
                 except ValueError: pass
         if test_code == 0 and summary.get('passedTests') == 1 and summary.get('skippedTests') == 0 and summary.get('failedTests') == 0: status='PASS'
+    except (RuntimeError,subprocess.TimeoutExpired) as error:
+        diagnostic_failure=type(error).__name__+': '+str(error)
+        diagnostic.mark('diagnostic-invocation-failed',simulator)
     finally:
         server.terminate()
         try: server.wait(timeout=10)
@@ -84,7 +101,7 @@ def main():
         log.close()
     report={'status':status,'sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
             'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),
-            'database':name,'simulator':simulator,'testExitCode':test_code,'passed':summary.get('passedTests',0),'skipped':summary.get('skippedTests',0),
+            'database':name,'simulator':simulator,'testExitCode':test_code,'timedOut':test_code==124,'diagnosticFailure':diagnostic_failure,'diagnosticMode':diagnose,'toolchain':toolchain(),'configurationSha256':configuration_hash(ROOT/'ios/StoreKit/GameBridge.storekit'),'diagnosticEvents':diagnostic.events,'passed':summary.get('passedTests',0),'skipped':summary.get('skippedTests',0),
             'limitations':['Xcode local StoreKit and synthetic development DB only','public native Xcode-local grant path','not Unity player or Apple sandbox']}
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n')
     print('Result:',status,'Evidence directory:',output.relative_to(ROOT)); return 0 if status=='PASS' else 1

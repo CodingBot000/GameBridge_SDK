@@ -1,0 +1,39 @@
+{
+  "batch": "SOC-B",
+  "implementation": "IMPLEMENTED",
+  "liveProvider": "WAITING_USER",
+  "backendUnit": {
+    "tests": 3,
+    "exit": 0
+  },
+  "backendHttp": {
+    "tests": 3,
+    "exit": 0,
+    "synthetic": true,
+    "latestOwnedDb": "gamebridge_ci_abaf17e7c9"
+  },
+  "swift": {
+    "tests": 30,
+    "exit": 0,
+    "productionManifest": true,
+    "officialLocalBinaryCache": true
+  },
+  "csharpContract": {
+    "exit": 0
+  },
+  "androidUnit": {
+    "exit": 0
+  },
+  "remoteSwiftPM": "DEFERRED_ENV",
+  "failedRunsPreserved": [
+    "SwiftPM binary download hang",
+    "Python ZIP extraction symlink loss/codesign65; ditto corrected",
+    "HTTP rate429; separate contexts corrected"
+  ],
+  "sourceBase": "9848e56",
+  "noPush": true,
+  "androidBuild": {
+    "mavenAndR8ConsumerExit": 0
+  },
+  "iosSimulatorArchiveExit": 0
+}

@@ -12,6 +12,8 @@ import com.gamebridge.PurchaseStatus
 import com.gamebridge.SdkFailure
 import com.gamebridge.StoreProduct
 import com.gamebridge.android.auth.GoogleAuthProvider
+import com.gamebridge.android.auth.BackendSessionAccess
+import com.gamebridge.android.auth.GoogleSessionAccess
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.decodeFromString
@@ -21,13 +23,14 @@ import java.util.UUID
 /** No token, receipt or account binding is exposed in public results. */
 data class GoogleRecoveryCounts(val examinedCount: Int, val recoveredCount: Int, val deferredCount: Int, val failureCount: Int)
 data class GoogleStoreEvent(val productId: String, val status: PurchaseStatus, val errorCode: String?, val serverPurchaseId: UUID?)
-class GooglePlayStore internal constructor(private val auth: GoogleAuthProvider, private val client: BackendClient,
+class GooglePlayStore internal constructor(private val auth: BackendSessionAccess, private val client: BackendClient,
                                            private val provider: GooglePlayBillingProvider) : AutoCloseable {
+    internal constructor(auth:GoogleAuthProvider,client:BackendClient,provider:GooglePlayBillingProvider):this(GoogleSessionAccess(auth),client,provider)
     companion object {
         @JvmStatic fun create(context: Context, config: GameBridgeConfig, auth: GoogleAuthProvider, productIds: Map<String, String>): GooglePlayStore {
-            validateGoogleStoreConfiguration(config, auth, productIds)
+            validateGoogleStoreConfiguration(config, GoogleSessionAccess(auth), productIds)
             val client = BackendClient(config)
-            return GooglePlayStore(auth, client, GoogleStoreRuntime.create(context, auth, client, productIds))
+            return GooglePlayStore(GoogleSessionAccess(auth), client, GoogleStoreRuntime.create(context, GoogleSessionAccess(auth), client, productIds))
         }
     }
     val events: Flow<GoogleStoreEvent> = provider.events.map { event ->
@@ -52,13 +55,17 @@ class GooglePlayStore internal constructor(private val auth: GoogleAuthProvider,
 
 /** Shares one Backend-backed maintenance cache between public config and store operations. */
 class GoogleStoreSession private constructor(private val context: Context, private val config: GameBridgeConfig,
-                                             private val auth: GoogleAuthProvider, private val client: BackendClient) {
+                                             private val auth: BackendSessionAccess, private val client: BackendClient) {
     private val serviceConfig = backendServiceConfiguration(client)
     companion object {
+        internal fun createSocial(context:Context, config:GameBridgeConfig, auth:BackendSessionAccess):GoogleStoreSession {
+            if(config.mode!=ProviderMode.PLATFORM_SANDBOX || !auth.usesConfiguration(config))throw SdkFailure("CONFIG_REQUIRED")
+            return GoogleStoreSession(context.applicationContext,config,auth,BackendClient(config))
+        }
         @JvmStatic fun create(context: Context, config: GameBridgeConfig, auth: GoogleAuthProvider): GoogleStoreSession {
             if (config.mode != ProviderMode.PLATFORM_SANDBOX || !auth.usesConfiguration(config)) throw SdkFailure("CONFIG_REQUIRED")
             config.validate()
-            return GoogleStoreSession(context.applicationContext, config, auth, BackendClient(config))
+            return GoogleStoreSession(context.applicationContext, config, GoogleSessionAccess(auth), BackendClient(config))
         }
     }
     fun createStore(productIds: Map<String, String>): GooglePlayStore {
@@ -76,9 +83,11 @@ internal fun decodeGoogleEntitlements(body: String, expectedUser: String): Entit
     return value
 }
 
-internal fun validateGoogleStoreConfiguration(config: GameBridgeConfig, auth: GoogleAuthProvider, productIds: Map<String, String>) {
+internal fun validateGoogleStoreConfiguration(config: GameBridgeConfig, auth: BackendSessionAccess, productIds: Map<String, String>) {
     if (config.mode != ProviderMode.PLATFORM_SANDBOX) throw SdkFailure("UNSUPPORTED_PROVIDER")
     config.validate()
     if (!auth.usesConfiguration(config) || productIds.keys != setOf("coins_100", "premium_unlock") ||
         productIds.values.any { it.isBlank() } || productIds.values.toSet().size != 2) throw SdkFailure("CONFIG_REQUIRED")
 }
+
+internal fun validateGoogleStoreConfiguration(config:GameBridgeConfig,auth:GoogleAuthProvider,productIds:Map<String,String>) = validateGoogleStoreConfiguration(config,GoogleSessionAccess(auth),productIds)

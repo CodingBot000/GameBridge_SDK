@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "runId": "c7d66a9e6cbd430eb0f918e4a7273628",
+  "sourceHead": "c07a264d923ecd05a994563c14a6c1636c10c2fe",
+  "unityVersion": "6000.5.8f1",
+  "buildScriptSha256": "74ffcb582f31ac7ac7b8ea74d0f0bcd99ca3b10aab9502fe0e0230215c264d85",
+  "scenarioSha256": "afaf42d3cd055d2c206ae8cfc3b972045c87fc537a85fe74eb02367d51348130",
+  "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+  "artifactSize": 27076328,
+  "artifactSha256": "f8f402fdb8d9a9b5ffc4038c4051d643eeb98e00220424605dec207ebd322b7e",
+  "originalBuilderReturned": true,
+  "packageFilesVerified": 147,
+  "project": "artifacts/unity-android-mock.3JQWTU/GameBridgeGuiAndroidB30B",
+  "scope": "Second fresh GUI APK for single allowed post-fix E2E; no Player claim"
+}

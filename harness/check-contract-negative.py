@@ -23,9 +23,10 @@ def main() -> int:
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=600, check=False)
     except (OSError, subprocess.TimeoutExpired): print('Negative contract run unavailable'); return 2
     (workspace / 'negative.log').write_text(run.stdout, encoding='utf-8')
-    if run.returncode != 1 or 'kotlin: FAIL' not in run.stdout or 'swift: FAIL' not in run.stdout:
+    if run.returncode != 1 or 'kotlin: FAIL' not in run.stdout or 'swift: FAIL' not in run.stdout or 'csharp: PASS' not in run.stdout:
         print('Negative contract mutation was not detected by both Kotlin and Swift'); return 1
     print('Negative contract: Kotlin and Swift rejected invalid copied request; original fixtures unchanged.')
+    print('Negative evidence directory:', workspace.relative_to(ROOT))
     return 0
 
 if __name__ == '__main__': raise SystemExit(main())

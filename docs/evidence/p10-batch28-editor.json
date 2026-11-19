@@ -1,0 +1,64 @@
+{
+  "sourceHead": "3955e4ea3454f0fbbd6fa09b79fd1e306faaec39",
+  "diagnosticEvidence": "artifacts/unity-editor-smoke-w2bupii_",
+  "mode": "direct",
+  "status": "DEFERRED_ENV",
+  "reason": "PROCESS_TIMEOUT",
+  "diagnosticExitCode": 2,
+  "launcherOrTimeoutExitCode": 124,
+  "exitCodeMeaning": "outer diagnostic timeout code; actual terminated Editor return code UNMEASURED",
+  "editorChildExitCode": "UNMEASURED",
+  "timedOut": true,
+  "elapsedSeconds": 210.05,
+  "receiptCorrelated": false,
+  "markerCount": 0,
+  "observations": {
+    "missingChannel": 5,
+    "ipcTimeouts": 3,
+    "clientMutexFailures": 3,
+    "unsupportedProtocols": [],
+    "compilerErrors": 0
+  },
+  "observationsScope": "actual Editor log plus Client log entries for only the PIDs launched by this invocation",
+  "editorClientProductVersions": [
+    "1.18.1+9fbee8e"
+  ],
+  "toolVersions": {
+    "Hub": {
+      "CFBundleShortVersionString": "3.22.6",
+      "CFBundleVersion": "3.22.6"
+    },
+    "Editor": {
+      "CFBundleShortVersionString": "Unity version 6000.5.8f1",
+      "CFBundleVersion": "6000.5.8f1"
+    },
+    "EditorClient": {
+      "CFBundleShortVersionString": "1.2.0",
+      "CFBundleVersion": "1.2.0"
+    },
+    "HubClient": {
+      "CFBundleShortVersionString": "1.18.3+d7ffd15",
+      "CFBundleVersion": "1.18.3+d7ffd15"
+    },
+    "CLI": "1.0.0-beta.13"
+  },
+  "tests": 0,
+  "checks": 1,
+  "players": 0,
+  "actualEditorAttempts": 1,
+  "fullStrictRuns": 0,
+  "productRefactorRuns": 0,
+  "userDelegatedConfirmation": true,
+  "licenseAccountSettingsChanged": false,
+  "normalHubGuiEditorExecution": {
+    "status": "PASS_UI_SCOPE",
+    "version": "6000.5.8f1",
+    "project": "artifacts/unity-editor-smoke-w2bupii_/project",
+    "observed": "Normal Editor window with Scene, Hierarchy (Main Camera/Directional Light), Project and Inspector",
+    "sdkPlayerOrBatchReceiptClaim": false,
+    "openedVia": "Hub Add project from disk and project entry; no existing user project opened",
+    "leftOpen": true
+  },
+  "guiObservedWarning": "Unity status bar reported multiple ADB server instances and termination of an instance from another SDK; exact target/effect UNMEASURED. No agent-issued ADB/server/network command.",
+  "guiAttempts": 1
+}

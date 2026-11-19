@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "scope": "Unity Android Player -> Kotlin Bridge -> LOCAL_MOCK Backend/PostgreSQL",
+  "sourceHead": "fd7a55f426e6bbb87e61456094d2e0246e8dc0e2",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "PASS",
+  "realGoogleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "retainsTestDatabase": true,
+  "utf8Probe": false,
+  "stagingManifestSha256": "6fc4cb4b8a6765ce6526c988c0df2b43d19e4a35cf7263cd276181a775751fba",
+  "emulatorPid": 30986,
+  "adbServerPid": 30947,
+  "unityBuildMode": "CLI_EXPLICIT_OWNED_BINDING",
+  "emulatorAvd": "GameBridge_V2_B34_CONSUMER_20261118",
+  "emulatorSerial": "emulator-5602",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "piiProbe": true,
+  "buildAdbPort": 5038,
+  "unityApkSha256": "562263fd808a9e5c147d770c5b3e767679abefd83a2a26cac753d10b788f610b",
+  "backendJarSha256": "1eaf282a3bff7a9ac55d2147a48405dc3ad28591b0a17fc08a818367b4c197f7",
+  "database": "gamebridge_ci_6b2b918554",
+  "backend": "LOCAL_MOCK_READY",
+  "startupDiagnostics": "startup-diagnostics/summary.json",
+  "backendHealthConfirmedBeforeLaunch": true,
+  "unityMarkerCount": 34,
+  "backendTraceCounts": {
+    "mock-auth": 1,
+    "catalog": 1,
+    "entitlements": 2,
+    "verify": 1,
+    "logout": 1
+  },
+  "ledgerCount": 1,
+  "ledgerDelta": 100,
+  "ownedCleanup": {
+    "emulator": "EXITED",
+    "adbServer": "EXITED"
+  }
+}

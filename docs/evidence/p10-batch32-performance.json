@@ -1,0 +1,110 @@
+{
+  "scope": "preliminary P10-T03, separate real local measurements; not completed task or real provider/Player performance",
+  "managedSourceHead": "4793bc4c1e12258351bc1d168a87e89ebd6144df",
+  "managedEvidence": "artifacts/performance-local-0t0528ka",
+  "managed": {
+    "status": "PASS",
+    "scope": "standalone .NET SDK Core + EDITOR_OFFLINE fake transport; not Unity Player/Native IPC",
+    "sourceHead": "4793bc4c1e12258351bc1d168a87e89ebd6144df",
+    "os": "Darwin 25.5.0 Darwin Kernel Version 25.5.0: Mon Apr 27 20:41:15 PDT 2026; root:xnu-12377.121.6~2/RELEASE_ARM64_T6041",
+    "runtime": ".NET 8.0.21",
+    "architecture": "Arm64",
+    "build": "Release/Optimize=true",
+    "clock": "Stopwatch monotonic",
+    "clockFrequency": 1000000000,
+    "warmup": 20,
+    "samples": 100,
+    "measuredWorkload": {
+      "inFlightPerCycle": 8,
+      "successfulResponses": 800,
+      "expectedCancellations": 100,
+      "ignoredDuplicateResponses": 100,
+      "ignoredLateResponses": 100,
+      "finalPending": 0,
+      "liveClients": 0,
+      "liveTransports": 0
+    },
+    "limit": "No Unity startup/jank/native memory profile or real provider measurement; no performance improvement comparison.",
+    "timings": {
+      "createInitialize": {
+        "samples": 100,
+        "unit": "milliseconds",
+        "p50": 0.07675,
+        "p95": 0.108958,
+        "max": 0.528292
+      },
+      "callbackProductQuery": {
+        "samples": 100,
+        "unit": "milliseconds",
+        "p50": 0.06425,
+        "p95": 0.088833,
+        "max": 0.413792
+      },
+      "shutdownDispose": {
+        "samples": 100,
+        "unit": "milliseconds",
+        "p50": 0.025042,
+        "p95": 0.032083,
+        "max": 0.050042
+      },
+      "registryEightInflightDuplicateCancelLate": {
+        "samples": 100,
+        "unit": "milliseconds",
+        "p50": 0.276583,
+        "p95": 0.356291,
+        "max": 1.342542
+      }
+    }
+  },
+  "backendSourceHead": "eff5d5a44a9d8dcb182a94381dab76c82714ade0",
+  "backendEvidence": "artifacts/performance-local-jn_wziif",
+  "backend": {
+    "status": "PASS",
+    "scope": "single sequential loopback JVM/HTTP + PostgreSQL actual local-mock responses",
+    "clock": "perf_counter_ns monotonic",
+    "clockResolutionSeconds": 4.166666666666666e-08,
+    "build": "Spring Boot bootJar; normal local JVM, no throughput or production claim",
+    "timings": {
+      "catalogLoopback": {
+        "samples": 100,
+        "unit": "milliseconds",
+        "p50": 3.380542,
+        "p95": 5.244958,
+        "max": 6.168
+      },
+      "idempotentVerifyLoopback": {
+        "samples": 100,
+        "unit": "milliseconds",
+        "p50": 5.472375,
+        "p95": 6.552833,
+        "max": 7.725541
+      },
+      "conflictingVerifyLoopback": {
+        "samples": 100,
+        "unit": "milliseconds",
+        "p50": 2.962459,
+        "p95": 4.034583,
+        "max": 4.417583
+      }
+    },
+    "ledgerCount": 1,
+    "ledgerDelta": 100,
+    "duplicateMeasuredRequests": 100,
+    "expectedConflictResponses": 100,
+    "warmupDuplicateRequests": 20,
+    "warmupConflictResponses": 20,
+    "retainsIsolatedDatabase": true
+  },
+  "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "javaVersion": [
+    "openjdk version \"21.0.10\" 2026-01-20",
+    "OpenJDK Runtime Environment Homebrew (build 21.0.10)"
+  ],
+  "warmup": 20,
+  "samplesPerSeries": 100,
+  "firstAggregateStatus": "FAIL (managed PASS, Backend initial wallet string contract misread)",
+  "firstFailurePreserved": true,
+  "independentMeasurementsNotAddedToTestCounts": true,
+  "p10T03": "IN_PROGRESS/PARTIAL; preliminary before formal T02 completion",
+  "limits": "Agent builds/Players had ended before each measurement; user background processes were preserved, not controlled. No comparative speedup, native memory profile, real store latency, UI jank or Unity startup claim."
+}

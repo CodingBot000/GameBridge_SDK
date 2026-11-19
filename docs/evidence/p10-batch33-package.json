@@ -1,0 +1,25 @@
+{
+  "sourceHeadAtBuild": "a83561a31c6b34fafcc85988b419fff20c7e059f",
+  "shippingSourcesUnchangedThrough": "4f905abf14855c790461fa3124b5cba46f8b6e1b",
+  "scope": "Fresh Native builds and selected consumers; no new Unity import/Player",
+  "version": "0.1.0-dev",
+  "androidBuildExit": 0,
+  "androidCleanMavenR8ConsumerExit": 0,
+  "iosDeviceSimulatorArchiveExit": 0,
+  "swiftSourceConsumerExit": 0,
+  "swiftSimulatorBinaryCompileExit": 0,
+  "stagingCheckExit": 0,
+  "files": 147,
+  "manifestSha256": "6fc4cb4b8a6765ce6526c988c0df2b43d19e4a35cf7263cd276181a775751fba",
+  "unityNewConsumer": "NOT_RUN",
+  "selectedCExports": "verify-xcframework PASS, four symbols per architecture",
+  "kotlinBinaryApiComparison": "NOT_RUN",
+  "T04": "PARTIAL",
+  "rawLogs": [
+    "artifacts/batch33-android-build.log",
+    "artifacts/batch33-android-consumer.log",
+    "artifacts/batch33-ios-build.log",
+    "artifacts/batch33-swift-source.log",
+    "artifacts/batch33-package.log"
+  ]
+}

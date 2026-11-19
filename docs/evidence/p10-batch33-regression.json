@@ -1,0 +1,236 @@
+{
+  "selfInitial": {
+    "sourceHead": "deb907414706b132f4e1976e77bcc72524bb2587",
+    "status": "FAIL",
+    "summary": {
+      "status": "FAIL",
+      "exitCode": 1,
+      "reason": "required failure, partial/unimplemented coverage, or invalid evidence"
+    },
+    "evidence": "artifacts/harness-self-cwnajai_/result.json",
+    "lanes": [
+      {
+        "name": "progress-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "manifest-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "package-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "contract-negative",
+        "status": "PASS",
+        "tests": 22,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "expectedFailures": 2,
+        "exitCode": 0
+      },
+      {
+        "name": "bridge-mutation",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "ledger-mutation",
+        "status": "PASS",
+        "tests": 2,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "expectedFailures": 1,
+        "exitCode": 0
+      },
+      {
+        "name": "failed-and-zero-test",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "sandbox-fake-token",
+        "status": "PASS",
+        "tests": 1,
+        "checks": 1,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0
+      },
+      {
+        "name": "normal-contracts",
+        "status": "PASS",
+        "tests": 22,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      }
+    ]
+  },
+  "selfFrozen": {
+    "sourceHead": "84e102683551cd20e3ba92e0a09a61061f5eeaab",
+    "status": "PASS",
+    "summary": {
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": "all required local lanes executed and passed"
+    },
+    "evidence": "artifacts/harness-self-yphsxwat/result.json",
+    "lanes": [
+      {
+        "name": "progress-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "manifest-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "package-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "contract-negative",
+        "status": "PASS",
+        "tests": 22,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "expectedFailures": 2,
+        "exitCode": 0
+      },
+      {
+        "name": "bridge-mutation",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "ledger-mutation",
+        "status": "PASS",
+        "tests": 2,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "expectedFailures": 1,
+        "exitCode": 0
+      },
+      {
+        "name": "failed-and-zero-test",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "sandbox-fake-token",
+        "status": "PASS",
+        "tests": 1,
+        "checks": 1,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0
+      },
+      {
+        "name": "normal-contracts",
+        "status": "PASS",
+        "tests": 22,
+        "checks": 1,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      }
+    ]
+  },
+  "testcontainers": {
+    "sourceHead": "deb907414706b132f4e1976e77bcc72524bb2587",
+    "status": "PASS",
+    "summary": null,
+    "evidence": "artifacts/purchase-testcontainers-xvscmso9/result.json",
+    "lanes": [
+      {
+        "suite": "tcPurchaseLocal",
+        "status": "PASS",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "expectedFailures": 0,
+        "exitCode": 0
+      },
+      {
+        "suite": "tcLedgerMutation",
+        "status": "PASS",
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "expectedFailures": 1,
+        "exitCode": 1
+      },
+      {
+        "suite": "tcLedgerNormal",
+        "status": "PASS",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "expectedFailures": 0,
+        "exitCode": 0
+      },
+      {
+        "suite": "tcPurchaseSandbox",
+        "status": "PASS",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "expectedFailures": 0,
+        "exitCode": 0
+      }
+    ]
+  }
+}

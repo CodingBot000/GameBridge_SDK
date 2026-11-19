@@ -1,0 +1,225 @@
+{
+  "status": "PASS",
+  "scope": "Unity Android Player -> Kotlin Bridge -> LOCAL_MOCK Backend/PostgreSQL",
+  "sourceHead": "6f813a79ffe2b8b932a7b562f326613950c7d7fc",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "PASS",
+  "realGoogleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "retainsTestDatabase": true,
+  "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+  "emulatorPid": 99860,
+  "adbServerPid": 98843,
+  "emulatorAvd": "GameBridge_V2_B30_START_B_20261118_ACK",
+  "emulatorSerial": "emulator-5594",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "unityBuildMode": "GUI_EXPLICIT_RECEIPT",
+  "piiProbe": true,
+  "guiBuildSourceHead": "c07a264d923ecd05a994563c14a6c1636c10c2fe",
+  "guiBuildRunId": "c7d66a9e6cbd430eb0f918e4a7273628",
+  "guiBuildReceiptSha256": "15432e6a15b95d593c6c718e97e29d13a61c3c7f21b01cec48fa88547d0ccd9d",
+  "unityApkSha256": "f8f402fdb8d9a9b5ffc4038c4051d643eeb98e00220424605dec207ebd322b7e",
+  "backendJarSha256": "532fdbfe70fbf3373f4d918cb0813ffe23fecc12652d76523ea5b3590bbfc459",
+  "backend": "LOCAL_MOCK_READY",
+  "startupDiagnostics": "startup-diagnostics/summary.json",
+  "backendHealthConfirmedBeforeLaunch": true,
+  "unityMarkerCount": 34,
+  "backendTraceCounts": {
+    "mock-auth": 1,
+    "catalog": 1,
+    "entitlements": 2,
+    "verify": 1,
+    "logout": 1
+  },
+  "ledgerCount": 1,
+  "ledgerDelta": 100,
+  "artifact": "artifacts/unity-android-e2e-fgf2la4e",
+  "normalNoticeAcknowledgements": [
+    {
+      "kind": "explicit-known-fullscreen-notice",
+      "tapAttempts": 1,
+      "exitCode": 0,
+      "atSeconds": 14.528,
+      "unattendedCI": false
+    }
+  ],
+  "startupSnapshots": [
+    {
+      "appPids": [],
+      "pidObservation": "ABSENT",
+      "bootPoints": [],
+      "lastBusinessPoint": "UNMEASURED",
+      "unityEngineInitializationObserved": false,
+      "activityResumedObserved": false,
+      "appWindowFocusObserved": false,
+      "unityWindowFocusLostObserved": false,
+      "knownFullscreenGuideObserved": "UNMEASURED",
+      "appCrashObserved": false,
+      "appAnrObserved": false,
+      "activityManagerStartObserved": false,
+      "activityManagerStopObserved": false,
+      "nativeLoadErrorCategories": [],
+      "nativeLoadAttribution": "system log categories; not automatically attributed to this app",
+      "historicalExitInfoAvailable": true,
+      "failureMarker": [],
+      "phase": "installed-before-launch",
+      "observedAfterSeconds": 4.257,
+      "queryExitCodes": {
+        "logcat": 0,
+        "pid": 1,
+        "activity": 0,
+        "window": 0,
+        "exitInfo": 0,
+        "ui": null
+      },
+      "observationCategory": "NO_MANAGED_ENTRY_OBSERVED",
+      "backendTraceOperationsObserved": []
+    },
+    {
+      "appPids": [
+        4479
+      ],
+      "pidObservation": "PRESENT",
+      "bootPoints": [],
+      "lastBusinessPoint": "UNMEASURED",
+      "unityEngineInitializationObserved": true,
+      "activityResumedObserved": true,
+      "appWindowFocusObserved": false,
+      "unityWindowFocusLostObserved": true,
+      "knownFullscreenGuideObserved": true,
+      "appCrashObserved": false,
+      "appAnrObserved": false,
+      "activityManagerStartObserved": true,
+      "activityManagerStopObserved": false,
+      "nativeLoadErrorCategories": [],
+      "nativeLoadAttribution": "system log categories; not automatically attributed to this app",
+      "historicalExitInfoAvailable": true,
+      "failureMarker": [],
+      "phase": "activity-response",
+      "observedAfterSeconds": 13.71,
+      "queryExitCodes": {
+        "logcat": 0,
+        "pid": 0,
+        "activity": 0,
+        "window": 0,
+        "exitInfo": 0,
+        "ui": 0
+      },
+      "observationCategory": "KNOWN_FULLSCREEN_GUIDE_OBSERVED",
+      "backendTraceOperationsObserved": []
+    },
+    {
+      "appPids": [
+        4479
+      ],
+      "pidObservation": "PRESENT",
+      "bootPoints": [
+        "awake",
+        "pause_exit",
+        "focus_gained",
+        "start_enter",
+        "intent_read",
+        "intent_checked",
+        "sdk_create_enter",
+        "sdk_created",
+        "initialize_call",
+        "initialize_returned",
+        "backend_auth_call"
+      ],
+      "lastBusinessPoint": "backend_auth_call",
+      "unityEngineInitializationObserved": true,
+      "activityResumedObserved": true,
+      "appWindowFocusObserved": true,
+      "unityWindowFocusLostObserved": true,
+      "knownFullscreenGuideObserved": false,
+      "appCrashObserved": false,
+      "appAnrObserved": false,
+      "activityManagerStartObserved": true,
+      "activityManagerStopObserved": false,
+      "nativeLoadErrorCategories": [],
+      "nativeLoadAttribution": "system log categories; not automatically attributed to this app",
+      "historicalExitInfoAvailable": true,
+      "failureMarker": [],
+      "phase": "after-normal-notice-ack",
+      "observedAfterSeconds": 22.937,
+      "queryExitCodes": {
+        "logcat": 0,
+        "pid": 0,
+        "activity": 0,
+        "window": 0,
+        "exitInfo": 0,
+        "ui": 0
+      },
+      "observationCategory": "BACKEND_AUTH_API_CALLED",
+      "backendTraceOperationsObserved": [
+        "mock-auth",
+        "entitlements",
+        "catalog",
+        "verify",
+        "logout"
+      ]
+    },
+    {
+      "appPids": [
+        4479
+      ],
+      "pidObservation": "PRESENT",
+      "bootPoints": [
+        "awake",
+        "pause_exit",
+        "focus_gained",
+        "start_enter",
+        "intent_read",
+        "intent_checked",
+        "sdk_create_enter",
+        "sdk_created",
+        "initialize_call",
+        "initialize_returned",
+        "backend_auth_call"
+      ],
+      "lastBusinessPoint": "backend_auth_call",
+      "unityEngineInitializationObserved": true,
+      "activityResumedObserved": true,
+      "appWindowFocusObserved": true,
+      "unityWindowFocusLostObserved": true,
+      "knownFullscreenGuideObserved": "UNMEASURED",
+      "appCrashObserved": false,
+      "appAnrObserved": false,
+      "activityManagerStartObserved": true,
+      "activityManagerStopObserved": false,
+      "nativeLoadErrorCategories": [],
+      "nativeLoadAttribution": "system log categories; not automatically attributed to this app",
+      "historicalExitInfoAvailable": true,
+      "failureMarker": [],
+      "phase": "completed",
+      "observedAfterSeconds": 27.976,
+      "queryExitCodes": {
+        "logcat": 0,
+        "pid": 0,
+        "activity": 0,
+        "window": 0,
+        "exitInfo": 0,
+        "ui": null
+      },
+      "observationCategory": "BACKEND_AUTH_API_CALLED",
+      "backendTraceOperationsObserved": [
+        "mock-auth",
+        "entitlements",
+        "catalog",
+        "verify",
+        "logout"
+      ]
+    }
+  ],
+  "firstHttpTraceObservedAfterSeconds": 22.937,
+  "processExitObserved": false,
+  "originalFailuresPreserved": [
+    "artifacts/unity-android-e2e-eb3lua0b",
+    "artifacts/unity-android-e2e-pe_0tdqo"
+  ],
+  "rootCause": "Fresh AVD normal fullscreen education notice blocked managed entry; one user-authorized acknowledgement restored focus and full E2E in the same process. Batch29 has no original UI evidence, so its cause is not independently proven.",
+  "unattendedCiPass": false
+}

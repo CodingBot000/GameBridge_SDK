@@ -83,7 +83,7 @@ namespace GameBridge.Core
                     }
                     return await entry.Completion.Task.ConfigureAwait(false);
                 }
-                finally { lock (gate) { if (pending.TryGetValue(id, out var current) && ReferenceEquals(entry, current)) pending.Remove(id); } }
+                finally { RemoveOwned(id, entry, false); }
             }
         }
         internal void HandleMessage(string json)
@@ -125,16 +125,24 @@ namespace GameBridge.Core
             }
             else Finish(id, entry, null, new SdkException("BRIDGE_PROTOCOL_MISMATCH"));
         }
+        // Shared correlation/time/payload boundary. Body-specific validation stays with each event kind.
+        private bool TryReadEventEnvelope(JObject root, string expectedType, out JObject payload, out DateTimeOffset time)
+        {
+            payload = null; time = default;
+            if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
+                root["eventId"]?.Type != JTokenType.String || !Guid.TryParseExact((string)root["eventId"], "D", out _) ||
+                (expectedType != null && (root["type"]?.Type != JTokenType.String || (string)root["type"] != expectedType)) ||
+                root["occurredAt"]?.Type != JTokenType.String || !DateTimeOffset.TryParse((string)root["occurredAt"], out time) ||
+                !((string)root["occurredAt"]).EndsWith("Z", StringComparison.Ordinal) || !(root["payload"] is JObject decoded)) return false;
+            payload = decoded;
+            return true;
+        }
         private void HandleEvent(JObject root)
         {
             if (root["type"]?.Type == JTokenType.String && (string)root["type"] == "PushTokenChanged") { HandlePushTokenEvent(root); return; }
             if (root["type"]?.Type == JTokenType.String && ((string)root["type"] == "PushReceived" || (string)root["type"] == "PushOpened"))
             { HandlePushEvent(root); return; }
-            if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
-                root["eventId"]?.Type != JTokenType.String || !Guid.TryParseExact((string)root["eventId"], "D", out _) ||
-                root["type"]?.Type != JTokenType.String || (string)root["type"] != "PurchaseUpdated" ||
-                root["occurredAt"]?.Type != JTokenType.String || !DateTimeOffset.TryParse((string)root["occurredAt"], out var time) ||
-                !((string)root["occurredAt"]).EndsWith("Z", StringComparison.Ordinal) || !(root["payload"] is JObject payload) ||
+            if (!TryReadEventEnvelope(root, "PurchaseUpdated", out var payload, out var time) ||
                 payload["productId"]?.Type != JTokenType.String || string.IsNullOrWhiteSpace((string)payload["productId"]) || ((string)payload["productId"]).Length > 200 ||
                 payload["status"]?.Type != JTokenType.String || !Enum.IsDefined(typeof(PurchaseStatus), (string)payload["status"]) || !Enum.TryParse((string)payload["status"], false, out PurchaseStatus status) ||
                 !Enum.IsDefined(typeof(PurchaseStatus), status) || !payload.ContainsKey("serverPurchaseId") || !payload.ContainsKey("errorCode") ||
@@ -148,10 +156,7 @@ namespace GameBridge.Core
         }
         private void HandlePushEvent(JObject root)
         {
-            if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
-                root["eventId"]?.Type != JTokenType.String || !Guid.TryParseExact((string)root["eventId"], "D", out _) ||
-                root["occurredAt"]?.Type != JTokenType.String || !DateTimeOffset.TryParse((string)root["occurredAt"], out var time) ||
-                !((string)root["occurredAt"]).EndsWith("Z", StringComparison.Ordinal) || !(root["payload"] is JObject payload) ||
+            if (!TryReadEventEnvelope(root, null, out var payload, out var time) ||
                 payload["messageId"]?.Type != JTokenType.String || string.IsNullOrWhiteSpace((string)payload["messageId"]) ||
                 payload["route"]?.Type != JTokenType.String || ((string)payload["route"] != "home" && (string)payload["route"] != "store") ||
                 !payload.ContainsKey("campaignId") || (payload["campaignId"].Type != JTokenType.Null && payload["campaignId"].Type != JTokenType.String))
@@ -162,10 +167,7 @@ namespace GameBridge.Core
         }
         private void HandlePushTokenEvent(JObject root)
         {
-            if (root["sdkSessionId"]?.Type != JTokenType.String || (string)root["sdkSessionId"] != sessionId ||
-                root["eventId"]?.Type != JTokenType.String || !Guid.TryParseExact((string)root["eventId"], "D", out _) ||
-                root["occurredAt"]?.Type != JTokenType.String || !DateTimeOffset.TryParse((string)root["occurredAt"], out var time) ||
-                !((string)root["occurredAt"]).EndsWith("Z", StringComparison.Ordinal) || !(root["payload"] is JObject payload) ||
+            if (!TryReadEventEnvelope(root, null, out var payload, out var time) ||
                 payload["registered"]?.Type != JTokenType.Boolean || !payload.ContainsKey("tokenFingerprint") || !payload.ContainsKey("errorCode") ||
                 (payload["tokenFingerprint"].Type != JTokenType.Null && (payload["tokenFingerprint"].Type != JTokenType.String ||
                     !System.Text.RegularExpressions.Regex.IsMatch((string)payload["tokenFingerprint"], "^[0-9a-f]{12}$"))) ||
@@ -178,13 +180,23 @@ namespace GameBridge.Core
             PushTokenUpdated?.Invoke(new PushTokenUpdate { EventId = (string)root["eventId"], Registered = (bool)payload["registered"],
                 TokenFingerprint = (string)payload["tokenFingerprint"], ErrorCode = (string)payload["errorCode"], OccurredAt = time });
         }
-        private void Finish(string id, Pending entry, JToken result, SdkException error)
+        // Response, timeout, cancellation and final cleanup must remove the same pending owner atomically.
+        private bool RemoveOwned(string id, Pending entry, bool countIgnored)
         {
             lock (gate)
             {
-                if (!pending.TryGetValue(id, out var current) || !ReferenceEquals(current, entry)) { Interlocked.Increment(ref ignored); return; }
+                if (!pending.TryGetValue(id, out var current) || !ReferenceEquals(current, entry))
+                {
+                    if (countIgnored) Interlocked.Increment(ref ignored);
+                    return false;
+                }
                 pending.Remove(id);
+                return true;
             }
+        }
+        private void Finish(string id, Pending entry, JToken result, SdkException error)
+        {
+            if (!RemoveOwned(id, entry, true)) return;
             if (error != null) entry.Completion.TrySetException(error); else entry.Completion.TrySetResult(result);
         }
         public void Dispose()

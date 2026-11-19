@@ -8,7 +8,12 @@ import sys
 import urllib.error
 import urllib.request
 
-BASE = 'http://127.0.0.1:18080'
+BASE = os.environ.get('GAMEBRIDGE_SMOKE_BASE_URL', 'http://127.0.0.1:18080')
+if not BASE.startswith('http://127.0.0.1:') or not BASE[len('http://127.0.0.1:'):].isdigit():
+    print('CONFIG_REQUIRED: loopback GAMEBRIDGE_SMOKE_BASE_URL', file=sys.stderr); sys.exit(2)
+DB = os.environ.get('GAMEBRIDGE_SMOKE_DB_NAME', 'gamebridge_local')
+if not DB.replace('_', '').isalnum() or not DB.isascii():
+    print('CONFIG_REQUIRED: GAMEBRIDGE_SMOKE_DB_NAME', file=sys.stderr); sys.exit(2)
 KEY = os.environ.get('GAMEBRIDGE_DEV_AUTH_KEY', '')
 if len(KEY) < 32:
     print('CONFIG_REQUIRED: GAMEBRIDGE_DEV_AUTH_KEY', file=sys.stderr)
@@ -47,7 +52,7 @@ def main():
     status, fresh = call('POST', '/v1/dev/auth', {'subject': 'A'}, {'X-Development-Key': KEY}); check(status == 200, 'refresh logout login')
     digest = hashlib.sha256(fresh['refreshToken'].encode()).hexdigest()
     sql = "UPDATE sessions SET expires_at=now()-interval '1 second' WHERE refresh_hash=decode('" + digest + "','hex');"
-    process = subprocess.run(['docker', 'exec', '-i', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', 'gamebridge_local', '-v', 'ON_ERROR_STOP=1', '-tA'], input=sql, capture_output=True, text=True, check=True)
+    process = subprocess.run(['docker', 'exec', '-i', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', DB, '-v', 'ON_ERROR_STOP=1', '-tA'], input=sql, capture_output=True, text=True, check=True)
     check(process.stdout.strip() == 'UPDATE 1', 'expire owned test session')
     status, _ = call('POST', '/v1/auth/logout', {'refreshToken': fresh['refreshToken']}); check(status == 200, 'refresh logout')
     status, _ = call('POST', '/v1/auth/logout', {'refreshToken': fresh['refreshToken']}); check(status == 200, 'refresh logout idempotent')

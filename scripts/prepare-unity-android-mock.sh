@@ -13,7 +13,16 @@ cp -R "$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk" "$project/Packages/com.gamebr
 cp "$root/tests/UnityAndroidMockConsumer/MockPlayerScenario.cs" "$project/Assets/MockPlayerScenario.cs"
 cp "$root/tests/UnityAndroidMockConsumer/BuildMockPlayer.cs" "$project/Assets/Editor/BuildMockPlayer.cs"
 cat > "$project/Assets/Plugins/Android/AndroidManifest.xml" <<'MANIFEST'
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><application android:usesCleartextTraffic="true"/></manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <application android:usesCleartextTraffic="true">
+    <activity android:name="com.unity3d.player.UnityPlayerGameActivity" android:theme="@style/BaseUnityGameActivityTheme" android:exported="true">
+      <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+      <meta-data android:name="unityplayer.UnityActivity" android:value="true"/>
+      <meta-data android:name="android.app.lib_name" android:value="game"/>
+    </activity>
+  </application>
+</manifest>
 MANIFEST
 printf '%s\n' '{"dependencies":{}}' > "$project/Packages/manifest.json"
 printf 'm_EditorVersion: %s\n' "${UNITY_EDITOR_VERSION:-6000.5.8f1}" > "$project/ProjectSettings/ProjectVersion.txt"

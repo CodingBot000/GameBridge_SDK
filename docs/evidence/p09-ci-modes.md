@@ -1,0 +1,88 @@
+# P09-T07 CI 실행 모드 분리 — 2026-11-16
+
+기준 HEAD `1f6beea7a90d0edc2ea12a076515a7f6c3c02a22`. `workflow_dispatch.inputs.release_validation`은 boolean 기본 false다. Unity는 dispatch·입력 true·기존 repository 변수 true의 세 조건을 요구하며, release-readiness는 명시적 release dispatch에서만 실행된다. PR과 기본 dispatch에서는 두 job이 skipped되고 hosted 결과만 workflow에 반영된다.
+
+기존 `ci-unity-e2e.sh`의 strict 호출과 비영 전파, `ci-release-gate.sh`의 basic·Unity·coverage 차단은 변경하지 않았다. 현재 구조에서 Player PASS 뒤 strict FAIL이면 Unity job이 실패하고 Release는 비영 종료한다. Player/Strict 독립 증거 인터페이스는 아직 미구현이다.
+
+`test_workflow_modes.py` 2건과 `test_ci_gate.py` 7건 PASS/skip 0. 후자는 미실행·실패 Unity, strict 실패 전파, coverage 실패·누락 및 성공 fixture를 확인한다. actionlint 1.7.12와 custom self-hosted label 설정 exit 0. 이들은 로컬 정적·격리 시험이며 실제 GitHub Actions 결과는 아니다.
+
+GitHub 원격 HEAD 조회 및 repository 변수 조회는 각각 12초 timeout이었다. 따라서 원격 안전 조건을 재확인하지 못했고 hosted-only dispatch는 NOT_RUN이다. 기존 hosted 결과와 P05-T03 FAIL / ENV-STOREKIT-26 OPEN, Provider WAITING_USER 및 P09 PARTIAL을 유지한다. 원격 연결 복구 후 HEAD·변수를 확인하고 fast-forward push한 다음 Unity 비활성 조건에서 hosted-only dispatch를 실행한다.
+
+## Hosted-only 원격 실행 — 2026-11-16
+
+이전 timeout·Push 미완료 기록은 당시 상태로 보존한다. 이후 `f8d644e83dd8219578c19c4d1330e9846e35a35b`가 handoff 브랜치에 fast-forward push됐고, 이번 시작 시 로컬·원격 SHA가 해당 값과 일치했다. GitHub 변수 목록 API는 성공(총 0개)해 `GAMEBRIDGE_UNITY_E2E_ENABLED` 미설정을 확인했다. 조회 오류나 timeout을 미설정으로 간주하지 않았다.
+
+`gh workflow run verify.yml --repo CodingBot000/GameBridge_SDK --ref handoff/p09-resume-20261113 -f release_validation=false`를 **딱 1회** 실행했다. [Run 43840984922](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43840984922), 실제 실행 SHA `f8d644e83dd8219578c19c4d1330e9846e35a35b`, event `workflow_dispatch`, 전체 **SUCCESS**.
+
+| Job | 최종 결과 |
+|---|---|
+| inventory-contracts | SUCCESS |
+| backend-postgres | SUCCESS |
+| android-native | SUCCESS |
+| swift-ios-simulator | SUCCESS |
+| basic-ci | SUCCESS |
+| unity-e2e | SKIPPED |
+| release-readiness | SKIPPED |
+
+이는 Hosted-only 모드의 정상 결과다. Unity·Release 검증은 실행되지 않았으므로 Release PASS나 원격 Unity PASS가 아니다. 코드·workflow·변수·runner를 변경하지 않았고 원격 재실행도 하지 않았다. P05-T03 FAIL / ENV-STOREKIT-26 OPEN, Provider WAITING_USER, P09 전체 PARTIAL은 유지한다. 이후 인계 커밋은 이 결과의 문서 변경이며 원격 실행 소스 SHA는 위 값을 따른다.
+
+## 배치24 Hosted-only 재검증 — 2026-11-16
+
+source8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18, [run43862394352](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352). false 입력 단일 dispatch, repo Unity 변수 미설정. Hosted4+basic-ci SUCCESS, Unity/Release SKIPPED, workflow SUCCESS. 원격 하네스 단위113건 통과. self-hosted·remote Player·Release 검증으로 취급하지 않는다. local Strict 실패와 환경 대기는 [배치24 evidence](p09-batch24-integrated.md)에 별도로 유지했다.
+
+## 배치25 Hosted-only 확인
+
+source59b98349689171cc8a75d9652f248708645a85c2,[run43889958441](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441),false입력1회만요청. Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED,workflowSUCCESS. inventory모든38파일/131건과backend TC11(negative1/normal복원)확인. self-hosted등록/활성변수변경/Release실행은없다. actual localStrict57PASS/knownP05FAIL1은[배치25](p09-batch25-integrated.md)에source별분리했다.
+
+Unity self-hosted 경로는 GAMEBRIDGE_PUSH_EMULATOR_PID를job별전용emulator에서유도해제공해야한다. 정적인PID설정만으로소유를주장하지않고이름·console/ADB양port owner를매명령전재검증한다. 이번에는준비hook/전용계정격리의원격실행을검증하지않았으므로T07PARTIAL을유지한다.
+
+
+## Hosted-only 최종 결과
+
+[run43934095574](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43934095574),source **c34b419e3a2c719e5d615362f179b38f59b1a241**,`release_validation=false` 단1회,workflow **SUCCESS**. 호출 전 repo변수0/runner0이며 설정 변경·runner등록·재실행·Release 활성화는 없다.
+
+| Job | 최종 결과 |
+|---|---|
+| inventory-contracts | SUCCESS |
+| backend-postgres | SUCCESS |
+| android-native | SUCCESS |
+| swift-ios-simulator | SUCCESS |
+| basic-ci | SUCCESS |
+| unity-e2e | SKIPPED |
+| release-readiness | SKIPPED |
+
+공식 job 로그에서 Python42파일/143건 PASS/FAILED요약0·Core source/API/wire gatePASS,Backend Testcontainers11건(의도 mutation failure1 및 정상 복원 포함),Swift package17건/failure0를 확인했다. synthetic Simulator host step도SUCCESS다. 테스트/helper/checker/Player 계수를 합산하지 않는다. 원격Unity·실기기·실Provider·Release는 미검증이다. 현재 로컬 Player/Strict 환경 대기와 raw build FAIL은 이Hosted SUCCESS로 대체하지 않는다. 후속 최종 commit은 이결과를 포함한 문서만 변경하며 원격 실행소스는 위c34b419로 유지한다.
+
+
+## E Hosted-only 최종 결과
+
+[run44057317769](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44057317769),source **50cd34c2f3c97eca36708d4a2ed377da392247d7**,`release_validation=false` 단1회,전체 **SUCCESS**. repo변수0/runner0 정상응답을확인한뒤실행했고변경·등록·추가dispatch는없다.
+
+| Job | 최종 결과 |
+|---|---|
+| inventory-contracts | SUCCESS |
+| backend-postgres | SUCCESS |
+| android-native | SUCCESS |
+| swift-ios-simulator | SUCCESS |
+| basic-ci | SUCCESS |
+| unity-e2e | SKIPPED |
+| release-readiness | SKIPPED |
+
+공식inventory로그에서43파일/149 Python건PASS/FAILED요약0·새진단6건·Core source/API/wire gatePASS를확인했다. Android Maven/R8,Backend fixture 및Testcontainers11건(의도변이failure1),Swift fake 및synthetic Simulator host step도최종SUCCESS다. 원본job로그는ignored artifacts/batch27에만보존한다. Hosted성공은실제local UnityEditor/Player·fullStrict·remoteUnity/Release·실Provider통과가아니다. 원격재실행없음,마지막후속commit은문서뿐이며CI실행소스는위50cd34c로고정한다.
+
+
+## Hosted-only 최종 결과
+
+[run44096116650](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650),source **3fd95f459355d5abdab98ff9c622a7bd5675d0d1**,`release_validation=false` 단1회,workflow **SUCCESS**. 호출전repo변수0/runner0 정상응답확인,설정변경/runner등록/추가dispatch/재실행없음.
+
+| Job | 최종 결과 |
+|---|---|
+| inventory-contracts | SUCCESS |
+| backend-postgres | SUCCESS |
+| android-native | SUCCESS |
+| swift-ios-simulator | SUCCESS |
+| basic-ci | SUCCESS |
+| unity-e2e | SKIPPED |
+| release-readiness | SKIPPED |
+
+공식job로그에서Python47파일/171건PASS(신규GUI4모듈포함)/FAILED요약0,Backend Testcontainers11건/의도mutationfailure1 및정상복원,Swift package37건/failure0(신규후보2건포함)를확인했다. Android의선택GoogleAuthProvider회귀·Maven/R8와synthetic iOSSimulatorhost step도SUCCESS다. 이는원격Unity/Release·실기기/실Provider통과가아니며로컬Android실제timeoutFAIL을해소하지않는다. 이후최종commit은문서만변경한다.

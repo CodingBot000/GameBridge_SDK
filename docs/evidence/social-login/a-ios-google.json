@@ -1,0 +1,75 @@
+{
+  "batch": "A-ios-google",
+  "baseHead": "dc3ed4224d1c676e33ee92e8aa7aa6ceaa3c7855",
+  "sourceState": "base plus included A files; commit identity recorded by Git",
+  "providerSdk": {
+    "name": "GoogleSignIn-iOS",
+    "version": "9.2.0",
+    "nonceOverloadConfirmed": true,
+    "minIosRetained": 16,
+    "officialSources": [
+      "https://developers.google.com/identity/sign-in/ios/release",
+      "https://github.com/google/GoogleSignIn-iOS/blob/9.2.0/GoogleSignIn/Sources/Public/GoogleSignIn/GIDSignIn.h",
+      "https://docs.unity.com/en-us/engine/6000.5/script-reference/unityeditor/ios/xcode/pbxproject/addremotepackagereferenceatversion"
+    ]
+  },
+  "implementation": "IMPLEMENTED",
+  "swiftSelected": {
+    "tests": 29,
+    "failures": 0,
+    "exit": 0,
+    "scope": "Social5 + existingApple20 + CBridge4; macOS fake/contract not Google UI"
+  },
+  "backendExistingJwt": {
+    "IdentityVerifierTest": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "AudiencePolicyTest": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "nativeArchive": {
+    "exit": 0,
+    "path": "artifacts/social-login/ios-a-delivery/GameBridgeNative.xcframework",
+    "device": "arm64",
+    "simulator": [
+      "arm64",
+      "x86_64"
+    ]
+  },
+  "sourceConsumer": {
+    "exit": 0,
+    "scope": "iOS Simulator build links official Google SDK and its resource bundles"
+  },
+  "binaryConsumer": {
+    "exit": 0,
+    "scope": "Isolated iOS Simulator app importing only packaged Native framework plus pinned Google SPM dependency; build only"
+  },
+  "unityHookCompilation": {
+    "exit": 0,
+    "scope": "Actual installed Unity PBX assembly compile and existing PBX/plist idempotence checks; new full Player not run"
+  },
+  "staging": {
+    "files": 147,
+    "checkExit": 0,
+    "manifestSha256": "cf553a23f4db973f940093f75b6cfa91082f913db2528588e9de6dc550c1a673"
+  },
+  "realGoogleLogin": "WAITING_USER",
+  "newUnityPlayer": "NOT_RUN",
+  "failureHistory": [
+    "First archive65: official Swift enum name is GIDSignInError, corrected from GIDSignInErrorCode",
+    "Actor isolation warnings in initial consumer: explicit MainActor hop added and consumer rebuilt successfully"
+  ],
+  "sourceHashes": {
+    "ios/Sources/GameBridgeApple/GoogleIosGateway.swift": "ae11bba30a904a042cabc36cdff62ff27586e247bfb7d6d4f324719166b8a306",
+    "ios/Sources/GameBridgeApple/SocialAuthProvider.swift": "d645bb7b0212110d507e282268cd5f9354fe3707a06bd8654b391a930857d05e",
+    "ios/UnityBridge/PlatformAuthBridgeHandler.swift": "19b0c97a247339b85a53e7010dc5c5c2c707277d1084c7dc0ddc62fa00effec6",
+    "ios/UnityBridge/Bridge.swift": "6138575e4ca0192d7090a94d35ea6d952edc2ba8c37226bd71fd5b05ba26383e"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "sourceHead": "a812cddc0215dcaf3e340dfc0308f89d2830dac1",
+  "scope": "one real iOS Simulator C ABI UTF8/push routing testcase; Android JNI and Unity Player NOT_RUN",
+  "platform": "ios",
+  "android": {
+    "status": "NOT_RUN"
+  },
+  "ios": {
+    "status": "PASS",
+    "exitCode": 0,
+    "device": "CAAD6B11-E8E7-4E5F-A3F2-8CC0A2413CB4",
+    "tests": 1,
+    "failures": 0,
+    "skipped": 0,
+    "evidence": "artifacts/r09-utf8-70ipi4ww/result.xcresult",
+    "ownedSimulatorShutdownExitCode": 149
+  },
+  "status": "PASS",
+  "exitCode": 0,
+  "evidence": "artifacts/r09-utf8-70ipi4ww",
+  "actualDeviceMatchesCreated": true,
+  "cleanupShutdownConfirmed": true,
+  "firstAttempt": {
+    "sourceHead": "7e07c70d2083e7d2b902d8f780546da1bdc04b0e",
+    "evidence": "artifacts/r09-utf8-5lb0vxs3",
+    "status": "FAIL",
+    "wrapperExitCode": 1,
+    "xcodebuildExitCode": 70,
+    "tests": 0,
+    "testExecution": "NOT_RUN",
+    "errorStage": "Xcode destination selection",
+    "cause": "canonical lowercase UUID did not match Xcode available original-case ID",
+    "rawFailurePreserved": true
+  },
+  "assertionCount": "UNMEASURED"
+}

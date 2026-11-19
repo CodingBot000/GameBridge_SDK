@@ -14,6 +14,14 @@ import urllib.request
 ROOT = Path(__file__).resolve().parent.parent
 CONTAINER = 'gamebridge-sdk-local-postgres-1'
 
+def strict_timeout(env):
+    return 5400 if env.get("GAMEBRIDGE_RUN_UNITY_PUSH_E2E") == "true" else 900
+
+def editor_paths(env):
+    editor = Path(env.get('UNITY_EDITOR_PATH', '/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/MacOS/Unity'))
+    managed = Path(env.get('NEWTONSOFT_DLL', str(editor.parent.parent/'Resources/Scripting/Managed/Newtonsoft.Json.dll')))
+    return editor, managed
+
 def wait_health(base, process):
     deadline = time.monotonic() + 45
     while time.monotonic() < deadline:
@@ -25,8 +33,14 @@ def wait_health(base, process):
     return False
 
 def main():
-    if sys.argv[1:] != ['--run-local']:
-        print('Usage: python3 harness/run-strict-local-isolated.py --run-local (retains dedicated test DBs and roles)'); return 2
+    if sys.argv[1:] not in (['--run-local'],['--run-local','--self-check']):
+        print('Usage: python3 harness/run-strict-local-isolated.py --run-local [--self-check] (retains dedicated test DBs and roles)'); return 2
+    # The full runner does not yet attest all required device, package, database,
+    # StoreKit and process ownership before creating resources. Fail closed until
+    # that contract is implemented; self-check remains a distinct diagnostic.
+    if '--self-check' not in sys.argv:
+        print('DEFERRED_ENV: full Strict ownership preflight is incomplete; no lanes executed')
+        return 2
     staging = Path(os.environ.get('GAMEBRIDGE_UPM_STAGING', ROOT/'artifacts/upm-validated-20261111'))
     if not staging.is_dir(): print('CONFIG_REQUIRED: latest local UPM staging missing'); return 2
     artifacts=ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)
@@ -62,27 +76,28 @@ def main():
         sandbox_server=start('sandbox',sandbox,sandbox_port)
         if not wait_health(f'http://127.0.0.1:{sandbox_port}',sandbox_server): print('Sandbox fixture server unavailable; evidence:',output.relative_to(ROOT)); return 1
         sandbox_server.terminate(); sandbox_server.wait(timeout=10)
-        editor=Path('/Applications/Unity/Hub/Editor/6000.5.8f1/Unity.app/Contents/MacOS/Unity')
-        managed=editor.parent.parent/'Resources/Scripting/Managed/Newtonsoft.Json.dll'
-        env=shared.copy(); env.update(GAMEBRIDGE_RUN_DB_TESTS='true',GAMEBRIDGE_RUN_AUTH_DB_TESTS='true',GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST='true',
+        editor,managed=editor_paths(os.environ)
+        env=shared.copy(); env.update(GAMEBRIDGE_RUN_DB_TESTS='true',GAMEBRIDGE_RUN_TESTCONTAINERS='true',GAMEBRIDGE_RUN_AUTH_DB_TESTS='true',GAMEBRIDGE_RUN_LOCAL_CLIENT_TEST='true',
             GAMEBRIDGE_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_LOCAL_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{local}',
             GAMEBRIDGE_SANDBOX_TEST_DB_URL=f'jdbc:postgresql://127.0.0.1:54329/{sandbox}',GAMEBRIDGE_TEST_DB_USER=role,GAMEBRIDGE_TEST_DB_PASSWORD=password,
             GAMEBRIDGE_RUN_MOCK_PUSH_HARNESS='true',GAMEBRIDGE_RUN_XCODE_STOREKIT_HARNESS='true',GAMEBRIDGE_UPM_STAGING=str(staging),
-            GAMEBRIDGE_MAVEN_REPO=os.environ.get('GAMEBRIDGE_MAVEN_REPO', str(ROOT/'artifacts/maven-final-20261111')),
-            GAMEBRIDGE_IOS_XCFRAMEWORK=os.environ.get('GAMEBRIDGE_IOS_XCFRAMEWORK', str(ROOT/'artifacts/ios-final-20261111/GameBridgeNative.xcframework')),
+            GAMEBRIDGE_MAVEN_REPO=os.environ.get('GAMEBRIDGE_MAVEN_REPO', str(staging/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo')),
+            GAMEBRIDGE_IOS_XCFRAMEWORK=os.environ.get('GAMEBRIDGE_IOS_XCFRAMEWORK', str(staging/'com.gamebridge.sdk/Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework')),
             UNITY_EDITOR_PATH=str(editor),NEWTONSOFT_DLL=str(managed),GAMEBRIDGE_NEWTONSOFT_DLL=str(managed))
-        generated=subprocess.run(['bash','scripts/generate-ios-project.sh'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        (output/'ios-project.log').write_text(generated.stderr)
-        sim=subprocess.run(['xcrun','simctl','create','GameBridge-Push-Strict-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],
-                           cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        if generated.returncode == 0 and sim.returncode == 0:
-            env['GAMEBRIDGE_IOS_PROJECT']=generated.stdout.strip()
-            env['GAMEBRIDGE_IOS_SIMULATOR_ID']=sim.stdout.strip()
-            print('Retained synthetic host test simulator:',sim.stdout.strip(),flush=True)
-        else: print('iOS synthetic host lane unavailable; it remains deferred.',flush=True)
-        print('Running strict local aggregation; Unity Editor and external services remain separate...',flush=True)
+        if '--self-check' not in sys.argv:
+            generated=subprocess.run(['bash','scripts/generate-ios-project.sh'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            (output/'ios-project.log').write_text(generated.stderr)
+            sim=subprocess.run(['xcrun','simctl','create','GameBridge-Push-Strict-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],
+                               cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            if generated.returncode == 0 and sim.returncode == 0:
+                env['GAMEBRIDGE_IOS_PROJECT']=generated.stdout.strip()
+                env['GAMEBRIDGE_IOS_SIMULATOR_ID']=sim.stdout.strip()
+                print('Retained synthetic host test simulator:',sim.stdout.strip(),flush=True)
+            else: print('iOS synthetic host lane unavailable; it remains deferred.',flush=True)
+        print('Running strict local aggregation; Unity Editor:', 'enabled' if env.get('GAMEBRIDGE_RUN_UNITY_EDITOR') == 'true' else 'not opted in', '; external services remain separate.', flush=True)
         try:
-            result=subprocess.run(['bash','scripts/verify-all.sh','--strict-local'],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=900)
+            command=['python3','harness/run-self-check.py'] if '--self-check' in sys.argv else ['bash','scripts/verify-all.sh','--strict-local']
+            result=subprocess.run(command,cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=strict_timeout(env))
             (output/'aggregate.log').write_text(result.stdout); print(result.stdout,flush=True)
             return result.returncode
         except subprocess.TimeoutExpired:

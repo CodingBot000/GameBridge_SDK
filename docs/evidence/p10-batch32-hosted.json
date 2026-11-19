@@ -1,0 +1,76 @@
+{
+  "sourceHead": "2017771d355cb56865f44ef1ddf9e4faad78442d",
+  "runId": 44165459795,
+  "url": "https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44165459795",
+  "status": "completed",
+  "conclusion": "success",
+  "release_validation": false,
+  "dispatches": 1,
+  "jobs": [
+    {
+      "name": "inventory-contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "backend-postgres",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "swift-ios-simulator",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "android-native",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "unity-e2e",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "basic-ci",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "release-readiness",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "python": {
+    "tests": 237,
+    "modules": 57,
+    "failureSummaries": 0,
+    "originalCoreAndNativeTransition": "PASS",
+    "fetchExitCode": 0
+  },
+  "swiftPackage": {
+    "tests": 40,
+    "failures": 0,
+    "skipped": 0,
+    "newGrantDecoderTests": 3
+  },
+  "androidNewCodecRequired": true,
+  "testcontainers": {
+    "executedTests": 11,
+    "normalTests": 10,
+    "expectedMutationFailures": 1,
+    "mutantExitCode": 1,
+    "normalRestorationExitCode": 0
+  },
+  "syntheticIosHost": {
+    "status": "PASS",
+    "tests": "UNMEASURED in quiet public log; job checked xcresult total>0 and failure/skip0"
+  },
+  "unity": "SKIPPED",
+  "release": "SKIPPED",
+  "selfHosted": "NOT_RUN",
+  "codeChangesAfterCiSource": false,
+  "limitation": "Hosted checks are not Unity Player/fullStrict/real provider or Release validation; local/remote Native selections differ and are not summed"
+}

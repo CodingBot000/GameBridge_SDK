@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "runId": "9312d8c3e3f442f38d468eefc18323e1",
+  "sourceHead": "bf10f5330d67dc553e0a06b02e3c5b87e709490a",
+  "unityVersion": "6000.5.8f1",
+  "isBatchMode": false,
+  "originalBuilderReturned": true,
+  "packageFilesVerified": 147,
+  "artifactFileCount": 3076,
+  "artifactSha256": "240382641e18305287cdf61ffb7d3ff6e7480436b5acb9fb7ca88e5431496eb0",
+  "pbxprojSha256": "7bfe7c55d62c6284b911f85f8c59fe3ebf9cbfb36366552c0f138c92a4a2cc98",
+  "scenarioSha256": "93c4519a746845787deb1708f9e07593034519a8f50dc249c68c65d17eca6665",
+  "buildScriptSha256": "1c1854232990c61a63a127e3235e83daa88a68b34c8f87500ce2fe37ff1cd2c2",
+  "adapterSha256": "9842f964650a254291c7b969bbfbbe2f22ef3bb1321617185fa3beefaee7399e",
+  "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+  "tests": 0,
+  "checks": 1,
+  "players": 0,
+  "scope": "actual GUI iOS Push Xcode export, not Simulator Player"
+}

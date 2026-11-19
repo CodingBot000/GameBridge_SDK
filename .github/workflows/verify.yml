@@ -3,6 +3,12 @@ name: Local verification lanes
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_validation:
+        description: Run release readiness validation
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -12,7 +18,95 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  linux-backend-android:
+  inventory-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Validate bridge JSON Schema
+        run: |
+          python3 -m venv "$RUNNER_TEMP/gamebridge-schema-venv"
+          "$RUNNER_TEMP/gamebridge-schema-venv/bin/pip" install -r harness/requirements-schema.txt
+          "$RUNNER_TEMP/gamebridge-schema-venv/bin/python" -m unittest discover -s harness -p test_bridge_schema.py -v
+          "$RUNNER_TEMP/gamebridge-schema-venv/bin/python" -m openapi_spec_validator contracts/openapi.yaml
+      - name: Check progress and scenario inventory
+        run: |
+          python3 scripts/verify-progress.py
+          python3 harness/check-manifest.py
+          python3 harness/check-unity-meta.py
+          python3 harness/check-social-auth-transition.py
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_social_auth_transition.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_aggregation.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_error_contract.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_measurement_contract.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_nested_measurement.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_execution_evidence.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_runtime_diagnostics.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_device_command_guard.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_emulator_binding.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_testcontainers_contract.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_assertion_contract.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_editor_smoke.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_verification.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_android_build.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_adb_guard.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_cli_owned_binding.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_adb_build_isolation.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_android_variants.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_player_wrappers.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_ios_export.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gui_ios_push.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_android_startup_diagnostics.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_android_fullscreen_notice.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ios_test_diagnostics.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_core_refactor_surface.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_feature_refactor_transition.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_core_staging_source.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_storekit_standalone_classification.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_consumer_e2e.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_consumer_result.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_ios_push_cache.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_manifest_execution_guard.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ledger_mutation_report.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_self_check_report.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_entrypoint_exit_codes.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_smoke_local_exit.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_gitignore_secrets.py' -v
+          python3 -m py_compile harness/run-unity-android-mock-e2e.py harness/run-android-mock-bridge-e2e.py harness/export-mock-e2e-evidence.py
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_export_mock_e2e_evidence.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_ci_gate.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_workflow_modes.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_push_current.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_push_timing_guard.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_performance_contract.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_pii_current.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_pii_optin.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_strict_timeout.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_openapi_contract.py' -v
+          python3 harness/check-openapi.py
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_external_config.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_strict_environment_contract.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_redaction_marker.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_r22_native_redaction.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_offline_sample_result.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_sample_reimport.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_sample_assemblies.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_meta.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_sandbox_config.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_android_permission_os.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_ios_permission_os.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_r40_permission_optin.py' -v
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_unity_device_rediscovery.py' -v
+
+  backend-postgres:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     services:
@@ -36,11 +130,6 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: gradle
-      - name: Check progress and scenario inventory
-        run: |
-          python3 scripts/verify-progress.py
-          python3 harness/check-manifest.py
-          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s harness -p 'test_aggregation.py' -v
       - name: Prepare empty local test database
         env:
           GAMEBRIDGE_CI_DISPOSABLE_DB: 'true'
@@ -59,16 +148,43 @@ jobs:
         run: |
           backend/gradlew -p backend test --rerun-tasks --tests com.gamebridge.auth.IdentityVerifierTest --tests com.gamebridge.purchase.LedgerInvariantDatabaseTest --tests com.gamebridge.purchase.GoogleGrantDatabaseTest --tests com.gamebridge.purchase.AppleGrantDatabaseTest --tests com.gamebridge.purchase.FinalizationDatabaseTest --tests com.gamebridge.purchase.PurchaseBindingsDatabaseTest
           python3 harness/check-junit.py backend/build/test-results/test/TEST-com.gamebridge.auth.IdentityVerifierTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.LedgerInvariantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.GoogleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.AppleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.FinalizationDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.PurchaseBindingsDatabaseTest.xml
+
+      - name: Owned Testcontainers purchase invariants and mutation
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+        run: PYTHONDONTWRITEBYTECODE=1 python3 harness/run-purchase-testcontainers.py --run-local
+
+  android-native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
       - name: Android contract and provider fake tests
         run: |
-          android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BridgeProtocolTest --tests com.gamebridge.ModelFixtureTest --tests com.gamebridge.LocalMockRecoveryTest --tests com.gamebridge.PushRouterTest :sdk-android:testDebugUnitTest --tests com.gamebridge.android.auth.GoogleAuthProviderTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest :sdk-unity-bridge:testDebugUnitTest --tests com.gamebridge.bridge.GoogleAuthBridgeHandlerTest --tests com.gamebridge.bridge.HostPushDeliveryTest
-          python3 harness/check-junit.py android/sdk-core/build/test-results/test/TEST-com.gamebridge.BridgeProtocolTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.ModelFixtureTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockRecoveryTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.PushRouterTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.auth.GoogleAuthProviderTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.purchase.GooglePlayBillingProviderTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.GoogleAuthBridgeHandlerTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.HostPushDeliveryTest.xml
+          android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BridgeProtocolTest --tests com.gamebridge.ModelFixtureTest --tests com.gamebridge.LocalMockRecoveryTest --tests com.gamebridge.PushRouterTest :sdk-android:testDebugUnitTest --tests com.gamebridge.android.auth.GoogleAuthProviderTest --tests com.gamebridge.android.auth.StoredGoogleSessionCodecTest --tests com.gamebridge.android.purchase.GooglePlayBillingProviderTest :sdk-unity-bridge:testDebugUnitTest --tests com.gamebridge.bridge.GoogleAuthBridgeHandlerTest --tests com.gamebridge.bridge.HostPushDeliveryTest
+          python3 harness/check-junit.py android/sdk-core/build/test-results/test/TEST-com.gamebridge.BridgeProtocolTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.ModelFixtureTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.LocalMockRecoveryTest.xml android/sdk-core/build/test-results/test/TEST-com.gamebridge.PushRouterTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.auth.GoogleAuthProviderTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.auth.StoredGoogleSessionCodecTest.xml android/sdk-android/build/test-results/testDebugUnitTest/TEST-com.gamebridge.android.purchase.GooglePlayBillingProviderTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.GoogleAuthBridgeHandlerTest.xml android/sdk-unity-bridge/build/test-results/testDebugUnitTest/TEST-com.gamebridge.bridge.HostPushDeliveryTest.xml
+      - name: Android backend transport tests
+        run: |
+          android/gradlew -p android :sdk-core:test --rerun-tasks --tests com.gamebridge.BackendClientTest
+          python3 harness/check-junit.py android/sdk-core/build/test-results/test/TEST-com.gamebridge.BackendClientTest.xml
+      - name: Android standalone offline fake
+        run: |
+          android/gradlew -p android :sdk-testing:test --rerun-tasks --tests com.gamebridge.testing.OfflineFakeTest
+          python3 harness/check-junit.py android/sdk-testing/build/test-results/test/TEST-com.gamebridge.testing.OfflineFakeTest.xml
       - name: Android local Maven and separate R8 consumer
         env:
           GAMEBRIDGE_MAVEN_REPO: ${{ runner.temp }}/gamebridge-maven
         run: bash scripts/build-android.sh --mock
 
-  ios-simulator:
+
+  swift-ios-simulator:
     runs-on: macos-26
     timeout-minutes: 30
     steps:
@@ -78,8 +194,9 @@ jobs:
       - name: Swift package contract and fake tests
         run: |
           set -o pipefail
-          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|StoreKitBillingProviderTests|PushRouterTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
-          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests StoreKitBillingProviderTests PushRouterTests
+          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|AppleAuthProviderTests|AppleGrantDecoderTests|StoreKitBillingProviderTests|PushRouterTests|OfflineFakeTests|BackendClientTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
+          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests AppleAuthProviderTests AppleGrantDecoderTests StoreKitBillingProviderTests PushRouterTests OfflineFakeTests BackendClientTests
+          bash scripts/smoke-ios-source-consumer.sh
       - name: Install pinned XcodeGen locally
         run: |
           mkdir -p "$RUNNER_TEMP/gamebridge-tools"
@@ -97,32 +214,48 @@ jobs:
           xcodebuild -project "$project" -scheme GameBridgePushTests -destination "platform=iOS Simulator,id=$simulator" -resultBundlePath "$result" CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=YES -only-testing:GameBridgePushTests/PushHostTests test -quiet
           xcrun xcresulttool get test-results summary --path "$result" --format json | python3 -c 'import json,sys; x=json.load(sys.stdin); assert x.get("totalTestCount",0)>0 and x.get("failedTests",0)==0 and x.get("skippedTests",0)==0'
 
-  unity-runtime-required:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - name: Report missing Unity runtime lane
-        run: |
-          echo 'NOT_IMPLEMENTED: Unity Editor/player lane requires an approved license and implemented test execution.' >&2
-          exit 2
-
-  local-gate:
+  basic-ci:
     if: ${{ always() && !cancelled() }}
-    needs: [linux-backend-android, ios-simulator, unity-runtime-required]
+    needs: [inventory-contracts, backend-postgres, android-native, swift-ios-simulator]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require independent hosted checks
+        env:
+          INVENTORY_RESULT: ${{ needs.inventory-contracts.result }}
+          BACKEND_RESULT: ${{ needs.backend-postgres.result }}
+          ANDROID_RESULT: ${{ needs.android-native.result }}
+          SWIFT_RESULT: ${{ needs.swift-ios-simulator.result }}
+        run: |
+          if [[ "$INVENTORY_RESULT" != success || "$BACKEND_RESULT" != success || "$ANDROID_RESULT" != success || "$SWIFT_RESULT" != success ]]; then
+            echo "Basic CI incomplete: inventory=$INVENTORY_RESULT backend=$BACKEND_RESULT android=$ANDROID_RESULT swift=$SWIFT_RESULT" >&2
+            exit 1
+          fi
+          echo 'Basic hosted CI passed. This is not release readiness.'
+
+  unity-e2e:
+    # Avoid running untrusted PR code on a self-hosted runner. Opt-in requires an
+    # explicitly provisioned, licensed isolated host and disposable resources.
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_validation == true && vars.GAMEBRIDGE_UNITY_E2E_ENABLED == 'true' }}
+    runs-on: [self-hosted, macOS, ARM64, gamebridge-unity-e2e]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Run real Unity Editor and Android/iOS Player gates
+        run: bash scripts/ci-unity-e2e.sh
+
+  release-readiness:
+    if: ${{ always() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.release_validation == true }}
+    needs: [basic-ci, unity-e2e]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - name: Require actual lane execution and coverage
+      - name: Require actual Unity E2E and full scenario coverage
         env:
-          LINUX_RESULT: ${{ needs.linux-backend-android.result }}
-          IOS_RESULT: ${{ needs.ios-simulator.result }}
-          UNITY_RESULT: ${{ needs.unity-runtime-required.result }}
-        run: |
-          if [[ "$LINUX_RESULT" != success || "$IOS_RESULT" != success || "$UNITY_RESULT" != success ]]; then
-            echo "Required lane incomplete: Linux=$LINUX_RESULT iOS=$IOS_RESULT Unity=$UNITY_RESULT" >&2
-            exit 1
-          fi
-          python3 harness/check-required-coverage.py
+          BASIC_RESULT: ${{ needs.basic-ci.result }}
+          UNITY_RESULT: ${{ needs.unity-e2e.result }}
+        run: bash scripts/ci-release-gate.sh

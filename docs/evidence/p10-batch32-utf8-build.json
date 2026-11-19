@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "runId": "5eb6496c15694bb687e8ac5d62b0bc0b",
+  "sourceHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+  "unityVersion": "6000.5.8f1",
+  "isBatchMode": false,
+  "originalBuilderReturned": true,
+  "packageFilesVerified": 147,
+  "artifactSize": 27073808,
+  "artifactSha256": "0a4a8b1b5e2319eccf21a4eadfd2a26a15279110e6e826900fc759d478aa23ac",
+  "scenarioSha256": "faa2b77ef0f55509829222af1644207f8771a4c6420dece9fef6d8efa98c514f",
+  "buildScriptSha256": "74ffcb582f31ac7ac7b8ea74d0f0bcd99ca3b10aab9502fe0e0230215c264d85",
+  "adapterSha256": "f87264014091dba31657e0838920dfb371abbebfbbeb85f768e3f64f4e2d317c",
+  "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+  "tests": 0,
+  "checks": 1,
+  "players": 0,
+  "scope": "actual GUI Android UTF8 build; not JNI Player"
+}

@@ -6,13 +6,13 @@ import GameBridgeCore
 /// Host supplies the installation ID; raw device token stays in the Native Backend channel.
 @MainActor
 final class ApplePushRegistration {
-    private let auth: AppleAuthProvider
+    private let auth: any BackendSessionAccess
     private let installationId: UUID
     private let request: (String, String, Data?, String) async throws -> Data
-    init(auth: AppleAuthProvider, installationId: UUID, request: @escaping (String, String, Data?, String) async throws -> Data) {
+    init(auth: any BackendSessionAccess, installationId: UUID, request: @escaping (String, String, Data?, String) async throws -> Data) {
         self.auth = auth; self.installationId = installationId; self.request = request
     }
-    convenience init(auth: AppleAuthProvider, installationId: UUID, client: BackendClient) {
+    convenience init(auth: any BackendSessionAccess, installationId: UUID, client: BackendClient) {
         self.init(auth: auth, installationId: installationId) { path, method, body, token in
             try await client.request(path: path, method: method, body: body, accessToken: token).json
         }
@@ -21,7 +21,7 @@ final class ApplePushRegistration {
     func register(deviceToken: Data) async throws -> String {
         guard !deviceToken.isEmpty else { throw SdkFailure("INVALID_ARGUMENT") }
         let token = deviceToken.map { String(format: "%02x", $0) }.joined()
-        let fingerprint: String? = try await auth.withAuthenticatedSession { session in
+        let fingerprint: String? = try await auth.withBackendSession { session in
             let body = try JSONSerialization.data(withJSONObject: ["token": token, "provider": "APNS", "platform": "IOS"])
             let data = try await request(path, "PUT", body, session.accessToken)
             struct Result: Decodable { let provider: String; let registered: Bool; let tokenFingerprint: String }
@@ -33,7 +33,7 @@ final class ApplePushRegistration {
         return fingerprint
     }
     func unregister() async throws {
-        let done: Bool? = try await auth.withAuthenticatedSession { session in
+        let done: Bool? = try await auth.withBackendSession { session in
             let data = try await request(path, "DELETE", nil, session.accessToken)
             struct Result: Decodable { let registered: Bool }
             guard let result = try? JSONDecoder().decode(Result.self, from: data), !result.registered else { throw SdkFailure("BRIDGE_PROTOCOL_MISMATCH") }
@@ -46,7 +46,8 @@ final class ApplePushRegistration {
 /// Host-managed APNs registration; credentials stay inside the Native client.
 @MainActor public final class ApplePushClient {
     private let registration: ApplePushRegistration
-    public init(auth: AppleAuthProvider, config: GameBridgeConfig, installationId: UUID) throws {
+    public convenience init(auth: AppleAuthProvider, config: GameBridgeConfig, installationId: UUID) throws { try self.init(access: auth, config: config, installationId: installationId) }
+    internal init(access auth: any BackendSessionAccess, config: GameBridgeConfig, installationId: UUID) throws {
         guard config.mode == .platformSandbox, auth.usesConfiguration(config) else { throw SdkFailure("CONFIG_REQUIRED") }
         registration = ApplePushRegistration(auth: auth, installationId: installationId, client: try BackendClient(config: config))
     }

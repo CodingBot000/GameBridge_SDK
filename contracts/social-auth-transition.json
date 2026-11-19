@@ -1,0 +1,138 @@
+{
+  "authorization": "User document37 social expansion; document38 CI handoff",
+  "before": "dc3ed4224d1c676e33ee92e8aa7aa6ceaa3c7855",
+  "approvedSource": "23536d22ed5a11c919c65b411c8807ff07e42b37",
+  "changes": [
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/AppleWebGateway.kt",
+      "beforeSha256": null,
+      "afterSha256": "700142af13532470bf32ddab3b5132e0d2e9f42c89d815e9d69de3ee1f5db1be"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/BackendSessionAccess.kt",
+      "beforeSha256": null,
+      "afterSha256": "7178879ebd1def5a7a255b839581447c9f7240d6b11bc888a9fd5cae5a930573"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/FacebookGateway.kt",
+      "beforeSha256": null,
+      "afterSha256": "1543588e79a98df090ea1afcb973ba2c87b2d68b92fe9f7637cabcfbc6c4e8b2"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/PlatformAuthProviders.kt",
+      "beforeSha256": null,
+      "afterSha256": "b0ba9187bc379bf713961f4812c4a777b5f8d8294616cd9148a2257e826a897f"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/SocialAuthProvider.kt",
+      "beforeSha256": null,
+      "afterSha256": "0bab7c42594e3c38317d06a0e4436bcafb88c2d672d90c1c8f37a54dbde8f143"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GoogleHttpProofSink.kt",
+      "beforeSha256": "0444ffa42f95ce14668a40d8b1b1ff5b773cc27d24302f65e4661668e71a33d9",
+      "afterSha256": "559aaa4bb69fd5c9aaefd525d087c2a2654458294085d465b2b31ed3e3820e29"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GooglePlayStore.kt",
+      "beforeSha256": "31c08a7f8708f1a203c60dfc0a1388de36702122ca3f215ae481e6fc439fdb70",
+      "afterSha256": "5a97b4a8615582186566daa89cff1b37d5f518e1bac9deacc82483dd1081099f"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GooglePurchaseAccountSource.kt",
+      "beforeSha256": "44ccfe2b69b38f42d7465ccf9350a67872fdd34802d6d31caa998478e5a1229e",
+      "afterSha256": "f7a33f6cc80162b52124f2a93b781208e795ba6e2e66f5b385ca849d9e74dfcb"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GoogleStoreRuntime.kt",
+      "beforeSha256": "5329aa3ec128cef4de6b142f5977aeb1daaa5ecdb7725eb265ea5b9d5988de35",
+      "afterSha256": "32481343eecdd0b14527711b06952661a11248619503839c1a3b092e0d1de62d"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/push/GooglePushRegistration.kt",
+      "beforeSha256": "f985a234fdee5a7edc4d4c3b252944f113d06502d020d6d4598fdb639132d60f",
+      "afterSha256": "988076c62e0bcf0ab525e4f3effa0dd5658873497ffd59b919d88e3bf3cb25cc"
+    },
+    {
+      "path": "android/sdk-unity-bridge/src/main/kotlin/com/gamebridge/bridge/BridgeFacade.kt",
+      "beforeSha256": "3502825e0af5205475e3e3d26d02f34b18e3ba90e2eb65b157aedcf6d20d5c31",
+      "afterSha256": "2de599bc55ff9a13c91c44a6693fb873c572c5c24c7fa021f157e050f5e2507a"
+    },
+    {
+      "path": "android/sdk-unity-bridge/src/main/kotlin/com/gamebridge/bridge/GoogleAuthBridgeHandler.kt",
+      "beforeSha256": "46b018621bebfe994c1590c012cbf73ec85c17a0763ea4568e2b8d1ca200f073",
+      "afterSha256": "577efa097daf1f965cd2a4550bfd43a848efee9b909c619e7267a0469358b6f1"
+    },
+    {
+      "path": "android/sdk-unity-bridge/src/main/kotlin/com/gamebridge/bridge/PlatformAuthBridgeHandler.kt",
+      "beforeSha256": null,
+      "afterSha256": "e44fff283f8defc94e5e30cc65cf13d39f0454a996259a4c0662c6ab718329bd"
+    },
+    {
+      "path": "ios/Framework/include/GameBridgeNative.h",
+      "beforeSha256": "dec321c6568cd1e96e80bbe2ef053b75267ff34ca4734266797e4142a214b2cf",
+      "afterSha256": "502663079b023e4817a6eb979f460fdd18412fb54efb9bf7a1bf1bd7eb88f5c1"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/AppleHttpProofSink.swift",
+      "beforeSha256": "a26e32e162a7b502e8bb051f36d15fbc50743a93b116fc8ae7b4450841799231",
+      "afterSha256": "69cb27fb16b07f5273dc75f28dc82169165f1178ce6c8aec659c23931d3a4246"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/ApplePurchaseAccountSource.swift",
+      "beforeSha256": "cc8a4b233faba2259c52af82c09004699514b3125eaf62d2cdd41a68a972ac29",
+      "afterSha256": "eacb41f07d099d3e9eb42aa495ca69ec79f94ad0010753543057ab4c4aef80e5"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/ApplePushRegistration.swift",
+      "beforeSha256": "5d9d2496fde769493f6f8f04a64699cf5a237f49b772b2335e127fa26f287315",
+      "afterSha256": "94e620284e413c6157e77a08c9486848c1b083193a0a1a53b831bdc1a4cd321f"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/AppleStore.swift",
+      "beforeSha256": "7c503fcc1699956f622d9987a5b7ee38851df26692e9b28f8004ce819338fb36",
+      "afterSha256": "0c90faa7f1baac65c5c06d977a2406b24645921969c008d481dec4422fa8f1b3"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/AppleStoreRuntime.swift",
+      "beforeSha256": "5ea71443d104f6571ecbc524ef68239135c3715ed272d20e10cf1d9c13b901ea",
+      "afterSha256": "789af86aa44a7b7875c16f731b6b0b5de751fe18fc8b0af94b47463ab999667d"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/BackendSessionAccess.swift",
+      "beforeSha256": null,
+      "afterSha256": "b35bccfba4eb5c70057c1d1ec16740de4ff1cf5928dc1577740513807f97eb4d"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/FacebookIosGateway.swift",
+      "beforeSha256": null,
+      "afterSha256": "1c1783f65da52482fcf3eb7a875f3cc7db6f8f27ac2801bad3b82e48d1dee248"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/GoogleIosGateway.swift",
+      "beforeSha256": null,
+      "afterSha256": "fe447c4ce9980e51e2d59e5353b21f6f637f8e3e882854d59cb448b25805f5d6"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/SocialAuthProvider.swift",
+      "beforeSha256": null,
+      "afterSha256": "abc6292f2639e4e8292e3a82c46f43142dce827c3debd8add18f4ddbbb30bf13"
+    },
+    {
+      "path": "ios/UnityBridge/Bridge.swift",
+      "beforeSha256": "8e5909dc40e486f244ead0da0b56ff679a23ac6be47dc5fc01f5d14054aaf8d2",
+      "afterSha256": "75a15c89b2094933a6e8d1cd9feb462c5948c7c060a070c4dc462f75814d7697"
+    },
+    {
+      "path": "ios/UnityBridge/PlatformAuthBridgeHandler.swift",
+      "beforeSha256": null,
+      "afterSha256": "d0b28681d11f3be4ba65319f8c371efe21db68d6276fa6691a0f40850c237e5e"
+    },
+    {
+      "path": "unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs",
+      "beforeSha256": "b544c11b30844d2fe13acd51e208fe73cbe8aa5d3e3eaaab2732530d5dc082da",
+      "afterSha256": "64c3aa1d8da8ece9c795d1de9395cd70647f8e587d0ab919d81645e17b8aff03"
+    }
+  ],
+  "limitations": "Source lock only. Original frozen baselines and guard logic remain unchanged; binary/provider/Player evidence is separate."
+}

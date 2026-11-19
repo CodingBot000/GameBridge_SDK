@@ -13,6 +13,11 @@ def main():
         passing = {node.get('name') for node in cases if node.get('result') == 'Passed'}
         if not wanted.issubset(passing) or any(node.get('result') != 'Passed' for node in cases):
             raise ValueError('required test missing, skipped or failed')
+        markers = {'DomainReloadEnabled':'GB_CONSUMER_RELOAD_ENABLED_COMPLETE', 'DomainReloadDisabled':'GB_CONSUMER_RELOAD_DISABLED_COMPLETE'}
+        for name, marker in markers.items():
+            matching = [node for node in cases if node.get('name') == name]
+            if len(matching) != 1 or marker not in ''.join(matching[0].itertext()):
+                raise ValueError('required lifecycle completion marker missing: ' + name)
     except (OSError, ET.ParseError, ValueError) as error:
         print(f'Unity consumer result invalid: {error}', file=sys.stderr); return 1
     print(f'Unity consumer tests PASS: {len(cases)} executed; Editor only.')

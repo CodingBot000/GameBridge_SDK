@@ -1,0 +1,85 @@
+{
+  "sourceHead": "5af3aff08686d330d107bee2bb6482c7e6ed1383",
+  "runId": 44126492891,
+  "url": "https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44126492891",
+  "status": "completed",
+  "conclusion": "success",
+  "release_validation": false,
+  "dispatches": 1,
+  "jobs": [
+    {
+      "name": "swift-ios-simulator",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "backend-postgres",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "inventory-contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "android-native",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "unity-e2e",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "basic-ci",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "release-readiness",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "python": {
+    "modules": 51,
+    "tests": 203,
+    "failureSummaries": 0,
+    "fetchExitCode": 0
+  },
+  "swiftPackage": {
+    "tests": 37,
+    "failures": 0,
+    "skipped": 0
+  },
+  "syntheticIosHost": {
+    "status": "PASS",
+    "tests": "UNMEASURED in quiet public log; job validated xcresult total>0 failure/skip0"
+  },
+  "testcontainers": {
+    "tests": 11,
+    "expectedMutationFailures": 1,
+    "mutantExitCode": 1,
+    "normalRestoreExitCode": 0
+  },
+  "unity": "SKIPPED",
+  "release": "SKIPPED",
+  "postCiSourceHead": "a812cddc0215dcaf3e340dfc0308f89d2830dac1",
+  "postCiCodeDelta": [
+    "harness/run-r09-utf8.py",
+    "harness/test_gui_player_wrappers.py"
+  ],
+  "postCiRemoteValidation": "NOT_RUN: batch single-dispatch limit retained",
+  "postCiLocalValidation": {
+    "pythonTests": 204,
+    "modules": 51,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "iosCabiTests": 1,
+    "iosCabiStatus": "PASS"
+  },
+  "coverageLimitation": "Hosted SUCCESS applies to 5af3aff (203 Python tests). Later UUID cleanup/destination fixes and added regression are locally verified only; not all final code was Hosted-tested."
+}

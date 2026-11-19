@@ -2398,3 +2398,1964 @@
 - 커밋 준비: Android Native bridge 장치 검증과 격리 DB/로그 증거만 포함한다. 설치한 테스트 앱과 전용 DB·AVD는 보존한다. 자동 push하지 않는다.
 - 사용자 조작이 필요한 잔여 블로커: Unity Hub 라이선스 활성화 및 Android Build Support 설치·해당 약관 동의. 6000.5.8f1 설치는 확인했고 전용 Android 36 AVD, 격리 consumer 및 단독 Native/Backend 증거는 준비돼 있다. Unity Player 전체 검증은 수행하지 않았다. 기존 미추적 Demo·캐시 보존, 자동 push 없음.
 - 커밋 준비: USER_SETUP의 Native 대조 결과와 사용자 준비 단계·정확한 재개 위치만 기록한다.
+
+
+### [PX-T04] Unity Android Player LOCAL_MOCK E2E runner 작성 (후속 변경 브랜치)
+- 변경: harness/run-unity-android-mock-e2e.py. 신규 전용 GameBridge_V2_ AVD, 미설치 상태, UPM staging 무결성, 활성 라이선스와 Android 모듈 preflight를 확인한 다음 Unity APK 빌드·설치·실행을 시도하도록 구성했다.
+- 구현: Unity GB_MOCK_STEP·GB_MOCK_NATIVE·GB_MOCK_RESULT, Backend LOCAL_MOCK_TRACE 및 전용 DB wallet_ledger의 1건·100코인까지 대조한 경우만 PASS. 원본 로그는 artifacts 내 격리.
+- 이 대화의 원격 편집에서는 Unity Editor·Android emulator·Backend를 실행하지 않았으므로 Exit Code와 PASS 없음. 코드 확인은 별도 실제 검증을 대체하지 않는다.
+- 현재 환경 블로커: Unity 활성 라이선스 0, Android Build Support 없음. 실제 Unity import·APK·Player 실행은 NOT_RUN이며 이전 PX-T03 Native-only PASS와 구분한다.
+
+### [PX-T05] Android Native-only Runner의 환경 종속성 제거
+- 변경: harness/run-android-mock-bridge-e2e.py. adb 경로·serial·전용 AVD 이름·격리 로컬 PostgreSQL 컨테이너/사용자/포트를 인자/환경변수로 설정하게 했다.
+- 안전 조건: GameBridge_V2_ prefix, 온라인 emulator, 기존 앱 무덮어쓰기, 로컬 Compose PostgreSQL 컨테이너 이름 제한, 무작위 테스트 DB 보존. 테스트 당시 HEAD, tracked dirty 및 backend jar digest를 result.json에 저장하도록 구성했다.
+- 수정본 테스트 명령을 아직 실행하지 않았다 (NOT_RUN). 기존 PX-T03 PASS는 원래 버전의 증거이며 이 버전 재현 성공을 뜻하지 않는다.
+
+### [PX-T06] 공개 검증 증거 및 CI 보강
+- 변경: harness/export-mock-e2e-evidence.py, harness/test_export_mock_e2e_evidence.py, .github/workflows/verify.yml, 관련 사용자 설정·원장.
+- Exporter는 PASS·현재 SHA·추적 파일 clean·1건/100코인 지급과 Unity/Native 근거를 개별적으로 검사한다. 원본 로그와 환경 식별자는 Markdown에 복사하지 않는다. 미실행·실패·stale은 거부한다.
+- GitHub Actions Linux lane에 py_compile 및 오프라인 단위 테스트를 추가했지만 해당 변경에 대한 Actions 실행 결과는 아직 없다 (NOT_RUN). 기존 unity-runtime-required placeholder 및 strict 전체 게이트는 성공으로 주장하지 않는다.
+- 다음 행동: 라이선스·Android 모듈 준비, 새 UPM staging, 별도 전용 AVD에서 실제 Runner 실행, 이후에만 새로운 docs/evidence 결과 생성. 실패 시 명령·exit·오류 코드부터 수집해 원장 갱신.
+### PX-T04 Unity Android 통합 재검증 재개 (2026-11-12)
+- 원격 `origin/fix/unity-android-mock-e2e-evidence`를 fetch해 같은 이름의 로컬 추적 브랜치로 전환했다. 사용자 미추적 Demo 및 Python 캐시는 보존한다. Unity 라이선스·모듈과 PX-T04~T06 기존 구현을 확인하고 새 산출물 및 별도 에뮬레이터로 실제 Player 검증을 진행한다. 아직 결과는 NOT_RUN이다.
+- Unity CLI `license status`는 active=true, signedIn=true, licenseCount=3. `unity modules list 6000.5.8f1`은 android, android-sdk-ndk-tools, android-open-jdk 및 ios Installed. 실제 모듈 디렉터리는 `/Applications/Unity/Hub/Editor/6000.5.8f1/PlaybackEngines` 아래며 SDK/NDK/OpenJDK도 존재한다. 기존 `scripts/build-unity-android-mock.sh`가 `Unity.app/Contents/PlaybackEngines`만 확인하므로 유효한 설치를 거부하는 코드 문제를 발견했다. Player 검증 전 경로를 수정한다.
+- `scripts/build-unity-android-mock.sh`에서 Unity Hub의 버전 디렉터리 및 기존 Unity.app 내부의 AndroidPlayer 양쪽을 확인하도록 수정했다. 실행 검증 전이며 Player PASS가 아니다.
+- `bash -n scripts/build-unity-android-mock.sh` 종료 0, `python3 -m unittest discover -s harness -p test_export_mock_e2e_evidence.py -v` 4건 PASS/skip 0. 실제 Player 빌드 검증은 미실행이다. 커밋 준비: Unity Hub Android 모듈 경로 수정과 환경 확인 기록만 포함한다.
+### P08 / PX-T04 최신 SDK 패키지 재생성 시작 (2026-11-12)
+- 기준 제품 소스 HEAD `f1e12b6`. 새 Android Maven 산출물과 독립 R8 consumer, iOS device/simulator XCFramework 및 UPM staging을 순차 생성·검증한다. 이전 산출물을 덮어쓰지 않으며 Unity Player는 아직 미실행이다.
+- `GAMEBRIDGE_MAVEN_REPO=.../maven-v2-20261112-f1e12b6 bash scripts/build-android.sh --mock` 종료 0: mock sample 및 별도 R8 consumer 포함. 이어 iOS device/simulator XCFramework를 생성한다.
+- `GAMEBRIDGE_IOS_OUTPUT_DIR=.../ios-v2-20261112-f1e12b6 bash scripts/build-ios.sh --xcframework` 종료 0. 새 staging에 Android/iOS 산출물을 결합하고 무결성과 버전을 확인한다.
+- `scripts/package-sdk.sh` 및 `python3 harness/check-staging.py .../upm-v2-20261112-f1e12b6` 종료 0: XCFramework device arm64 / simulator arm64,x86_64와 각 C ABI 4종 검사 PASS, staging 110개 파일 checksum PASS. Android 3개 Maven POM과 UPM package version `0.1.0-dev` 일치. 이 결과는 Unity Player를 증명하지 않는다.
+- 커밋 준비: 최신 산출물 위치·빌드 검사 결과만 기록하고 생성물은 Git에 추가하지 않는다. Unity E2E는 새 전용 AVD에서 후속 실행한다.
+### PX-T04 Unity Android Player 전체 경로 검증 시작
+- `harness/run-unity-android-mock-e2e.py --run-local`을 새 전용 AVD 및 `artifacts/upm-v2-20261112-f1e12b6`로 실행한다. 제품 소스는 f1e12b6 이후 문서 외 변경이 없고 staged source 일치 검사를 수행한다. 합성 개발키·전용 DB를 사용하며 Unity/Native/HTTP/원장을 모두 확인하기 전까지 PASS가 아니다. 실행 전 기록을 커밋해 소스 clean 여부도 확인한다.
+- `python3 harness/run-unity-android-mock-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6 --serial emulator-5584 --expected-avd GameBridge_V2_20261112_011301` 종료 1, `UNITY_APK_INSTALL_FAILED`; Unity APK 생성 이후 설치에서 멈췄고 Player 전체 실행은 수행하지 못했다. runner가 adb 상세 오류를 감춰 전용 AVD에서 원인을 확인한다.
+- 첫 실패 후 같은 전용 AVD에서 APK 재설치 없이 빈 상태를 확인하고 `adb -s emulator-5584 install .../gamebridge-mock-consumer.apk` 재시도 종료 0. 최초 실패 원인은 기록이 없어 불명이다. 앱을 보존하며 runner에 설치 출력 저장을 추가하고 새 AVD로 재실행한다.
+- `harness/run-unity-android-mock-e2e.py`가 adb install 출력과 종료 코드·Success 마커를 검사해 실패 근거를 artifacts에 저장하도록 보완했다. 개발키는 설치 명령에 포함되지 않는다.
+- runner `python3 -m py_compile` 종료 0. 커밋 준비: 설치 진단 보강과 실제 실패·재시도 기록만 포함한다.
+- 최초 전용 AVD와 설치한 APK는 삭제하지 않고 종료만 한다. 새 GameBridge_V2_ AVD에서 `harness/run-unity-android-mock-e2e.py`를 다시 실행한다. 진행 기록을 먼저 커밋해 clean 상태를 확보한다.
+- 두 번째 `harness/run-unity-android-mock-e2e.py`는 Unity APK 빌드 후 `UNITY_APK_INSTALL_FAILED` exit 1. adb 설치 진단이 저장됐으므로 원인을 조사한다. 기존 증거를 PASS로 승격하지 않는다.
+- `artifacts/unity-android-e2e-usi585vl/adb-install.log`: adb daemon 재시작 직후 전용 emulator 미발견. 이후 `adb devices`에서 동일 serial online 확인. Unity 빌드 후 ADB 재검색 지연을 기다리고 AVD 이름·기존 앱 미존재를 다시 확인하는 방향으로 수정한다.
+- Unity 빌드 이후 최대 45초 동안 동일 전용 AVD를 재확인하고, 잘못된 기기나 기존 앱은 즉시 거부하도록 runner를 수정했다. 오프라인 복구와 안전한 거부에 대한 단위 테스트를 실행한다.
+- `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: ADB 재검색·전용 AVD 안전 조건 및 진단 기록만 포함한다.
+- Unity가 재시작한 ADB의 재검색을 기다리는 runner 수정 후 새 전용 AVD에서 전체 경로를 재실행한다. 기존 두 전용 AVD·DB·APK는 보존한다. 실행 전 기록을 커밋해 tracked-clean 검사를 유지한다.
+- ADB 재검색 보강 후 세 번째 runner exit 1, `UNITY_LAUNCH_FAILED` (`artifacts/unity-android-e2e-8t7go26x`). 설치 단계는 통과했으나 앱 실행 요청이 실패했으므로 Native·Backend 전체 시나리오를 PASS로 기록하지 않는다. 원인을 확인한다.
+- `aapt dump badging`에 launchable activity가 없고 `cmd package resolve-activity`도 No activity found. `scripts/prepare-unity-android-mock.sh`의 최소 custom manifest가 Unity 기본 Activity 선언을 대체한 것이 원인이다. 현재 생성 프로젝트의 Android entry는 GameActivity이며 Unity 설치본 템플릿을 기준으로 MAIN/LAUNCHER와 GameActivity metadata를 복원한다.
+- 개발용 cleartext manifest에 `UnityPlayerGameActivity`, exported MAIN/LAUNCHER 및 Unity/lib_name metadata를 추가했다. 사용자 앱 manifest는 변경하지 않으며 실제 빌드·실행은 재검증 전이다.
+- 생성기와 XML 구조 검사 종료 0: GameActivity 및 두 Unity metadata 존재. Unity APK 내부 manifest와 Player 작동은 재빌드·재실행 전이다. 커밋 준비: 테스트 전용 manifest 수정과 실패 원인 기록만 포함한다.
+- launcher GameActivity manifest 수정본을 새 AVD에서 Unity APK 재빌드·설치·실행하고 전체 local Backend·DB 원장을 확인한다. 실행 전 기록 커밋으로 tracked-clean 상태를 확보한다.
+- manifest 수정 후 새 전용 AVD 전체 runner exit 1, `UNITY_LAUNCH_FAILED`. 설치 이후 launch 오류이며 원인을 확인하기 전에는 수정 성공이나 Player PASS를 기록하지 않는다.
+- `aapt dump badging`과 package resolver에서 `com.unity3d.player.UnityPlayerGameActivity` 확인. 기존 `am start -a MAIN -c LAUNCHER -p ...`는 unable to resolve, 동일 APK에 `-n com.gamebridge.sdk.mockconsumer/com.unity3d.player.UnityPlayerGameActivity`는 Status ok. 사용된 key는 합성 placeholder며 Backend 복구 검증이 아니다. runner를 수정한다.
+- 실제 테스트 manifest에 맞춰 명시적 GameActivity를 실행하고 adb 결과의 Status ok와 종료 코드를 함께 확인하도록 변경했다. launch 출력에 개발키가 포함되면 redaction하며 raw argv는 기록하지 않는다.
+- Python 문법 및 ADB 재검색·기기 안전 테스트 2건 PASS/skip 0. 커밋 준비: 명시적 launcher·redacted 진단 및 실패 기록만 포함한다.
+- 수정 runner와 launcher manifest를 새 전용 AVD에서 재검증한다. 기존 AVD·앱·DB·산출물은 삭제하지 않고 실행 전 기록을 커밋한다.
+- 명시적 GameActivity launch는 Status ok. 새 AVD에서 Android 전체화면 안내가 Unity 포커스를 막아 전용 에뮬레이터에서 안내만 닫았고, 이후 runner는 `UNITY_PLAYER_REPORTED_FAILURE` exit 1을 기록했다. 실제 오류 단계와 원인은 미확인이다.
+- `artifacts/unity-android-e2e-sapxskap`: GameActivity launch 후 `GB_MOCK_RESULT FAIL stage=configuration code=INTERNAL_ERROR`. 생성 Gradle의 settings.gradle·unityLibrary/build.gradle에 GameBridge Maven 의존성이 없고 `AndroidGradleBuildHook`은 `#if UNITY_ANDROID`; `unity run`에 Android build target 지정이 빠져 Editor hook이 실행되지 않은 것으로 추정한다. PlayerSettings의 최초 전체화면 시스템 안내로 일시 정지된 것은 전용 AVD에서 안내를 닫아 확인했다. 클래스 로드 실패 여부는 추가 진단 후 판단한다.
+- `scripts/build-unity-android-mock.sh`에서 Editor 시작 시 Android target을 선택하도록 수정. `MockPlayerScenario`의 Android intent·설정·Native transport 오류 단계를 분리하고 오류 타입만 출력한다. 명령·managed compile 검사 후 새 AVD에서 실제 Gradle hook/전체 흐름을 확인한다.
+- `bash -n scripts/build-unity-android-mock.sh` 및 Android scenario managed compile 종료 0, 경고·오류 0. 커밋 준비: Android active target 선택, 비밀 없는 오류 단계 및 실패 근거만 포함한다.
+- Android target을 선택한 Unity import/build 및 새 전용 AVD의 전체 LOCAL_MOCK 재실행을 시작한다. 기존 AVD·DB는 보존하고 실행 전 tracked-clean을 확보한다.
+- PX-T04 `python3 harness/run-unity-android-mock-e2e.py --run-local --staging artifacts/upm-v2-20261112-f1e12b6 --serial emulator-5584 --expected-avd GameBridge_V2_20261112_012825` 종료 0, `artifacts/unity-android-e2e-zbdkbnnl/result.json` PASS. source c58b4a6 및 tracked-clean, Unity 단계 6개, Native 진단 request ID, Backend mock-auth/catalog/entitlements/verify/logout HTTP 200, DB wallet_ledger 1건·100코인 확인. 최초 Android 전체화면 안내는 새 전용 AVD에서 수동으로 닫았으므로 완전 무인 실행으로 주장하지 않는다. Google 로그인·실제 스토어 및 Unity iOS는 미검증이다. `harness/export-mock-e2e-evidence.py --kind unity ...` 종료 0으로 공개 요약만 생성했다.
+- README, USER_SETUP, FINAL_REPORT 및 FEATURE_MATRIX에 Unity Android LOCAL_MOCK 실제 Player 통과와 범위·수동 전체화면 안내를 반영했다. 과거 실패 기록은 지우지 않고 실제 외부 인증/결제, Unity iOS는 미검증으로 유지한다.
+- PASS evidence에 실행 명령 형태·exit 0·Unity 6000.5.8f1/Android 36 ARM64·staging checksum과 전체화면 안내 수동 처리를 추가했다. 합성값·원시 로그는 커밋하지 않는다.
+- 진행 매트릭스의 Unity Android local-mock 및 UPM import/IL2CPP 결과를 갱신하고, Editor 테스트·push·복구 및 iOS/외부 서비스는 별도로 유지했다. README의 오래된 Runner NOT_RUN 문구도 정정했다.
+- USER_SETUP에서 2026-11-11 라이선스·모듈 미비는 과거 상태로 보존하고 2026-11-12 실제 환경과 Android LOCAL_MOCK PASS를 명시했다.
+- 커밋 준비: PX-T04 공개용 검증 요약 및 README/PROGRESS/USER_SETUP/FEATURE_MATRIX/FINAL_REPORT의 현재 상태만 포함한다. source c58b4a6에서 실제 PASS, Unity iOS·실제 Google/스토어는 NOT_RUN, 최초 전체화면 안내는 수동으로 닫았음을 보존한다. 원본 로그·APK·DB 및 사용자 미추적 파일은 추가하지 않는다.
+- PX-T04 결과 정리 후 `python3 scripts/verify-progress.py` 종료 0, `python3 -m unittest discover -s harness -p test_unity_device_rediscovery.py -v` 2건 PASS/skip 0. 이는 Player E2E 결과와 별도다. 커밋 준비: 최종 검사 기록만 저장한다.
+### PX-T07 Unity iOS LOCAL_MOCK 통합 시작 (2026-11-12)
+- 요청된 `fix/unity-android-mock-e2e-evidence` HEAD `2a116c22aa8a8d79b95f3a55e516f1325c8d53d8` 및 작업 트리를 확인했다. Unity 라이선스 active=true, 6000.5.8f1 iOS 모듈 Installed, Xcode 26.6 build 17F113, Swift 6.3.3, iOS simulator 18.6/26.5 확인. 기존 Android PASS와 사용자 미추적 데이터 보존. 실제 Unity iOS 빌드·실행은 NOT_RUN.
+- `python3 harness/check-staging.py artifacts/upm-v2-20261112-f1e12b6`, `python3 scripts/verify-xcframework.py .../GameBridgeNative.xcframework` 종료 0. 기존 패키지 무결성과 심볼 검사이며 Unity iOS 링크·실행 PASS가 아니다.
+- `tests/UnityIosMockConsumer`, `scripts/prepare-unity-ios-mock.sh`, `scripts/build-unity-ios-mock.sh` 작성. Unity C#이 실제 SDK API를 사용하고 process environment로 임시 local key를 전달하며, 테스트 Xcode plist에 loopback HTTP 예외를 적용한다. Simulator 프로젝트 생성과 링크·실행은 아직 검증 전이다.
+- `bash -n` 및 `GAMEBRIDGE_UPM_STAGING=.../upm-v2-20261112-f1e12b6 bash scripts/prepare-unity-ios-mock.sh --prepare` 종료 0. 110개 checksum 및 별도 소비 프로젝트 생성만 확인했다. Unity iOS Simulator export 검증을 실행한다.
+- `bash scripts/build-unity-ios-mock.sh .../project .../xcode` 종료 0: Unity iOS Simulator Xcode export 완료. 아직 Xcode 링크·실행 검증은 아니다. arm64 Simulator 및 code signing 비활성으로 빌드한다.
+- `xcodebuild -project .../Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Debug -sdk iphonesimulator -derivedDataPath .../Derived ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build -quiet` 종료 0. GameBridgeNative.xcframework가 UnityFramework target에 연결됨을 project.pbxproj에서 확인했다. libtool의 빈 object 경고가 있었으며 Player 동작은 아직 확인하지 않았다.
+- 생성된 UnityFramework arm64 Simulator binary `nm -g`에서 GB_ProtocolVersion/SetCallback/Dispatch/Shutdown 확인. Info.plist에는 테스트 전용 127.0.0.1 도메인 예외만 있다. 실제 Unity callback 및 서버 거래는 미실행이다. 전용 Simulator·DB runner 구현을 시작한다.
+- `harness/run-unity-ios-mock-e2e.py`에 checksum/source 대조, Unity iOS export, arm64 무서명 Simulator build, XCFramework/C ABI, 전용 Simulator·DB, Unity/Native diagnostics·HTTP trace·원장 확인을 작성했다. runner 전체 실행은 아직 미실행이다.
+- 커밋 준비: iOS consumer, 테스트 전용 loopback ATS, Unity iOS Simulator export와 E2E runner 초안. Unity export/Xcode arm64 Simulator link·C ABI만 실제 확인했으며 Player/Backend 전체 통합은 재실행한다.
+- `python3 harness/run-unity-ios-mock-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6`를 실행할 준비를 한다. 새로운 Simulator·DB를 만들고 기존 데이터는 보존한다. Player·Native callback·Backend·원장 대조가 끝나기 전에는 PASS가 아니다. 실행 전 이 기록을 커밋한다.
+- Unity iOS Simulator 앱 최초 실행에서 테스트 시나리오가 명시적으로 push 권한을 요청하지 않았는데 알림 허용 dialog가 표시됐다. 전용 Simulator 화면에서 확인했으며 원인을 조사한다. 실행은 진행 중이고 아직 Player/Backend PASS는 아니다.
+- 첫 `harness/run-unity-ios-mock-e2e.py` 실행 결과 FAIL `UNITY_PLAYER_REPORTED_FAILURE`, evidence `artifacts/unity-ios-e2e-sbwq4jn5`. 전용 Simulator의 예기치 않은 알림 창은 ‘허용 안 함’으로 닫았다. runner가 실패 시 Player markers를 보존하지 않는 결함이 있어 원인 추적을 보강하고 권한 요청도 조사한다. 전체 경로는 PASS가 아니다.
+- 실패 결과의 서버 trace에서 mock-auth HTTP 200 확인. 별도 합성 placeholder 실행에서는 Unity initialize 뒤 로그인 NETWORK_UNAVAILABLE이 관찰됐으나 서버를 연결하지 않은 음성 시험이므로 최초 실패 원인 증거는 아니다. Unity Notifications 기본 plist `UnityNotificationRequestAuthorizationOnAppLaunch=true`가 예상치 못한 알림 창을 유발해 테스트 전용 앱에서 비활성화하고, 실패 시 `GB_MOCK_` 마커를 남기도록 보강한다.
+- 테스트 소비 앱 post-build plist에서 Unity Notifications 시작 시 로컬/원격 권한 요청을 모두 false로 설정했다. Player 실패 시에도 credential 없는 GB_MOCK 마커를 artifacts에 남긴다. 운영 SDK/사용자 앱 설정은 변경하지 않는다.
+- Python 및 셸 문법 검사 종료 0. 커밋 준비: 테스트 앱의 불필요한 알림 자동 요청 억제, 실패 마커 보존 및 실제 FAIL 기록만 포함한다.
+- 알림 자동 요청 억제와 실패 마커 보존 후 `harness/run-unity-ios-mock-e2e.py`를 새로운 Simulator·DB에서 재실행한다. 실행 전 기록을 커밋해 tracked-clean 상태를 확보한다.
+- 알림 자동 요청 억제 후 새 Simulator의 runner 재실행 종료 1, `UNITY_PLAYER_REPORTED_FAILURE`. 실패 마커와 서버 trace가 보존됐으며 실제 실패 단계는 조사한다. 전체 통과는 아니다.
+- `artifacts/unity-ios-e2e-rfz6jnz2/unity-test-markers.log`: initialize PASS、login INTERNAL_ERROR。Backend mock-auth 200。初期化後の Keychain 保存などを調査する。現在の app は linker ad-hoc signature・entitlement 無し。Apple Developer 登録を必要としない local ad-hoc Xcode build との違いを検証する。
+- 같은 Unity Xcode 프로젝트에서 `CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=YES` Simulator build 종료 0. `codesign`은 ad-hoc 서명 및 올바른 bundle identifier를 보고했다. 이는 키·유료 계정을 사용하지 않는 로컬 대조이며 아직 Keychain 및 E2E 성공을 뜻하지 않는다.
+- `--adhoc`은 요청 시에만 로컬 코드 서명을 선택하며 기본 무서명 경로는 유지한다. result.json에 signing 방식을 기록한다. 두 방식 모두 실제 Apple 계정·상용 서명은 아니다.
+- runner 문법 검사 종료 0. 커밋 준비: local ad-hoc Simulator 선택 경로 및 첫 실패·대조 빌드 사실만 저장한다. 전체 E2E는 아직 FAIL이다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6`를 새 전용 Simulator/DB에서 실행해 unsigned 실패와 구분한다. 실행 전 tracked-clean 기록을 커밋한다.
+- `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6` 종료 0, `artifacts/unity-ios-e2e-f5r4zwvp/result.json` PASS. 무서명 Simulator에서는 login INTERNAL_ERROR였고 로컬 ad-hoc Simulator 빌드로 전체 요청/DB 원장 1건·100코인을 확인했다. Apple Developer 계정이나 실키는 사용하지 않았다. Unity main thread 조건을 명시적으로 검사하고 최신 코드에서 다시 실행한다.
+- iOS 테스트 consumer에 각 await 후 managed thread ID와 시작 시 Unity 메인 thread 일치를 검사하고 `GB_MOCK_MAIN_THREAD PASS`를 출력하도록 추가했다. runner가 해당 마커를 필수 검사한다. 기존 PASS는 이전 테스트 코드의 결과로 보존한다.
+- iOS test scenario main-thread assertion 및 runner marker 조건, Python/셸 문법 검사 종료 0. 커밋 준비: 테스트 전용 강화와 기존 PASS의 범위·새 코드 미검증 상태만 기록한다.
+- 메인 스레드 확인 marker를 필수로 하는 Unity iOS LOCAL_MOCK 전체 runner를 새로운 전용 Simulator/DB에서 재실행한다. 실행 전 기록을 커밋하여 tracked-clean 상태를 확보한다.
+- `python3 harness/run-unity-ios-mock-e2e.py --run-local --adhoc --staging .../upm-v2-20261112-f1e12b6` 종료 0, `artifacts/unity-ios-e2e-29s8tvel/result.json` PASS. 소스 tracked-clean에서 Unity iOS Player의 메인 스레드·SDK 전체 단계, Swift Native diagnostics, Backend HTTP trace 및 PostgreSQL 원장 1건/100코인을 확인했다. Simulator local ad-hoc signing만 사용했고 Apple 계정·실결제는 미실행. 공개 evidence 생성 전 원본 결과를 대조한다.
+- `docs/evidence/px-t07-unity-ios-local-mock.md`를 실제 `artifacts/unity-ios-e2e-29s8tvel/result.json` PASS, source SHA 일치·tracked-clean·원장 1건/100 및 메인 스레드 marker 대조 후 작성했다. 최초 unsigned FAIL, local ad-hoc 성공 및 과거 알림 창 조작을 명확히 구분했다.
+- PX-T07 공개 evidence와 README/FEATURE_MATRIX/USER_SETUP/FINAL_REPORT/PROGRESS를 갱신했다. Simulator local ad-hoc 서명과 초기 unsigned 실패를 구분하고 Android PASS 기록 및 외부 제공자 미검증 상태를 유지했다.
+- 최초 iOS 테스트 앱의 Unity Notifications 기본 자동 권한 요청과 최종 테스트 전용 plist의 비활성화 사실을 USER_SETUP에 명시했다. 운영 host의 권한·push 동작 검증 결과로 확대하지 않는다.
+- `python3 scripts/verify-progress.py`, iOS runner `py_compile`, Android ADB 안전 단위 테스트 2건 모두 종료 0. 공통 SDK/Android 제품 코드는 수정하지 않아 Android Player E2E는 재실행하지 않았으며, 테스트 안전 단위 결과와 기존 PX-T04 PASS는 별개다. 커밋 준비: 검증 문서와 PASS evidence만 포함하고 원본 로그·키·Simulator 데이터는 제외한다.
+### PX-T08 Unity Android LOCAL_MOCK Push/Lifecycle 시작
+- 요청 문서를 읽고 기존 Android/iOS Player E2E 및 Mock push stream·bridge를 대조한다. Android부터 실제 Player에서 확인하며, 기존 인증·구매 PASS나 Native-only 시험을 Push/Lifecycle 전체 PASS로 취급하지 않는다. 기존 미추적 Demo·캐시 및 데이터는 보존하고 자동 push하지 않는다.
+- `tests/UnityAndroidPushConsumer/MockPlayerScenario.cs`는 실제 Unity SDK API 및 PushReceived를 사용하고 synthetic key는 실행 시 intent로만 받는다. callback의 main-thread·중복·해제 후 이벤트를 검사하며 실제 FCM은 사용하지 않는다. 기기 실행 전이다.
+- Unity 6000.5.8f1 managed reference의 `UNITY_ANDROID` 조건에서 푸시 시나리오 compile 종료 0, 경고·오류 0. Player 실행이 아니므로 Push PASS로 기록하지 않는다. 기존 Android E2E의 전용 기기·DB 안전검사를 재사용하는 runner를 작성한다.
+- `harness/run-unity-android-mock-push-e2e.py`는 기존 전용 AVD/DB·staging 검사를 재사용해 합성 발송 3회, Unity 수신 중복 제거/메인 스레드, unregister 후 403·DB token 삭제를 확인한다. background/network/restart는 명시적으로 NOT_RUN이며 실제 FCM이 아니다. `python3 -m py_compile` 종료 0. 커밋 준비: 테스트 코드와 현 상태만 저장한다.
+- 전용 AVD와 DB를 신규 생성해 `harness/run-unity-android-mock-push-e2e.py --run-local`을 실행한다. 기존 AVD·앱·데이터는 수정하지 않는다. 실행 전 이 기록을 커밋한다.
+- `python3 harness/run-unity-android-mock-push-e2e.py --run-local --staging ... --serial emulator-5582 --expected-avd GameBridge_V2_20261112_162817` 종료 0, `artifacts/unity-android-push-z1lufhpv/result.json`: 실제 Unity Android Player에서 LOCAL_MOCK 등록·3회 중복 발송의 단일 수신 및 main-thread, unregister·logout 이후 이벤트 미전달, 서버 token 0개와 unregister 후 403 확인. 전용 AVD의 첫 전체화면 안내를 수동으로 닫았다. FCM 및 background/network/process restart는 확인하지 않았다.
+- Android Push 기본 E2E PASS에 한정해 공개용 evidence를 작성했다. 커밋 준비: 실제 확인한 범위·수동 에뮬레이터 안내와 미검증 항목을 명시하며, 원본 로그·합성 키·APK는 포함하지 않는다.
+### PX-T09 Android Unity lifecycle·연결 복구 시작
+- PX-T08 Player 시나리오를 확장해 OnApplicationPause의 background/foreground, test AVD의 연결 중단 및 복구 후 재수신·오프라인 미전달을 실제 검증한다. 로그아웃/프로세스 강제 종료와 구분한다. 아직 NOT_RUN이다.
+- 별도 Unity 시나리오에 background/foreground callback과 온라인 전용 푸시 재연결 assertion을 추가했다. 환경 제어 및 실제 실행 검증은 다음 단계다.
+- runner가 해당 전용 AVD에서 HOME/재개, Wi-Fi·data 비활성 및 loopback host 접근 실패 확인, offline 발송, 연결 복원 후 재발송과 Player callback을 검증하도록 확장했다. 테스트 종료 시 변경한 네트워크는 복원하며 기존 기기를 변경하지 않는다. 실행 검증은 아직이다.
+- `python3 -m py_compile harness/run-unity-android-mock-push-e2e.py` 종료 0. 커밋 준비: Android lifecycle/network test harness와 미실행 범위만 저장한다.
+- `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본을 새 전용 AVD에서 재실행한다. 실제 Unity Player 메인 스레드 및 네트워크 차단·복구 검사 전 PASS가 아니다. 실행 전 기록을 커밋한다.
+- 수정된 `harness/run-unity-android-mock-push-e2e.py --run-local` 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-push-a82dcn48`). Unity Player의 실제 background/foreground callback, 에뮬레이터 Wi-Fi/data 차단 및 host TCP 접근 실패, offline 메시지 미관측, 네트워크 복구 후 새 LOCAL_MOCK 메시지 수신·main-thread, 등록 해제/로그아웃·서버 token 제거를 확인했다. 전용 AVD의 첫 전체화면 안내는 수동으로 닫았다. 프로세스 종료·재시작과 pending/실제 FCM은 미검증이다.
+- `docs/evidence/px-t08-unity-android-mock-push.md`에 별도 source·APK hash·실제 background/network 재검증 결과와 수동 안내를 추가했다. 커밋 준비: evidence 및 두 원장만 포함한다.
+### PX-T10 Android Unity process 종료·pending 복구 시작
+- 독립 test-only loopback proxy에서 최초 구매 검증의 서버 commit 응답만 합성 실패로 바꾸고, 전용 AVD에서 Unity 앱을 force-stop한 뒤 세션 복원·pending sync·원장 불변을 검증한다. 실제 Play 스토어 또는 푸시 오프라인 전달로 취급하지 않는다. 아직 NOT_RUN이다.
+- 별도 Android Unity consumer가 실제 GameBridge API로 pending 재시도와 session restore를 검증하도록 작성했다. test-only fault proxy 및 실제 Player 실행은 다음 단계다.
+- Android restart consumer의 Unity managed reference compile 종료 0. 실제 pending 보존과 앱 강제 종료는 아직 NOT_RUN이며, 외부 자격증명 없이 테스트할 로컬 전용 fault proxy를 추가한다.
+- `harness/run-unity-android-mock-restart-e2e.py`는 검증 서버가 200 commit한 최초 응답만 test-only proxy로 503 처리하고, 전용 앱 force-stop 전후 PID·세션 restore·pending 1회 복구·재지급 없음과 DB 원장을 대조한다. proxy는 헤더/본문 로그를 남기지 않는다. Python 문법 PASS. 커밋 준비: 아직 Player 검증은 미실행이다.
+- 새 전용 GameBridge_V2_ AVD에서 Unity 앱 강제 종료와 pending 복구 전체 runner를 실행한다. 기존 AVD 및 앱은 보존한다. 실행 전 기록을 커밋한다.
+- `python3 harness/run-unity-android-mock-restart-e2e.py --run-local --staging ... --serial emulator-5580 --expected-avd GameBridge_V2_20261112_163957` 종료 0, `artifacts/unity-android-restart-r3p6hl0d/result.json`: test-only proxy로 첫 구매 검증 서버 commit 이후 응답을 503으로 주입, Unity 앱 강제 종료 및 다른 PID 재실행, session restore, pending 1회 복구·재sync 0·원장 1건/100·main-thread 확인. 전용 AVD의 최초 전체화면 안내 수동 처리. 실제 Play Billing과 구분한다.
+- Android evidence에 강제 종료 전 서버 commit·응답 유실, 서로 다른 PID, pending 복구·재sync 및 원장 불변, main-thread 범위를 기록했다. 커밋 준비: 공개 증거·원장만 포함하고 test APK·원본 로그는 보존하되 Git에 넣지 않는다.
+### PX-T11 Android Unity 세션 전환·지연 이벤트 검증 시작
+- 기존 PX-T09 Push 시나리오에 세션 A 종료, 새 세션 B 등록, A 소유권 발송 거부와 B 이벤트 단일 수신을 추가한다. 이전 세션 이벤트가 B에 섞이지 않는지 별도 assertion을 두며 actual Player 실행 전 NOT_RUN이다.
+- 동일 설치의 새 B session에서 이전 A 소유권 발송 403, B Mock 이벤트 및 main-thread·중복·이전 이벤트 미수신을 검증하도록 test/runner를 확장했다. API 제한을 지키도록 재발송 횟수도 조정했다.
+- Android Push scenario managed reference compile 경고·오류 0, runner Python 문법 PASS. 커밋 준비: 세션 A→B 및 늦은 이벤트 관측 test와 미검증 상태를 기록한다.
+- Android Player에서 A→B 전환을 포함한 등록/중복/background/network/로그아웃 경로를 새 전용 AVD와 DB로 재검증한다. 시작 기록을 커밋한다.
+- `harness/run-unity-android-mock-push-e2e.py --run-local` 수정본 새 AVD 실행 종료 0 (`artifacts/unity-android-push-h9oyrtjy`): Unity Player의 Mock 등록·중복·main-thread, background/foreground, offline drop·복구, A 로그아웃 후 B 등록, 이전 A 소유권 발송 403, B 단일 수신 및 이전 이벤트 미관측 통과. 전용 AVD 첫 전체화면 안내는 수동으로 닫았다. 임의 지연 callback 및 재연결 실패 자체의 주입·iOS·실 FCM은 미검증이다.
+- Android 공개 evidence에 새 source의 A→B 전환·이전 소유권 403·B 이벤트·기존 lifecycle/network 회귀 결과를 추가했다. 커밋 준비: 원본 로그·APK·DB를 제외하고 사실 확인된 범위만 기록한다.
+### PX-T12 Unity iOS LOCAL_MOCK Push/Lifecycle 시작
+- Android의 실제 Player 시나리오를 토대로 별도 iOS Simulator consumer 및 안전한 local Backend/DB runner를 작성한다. iOS push, lifecycle 및 실제 APNs를 Android PASS로 대체하지 않는다.
+- `tests/UnityIosPushConsumer/MockIosPlayerScenario.cs`를 추가했다. 실제 Unity SDK API/PushReceived를 호출하며 loopback만 사용하고 key를 로그·에셋에 저장하지 않는다. iOS Player 검증은 미실행이다.
+- iOS Push consumer `UNITY_IOS` managed compile 종료 0, 경고·오류 0. 실제 iOS Player, Swift C ABI 및 서버 수신은 미실행. 다른 사용자 네트워크를 변경하지 않도록 test 전용 loopback TCP proxy에서 SDK 연결만 차단·복구하는 방식을 준비한다.
+- iOS Push runner는 신규 Simulator·DB, local ad-hoc, 개발 서버 allowlist, 중복·main-thread·세션 전환, Simulator background/foreground 및 테스트 전용 TCP 연결 차단/복구를 검사한다. OS 전체 네트워크와 실제 APNs는 건드리지 않는다. Python 문법 종료 0, Player 실행 전이므로 커밋 준비한다.
+- `harness/run-unity-ios-mock-push-e2e.py --run-local --staging .../upm-v2-20261112-f1e12b6`를 신규 Simulator/DB에서 실행한다. 실제 Unity Player·Swift·Backend·DB 결과 확인 전 PASS가 아니다. 실행 전 이 기록을 커밋한다.
+- `artifacts/unity-ios-mock.6cWqlO/project/Logs/upm.log`: Unity Package Manager가 `packages.unity.com` 연결 ETIMEDOUT. 기존 Unity 설치/네트워크 설정을 변경하지 않고 이전 격리 프로젝트의 동일 버전 package cache로 새 소비 프로젝트를 구성할 수 있는지 조사한다. 현재 Player 성공은 아니다.
+- 첫 iOS Push 실행 `artifacts/unity-ios-push-*`는 UPM registry 연속 timeout으로 자체 Unity 프로세스를 중단(exit 130). 기존 runner가 KeyboardInterrupt를 별도 처리하지 않아 결과 JSON은 FAIL로 남았으며 실제 Player는 NOT_RUN이었다. 이전에 성공한 격리 프로젝트의 notifications 2.5.0 / Newtonsoft 3.2.2 cache를 확인했고, 원본과 전역 설정을 수정하지 않는 새 프로젝트 한정 embedded 복사 경로를 검토한다.
+- iOS test runner의 `--package-cache`는 별도 저장된 기존 PackageCache에서 mobile notifications 2.5.0 및 Newtonsoft 3.2.2만 검사·복사하고 새 격리 소비 프로젝트의 embedded package로 사용한다. 전역 Unity 설정·원본 cache는 수정하지 않는다. 실제 resolver/Player는 아직 검증 전이다.
+- embedded package 선택 경로가 정확한 2.5.0/3.2.2만 복사하고 source 보존 및 누락 실패를 수행하는지 isolated unit test를 실행한다.
+- `python3 -m unittest discover -s harness -p test_unity_ios_push_cache.py -v` 2건 PASS/skip 0. 커밋 준비: 격리 embedded cache 경로, interrupted 분류 및 registry timeout 기록을 저장한다. 네트워크 우회나 전역 설정 변경은 없다.
+- 기존 Unity 성공 프로젝트의 package cache를 읽기 전용 원본으로 사용하여 새 격리 소비 프로젝트에 exact-version embedded package를 복사하고 iOS Player E2E를 재실행한다. 성공 전에는 PASS로 기록하지 않는다. 실행 전 진행 문서를 커밋한다.
+- exact-version cached packages를 embedded로 복사한 재시도는 Unity export FAIL exit 1. `artifacts/unity-ios-mock.Y0BHBq/project/Logs/Editor.log`에 Notifications package의 Tests/Runtime이 NUnit/Test Framework 미참조로 CS0246을 발생시켰다. SDK/runtime 소스의 실패로 단정하지 않는다. 새 임시 복사본에서 해당 패키지의 test-only 디렉터리만 제외하고 resolver/build를 재검증한다.
+- 임시 embedded package의 Tests/Tests.meta만 제외해 runtime/editor 코드는 보존하고 source cache test 디렉터리는 그대로 유지한다. 누락·원본 보존 unit test를 재실행한다.
+- `python3 -m unittest discover -s harness -p test_unity_ios_push_cache.py -v` 종료 0, 2건 PASS/skip 0. 커밋 준비: 임시 embedded test 제외와 원인 기록만 포함한다.
+- exact-version embedded cache의 test-only 디렉터리를 제외한 새 소비 프로젝트로 전체 iOS Push runner를 재실행한다. 전역 환경과 이전 artifacts는 보존하며 실행 전 기록을 커밋한다.
+- cached package 적용 iOS runner는 Unity export/Xcode build 및 Simulator 앱 실행 후 `BACKGROUND_FAILED`로 종료 1 (`artifacts/unity-ios-push-cggylkb4`). `simctl openurl about:blank`의 실패 원인과 이미 수행된 Player 마커를 확인한다. iOS 전체 Push/Lifecycle은 FAIL 상태다.
+- `artifacts/unity-ios-push-cggylkb4/unity-push-markers.log`: Unity initialize/login/ready/received 및 deduplicate-main-thread PASS. `simctl openurl ... about:blank`는 -10814로 지원되지 않았으며 동일 전용 Simulator에서 `http://127.0.0.1:1/` 열기는 종료 0. 실제 네트워크 접근 없이 별도 앱 전환으로 local URL을 사용한다.
+- `simctl openurl` 대상은 외부 사이트가 아닌 test Backend의 loopback health URL로 바꿨다. 다른 사용자 기기 및 운영 네트워크는 사용하지 않는다. Python 문법 검사 후 실제 Simulator 전체 흐름을 다시 검증한다.
+- runner Python 문법 검사 종료 0. 커밋 준비: Simulator가 지원하는 loopback URL background 전환 및 실제 부분 PASS/실패 기록을 보존한다.
+- iOS Player의 local-mock Push·background/foreground·전용 TCP 연결 중단/복구·세션 전환을 새 전용 Simulator/DB에서 다시 확인한다. 실행 전 기록을 커밋한다.
+- `python3 harness/run-unity-ios-mock-push-e2e.py --run-local --staging ... --package-cache ...` 종료 0 (`artifacts/unity-ios-push-248n_2n2/result.json`): Unity iOS 18.6 Simulator Player→Swift bridge→local Backend/DB에서 Mock 등록·중복 제거·Unity main-thread·background/foreground·test-only loopback TCP 차단/복구·offline 메시지 미전달·A→B 소유권·logout 후 token 0 PASS. OS 전체 네트워크 차단, process force-stop/pending, 실제 APNs는 별도 미검증이다. Local ad-hoc 서명과 exact-version embedded package cache 사용.
+- iOS Push/Lifecycle 실제 통과 범위, local TCP fault와 OS 전체 연결 차단의 차이, registry cache 경로, unsigned/실제 APNs 제외를 공개 evidence에 반영했다. 커밋 준비: 원본 로그·키·DB·Simulator 파일은 제외한다.
+### PX-T13 Unity iOS Simulator process/pending 복구 시작
+- Android PX-T10과 동일하게 test-only loopback proxy로 서버 commit 뒤 응답만 일회 실패시키고 iOS Simulator 앱을 terminate/relaunch해 세션 복원·pending 1회 복구·중복 지급 방지를 확인한다. 별도 Simulator·DB를 사용하며 실제 StoreKit 결제는 포함하지 않는다.
+- `tests/UnityIosRestartConsumer/MockIosPlayerScenario.cs`는 Swift bridge를 통해 실제 SDK API를 호출하고 환경 변수로 합성 key만 공급받는다. libc getpid로 강제 종료 전후 프로세스를 구분한다. Unity build/Simulator 실행은 미검증이다.
+- `harness/run-unity-ios-mock-restart-e2e.py` 및 Simulator consumer 작성. 최초 서버 200 후 합성 503, Simulator terminate/relaunch, 별도 PID, 세션 restore·pending 1회 복구·재sync 0·원장 1건/100을 검사한다. Python 문법 종료 0. 커밋 준비: 실제 E2E는 아직 미실행이다.
+- `harness/run-unity-ios-mock-restart-e2e.py --run-local`을 새 Simulator/DB 및 local ad-hoc Simulator signing으로 실행한다. 실행 전 진행 기록을 커밋해 tracked-clean 상태를 보존한다.
+- `harness/run-unity-ios-mock-restart-e2e.py --run-local --staging ... --package-cache ...` 종료 0 (`artifacts/unity-ios-restart-vidqoa21/result.json`). Unity iOS Simulator Player에서 서버 commit 응답을 test-only proxy가 503으로 바꾼 뒤 앱 terminate/relaunch, 서로 다른 PID, 세션 복원·pending 1회/재sync 0, Unity main-thread 및 DB 원장 1건·100코인을 확인했다. 로컬 ad-hoc, 실제 StoreKit/기기는 아님.
+- `docs/evidence/px-t12-unity-ios-mock-push.md`에 iOS Player terminate/relaunch, 서버 commit 응답 유실·session/pending 복구 및 원장 불변 결과를 추가했다. 커밋 준비: 합성 키·원본 로그·Simulator·DB는 제외한다.
+### PX-T14 Unity Android/iOS Mock Push 재연결 실패 주입 시작
+- 기존 offline drop/reconnect PASS와 재연결 실패 assertion은 다르므로, test-only loopback TCP proxy에서 연결 시도를 거부한 횟수를 계측하고 복구 후 이벤트 수신을 다시 확인한다. 운영 코드와 사용자 네트워크 설정은 변경하지 않는다.
+- iOS 전용 TCP fault proxy에 차단 상태에서 발생한 실제 수락/즉시 종료 시도 수를 비밀 없이 기록하고, 최소 1회 실패와 복구 후 이벤트 전달을 함께 요구한다. 기존 PX-T12 PASS를 새 테스트 PASS로 대체하지 않는다.
+- Android test는 기존 AVD Wi-Fi/data 차단 확인을 유지하면서 SDK 연결만 받는 loopback proxy의 재연결 거부를 추가했다. 다른 host 네트워크·운영 SDK는 변경하지 않는다. 성공은 각각 새 Player 실행 후에만 기록한다.
+- 양 플랫폼 runner `py_compile` 및 iOS cached-package 안전 단위 2건 PASS. Android server log 검사에 B session 합성 token도 추가했다. 커밋 준비: test 전용 fault 계측만 포함하고 실제 Player 결과는 이전 source에 한정한다.
+- Android Unity Player에서 OS 네트워크 차단·복원 뒤 test-only proxy의 연결 거부 시도 관측과 재연결 후 전달을 새 전용 AVD/DB로 실행한다. 실행 전 이 기록을 커밋한다.
+- PX-T14 Android E2E 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-push-n3lvsnkx`). 실제 Player에서 Wi-Fi/data 차단·복원 및 test-only TCP proxy의 재연결 거부 후 복구를 검사했다. 첫 전체화면 안내는 전용 AVD에서 수동으로 닫았다. 실제 FCM은 아니다.
+- Android 결과 source `ea5e17f`, tracked-clean, proxy 재연결 거부 2회, 이후 수신 및 기존 lifecycle/session 통과를 evidence에 추가했다. 커밋 준비: 원본 로그·APK·DB 제외.
+- iOS Unity Simulator에서 test-only TCP proxy 연결 거부 시도 관측과 재연결 후 수신을 새 전용 Simulator/DB로 검증한다. 실행 전 기록을 커밋한다.
+- iOS Push runner 새 전용 Simulator 실행 종료 0 (`artifacts/unity-ios-push-gcmp59n7`). test-only loopback proxy가 SDK의 재연결 시도를 거부한 후 연결을 복구했고 Unity Player의 local mock push/lifecycle/session 검사가 통과했다. OS 전체 네트워크 차단이나 APNs 원격 전달을 의미하지 않는다.
+- iOS source `837c016`, tracked-clean, proxy 재연결 거부 6회 및 후속 수신·기존 lifecycle/session 재검증을 evidence에 기록했다. 커밋 준비: 원시 로그·키·DB·Simulator 산출물은 포함하지 않는다.
+### PX-T15 Android/iOS Unity 인증·구매 회귀 시작
+- 사용자 요청에 따라 기존 PX-T04/PX-T07 인증·구매 전체 Runner를 현재 source에서 재실행한다. Unity registry timeout을 고려해 기존 iOS Push test의 exact-version embedded cache 복사 기능을 새 격리 프로젝트에만 선택적으로 적용한다. 이전 PASS를 새 결과로 대신하지 않는다.
+- 기존 두 Runner가 `--package-cache`를 받으면 PX-T12에서 검증한 exact-version embedded copy를 새 소비 프로젝트에만 적용한다. 기존 전역 Unity 환경 및 package 원본은 수정하지 않는다. 재실행 전 문법/안전 단위를 확인한다.
+- 두 Runner Python 문법 및 cache/기기 안전 단위 4건 PASS/skip 0. cache helper의 오류를 해당 runner의 fail-closed 분류로 변환한다. 커밋 준비: 환경 옵션과 진행 기록만 포함한다.
+- 기존 Android Player 인증·구매 E2E를 새 전용 AVD와 DB에서 현재 runner로 재실행한다. 기존 AVD·앱·DB는 보존하고 실행 전 기록을 커밋한다.
+- `harness/run-unity-android-mock-e2e.py --run-local ... --package-cache ...` 새 전용 AVD 실행 종료 0 (`artifacts/unity-android-e2e-7001epc_`). Unity Player 초기화·Mock 로그인·상품·구매·잔액·로그아웃, Native 진단·서버 trace·DB 원장 검사 통과. 최초 전체화면 안내는 수동으로 닫았다. 기존 Android 회귀와 실제 제공자 검증은 별도다.
+- iOS 기존 인증·구매 전체 Runner를 새 Simulator·DB에서 다시 실행한다. 실행 전 진행 기록을 커밋한다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --package-cache ...`를 새 Simulator/DB에서 실행한다. Unity 인증·구매 이전 PASS를 현재 결과로 대체하지 않는다. 시작 기록을 커밋한다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc ... --package-cache ...` 새 전용 Simulator·DB 실행 종료 0 (`artifacts/unity-ios-e2e-zizcrlvt`): Unity C#→Swift C ABI→Backend/DB의 Mock 로그인·상품·구매·잔액·로그아웃 및 main-thread/Native 진단 통과. Apple 계정·StoreKit 실거래는 사용하지 않았다.
+- Android source `8afe5d0`, iOS source `9031124`의 새 tracked-clean 전체 회귀 PASS를 플랫폼 evidence에 추가했다. 커밋 준비: 검증 요약과 원장만 포함하며 원본 로그·APK·키는 제외한다.
+### PX-T16 지연 콜백 및 이전 세션 이벤트 검증 시작
+- 기존 실제 Android/iOS Player의 session A→B 전환·이전 사용자 발송 거부는 확인했다. 지연된 Native callback 자체를 실제 Player에 주입한 적은 없으므로, 우선 SDK wire registry의 timeout 이후 응답·다른 세션 이벤트 및 dispose 이후 이벤트를 격리 .NET 테스트로 확인한다. 이를 Player 주입 PASS로 대체하지 않는다.
+- `tests/UnityLateCallback`은 timeout 후 동일 응답 두 번, 이전 session push, 현재 session 정상 push, dispose 이후 push를 SDK의 실제 RequestRegistry에 합성 주입한다. 이는 C#/managed 단위 시험이며 JNI/C ABI Player 지연 callback 직접 주입은 아니다.
+- `dotnet run`은 custom OutputPath로 빌드한 뒤 기본 경로 실행파일을 찾다가 exit 1 (`Win32Exception`); 테스트는 실행되지 않았다. 생성된 명시적 DLL 경로로 다시 실행한다.
+- 동일한 테스트를 Unity 동봉 dotnet으로 명시적 출력 DLL에서 실행한다.
+- managed wire 단위의 timeout 후 응답·이전 session·dispose 이후 이벤트 테스트는 DLL 직접 실행 PASS. 여기에 더해 각 실제 Player의 platform transport callback 수신 경로에 이전 session 메시지를 test-only 합성 주입해 큐/main-thread에서 폐기되는지 확인한다. 이는 실제 원격 FCM/APNs 발송이 아니다.
+- test-only `LateCallbackProbe`와 link.xml을 격리 소비 프로젝트에 복사해 B session에서 A session 이벤트를 Android callback queue 또는 iOS C ABI callback 입력에 합성 주입한다. 메시지가 구독자에 전달되지 않고 ignored counter가 증가해야 한다. Android는 JNI를 통하지 않는 합성 callback 메서드 호출이며 iOS는 합성 C ABI 입력이다. 실제 Player 검증은 아직 미실행이다.
+- Unity wire registry의 timeout 후 이중 응답·이전 session·dispose 이후 이벤트 합성 단위는 DLL 직접 실행 PASS. Player probe를 포함한 Android/iOS 조건부 managed compile 각각 0 warning/0 error. JNI나 C ABI의 실제 지연 callback을 이미 통과한 것은 아니다. 커밋 준비: test-only probe·검사와 실제 오류 이력을 포함한다.
+- Android Unity Player의 B session에서 A session 합성 메시지를 Android callback queue에 주입하고 무시되는지 확인한다. 새로운 전용 AVD/DB에서 기존 Push/Lifecycle도 재검증하며 시작 기록을 커밋한다.
+- Android 실제 Player에서 test-only로 이전 A session 메시지를 B의 Android transport callback 메서드/큐에 지연 합성 주입하고 ignored counter 증가·구독자 미전달을 확인했다 (`artifacts/unity-android-push-3n9bo6qw`, exit 0). 기존 Mock push/background/network/session도 통과, 최초 전체화면 안내는 수동으로 닫았다. 합성 메서드 호출이므로 실제 JNI/FCM 지연 발생을 의미하지 않는다.
+- Android evidence에 최신 source의 Player test-only 지연 callback 주입 PASS, 제한된 회귀 범위 및 합성 주입/JNI 차이를 추가했다. 커밋 준비: 원본 로그·APK·DB 제외.
+- iOS Unity Player의 B session에 A session 메시지를 Swift C ABI callback 입력과 동일한 C# callback 경로로 합성 주입하고 버퍼 해제 후 폐기 여부를 확인한다. 실제 APNs callback이 아니며 새 Simulator·DB를 사용한다. 실행 전 기록을 커밋한다.
+- iOS 실제 Simulator Player에서 test-only 합성 A session 메시지를 B의 C ABI callback 수신 경로에 주입하고 입력 버퍼를 즉시 해제한 뒤 ignored counter 증가·구독자 미전달을 확인했다 (`artifacts/unity-ios-push-213zsmr5`, exit 0). 기존 Mock push/background/test TCP 재연결 실패·session 전환도 통과. 실제 APNs 지연 callback은 아니다.
+- iOS evidence에 최신 source Player의 C# callback 수신 메서드 합성 입력·즉시 버퍼 해제·이전 session 폐기 및 test-only scope를 추가했다. 커밋 준비: 원시 로그·키·DB·Simulator 산출물은 제외한다.
+### PX-T17 Push/Lifecycle 결과 및 문서 감사 시작
+- Android/iOS 실제 Unity Player의 LOCAL_MOCK 시험별 PASS, test-only fault·합성 callback·수동 안내 및 미실행 실제 제공자/실기기 범위를 README, FEATURE_MATRIX, FINAL_REPORT 및 evidence에 정리한다. 과거 결과와 source SHA를 보존한다.
+- 현재 Push/Lifecycle 결과를 주요 문서와 플랫폼별 matrix에 반영했다. Android/iOS Player 실험, force-stop 별도 실행, 합성 callback 및 iOS test proxy 범위를 분리하고 FCM/APNs·실기기 미실행을 유지했다.
+- BUG-014/015 및 FINAL_REPORT의 오래된 Unity Player 미검증 표현을 Android emulator/iOS Simulator local-mock PASS 범위로 정정했다. 실제 기기·FCM/APNs·다른 모드는 미검증이므로 OPEN 유지한다.
+- evidence 내 선행 시험의 시점별 NOT_RUN과 후속 PASS가 충돌하지 않도록 과거 범위임을 명시했다. 각 시험 source SHA·실행 결과 및 실제 FCM/APNs 미검증은 보존했다.
+- FEATURE_MATRIX의 push 등록/수신·pending 복구 행 및 USER_SETUP의 오래된 Unity push 미검증 문구를 현재 범위로 정정했다. 실제 알림 클릭·원격 전송·실기기는 PASS로 표시하지 않았다.
+- `python3 scripts/verify-progress.py`, 네 runner `py_compile`, cache/ADB 안전 단위 총 4건 및 `git diff --check` 종료 0. 커밋 준비: README·FEATURE_MATRIX·FINAL_REPORT·USER_SETUP·PROGRESS·WORK_LOG·플랫폼 evidence만 포함한다. Unity Runtime CI 전체 gate 및 실제 FCM/APNs는 성공으로 변경하지 않는다.
+### PX-T18 P09 시나리오 및 CI 고도화 시작
+- 요청된 브랜치·HEAD `058742df270f42d146843c25cdc2bbfc3ec3b341`와 미추적 Demo/cache를 확인했다. manifest의 R09/R11/R22/R40/R43/R49 및 현재 CI gate를 실제 코드/증거와 대조한다. 기본 CI, 라이선스 기반 Unity E2E, fail-closed Release 판정을 분리한다. 실제 검증 전 상태는 변경하지 않는다.
+### P09-T07 CI 게이트 분리 시작
+- 현 `verify.yml`의 결합된 Linux Backend/Android와 의도적 Unity 실패 placeholder를 조사했다. 사용자 요청에 따라 호스팅 기본 검증을 독립 gate로 분리하고 Unity는 라이선스 준비된 명시적 self-hosted workflow_dispatch에서만 실제 실행한다. Release gate는 누락·실패·부분 검증을 거부한다. 원격 Actions 실행은 아직 NOT_RUN이다.
+- `.github/workflows/verify.yml`의 무조건 실패 Unity placeholder를 실제 명시적 self-hosted workflow_dispatch gate로 교체하고, 기본 hosted CI 4개 및 Release readiness를 분리했다. Unity gate는 Editor smoke, Android/iOS Player 및 동일 run의 strict suite가 전부 통과해야 성공한다. Unity job 미실행은 release gate에서 DEFERRED_ENV 비영 종료다. 신뢰되지 않은 PR 코드를 self-hosted에서 자동 실행하지 않는다. 실제 원격 Actions는 아직 미실행이다.
+- `bash -n scripts/ci-unity-e2e.sh` PASS. Python YAML 검사 시 PyYAML 미설치로 exit 2, workflow 구문은 아직 미확인이다. 별도 설치 없이 Ruby 내장 parser로 재검증한다.
+- Ruby YAML 구문 검사 PASS, 새 7개 job 확인. `python3 harness/check-required-coverage.py`는 예상대로 6 PARTIAL / 0 NOT_IMPLEMENTED, exit 1이다. 이는 Release 준비 성공이 아니다. Unity 미실행 및 실패를 별도 gate에서 거부하는 테스트를 추가한다.
+- `scripts/ci-release-gate.sh`를 별도로 만들어 기본 CI 실패, Unity 미실행 및 부분 시나리오가 Release PASS가 되지 않는 음성 테스트를 실행한다.
+- 첫 음성 테스트는 실제 manifest가 완성되면 실패하는 구조여서, 임시 PARTIAL fixture를 사용하도록 수정했다. 향후 시나리오 완료를 막지 않는다.
+- self-hosted Unity job은 필수 환경뿐 아니라 실제 활성 라이선스를 확인한 다음에만 Editor/Player 검사를 실행한다. basic inventory job에 gate 음성 tests를 추가했다. 원격 Actions는 실행하지 않았다.
+- `test_ci_gate.py` 3건 PASS, Ruby YAML 구문/7개 job 구조 및 bash 문법 PASS. `docs/CI.md`에 basic vs Unity vs Release, opt-in self-hosted 보안 경계, 미실행/부분 시나리오 차단 및 현재 strict Unity push 미연결을 명시했다. 원격 CI는 실행하지 않았다.
+- 커밋 준비: CI 분리, 라이선스 확인·fail-closed release script, 격리 음성 테스트 및 CI 문서만 포함한다. 원격 workflow 설정/실행 및 자동 push는 하지 않는다.
+### P09 R49 신규 Unity 소비 프로젝트 근거 대조 시작
+- PX-T04/PX-T07 및 후속 Android/iOS Player 회귀의 새 소비 프로젝트·Unity package copy·APK/Xcode build를 기존 Demo 의존 여부와 대조한다. 재현 가능한 양 플랫폼 runner를 추가하며 근거 확인 전 manifest를 완료로 변경하지 않는다.
+- Android `8afe5d0` 및 iOS `9031124` 실제 Player 결과는 동일 staging manifest SHA를 사용하며 SDK 제품 디렉터리 diff 없음. 각 prepare 스크립트는 `unity/Demo`가 아닌 별도 소비 프로젝트에 UPM과 테스트 소스만 복사한다. `harness/run-unity-consumer-e2e.py`는 opt-in 시 Android/iOS 실제 새 실행·현재 HEAD·tracked-clean·원장 검증을 요구한다. runner 음성 검사를 실행한다.
+- `docs/evidence/r49-unity-fresh-consumers.md`에 기존 두 Player의 source/staging·새 consumer·서로 동일한 제품 소스 및 한계를 정리했다. R49는 실제 실행된 Android/iOS local-mock 근거로 IMPLEMENTED, 새 wrapper 실제 실행은 NOT_RUN이다. `harness/test_unity_consumer_e2e.py` 2건 PASS/skip 0; manifest·누락 음성 검증을 실행한다.
+- `harness/check-manifest.py`, `harness/check-manifest-negative.py` 종료 0, `test_unity_consumer_e2e.py` 2건 PASS/skip 0. 커밋 준비: R49 실제 선행 증거·매핑 및 fail-closed runner만 포함한다.
+### P09 R11 Unity Editor scene/domain reload 검증 시작
+- 기존 `ConsumerLifecycleTests`는 테스트 소스만 있고 과거 라이선스 미비로 실행되지 않았다. 현재 Unity 6000.5.8f1 활성 환경에서 실제 EditMode test를 실행하고 callback/객체 재생성 검증의 부족 여부를 대조한다. 기존 Unity 프로젝트와 설정은 건드리지 않는다.
+- `scripts/build-unity.sh --editor-smoke`가 선택적 `GAMEBRIDGE_UNITY_PACKAGE_CACHE`에서 정확한 두 Unity package를 격리 소비 프로젝트에 복사하고 Unity 6000.5.8f1의 내장 Test Framework 1.7.0/NUnit 2.1.0을 해당 프로젝트에만 embedded할 수 있게 했다. test timeout은 기본 300초 및 외부 watchdog으로 유지한다. 실제 테스트 결과는 아직 없다.
+- `GAMEBRIDGE_UPM_STAGING=... GAMEBRIDGE_UNITY_PACKAGE_CACHE=... bash scripts/build-unity.sh --editor-smoke` 종료 0, 실제 Unity Editor EditMode tests 2건 PASS/skip 0 (`artifacts/unity-consumer.j4aGtO/results.xml`), play mode/domain reload 및 scene 전환 실행. 기존 test에는 동일 실행 내 재생성·이전 callback 미전달 검사가 없어서 R11 완료로 승격하지 않는다. 격리 테스트를 보강한다.
+- 격리 consumer test에서 동일 play session 내 dispose→재생성, old/new session 합성 event 및 subscriber count, dispatcher 정리를 추가했다. 두 domain reload 경로 각각의 완료 marker도 기록한다. 실제 새로운 Editor 검증을 실행한다.
+- 수정된 `scripts/build-unity.sh --editor-smoke` 실행은 `Unity consumer result invalid`, exit 1 (`artifacts/unity-consumer.upNR5n`). 테스트별 실패 메시지를 조사하며 이전 2건 PASS로 새 assertion을 통과 처리하지 않는다.
+- 실패한 두 Editor 시험 중 첫 오류는 test의 `SessionId(client)`가 dispose 후 null registry를 참조한 것. 두 번째 시험도 이전 실패에서 남은 객체 영향 가능성이 있으므로 session ID를 dispose 전에 캡처하고 finally에 양 client 정리를 추가했다. 제품 버그로 단정하지 않는다.
+- dispose 전 session 캡처 수정 후 강화 Editor 테스트도 exit 1 (`artifacts/unity-consumer.d0MHsU`). 최초 오류 해결 여부 및 남은 assertion을 확인한다.
+- `artifacts/unity-consumer.d0MHsU/results.xml`: reload-disabled PASS, reload-enabled test state machine에서 closure 필드 null. Player 제품 오류로 단정하지 않으며 coroutine/domain reload를 넘는 테스트 closure를 static callback으로 대체한다. 같은 오류에 대한 세 번째 시도다.
+- static callback으로 수정한 Unity Editor `build-unity.sh --editor-smoke` 종료 0 (`artifacts/unity-consumer.U1ob4f/results.xml`): reload-enabled/disabled 2건 PASS, 각 완료 marker 존재. 두 차례 실패는 test 측 수명/closure 문제로 기록돼 있다. 결과 판정이 실행되지 않은 assertion을 PASS 처리하지 않도록 각 test의 marker를 필수화한다.
+- `scripts/check-unity-test-result.py`가 두 test 이름과 PASS뿐 아니라 각 test의 해당 완료 marker를 개별 검사하도록 변경했다. 기존 실제 XML 및 marker 누락/skip/중복 음성 fixture를 확인한다.
+- 실제 `artifacts/unity-consumer.U1ob4f/results.xml`은 두 marker 검사 PASS. `test_unity_consumer_result.py` 1 test PASS/skip 0(누락·skip·중복 fixture 포함). 커밋 준비: R11 test source·결과 parser·offline 격리 runner 및 원장만 포함한다. 신규 source 재실행 전 manifest는 PARTIAL 유지한다.
+- R11 커밋된 테스트 코드를 동일 버전의 격리 consumer에서 재실행한다. 실행 전 진행 기록을 커밋하며 사용자 Demo 및 다른 Unity 프로젝트는 변경하지 않는다.
+- clean tracked source `a0ba7a5`의 `scripts/build-unity.sh --editor-smoke` 종료 0 (`artifacts/unity-consumer.EfzZEr/results.xml`): Unity 6000.5.8f1 Editor에서 domain reload enabled/disabled 2건 PASS/skip 0, 각 완료 marker, scene 전환·client dispose/recreate·이전 session synthetic callback 차단·dispatcher 1→0 확인. 실제 OS callback이나 Player 대체가 아닌 Editor 범위다.
+- 실제 Editor 테스트·marker 및 격리 package 조건을 `docs/evidence/r11-unity-scene-domain-reload.md`에 기록하고 R11을 해당 범위로 매핑했다. manifest 및 진행 원장을 검증한다.
+- `harness/check-manifest.py`, `harness/check-manifest-negative.py`, `scripts/verify-progress.py` 종료 0. 커밋 준비: R11 실제 Editor 결과의 요약·manifest 및 원장만 저장한다. 원본 로그·Unity project는 Git에 넣지 않는다.
+### P09 R09 UTF-8 JNI 및 C ABI 검증 시작
+- Android Unity Player에서 C#→AndroidJavaClass→Kotlin→AndroidJavaProxy→Unity 이벤트의 한국어/emoji를 확인하고, iOS C ABI 입력 buffer 재사용과 callback 데이터 복사 후 문자열 동일성을 직접 검증한다. 단순 JSON parser나 링크 성공을 ABI PASS로 대신하지 않는다.
+- `CBridgeTests.testHostPushEventRoutingAndDedup`이 원시 UTF-8 `한글 🎮🚀`을 포함한 요청을 GB_Dispatch 후 즉시 덮어쓰고 callback이 복사한 메시지 ID 동일성을 검사하도록 강화했다. iOS C ABI test 실행 전이다.
+- `swift test --package-path ios --filter CBridgeTests.testHostPushEventRoutingAndDedup` 종료 0, XCTest 1건 PASS/skip 0: 실제 GB_Dispatch 입력을 반환 직후 덮어쓴 뒤 복사된 callback의 한국어·emoji 동일성 확인. macOS host ABI 시험이며 iOS 실제 기기는 아니다.
+- Android UTF-8 Player probe managed compile 종료 0, 경고·오류 0. 커밋 준비: iOS C ABI의 명시적 버퍼 복사 시험과 Android JNI probe/run option만 포함하며 Android 실제 JNI 검증은 재실행 전이다.
+- `harness/run-unity-android-mock-e2e.py --utf8-probe`를 새 전용 AVD에서 실행한다. Java→AndroidJavaProxy callback 이후 문자열 및 main-thread가 일치해야 PASS다. 실행 전 기록을 커밋한다.
+- R09 iOS C ABI 한국어·emoji/입력 버퍼 덮어쓰기의 macOS host test는 통과했으나 iOS Simulator 실행은 별도다. 기존 CBridgeTests를 Swift Package product와 연결하는 전용 simulator XCTest target을 생성한다.
+- XcodeGen에 GameBridgeCBridgeTests target/scheme을 추가하고 Swift package의 GameBridgeUnityBridge·Core를 연결했다. 사용자 기존 Xcode project는 변경하지 않는다. 새 전용 iOS 18.6 Simulator에서 UTF-8 C ABI test를 실행한다.
+- `xcodebuild ... -scheme GameBridgeCBridge -only-testing:GameBridgeCBridgeTests/CBridgeTests/testHostPushEventRoutingAndDedup test -quiet` 종료 0, `artifacts/r09-ios-20261112203456.xcresult`: 1 test PASS/failed 0/skipped 0. iOS 18.6 전용 Simulator에서 C ABI 원시 UTF-8 입력 buffer 덮어쓰기와 callback 한국어·emoji 동일성을 확인했다. Android JNI는 별도 진행 중.
+- `harness/run-unity-android-mock-e2e.py --run-local --utf8-probe ...` 전용 Android 36 AVD 실행 종료 0 (`artifacts/unity-android-e2e-c26jgz32`): Unity C#→AndroidJavaClass→Kotlin bridge→AndroidJavaProxy callback→Unity 이벤트에서 `한글 🎮🚀` 동일성 및 main-thread 확인. 최초 전체화면 안내는 수동으로 닫았다. iOS Simulator의 C ABI test 1건 PASS와 별도로 기록한다.
+- Android source `11dcde9`, tracked-clean 결과 PASS; iOS Simulator는 동일 기반에 당시 미커밋 `ios/Framework/project.yml`의 CBridge XCTest target을 추가한 working diff에서 test 1건 PASS. 커밋 준비: XcodeGen test-only target과 검증 기록을 저장하며 제품 SDK binary 변경은 없다.
+- `docs/evidence/r09-jni-cabi-utf8.md`에 Android tracked-clean 실 Player와 iOS Simulator 1건의 당시 test-only working diff를 명시했다. 새 `harness/run-r09-utf8.py`는 현재 source Android Player 및 iOS XCTest를 각각 새로 실행하고 성공·skip/marker를 검사한다. wrapper 전체 재실행은 아직 NOT_RUN이다. manifest 검사 시작.
+- `harness/check-manifest.py`, `harness/check-manifest-negative.py`, `scripts/verify-progress.py`, wrapper `py_compile` 종료 0. 커밋 준비: R09 evidence, 재현 runner, manifest 및 작업 이력만 포함한다.
+### P09 R43 iOS host delegate 및 Unity 전달 경계 시작
+- 기존 `PushHostTests.testSyntheticHostCallbacksAndCompletion`은 iOS Simulator에서 기존 delegate 보존과 completion 호출을 확인했으나 Unity host adapter 연결 자체는 검증하지 않았다. 별도 Unity iOS Player에서 synthetic iOSNotification을 host adapter에 전달해 Swift bridge 및 Unity callback을 검사한다. APNs 실제 원격 발송은 아니다.
+- 테스트 소비 앱은 synthetic `iOSNotificationPushTrigger`를 Unity host adapter에 전달하고 Swift bridge가 되돌린 `PushReceived` 이벤트의 단일 전달과 main-thread를 검증한다. SDK 또는 실제 APNs provider를 수정하지 않으며 실제 Player 실행 전이다.
+- iOS Runner Python 문법 검사 종료 0. 커밋 준비: test-only Unity host probe, 제한적인 linker 보존 설정 및 runner 옵션만 포함한다. 실행 결과는 아직 없다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe ...`를 새 Simulator/DB에서 실행한다. 실제 remote APNs가 아니다. 시작 기록을 커밋한다.
+- `harness/run-unity-ios-mock-e2e.py --host-callback-probe` 새 Simulator E2E는 Unity export 단계에서 exit 1 (`artifacts/unity-ios-e2e-429_2_xw`). C ABI/Player 실행 전이므로 원인을 조사한다.
+- Unity Editor.log `Assets/MockIosPlayerScenario.cs(9,18) CS0234`: `GameBridge.iOSHost`는 iOS 전용 assembly인데 using이 Editor에도 노출됐다. test-only consumer에 `UNITY_IOS && !UNITY_EDITOR` 조건을 추가한다. 제품 SDK 자체의 변경은 없다.
+- 커밋 준비: iOS 전용 using 조건 및 실제 compile 실패 원인만 기록한다. 새 test source의 Player 검증은 미실행이다.
+- iOS host callback probe를 새 Simulator·DB에서 다시 실행한다. 실행 전 기록을 커밋한다.
+- `GameBridgePushTests/PushHostTests.testSyntheticHostCallbacksAndCompletion`를 새 Simulator에서 별도로 실행하여 기존 delegate 보존 및 host completion을 재검증한다. 실제 APNs 발송은 아니다.
+- `GameBridgePushTests/PushHostTests.testSyntheticHostCallbacksAndCompletion` 새 Simulator XCTest 종료 0, 1건 PASS/skip 0 (`artifacts/r43-ios-20261112204204.xcresult`). 기존 notification delegate 보존과 sample host completion을 합성 입력으로 확인했다. APNs 원격 수신 및 Unity host는 이 결과에 포함하지 않는다.
+- `harness/run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe ...` 새 iOS Simulator 실행 종료 0 (`artifacts/unity-ios-e2e-f7bwumjl`): test-only synthetic iOSNotification host adapter→Swift C ABI→Unity PushReceived, 동일 이벤트 중복 억제·main-thread 및 기존 LOCAL_MOCK 인증/구매 흐름 확인. 이는 실제 APNs 전달이 아니다.
+- `docs/evidence/r43-ios-host-unity-boundary.md`에 Swift host Simulator XCTest와 Unity iOS Player의 분리된 synthetic host callback 실측을 정리했다. 신규 `harness/run-r43-host.py`는 현재 source의 새 두 실행을 요구한다. manifest·runner 문법을 검증한다.
+- R43 `py_compile`, manifest/음성 및 진행 원장 검사 종료 0. 커밋 준비: 실제 Simulator host XCTest·Unity Player evidence, 두 새 실행을 요구하는 wrapper 및 manifest만 포함한다.
+### P09 R40 실제 Android 권한 거부 검증 시작
+- Android 13+ 전용 테스트 Player에서 OS 알림 권한을 명시 요청하고 거부한 후 SDK 등록 차단 및 재요청 상태를 확인한다. Firebase/실제 Google 로그인 또는 원격 발송은 사용하지 않는다. iOS/Mock 거부 및 Android 실제 결과를 혼동하지 않는다.
+- `tests/UnityAndroidPermissionConsumer/MockPlayerScenario.cs`는 합성 sandbox 설정으로 알림 권한만 요청하며 계정 로그인/외부 network를 사용하지 않는다. 실제 Android permission dialog와 재요청은 별도 에뮬레이터 실행 전이다.
+- Android test-only permission 시나리오 managed compile 종료 0. 격리 소비 프로젝트에만 POST_NOTIFICATIONS 및 Unity 자동 권한창 생략 설정을 추가하고 명시적 SDK 요청으로 실제 OS dialog를 검증한다.
+- `regression-manifest.json` 현재 48 IMPLEMENTED, 2 PARTIAL(R22/R40). `docs/CI.md`와 `docs/FINAL_REPORT.md`의 이전 44/6 집계를 갱신했고, 실제 실행 중인 R40은 아직 승격하지 않았다.
+- 격리 Unity 소비 프로젝트의 Android OS 권한 test APK 빌드 `bash scripts/build-unity-android-mock.sh ...` 종료 0 (`artifacts/r40-android-permission.apk`). 실제 권한 거부/재요청은 새 AVD에서 수행한다.
+- 전용 Android 36 AVD의 실제 OS 알림 dialog에서 거부 후 Unity `GB_PERMISSION_FIRST_DENIED PASS`를 확인했다. 이어 `GB_PERMISSION_RESULT FAIL stage=registration type=InvalidOperationException`으로 test FAIL. 현재 test가 다른 SdkException code를 숨겨 root cause를 특정할 수 없어 오류 코드만 안전하게 출력하도록 보강한다. Player 종료·재요청은 미확인이다.
+- R40 test-only consumer가 등록 성공 여부 또는 SdkException의 허용된 code만 출력하도록 변경한다. 새 APK 빌드 후 전용 AVD에서 동일 실제 OS 거부를 재현한다.
+- R40 test-only consumer에 code 진단을 추가한 Unity Android APK 두 번째 빌드 종료 0 (`artifacts/r40-android-permission-2.apk`). 기존 전용 AVD를 종료만 하고 새 AVD에서 권한 dialog를 다시 검증한다.
+- 두 번째 전용 Android AVD의 OS dialog 거부 후 `GB_PERMISSION_REGISTRATION_CODE CONFIG_REQUIRED`. 코드상 Firebase host class linkage 실패가 permission check보다 앞설 수 있어 해당 결과만으로 PERMISSION_DENIED 차단을 주장하지 않는다. 실제 Firebase 설정·계정·원격 발송 없이 테스트 앱에 SDK dependency만 제공해 재시험한다.
+- 격리 테스트 프로젝트의 Gradle postprocess에 `firebase-messaging:26.0.1` runtime dependency만 추가했다. 앱 계정/서비스 설정은 하지 않으며 permission 거부 시 token 획득이나 network 전에 차단되는지 확인한다. 이 문제에 대한 세 번째 원인 기반 시도다.
+- R40 test-only Firebase dependency를 포함한 Unity Android APK 빌드 종료 0 (`artifacts/r40-android-permission-3.apk`). 서비스 키나 Firebase 프로젝트는 추가하지 않았다. 새 전용 AVD에서 세 번째 원인 기반 재검증을 수행한다.
+- R40 세 번째 원인 기반 재시험: 격리 Unity Android Player와 새 Android 36 AVD에서 OS 알림 dialog를 두 번 수동 거부. 첫 요청 DENIED, Firebase SDK dependency가 존재할 때 등록 `PERMISSION_DENIED`, 두 번째 요청 DENIED, `GB_PERMISSION_RESULT PASS ANDROID_OS_DENIED` 확인 (`artifacts/r40-android-os-denial-20261112/markers.log`). test-only Firebase 앱 설정·계정·원격 연결 없음. 초기 전체화면 안내도 수동으로 닫았다. 이전 두 시도는 Firebase dependency 부재로 CONFIG_REQUIRED가 우선되어 권한별 차단을 증명하지 못했다. iOS OS 및 Mock 거부 주입은 NOT_RUN이며 R40은 PARTIAL이다.
+### P09 사용자 요청 일시 중단 및 재개 지점
+- 현재까지 R49(양 플랫폼 신규 Unity consumer 실제 기존 근거), R11(Unity Editor domain reload 두 설정 및 scene/재생성/합성 callback), R09(Android JNI Player 및 iOS Simulator C ABI UTF-8), R43(iOS synthetic host delegate + Unity Player 경계)를 검증하고 IMPLEMENTED로 매핑했다. manifest 총 50개 중 48 IMPLEMENTED, 2 PARTIAL(R22/R40), NOT_IMPLEMENTED 0.
+- CI는 inventory/backend/Android/Swift hosted 기본 gate, opt-in self-hosted Unity 실제 실행 gate, fail-closed Release readiness로 분리했다. Ruby YAML 구문 및 로컬 음성 unit 3건은 PASS이나 GitHub Actions 실제 실행은 NOT_RUN. strict-local 이번 변경 후 NOT_RUN; `push/unity-player-notifications`의 실제 Player 집계 연결도 아직 미구현/DEFERRED_ENV이므로 release PASS로 주장하지 않는다.
+- R40 Android 36 OS 두 차례 권한 거부·등록 차단은 실제 Player에서 부분 확인했다. iOS OS 권한·Mock 거부 주입과 R22의 SDK 로그/Unity 결과/Backend 오류 민감정보 검사 완료가 남았다. R40 test-only Firebase dependency/consumer는 이번 커밋에 포함하며 서비스 인증 및 원격 발송은 하지 않았다.
+- 네트워크 중단을 앞둔 사용자 요청에 따라 새 작업을 시작하지 않고 여기서 중단한다. 재개 시 문서와 Git 상태를 읽고 남은 R22/R40, strict-local 전체, CI Unity push 결과의 fresh-source 집계 및 README/FEATURE_MATRIX/FINAL_REPORT 일관성 감사를 계속한다. 기존 미추적 Demo/cache와 모든 테스트 artifacts·DB·AVD를 보존하고 push하지 않는다.
+- 중단 전 `python3 scripts/verify-progress.py`, `python3 harness/check-manifest.py`, `git diff --check` 종료 0. 커밋 준비: R40 test-only 코드/부분 증거, CI/FINAL_REPORT 현재 집계와 재개 기록만 포함한다. Unity Player 전체 또는 CI 성공을 새로 주장하지 않는다.
+### P09-T06 Unity Push 실측 집계 연결 시작
+- strict의 `unity-player-notifications`는 이전 Player PASS 이후에도 무조건 DEFERRED_ENV다. 명시적 opt-in과 별도 전용 Android AVD가 제공될 때만 현재 source의 Android/iOS Push Player runner를 새로 실행하고 각 result·marker를 검증해 집계하는 경로를 추가한다. 이전 결과 재사용, 누락·실패를 PASS로 바꾸는 것을 금지한다.
+- `harness/run-unity-push-current.py`는 별도 전용 Android AVD와 iOS 신규 Simulator에서 두 실제 Runner를 실행하며 정확한 source·clean·status·marker·재연결 거부·token 삭제를 확인한다. 미지정 시 strict lane은 계속 DEFERRED_ENV다. self-hosted CI는 인증/구매 AVD와 서로 다른 push AVD를 요구한다. 현재 구현은 아직 실제 재실행 전이다.
+- 현재 run source 일치·Player PASS·두 플랫폼 별 네트워크 결과·재연결 관측·token 삭제·필수 marker가 빠지면 false가 되는지 격리 result fixture로 음성 검증한다. 실제 Unity E2E를 테스트 fixture로 대체하지 않는다.
+- `test_unity_push_current.py` 1건, `test_ci_gate.py` 3건 PASS/skip 0. 둘 다 합성 증거 및 gate 검사다. Player 재실행은 NOT_RUN. 두 Player를 순차 실행하는 lane에 기존 600초 제한이 부족할 수 있고 테스트가 기존 artifacts 디렉터리를 가정하는 문제를 발견해 보완한다.
+- 깨끗한 checkout을 가정한 임시 root에서 Push 증거 단위 1건, CI gate 3건, 집계 13건 PASS/skip 0. Python compile, shell 구문 및 Ruby YAML parse PASS. 순차 Player 실행의 외부 timeout을 확장했다. 실제 양 플랫폼 Player 및 GitHub Actions는 이번 변경에서 NOT_RUN이다. 커밋 전: 관련 실행기·CI·검증 문서만 포함한다.
+### P09-T03/R22 민감정보 검증 재개
+- 로그와 Unity 공개 결과에서 synthetic token·secret의 노출을 각각 확인할 기존 경로와 검증을 조사한다. 실제 credential은 사용하지 않는다.
+- Kotlin/Swift diagnostics는 enum·UUID만 수용하고 기존 bridge 시험은 synthetic secret을 주입한다. Unity Player 전체 공개 결과 및 Backend 오류 로그를 포괄하는 시험은 아직 확인되지 않았다. 기존 Android BridgeDispatcher 및 Swift CBridge synthetic 시험을 현재 소스에서 재실행한다.
+- Android 검증 첫 호출 `./gradlew`는 저장소 루트에 파일이 없어 exit 127이며 테스트 NOT_RUN. `./android/gradlew`로 수정해 재실행한다. Swift 시험은 실행 중이다.
+- `./android/gradlew -p android :sdk-core:test --tests com.gamebridge.BridgeDispatcherTest --tests com.gamebridge.DiagnosticsTest` exit 0; synthetic secret 오류·typed diagnostics. `swift test --package-path ios --filter CBridgeTests|DiagnosticsTests` exit 0, XCTest 5건/실패0. 실제 Unity Player 전체 및 Backend 오류 로그는 포함되지 않아 R22 PARTIAL.
+- Backend ApiErrors 예외 로그는 타입만 기록하도록 구현되어 있으나 이를 실제 logger 및 HTTP 응답으로 검증하는 회귀가 없다. MockMvc와 in-memory log appender에서 synthetic secret 노출을 확인한다.
+- `./backend/gradlew -p backend test --tests com.gamebridge.config.HttpInfrastructureTest` exit 0: MockMvc 요청 header/body와 예외 메시지에 합성 secret을 주입하고 500 응답 및 캡처된 ApiErrors logger의 메시지·예외 stack 부재를 확인했다. 실제 계정·전체 서버 로그·Unity Player는 범위 밖. 앞선 Android 4건과 Swift 5건도 PASS. 커밋 전: 테스트와 진행 기록만 포함, R22 PARTIAL 유지.
+### P09-T05/R40 iOS 권한 거부 재개
+- Unity iOS host adapter의 OS 거부·재요청과 등록 차단을 실제 Simulator에서 확인할 수 있는 기존 격리 test 경로를 조사한다. Mock 거부는 별도다.
+- `tests/UnityIosPermissionConsumer/MockIosPlayerScenario.cs`는 sandbox 설정과 실제 iOS host adapter로 DENIED→PERMISSION_DENIED→DENIED를 검사한다. 계정 로그인·원격 APNs를 사용하지 않으며 아직 컴파일·Simulator 실행 전이다.
+- iOS 권한 소비자에 Unity notifications 의존성을 격리 프로젝트에 포함하고 새 Unity Simulator Xcode export를 시도한다. 기존 Simulator·프로젝트는 수정하지 않는다.
+- `artifacts/unity-ios-mock.PLDU8j`의 새 격리 프로젝트에서 iOS 권한 소비자 Unity export exit 0. Simulator Xcode build·Player·OS 권한은 아직 NOT_RUN이다.
+- export된 격리 Xcode 프로젝트를 Simulator arm64와 ad-hoc 서명으로 빌드한다. 빌드 출력은 로컬 artifacts에만 둔다.
+- `artifacts/unity-ios-mock.PLDU8j`의 iOS Simulator arm64 Xcode build exit 0, ad-hoc 서명. Player 권한 시험은 아직 미실행이다. 새 전용 Simulator를 생성한다.
+- 전용 Simulator C766DB3F-3D32-499F-AF04-CA3960842487 부팅 PASS. 설치 시 고정한 `Unity-iPhone.app` 경로가 없어 simctl 설치 실패, 앱 실행은 NOT_RUN이다. 결과 명령의 마지막 cat 성공을 설치 성공으로 간주하지 않는다. 실제 산출물 경로를 확인한다.
+- 새 iOS 18.6 Simulator C766DB3F-3D32-499F-AF04-CA3960842487에서 격리 Unity Player를 실행하고 OS 알림 팝업의 허용 안 함을 선택했다. 첫 DENIED, SDK 등록 PERMISSION_DENIED, 재요청 DENIED marker 모두 PASS (`artifacts/unity-ios-mock.PLDU8j/player-console.log`). 현재 HEAD e0acbd6 + 미커밋 test-only 소비자 소스. 합성 sandbox 설정이며 APNs 전송·실기기·Mock 거부 주입은 NOT_RUN, R40 PARTIAL이다.
+- iOS OS 권한 marker만 정제하여 `docs/evidence/r40-ios-os-permission-partial.md`에 기록했다. 커밋 전: 전용 테스트 소비자와 부분 증거·진행 기록만 포함하며 raw 로그·빌드 산출물은 제외한다.
+### P09-T05/R40 Mock 거부 주입 시작
+- 실제 EditorOfflineTransport를 감싼 test-only transport에서 permission 요청의 DENIED 응답만 주입한다. 로그인 후 실제 EditorOffline 등록 로직이 PERMISSION_DENIED를 반환하고 재요청도 거부되는지 Unity C# 공개 API로 확인한다. 실제 Unity Player/OS 검증과 구분한다.
+- `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-unity-mock-permission.sh` exit 0: test transport가 permission DENIED만 주입하고 Unity C# 공개 API가 실제 EditorOffline 등록의 PERMISSION_DENIED와 재요청 DENIED를 처리했다. 독립 .NET managed fake이며 Unity Editor/Player 실행이 아니다. Android/iOS OS는 별도 부분 증거로 보존하고 R40 자동 scenario 연결 전 PARTIAL 유지. 커밋 준비: 테스트와 문서만 포함한다.
+### P09-T06 현재 소스 strict-local 재검증 시작
+- `harness/run-strict-local-isolated.py --run-local`을 최신 staged UPM으로 실행한다. 새 DB/role과 전용 simulator를 보존하며 외부 제공자 credential을 사용하지 않는다. Unity Editor/Push Player는 이 호출에서 별도 opt-in이 없어 미실행으로 집계한다.
+### 테스트 Simulator 정리 시작
+- 사용자 요청에 따라 부팅된 GameBridge 테스트 전용 Simulator 중 현재 strict 시험용을 제외하고 shutdown한다. 삭제·초기화는 하지 않으며 타 앱·타 Simulator는 건드리지 않는다. 향후 독립 상태가 불필요한 시험은 전용 Simulator를 재사용한다.
+- 부팅된 GameBridge 기기 전체를 열거하는 종료 명령은 strict 구매 검증이 도중에 만든 새 기기를 포함할 가능성이 있어 중단(exit 130). 일부 기존 기기는 종료됐을 수 있다. 작업 시작 전 확인한 기존 Simulator ID만 대상으로 제한해 계속한다. 기기 삭제는 없다.
+- 시작 전에 확인한 기존 GameBridge Simulator만 shutdown했다. 두 번째 제한 목록에서 남아 있던 7개는 exit 0; 앞선 중단된 일괄 명령에서 이미 종료된 기기도 있다. 기기와 데이터는 삭제하지 않았다. strict 검증용 기기는 목록에서 제외했다.
+- `GAMEBRIDGE_UPM_STAGING=<validated stage> python3 harness/run-strict-local-isolated.py --run-local` exit 1, 전체 FAIL; 결과 `artifacts/verify-all-n8ajxtoz/summary.md`, orchestration `artifacts/strict-isolated-okbwk6f6`. 소스 HEAD 9b02b71 + 문서 변경 및 기존 미추적 파일, 외부 13개 WAITING_USER. 세부 lane과 Simulator 종료가 실행에 영향을 주었는지 확인한다.
+- `xcresulttool` 결과 XcodeStoreKitLocalDatabaseTests 1건은 `Test crashed with signal term`, exit 65; 명확한 제품 결함 원인은 확인되지 않았다. 기존 Simulator shutdown과 시간대가 겹치므로 간섭 가능성을 배제하지 않고, 전용 새 DB/Simulator에서 해당 시험을 따로 재실행한다. Process-recovery는 독립 PASS.
+- 동일 `harness/run-xcode-storekit-e2e.py --run-local` 단독 재시험 exit 0, `artifacts/xcode-storekit-e2e-he6ows9_/result.json` PASS 1건/skip0: Xcode local StoreKit 및 합성 DB 복구만 확인. 이전 strict run의 signal TERM FAIL은 변경하지 않고 원인도 확정하지 않는다. 단독 성공을 strict 전체 성공으로 대체하지 않는다.
+- 커밋 전: strict 전체 실패·미실행·재시험 결과와 사용자 요청에 따른 기존 기기 shutdown 기록만 포함한다. Simulator/DB와 미추적 사용자 파일은 삭제하지 않는다.
+### P09-T03/R22 Unity typed 결과 경계 재검증 시작
+- 기존 purchase error·fingerprint 검사 외에 profile/purchase/push 응답에 synthetic access token·receipt·push token 필드를 주입하고 typed 결과 직렬화에서 사라지는지 확인한다. 독립 managed test이며 Player 전체 로그를 대체하지 않는다.
+- 새 결과 redaction smoke의 첫 빌드는 `JsonConvert` namespace 누락 3건(CS0103)으로 실패했고 시험은 미실행이다. 참조 이름을 수정해 재실행한다.
+- namespace 수정 후 `UNITY_EDITOR_PATH=<installed Unity> bash scripts/smoke-csharp-registry.sh` exit 0. 합성 credential 추가 필드가 profile·purchase·push typed 결과의 직렬화에서 제거됨을 확인했다. standalone managed test이며 Unity Player나 실제 credential 시험이 아니다. R22 PARTIAL 유지. 커밋 전: 시험 및 기록만 포함.
+### P09-T06 Unity Push 동일 실행 실측 시작
+- `harness/run-unity-push-current.py` 양 플랫폼 실행을 검증한다. Android runner는 기존 테스트 앱 설치 기기를 거부하므로 별도 비어 있는 GameBridge_V2_ AVD가 필요하다. iOS runner도 독립 Simulator를 만든다. 현재 HEAD와 tracked-clean 조건을 지키기 위해 시작 기록을 먼저 커밋한 뒤 실행하고 이전 PASS는 재사용하지 않는다.
+- 커밋 전: 실측 시작 기록만 저장한다. 실제 Player 결과는 아직 NOT_RUN이다.
+- `GAMEBRIDGE_RUN_UNITY_PUSH_E2E=true ... python3 harness/run-unity-push-current.py` exit 0, 양 플랫폼 실제 Unity LOCAL_MOCK Player 2건 PASS. 소스 f40f8d5, tracked-clean; Android `artifacts/unity-android-push-0b67f62g`, iOS `artifacts/unity-ios-push-ejpifgez`. 중복·foreground/background·연결 복구·late callback·계정 전환·token 삭제와 marker를 각 runner 및 상위 gate가 확인했다. Android 신설 AVD 최초 전체화면 안내는 수동으로 닫았다. 이는 GitHub Actions·실제 FCM/APNs·실기기 검증이 아니다.
+- 결과 파일 요약 재확인 명령의 작업 디렉터리 오타로 프로세스가 시작되지 않았다. Player 통과 결과는 별도이며 올바른 경로로 재확인한다.
+- 양 result JSON의 source·tracked-clean·Player PASS·token 0 및 플랫폼별 network 범위를 재확인했다. 사용자 요청에 따라 실행 종료 후 테스트 iOS Simulator 2개 및 Android emulator를 shutdown했고 데이터는 삭제하지 않았다. 커밋 전: 공개 요약·진행 및 CI 문서만 포함, raw log·APK·DB는 제외.
+### P09-T05/R40 Mock 거부 집계 연결 시작
+- 독립 managed 거부 주입 시험을 `run-push-regression.py`와 strict 필수 lane에 연결한다. 시험이 실행되지 않거나 marker가 없을 때 aggregate가 성공하지 않게 한다. 실제 OS 수동시험은 별도 증거다.
+- Mock 거부 managed 시험 exit 0, 집계 음성 포함 13건 PASS/skip0, Python compile PASS. 다음으로 독립 Push runner에서 새 lane 실제 집계와 누락 환경의 비성공을 확인한다.
+- `UNITY_EDITOR_PATH=<installed Unity> python3 harness/run-push-regression.py` exit 2: 새 mock-permission-denied 1건 PASS, backend/Android/Swift fake 각 PASS, DB·iOS host·staging·Player 등 미제공 lane은 DEFERRED_ENV (`artifacts/push-regression-0qh7drmi/result.json`). 전체 성공이 아니다. 커밋 전: 필수 lane 및 기록만 포함, OS 수동시험 자동 재현은 여전히 미완료.
+### P09-T07 self-hosted 환경 사전검사 보완
+- strict의 managed 검증이 UNITY_EDITOR_PATH를 요구하지만 CI preflight와 문서에서 이를 빠뜨린 점을 확인했다. build 전에 명시적으로 확인해 환경 누락이 늦게 드러나지 않도록 한다.
+- `bash -n scripts/ci-unity-e2e.sh` 및 CI gate 단위 3건 PASS/skip0. 잘못된 UNITY_EDITOR_PATH가 실제 build 실행 전 거부되는지 별도 음성 시험을 추가한다.
+- 잘못된 Unity 실행 파일 경로를 조기에 DEFERRED_ENV로 거부하는 시험 포함 `test_ci_gate.py` 4건 PASS/skip0, shell 문법 PASS. GitHub Actions 실제 실행은 NOT_RUN. 커밋 전: 사전검사·음성 시험·문서만 포함한다.
+### P11 현재 증거 문구 정합성 점검 시작
+- 기존 Android R40 증거가 당시 iOS/Mock NOT_RUN이라고 적고 있어 현재 증거에 대한 오해를 막을 현재 상태 연결 문장을 추가한다. 개별 시험 당시 사실과 전체 PARTIAL/실플랫폼 미검증은 보존한다.
+- R40 과거 시점별 증거와 USER_SETUP·FEATURE_MATRIX·FINAL_REPORT 주요 항목의 현재 결과를 정정하고 `verify-progress.py` PASS. 각 문서의 나머지 과거 Unity 미실행 표현은 당시 산출물과 현재 결과를 구분해 추가 점검한다.
+- `python3 scripts/verify-progress.py`, `python3 harness/check-manifest.py`, `git diff --check` exit 0. 문서 검사는 제품 시험이 아니다. 커밋 전: R40 시점별 증거와 사용자 설정·기능 matrix·보고서의 오류 표현만 정정하며 strict FAIL과 실연동 미검증을 유지한다.
+### P09-T06 격리 strict 실행 시간 제한 점검
+- Push runner 내부는 양 Player 합산 최대 3300초인데 isolated orchestration은 전체 strict를 900초로 제한한다. 명시적 Unity Push opt-in에서 긴 실행을 중간에 끊을 수 있어 외부 timeout 일관성을 검토한다.
+- isolated 전체 900초는 opt-in Unity Push의 3600초 상위 timeout보다 짧아 양 Player가 진행 중이어도 잘릴 수 있다. opt-in true에만 전체 5400초를 적용하고 기본 900초는 유지한다.
+- `test_strict_timeout.py` 1건, `test_aggregation.py` 13건 PASS/skip0 및 Python compile PASS. opt-in에서 장시간 전체 strict 실행은 아직 NOT_RUN이다. 커밋 전: timeout 조정·단위 검사·CI 등록만 포함한다.
+### P09-T03/R22 Unity Player 결과 경계 확장 시작
+- Android/iOS test-only LOCAL_MOCK consumer의 인증·구매·진단 결과를 직렬화해 해당 실행의 합성 개발키가 포함되지 않는지 검사한다. raw token·실제 provider·전체 로그 증거를 대신하지 않는다. 실제 Player 재실행 전까지 NOT_RUN이다.
+- Android/iOS test-only consumer가 profile·purchase·diagnostics를 직렬화해 현재 합성 개발키 부재를 확인하고 marker를 출력한다. 두 E2E runner는 이 marker가 없으면 FAIL이다. 아직 컴파일·실행 전이다.
+- Android consumer `check-unity-android-mock-compile.sh` exit 0, 경고·오류 0; 두 Python runner compile PASS. iOS 조건부 소비자도 같은 격리 참조로 컴파일한다. 이는 Player 실행이 아니다.
+- iOS `UNITY_IOS` 조건부 consumer managed compile exit 0, 경고·오류 0; Android도 동일. 실제 Player는 아직 NOT_RUN. 커밋 전: test-only 결과 검사·runner marker·기록만 포함, R22 PARTIAL 유지.
+### P09-T03/R22 Player 실제 재검증 시작
+- source cc3cc60 test-only 결과 검사를 새 Android/iOS Player에서 실행한다. Android는 기존 설치된 테스트 앱을 보존하므로 빈 전용 AVD를 만든다. 기존 Player 결과를 새 실행으로 재사용하지 않는다.
+- 커밋 전: 실제 실행 시작 기록만 포함한다. 실행 결과는 NOT_RUN이다.
+- `run-unity-android-mock-e2e.py` exit 1 `UNITY_RESULT_REDACTION_MISSING` (`artifacts/unity-android-e2e-419abzrk`). 새 marker 부재를 정확히 분류하며 Player 통과를 주장하지 않는다. iOS는 NOT_RUN.
+- Android runner 검토에서 두 원인을 확인했다: logcat allowlist에 REDACTION이 없고, Player 최종 PASS 전에 새 marker 부재를 즉시 실패시켰다. 조기 실패이므로 Player 성공·노출 여부는 미확정. 두 문제와 marker 누락 거부·미완료 대기를 검증한다.
+- `test_unity_redaction_marker.py` 2건 PASS/skip0: 실행 중은 대기, 최종 PASS에 marker가 없으면 FAIL, 로그 필터가 marker를 보존한다. Python compile PASS. 실제 수정 Player 재실행은 NOT_RUN. 커밋 전: runner 수정·음성 테스트·실패 이력만 포함.
+- 수정 runner의 실제 Player 재시험을 시작한다. 실패한 기존 AVD의 앱과 데이터는 보존하고 종료 후 새 빈 AVD에서 실행한다. iOS도 해당 실행 source를 기록한다.
+- 커밋 전: 재검증 시작 기록만 포함한다. Player 결과는 미실행이다.
+- 수정 Android runner 재실행 exit 0, `artifacts/unity-android-e2e-m62mfexg`: Unity LOCAL_MOCK 인증·구매·진단 결과에 합성 개발키가 없는 marker PASS, source 7156dac tracked-clean; 최초 전체화면 안내 수동 처리. 이전 e1f83e1 runner 실패는 보존한다. iOS 및 실제 credential 검증은 별도다.
+- 커밋 전: Android 재시험 기록만 포함한다. iOS Player는 미실행이다.
+- iOS Unity LOCAL_MOCK consumer의 인증·구매·진단 결과에 synthetic 개발키가 없는지 실제 Simulator Player에서 새로 확인한다. 실행 전이며 실 Apple/APNs는 사용하지 않는다.
+- 커밋 전: iOS 실행 시작 기록만 포함한다.
+- `run-unity-ios-mock-e2e.py --run-local --adhoc` exit 0 (`artifacts/unity-ios-e2e-nz5fz8r5`): Unity iOS LOCAL_MOCK 인증·구매·진단 결과에서 합성 개발키 비노출 marker와 기존 흐름 PASS. 실제 Apple 인증·실제 token·전체 로그 범위는 검증하지 않아 R22 PARTIAL이다.
+- Android source 7156dac와 iOS source b2087e1 각각 tracked-clean·Player PASS를 재확인했다. 요청에 따라 사용한 Simulator/AVD는 shutdown만 했고 데이터는 보존했다. 커밋 전: 정제된 부분 증거와 진행 기록만 포함한다.
+### P09-T02/R22 공유 consumer 회귀 호환성 점검 시작
+- Android UTF-8 및 iOS host callback 전용 소비자가 동일 runner를 사용한다. 새 필수 redaction marker가 해당 소비자에 없어 회귀 시험이 잘못 실패할 가능성을 확인해 수정한다.
+- R09/R43 전용 test consumer에는 합성 개발키 결과 검사가 없는데 공유 runner는 marker를 필수로 요구한다. 제품 결함이 아닌 시험 호환성 결함이며 실제 R09/R43 재실행은 아직 NOT_RUN. 같은 profile/purchase/diagnostics 검사를 양 consumer에 추가한다.
+- R09 Android UTF-8 및 R43 iOS host consumer에 같은 개발키 결과 비노출 검사를 추가했고 marker 단위 2건 PASS. 이제 양 조건부 managed compile을 검증한다. 실제 Player 재실행은 별도다.
+- Android UTF-8 `UNITY_ANDROID`, iOS host `UNITY_IOS` consumer 각각 managed compile exit 0, 경고·오류 0. 이는 실제 Player 재실행이 아니다. 향후 네 소비자 중 marker 누락을 방지할 inventory 검사를 추가한다.
+- `test_unity_redaction_marker.py` 3건 PASS/skip0, 원장 및 diff 검사 PASS. R09/R43 전용 consumer의 실제 수정 후 Player는 미실행이며 이전 source의 성공과 구분한다. 커밋 전: 전용 test consumer·inventory 검사·기록만 포함한다.
+- 수정된 iOS host callback 전용 Unity LOCAL_MOCK consumer를 새 Simulator에서 실행한다. host callback은 합성 주입이며 실제 APNs가 아니다. 실행 시작 기록을 먼저 커밋한다.
+- 커밋 전: 시작 기록만 포함하고 실제 시험은 NOT_RUN이다.
+- `run-unity-ios-mock-e2e.py --run-local --adhoc --host-callback-probe` exit 0 (`artifacts/unity-ios-e2e-fj2ddrvp`): 수정 host consumer에서 기존 합성 callback·중복 억제·main-thread와 결과 개발키 비노출을 함께 확인했다. 실제 APNs·실기기는 범위 밖이다.
+- 결과 source 4744035 tracked-clean을 확인하고 테스트 Simulator를 삭제 없이 shutdown했다. 커밋 전: 해당 결과 기록만 포함한다.
+- 수정된 Android UTF-8 consumer를 빈 전용 AVD에서 실제 Unity JNI LOCAL_MOCK 흐름으로 실행한다. 이전 AVD 앱을 덮어쓰지 않으며 테스트 시작 기록만 먼저 커밋한다.
+- 커밋 전: 시작 기록만 포함한다. 실제 시험은 NOT_RUN이다.
+- `run-unity-android-mock-e2e.py --run-local --utf8-probe` exit 0 (`artifacts/unity-android-e2e-jtraqi0j`): 수정 소비자의 JNI 한글/emoji round-trip과 합성 개발키 결과 비노출 및 기존 LOCAL_MOCK 흐름 PASS. 최초 전체화면 안내는 수동으로 닫았다. 실기기·실제 제공자는 미검증이다.
+- 사용한 전용 AVD를 shutdown만 하고 데이터를 보존했다. 커밋 전: R09 실제 재시험 결과와 수동 조작 조건만 기록한다.
+### P09-T03/R22 Native 실제 합성 세션 토큰 경계 시작
+- Native LOCAL_MOCK bridge 통합시험의 임시 memory token store에서 해당 실행의 access/refresh token을 확인해 공개 응답에서 값 자체가 없는지 검증한다. 값은 로그·문서에 쓰지 않으며 외부 계정 토큰이 아니다.
+- Android `:sdk-core:compileTestKotlin` PASS. Swift 대상은 컴파일됐으나 opt-in 미설정으로 1건 SKIP이므로 토큰 assertion은 미실행이다. 새 전용 local DB·서버를 사용해 Android/Swift 대상만 실행하며 synthetic token은 출력하지 않는다.
+- 새 격리 local DB·Backend에서 Android `LocalMockIntegrationTest.bridge uses real local backend for mock purchase and restore` 1건 및 Swift `LocalMockIntegrationTests.testBridgeHandlerAgainstLocalBackend` 1건 PASS/skip0 (`artifacts/r22-native-9f0p4b_t`). 실행 중 발급한 synthetic access/refresh token 원문과 bridge 결과를 메모리에서 비교했으며 값을 출력하지 않았다. 실제 provider token·전체 로그는 미검증이다.
+- 실제 synthetic 세션 토큰 비노출 assertion이 향후 빠지지 않도록 기존 local Android/Swift integration regression filter에 양 bridge 시험을 추가한다. 기존 테스트의 최소 실행 여부도 함께 확인한다.
+- 기존 local integration lane은 실행 건수 1건 이상만 확인하므로 세 filter 중 하나가 누락돼도 통과할 수 있다. Android/Swift 각 3건 실행을 요구해 누락을 FAIL로 처리하고 실행 결과를 재확인한다.
+- 새 Native bridge token 검사를 포함한 Android/Swift local integration 세 시험 묶음과 전체 집계 재검증을 시작한다. 새로운 DB/role만 사용하며 Unity Player opt-in 및 외부 provider는 실행하지 않는다.
+- 진행 중 `artifacts/purchase-regression-n4qmg2ka`에서 Android local integration XML 3건/실패0/error0/skip0, Swift 3건/실패0/skip0을 확인했다. 새 synthetic session token 결과 검사 포함. strict 전체 결과는 아직 없다.
+- `artifacts/purchase-regression-n4qmg2ka/result.json`: 구매 하위 항목 모두 PASS/skip0; Android/Swift local integration 각 3건, Xcode local DB 및 process recovery 각 1건. 이는 전체 strict 통과가 아니다.
+- 합성 토큰 검사 추가 후 격리 strict exit 1, `artifacts/verify-all-r1ely80_/summary.md`; 구매 하위 전체 PASS, 외부 13 WAITING_USER. 실행 당시 HEAD 150a013 + 미커밋 테스트/하네스/문서, 미추적 파일 보존. 나머지 실패·미실행을 확인한다.
+- `verify-all-r1ely80_`에서 구매 하위 및 `push/mock-permission-denied` PASS; `push/unity-player-notifications` DEFERRED_ENV, `unity-editor-runtime` NOT_RUN, scenario coverage PARTIAL 및 기록된 P05-T03 FAIL로 전체 FAIL. 이전 별도 Player PASS를 이 실행의 lane PASS로 대체하지 않는다. 실행 후 전용 Simulator shutdown, 데이터 보존.
+- `verify-progress.py`, purchase runner Python compile 및 diff 검사 PASS. 커밋 전: Android/Swift 합성 token assertion, regression 필수 3건, 정제 증거·strict/보고서만 포함한다. 외부 token 및 전체 로그 안전은 주장하지 않는다.
+### P09-T01 부분 시나리오 증거 연결 시작
+- R22의 local token bridge 시험은 purchase regression에, R40 Mock 거부는 push regression에 추가됐다. manifest의 부분 증거 경로와 후보 suite를 현재 상태에 맞게 연결하되 전체 검증 미완료 상태는 그대로 유지한다.
+- `check-manifest.py`, `check-manifest-negative.py`, `verify-progress.py`, `git diff --check` exit 0. 파일 연결 검사이며 제품 통과를 뜻하지 않는다. 커밋 전: PARTIAL 유지한 증거·후보 suite 및 진행 기록만 포함한다.
+- Android synthetic token 검사에서 저장소가 비어 있으면 token 비교가 생략되는 결함을 확인했다. sign-in 직후 실제 합성 access/refresh token이 모두 존재하고 비어 있지 않아야 통과하도록 한다.
+- token 존재 사전조건 추가 후 Android 테스트 컴파일 exit 0. 새 DB·Backend에서 양 Native bridge의 합성 token assertion을 재현하고 JUnit/XCTest 실제 실행·skip을 검증하는 runner를 추가한다.
+- `python3 harness/run-r22-native-redaction.py --run-local` exit 0 (`artifacts/r22-native-vdwala6w`): Android/Swift 각 1건 PASS/skip0 및 token 존재 선행조건 확인. synthetic local DB·Backend만 사용, 원문 token은 출력하지 않았다. opt-in 없는 호출과 문법 검사를 이어간다.
+- `run-r22-native-redaction.py` 인자 없이 exit 2, Python compile·원장·diff PASS. 부분 증거와 candidate suite에 재현 명령을 연결한다. 전체 로그·실제 provider 미검증으로 R22 PARTIAL 유지. 커밋 준비.
+### P09-T03/R22 synthetic 세션 token 서버 로그 검증 시작
+- 전용 격리 Backend 로그에 해당 실행의 synthetic access/refresh token이나 개발키가 들어 있는지 Android/Swift integration에서 메모리로 비교한다. runner는 양쪽 검사 marker가 없으면 PASS를 거부한다. 원문 token이나 로그는 커밋하지 않는다.
+- 강화한 `run-r22-native-redaction.py --run-local` exit 0 (`artifacts/r22-native-37ca4aes`): Android/Swift 각 1건/skip0, 해당 synthetic access/refresh token과 개발키가 지정된 격리 Backend 로그에 없고 bridge 결과에도 노출되지 않음을 검사했다. 실 provider credential·모든 앱 로그는 범위 밖. marker 누락 음성 검사를 추가한다.
+- marker 부재·빈 값·FAIL·불완전 값·추가 데이터 거부 단위 1건 PASS/skip0, Python·원장 검사 PASS. helper 보완 후 격리 양 플랫폼을 재실행한다.
+- `run-r22-native-redaction.py --run-local` 재실행 exit 0 (`artifacts/r22-native-bpyoimew`), 양 플랫폼 각 1건/skip0 및 정확한 server-log 검사 marker 확인. 커밋 전: synthetic 테스트·실행기·음성 검사와 정제 증거만 포함하며 전체 로그 및 실제 provider 결과는 주장하지 않는다.
+- `check-required-coverage.py` exit 1: R22/R40 포함 required 시나리오 2개 PARTIAL, 0개 NOT_IMPLEMENTED. 기존 미추적 `unity/Demo`, `harness/__pycache__`, `scripts/__pycache__`는 보존한다. 검사 직전 별도 검증 시작 기록을 빠뜨려 이 결과와 누락을 즉시 기록했다.
+- 커밋 전: coverage 검사 결과와 검증 시작 기록 누락의 정정만 포함한다. 제품 상태·원격은 변경하지 않는다.
+### P09-T03/R22 합성 구매 증빙 노출 시험 시작
+- 기존 Google fake verifier·전용 sandbox DB HTTP 통합시험에서 synthetic 구매 증빙 및 access token이 응답과 수집된 서버 로그에 노출되지 않는지 추가한다. 실제 Google Play 거래는 수행하지 않는다.
+- `backend/gradlew -p backend compileTestKotlin` exit 0. 실제 fake verifier·HTTP·DB 시험은 아직 미실행이므로 새 전용 sandbox DB에서 실행한다.
+- 전용 sandbox DB에서 `GooglePurchaseHttpIntegrationTest` 1건 PASS/skip0 (`artifacts/r22-proof-0bcej9x1`): synthetic 구매 증빙·거부 증빙·access/refresh token이 성공/실패 HTTP 결과와 캡처된 root logger 메시지·stack에 없는지 확인했다. fake verifier/finalizer이며 실제 Play는 아니다.
+- 성공한 증빙 시험의 try/finally 본문 들여쓰기만 정리했다. 기능 변경 여부 확인을 위해 테스트 컴파일을 재실행한다.
+- 서식 정리 후 `compileTestKotlin` exit 0, diff 검사 PASS. 기존 격리 HTTP 검증은 의미가 변하지 않은 서식 정리 전 실행이다. 커밋 전: fake proof HTTP/log test 및 정제 증거만 포함한다.
+### P11-T01 완료 상태 원장 점검 시작
+- ENV-002는 RESOLVED이고 별도 Android/iOS 소비 프로젝트 빌드·Player 증거가 있지만 P08-T04는 여전히 DEFERRED_ENV다. bootstrap 문서 그대로의 재설치 등 완료 기준과 분리해 현재 상태를 정정한다.
+- R49 실제 신규 staged consumer 양 플랫폼 Player 증거를 확인했고 ENV-002는 RESOLVED다. P08-T04를 DEFERRED_ENV→PARTIAL로 정정하고 blocker를 제거했다. bootstrap 문서 재현 등 남은 기준은 수행하지 않아 PASS/IMPLEMENTED로 변경하지 않았다.
+- `verify-progress.py`, `check-progress-negative.py`, `git diff --check` exit 0. 문서 정합성 검사이며 제품 시험이 아니다. 커밋 전: 행·분모·감사 기록만 포함한다.
+### P09-T08 R22 runner 환경 실패 분류 점검
+- isolated DB helper의 DEFERRED_ENV 예외를 신규 R22 runner가 무조건 FAIL로 기록하는 경계 결함을 발견했다. 환경 대기와 시험 실패를 구분하되 성공으로 바꾸지 않는다.
+- `test_r22_native_redaction.py` 2건 PASS/skip0, Python compile PASS. 실제 포트 점유 대기와 정상 격리 실행을 검증한다.
+- 실제 18080 포트 점유 fixture에서 R22 runner exit 2/DEFERRED_ENV, 정상 격리 실행 exit 0 Android·Swift PASS (`artifacts/r22-native-b5e3facc`). 커밋 전: 상태 분류·음성 시험·기록만 포함한다.
+### P08-T04 문서 기준 샘플 설치 점검 시작
+- 사용자 문서의 Offline Demo import·uGUI·빈 scene 실행 절차를 실제 검증할 조건을 조사한다. `unity status --format json`은 Pipeline 연결 Editor 0건/exit 6이며 Unity 미설치나 라이선스 실패를 뜻하지 않는다. 상태 명령을 시작 원장보다 먼저 실행한 순서 누락을 기록한다. 사용자 프로젝트는 변경하지 않는다.
+- Offline Demo 문서의 staged sample, uGUI, EventSystem 및 빈 GameObject 조건을 격리 소비 프로젝트에 구성해 Unity Editor Play에서 실제 UI 컴포넌트 callback·fake 로그인/구매를 확인할 테스트를 작성한다. sample 복사는 패키지 관리자 UI의 Import 버튼 동작을 검증하지 않으며 화면 렌더링도 별도다.
+- staged sample 복사·정확한 cached dependency·EventSystem·mock 로그인/상품/구매 UI callback을 검사하는 Editor test와 격리 runner를 작성했다. `bash -n` PASS이나 아직 Unity 실행은 NOT_RUN이다.
+- `GAMEBRIDGE_UPM_STAGING=<stage> GAMEBRIDGE_UNITY_PACKAGE_CACHE=<cache> bash scripts/smoke-unity-offline-sample.sh` exit 0, Unity Editor Test Framework 1건 PASS (`artifacts/offline-sample.wpOk2c/results.xml`): 샘플 객체·EventSystem 생성 후 mock 로그인/상품/100코인 구매 UI callback을 실행했다. sample은 Assets로 복사했으며 Package Manager UI import, 화면 렌더링/포인터 및 실제 기기·결제 검증은 아니다.
+- 실제 Unity NUnit 보고서에서 1건 Passed/skip0 및 `GB_OFFLINE_SAMPLE_FLOW PASS` marker를 확인했다. 향후 빈 보고서·skip·실패·marker 누락이 허위 성공되지 않도록 결과 판정과 음성 시험을 보강한다.
+- `test_unity_offline_sample_result.py` 1건 PASS/skip0, 실제 기존 NUnit 결과 재검사 PASS, shell 구문 PASS. 판정 강화 후 새 Unity Editor 실행을 다시 수행한다.
+- 강화된 `smoke-unity-offline-sample.sh` exit 0, 새 격리 Unity Editor test 1건 PASS/skip0 (`artifacts/offline-sample.JGRMHJ/results.xml`). 샘플 callback을 프로그램으로 호출한 fake flow이며 시각 QA·패키지 관리자 UI가 아니다. 샘플 README의 현재 라이선스 실패 문구를 당시 이력과 현재 범위로 정정한다.
+### P08-T03 sample 문서 반영 staging 시작
+- Offline Demo README 수정으로 기존 UPM staging은 현재 checkout과 달라졌다. 기존 Maven/XCFramework를 사용해 새 staging에만 패키징하고 checksum 및 sample Editor test를 재실행한다. 제품 Native binary 재빌드는 아니다.
+- `package-sdk.sh <existing Maven> <existing XCFramework> artifacts/upm-offline-sample-20261112` exit 0, XCFramework arch/C ABI 및 staging 110개 checksum PASS. Native binary 재빌드는 아니며 새 staging Editor test는 별도다.
+- 새 `artifacts/upm-offline-sample-20261112`를 사용한 `smoke-unity-offline-sample.sh` exit 0, Unity Editor 1건 PASS/skip0 (`artifacts/offline-sample.0FsGva/results.xml`). fake UI callback flow이며 Package Manager UI import·화면 렌더링·실결제는 아니다.
+- `verify_staged_source_matches_checkout` 및 sample 결과 음성 1건/skip0, workflow YAML parse, diff 검사 PASS. staging source는 현재 미커밋 sample README 수정 포함, 기존 Native binary 재사용. 화면 렌더링·Package Manager UI는 아직 미검증이다.
+- `docs/evidence/p08-offline-sample-editor.md`에 staged hash·실제 Unity Editor fake flow 및 미검증 범위를 기록했다. 커밋 전: sample README 정정, 격리 시험/runner, 음성 검사와 정제 문서만 포함한다. 생성 staging·Unity cache는 Git 제외, P08-T04 PARTIAL 유지.
+- 새 sample staging과 직전 `upm-v2-20261112-f1e12b6`의 Native payload hash 비교 결과 81개 파일 중 41개 불일치. 앞선 staging은 오래된 `maven-final`/`ios-final`을 사용했으므로 최신 Native로 간주할 수 없다. 기존 f1e12b6 staging에 포함된 검증된 Maven·XCFramework를 복사해 새 경로로 재패키징하고 비교 및 Editor test를 다시 한다. 앞선 후보·결과는 보존한다.
+- 기존 f1e12b6 UPM의 Maven/XCFramework에서 `artifacts/upm-offline-sample-current-20261112`를 새로 생성하고 XCFramework 검증 및 110개 checksum PASS. Native payload byte 동일성과 Editor 실행을 별도로 확인한다.
+- 새 staging의 Native payload 81개 파일은 f1e12b6 staging과 hash 일치, SDK source도 현재 checkout과 일치. 새 staging으로 Unity Offline Demo Editor 시험을 다시 수행한다.
+- `upm-offline-sample-current-20261112`로 격리 Unity Editor sample 시험 exit 0, 1건 PASS/skip0 (`artifacts/offline-sample.Tg04iK/results.xml`). 직전 f1e12b6 Native payload 81개와 byte 동일한 staging이며 Package Manager UI/실제 렌더링은 미검증이다. 구 staging 후보와 구분해 evidence를 수정한다.
+- `verify-progress.py`, `check-manifest.py`, `git diff --check` exit 0. 커밋 전: 올바른 staging hash·81개 Native byte 일치·새 Editor 결과와 이전 후보 차이만 기록한다. staging 바이너리/캐시는 커밋하지 않는다.
+- sample runner는 현재 staging 자체 checksum만 확인해 소스가 오래된 패키지도 실행할 수 있다. 기존 Android E2E와 같은 checkout 소스 일치 확인을 선행해 stale stage를 거부한다. Native artifact provenance는 별도로 기록한다.
+- `smoke-unity-offline-sample.sh`에 기존 `upm-v2-20261112-f1e12b6`를 제공한 음성 시험 exit 1, checksum 정상·source 불일치 거부. 의도된 검출이며 제품 실패가 아니다. 현재 stage로 양성 실행한다.
+- `upm-offline-sample-current-20261112`로 source 일치 검사 후 Unity Editor sample test exit 0, 1건 PASS/skip0 (`artifacts/offline-sample.k1uWmY/results.xml`). 커밋 전: stale stage 거부·재실행 증거만 포함한다. 실제 시각 QA는 아니다.
+### P08-T04 Native Demo Editor guard 검증 시작
+- staged Native Demo를 Editor의 별도 객체로 실행해 실제 Native 호출 대신 안내가 표시되고 동작 버튼이 비활성인지 확인한다. 이는 Native Player의 로그인/결제/실제 UI 검증이 아니다.
+- 양 sample Editor test와 두 marker 누락 거부 단위 1건 PASS, Python/shell 구문 PASS. Native Demo Editor guard 실제 실행은 아직 NOT_RUN이다.
+- staged 양 sample을 격리 프로젝트에서 실행한 `smoke-unity-offline-sample.sh` exit 0, Unity test 1건 PASS/skip0 (`artifacts/offline-sample.TwukI1/results.xml`). Offline fake flow와 Native Demo Editor에서 안내·Native 버튼 비활성을 확인했다. Native Player와 실제 화면/포인터는 시험하지 않았다.
+- sample 음성 단위 1건·실제 XML 판정·원장 PASS. `git diff --check`는 checker 15행 후행 공백으로 exit 2; 공백을 제거한 뒤 재검증한다.
+- 공백 수정 후 sample 결과 음성 1건, 실제 Editor XML, 원장 및 diff 검사 PASS. 커밋 전: Native Demo Editor guard test 및 정확한 한계만 기록한다. Native Player 실행으로 간주하지 않는다.
+### P08-T04 Native Demo Android Player 검증 시작
+- 문서의 staged Native Demo와 uGUI를 새 소비 프로젝트에 복사하고 runtime 설정을 입력해 초기화·로그인·상품·모의 구매·로그아웃 버튼 callback을 실제 Android Unity Player에서 실행할 전용 probe를 추가한다. 포인터·화면 QA와 실 Play 거래는 별도다.
+- staged Native Demo에 runtime 설정을 입력하고 실제 UI callback으로 mock 로그인·상품·구매·로그아웃 및 합성키 결과 검사를 실행하는 Android probe를 추가했다. runner는 별도 marker·정확한 uGUI 2.5.0을 요구한다. 아직 Unity/Player 미실행이다.
+- `UNITY_ANDROID` 조건부 Native Demo probe managed compile exit 0, 경고·오류 0. 실제 Player는 NOT_RUN. marker 수집·서로 다른 probe 동시 설정 거부를 확인한다.
+- `test_unity_redaction_marker.py` 4건 PASS/skip0 및 두 전문 probe 동시 선택의 argparse exit 2 확인. 커밋 전: test-only sample probe·격리 runner와 기록만 포함한다. 실제 Player·시각 QA는 미실행이다.
+- staged Native Demo sample의 Android LOCAL_MOCK Player를 실제로 빌드·실행한다. 새 빈 AVD는 기존 시험 앱 덮어쓰기를 막기 위해 필요하며 사용자 데이터는 보존한다. 최초 전체화면 안내 수동 처리 가능성을 별도 기록한다.
+- 커밋 전: 실행 시작 기록만 포함, 실제 결과는 NOT_RUN이다.
+- `run-unity-android-mock-e2e.py --run-local --native-demo-probe` exit 0 (`artifacts/unity-android-e2e-j7ir0wt8`): staged Native Demo의 runtime 설정·초기화·로그인·상품·100코인 mock 구매·로그아웃 callback 및 DB 원장 1건/100 확인, 입력 개발키 삭제·결과 비노출 검사 포함. 전용 AVD 최초 전체화면 안내는 수동으로 닫았다. 실제 터치/시각 QA, Play 결제·실기기는 아니다.
+- Native Demo test AVD shutdown, 데이터 보존. 커밋 전: `docs/evidence/p08-native-demo-android.md`와 기능 문서에 Android LOCAL_MOCK 범위·수동 안내·미검증 항목만 반영한다. iOS Native Demo Player와 실제 UI는 미실행이다.
+### P08-T04 Native Demo iOS Player 검증 시작
+- Android에서 검증한 동일 staged Native Demo의 iOS Simulator probe를 추가한다. 런타임 입력·mock 구매 callback 및 main-thread, key 삭제, DB 원장 검사만 수행하며 실 Apple 계정·APNs·실기기 검증은 아니다.
+- iOS Native Demo test-only consumer와 격리 runner option을 추가했다. Python compile 및 host/native 전문 probe 동시 선택 exit 2 확인. Unity managed compile과 Simulator Player는 별도다.
+- Native Demo iOS `UNITY_IOS` 조건부 probe managed compile exit 0, 경고·오류 0. Unity Simulator Player는 아직 미실행이다. 커밋 전: test-only probe·runner와 기록만 포함한다.
+- 수정 staged Native Demo iOS LOCAL_MOCK Player를 새 Simulator에서 실행한다. test-only UI callback과 synthetic local DB만 사용하며 clean-source 실행을 위해 시작 기록을 먼저 커밋한다.
+- 커밋 전: 시작 기록만 포함, 실제 결과는 NOT_RUN이다.
+- `run-unity-ios-mock-e2e.py --native-demo-probe` 첫 실행 exit 1, UNITY_EXPORT_FAILED (`artifacts/unity-ios-e2e-kd8mlvys`); Simulator Player는 NOT_RUN. 격리 Unity 로그의 빌드 원인을 확인한다.
+- 격리 Unity Editor 로그의 실제 컴파일 오류는 `NativeDemoIosPush.cs(11,13) CS0246 GameBridgeClient`다. `GameBridge.NativeDemo.iOS.asmdef`가 해당 타입을 가진 `GameBridge.Runtime`을 직접 참조하지 않는다. .NET managed compile의 transitive project reference가 놓친 실제 UPM sample assembly 결함으로 수정 및 재패키징한다.
+- iOS sample asmdef에 `GameBridge.Runtime` 직접 참조를 추가하고 Unity 비전이적 참조 계약 단위 검사를 CI inventory에 추가했다. 실제 Unity export는 아직 재실행 전이다.
+- `test_unity_sample_assemblies.py` 1건 PASS/skip0, YAML·diff 검사 PASS. 수정 asmdef를 반영한 새 staging을 직전 Native payload로 생성하고 실제 Unity iOS export를 재검증한다.
+- `package-sdk.sh`로 기존 f1e12b6 Native payload를 사용해 `upm-native-sample-fix-20261112` 생성, XCFramework/110개 checksum PASS. 수정 소스 tracked-clean에서 iOS Player를 재실행하기 위해 코드 및 회귀 검사를 먼저 커밋한다. 실제 Player는 NOT_RUN이다.
+- iOS Native Demo의 수정 asmdef를 새 stage에 반영해 실제 Unity export·Simulator Player·LOCAL_MOCK flow를 재실행한다. 첫 CS0246 실패는 기록 그대로 보존한다.
+- 커밋 전: 재검증 시작 기록만 포함한다.
+- asmdef 수정 후 `run-unity-ios-mock-e2e.py --native-demo-probe --adhoc` exit 0 (`artifacts/unity-ios-e2e-56e5wx05`): staged Native Demo iOS Simulator LOCAL_MOCK 설정·인증·상품·100코인 mock 구매·로그아웃 callback, main-thread·키 삭제, DB 원장 1건/100 PASS. 첫 CS0246 실패는 보존한다. 실제 포인터·렌더링, Apple 거래·APNs·실기기는 아니다.
+- source aa9c155 tracked-clean과 새 stage Native payload 81개 byte 동일성을 확인했고 전용 Simulator를 shutdown했다. asmdef 수정 stage로 Offline/Native Editor sample도 다시 실행해 최신 evidence를 갱신한다.
+- `upm-native-sample-fix-20261112`로 격리 Editor sample test 1건 PASS/skip0 (`artifacts/offline-sample.GHbI58/results.xml`): Offline fake flow와 Native Editor guard. iOS Native Player PASS 및 첫 asmdef FAIL을 별도 증거에 기록한다.
+- `verify-progress.py`, `check-manifest.py`, diff 검사 exit 0. 커밋 전: iOS 수정 후 실제 Player·Editor sample·staging provenance와 첫 실패만 정제 기록한다. raw log·키·빌드 산출물은 제외한다.
+### P09-T07 sample Editor gate 연결 시작
+- 재현 가능한 staged sample Editor 시험을 self-hosted Unity gate에 포함한다. 이 시험은 정확한 cache 패키지가 필요하므로 runner preflight에서 경로를 확인하며 미실행을 PASS로 바꾸지 않는다. GitHub Actions 실행은 별도다.
+- `bash -n scripts/ci-unity-e2e.sh`, `test_ci_gate.py` 4건 PASS. cache 미존재를 build 이전에 환경 대기로 분류하는 시험을 추가한다.
+- cache 경로 부재 등 `test_ci_gate.py` 5건 PASS/skip0, shell·원장·diff PASS. self-hosted 전체 및 GitHub Actions는 실행하지 않았다. 커밋 전: gate 연결·음성 검사·설정 문서만 포함.
+### P11-T03 최신 stage·strict 기준 정합성 시작
+- iOS sample asmdef 수정 이후 최신 staged UPM과 package cache를 체크포인트에 명시한다. strict 기존 결과가 새 asmdef 수정 이전 source와 당시 미커밋 test에서 실행됐다는 사실을 최종 보고서에 명시한다.
+- 현재 stage/cache 및 이전 strict source·dirty 범위를 명시하고 `verify-progress.py`, `git diff --check` PASS. 커밋 전: 재개 경로·보고서 정합성 기록만 포함한다.
+### P09-T07 self-hosted strict fixture 준비 점검
+- 현재 Unity CI gate는 strict 집계를 직접 호출하지만 DB/test server opt-in을 준비하지 않아 기본 provisioning에서 필수 lane이 DEFERRED_ENV다. 기존 격리 DB/server orchestration 재사용 가능성을 검토한다.
+- 기존 `run-strict-local-isolated.py`는 전용 local/sandbox DB·서버·synthetic iOS fixture를 만들고 opt-in Unity 환경을 상속한다. self-hosted gate의 direct strict 호출을 이 orchestration으로 교체해 미준비 환경이 PASS되는 것을 막고, 기존 90분 strict timeout과 사전 Player 실행을 수용할 job timeout을 120분으로 설정한다.
+- `test_ci_gate.py` 5건·strict timeout 단위 1건 PASS/skip0, shell/YAML 구문 PASS. 외부 도구를 모사한 격리 fixture로 gate가 isolated orchestration을 호출하고 실패를 숨기지 않는지 추가 검증한다.
+- 새 CI fixture 첫 호출에서 mock unity 문자열의 Python 따옴표 오류(SyntaxError), test import FAIL. 실제 self-hosted CI는 실행되지 않았다. fixture 문자열을 수정해 재시험한다.
+- fixture 문자열 수정 후 `test_ci_gate.py` 6건 PASS/skip0: mock 도구 환경에서 isolated strict 호출 및 실패 전파를 확인했다. 실제 self-hosted/GitHub Actions는 NOT_RUN이다. 커밋 전: CI fixture 준비·timeout·음성 시험·문서만 포함한다.
+### P09-T07 선택 환경 경로 일치 점검
+- isolated strict helper가 CI에서 지정한 UNITY_EDITOR_PATH를 하드코딩된 버전으로 덮고, Maven/XCFramework가 별도 오래된 기본 경로를 사용할 수 있다. 선택 Editor와 현재 staged Native 산출물을 일관되게 쓰도록 보강한다.
+- `run-strict-local-isolated.py`의 하드코딩 Editor와 과거 Maven/XCFramework 기본값을 확인했다. 지정 Editor/Newtonsoft를 존중하고 기본 artifact는 제공된 stage에서 가져오며 CI gate는 stage 경로를 명시한다.
+- 선택 Editor 경로·timeout 단위 2건, CI gate 단위 6건 PASS/skip0, Python/shell syntax PASS. CI stub에 staging Native 경로 전달 assertion을 추가한다.
+- CI mock fixture가 현재 staging의 Maven/XCFramework 경로를 strict로 전달함을 확인했고 gate 6건·Editor/timeout 단위 2건 PASS/skip0, 원장/diff PASS. 실제 self-hosted 전체는 NOT_RUN이다. 커밋 전: 경로 수정·단위 검증·문서만 포함한다.
+### P09-T07 전체 Unity CI gate 로컬 검증 시작
+- `scripts/ci-unity-e2e.sh`를 실제 licensed Unity와 현재 staging, 별도 baseline/push AVD 2개 및 격리 DB로 실행한다. 각각의 최초 전체화면 안내는 수동 처리가 필요할 수 있다. 누락·기존 실패를 그대로 보존하고 GitHub Actions나 실제 provider 검증으로 간주하지 않는다.
+- 커밋 전: 실행 시작 기록만 포함한다. 전체 gate 실제 결과는 NOT_RUN이다.
+- 실제 `scripts/ci-unity-e2e.sh` 첫 호출은 Editor consumer 2건과 sample Editor 1건 PASS 뒤 Android baseline `TARGET_NOT_AN_ONLINE_EMULATOR`/exit 2 (`artifacts/unity-android-e2e-ds3m3hkh`). Android Player 이후 및 strict는 NOT_RUN이다. Unity의 ADB 재시작·두 AVD online 복구를 조사한다.
+- 최초 `find_dedicated_device` 호출은 ADB 재시작 순간 offline을 즉시 환경 대기로 반환한다. 기존 `wait_for_dedicated_device`는 동일 serial/전용 AVD/기존 앱 보존 검사를 유지하며 offline만 재시도하므로 baseline 및 push의 최초 조회에도 적용한다.
+- `test_unity_device_rediscovery.py` 3건 PASS/skip0, 양 runner Python compile·원장/diff PASS. offline은 제한 시간 내 재시도하며 다른 AVD와 설치된 앱은 즉시 거부한다. 실제 수정 gate 재실행은 NOT_RUN. 커밋 전: runner·음성 검증·기록만 포함한다.
+- 두 전용 AVD에 테스트 패키지가 설치되지 않은 것을 확인했다. 기존 기기 데이터 삭제 없이 동일 AVD를 재사용해 수정된 Unity 전체 gate를 재실행한다. 시작 기록을 먼저 커밋한다.
+- 커밋 전: 재실행 시작 기록만 포함, 전체 결과는 NOT_RUN이다.
+- `scripts/ci-unity-e2e.sh` 실제 로컬 재실행 exit 1, strict `artifacts/verify-all-4r3l36i6/summary.md`, orchestration `artifacts/strict-isolated-8vglqxoq`. Editor 소비자·sample, Android/iOS 기본 Player 후 strict가 완료됐으나 전체 FAIL. 두 AVD 최초 전체화면 안내는 수동으로 닫았으며 GitHub Actions/실제 provider 검증은 아니다. 세부 lane을 확인한다.
+- strict `verify-all-4r3l36i6`: Unity Editor 2건·Push 양 Player 2건 PASS, 구매 포함 실행 suite PASS, scenario PARTIAL과 recorded P05-T03 FAIL로 전체 FAIL. 4개 Player source e703f43 tracked-clean; strict의 sourceDirty는 보존된 미추적 파일 포함. 두 Android 최초 안내 수동 처리. 사용한 AVD 2개·Simulator 3개는 shutdown만 했고 데이터는 보존했다.
+- 실제 gate에서 Editor가 opt-in됐는데 isolated helper 고정 출력은 Editor가 분리된 것처럼 나타났다. 집계 결과와 무관한 안내 문구를 실제 opt-in 상태로 바꾸고 기존 실행 증거는 유지한다.
+- helper 안내 수정 후 Python compile, timeout 단위 2건/skip0, 원장·diff PASS. 전체 gate 결과는 수정 전 e703f43 실행이므로 현재 HEAD의 재실행으로 주장하지 않는다. 커밋 전: 로컬 CI evidence·문서·안내 문구만 포함한다.
+- 최신 gate의 Android/iOS 기본 및 Push 각 server.log 4개에서 `mock:<UUID>` 합성 token/증빙 패턴 검색 결과 모두 없음. 원문 로그·일치값은 출력하지 않았다. 다른 형식·Player 전체 로그를 검사한 것은 아니다. 검증 시작 기록을 먼저 남기지 않은 순서 누락을 즉시 기록했다.
+- `LocalMockClient`의 합성 push token·구매 proof는 `mock:<UUID>` 형태임을 확인했다. R22 전용 runner가 서버 로그 전체에서 이 패턴을 검사하고 실패시키도록 추가하며, 알려지지 않은 형식/실제 provider에 대한 보장으로 확대하지 않는다.
+- `test_r22_native_redaction.py` 3건 PASS/skip0 및 Python compile PASS. pattern 검사 추가 후 격리 Android/Swift integration을 새로 실행한다.
+- 강화한 R22 격리 runner exit 0 (`artifacts/r22-native-7r45s8ui`): Android/Swift bridge 각 1건과 서버 로그 synthetic session key/push token·purchase proof 형태 검사 PASS. 이는 로컬 mock 형식에 한정하며 실제 provider·모든 로그 포맷 보장이 아니다.
+- 결과 JSON의 양 test PASS 및 mockCredentialServerLog PASS, 원장/diff 검사 확인. 커밋 전: pattern 탐지·음성 test·정제 증거만 포함하며 raw 로그와 synthetic token 값은 제외한다.
+### P09-T03/R22 Unity 로그 synthetic credential 검사 시작
+- 기존 gate는 개발키 등 알려진 일부 값만 Unity/server 로그에서 검사한다. LOCAL_MOCK push token·구매 proof 형식 `mock:<UUID>`을 공통 검사해 누출 시 marker 저장·PASS를 막는다. 실제 credential이나 다른 형식은 별도다.
+- Android/iOS 기본·Push runner에 test-only mock credential 패턴 검사 추가, Python compile 및 marker 4건 PASS/skip0. Android 원시 logcat 유출이 marker 필터 전에 거부되는지 음성 fixture를 추가한다.
+- `test_unity_redaction_marker.py` 5건, `test_unity_push_current.py` 1건 PASS/skip0, 원장/diff PASS. R22 전용 runner의 동일 패턴을 공통 helper로 통일해 검사 기준의 차이를 방지한다.
+- 공통 helper 연결 후 R22 단위 3건/skip0과 격리 Native runner exit 0 (`artifacts/r22-native-7__7z_m1`). Unity 기본·Push runner의 변경 후 실제 Player는 아직 NOT_RUN이다. 커밋 전: synthetic 패턴 검사·음성 test·기록만 포함한다.
+- synthetic mock token/proof 원시 로그 검사 추가 후 실제 iOS LOCAL_MOCK Player 기본 경로를 새로 실행한다. 실 provider·다른 포맷을 검사하는 것이 아니다. clean-source 실행 시작 기록만 먼저 커밋한다.
+- 커밋 전: 시작 기록만 포함하며 실제 재검증은 NOT_RUN이다.
+- 강화 로그 검사 적용 `run-unity-ios-mock-e2e.py --run-local --adhoc` exit 0 (`artifacts/unity-ios-e2e-o2mypwsg`): synthetic mock token/proof 형태와 알려진 개발키가 iOS Unity 원시 console 및 local Backend log에서 발견되지 않았고 기본 LOCAL_MOCK flow PASS. 실제 provider·다른 포맷은 미검증이다.
+- iOS Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 부분 검증과 사용된 source만 포함한다. 다른 세 runner의 변경 후 실제 실행은 NOT_RUN이다.
+- synthetic mock credential 로그 검사 추가 후 Android 기본 LOCAL_MOCK Player를 새로 실행한다. 기존 AVD 앱 데이터를 덮어쓰지 않는다. clean-source 시작 기록만 커밋하며 결과는 아직 NOT_RUN이다.
+- 강화 로그 검사 적용 `run-unity-android-mock-e2e.py --run-local` exit 0 (`artifacts/unity-android-e2e-j9tb9ven`): 알려진 개발키 및 synthetic mock token/proof 형태가 Unity 원시 logcat과 Backend log에서 검출되지 않고 기본 LOCAL_MOCK flow PASS. 최초 안내는 수동 처리. 실제 provider·다른 포맷은 미검증.
+- 테스트 AVD는 삭제 없이 shutdown했다. 커밋 전: Android 부분 결과·수동 안내 조건만 포함하고 Push runner 재실행은 미완료로 남긴다.
+- mock token/proof raw 로그 검사 추가 후 양 플랫폼 Push LOCAL_MOCK Player를 같은 실행에서 새로 검증한다. 앱이 설치된 기존 AVD를 보존하기 위해 빈 전용 AVD를 사용한다. 시작 기록만 커밋하고 결과는 아직 NOT_RUN이다.
+- 강화 로그 검사 적용 `run-unity-push-current.py` exit 0, Android/iOS LOCAL_MOCK Player 각 PASS (`artifacts/unity-android-push-918elqj3`, `artifacts/unity-ios-push-anrcrvlm`), 동일 source tracked-clean 및 필수 marker 확인. raw Unity/server 로그에서 알려진 키·synthetic mock token/proof 형태 비노출. Android 최초 안내 수동 처리; 실제 FCM/APNs·다른 형식은 미검증.
+- Push 시험 Simulator/AVD는 삭제 없이 shutdown했다. 커밋 전: 강화 로그 검사 양 플랫폼 검증 요약만 포함하고 raw 로그·빌드·키는 제외한다. R22 전체·실제 provider는 미완료다.
+### P08-T04 Package Manager sample import 검증 시작
+- 기존 sample Editor runner는 staged sample을 직접 복사했다. 새 격리 프로젝트에서 Unity Package Manager의 Sample API로 Offline/Native sample metadata를 찾아 import한 다음 같은 Play-mode 테스트를 실행하도록 개선한다. Package Manager GUI 클릭 및 시각 QA는 별도다.
+- Package Manager Sample.FindByPackage/Import로 두 sample을 가져오는 Editor setup을 작성하고, import 완료 marker 뒤에만 Play-mode test를 컴파일하도록 runner를 조정했다. shell 구문만 PASS, 실제 import는 아직 미실행이다.
+- 강화 `smoke-unity-offline-sample.sh` exit 0 (`artifacts/offline-sample.wdb0LN`): Unity Package Manager Sample API가 staged UPM의 Offline/Native sample을 각각 import한 marker와, 이후 Editor Play fake 로그인/구매·Native Editor guard 1건 PASS/skip0를 확인했다. Package Manager GUI 클릭·시각 렌더링·실제 포인터는 검증하지 않았다.
+- 첫 import API 시험은 runner가 import 직후 marker를 확인했지만 다음 Unity test가 같은 Editor.log를 덮어써 사후 재확인 가능한 marker 파일이 없다. 안전한 두 marker만 별도 보존하고 재실행한다. 첫 결과는 제품 실패가 아니다.
+- 보완 runner 재실행 exit 0 (`artifacts/offline-sample.FAkiaR`): 별도 `import-markers.log`에 두 Sample API import PASS marker 보존, Editor test 1건 PASS/skip0. GUI import 클릭·실제 시각/포인터 QA와 실제 provider는 별도다.
+- sample result 음성 1건 PASS, 원장·shell·diff PASS. import marker 중복이나 한쪽 누락을 허용하지 않도록 marker 각각 정확히 1건을 요구한다.
+- 강화 runner `artifacts/offline-sample.Afsqij`: sample import marker 각각 정확히 1건, Editor Play test 1건 PASS/skip0. 커밋 전: Unity Sample API setup·runner·정제 증거만 포함하며 Package Manager GUI·시각 QA로 기록하지 않는다.
+### P08-T04 Native Demo Sample API → Player 연결 시작
+- 기존 Android/iOS Native Demo Player는 sample 파일을 직접 복사했고 Sample API import는 별도 Editor 시험이었다. 동일 격리 소비 프로젝트에서 실제 Sample API import 후 Native Player를 빌드·실행하는 경로로 연결한다. GUI 클릭·시각 QA 및 실제 provider는 별도다.
+- 양 Native Player runner가 sample을 직접 복사하지 않고 Unity Sample API import marker를 요구하도록 변경했다. Python/shell 구문 및 marker 단위 5건 PASS. importer는 실제 Player 실행 전이며 격리 artifacts 경로 보호를 추가한다.
+- Sample import helper의 artifacts 외부 consumer 거부 fixture 및 shell syntax PASS. 기존 사용자 프로젝트를 대상으로 하지 않으며 실제 양 플랫폼 Player 재실행은 아직 없다. 커밋 전: helper·runner 연결·기록만 포함한다.
+- 동일 신규 프로젝트의 Sample API import 이후 Native Demo iOS LOCAL_MOCK Player를 실행한다. 현재 source 기록을 먼저 커밋하며 결과는 미실행이다.
+- `run-unity-ios-mock-e2e.py --native-demo-probe` exit 0 (`artifacts/unity-ios-e2e-7ryle35b`): 같은 신규 프로젝트에서 Unity Sample API로 Offline/Native import 후 Native Demo iOS Simulator Player mock 설정·인증·구매·로그아웃 및 원장 1건/100 PASS. Package Manager GUI 클릭·포인터·실제 Apple 거래는 아니다.
+- iOS Simulator는 삭제 없이 shutdown했다. 커밋 전: iOS import→Player 결과만 기록하고 Android 동일 경로는 NOT_RUN으로 유지한다.
+- 동일 신규 프로젝트의 Sample API import 이후 Native Demo Android LOCAL_MOCK Player를 실행한다. 기존 AVD 앱 데이터를 보존하기 위해 빈 전용 AVD를 사용한다. 시작 기록만 커밋하며 결과는 미실행이다.
+- `run-unity-android-mock-e2e.py --native-demo-probe` exit 0 (`artifacts/unity-android-e2e-8hjon046`): 같은 신규 프로젝트의 Unity Sample API import 후 Native Demo Android LOCAL_MOCK 설정·로그인·mock 구매·로그아웃 및 원장 1건/100 PASS. 최초 전체화면 안내 수동 처리. Package Manager GUI 클릭·포인터·실제 Play 거래는 아니다.
+- Android test AVD는 삭제 없이 shutdown했다. 양 플랫폼 각 신규 프로젝트의 Sample API import→Native Demo LOCAL_MOCK Player 증거를 관련 문서에 반영하며 source가 서로 다름을 보존한다. GUI 클릭·실제 provider는 미검증이다.
+- Android 64cb90b/iOS 083100f 사이 Unity SDK·Android SDK·iOS 제품 source diff exit 0, 두 Player의 staging SHA-256은 동일 `6f966d4b…`. 계획의 `docs/evidence/consumer-install.md`에 import·설정·Player·실제 플랫폼 한계를 정리한다.
+- P08-T04 계획의 신규 staged consumer·Sample API import·Editor mock flow 및 Android/iOS export/build/LOCAL_MOCK Player 실행을 `docs/evidence/consumer-install.md`에 연결했다. 해당 Task만 IMPLEMENTED/로컬 PASS로 갱신한다. GUI 포인터·시각, 실제 계정·스토어·실기기는 별도 미검증이다.
+- P08-T04 갱신 후 `verify-progress.py`, `check-progress-negative.py`, diff 검사 PASS. 커밋 전: 해당 Task의 정제된 설치 증거·상태와 기능 보고서만 포함한다. 다른 P08 Task나 실제 제공자를 완료로 바꾸지 않는다.
+### P08-T03 Unity metadata 안정성 누락
+- `unity/Packages/com.gamebridge.sdk` 원본에 `.meta`가 0개이고 Unity 소비 프로젝트에서만 생성됨을 확인했다. P08-T03의 `.meta` 안정성 기준을 충족하지 않아 package 원본에 안전하고 고정된 GUID를 마련하고 두 신규 프로젝트 import 결과를 비교한다. 기존 프로젝트와 원본 산출물은 수정하지 않는다.
+- 격리 `offline-sample.Afsqij`의 Unity 생성 package metadata와 Sample API로 생성된 sample metadata를 원본 파일/폴더에 대조한 결과 37개 모두 대응, 누락 0. `Samples~` 자체는 Unity가 무시하는 컨테이너라 제외한다. Unity가 생성한 metadata를 원본에 고정하며 GUID 중복·누락을 검사한다.
+- 격리 Unity가 만든 asset/folder metadata 37개를 대응 원본에 복사, GUID 유일성 37개 확인. 외부 경로·사용자 데이터를 수정하지 않았다. 누락/중복/orphan 검사와 두 신규 Unity import 비교는 별도다.
+- `check-unity-meta.py` PASS, `test_unity_meta.py` 2건 PASS/skip0(누락·중복·orphan·폴더 표식 거부). 이는 정적 검사이며 Unity import 간 GUID 안정성은 미실행이다.
+- 기존 검증 Native payload를 사용한 `upm-stable-meta-20261113` 생성, XCFramework와 147개 checksum PASS. 서로 다른 새 Unity consumer 두 곳의 package/sample GUID를 비교하기 위해 첫 import를 실행한다.
+- metadata stage 첫 `smoke-unity-offline-sample.sh` exit 0 (`artifacts/offline-sample.S2hxOa`): Sample API import 및 Editor 1건 PASS/skip0. GUID 안정성 판단 전 두 번째 새 프로젝트를 실행한다.
+- metadata stage 두 번째 신규 consumer도 Sample API import와 Editor fake flow 1건 PASS/skip0 (`artifacts/offline-sample.McH39f`). 이어서 두 프로젝트의 각 asset GUID를 원본과 비교한다.
+- 원본과 두 신규 프로젝트 74개 GUID 비교 exit 1: mismatch 4개는 각 프로젝트의 `Samples~/Offline Demo`, `Samples~/Native Demo` import 대상 최상위 폴더다. Sample API가 target 폴더를 생성하면서 package 경로의 폴더 metadata를 복사하지 않는다. 내부 asset과 target 폴더를 구분해 추가 검증하며 전체 GUID 안정성을 PASS로 주장하지 않는다.
+- 최상위 sample 폴더를 제외한 package/sample 내부 asset GUID 70회 비교 불일치 0. Sample API 생성 최상위 두 폴더는 각 프로젝트에서 서로 다른 GUID를 만들어 4회 불일치하며 전체 안정성은 미완료다. stage 147개 checksum 및 Native payload 81개 byte 동일성 확인. 정제 증거를 저장한다.
+- `test_unity_meta.py` 2건/skip0, workflow YAML·원장·diff PASS. 커밋 전: Unity 생성 metadata·누락/중복 검사·정제 증거만 포함한다. Sample 최상위 폴더 GUID와 최신 Player 재시험은 미완료다.
+- metadata 추가가 실제 iOS sample import/export/Player를 깨지 않는지 새 stage에서 재실행한다. Sample 최상위 폴더 GUID 불일치는 이 시험과 별도 미완료다. clean-source 시작 기록만 커밋한다.
+- metadata stage iOS `--native-demo-probe` exit 0 (`artifacts/unity-ios-e2e-q9ua_s4_`): Sample API import 후 Native Demo Simulator LOCAL_MOCK Player·원장 1건/100 PASS, tracked-clean. Android와 sample 최상위 폴더 GUID는 별도다.
+- iOS test Simulator shutdown, 데이터 보존. 커밋 전: iOS 부분 결과만 포함하며 Android 재실행은 NOT_RUN으로 남긴다.
+- metadata 추가가 Android sample import/export/Player를 깨지 않는지 새 stage에서 재실행한다. 기존 AVD 앱 데이터를 보존하기 위해 빈 전용 기기를 사용하며 시작 기록만 커밋한다.
+- metadata stage Android `--native-demo-probe` exit 0 (`artifacts/unity-android-e2e-2trvul1k`): Sample API import 후 Native Demo Player·원장 1건/100 PASS, tracked-clean. 최초 전체화면 안내는 수동으로 닫았다. Sample 최상위 폴더 GUID 불일치는 별도다.
+- Android test AVD는 삭제 없이 shutdown했다. metadata stage Android/iOS Native Demo Player 재실행 PASS를 증거에 추가하고 최신 stage 경로를 갱신한다. Sample import 최상위 폴더 GUID 불일치는 여전히 별도 미완료다.
+- 원장·manifest·diff 검사 PASS. 커밋 전: metadata stage 최신 경로 및 양 Player 정제 증거만 포함한다. Sample 최상위 폴더 GUID·실제 provider를 완료로 기록하지 않는다.
+### P08-T03 실제 Unity iOS hook 반복 실행 시작
+- 기존 PBX 독립 smoke 외에 실제 staged UPM과 Unity iOS export에서 postprocess hook을 다시 두 번 호출해 PBX 및 복사된 XCFramework의 byte hash가 유지되는지 확인한다. 외부 Apple 서명/계정은 사용하지 않는다.
+- `IosHookIdempotence.cs`는 실제 BuildPipeline export 뒤 실제 UPM postprocess를 두 번 재호출하고 PBX/XCFramework 전체 hash를 비교한다. 아직 Unity compile/export는 미실행이다.
+- metadata stage 격리 iOS consumer에서 Unity BuildPipeline export 후 UPM postprocess hook 두 번 재호출 exit 0, `GB_IOS_HOOK_REPEAT PASS` (`artifacts/unity-ios-mock.mWBnyZ/project/Logs/Editor.log`). PBX 및 XCFramework 파일 hash가 초기/1회/2회 동일했다. 실제 서명·Player 검증은 아니다. 재현 가능한 runner로 정리한다.
+- `smoke-unity-ios-hook-repeat.sh` exit 0 (`artifacts/unity-ios-mock.yLBxjk`), 실제 Unity export + iOS hook 재호출 2회 후 PBX/XCFramework byte 동일. 이 runner가 오래된 staging을 현재 소스처럼 검증하지 않도록 source 일치 검사와 CLI preflight를 추가한다.
+- 이전 `upm-native-sample-fix-20261112` 투입 음성 시험 exit 1: checksum 정상·metadata source 불일치 거부. 제품 실패가 아닌 의도된 검출이다. 현재 metadata stage로 양성 실행한다.
+- `smoke-unity-ios-hook-repeat.sh`는 stale stage 음성 거부 후 현재 stage 실제 Unity export·hook 반복 2회 PASS (`artifacts/unity-ios-mock.ztGwKd`). 서명/Player 시험과 구분한다. Android 실제 Gradle export에서도 hook 반복을 확인한다.
+- `AndroidHookIdempotence.cs`와 격리 runner는 실제 Unity Gradle export 후 hook을 2회 재호출하고 settings/build.gradle 및 복사된 Maven 파일 hash를 비교한다. 실제 실행은 아직 NOT_RUN이다.
+- `smoke-unity-android-hook-repeat.sh` exit 0 (`artifacts/unity-android-mock.mri8OM`): staged UPM의 실제 Unity Android Gradle export 후 hook 2회 재호출 시 settings/build.gradle 및 Maven payload hash가 초기/1회/2회 동일했다. APK/Player는 별도 결과다.
+- 두 실제 Unity export hook 반복 검증을 self-hosted CI gate에 연결하고 README의 과거 Unity 미검증·source/staging 구분 누락을 정정한다. 전체 gate 재실행 전이며 실제 provider는 별도다.
+- Android/iOS 실제 export hook 반복 hash 증거 `docs/evidence/p08-export-hooks.md` 작성. CI gate 음성 6건/skip0, shell·원장·diff PASS. 새 gate 전체 및 GitHub Actions는 NOT_RUN이며 커밋 전: hook 테스트/runner·CI·패키징 문서만 포함한다.
+### P09-T08 CI 필수 sample/hook 호출 검증 시작
+- self-hosted gate에 새로 연결한 sample 및 Android/iOS export hook이 실제 순서에서 호출되는지 mock command fixture에 assertion을 추가한다. Unity 실제 hook 시험은 별도 증거다.
+- `test_ci_gate.py` 6건 PASS/skip0: mock gate에서 Editor·sample·양 hook·isolated strict 호출과 실패 전파 확인. 원장/diff PASS; 실제 새 전체 gate 및 GitHub Actions는 NOT_RUN. 커밋 전: fixture·기록만 포함한다.
+### P09-T03/R22 합성 개인정보 redaction 시험 시작
+- R22는 token뿐 아니라 개인정보 형태 입력도 포함한다. 합성 email/전화번호를 Backend 오류·trace 및 Android/Swift diagnostics 요청/예외에 주입해 응답과 캡처 로그에서 비노출을 확인한다. 실제 개인정보는 사용하지 않는다.
+- 합성 email/전화번호가 Backend 예외 응답·trace 및 Android/Swift diagnostics 공개 결과에 나오지 않아야 하는 assertion을 작성했다. 테스트 실행 전이다.
+- Backend `HttpInfrastructureTest`/`LocalMockTraceFilterTest` 각 2건, Android `BridgeDispatcherTest` 3건, Swift `CBridgeTests` 4건 PASS/skip0: synthetic email/전화번호가 시험한 오류·trace/diagnostics 응답에 나오지 않음. 실제 개인정보와 Unity raw log의 개인정보 주입은 미검증이다.
+- 합성 개인정보가 실제 request/exception에 주입되고 응답·로그 검사에 포함됨을 소스에서 재확인했다. 커밋 전: 테스트와 정제 증거만 포함하며 전체 R22/실 provider를 완료로 기록하지 않는다.
+### P09-T03/R22 Unity synthetic 개인정보 callback 검증 시작
+- test-only 합성 Native callback의 허용되지 않은 필드에 synthetic email/전화번호를 넣고 Unity 공개 Push 결과에서 제거되는지 확인한다. 양 Player 원시 로그에서도 해당 synthetic 값이 나오면 실패시킨다. 실제 개인정보·원격 push가 아니다.
+- `PiiProbe`는 test-only Native callback 경로에 합성 email/전화번호를 추가하고 Unity 공개 PushUpdate에서 제거되는지 확인한다. Android/iOS Player consumer와 raw 로그 감시 연결·컴파일은 아직 남았다.
+- `--pii-probe`는 양 플랫폼에서 test-only callback·link 보존·필수 marker를 적용하고 합성 email/전화번호가 원시 Unity 로그에 나오면 실패한다. Python compile PASS, Player 실행 전 managed compile을 확인한다.
+- Android/iOS PII probe 조건부 managed compile 각각 경고·오류 0, `test_unity_redaction_marker.py` 6건 PASS/skip0. 실제 Player callback/log는 미실행이다. 커밋 전: test-only probe·runner·음성 시험만 포함한다.
+- test-only synthetic 개인정보 Native callback이 Unity 공개 결과에서 제거되고 raw log에 남지 않는지 iOS Simulator Player에서 검증한다. 시작 기록만 먼저 커밋하며 실제 provider는 사용하지 않는다.
+- `run-unity-ios-mock-e2e.py --pii-probe --adhoc` exit 0 (`artifacts/unity-ios-e2e-ehxq_12y`): synthetic Native callback의 허용되지 않은 email/전화번호가 공개 PushUpdate에 없고 raw Unity console에도 나타나지 않음. LOCAL_MOCK 기본 흐름도 PASS, 실제 개인정보/원격 APNs 아님.
+- iOS PII test Simulator는 삭제 없이 shutdown했다. 커밋 전: iOS 부분 결과만 포함하며 Android PII Player는 미실행이다.
+- test-only synthetic 개인정보 Native callback의 Unity 결과·원시 logcat 비노출을 Android Player에서 실행한다. 기존 AVD 앱 데이터 보존을 위해 빈 전용 AVD 사용, 시작 기록만 먼저 커밋한다.
+- `run-unity-android-mock-e2e.py --pii-probe` exit 0 (`artifacts/unity-android-e2e-rtm39zwn`): synthetic Native callback의 허용되지 않은 email/전화번호가 공개 PushUpdate와 raw Unity logcat에 없음. 기본 LOCAL_MOCK flow PASS, 최초 전체화면 안내 수동 처리. 실제 개인정보/원격 push 아님.
+- Android PII test AVD shutdown, 데이터 보존. Android source a42a8b2 및 iOS source 6d82338은 각각 tracked-clean. 두 test-only synthetic PII 결과를 정제 증거에 기록하며 자동 strict lane·실 provider·다른 개인정보 형식은 미완료다.
+- 양 Player synthetic PII 정제 evidence 및 원장/diff 검사 PASS. 커밋 전: 결과·수동 안내 조건만 포함하고 raw log·개인정보는 저장하지 않는다. R22 PARTIAL 유지.
+### P09-T07 Unity CI 기본 Player PII probe 연결 시작
+- 기존 baseline Android/iOS Player는 동일 인증·구매 흐름을 유지하는 `--pii-probe`로 실행해 synthetic 개인정보 결과/로그 검사를 포함한다. 별도 AVD는 추가하지 않는다. standalone strict의 독립 PII lane과 GitHub Actions 실제 실행은 아직 없다.
+- mock CI gate의 양 플랫폼 `--pii-probe` 전달 포함 `test_ci_gate.py` 6건 PASS/skip0, shell·원장·diff PASS. 변경된 실제 전체 gate 및 standalone strict의 독립 PII lane은 미완료다. 커밋 전: 설정·fixture·문서만 포함한다.
+### P09-T06/R22 동일 실행 PII Player 증거 집계 시작
+- 기존 Unity CI baseline의 `--pii-probe` 양 플랫폼 결과를 실행별 nonce와 현재 HEAD, tracked-clean, Player/marker/원장 검증으로 묶는다. standalone strict는 해당 실행 증거가 없으면 DEFERRED_ENV여야 한다. 이전 결과 재사용이나 필수 검증 생략을 허용하지 않는다.
+- PII wrapper는 두 Player를 새로 실행하고 현재 HEAD·실행 nonce·tracked-clean·PII marker·DB 원장을 검증한다. 검사기 Python compile만 완료했고 음성 fixture와 실제 wrapper 실행은 아직 미실행이다.
+- `test_unity_pii_current.py` 1건 PASS/skip0: 서로 다른 nonce·HEAD·dirty·미실행·marker 누락·잘못된 원장·플랫폼 누락을 거부했다. 아직 실제 두 Player wrapper는 NOT_RUN이며 CI/strict에 fail-closed로 연결한다.
+- CI gate가 양 PII Player wrapper를 호출하고 fresh evidence/nonce를 strict 필수 lane에 전달하도록 구현했다. mock CI 6건, evidence 음성 1건 PASS; 실제 wrapper/전체 gate는 NOT_RUN이다. evidence/nonce 전달을 fixture에서 확인한다.
+- `test_ci_gate.py` 6건, `test_unity_pii_current.py` 1건, `test_aggregation.py` 13건 PASS/skip0. standalone strict는 동일 실행 PII evidence/nonce 미제공 시 DEFERRED_ENV다. 커밋 전: wrapper·검사기·CI/strict 연결·음성 시험만 포함하며 실제 wrapper/원격 CI는 NOT_RUN이다.
+- 실제 `run-unity-pii-current.py`로 양 synthetic PII LOCAL_MOCK Player를 순차 실행하고 HEAD·nonce·원장·marker 검증을 확인한다. 기존 AVD 앱은 보존하고 빈 전용 기기를 사용한다. clean-source 시작 기록만 먼저 커밋한다.
+- `run-unity-pii-current.py --run-local ...` exit 0 (`artifacts/unity-pii-current-ml8muq1n`): source 222a2f3의 Android/iOS PII LOCAL_MOCK Player 각 PASS, tracked-clean·실행 nonce·필수 marker 및 각 원장 1건/100. Android 최초 전체화면 안내 수동 처리. 실제 개인정보/원격 provider는 아니다.
+- `check-unity-pii-evidence.py`에 해당 실행 evidence/nonce를 전달해 양 Player 2건 PASS 확인. AVD·Simulator는 shutdown만 했다. 같은 논리 실행 evidence를 격리 strict로 전달해 lane 집계를 검증한다. Unity Push/Editor opt-in은 별도이며 전체 PASS는 주장하지 않는다.
+- 동일 실행 PII evidence/nonce를 전달한 격리 strict exit 1 (`artifacts/verify-all-p09mpzq9`, orchestration `artifacts/strict-isolated-beow_iyv`), 외부 13 WAITING_USER. PII lane 및 다른 실패·미실행을 확인하며 전체 PASS로 기록하지 않는다.
+- `verify-all-p09mpzq9`: `unity-pii-e2e` 2건 PASS, 구매 하위 PASS, Unity Push DEFERRED_ENV·Editor NOT_RUN·scenario PARTIAL·기록된 P05-T03 FAIL로 전체 FAIL이다. test Simulator는 shutdown만 했다.
+### P09-T01/R22 재현 suite 연결 시작
+- R22의 synthetic credential/PII 범위는 Native·Backend·양 Unity Player에서 실행했고 strict PII lane도 확인했다. 시나리오 entry에서 실제 두 Player wrapper를 명시적 opt-in으로 재현할 수 있게 하며, 미설정은 DEFERRED_ENV로 남긴다.
+- `test_unity_pii_optin.py` 2건 PASS/skip0: 미설정은 exit 2, 명시 설정에서 새 nonce 생성·실제 runner 결과 전달. 새 scenario timeout 경계의 음성 검사 및 R22 assertion/evidence 매핑을 확인한다. opt-in 얇은 entry의 실제 호출은 별도다.
+- R22 요구(합성 인증키·token·개인정보의 SDK 로그/Unity 결과/Backend 오류 비노출)에 대한 실행된 Backend·Native·양 Unity Player 및 strict PII lane을 `docs/evidence/r22-synthetic-redaction.md`에 assertion별로 연결해 local/fake IMPLEMENTED로 갱신한다. 외부 실 provider·모든 가능한 입력을 검증했다는 뜻이 아니며 opt-in 얇은 entry는 실제 호출 전이다.
+- `check-manifest.py`, `check-manifest-negative.py` PASS. `check-required-coverage.py` exit 1: 1 PARTIAL(R40), 0 NOT_IMPLEMENTED. 이는 전체 통과가 아니다.
+- opt-in child timeout 3200초, scenario 상위 3300초로 분리해 child의 DEFERRED_ENV 처리가 상위 강제 종료보다 먼저 일어나게 한다. 환경별 단위 및 manifest를 재검증한다.
+- PII opt-in 2건, evidence 1건, manifest/음성/Python/diff PASS. evidence fixture의 플랫폼 누락 검사가 이전 marker 누락 상태와 겹쳐 독립 확인이 아니므로 marker 복원 후 검증하도록 보정한다.
+- 플랫폼 누락 fixture를 독립화 후 evidence 1건·opt-in 2건 PASS/skip0, 원장/diff PASS. 커밋 전: R22의 실행된 synthetic 범위와 suite/timeout·음성 검사만 포함하며 opt-in entry 실제 호출·실 provider는 미실행으로 명시한다.
+### P09-T05/R40 기존 OS 증거 소스 대조 시작
+- 기존 Android/iOS OS 권한 시험 source와 현재 플랫폼/Unity Runtime diff를 조사한다. 첫 stat에서 Unity Runtime 변경은 새 .meta로 보인다. 제품 소스 동일성과 test-only Firebase 의존성 범위를 확인한다. 확인 시작 전에 diff를 먼저 실행한 순서 누락도 기록한다.
+- Android `1fa6c0d` 및 iOS `e0acbd6`와 현재 platform/Unity Runtime 비교에서 `.meta` 외 제품 코드 차이 0. 두 기존 실제 권한 시험의 격리 프로젝트 consumer 파일과 현재 test 소스도 byte 동일하다. Android test-only Firebase dependency, 실제 OS dialog, iOS OS 및 독립 mock을 구분한다.
+### P09-T05/R40 Android 실제 OS 권한 재현 runner 시작
+- 기존 test-only permission consumer와 Firebase runtime dependency를 새 격리 Unity Android 프로젝트에서 빌드한다. 전용 AVD의 실제 권한 dialog를 식별해 거부하고 첫 DENIED·등록 차단·재요청 DENIED marker를 검증한다. 계정·실 Firebase 연결은 없다.
+- Android permission runner는 새 Unity Player 및 전용 AVD에서 OS dialog를 resource id로 식별해 거부하고 허용된 marker만 저장한다. 초안 Python compile만 확인했으며 실제 실행 전이다. dialog 오탭 방지·미실행/중단 분류를 시험한다.
+- Android permission runner 단위 2건 PASS/skip0: 유일한 permission deny resource만 선택, 중복·다른 위젯·잘못된 XML 및 필수 marker 누락 거부. 실제 OS 재실행은 아직 없다. 커밋 전: runner·음성 시험·기록만 포함한다.
+- Android OS permission 재현 runner를 새 전용 AVD에서 실행한다. test-only Firebase SDK dependency를 사용하나 계정·서비스 설정·원격 발송은 없다. clean-source 시작 기록을 먼저 커밋한다.
+- Android 36 실제 권한 창에서 거부 버튼 resource id가 `permission_deny_and_dont_ask_again_button`임을 관찰했다. runner는 `permission_deny_button`만 허용해 탭하지 않았으며, 오탭 방지를 위해 실행을 중단해 INTERRUPTED/exit 130 (`artifacts/unity-android-permission-ikutzs0w`). OS 거부 결과는 미판정. 명시된 두 거부 ID만 허용하도록 보강한다.
+- Android OS runner selector가 명시적 두 거부 ID만 허용하도록 보완했고 단위 2건 PASS/skip0, Python·원장·diff PASS. 수정 실제 OS 재실행은 아직 없다. 커밋 전: selector·fixture·중단 이력만 포함한다.
+- 실제 관찰된 denial resource ID 지원 후 Android OS runner를 새 전용 AVD에서 재실행한다. 이전 AVD는 shutdown만 했고 시작 기록을 먼저 커밋한다.
+- 수정 `run-unity-android-permission-os.py --run-local` exit 0 (`artifacts/unity-android-permission-j_5q_9e9`): test-only Firebase SDK dependency와 Android 36 전용 AVD에서 실제 OS 거부 버튼을 자동 선택, 첫 DENIED·등록 PERMISSION_DENIED·재요청 DENIED marker PASS. 원격 Firebase 계정/전송은 없다. 초기 첫 실행 INTERRUPTED 기록은 보존한다.
+- Android permission test AVD는 삭제 없이 shutdown했다. 커밋 전: 자동 OS 시험 결과와 수동 미선택/초기 중단 이력만 포함한다. iOS 전용 재현 runner는 아직 없다.
+### P09-T05/R40 iOS 실제 OS 권한 재현 runner 시작
+- 격리 Unity iOS Simulator Player의 실제 알림 권한 dialog를 요청하고, 거부 후 첫 DENIED·등록 차단·재요청 DENIED를 검증하는 runner를 만든다. GUI 거부 입력이 없으면 환경 대기로 처리하며 원격 APNs/Apple 계정은 사용하지 않는다.
+- iOS permission runner 초안 compile PASS. Simulator 생성 호출의 환경 대기 category 인자와 필수 marker/명시적 opt-in을 확인하며 아직 실제 export/OS 시험은 미실행이다.
+- `test_unity_ios_permission_os.py` 2건 PASS/skip0, Python·원장·diff PASS. iOS GUI denial 없이는 성공하지 않는다. 실제 runner 실행 전 커밋: test-only runner·음성 검사·기록만 포함한다.
+- iOS OS permission runner를 새 Simulator에서 실행한다. 실제 알림 dialog에서 거부를 선택하며 Apple 계정·APNs는 사용하지 않는다. clean-source 시작 기록만 먼저 커밋한다.
+- `run-unity-ios-permission-os.py --run-local` exit 0 (`artifacts/unity-ios-permission-d3b5a0lc`): iOS 18.6 Simulator 실제 권한 dialog에서 도구로 허용 안 함을 선택, 첫 DENIED·등록 PERMISSION_DENIED·재요청 DENIED marker PASS. GUI denial 입력은 자동화 runner 외부의 도구 조작이며 Apple 계정/APNs는 없다. 초기 snapshot은 종료된 이전 Simulator 기본값을 가리켜 실패했고 올바른 Simulator를 지정한 뒤 진행했다.
+- Android runner가 실제 denial button을 선택한 횟수와 외부/기존 상태를 구분하고, iOS runner는 외부 GUI 입력 필요를 result에 명시한다. 기존 실제 OS 성공 증거는 별도로 보존한다.
+- Android denial tap 횟수/interaction mode 및 iOS 외부 GUI 입력 표시를 보강했고 Android 단위 3건, iOS 2건 PASS/skip0. 양 OS 및 managed Mock을 각각 새 실행하는 opt-in R40 entry를 추가한다. iOS GUI 입력이 없으면 성공하지 않는다.
+- `test_r40_permission_optin.py` 2건 PASS/skip0: opt-in 없으면 실행하지 않고 DEFERRED, Android/iOS/Mock 중 어느 하나가 대기/실패면 전체 성공하지 않는다. 세 경로 합친 실제 wrapper 및 새 interaction 기록은 아직 미실행이다. 커밋 전: test-only runner·fixture·기록만 포함한다.
+- `run-r40-permission-optin.py`에서 Android 실제 OS, iOS 실제 OS, managed Mock 세 경로를 순차 실행한다. iOS OS 거부는 외부 GUI 도구 조작이며 무인 CI로 간주하지 않는다. 시작 기록을 먼저 커밋한다.
+- `GAMEBRIDGE_RUN_OS_PERMISSION_E2E=true ... python3 harness/run-r40-permission-optin.py` exit 0: Android 실제 OS denial 자동 처리 (`artifacts/unity-android-permission-ube13ah7`), iOS 실제 OS denial GUI 도구 처리 (`artifacts/unity-ios-permission-hk912uou`), standalone managed Mock denial 각각 PASS. 양 OS source ef9405b tracked-clean; 실제 FCM/APNs·실기기 검증은 아니다. 첫 결과 정리 명령은 작업 디렉터리 오타로 프로세스 미시작, 올바른 경로로 재실행했다.
+- R40 실제 통합 결과: Android `AUTOMATED_RESOURCE_ID` denial tap 2회, iOS `EXTERNAL_GUI_REQUIRED`이며 도구로 거부, managed Mock 별도 PASS. 양 test 기기는 shutdown했고 데이터 보존. 실행된 세 범위를 manifest assertion 및 opt-in 재현 경로에 매핑한다.
+- R40의 실제 Android 자동 OS, iOS GUI 보조 OS, managed Mock 결과를 `r40-os-and-mock.md`에 연결했다. `check-manifest`, 음성 검사 PASS 및 required coverage 50개 기록 완료. 이는 현재 CI에서 모든 시나리오가 실행됐다는 뜻이 아니며 iOS GUI·실제 provider는 별도다.
+- R40 실제 Android OS·iOS OS·Mock 및 opt-in 재현 wrapper를 연결해 50/50 local/fake coverage evidence를 기록했다. iOS GUI 수동 및 실제 provider 미검증을 명시하고 최종 manifest/runner 음성 검사를 실행한다.
+- R40 opt-in 2건, Android OS selector 3건, iOS OS marker 2건, CI gate 6건 단위 PASS/skip0. manifest·음성·coverage·원장 PASS. 커밋 전: 실제 OS/Mock별 evidence와 local/fake coverage만 갱신하며 GUI 보조·실 provider/전체 strict 미완료를 명시한다.
+### P09-T07 최신 전체 Unity CI gate 재검증 시작
+- 50개 local/fake coverage, 최신 metadata stage, Sample API·양 hook·동일 실행 PII/Push lane을 포함한 현재 gate를 전용 baseline/push AVD와 격리 DB/Simulator에서 실제 재실행한다. R40 iOS OS는 앞선 GUI 보조 증거이며 이 gate가 자동 재실행하는 것은 아니다. P05-T03 및 외부 provider 상태는 그대로 유지한다. 시작 기록만 먼저 커밋한다.
+- 최신 `scripts/ci-unity-e2e.sh` 실제 로컬 실행 exit 1, strict `artifacts/verify-all-n3u_5w60/summary.md`, orchestration `artifacts/strict-isolated-hqnpssju`, 외부 13 WAITING_USER. GUI 안내 수동 처리했으며 GitHub Actions·실 provider 실행은 아니다. 세부 lane 및 실패를 확인한다.
+- `verify-all-n3u_5w60`: source 562c75f, 실행 lane 및 coverage 50, Unity PII 2, Push 2, Editor 2 PASS. 유일 비PASS는 기존 P05-T03 FAIL이므로 전체 FAIL/exit1, 외부 13 WAITING_USER. 4 Player는 동일 source tracked-clean; strict sourceDirty는 기존 미추적 Demo/cache 포함 기준. 두 Android 최초 안내 수동 처리. 시험 AVD 2개·Simulator 3개 shutdown, 데이터 보존. R40 iOS 실제 OS는 선행 GUI 보조 증거이며 이 CI에서 자동 재실행하지 않았다.
+- 최신 로컬 gate의 실제 lane·source, Android 안내 수동 및 R40 iOS GUI 보조, P05-T03 FAIL·외부 대기를 evidence/CI/최종 보고에 반영했다. 원장·manifest·diff PASS. 커밋 전: 정제 문서만 포함하며 원본 로그/DB/빌드는 제외한다.
+### P05-T03 iOS 26.5 StoreKit 실패 조사 시작
+- 기존 26.5 SKTestSession 생성 timeout 및 Code 3 기록을 보존한 채 Apple 공개 문서·설치 runtime을 확인한다. 외부 보고의 유사성을 현재 환경 원인으로 단정하지 않는다. 문서 조회를 시작 기록보다 먼저 실행한 순서 누락을 기록한다.
+- Apple [SKTestSession 문서](https://developer.apple.com/documentation/storekittest/sktestsession)는 named/URL 초기화 경로를 제공한다. [iOS 26.5 release notes](https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-26_5-release-notes)는 선택된 설정 관련 수정을 기록하고 [Apple Developer Forums](https://developer.apple.com/forums/thread/826971)에는 유사 Code 3 보고와 DTS 답변이 있다. 현재 우리 앱의 init timeout과 동일 원인인지는 미확정이다. 설치된 runtime은 18.6/26.5, Xcode 26.6이며 test-only URL initializer 대조를 추가한다.
+- RecoveryHarness는 기본 named 동작을 유지하며 opt-in URL initializer를 선택한다. runner Python compile PASS. 잘못된 선택을 DB 생성 전에 차단하도록 조정하고 음성 시험한다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_INIT=invalid ... --run-local` exit 2를 DB 생성 전 확인, Python/diff PASS. 먼저 iOS 18.6에서 URL initializer의 빌드·local process recovery 양성 대조를 실행한다. 실제 Apple sandbox는 아니다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_INIT=url ... --run-local` iOS 18.6 exit 0 (`artifacts/xcode-process-recovery-xbadp2tm`): URL initializer, synthetic local DB 구매 응답 유실 및 프로세스 재시작 복구 PASS. 당시 미커밋 test-only 변경이며 26.5/실 Apple sandbox 결과는 아니다.
+- 동일 URL initializer를 별도 iOS 26.5 Simulator·local DB에서 실행한다. 이전 named init timeout/Code 3은 결과와 관계없이 이력으로 보존하고 성공 시에도 동일 원인인지 추정하지 않는다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_INIT=url GAMEBRIDGE_PROCESS_SIM_RUNTIME=...iOS-26-5 ... --run-local` exit 1 (`artifacts/xcode-process-recovery-97a0wg1_`): prepare 단계 `storekit-session` timeout. 같은 URL initializer의 iOS 18.6 대조는 PASS (`artifacts/xcode-process-recovery-xbadp2tm`). 두 테스트는 당시 미커밋 test-only diagnostic이며 이전 named timeout/Code 3과 같은 원인이라고 단정하지 않는다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN 유지.
+
+### 사용자 요청 안정 중단 — 2026-11-13
+- 진행 중이던 iOS 26.5 URL initializer 대조 종료 후 중단한다. 18.6 URL local recovery PASS (`artifacts/xcode-process-recovery-xbadp2tm`), 26.5 URL init 단계 timeout FAIL (`artifacts/xcode-process-recovery-97a0wg1_`); named 경로와 같은 원인 여부 미확정이다. `P05-T03` FAIL/`ENV-STOREKIT-26` OPEN을 유지한다.
+- R09/R11/R22/R40/R43/R49 포함 50개 local/fake 시나리오 evidence 기록. `verify-all-n3u_5w60`는 해당 실행 suite와 coverage PASS이지만 기존 P05-T03 FAIL로 전체 FAIL, 외부 13 WAITING_USER. R40 iOS GUI 및 두 Android 초기 안내는 수동 처리, 원격 GitHub Actions/실 provider 미실행이다.
+- 새 staging `artifacts/upm-stable-meta-20261113`; Sample 최상위 폴더 GUID 차이는 P08-T03 PARTIAL. 테스트 Simulator/AVD를 shutdown했으며 DB/기기 데이터, 기존 미추적 Demo/cache를 보존한다.
+- 재개: P05-T03 named/URL과 26.5 runtime 원인을 계속 조사하고 필요 시 최신 source의 격리 strict 및 문서 감사를 재실행한다. 제품 Provider와 test-only 진단을 구분하고 실패·미실행을 PASS로 바꾸지 않는다. 자동 push/공개 배포는 하지 않는다.
+- 커밋 전: test-only URL initializer 옵션, 18.6 대조/26.5 실패 및 이 중단 기록만 포함한다. 실제 Apple sandbox는 미검증이다.
+
+### P05-T03 재개 — StoreKit session 단계 분리
+- `AGENTS.md`, `START_HERE.md`, 기존 진단·Git 상태를 확인했다. 26.5의 기존 `storekit-session` checkpoint는 initializer와 disableDialogs setter를 모두 포함하므로 어느 호출이 멈췄는지 아직 확정할 수 없다. test-only 단계 분리와 background 실행 대조를 추가한다. 메인 스레드 의존성은 가설이며 Apple 공식 확정 원인으로 간주하지 않는다. 기존 사용자 Demo/cache는 보존한다.
+- `GameBridgeRecoveryHarnessApp.swift`에서 session 생성과 설정 checkpoint를 분리하고 명시적 background 생성 옵션을 추가했다. `run-xcode-process-recovery.py`는 실행 경로를 검증·기록한다. Python compile/diff PASS이며 Swift 빌드·실행은 아직 없다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR=invalid ... --run-local` exit 2를 DB 생성 전에 확인했다. iOS 18.6 background initializer로 local process recovery 양성 대조를 실행한다.
+- `GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR=background GAMEBRIDGE_PROCESS_STOREKIT_INIT=url ... --run-local` iOS 18.6 exit 0 (`artifacts/xcode-process-recovery-dhe_8lqh`): staged test-only 코드가 실제 build 및 local purchase/process recovery PASS. 26.5 및 실제 Apple sandbox는 별도다.
+- 양성 대조를 마친 동일 test-only background URL 경로를 별도 iOS 26.5 Simulator·DB에서 실행한다. 세분화된 checkpoint로 생성/설정 중 어느 단계가 멈추는지 구분한다.
+- iOS 26.5에서 `GAMEBRIDGE_PROCESS_STOREKIT_EXECUTOR=background ...INIT=url` exit 1 (`artifacts/xcode-process-recovery-na8yq85t`): `storekit-session-create` timeout으로 설정 setter 이전에 멈춤을 확인했다. 동일 변경 iOS 18.6은 PASS (`artifacts/xcode-process-recovery-dhe_8lqh`). background 이동으로 해결되지 않았으나 Apple 내부 원인은 미확정, P05-T03 FAIL 유지.
+- 26.5의 named/URL 및 background URL 대조가 실패해 같은 환경 재시도는 중단한다. `P05-T03` FAIL과 `ENV-STOREKIT-26` OPEN 유지. Xcode build에는 StoreKitTest SDK deprecated 경고가 있었고 이 진단 코드의 concurrency 오류는 관찰되지 않았다. 코드 변경의 기본 18.6 named 회귀만 확인한다.
+- 변경된 test-only harness 기본 main/named iOS 18.6 실행 exit 0 (`artifacts/xcode-process-recovery-7v4ybj7y`): local StoreKit process recovery PASS. 26.5 실패와 실제 Apple sandbox는 별도다.
+- 세 테스트 Simulator를 shutdown하고 데이터는 보존했다. 커밋 전: test-only executor/세분화 checkpoint, 18.6 두 PASS·26.5 FAIL 및 SDK 경고/미확정 원인만 기록한다. 제품 StoreKit provider와 실제 sandbox는 변경/검증하지 않았다.
+### P08-T03 Sample 재가져오기 GUID 대조 시작
+- 두 프로젝트의 Sample API 생성 최상위 폴더 GUID가 다르다는 기존 결과는 같은 프로젝트에서 재가져오기 시 GUID가 바뀐다는 증거가 아니다. Unity가 제공하는 OverridePreviousImports를 새 격리 consumer에만 적용해 import 전후 최상위·내부 GUID 보존을 각각 확인한다. 사용자 sample은 덮어쓰지 않는다. [Unity Sample API](https://docs.unity3d.com/ScriptReference/PackageManager.UI.Sample.html)
+- 새로운 `offline-sample.KSrzqt`에서 Sample import와 Editor test 1건 PASS/skip0. 해당 작업 전용 프로젝트에서만 RepeatImport test-only Editor 코드를 실행해 재가져오기 GUID를 비교한다.
+- `unity run ... GameBridgeSampleRepeatImport.Run` exit 0 (`artifacts/offline-sample.KSrzqt/project/Logs/Editor.log`): 두 sample 모두 동일 프로젝트 내 override 재import에서 ROOT=STABLE, INTERNAL=STABLE. 서로 다른 신규 프로젝트의 최상위 대상 폴더 GUID 차이는 그대로이며 내부 asset GUID 비교와 구분한다. 누락·변경 marker를 성공 처리하지 않도록 runner에 fail-closed 검사를 추가한다.
+- 동일 프로젝트 재import의 두 sample ROOT/INTERNAL marker 각각 1건, CLI 성공을 요구하는 checker와 누락·중복·변경/exit 오류 음성 시험 1건 PASS. 신규 consumer 전체 실행은 아직 재확인 전이다.
+- `smoke-unity-offline-sample.sh` 강화 후 exit 0 (`artifacts/offline-sample.PbKuS1`): Sample API import, Editor fake/guard 1건 PASS, 두 sample 동일 프로젝트 override 재import의 root/internal GUID 안정성 PASS. 별도 두 프로젝트의 생성 대상 root GUID가 다른 이전 결과는 유지한다.
+- `docs/evidence/p08-upm-staging.md`에 checksum·실제 양 export hook 2회·package asset GUID/동일 프로젝트 재import·Android/iOS staged consumer 및 README 구분을 연결했다. 계획된 로컬 패키징 범위의 P08-T03만 IMPLEMENTED/PASS로 갱신한다. 프로젝트마다 새 sample 대상 root GUID는 다르며 실제 provider·GUI 시각 검증은 아니다.
+- P08-T03 갱신 후 `verify-progress.py`, `check-progress-negative.py`, `check-unity-meta.py`, `check-manifest.py`, diff 검사 PASS. 커밋 전: sample 재import fail-closed 테스트·정제 evidence·해당 Task 상태만 포함하며 기존 사용자 파일은 제외한다.
+
+### P08-T01/T02 Native 패키지 소비 검증 재개
+- 가장 앞선 독립 가능 미완료 작업의 현재 source를 사용해 새 Android Maven publication/좌표 기반 R8 consumer 및 iOS source consumer/무서명 XCFramework slice·symbol·독립 link를 확인한다. 기존 산출물은 덮어쓰지 않고 실제 스토어·서명된 기기 검증과 구분한다.
+- `swift build --package-path ios` exit 0 (`artifacts/p08-swift-source-build.log`), source package 자체 빌드 PASS. 독립 source consumer/link 및 XCFramework는 별도로 확인한다. Android/iOS archive 병렬 실행 중이다.
+- `ios/consumer-source-check`와 격리 runner를 추가해 SwiftPM 제품 의존성으로 별도 source consumer를 빌드/실행한다. host 검사이며 iOS binary·실기기가 아니다. 아직 실행 전이다.
+- `GAMEBRIDGE_MAVEN_REPO=<new> bash scripts/build-android.sh --mock` exit 0 (`artifacts/p08-android-reverify.log`): publication·sample APK 및 독립 coordinate R8 release build 완료. `GAMEBRIDGE_IOS_OUTPUT_DIR=<new> bash scripts/build-ios.sh --xcframework` exit 0 (`artifacts/p08-ios-reverify.log`): unsigned device/simulator archive 및 XCFramework 생성. `bash scripts/smoke-ios-source-consumer.sh` exit 0 (`artifacts/ios-source-consumer.UIxcpt`): 별도 SwiftPM Core/Apple source consumer를 macOS host에서 실행했다. 실기기/실 store 검증은 아니며 POM·manifest·slice/symbol 및 별도 iOS binary consumer link를 확인한다.
+- `verify-xcframework.py artifacts/ios-p08-reverify-20261113/GameBridgeNative.xcframework` exit 0: device arm64·simulator arm64/x86_64 및 arch별 C ABI 4개 검증. Android 독립 consumer Gradle은 source project dependency 없이 Maven 좌표·R8 minification이며 POM의 sdk-core 및 runtime 의존성을 확인했다. unsigned APK 기기 실행 및 iOS link는 별도다.
+- `xcrun swiftc ... ios/consumer-check/main.swift` exit 0 및 `vtool -show-build` IOSSIMULATOR 확인(실행 아님). Android release APK merged manifest에 BILLING/INTERNET 및 consumer activity 확인. Android Gradle에는 SDK XML 버전 경고가 있었다. publication은 sdk-android/bridge AAR, 순수 JVM sdk-core JAR과 각각 POM/module로 구성된다. 기존 build 디렉터리의 영향을 배제하는 신규 소비 프로젝트를 별도로 검증한다.
+- `GAMEBRIDGE_MAVEN_REPO=<fresh> bash scripts/smoke-android-maven-consumer.sh` exit 0 (`artifacts/android-maven-consumer.cNk7BG`): 기존 build/.gradle을 제외한 신규 소비 프로젝트에서 Maven 좌표만으로 R8 unsigned release APK·mapping을 생성하고 merged manifest의 BILLING/INTERNET/activity를 확인했다. APK 설치/기기 실행은 아니다.
+- 새 Android Maven의 POM/module scope 확인: `sdk-core` 순수 JVM JAR, `sdk-android`/`sdk-unity-bridge` AAR. R8 unsigned 소비 APK의 BILLING/INTERNET/activity가 병합됐다. 새 iOS XCFramework arch/C ABI, 독립 arm64 simulator Swift link 및 IOSSIMULATOR load command, 독립 SwiftPM host consumer를 확인했다. f1e12b6 이후 Android/iOS Native 제품 source diff 0. 실제 기기/스토어는 별도다.
+- P08-T01/T02의 계획된 로컬 산출물·독립 소비 빌드 기준을 실제 확인하고 각각 `docs/evidence/p08-android-maven-consumer.md`, `docs/evidence/p08-ios-xcframework-consumer.md`에 연결해 IMPLEMENTED/로컬 PASS로 갱신했다. sdk-core는 JAR이며 unsigned APK·archive 실기기 실행, 실제 제공자 검증을 주장하지 않는다.
+- P08-T01/T02 상태 갱신 후 원장·음성·shell·metadata·diff 검사 PASS. clean Maven consumer runner의 repository 미설정 환경 대기 조건도 확인한다.
+- Maven repository 미설정 fixture exit 2/DEFERRED_ENV, CI YAML 및 diff PASS. 커밋 전: 두 독립 소비 runner/source, 정제된 증거, CI source-consumer 연결 및 P08-T01/T02 로컬 상태만 포함한다. APK·XCFramework·원본 로그는 제외한다.
+
+### P08-T05 현재 기능 기준점 감사 시작
+- P08-T01~04 로컬 검증 이후 현재 P00~P08 모든 Task ID·상태와 기존 API/protocol snapshot의 호환성을 대조하고 새로운 부분 기준점을 별도 기록한다. 과거 snapshot을 덮어쓰거나 P05 실패·실 provider 대기를 감추지 않는다.
+- `check-api-baseline.py`와 isolated `check-api-baseline-negative.py` exit 0, 기존 public API snapshot 호환 및 변이 감지 확인(바이너리 호환 보장은 아님). 계획 P00~P08 48개 ID와 원장 48개 일치·누락/중복 0. snapshot 시점 local PASS 6/PARTIAL 41/FAIL 1. P05-T03 FAIL과 외부 대기·미완료 행을 그대로 보존해 별도 evidence를 작성한다.
+- 계획 P00~P08의 48개 행, 현재 산출물·미완료/실 provider 대기, 과거 API snapshot 및 source commit을 `docs/evidence/feature-baseline-current-20261113.md`에 기록하고 P08-T05 기록 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. snapshot 자체는 FAIL 1·PARTIAL 41인 INCOMPLETE이며 제품 완성이 아니다. 기존 기준점과 P05 실패는 보존한다.
+- P08-T05 갱신 직후 `verify-progress.py`는 구현/로컬 집계 불일치로 nonzero였다. 후속 명령이 성공해 전체 shell exit가 0으로 보였으나 원장 검사는 FAIL이다. 원인을 확인해 정정한 뒤 단독 재실행한다.
+- 원인은 기존 P08-T05 행의 추가 WORK_LOG evidence를 교체 문자열이 포함하지 않아 행만 미변경된 것이다. 해당 행을 정확히 갱신하고 선언 집계와 비교한다.
+- P08-T05 정확한 행 교체 후 `python3 scripts/verify-progress.py` 단독 exit 0. 과거 snapshot의 P05 FAIL/미완료 수와 실제 provider 대기를 바꾸지 않는다.
+- `check-progress-negative.py`, `check-api-baseline-negative.py`, `check-manifest.py`, `verify-progress.py`, diff 검사 각각 PASS. 커밋 전: INCOMPLETE 48행 snapshot과 P08-T05 문서화 Task 상태만 포함하며 제품 전체를 완료로 바꾸지 않는다.
+
+### P00-T02 도구 기준 재감사 시작
+- 오래된 TOOLCHAIN의 Unity 라이선스/모듈 미검증과 과거 빌드 상태를 현재 실제 환경·증거로 정정한다. Unity 공식 지원 문서 조회를 시작 기록보다 먼저 수행한 순서 누락을 기록한다. 설치되지 않은 Editor나 실제 provider를 완료로 표시하지 않는다.
+- `unity editors list --installed --format json`에서 설치 Editor는 6000.5.8f1(Android, Android SDK/NDK, iOS, OpenJDK) 및 6000.4.0f1(Web/Windows), `unity license status` active=true만 확인했다(계정/라이선스 식별자 기록 없음). JDK 21.0.10, Xcode 26.6(17F113), Swift 6.3.3, adb 37.0.1, Android SDK 34–36/37.0, build-tools 34–36, Docker 29.1.3/Compose 2.40.3, PostgreSQL 17.6 실행 확인. Unity 6000.3 LTS는 설치되지 않았으며 실제 provider·실기기 검증은 별도다.
+- `TOOLCHAIN.md`에 2026-11-13 실제 조회 버전·명령·LOCAL_MOCK/외부 한계를 추가하고 `ENVIRONMENT.md`, USER-UNITY 현재 evidence, ENV-001 증상을 정정했다. Unity 공식 지원 정책은 https://unity.com/releases/unity-6/support 참조. 6000.3 LTS를 설치·검증했다고 주장하지 않는다.
+- P00-T02 완료 조건인 실제 버전/명령/출처와 가능한·불가능한 검증 및 미확정 항목 후속 기록을 충족해 도구 감사 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. 6.3 LTS 미설치 ENV-001은 OPEN, 26.5 실패 및 실제 provider 대기는 그대로다.
+- P00-T02 행/집계 반영 후 `verify-progress.py` PASS. 커밋 전: 도구 감사·환경 대기와 당시 결과만 포함하며 6.3 LTS/실 provider 또는 iOS 26.5 실패를 해소했다고 기록하지 않는다.
+
+### P00-T04 원장·명령 진입점 재감사 시작
+- 현재 문서 검사기와 빌드 진입점이 계획의 행 누락·증거 없는 PASS·잘못된 상태 및 도구 부재/명령 실패 구분을 충족하는지 확인한다. 제품/원본 문서에 mutation을 적용하지 않고 artifacts 임시 사본만 사용한다.
+- `check-progress-negative.py`에 3개 격리 mutation(필수 행 삭제, PASS evidence 제거, 잘못된 상태)을 추가해 모두 거부했다. `test_entrypoint_exit_codes.py` 2건 PASS/skip0: 도구 부재는 exit 2, 인위적 build 실패는 exit 7. 원본 문서는 변경하지 않았다. 실제 doctor 및 Makefile 경로를 이어서 확인한다.
+- `bash scripts/doctor.sh` exit 0: 도구·Docker engine·Android SDK 경로가 응답했다. 이 명령은 라이선스·서명·실기기·플랫폼 동작 검증이 아니다. Makefile의 동일 진입점도 확인한다.
+- `make doctor`, `make verify-progress`, 강화 `check-progress-negative.py` 및 종료 코드 격리 단위 2건 PASS/skip0. 도구 가용성/문서 검사는 제품 통과가 아니며 플랫폼 build의 실제 결과는 별도 evidence를 참조한다.
+- P00-T04 완료 조건과 실제 실행을 `docs/evidence/p00-entrypoints.md`에 연결하고 문서/진입점 Task만 IMPLEMENTED/로컬 PASS로 갱신했다. 실제 제품 suite와 외부 provider는 별도다.
+- 도구 부재 fixture는 PATH와 전용 ANDROID_HOME만 격리하고 시스템 HOME은 유지하도록 조정한다. 종료 코드 검증을 재실행한다.
+- HOME 유지 fixture에서 `test_entrypoint_exit_codes.py` 2건 PASS/skip0, 원장/diff PASS. 커밋 전: 음성 검사·CI 단위·해당 Task evidence만 포함한다. 제품/실 provider 완료 선언은 아니다.
+
+### P00-T05 ignore·설정 격리 재감사 시작
+- 추적 파일명만 확인한 결과 실제 `.env`/서명·서비스 설정 파일은 추적 목록에서 발견되지 않았다. 기존 `.gitignore`는 `.env.local`만 막고 `.env`, 변형 환경 파일, Unity `.ulf` 및 독립 APK/AAB/IPA를 명시적으로 막지 않으므로 보강한다. 실제 비밀 파일 내용은 읽지 않는다.
+- `test_gitignore_secrets.py` 2건 PASS/skip0: synthetic .env/서명/Unity license/빌드 산출물 이름은 ignore, example 이름은 추적 가능하다. Android Google 설정 누락의 정확한 key와 no-fallback 경로를 추가 점검한다.
+- Android `GoogleAuthProvider.signIn`은 client ID가 없으면 backend 호출 전 CONFIG_REQUIRED이지만 `nativeCode`에 누락 key 이름이 없다. Unity capability reason은 auth/store 공통 문구로 실제 빠진 설정을 구분하지 못한다. P00-T05의 누락 key 진단 기준에 맞춰 허용된 key 이름만 표시하고 값/Mock fallback은 노출하지 않는다.
+- Native GoogleAuthProvider의 미설정 오류에 `googleServerClientId` key 이름을 추가하고 Unity capability reason을 auth/store/push별 실제 누락 key로 분리했다. synthetic 설정 matrix 및 로그인 호출 전 차단 test를 작성했다. 실제 Google 인증은 미실행이다.
+- Android provider/bridge 시험 첫 호출은 `ANDROID_HOME`이 없어 SDK location 탐색에서 exit 1, 테스트는 NOT_RUN이었다. 설치된 Android SDK 경로를 환경변수로 명시해 재실행한다. 사용자 local.properties는 만들지 않는다.
+- `ANDROID_HOME=<installed SDK> android/gradlew ... GoogleAuthProviderTest ... GoogleAuthBridgeHandlerTest --rerun-tasks` exit 0: provider 15건·bridge 5건/skip0. 설치 SDK XML 버전 경고는 있었고 실 Google 인증은 아니다. Unity capability 공개 전달과 challenge 호출 전 차단을 명시적으로 확인한다.
+- Android provider/bridge `--rerun-tasks` exit 0: JUnit 각각 15건·5건/실패0/skip0, client ID 없으면 gateway/challenge 미호출 및 정확한 key, capability 누락 조합을 확인했다. 이는 fake이며 실 Google 인증은 아니다. Unity managed 전달·나머지 설정 격리 테스트를 실행한다.
+- Backend `EnvironmentPolicyTest`, Android `ConfigurationTest`, Swift `ConfigurationTests` 각 2건 PASS/skip0; C# `smoke-csharp-registry.sh` exit 0에서 `googleServerClientId` capability reason 전달 확인. `test_gitignore_secrets.py` 2건 PASS/skip0. synthetic/fake 및 standalone managed 시험이며 실제 Google/Apple provider는 미실행이다.
+- Android Google provider/bridge 제품 코드가 바뀌어 기존 Maven·UPM·Android Player 증거는 이전 source에 대한 것이다. 재검증 전 P08-T01/T03/T04를 IN_PROGRESS/PARTIAL로 낮추고 과거 PASS evidence는 보존했다. iOS Native 제품은 변경되지 않았다.
+- 새 `maven-config-diagnostic-20261113`에 변경 Android product를 다시 publish하고 독립 R8 소비자를 빌드한다. 개발키·서비스 credential 관련 환경 변수를 제거한 명령으로 backend bootJar도 빌드한다. 기존 staging/산출물은 보존한다.
+- `env -u GAMEBRIDGE_DEV_AUTH_KEY -u SERVER_TOKEN_ENCRYPTION_KEY -u GOOGLE_APPLICATION_CREDENTIALS backend/gradlew -p backend bootJar` exit 0 (`artifacts/config-diagnostic-backend-build.log`): 명시적 local build만 확인, 서버 기동·실 provider는 아님. Android build는 진행 중이다.
+- 개발키·Google credential 환경변수를 제거한 `build-android.sh --mock` exit 0 (`artifacts/config-diagnostic-android-build.log`, Maven `artifacts/maven-config-diagnostic-20261113`). Android 실제 provider는 미검증이다. 새 격리 clean consumer를 실행한다.
+- iOS `AppleAuthBridgeHandler`의 store/push capability reason 역시 일반 문구라 `coinsStoreProductId`, `premiumStoreProductId`, `installationId`를 구체적으로 안내하지 않는다. 값 없이 key 이름만 보이도록 수정한다. Apple entitlement·실 계정 검증은 별도다.
+- `swift test --package-path ios --filter AppleAuthBridgeTests` exit 0, XCTest 3건/실패0/skip0: synthetic capability의 누락 product/installation key 확인, 실제 Apple 인증/entitlement은 아님. iOS 제품 코드도 변경되어 이전 XCFramework는 구 source이며 P08-T02를 IN_PROGRESS/PARTIAL로 전환했다.
+- 변경 Android Maven으로 `smoke-android-maven-consumer.sh` exit 0 (`artifacts/android-maven-consumer.IjHXTq`), unsigned R8 APK/merged manifest 확인. iOS Apple bridge 변경은 아직 새 XCFramework에 포함되지 않아 새 output으로 archive/symbol/link를 검증한다.
+- `GAMEBRIDGE_IOS_OUTPUT_DIR=<new> bash scripts/build-ios.sh --xcframework` exit 0 (`artifacts/config-diagnostic-ios-build.log`), device/simulator 무서명 archive 및 XCFramework 생성. symbol/독립 link와 실기기/실 provider는 별도다.
+- 변경 iOS XCFramework `verify-xcframework.py` exit 0(device arm64/simulator arm64+x86_64, C ABI 4개), 별도 `swiftc` 링크 및 IOSSIMULATOR load command 확인. 독립 SwiftPM source consumer host 실행 exit 0 (`artifacts/ios-source-consumer.OuaLdz`). 서명 실기기/실 provider는 미검증이다. 새 Android/iOS 산출물로 UPM staging을 생성한다.
+- 새 stage Unity 검증 호출은 작업 디렉터리 오타로 시작되지 않아 모든 Editor/hook 시험 NOT_RUN이었다. 올바른 경로에서 실행한다.
+- 새 UPM stage의 Sample API/Editor fake test 및 동일 프로젝트 GUID 재import PASS (`artifacts/offline-sample.X4RqNd`), Android 실제 Gradle hook 2회 hash 불변 PASS (`artifacts/unity-android-mock.RMw4BW`). iOS hook은 진행 중이며 원격/실기기 결과가 아니다.
+- 새 UPM stage `smoke-unity-ios-hook-repeat.sh` exit 0 (`artifacts/unity-ios-mock.v5pYhN`): 실제 Xcode export hook 2회 후 PBX·XCFramework hash 불변. 이 결과는 서명/Player 실행이 아니다. 변경 product의 양 Player는 다음에 검증한다.
+- Android/iOS capability 누락 key 개선, synthetic ignore 시험 및 no-key build, 새 UPM sample/양 export hook이 로컬 검증됐다. 실제 Unity sandbox 누락 경계·변경 Player 및 실제 provider는 아직 NOT_RUN이다. 커밋 전: 제품 진단 코드·관련 테스트·ignore·정제 문서만 포함하고 P00-T05/P08은 PARTIAL 유지한다.
+
+### P00-T05 Unity sandbox 설정 누락 Player 검증 시작
+- Android/iOS test-only consumer로 PLATFORM_SANDBOX 초기화 후 누락 configuration key를 capability에서 확인한다. Android는 Google sign-in이 key 검사 단계에서 CONFIG_REQUIRED, iOS는 store ID 미설정 시 products가 CONFIG_REQUIRED인지 확인한다. `example.invalid`만 사용하며 실제 계정·서버·스토어 UI는 열지 않는다.
+- Android는 client ID 없음·Google sign-in CONFIG_REQUIRED, iOS는 store ID 없음·products CONFIG_REQUIRED와 양쪽 capability key 이름을 검사하는 test-only consumer를 작성했다. `example.invalid` 사용, 아직 컴파일/Player는 NOT_RUN이다.
+- `run-unity-sandbox-config.py`는 Android/iOS를 명시적으로 선택해 누락 key와 no-fallback marker를 요구한다. opt-in·다른 플랫폼/누락 marker 거부 단위 2건 PASS/skip0. 실제 Provider 계정 호출은 설계상 없다. 양 managed compile을 확인한다.
+- Android `UNITY_ANDROID` 및 iOS `UNITY_IOS` test-only sandbox config consumer managed compile 각각 exit 0, 경고·오류 0. runner 음성 2건 PASS/skip0. 실제 Unity Player·실 provider는 아직 미실행이다. 커밋 전: test-only consumer/runner·검증만 포함한다.
+- `run-unity-sandbox-config.py --platform ios`에서 실제 Unity iOS bridge가 store/installation 누락 key capability와 products CONFIG_REQUIRED를 반환하는지 확인한다. 시작 기록을 먼저 커밋한다. 실 Apple 인증/스토어 UI는 실행하지 않는다.
+- `run-unity-sandbox-config.py --platform ios` exit 0 (`artifacts/unity-sandbox-config-ios-c9m2245o`): 새 iOS Simulator Unity Player에서 store/installation 누락 key capability와 products CONFIG_REQUIRED/no-fallback marker PASS, tracked-clean. Apple 계정/스토어·서버는 호출하지 않았다.
+- iOS sandbox config test Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 부분 결과만 기록하며 Android Player와 실제 provider는 미실행이다.
+- `run-unity-sandbox-config.py --platform android`에서 실제 Unity Android bridge의 누락 key capability 및 Google sign-in CONFIG_REQUIRED/no-fallback를 확인한다. 새 전용 AVD를 사용하며 시작 기록만 먼저 커밋한다.
+- `run-unity-sandbox-config.py --platform android` exit 0 (`artifacts/unity-sandbox-config-android-yklqwymu`): 새 Android Player에서 client/store/installation 누락 key capability와 Google sign-in CONFIG_REQUIRED/no-fallback PASS, tracked-clean. 최초 전체화면 안내 수동 처리. 실제 Google 계정/서버는 호출하지 않았다.
+- `docs/evidence/p00-mode-config-isolation.md`에 no-key 빌드·fake 설정·양 Unity sandbox 누락 key/no-fallback·ignore 범위를 연결하고 P00-T05만 IMPLEMENTED/로컬 PASS로 갱신했다. Android/iOS actual provider 인증·entitlement·실기기/원격 서비스는 여전히 별도 대기다.
+- P00-T05 갱신 후 `verify-progress.py`, `check-progress-negative.py`, ignore 단위 2건 PASS/skip0, diff PASS. 커밋 전: 정제된 설정 격리 evidence와 해당 Task 상태만 포함, P08 새 Native Player 회귀 및 실제 provider를 완료로 바꾸지 않는다.
+- 변경 Native를 포함한 stage의 Editor sample/API import·같은 프로젝트 재import, Android/iOS 실제 export hook 반복이 각각 PASS했고 `git diff fb48371 HEAD`의 Android/iOS product 경로 차이 0을 확인했다. 해당 빌드 당시 test/docs 변경은 미커밋이었다. Native artifact/UPM evidence를 갱신하고 Player 재검증은 별도 유지한다.
+- 변경 Native의 fresh Maven/clean R8, iOS unsigned XCFramework/독립 link, 새 147파일 UPM/Editor sample/양 hook evidence를 추가해 P08-T01/T02/T03 로컬 PASS를 복원했다. 이전 실패/경고를 보존하며 P08-T04 양 Player 재검증과 실 provider는 미완료다.
+- 새 product의 P08-T01/T02/T03 상태 복원 후 원장·음성·metadata·diff PASS. 커밋 전: 새 산출물 정제 evidence·경로·해당 Task 상태만 포함한다. Native Demo 양 Player 및 실 provider는 별도 미완료다.
+- `upm-config-diagnostic-20261113`을 새 iOS 소비 프로젝트에 Sample API로 import하고 Native Demo LOCAL_MOCK Player/DB를 재실행한다. clean-source 시작 기록만 먼저 커밋한다.
+- 새 UPM `run-unity-ios-mock-e2e.py --native-demo-probe --adhoc` exit 0 (`artifacts/unity-ios-e2e-kobckvqn`): Sample API import 후 iOS Simulator Native Demo LOCAL_MOCK flow·원장 1건/100 PASS, tracked-clean. 실제 Apple provider·시각 QA는 아니다.
+- iOS test Simulator를 삭제 없이 shutdown했다. 커밋 전: iOS 실제 부분 결과만 포함하며 Android 최신 stage Player는 NOT_RUN이다.
+- `upm-config-diagnostic-20261113`의 Android Sample API import→Native Demo Player/DB를 재실행한다. 기존 AVD 앱을 덮어쓰지 않기 위해 빈 전용 AVD를 사용하고 시작 기록을 먼저 커밋한다.
+- 새 UPM `run-unity-android-mock-e2e.py --native-demo-probe` exit 0 (`artifacts/unity-android-e2e-xhb_xrnk`): Sample API import 후 Android Native Demo LOCAL_MOCK flow·원장 1건/100 PASS, tracked-clean. 최초 전체화면 안내 수동 처리, 실제 Google/Play·시각 QA는 아니다.
+- Android 131a4d2/iOS 469a924 Player의 staging hash는 동일 `358be200…`, 각 tracked-clean이고 두 source 사이 Unity/Android/iOS 제품 경로 diff 0. Android AVD는 삭제 없이 shutdown했다. P08-T04 현재 제품 evidence를 갱신한다.
+- `consumer-install.md`에 변경 product 최신 stage의 Android/iOS Sample API→Native Demo Player 재실행을 추가하고 P08-T04 로컬 PASS를 복원했다. 다른 source commit이지만 제품 tree가 같고 각 tracked-clean이다. 실제 provider·실기기·시각 QA는 별도다.
+- `verify-progress.py`, `check-progress-negative.py`, `check-manifest.py`, diff PASS. 커밋 전: 변경 Native 최신 stage의 양 Player 재검증 및 P08-T04 로컬 상태만 포함한다. raw logs·APK·키·DB는 제외한다.
+
+### P01-T01 공통 모델 fixture 재감사 시작
+- Kotlin/Swift `ModelFixtureTest`는 profile/product/purchase/error 전체 encode/decode를 검사하지만 C# `registry-smoke.cs`는 전체 round-trip assertion이 없다. 동일 fixture의 네 DTO, Unicode·64bit string·null 및 필수 nullable 누락을 C#에서도 명시 검증한다. Unity runtime/IL2CPP는 별도다.
+- `UNITY_EDITOR_PATH=<installed> bash scripts/smoke-csharp-registry.sh` exit 0: C# profile/product/purchase/error의 동일 JSON semantic round-trip과 missing nullable error 필드를 확인했다. standalone managed 테스트이며 Unity runtime/IL2CPP는 아니다. 전체 언어별 contract runner를 재실행한다.
+- `harness/run-contracts.py` exit 0 (`artifacts/contracts-72sh1hus`): Kotlin 10건, Swift 11건, C# 1건 PASS/skip 0. HEAD d238169 위의 미커밋 C# 테스트가 포함됐으며 실제 Unity Player 검증은 아니다. 복사 fixture 변조 음성 검사를 실행한다.
+
+- P01-T01 `check-contract-negative.py` PASS: 별도 복사본의 protocolVersion 변조를 Kotlin/Swift가 거부했으며 원본 fixture는 보존됐다. C# nullable 누락은 별도 managed 테스트에서 확인했다.
+- P01-T01 계획의 네 모델·문자/정수/null round-trip 및 필수 필드 거부 기준을 세 언어 managed 테스트로 충족해 IMPLEMENTED/로컬 PASS로 기록했다. Unity IL2CPP 및 실제 플랫폼 검증은 주장하지 않는다. 커밋 전 원장·변조 검사와 diff 검사를 수행한다.
+
+- P01-T01 커밋 전 원장 검사에서 `harness/verify-progress.py` 경로 오류로 실행되지 않았다. 실제 스크립트 위치를 확인해 재실행한다.
+
+- P01-T01 원장 검사는 Task 상태 변경 후 상단 합계 미갱신을 발견해 실패했다. 합계를 원장에 맞춘 뒤 재검증한다.
+
+- P01-T01 원장 합계 수정 후 `scripts/verify-progress.py`, `harness/check-progress-negative.py`, `git diff --check` PASS. 커밋 전: C# contract smoke와 진행 문서만 포함하며 미추적 Demo·캐시는 보존한다.
+
+- P01-T02 시작: bridge schema·정상/오류/구버전 fixture와 각 언어 parser의 requestId 불일치·error 누락 거부 및 실제 schema validation을 대조한다. P01-T01은 1b310fb 로컬 커밋이다.
+
+- P01-T02 스키마 검증기 조사: 현재 Python 환경에 `jsonschema`가 없어 해당 검사는 미실행이다. 의존성 고정 및 CI 설치 경로를 확인한다. 조사 명령 하나는 zsh 미일치 glob으로 실행되지 않았다.
+
+- P01-T02 확인: 기존 Kotlin/Swift parser는 잘못된 version/operation, 실패 error 누락, 다른 requestId, oversized payload를 검사하지만 JSON Schema 자체를 평가하는 CI 단계가 없다. 고정된 검증 의존성과 양성·음성 schema 시험을 추가한다.
+
+- P01-T02 격리 venv에서 Draft 2020-12 schema 자체 검사 및 기존 양성·음성 fixture, event/response 필수 필드·UUID 변조 검사 2건 PASS/skip 0. GitHub Actions 설정은 변경했으나 원격 실행은 NOT_RUN이다. 명시적 성공·일반 실패·event 공유 fixture를 추가한다.
+
+- P01-T02 성공·일반 실패·event fixture 추가 후 schema 2건, `run-contracts.py` Kotlin 10·Swift 11·C# 1 PASS/skip 0 (`artifacts/contracts-wmods2k9`, HEAD 1b310fb + 미커밋 변경). Kotlin/Swift가 공유 양성 fixture를 parse했다. C# registry 음성 검사 및 schema 범위를 별도 확인한다.
+
+- P01-T02 `check-bridge-mutation.py` PASS: 별도 복사본의 중복 응답 guard 제거를 C# standalone 테스트가 감지, 원본 소스 유지. requestId 대조·payload 한도는 Kotlin/Swift parser 및 registry smoke에서 별도 검사했다.
+
+- P01-T02 계획 대조에서 oversize는 각 언어가 독립 생성해 시험하지만 공통 크기 fixture가 없음을 발견했다. 큰 바이너리를 저장하지 않고 byte count를 공유하는 descriptor fixture로 보강한다.
+
+- P01-T02 공통 oversized descriptor 적용 후 `run-contracts.py` Kotlin 10·Swift 11·C# 1 PASS/skip 0 (`artifacts/contracts-gmjhtcvv`, HEAD 1b310fb + 미커밋 변경). Swift와 Kotlin이 동일 262145 byte 경계 fixture를 사용한다.
+
+- P01-T02 최신 schema 양성·음성 2건 및 복사 fixture protocolVersion 변조 검사 PASS. C# registry가 다른 requestId를 격리하는지 명시적 회귀 단언을 추가한다.
+- P01-T02 C# standalone smoke의 불일치 requestId 격리 PASS. schema 검증·공유 fixture·Kotlin/Swift parser 및 C# registry 시험으로 계획된 로컬 완료 기준을 충족해 IMPLEMENTED/PASS 기록했다. CI 구성은 실제 원격 실행 결과가 아니다. 커밋 전 문서·차이 검사를 수행한다.
+
+- P01-T02 커밋 전 원장 일관성·원장 음성 검사·`git diff --check` PASS. schema 시험·fixture·CI 설정·진행 문서만 로컬 커밋하며 기존 미추적 파일은 보존한다.
+
+- P01-T03 시작: Kotlin/Swift coordinator 및 C# facade의 초기화·중복·shutdown·재시작과 동시성, provider interface 및 capability 분리를 기존 증거와 소스에서 대조한다. P01-T02는 65b460f 로컬 커밋이다.
+
+- P01-T03 감사: Kotlin·C#은 shutdown 후 재초기화를 실행하지만 Swift 테스트에 명시 assertion이 없다. Swift 재초기화를 보강한다. Auth/Store/Push/Clock별 공통 interface는 검색상 확인되지 않아 구현 범위를 추가 대조하며 전체 Task 완료로 기록하지 않는다.
+
+- P01-T03 Swift host `SdkCoordinatorTests` 3건 PASS/skip 0: shutdown 중단·중복 init·다른 설정 거부·중복 shutdown·재초기화 추가 확인. 별도 Swift Testing의 0건 출력은 해당 XCTest 3건과 구분한다. Swift 상호 배제 실행을 보강한다.
+
+- P01-T03 Swift host `SdkCoordinatorTests` 4건 PASS/skip 0: 추가된 상호 배제 BUSY 및 재초기화가 통과했다. actor 기반 순서 제어 시험이며 전체 data race 부재를 증명하지 않는다. 공통 provider interface 전체 범위는 미완료/PARTIAL로 유지한다.
+
+- P01-T03 커밋 전 원장 및 diff 검사 PASS. Swift host 테스트와 문서만 커밋하고 P01-T03은 IN_PROGRESS/PARTIAL로 유지한다.
+
+- P01-T03 추가 대조: 각 기능별 공통 Auth/Store/Push/Clock 계약이 계획처럼 Core에 노출되지는 않는다. 단순 미사용 interface 추가를 완료로 오인하지 않고 해당 항목을 미완료로 기록한다. P01-T04 fake 시나리오를 독립적으로 점검한다.
+- P01-T04 시작: Android·iOS·Editor Fake의 결정적 시나리오와 중복 지급 방지의 실제 구현·검증 범위를 대조한다.
+
+- P01-T04 발견: 독립 Native test Fake의 푸시 중복 ID는 무제한 보관되고 shutdown 후 남는다. 승인된 최근 200개·앱 세션 기준과 다르며 Swift는 공백 ID도 허용한다. 두 Fake만 일치시키고 순서·세션 경계를 검증한다. 실제 FCM/APNs 결과는 아니다.
+
+- P01-T04 독립 test Fake 개선 후 Android `OfflineFakeTest` 1건 및 Swift host `OfflineFakeTests` XCTest 1건 PASS/skip 0: 200개 FIFO, 재초기화 세션, 공백 ID, 기존 구매 중복·푸시 흐름 확인. Swift Testing 별도 0건은 XCTest와 구분한다. 실제 provider·Unity Player 시험은 아니다.
+
+- P01-T04 JUnit 결과 1건·원장·diff 검사 PASS. 커밋 전: 별도 테스트용 Native Fake와 그 테스트·진행 문서만 포함한다. 늦은 callback 등 남은 fake 범위가 있어 Task는 IN_PROGRESS/PARTIAL을 유지한다.
+
+- P01-T04 후속 감사: 방금 검증한 Android `sdk-testing`과 Swift `OfflineFakeTests`가 CI 필터에 포함되지 않는다. 해당 테스트를 필수 lane에 넣고 로컬에서 실행 수/skip을 재확인한다. 원격 CI는 미실행으로 유지한다.
+
+- P01-T04 CI Swift 필터와 동일한 host 실행은 필수 6개 class, XCTest 16건 PASS/skip 0 (`artifacts/p01-fake-swift-ci.log`); Android Fake는 직전 JUnit 1건 PASS. GitHub Actions/macOS CI 자체는 NOT_RUN이며 원본 로그는 커밋하지 않는다.
+
+- P01-T04 CI YAML 파싱·원장·diff 검사 PASS. 커밋 전: 테스트 필터 및 기록만 포함하며 원격 CI와 실제 플랫폼을 완료로 표시하지 않는다.
+
+- P01-T05 시작: Native BackendClient의 mock HTTP 200/401/timeout/invalid JSON, token 저장·redaction 및 개발 HTTP 제한에 대한 현행 코드와 테스트를 대조한다. 실제 provider·실기기 보안 저장소는 구분한다.
+
+- P01-T05 양 Native `BackendClientTest(s)`에 200/401/timeout/invalid JSON·오류 redaction 검사가 있으나 현재 원격 workflow 필수 필터에서 빠져 있다. 분리된 CI 명령 및 비어 있는 테스트 방지 검사를 연결하고 로컬 실행한다.
+
+- P01-T05 Android local loopback `BackendClientTest` JUnit 1건과 Swift URLProtocol stub `BackendClientTests` XCTest 1건 PASS/skip 0: HTTP 상태/timeout/invalid JSON 및 합성 오류 redaction. Kotlin 별도 파일 deprecated URL 경고 1건; 실제 원격 서버·TLS·실기기 저장소 검증이 아니다. CI remote NOT_RUN.
+
+- P01-T05 커밋 전 CI YAML 파싱·원장·diff PASS. 필수 테스트 CI 연결과 로컬 실행 증거만 포함하고 Task 및 실플랫폼 검증은 PARTIAL로 유지한다.
+
+- P02-T06 시작: 기존 local smoke의 실제 DB 격리·핵심 시나리오·음성 검증 및 현재 증거를 점검한다. 기존 사용자 DB를 변경·삭제하지 않는다.
+
+- P02-T06 블로커 발견: `smoke-local.sh`는 세 검사 성공 여부와 무관하게 Unity push 미실행을 이유로 무조건 exit 1이며, 하위 스크립트는 고정 서버·Docker DB와 A/B 계정을 사용한다. 현재 환경에서 기존 데이터에 쓰지 않고 독립 서버/DB로 실행할 수 있는 재사용 경로를 확인한다. 기존 DB에는 실행하지 않았다.
+
+- P02-T06은 Backend 전용 smoke가 완료 기준인데 현재 Unity 미실행을 강제 실패 원인으로 삼는다. 고정 DB에 실수로 쓰지 않도록 명시적 격리 환경 opt-in을 요구하고, 하위 검사 실패는 유지하면서 세 검사가 실제 성공할 때만 Backend 범위 성공을 반환하도록 고친다. 격리 테스트를 별도로 추가하며 Unity 통과로 기록하지 않는다.
+
+- P02-T06 격리 stub 단위 시험 2건 PASS/skip 0: opt-in 누락 exit 2, 하위 실패 exit 1, 세 stub 성공 시 Backend 범위 exit 0 및 Unity NOT_RUN 표시. 이 결과는 실제 서버·DB smoke 성공이 아니다.
+
+- P02-T06 CI YAML·shell 구문·원장·diff 검사 PASS. 커밋 전: aggregate 종료 판정, stub 단위 시험, CI와 현재 문서만 포함한다. 고정 DB에 실행하지 않았고 실제 Backend smoke·틀린 잔액 음성 테스트는 NOT_RUN이므로 Task PARTIAL 유지한다.
+
+- P02-T06 전용 PostgreSQL 컨테이너와 loopback DB가 실행 중임을 확인했다. 기존 DB는 사용하지 않고 새 무작위 테스트 DB·role과 새 loopback port를 사용하는 격리 실행 경로를 추가한다. 생성한 테스트 DB는 기존 정책대로 보존한다.
+
+- P02-T06 새 loopback 서버·고유 DB `gamebridge_ci_7805cd13e7`에서 `run-backend-smoke-isolated.py --run-local` exit 0 (`artifacts/backend-smoke-isolated-t07g1q3l`): auth 16·purchase 13·device/config 19 assertions, Backend LOCAL_MOCK만 PASS. Unity/실 provider/원격 push NOT_RUN, DB·role 보존. 잘못된 잔액 기대 음성 시험은 아직 미실행이다.
+
+- P02-T06 재실행 `artifacts/backend-smoke-isolated-he08vjff` exit 0: 새 DB `gamebridge_ci_a6026477d3`에서 auth 16·purchase 13·device/config 19 assertions 및 틀린 잔액 기대 복사본의 예상 실패 확인. local mock Backend 전용이며 Unity/실 provider/원격 push는 NOT_RUN. 임의로 DB·role을 지우지 않았다.
+- P02-T06 계획된 전용 namespace·HTTP/DB assertions·잘못된 잔액 음성 기준을 충족해 IMPLEMENTED/로컬 PASS로 기록했다. 커밋 전 runner 문법·단위·원장·diff 검사를 수행한다.
+
+- P02-T06 커밋 전 aggregate stub 2건·원장 및 원장 음성·diff PASS. 격리 runner/loopback 선택·정제된 증거·문서만 포함하고 생성된 DB·role·로그·키는 커밋하지 않는다.
+
+- P02-T03 시작: 동일 transaction·교차 사용자·premium 중복의 현재 DB 강제 조건과 격리 smoke/DB 회귀 증거를 대조한다. P02-T06은 6e1e95e 로컬 커밋이다.
+
+- P02-T03 격리 smoke에 거래 중복·교차 사용자·premium 재요청은 포함되지만 catalog 응답 확인은 빠져 있다. 두 상품을 명시 검사하고 단위 지급이 클라이언트 금액 필드에 좌우되지 않는지 격리 DB에서 확인한다.
+
+- P02-T03 전용 새 DB `gamebridge_ci_6a1f22d6f1`에서 catalog와 위조 amount/userId/price가 포함된 구매를 더한 smoke exit 0 (`artifacts/backend-smoke-isolated-hbw5kx_k`): auth 16·purchase 14·device 19 assertions 및 잘못된 기대 잔액 음성 PASS. local mock만 검증했으며 실제 스토어는 별도다.
+- P02-T03 격리 smoke 및 DB 제약 확인을 근거로 해당 mock 서비스 완료 기준만 IMPLEMENTED/로컬 PASS 기록했다. 외부 스토어와 나머지 queue Task는 별도다. 커밋 전 원장 및 diff를 검사한다.
+
+- P02-T03 커밋 전 원장 일관성·원장 음성·diff PASS. 구매 smoke assertion과 정제된 증거 및 진행 문서만 포함한다. 테스트 DB·로그·키는 제외한다.
+
+- P02-T04 시작 준비: Mock finalization queue의 재시작·동일 거래 원장 불변과 외부 호출 transaction 경계의 현재 증거를 다음 작업으로 확인한다. 변경 전 진행 상태를 checkpoint에 반영한다.
+
+- 체크포인트 원장·diff 검사 PASS. 커밋 전: 현재 다음 작업과 검증 상태만 기록하고 미추적 Demo·캐시 및 보존 DB를 건드리지 않는다.
+
+- P09-T08 재개: manifest suite 실행 경로의 저장소 이탈·절대 경로·심볼릭 링크를 disposable fixture로 확인하고 fail-closed 검사 한 단위를 보강한다. 시작 HEAD 8cb4003; 기존 미추적 Demo·캐시는 보존한다.
+
+- P09-T08 기존 manifest 정상 검사 및 기존 음성 검사 PASS. suite 명령 경로 이탈을 별도 변조본으로 재현한다.
+
+- P09-T08 블로커 재현: contracts suite를 `python3 /usr/bin/true`로 바꾼 복사 manifest를 기존 `check-manifest.py`가 exit 0으로 승인했다 (`artifacts/p09-manifest-path-0lu14th1`). 제품 테스트를 실행하지 않았고 원본 manifest는 보존했다. 저장소 내부 정규 경로만 허용하도록 고친다.
+
+- P09-T08 수정 후 원본 manifest PASS, 변조 음성 검사 PASS(절대·상대 이탈·외부 symlink·bash·실행파일 5종 포함), 최초 변조본은 예상대로 exit 1. 이 검사는 inventory 경로 검사이며 시나리오 제품 실행 자체는 아니다.
+
+- P09-T08 Push 전 검사 준비: gitleaks 실행 시 지정 모듈 경로와 실제 go.mod 경로가 달라 실행되지 않았다. 정확한 모듈 경로로 재시도하며, 아직 비밀정보 검사 통과로 기록하지 않는다.
+
+- P09 인계 Push 전 이력 검사: gitleaks 8.24.2가 origin 이후 138개 커밋을 검사해 1건을 탐지하고 exit 1을 반환했다. 값은 출력하지 않으며 위치와 허위 탐지 여부를 확인하기 전 Push하지 않는다.
+
+- 이력 비밀정보 검사 1건은 `scripts/registry-smoke.cs`의 공개 redaction 테스트 전용 합성 고정 문자열로 확인했다(커밋 2f0c32e, generic-api-key). 실제 credential이라는 증거는 없으며 스캐너 원본 결과는 제외한다. 다른 파일 형식·개인정보와 최종 diff를 추가 검사한다.
+
+- P09-T08 검증: aggregation 13건, CI gate 6건, manifest 정상 및 음성, 진행 원장, diff 검사 PASS/skip 0. 변경 범위는 manifest 경로 fail-closed 한 단위이며 전체 P09-T08은 PARTIAL이다. Git 이력에서 private key/AWS/GitHub token 패턴과 민감 확장자·캐시 경로는 발견되지 않았고 email 패턴은 합성 example.invalid 1종이다.
+
+- P09-T08 커밋 전: manifest 경로 검사·복사본 음성 시험·P09 재개 감사 및 진행 문서만 개별 stage한다. 전체 P09는 PARTIAL, 실제 provider 및 현재 source strict 미검증을 유지한다.
+
+- P09 인계 최종 이력 확인: 139개 커밋 gitleaks 결과는 이전에 확인한 합성 redaction fixture 1건뿐이다. 전체 범위 `git diff --check`는 기존 Unity 생성 .meta의 빈 필드 후행 공백으로 exit 2였다. 이번 P09 커밋 자체 diff는 통과했으며 해당 Unity 파일은 재작성하지 않는다. 최종 원격 브랜치 유무와 이력을 별도로 확인한다.
+
+- P09-T08 인계 기록 커밋 전: origin 이후 diff는 Unity `.meta` 제외 PASS, 원격 기존 브랜치와의 분기 없음(로컬 139개 앞섬), 신규 handoff 브랜치 최초·재확인 시 없음. 정제 감사와 원장만 stage한다.
+
+- P09-T08 보완 시작: 현재 checker는 `sh -c` 등 미허용 명령과 인자를 검증하지 않고 run-scenario는 manifest 확인 없이 실행한다. 현행 suite 명령을 명시적으로 허용하고 동일 manifest 객체를 실행 전 검증한다. 시작 HEAD/원격 c862f723, 기존 미추적 파일 보존.
+
+- P09-T08 현행 suite 30개 명령을 명시 allowlist로 대조하고 scenario 실행 전 동일하게 로드한 manifest 전체를 검증하도록 구현했다. 기존 manifest 정상 및 기존 음성 검사 PASS; 명령 실행 차단·마커 및 정상 scenario 실행은 아직 미검증이다.
+
+- P09-T08 `test_manifest_execution_guard.py` 2건 PASS/skip 0: 격리 manifest 8종(절대·상위·외부 symlink·sh/bash/python 옵션·임의 추가 인자·Gradle 옵션) exit 1 및 마커 미생성, 다른 suite 오염 시 R50 미실행; 정상 R50 exit 0. 이는 하네스 단위이며 제품 전체 검증은 아니다.
+
+- P09-T08 정상 manifest·기존 음성·원장·CI YAML 파싱·diff PASS. marker 검사를 CI에 연결했으나 GitHub Actions 원격 실행은 NOT_RUN. malformed manifest와 suite 실행 차단도 추가 확인한다.
+
+- P09-T08 실행 guard 3건 PASS/skip 0: 8개 변조 명령·다른 suite 오염·잘못된 JSON/자료형/필수값은 실행 전에 거부했고 정상 R50은 실행됐다. 추가로 정상 R01 Kotlin/Swift/C# contract 경로를 실제 실행한다.
+
+- P09-T08 정상 `run-scenario.py R01` exit 0: Kotlin 10·Swift 12·C# 1 PASS/skip 0 (`artifacts/contracts-y_9ccyrf`, 시작 HEAD c862f723 + 미커밋 변경). Unity Player·실 provider는 이 테스트 범위 밖이다.
+
+- P09-T08 재검토 중 JSON `null`은 checker 기본 인자와 혼동될 수 있음을 발견했다. 실행 전에 manifest가 객체인지 명시 검증하고 음성 사례를 추가한다.
+
+- P09-T08 `null`을 포함한 malformed manifest 4종을 거부하도록 수정 후 guard 3건 PASS/skip 0, 정상 manifest·원장·diff PASS. 이후 격리 DB ledger mutation은 이번 요청 범위가 아니므로 실행하지 않는다.
+
+- P09-T08 재검증 aggregation 13건·CI gate 6건·manifest 음성·diff PASS/skip 0. 커밋 전 실행 guard·명령 allowlist·독립 테스트·CI 연결 및 정제 문서만 개별 stage한다. 원격 CI·실 provider 미실행, P09 전체 PARTIAL 유지.
+
+- P09-T08 stage 검사: gitleaks 8.24.2 staged diff exit 0, 탐지 0건. 커밋 전 검사 결과 기록만 다시 stage하고 diff를 확인한다.
+
+- P09-T08 DB mutation 시작: HEAD/원격 37061d9, Docker PostgreSQL loopback 54329 실행 확인. 기존 도구는 mutation 직후 JUnit XML을 보존하지 않고 새 보고서 여부·errors/skip을 확인하지 않아 오래된 XML을 잘못 해석할 여지가 있다. 최소한으로 보강한 뒤 새 전용 DB에서 검증한다.
+
+- P09-T08 하네스 보강: mutation/정상 JUnit XML을 각각 보존하고 실행 시각·Gradle exit·tests/failures/errors/skipped·예상 assertion을 검사한다. 문법·diff 검사 PASS; DB 실제 실행은 다음 단계다.
+
+- P09-T08 새 전용 DB `gamebridge_ci_4e486cab7f`에서 `check-ledger-mutation.py` exit 0 (`artifacts/ledger-mutation-il0fvfi4`): mutation Gradle exit 1, JUnit 1건 중 예상 실패 1·errors/skip 0; 별도 신규 스키마 정상 Gradle exit 0, 1건 PASS·errors/skip 0. XML 두 파일을 각각 보존했다. 스키마·제약 실상태를 추가 대조한다.
+
+- P09-T08 보존 XML 대조: mutation은 정확히 `DataIntegrityViolationException`이 발생하지 않았다는 assertion 실패, 정상은 동일 testcase PASS. 전용 DB에는 서로 다른 신규 schema 2개가 있고 각각 purchase_id UNIQUE 제약 0개/1개로 확인됐다. 제약 이름·예상 실패 유형을 하네스에서 더 엄격히 판별한다.
+
+- P09-T08 XML 판정 단위 1건 PASS/skip 0: stale report, 무관 실패, skip/error, 다른 testcase를 거부하고 정확한 실패·정상 결과만 허용한다. 이 수정 후 새 DB에서 mutation/정상을 다시 실행한다.
+
+- P09-T08 보강 후 새 DB `gamebridge_ci_54affdf462`에서 하네스 exit 0 (`artifacts/ledger-mutation-1mys19ze`): mutation Gradle exit 1, 정확한 제약 assertion 실패 1/1, errors·skip 0; 정상 Gradle exit 0, 1/1 PASS·errors/skip 0. 두 JUnit XML은 각 별도 파일로 보존됐다. DB별 제약을 재확인한다.
+
+- P09-T08 수정 후 DB 제약 직접 대조 PASS: mutation schema `gb_ledger_invariant_93b32ebcf60f49ed9ad8438b93b46cf8` UNIQUE 0, 정상 schema `gb_ledger_invariant_b0a86827754944719fbca5606f012e75` UNIQUE 1. XML testcase·실행/실패/error/skip 수 일치. DB/role/schema는 보존했다.
+
+- P09-T08 보고서 판정 단위 1건·진행 원장·CI YAML·diff PASS. 커밋 전: 하네스 freshness/정확한 실패 확인, 단위시험, 정제 evidence 및 진행 문서만 개별 stage한다. P09 전체 PARTIAL과 실 provider 미검증 유지.
+
+- P09-T08 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 이 기록만 다시 stage하고 관련 파일만 커밋한다.
+
+- P09-T08 통합 자체시험 시작: 현재 9개 필수 lane을 검사한다. 기존 sandbox fake token 401 assertion이 큰 테스트에 섞여 있고 runner는 소스 문자열 및 클래스 합계만 확인한다. 독립 testcase와 JUnit testcase 식별을 추가한다. marker lane의 숫자는 테스트 건수로 부풀리지 않고 실행한 검사의 단위로 기록한다.
+
+- P09-T08 자체시험 보강: sandbox에서 별도 challenge 뒤 합성 mock identity에 401을 요구하는 독립 JUnit을 추가하고 해당 testcase만 실제 실행·식별하도록 연결했다. marker 실행은 테스트 건수가 아닌 checker 1회로 기록하고 정상 contract JSON의 Kotlin/Swift 건수를 집계한다. 아직 통합 실행 전이다.
+
+- P09-T08 통합 실행: 전용 DB `gamebridge_ci_575ffbea78_local`·`gamebridge_ci_575ffbea78_sandbox` 및 새 role 생성 후 각 프로필 bootstrap/health 통과. 9개 lane 실제 실행 중이며 전체 결과는 아직 미확정, DB와 role은 보존한다.
+
+- P09-T08 통합 자체시험 첫 실행 exit 0 (`artifacts/harness-self-1wlemrje`): 9/9 lane PASS, checker 6 lane 각 1회·failed/zero 3회, sandbox 독립 JUnit 1건, Kotlin/Swift 22건 및 C# smoke 1회. 위 수치는 7개 checker 실행을 제품 test case로 세지 않는다. 결과 보존·집계 실패 경계 검사를 보강한 뒤 전체를 다시 실행한다.
+
+- P09-T08 보고서 guard 단위 2건 PASS/skip 0: sandbox 지정 testcase·fresh JUnit·실패/skip 및 누락·0건·exit 실패를 거부한다. sandbox JUnit은 실행 증거 디렉터리에 복사하며 최종 수정본의 9개 lane을 새 전용 DB에서 재실행한다.
+
+- P09-T08 최종 수정본 자체시험 exit 0 (`artifacts/harness-self-0wr81lum`), 새 local/sandbox DB `gamebridge_ci_8c603a61f1_*`: 9/9 lane PASS/skip 0. checker 6 lane 각 1회·failed/zero 3회, sandbox 독립 JUnit 1건, Kotlin/Swift 22건 및 C# smoke 1회. 실행별 XML과 음성 실패 원인을 대조한다.
+
+- P09-T08 최종 실행 증거 대조: sandbox 독립 testcase 1건·정상 contract Kotlin/Swift 22건, ledger 내부 mutation 예상 실패 1건 및 정상 1건 확인. 계약 변조 내부 Kotlin/Swift 실행·예상 실패 수도 별도 집계하기 위해 실제 하위 JSON 경로를 연결한다.
+
+- P09-T08 집계 보강: 계약 변조의 Kotlin/Swift 실제 실행·예상 실패 2건과 C# smoke 정상, 원장 mutation·정상 JUnit 각 1건을 하위 결과에서 읽어 기록한다. 예상 실패를 별도 표시하고 무관한 C# 실패·누락은 거부한다. 수정 후 전체 9 lane을 다시 실행한다.
+
+- P09-T08 최종 통합 자체시험 `artifacts/harness-self-_hrkwuit` exit 0, 새 local/sandbox DB `gamebridge_ci_d9834a1423_*`: 9/9 PASS, 무관 실패·errors·skip 0. 계약 변조 Kotlin/Swift 22건(예상 실패 2), 원장 변조/정상 2건(예상 실패 1), sandbox 401 1건, 정상 계약 22건과 별도 checker 수가 보고됐다.
+
+- P09-T08 실행 증거 대조: sandbox 독립 XML testcase 1건·failure/error/skip 0, 정상 contract Kotlin 10·Swift 12·C# smoke 1, ledger JUnit mutation/정상 각 1건과 예상 Gradle exit 1/0을 확인했다. 실제 Provider 인증과 전체 strict 검증은 실행하지 않았다.
+
+- P09-T08 보고서 guard 2건·원장 및 manifest 검사·CI YAML·diff PASS/skip 0. 커밋 전: 독립 sandbox 401 test, 9 lane 정확한 집계·자체 단위시험·CI 및 정제 evidence/진행 문서만 개별 stage한다. 원본 로그·키·DB는 제외한다.
+
+- P09-T08 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 해당 기록을 stage해 관련 변경만 로컬 커밋한다.
+
+- P09-T06 시작: scenario-coverage lane은 `check-manifest.py`를 실제로 재호출하지 않으면서 50개 매핑을 tests=50/PASS로 세고 있었다. 검증된 정적 checker lane의 증거를 연결하고 실행 count=0·mapping 수 별도로 표현하며 fail-closed 단위를 보강한다. 시작 HEAD/원격 f09d1ed.
+
+- P09-T06 집계 수정 검증: aggregation 단위 14건 PASS/skip 0. 정적 매핑은 tests=0, checks=1, mappedScenarios=50, executionStatus=NOT_RUN이며 실제 manifest checker 로그가 없거나 실행 건수를 50으로 기록하면 실패한다. 현재 source strict 실행 전 변경을 로컬 커밋한다.
+
+- P09-T06 커밋 전 원장·manifest·diff PASS. 수정된 집계 코드·단위시험과 진행 문서만 stage하며 전체 strict 및 외부 provider는 아직 미실행이다.
+
+- P09-T06 strict 시작 준비: 새 local/sandbox DB·role과 새 synthetic iOS simulator를 만드는 기존 runner를 사용한다. 기존 staging 및 package cache는 읽어 새 consumer에 복사하며 Unity Editor lane을 opt-in한다. 사용자 AVD·기존 simulator는 사용하지 않고 PII/Unity push Player lane은 별도 환경 대기다.
+- P09-T06 커밋 전: strict 시작 checkpoint만 기록해 tracked-clean 소스에서 한 차례 실행한다. 기존 26.5 실패는 보존한다.
+
+- P09-T06 현재 소스 strict 한 차례 실행 종료: 전체 FAIL / exit 1, 외부 WAITING_USER 13 (`artifacts/verify-all-u2vuk3u_`, orchestration `artifacts/strict-isolated-myjcd44z`, 소스 d6bbe7c). 실패·환경 대기 원인과 lane별 실행 결과를 확인하며 이전 26.5 실패를 유지한다.
+
+- P09-T06 strict 결과 대조: 총 49 lane 중 PASS 46(정적 mapping 검사 1 포함), FAIL 1(이전 P05-T03 기록), DEFERRED_ENV 2(Unity Player 푸시·PII), 외부 13 WAITING_USER. 이번 실행의 iOS 18.6 StoreKit 복구 PASS는 기존 iOS 26.5 실패를 해결하지 않는다. 실행 중 새로 기동된 전용 Process Simulator는 삭제 없이 shutdown했다.
+
+- P09-T06 기준선 정제 문서에 49 lane별 상태·집계 수·failure/skip 수집 한계·exit·근거를 기록했다. 과거 50개 coverage 표현은 정적 매핑으로 정정했다. 기존 P05-T03 FAIL, 두 환경 대기, Provider 13 WAITING_USER 유지.
+
+- P09-T06 기준선 정리 후 aggregation 14건·self-check report 2건 PASS/skip 0, 진행 원장·diff PASS. 커밋 전: lane별 정제 evidence와 과거 정적 mapping 표현 정정 및 진행 문서만 포함한다. P09 전체 PARTIAL 유지.
+
+- P09-T06 커밋 전 staged gitleaks exit 0, 탐지 0건. 정제 기준선 기록을 커밋한다.
+
+- P09-T05 시작: HEAD/원격 c4269e9, Unity 6000.5.8f1 활성 라이선스 및 Android/iOS 모듈, 기존 staging/cache 확인. `check-staging.py` 147개 PASS; fb48371 이후 Android/iOS/Unity 배포 product 경로 diff 0. 기존 AVD·Simulator는 사용하지 않고 전용 AVD 2개를 준비한다. 아직 Player는 미실행이다.
+
+- P09-T05 새 전용 Android AVD 2개 생성: `GameBridge_V2_P09_PII_20261113_210717`, `GameBridge_V2_P09_PUSH_20261113_210717`. 기존 AVD는 변경하지 않았다. 아직 부팅·Player 실행은 NOT_RUN이다.
+
+- P09-T05 두 전용 AVD는 부팅 초기 adb offline 상태로 아직 사용할 수 없다. 부팅 완료 및 지정 AVD 이름을 확인한 뒤 진행하며 이 시점 Player 결과는 NOT_RUN이다.
+
+- P09-T05 전용 AVD 부팅 확인: emulator-5580=P09_PII, emulator-5582=P09_PUSH, 각 이름·boot_completed 확인. 다음 `ci-unity-e2e.sh`는 PII·Push·strict를 같은 tracked-clean HEAD에서 수행한다. 커밋 전 시작 기록만 포함한다.
+
+- P09-T05 `ci-unity-e2e.sh` 실행: PII 양 Player gate PASS (`artifacts/unity-pii-current-gh5ksqc3`), strict 전체 FAIL / exit 1 (`artifacts/verify-all-e2d8gd77`, `artifacts/strict-isolated-veycx1cq`). source 5d716bd, 두 Android AVD 최초 전체화면 안내 수동 확인. Push lane 및 기존 실패의 상세를 대조한다.
+
+- P09-T05 strict에서 Push·PII 각 2건 PASS, 나머지 P05-T03 기존 실패로 전체 FAIL(exit 1), 49 lane 중 PASS 48·FAIL 1, 외부 WAITING_USER 13. PII Player 각각 원장 1건/100·동일 HEAD·tracked-clean을 확인했다. 상세 marker 대조 명령은 파일명 착오로 미실행되어 정확한 경로를 확인한다.
+
+- P09-T05 Push 양 Player marker 대조 PASS: receive/dedupe/main thread, background/foreground, network recovery, unregister/logout, synthetic late callback, session switch. Android 실제 AVD 네트워크 전환·iOS 로컬 transport fault injection을 구분한다. 사용한 전용 PII·Push AVD와 Simulator는 삭제 없이 종료했다.
+
+- P09-T05 현재 Player evidence 작성: 양 gate 및 strict 각 source 5d716bd, Android/iOS 각 tracked-clean. 양 AVD 최초 안내 수동 처리, Android 실제 전용 AVD 네트워크·iOS local fault 구분. 사용한 전용 기기는 삭제 없이 종료하고 P05-T03 FAIL/실 Provider 대기를 유지한다.
+
+- P09-T05 종료 검증: 전용 AVD 프로세스·부팅 Simulator 없음. strict `sourceDirty=true`는 보존한 미추적 Demo/캐시를 포함하며 Player 각 `sourceTrackedDirty=false`와 구분한다. 원장·diff 검사 후 정제 문서만 커밋한다.
+
+- P09-T05 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 정제 evidence·진행 문서만 커밋하고 원본 로그·APK·DB·합성 키는 제외한다.
+
+- P05-T03 독립 원인 분리 시작: 이전 통합 앱은 SKTestSession 생성 checkpoint에서 26.5 timeout, 18.6 대조 PASS. 이 원인은 아직 미확정이다. Xcode 26.6, iOS 18.6/26.5 runtime, 별도 iPhone 16 유형 확인. `xcodegen` PATH 명령은 없어 종료 127이었지만 프로젝트가 제공하는 `artifacts/tools/xcodegen/2.46.0/bin/xcodegen` fallback이 존재한다. 새 XCTest 환경에서 최소/기존 .storekit를 비교하며 기존 Simulator·DB는 보존한다.
+
+- P05-T03 독립 UIKit host·XCTest와 1상품 최소 StoreKit 설정을 작성했다. 기존 설정은 실행 시 복사하고 SDK·Unity·Backend·DB 의존성은 없다. 새 runtime별 Simulator에서 각 설정을 1회씩, testcase timeout 60초로 실행할 예정이다. 아직 실제 빌드·실행은 NOT_RUN이다.
+
+- P05-T03 독립 runner 문법·원장·diff PASS. 18.6/26.5 전용 신규 simulator 각 하나에서 최소/현재 설정 2종을 각각 1회씩 실행한다. 각 테스트 60초·명령 150초 상한, 결과는 성공/실패/환경 대기를 구분한다.
+
+- P05-T03 독립 XCTest iOS 18.6 최소 1상품 구성: exit 0, 1건 PASS/skip 0. 기존 구성과 26.5 비교는 진행 중이며 전체 원인은 아직 미확정이다.
+
+- P05-T03 독립 XCTest iOS 18.6 기존 구성: exit 0, 1건 PASS/skip 0. 26.5 전용 신규 Simulator를 만들었으며 비교는 진행 중이다.
+
+- P05-T03 독립 XCTest iOS 26.5 최소·기존 구성 각각 exit 0, 각 1건 PASS/skip 0. SDK 없는 독립 테스트에서는 기존 timeout이 재현되지 않았다. XCTest host와 기존 SwiftUI 실행 앱의 환경 차이를 조사하며 P05-T03 FAIL은 유지한다.
+
+- P05-T03 네 독립 실행 전부 exit 0, 4건 PASS/skip 0 (`artifacts/storekit-isolation-04skqp6v`). 기존 .storekit 복사본 SHA-256이 원본과 일치한다. 26.5 기존 app의 `storekit-session-create` timeout과 달리 XCTest host에서는 재현되지 않았다. Xcode SDK StoreKitTest header의 deprecated 경고는 관찰됐으나 원인 연결 근거는 없다.
+
+- P05-T03 독립 비교 evidence 작성: UIKit/XCTest test bundle URL과 기존 SwiftUI/simctl app bundle의 launch·scheme·순서 차이를 확인했다. 둘 다 통과하므로 SDK 없는 XCTest에서 재현되지 않았지만 특정 원인은 미확정이다. 두 신규 Simulator는 종료·보존, 기존 P05-T03 FAIL과 Provider WAITING_USER 유지.
+
+- P05-T03 커밋 전 원장·diff PASS, 신규 Simulator 2대 shutdown 확인. 독립 test fixture/runner 및 정제 evidence·진행 문서만 stage한다. 제품 StoreKit Provider·원본 xcresult·로그·사용자 미추적 파일은 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 독립 재현 코드와 정제 문서만 커밋한다.
+
+- P05-T03 독립 앱 비교 시작: HEAD/원격 b4b4c37 일치, Xcode 26.6·iOS 18.6/26.5 runtime 확인. 기존 IsolationHost에 opt-in 전용 checkpoint 경로를 추가한다. 새 iPhone 16 simulator 각 1회 사용하며 기존 통합 앱·DB·사용자 기기는 건드리지 않는다.
+
+- P05-T03 독립 앱 경로 작성: 명시 opt-in일 때만 app bundle `Current.storekit` URL을 사용하며 started·생성 전·생성 후·예외를 각각 별도 파일로 기록한다. 테스트 build·runtime 실행 전이다.
+
+- P05-T03 독립 앱 runner 문법·원장·diff PASS. 동일 app을 build한 뒤 18.6/26.5 새 simulator에서 각각 한 번 launch하고 각 75초 checkpoint를 대기한다. 빌드·framework 실패는 session 실패와 분리한다.
+
+- P05-T03 독립 UIKit app build exit 0, app bundle 설정 파일 존재 확인. iOS 18.6 전용 Simulator를 새로 생성했고 앱 실행 결과는 아직 미확정이다.
+
+- P05-T03 iOS 18.6 독립 앱 simctl launch exit 0, 시작·세션 생성 전·생성 후 checkpoint 확인 PASS, timeout 없음. XCTest 없는 standalone이며 실제 스토어는 아니다.
+
+- P05-T03 독립 앱 iOS 26.5 `simctl launch` exit 0, started·session-create-before checkpoint 뒤 75초 동안 생성 후/예외 미기록으로 FAIL timeout (`artifacts/storekit-standalone-zu6etuhp`). 18.6은 생성 후 checkpoint PASS. timeout과 앱 조기 종료를 분리하기 위해 보존된 launch/terminate 및 결과를 대조한다. 기존 P05-T03 FAIL을 유지한다.
+
+- P05-T03 블로커: 26.5 종료 확인 로그는 대상 프로세스가 이미 없다고 보고하고, 해당 PID의 Simulator 진단 보고서는 SIGABRT를 기록했다. 따라서 최초 runner의 `session-create-timeout` 표기는 부정확하며 앱이 checkpoint 이후 종료된 사실과 종료 원인을 별도로 분석한다. 기존 P05-T03 FAIL 유지.
+
+- P05-T03 원인 분리: 신규 26.5 독립 앱 PID 87401의 crash report는 SIGABRT이며 StoreKitTest `XCTestLibrary` → `__getXCTestConfigurationClass_block_invoke` → `SKTestSession` stack이다. 기존 통합 앱의 17:00:37 crash report도 같은 함수 경로를 보여주지만 정확한 실행 매칭을 추가 확인한다. XCTest 프레임워크를 주입하거나 우회하지 않는다.
+
+- P05-T03 기존 crash report의 simulator UUID `481932FB-...`가 `artifacts/xcode-process-recovery-na8yq85t/result.json`과 일치한다. 기존 통합 앱도 해당 시도에 SIGABRT 및 동일 StoreKitTest XCTestLibrary 호출 경로를 보였다. 당시 runner는 앱 종료를 감지하지 못해 75초 checkpoint timeout으로 보고했다. 새 독립 앱도 같은 유형이지만 Apple 내부 원인이나 수정법은 미확정이다.
+
+- P05-T03 기존 통합 앱 crash UUID는 이전 timeout 결과의 simulator UUID와 일치하며 SIGABRT stack의 StoreKitTest `XCTestLibrary` 경로가 신규 독립 앱과 동일하다. 새 진단 runner에 앱 조기 종료와 timeout 구분을 추가했고 단위 1건 PASS/skip 0. 분류 보강을 확인하기 위해 26.5 신규 Simulator에서 제한적 진단 1회를 추가한다.
+
+- P05-T03 진단 보강 후 26.5 신규 Simulator 1회: launch exit 0, 생성 전 checkpoint 이후 프로세스 종료를 `app-exited-during-session-create` FAIL로 감지 (`artifacts/storekit-standalone-6ieup1xl`, 전체 exit 1). 초기 결과의 timeout 오분류는 그대로 보존하고 crash 근거로 정정한다.
+
+- P05-T03 독립 앱 evidence 작성: 18.6 PASS, 26.5 새 독립 앱 2회 동일 SIGABRT·StoreKitTest XCTest 관련 stack; 이전 통합 앱도 simulator UUID 일치 crash 확인. 첫 runner timeout은 프로세스 종료를 인식하지 못한 오분류로 명시 정정, 원본 결과는 보존했다. 세 전용 Simulator shutdown, 제품 Provider·사용자 DB·실 스토어는 미변경/미실행.
+
+- P05-T03 커밋 전: standalone 분류 단위 1건 PASS, 원장·diff PASS, 전용 Simulator 3대 shutdown 확인. 실제 실행 앱·runner·정제 evidence만 stage하며 기존 통합 앱, 제품 Provider, 원본 crash report·사용자 파일은 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 재현 코드와 정제 문서만 커밋한다.
+
+- P05-T03 XCTest 구매·pending 검증 시작 (2026-11-14 Asia/Seoul): 시작 HEAD/원격 824fa4d 일치. 기존 `XcodeStoreKitPurchaseTests` 및 `GameBridgeStoreKit` scheme을 확인했다. 세션·상품·구매/가짜 지급·finish/pending 단계를 test-only checkpoint로 구분하고 신규 26.5 Simulator에서 순차 실행한다. 기존 FAIL/OPEN·실 Apple Sandbox WAITING_USER 유지.
+
+- P05-T03 기존 두 XCTest에 세션·store 시작·상품·구매/가짜 지급·완료/pending checkpoint를 추가했고, 성공 구매의 unfinished 0을 명시 assertion으로 확인하도록 보강했다. 검증 실행 전이며 결과는 NOT_RUN이다.
+
+- P05-T03 기존 StoreKit scheme 순차 실행 runner의 문법·원장·diff 검사 PASS. 테스트별 90초, 명령별 240초 상한과 fresh Simulator 종료를 적용한다. 26.5가 미통과일 때만 18.6 대조를 실행한다. 아직 XCTest 결과는 없다.
+
+- P05-T03 iOS 26.5 구매 XCTest exit 65 / FAIL, 마지막 checkpoint `products-before`; 세션 생성과 store.start는 통과했지만 상품 조회 이후는 미확인이다. 실패가 assertion·예외·환경 중 무엇인지 xcresult를 대조한다. pending 테스트는 순차 실행 중이다.
+
+- P05-T03 iOS 26.5 pending XCTest도 exit 65 / FAIL, 마지막 checkpoint `products-before`. 두 시험 모두 상품 이후 구매·pending·지급 검증은 미실행이며 새 18.6 Simulator 양성 대조를 시작한다.
+
+- P05-T03 18.6 양성 대조 구매 XCTest exit 0, 1건 PASS/skip 0, complete checkpoint 확인. 세션·상품 조회·가짜 지급·finish assertion이 통과했다. 18.6 pending은 이어 실행 중이다.
+
+- P05-T03 18.6 pending 대조 exit 0, 1건 PASS/skip 0, 가짜 grant 미호출 및 complete 확인. 전체 비교 runner exit 1 (`artifacts/storekit-xctest-comparison-l5tx8137`)은 26.5 두 상품 조회 실패 때문이다.
+
+- P05-T03 검토: 추가 계측의 `store.products()`는 기존 구매 테스트보다 범위가 넓어 두 상품 모두를 요구한다. 첫 26.5 실패는 이 추가 사전 조회에서 발생했으므로 기존 coins 구매 경로 자체의 결과와 분리한다. 직접 조회에서 반환된 ID만 기록하고 assertion 범위를 늘리지 않는 계측으로 수정해 제한적으로 재대조한다.
+
+- P05-T03 계측 수정: 공용 store의 두 상품 강제 조회를 제거하고 원래 구매 경로의 동작을 유지하면서 StoreKit 직접 조회의 반환 ID만 기록한다. 26.5 실패 및 18.6 최초 대조는 보존하고 동일 계측으로 26.5 두 테스트와 필요 시 18.6을 다시 비교한다.
+
+- P05-T03 수정 계측 26.5 구매 XCTest exit 65 FAIL: 직접 상품 조회 결과 빈 목록, 원래 coins 구매 호출 이전 checkpoint에 도달했고 구매 호출에서 실패했다. xcresult 오류 종류와 pending 대조를 확인한다.
+
+- P05-T03 수정 계측 26.5 pending XCTest도 exit 65 FAIL, `purchase-before`에 도달 후 상품 미조회 경로를 대조한다. 18.6 동일 계측 양성 대조 시작.
+
+- P05-T03 수정 계측 동일 18.6 대조: 구매·pending 각각 exit 0, 각 XCTest 1건 PASS/skip 0. 26.5 두 테스트는 각각 exit 65·PRODUCT_NOT_FOUND (`artifacts/storekit-xctest-comparison-jryw7wv_`, 전체 exit 1). 기존 P05-T03 FAIL·ENV OPEN 유지.
+
+- P05-T03 4개 `.xcresult` 재대조: 26.5 각 1건 실패·skip 0, 18.6 각 1건 PASS·skip 0. 이전 standalone 분류 단위 1건·runner 문법·원장·diff PASS. 커밋 전 test-only 계측·runner와 정제 문서만 stage하며 원본 로그·Simulator 데이터는 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks exit 0, 탐지 0건. test-only 코드와 정제 문서만 커밋한다.
+
+- P05-T03 상품 조회 원인 분리 시작 (2026-11-14): 시작 HEAD/원격 49a2546. Apple TN3185는 활성 설정의 product ID 및 Load Products failure simulation 확인을 안내한다. 기존 설정은 두 product ID 일치, 명시적 failure/error 키 없음; 이전 빌드 test bundle 설정 사본의 해시가 원본과 일치했다. 명시 failure 키 부재만으로 GUI 런타임 활성 상태까지 확정하지 않는다.
+
+- P05-T03 scheme 대조: 생성된 `GameBridgeStoreKit.xcscheme`의 LaunchAction은 원본 .storekit를 참조하고 TestAction은 GameBridgeSample host와 GameBridgeStoreKitTests target을 지정하나 별도 StoreKit 참조는 없다. 이 사실만으로 결함이라 판단하지 않는다. 이전 test bundle 복사본은 원본과 동일하다. 독립 XCTest 상품 조회를 추가한다.
+
+- P05-T03 독립 XCTest 상품 조회 runner 작성·문법·원장·diff PASS. 세션 생성과 상품 조회를 별도 checkpoint로 기록하고 product ID 두 개가 정확히 일치할 때만 PASS한다. 26.5/18.6 신규 Simulator 각 1회, 결제·pending은 실행하지 않는다.
+
+- P05-T03 SDK 없는 독립 XCTest iOS 26.5: SKTestSession 생성 PASS, 상품 조회는 빈 ID 배열로 FAIL, xcodebuild exit 65. 18.6 양성 대조를 진행하며 원인은 확정하지 않는다.
+
+- P05-T03 독립 XCTest iOS 18.6: 세션 PASS, 정확히 coins_100·premium_unlock 조회 PASS, exit 0. 26.5 세션 PASS이나 빈 목록 FAIL/exit 65, runner 전체 exit 1 (`artifacts/storekit-isolation-products-dwknj5y4`). 새 Simulator 2대 종료·보존, 기존 P05 FAIL 유지.
+
+- P05-T03 18.6 `.xcresult` 1 PASS/skip 0 재확인, 26.5 1 FAIL/skip 0의 직접 반환은 빈 배열이었다. 기존 bundle·원본 config hash와 요청 ID 일치. 설정 JSON에 Load Products 오류 주입 필드는 없지만 실제 활성 config·네트워크 경로는 계측하지 않아 단정하지 않는다.
+
+- P05-T03 정제 evidence에 TN3185 근거, scheme 실제 XML·bundle hash, 독립 26.5/18.6 결과 및 이전 GameBridge xcresult 비교를 기록했다. 26.5의 빈 반환은 SDK 없는 XCTest에서도 재현됐지만 활성 설정 및 내부 네트워크 경로는 미확정이며 기존 FAIL/OPEN을 유지한다.
+
+- P05-T03 커밋 전: 26.5/18.6 xcresult 각 1건·실패/skip 및 config hash, 원장·diff 검사 확인. 독립 XCTest·runner·정제 evidence와 진행 문서만 stage하며 제품 Provider·원본 로그·xcresult는 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0, 탐지 0건. 관련 테스트·정제 문서만 커밋한다.
+
+- P05-T03 활성 configuration A/B 시작 (2026-11-14): 시작 HEAD/원격 b2937ba, 원본 scheme에는 run 설정 없음. Apple은 Run action의 StoreKit Configuration 선택을 안내하고 XcodeGen은 run.storeKitConfiguration을 지원한다. TestAction 적용과 실제 활성 상태는 아직 NOT_CONFIRMED다. 두 복사본의 실제 XML과 소스/hash를 먼저 확인한다.
+
+- P05-T03 A/B runner 문법·원장·diff PASS. 복사본의 앱·test·설정 바이트 및 StoreKit 참조 제거 후 scheme XML 동일성을 검증한 뒤에만 새 26.5 Simulator 각 1회씩 상품 조회한다. 실제 활성 config는 별도 NOT_CONFIRMED다.
+
+- P05-T03 A/B 초기 준비는 scheme 정규화 비교에서 차이를 감지해 exit 1 (`artifacts/storekit-scheme-ab-2ytgnfm0`), Simulator·XCTest는 아직 실행하지 않았다. StoreKit 참조 외 생성 차이의 원인을 확인한다.
+
+- P05-T03 초기 scheme 차이는 XcodeGen이 B의 run stanza에 빈 `CommandLineArguments`를 추가한 것이었다. A 원본은 그대로 두고 B의 빈 요소만 제거해 실제 scheme의 의미 및 요소가 StoreKit 참조 하나만 다르도록 정규화한다. 비지원 설정·우회는 추가하지 않는다.
+
+- P05-T03 A/B 재생성: A 원본 scheme 유지, B의 XcodeGen 빈 인자 요소 제거 후 StoreKit 참조 외 XML 구조 동일 PASS; test/app/config 바이트도 동일. 새 26.5 Simulator A 실행 중이다.
+
+- P05-T03 A(기존 scheme) iOS 26.5: 세션 생성 PASS, 상품 빈 배열 FAIL, XCTest exit 65. B 전용 신규 Simulator 대조 진행 중이다.
+
+- P05-T03 A/B 26.5 결과: A·B 모두 SKTestSession PASS, 상품 조회 빈 배열 FAIL, 각 XCTest 1건 실패/skip 0·exit 65, runner exit 1 (`artifacts/storekit-scheme-ab-izz719r6`). RunAction 참조만으로 문제는 해소되지 않았으며 실제 TestAction 활성 설정은 NOT_CONFIRMED다. 반복 우회 실험은 중단한다.
+
+- P05-T03 A/B 두 xcresult 대조: 각 1건 실패·skip 0, 빈 배열과 두 ID의 XCTAssert 불일치. 앱·test·두 설정 복사본 해시 일치, 실제 scheme diff는 LaunchAction StoreKit 참조뿐이다. 새 Simulator 둘은 shutdown·보존했다.
+
+- P05-T03 A/B 정제 evidence와 미제출 Feedback 초안을 작성했다. 원본 scheme A 유지, B의 기능 없는 빈 XML 요소 정규화, 런타임 활성 설정 NOT_CONFIRMED 및 양쪽 FAIL을 명시했다. 다음은 P09의 미완료 항목이며 동일 runtime 우회 반복은 중단한다.
+
+- P05-T03 커밋 전: A/B xcresult·원장·diff 확인. A/B test-only runner와 정제 evidence·미제출 Feedback 초안·진행 문서만 stage한다. 원본 로그·xcresult·사용자 파일은 제외한다.
+
+- P05-T03 커밋 전 staged gitleaks 8.24.2 exit 0·탐지 0건. 비교 코드와 정제 문서만 커밋한다.
+
+- P09-T07 원격 hosted CI 검증 시작: 시작 HEAD/원격 c977b24, GitHub CLI 인증·repo admin 확인, Actions 활성, default workflow active. 저장소 변수 목록 0개이나 self-hosted 조건의 다른 scope와 실제 dispatch 경로를 확인하기 전 실행하지 않는다. YAML parse 및 CI gate 단위 6건 PASS/skip 0, actionlint는 PATH에 없다.
+
+- P09-T07 확인: owner는 개인 User, repo Actions variable 목록 0개·해당 이름 조회 404, job에 environment 없음. 따라서 현재 `vars.GAMEBRIDGE_UNITY_E2E_ENABLED == true`는 충족되지 않는다. 정적 actionlint v1.7.7은 `macos-26` 및 custom self-hosted label을 구버전 label 목록에서 거부했다. 공식 runner 문서로 macos-26 존재 확인 후 최신 검사기를 검토한다. 원격 dispatch는 아직 NOT_RUN이다.
+
+- P09-T07 static 검증: actionlint 1.7.7은 구버전 label 목록에서 macos-26/custom label을 거부(실제 실패 기록). 1.7.12는 공식 macos-26을 인식하며 격리 설정에 명시한 custom self-hosted label을 포함해 exit 0. owner는 개인 User, repository 변수 0개·해당 변수 404·job environment 없음으로 현재 Unity opt-in 조건 false. default branch workflow_dispatch 등록 active 및 handoff ref c977b24 확인. 이제 원격 hosted run 1회를 시작한다.
+
+- P09-T07 `workflow_dispatch` 1회 요청 성공: run `43481632527`, ref `handoff/p09-resume-20261113`, 예상 SHA c977b24. Hosted/Unity/release job 결과는 아직 미확정이다.
+
+- P09-T07 run 43481632527 확인: 실제 source SHA c977b24, Unity self-hosted job SKIPPED; 네 hosted job 실행 중. skip은 원격 Unity PASS가 아니다.
+
+- P09-T07 원격 inventory-contracts job FAIL, 나머지 hosted jobs 진행 중. 실패한 step과 원인을 원본 로그에서 확인하며 실제 환경/코드 문제를 분리한다.
+
+- P09-T07 원격 inventory 실패 원인 확인: `test_manifest_execution_guard.py`가 fresh checkout에 존재하지 않는 `artifacts/` 아래 임시 디렉터리를 만들려다 FileNotFoundError, 3건 중 error 1. 제품 테스트 실패가 아닌 CI 테스트 환경 초기화 결함이다. 이 경로만 보강한다. 첫 `gh run view --log`는 전체 run 진행 중이라 미제공이었고 job logs API로 해당 job을 확인했다.
+
+- P09-T07 테스트가 artifacts 상위 폴더를 안전하게 생성하도록 한 줄 보강한 뒤 새 `git archive` 격리 checkout(artifacts 없음)에서 manifest guard 3건 PASS/skip 0. 원본 사용자 artifacts는 변경·삭제하지 않았다. 나머지 hosted 결과를 기다린다.
+
+- P09-T07 hosted backend-postgres job 성공. Android는 독립 Maven/R8 소비자, macOS는 synthetic iOS Simulator host 시험 진행 중이다. inventory 결함의 clean checkout 수정은 로컬 3건 PASS이며 원격 재검증은 아직 미실행이다.
+
+- P09-T07 첫 원격 run: Android Native job SUCCESS(계약·fake·clean R8 consumer), Backend SUCCESS, inventory FAIL, Unity SKIPPED. macOS synthetic Simulator host test는 아직 진행 중이다.
+
+- P09-T07 macOS Swift package step은 SUCCESS, synthetic iOS host step 진행 중이다. 원격 inventory 수정 검증을 보강하기 위해 실제 git clone의 빈 artifacts 상태에서 전체 inventory step을 별도 실행한다.
+
+- P09-T07 수정한 clean git clone에서 workflow inventory step 전체 exit 0, Python unittest 24개 suite 68건 PASS. 정적 문서·manifest·metadata 검사도 통과했으며 원격 재실행은 별도다.
+
+- P09-T07 macOS job 진행 중 개별 logs API는 HTTP 404로 아직 제공되지 않았다. job 완료 후 로그를 확인하며 현재 실패로 판정하지 않는다.
+
+- P09-T07 커밋 전: 확인된 fresh checkout artifacts 초기화 결함 1줄과 진행 문서만 포함한다. clean clone 전체 inventory step 24 suite/68건 PASS; 첫 원격 run의 macOS는 계속 진행 중이며 완료 결과는 별도 기록한다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0, 탐지 0건. 수정 1줄과 진행 기록만 로컬 커밋한다.
+
+- P09-T07 첫 원격 run 43481632527 완료 FAIL: Backend·Android·macOS SUCCESS, inventory FAIL(빈 artifacts), basic-ci FAIL(의존 job 실패), Unity SKIPPED, release FAIL. 후속 gate 로그의 실제 실패 사유를 확인하고, 수정 commit 기반 재검증을 준비한다.
+
+- P09-T07 첫 run gate 원인 대조: basic-ci는 inventory=failure를 정확히 전파했고 release-readiness는 basic failure에서 먼저 종료했다. Unity SKIPPED는 성공이 아니다. 수정 commit을 검사·push 후 같은 조건에서 재검증한다.
+
+- P09-T07 재검증 전 커밋: 첫 원격 run 상태와 gate 원인만 기록한다. 91228d8 및 이 기록을 비밀정보·원격 이력 검사한 후 push한다.
+
+- P09-T07 수정 및 첫 run 기록 commit `2af863b`를 handoff에 fast-forward push했다. 전체 2개 commit gitleaks exit 0. repository 변수 재확인 후 수정된 hosted 검증을 재실행한다.
+
+- P09-T07 수정 검증용 두 번째 workflow_dispatch 요청: run 43483388390, 예상 SHA 2af863b. Unity 조건은 재확인 시 여전히 비활성이다. hosted 실제 결과는 대기 중이다.
+
+- P09-T07 수정 SHA 2af863b의 원격 재검증 run 43483388390: inventory-contracts SUCCESS, Unity SKIPPED. Backend·Android·macOS와 두 gate는 아직 진행 중이다. 최초 inventory 실패 이력은 보존한다.
+
+- P09-T07 수정 run inventory 원격 job 로그: unittest 요약 25 suite 합계 70건(설정 schema 2 포함), FAILED/skip 표시 없음, SUCCESS. 이는 정적·하네스 검사이며 원격 Unity Player 검증이 아니다.
+
+- P09-T07 재검증 run: inventory SUCCESS(원격 70건), Backend PostgreSQL SUCCESS, Unity SKIPPED. Android 추가 unit 및 macOS synthetic host 단계 진행 중.
+
+- P09-T07 재검증 run 43483388390 완료: inventory·Backend·Android·macOS·basic-ci SUCCESS, unity-e2e SKIPPED, release-readiness FAILURE, 전체 FAILURE. release gate 로그와 hosted 실제 검사 수를 대조한다.
+
+- P09-T07 재검증 최종 로그: Backend JUnit 13, Android JUnit 45+1+1, Swift XCTest 17 모두 실패/skip 0; synthetic iOS host는 검사상 1건 이상 통과(정확한 수 미출력). release gate는 BASIC=success, UNITY=skipped로 `DEFERRED_ENV` exit 2라 GitHub job FAILURE. 전체 workflow failure는 release 미준비를 반영하며 hosted job 실패가 아니다.
+
+- P09-T07 정제된 원격 evidence 및 CI 문서를 갱신했다. 수정된 source 2af863b에서 hosted 4개와 basic-ci SUCCESS, Unity skipped 및 release gate exit 2/FAILURE를 구분한다. 첫 run 실패를 보존하고 P09 전체 PARTIAL과 기존 P05-T03 FAIL·Provider 대기는 유지한다.
+
+- P09-T07 커밋 전 원장·diff PASS. 두 hosted run의 정제된 결과와 CI 문서·진행 기록만 stage하며 원본 job 로그·사용자 미추적 파일은 제외한다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 정제된 결과 문서만 커밋한다.
+
+- P09-T07 self-hosted readiness 시작 (2026-11-14): 원격 runner/label 등록 없음, repo 변수 없음. 현재 unity-e2e는 Player 이후 strict까지 한 exit로 묶고 P05-T03 원장 FAIL이 최종 실패에 반영됨을 확인했다. 실행 전 검토이므로 격리 준비와 판정 분리 제안만 수행하고 원격 실행은 하지 않는다.
+
+- P09-T07 읽기 전용 점검: 현재 개발 계정은 admin 그룹의 macOS ARM64이며 전용 runner 계정·개인 파일 접근 차단 증거 없음. 로컬 Unity 활성, Android/iOS 모듈, staging 147 checksum 및 배포 제품 diff 0, exact PackageCache 두 종 각 1개를 확인했다. 전용 AVD 두 개는 과거 시험 데이터가 있는 보존 기기이고 연결 기기/booted simulator는 없다. PostgreSQL은 기존 개발 컨테이너로 원격 runner 격리를 증명하지 않는다. self-hosted는 DEFERRED_ENV다.
+
+- P09-T07 로컬 gate 단위 7건 PASS/skip 0: Unity 미실행·실패/skip, basic 실패, 부분/누락 coverage 거부, 결합 script의 strict 실패 전파, 정상 fixture의 gate 성공을 확인했다. 정상 fixture 성공은 제품/원격 release PASS가 아니다. runtime gate 분리 구현은 이번에 적용하지 않고 판정표·최소 변경안으로만 기록했다.
+
+- P09-T07 커밋 전 원장·diff PASS. 현행 gate 단위 보강과 CI 문서·사전 점검 evidence만 stage한다. runtime workflow/script, runner 등록·변수·원격 실행 상태는 변경하지 않았다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 검토 문서·현행 gate 단위 보강만 커밋한다.
+
+- P09-T07 CI 모드 분리 시작: PR/기본 dispatch는 hosted 결과만, 명시 release 요청에만 Unity·release gate를 조건부 실행한다. 기존 Strict 결합·실패 전파와 coverage 검사는 유지한다.
+
+- P09-T07 로컬 검증: 기존 gate 7건 및 workflow 모드 정적 단위 2건 PASS/skip 0, 원장·diff PASS. GitHub 원격 조회와 actionlint가 응답하지 않아 중단했으며 원격 안전 조건·실행은 아직 확인되지 않았다.
+
+- P09-T07 ロ컬 actionlint 1.7.12(기존 바이너리·custom label 설정) exit 0. GitHub 조회 2종은 각각 12초 timeout으로 원격 SHA·Unity 변수 재확인 불가; 원격 push/dispatch는 미실행으로 유지한다.
+
+- P09-T07 커밋 전: CI 모드·관련 테스트와 정제 문서만 stage한다. GitHub 연결 timeout으로 원격 push/dispatch는 미실행이며 재개 조건을 기록했다.
+
+- P09-T07 Hosted-only 원격 검증 시작 (2026-11-16): 로컬·원격 HEAD f8d644e83dd8219578c19c4d1330e9846e35a35b 일치. 변수 조회 성공(총 0개), Unity 활성화 변수 미설정. 기존 code/workflow 수정 없이 false 입력 dispatch 1회 진행한다.
+
+- P09-T07 false 입력 dispatch 1회 수락: run 43840984922, 실제 실행 SHA f8d644e83dd8219578c19c4d1330e9846e35a35b 확인. 완료 job 결과는 아직 대기 중이며 자동 재실행하지 않는다.
+
+- P09-T07 hosted-only run 43840984922: inventory-contracts SUCCESS, Unity SKIPPED. Backend·Android·macOS 실행 중이며 Release 최종 상태는 아직 확인 전이다.
+
+- P09-T07 hosted-only run: Backend PostgreSQL·inventory SUCCESS, Android Maven/R8 consumer와 macOS synthetic iOS host 단계는 진행 중이다.
+
+- P09-T07 hosted-only run: Android Native도 SUCCESS. macOS synthetic host test와 basic-ci·release 최종 상태를 기다린다.
+
+- P09-T07 Hosted-only run 43840984922 완료 SUCCESS: inventory·Backend·Android·macOS·basic-ci SUCCESS, unity-e2e·release-readiness SKIPPED. release_validation=false로 단 1회 실행했고 재실행하지 않았다. 기존 P05-T03 FAIL·Provider 대기·P09 PARTIAL 유지.
+
+- P09-T07 최종 API 대조: run event workflow_dispatch·실행 SHA f8d644e 전체 일치, 7개 job 완료(5 SUCCESS, 2 SKIPPED), workflow SUCCESS. 기존 timeout/Push 미완료 이력 뒤 현재 Push 완료와 실행 결과를 evidence에 추가했다. 문서 외 변경 없음.
+
+- P09-T07 커밋 전 원장·diff PASS. Hosted-only 단일 실행의 정제 evidence와 진행 문서 3개만 stage한다. code/workflow·기존 미추적 파일은 변경하지 않았다.
+
+- P09-T07 커밋 전 staged gitleaks exit 0·탐지 0건. 결과 문서만 커밋한다.
+
+- P09 완료 조건 감사 시작 (2026-11-16): HEAD/원격 129b1bb, 계획 T01~T08 및 manifest 50 IMPLEMENTED/INCOMPLETE baseline, 자체시험 9 lane PASS와 strict source 5d716bd의 48 PASS/기록 FAIL 1을 확인했다. 구현과 실행·정적 매핑을 구분하며 상태 변경은 제안만 한다.
+
+- P09 감사 결과: 계획 T01~T08과 관련 source/evidence 및 보존 JSON을 대조했다. source 5d716bd→HEAD의 Core/Bridge·auth·자체시험 관련 선택 경로 diff 없음, StoreKit/CI 후속 변경은 별도 source 근거로 구분했다. 원장/manifest/diff 및 새 감사 문서 local link 검사 PASS. 다음 한 작업은 T06 독립 errors 누락/무시 방지이며 전체 suite/CI/Player/DB는 재실행하지 않았다.
+
+- P09 감사 커밋 전: 감사 문서와 진행 문서 3개만 개별 stage한다. 원장·manifest·링크·diff 정적 검사 통과, Task 상태·코드·workflow 변경 없음.
+
+- P09 감사 커밋 전 staged gitleaks exit 0·탐지 0건. 정제 문서만 커밋한다.
+
+- P09-T06 errors 계약 보강 시작: HEAD/원격 c1c121a. JUnit은 독립 errors를 수집하고 Swift/xcresult 합산 실패 및 marker 검사에는 명시 errorModel을 부여한다. 오류 미측정은 null로 표현하며 근거 없는 누락·잘못된 타입은 PASS를 거부한다.
+
+- P09-T06 오류 계약 단위 9건, 기존 aggregation 14건, self report 2건 PASS/skip 0. 정상/오류·부정 타입/누락·합산 호환·nested JSON/Markdown 및 producer main을 stub 명령으로 확인했으며 실제 제품 suite/Strict/DB/Player/Actions는 실행하지 않았다.
+
+- P09-T06 최종 관련 단위 9+14+2=25건 PASS/skip 0, 정상/오류 disposable subprocess 실제 exit 0/1 확인. 네 producer main은 stub 계약 검증, 실제 제품 suite는 미실행이다. actionlint·원장·manifest·diff PASS, 오류 필드 미측정·합산 호환을 문서화했다.
+
+- P09-T06 최종 검토에서 nested 합산 실패 필드의 누락도 0으로 메우지 않도록 유지하고 summary의 MISSING/UNMEASURED를 구분했다. 오류 계약 9건 재검증 PASS, 원장·manifest·diff PASS. 커밋 전 관련 집계/producer/단위시험·CI 연결·정제 문서만 stage한다.
+
+- P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. errors 계약 범위의 변경만 커밋한다.
+
+- P09-T06 측정 계약 시작: 기준 HEAD/원격 6c8af7b 일치. simple 기본 marker를 tests 0/checks 1, stress는 samples, PII 검증은 players로 분리하고 checker의 실제 로그·marker·exit·hash 근거를 요구한다. 이번은 fixture 검사만 수행한다.
+
+- P09-T06 측정 fixture 10건 PASS, 내부 실제 aggregation unittest 14건 실행·건수 확인, 기존 errors 계약 9건 PASS/skip 0. checker marker·exit·로그 누락/변조와 required 누락·skip·errors를 차단했다. Player/스트레스는 fixture뿐이며 실제 제품 실행이 아니다.
+
+- P09-T06 최종 검증: 측정 10+집계 14+오류 9+self report 2=최상위 35건 PASS/skip 0, fixture 내부 aggregation subprocess 14건 실행 확인. 원장·manifest·문법·actionlint·diff PASS. 22개 simple 및 static mapping의 이전/수정 후 단위를 evidence에 기록했고 실제 Player/stress/Strict/DB/Actions는 미실행이다.
+
+- P09-T06 커밋 전 원장·manifest·diff PASS. simple 측정/근거 계약·관련 단위와 CI 연결·정제 문서만 개별 stage하며 과거 보고서나 제품 코드는 수정하지 않는다.
+
+- P09-T06 커밋 전 staged gitleaks exit 0·탐지 0건. 측정 계약 범위의 코드·정제 문서만 커밋한다.
+
+- P09-T06 배치24 작업 A 시작: HEAD 8eec64a 기준 nested producer 단위 보존과 자체시험 checker 계약을 구현한다. 작업 B에서 실행 근거 연결·fail-closed를 보강하고 C/D 실제 통합·원격 검증까지 연속 수행한다. 기존 P05-T03 FAIL/ENV-STOREKIT-26 OPEN/Provider WAITING_USER, 사용자 미추적 자료를 보존한다.
+
+- 배치24 A 검증 1: 계약·측정 단위 19건 중 기존 stub fixture 3건 FAIL(exit 1). 실행 로그를 만들지 않던 fixture가 새 근거 필수 조건에 걸렸다. fixture에 관측 명령·로그를 명시하고 자체시험 fixture도 checker 계약으로 갱신한다. 실제 제품 검증 실패는 아니다.
+
+- 배치24 A 검증/커밋 전: 계약·측정 19건, nested 단위 4건, self-report 2건 PASS(skip 0), 원장·manifest·diff exit 0. 최초 stub 3건 실패는 실제 로그를 생성하는 fixture로 수정했다. C#·패키징·marker는 tests 0/checks, Unity push는 players 2, 상위 nested는 모든 측정 필드와 누락을 보존한다. 자체시험의 checks→tests 치환을 제거했다. 통합 제품 실행은 C에서 수행한다.
+
+- 배치24 작업 B 시작: A commit 2af4d7a. 같은 SHA의 과거 로그 재사용, 임의 경로/부모·자식 종료 불일치/누락·중복·부정 타입을 차단하기 위해 실행 ID·실제 관측 시간·소스 내용 digest와 부모 호출에 묶인 receipt를 적용한다.
+
+- 배치24 B 검증 1: 기존 계약·측정 19건 중 3건 FAIL. 오류 기본 fixture와 집계 unittest가 측정 필드 없는 과거 형식을 사용했다. 누락 허용으로 되돌리지 않고, 정상 fixture만 현재 실행 receipt·명시 단위를 갖추도록 수정한다. zero/누락 fixture는 계속 거부한다.
+
+- 배치24 B 전체 단위 1차: 112건 실행 중 failure 1(이전 Markdown errorModel 기대값), error 1(시스템 Python에 jsonschema 미설치), exit 1. 기대값을 실제 separate 표시에 맞추고 기존 schema venv로 전체 단위를 재실행한다. 새 collector 경계 11건은 PASS이며 종료 0/1/2 subprocess를 확인했다.
+
+- 배치24 B 검증/커밋 전: schema venv 전체 113건 PASS(exit 0/skip 0); 추가 양수 count 변조 방어를 포함한 collector 12건 재검증 PASS. sourceHead+tracked diff digest, 관측 registry/명령/실행 ID/시간/로그 hash와 부모의 실제 stdout→새 report→자식 receipt를 연결했다. 단위 누락·0건·부정 타입·오류·중복·skip 승격·부모 종료 불일치·동일 SHA 과거 report 재사용을 거부한다. classifier를 실제 subprocess에서 실행하여 exit 0/1/2 확인. 원장·manifest·actionlint·diff PASS. 새 unit 2종을 Hosted inventory에 연결했다.
+
+- 배치24 작업 C 시작: B source commit 확정 후 전체 Python·정적 검증→격리 PostgreSQL 자체시험 9 lane→ci-unity-e2e.sh 경로의 현재 Player/Strict 1회를 실행한다. Unity license active, staging 147 checksum PASS, exact PackageCache 존재. 사용자 연결 AVD 4개·기존 booted iOS 기기는 보존하며 별도 GameBridge 전용 AVD 2개만 사용한다.
+
+- 배치24 C 1차 검증/Strict 전 커밋: 전체 Python 114건 PASS(exit 0/skip 0), 원장·manifest·Unity meta·API baseline·actionlint·diff exit 0. 격리 self-check source 94dad65 + 진행 문서 변경에서 9/9 PASS, 실제 tests 47(정상 44/예상 실패 3), checks 9, samples/players 0. sandbox 지정 testcase JUnit 1건 401 거부 확인. artifacts/harness-self-cvmhknn5 및 strict-isolated-pf5d4dpu. DB·role·Simulator 보존. 이어서 이 기록을 커밋해 tracked-clean source에서 ci-unity-e2e.sh 전체 Player/Strict 1회를 실행한다.
+
+- 배치24 C 환경 블로커: ci-unity-e2e.sh exit 2. source a6a14da tracked-clean에서 Editor 2건·sample 1건/reimport·Android/iOS hook PASS 후 기존 PII AVD의 TEST_APP_ALREADY_INSTALLED_PRESERVE_EXISTING으로 설치 차단. artifacts/unity-android-e2e-jefckpl8 및 unity-pii-current-ocq0awkp. Player/Strict NOT_RUN, 과거 증거 재사용 없음. 기존 앱·AVD를 보존하고 새 전용 AVD 2개로 환경을 준비한다. 전체 Strict 실행은 아직 0회다.
+
+- 배치24 C 환경 기록 커밋 전: 차단된 AVD·앱은 보존하며 원본 로그나 빌드는 stage하지 않는다. 다음 실행 source를 문서 커밋으로 확정한다.
+
+- 배치24 C Strict 완료: source 0b6fb7250e6f9edb2c93ba477ac06a5060b1769a, ci-unity-e2e.sh/Strict exit 1. artifacts/verify-all-5ffhc5v8: 57 lane 중 52 PASS, 4 FAIL, 1 DEFERRED_ENV. 기존 P05 기록 FAIL 외 새 StoreKit DB timeout(124), process prepare/store-history timeout, Android Unity Push READY timeout(따라서 iOS Push 미실행), Editor runtime 환경 대기. 자체시험 9/9·PII 양 Player·합성 회귀는 통과. 검증 완료 전 source 고정을 위해 runtime checkpoint에 즉시 보존했던 실패를 이제 정식 원장에 반영한다. 새 실패를 알려진 P05만의 실패로 기록하지 않는다. 원본 실패 유지 후 영향 lane만 조사/재실행한다.
+
+- 배치24 C 원인 관측: Android Push 실패 AVD UIAutomator에서 systemui Viewing full screen/Got it 안내를 확인했다(READY 이전 차단). 기존 APK·AVD 보존 후 새 전용 AVD에서 안내를 관측·닫고 해당 Player gate만 재실행한다. Editor CLI 원본은 300초 process timeout/CLI exit 6이며 test verdict 없음. StoreKit DB xcresult는 Info.plist 미완결, process recovery는 Transaction history 진입 후 timeout이다. 원인 확정 없이 runtime FAIL을 환경 PASS로 바꾸지 않는다. 현재 실행 완료로 source 고정 해제, 관련 진단 로그 보강과 영향 lane만 재검증한다.
+
+- 배치24 C 결과 커밋 전: 실제 실패·대기와 52 보고 PASS를 정제 문서에 기록했다. 전체 Strict 재실행은 하지 않고 원본 실패를 보존한 채 관련 진단/재검증으로 이동한다.
+
+- 배치24 B/C 영향 보강 시작: 전체 실행의 source를 보존한 뒤 timeout 부분 로그 폐기·history 단계 미분리 진단 공백을 보강한다. 추가 검토에서 미정 errorModel 및 호출 후 command 리스트 변경에 대한 방어도 음성 fixture로 확인하고 같은 배치에서 수정한다. StoreKit/Editor/Push 원본 실패는 유지하며 전체 Strict는 반복하지 않는다.
+
+- 배치24 후속 음성 재현: 실제 collector 단위 3건 모두 기대와 달리 FAIL(exit 1)—unknown errorModel 수락, 호출 후 mutable command 리스트 변경 수락, 실제 subprocess timeout의 부분 stdout 폐기를 확인했다. 세 공백을 수정한 뒤 재검증하며 제품 테스트 통과로 기록하지 않는다.
+
+- 배치24 후속 검증/커밋 전: 정상 오류 모델 3종만 허용, 관측 command snapshot deep copy, timeout 부분 stdout 보존(부분 PASS marker로 승격 불가), Markdown 누락/실패/exit/단위 표시를 보강했다. RecoveryHarness history all/unfinished checkpoint만 분리(제품 SDK 의미 변경 없음). 전체 Python 117건 PASS/skip 0, timeout 실제 프로세스 1건 재확인 PASS. 원장·manifest·actionlint·diff exit 0. 현재 실패 lane만 확정 source에서 재실행한다.
+
+- 배치24 C 영향 재검증 1: source 4508b9a에서 단독 bash scripts/build-unity.sh --editor-smoke exit 0, 실제 Editor tests 2 PASS(artifacts/unity-consumer.nsFJLu). 최초 Strict의 CLI 300초 timeout/DEFERRED는 그대로 보존하며 현재 재검증 성공을 별도 기록한다. StoreKit retry는 timeout 로그·고정 stage marker를 보강하고 새 격리 DB/Simulator에서 각 1회만 실행한다.
+
+- 배치24 진단 커밋 전: source4508 Editor 재검증 PASS를 기록하고 test-only stage 로그를 추가했다. Swift parse 확인 후 커밋하며 StoreKit 실제 재검증은 아직 NOT_RUN이다.
+
+- 배치24 C 영향 재검증 2: source 4b23529의 StoreKit DB wrapper 단독 retry exit 0, 실제 XCTest 1 PASS/skip 0/testExitCode 0/timedOut false(artifacts/xcode-storekit-e2e-zk9hcbqp). SDK 동작·timeout 변경 없이 통과했지만 최초 180초 실패 원인은 미확정/간헐 관측으로 남긴다. 최초 Strict 결과는 수정하지 않는다. 완료된 이번 전용 Simulator를 shutdown 후 process recovery만 재실행한다.
+
+- 배치24 C 영향 재검증 3: source 4b23529 + 진행 문서 변경(코드 동일)에서 process recovery exit 0(artifacts/xcode-process-recovery-r2r9s3db). prepare/recover balance 100, 서로 다른 PID로 실제 프로세스 종료·재실행 복구 확인. StoreKit 두 lane 및 Editor는 단독 재검증 PASS지만 최초 Strict 실패·간헐 원인 미확정을 보존한다. 현재 문서 commit 후 fresh Push AVD5570에서 UI 안내를 관측·닫는 보조와 함께 양 Player gate만 재실행한다.
+
+- 배치24 StoreKit 재검증 기록 커밋 전: 두 영향 검증 PASS와 최초 FAIL/원인 미확정을 함께 기록했다. 다음 Push Player는 이 문서 커밋의 tracked-clean source에서 새로 실행한다.
+
+- 배치24 C Push 재개 환경 차단: 예정 serial5570 조회가 Pomodoro_QA_33을 반환해 보조 실행이 Wrong dedicated AVD/exit 1로 즉시 중단됐다. UI/설치/네트워크 명령은 수행하지 않았다. GameBridge retry AVD는 현재 online 목록에 없어 원인 미확정으로 기록한다. serial 소유를 가정하지 않고 각 기기 명령 직전 identity 재확인과 cleanup 보호를 보강한 뒤 비어 있는 전용 포트에서 실행한다.
+
+- 배치24 기기 소유 보호 검증/커밋 전: 전체 Python 119건 PASS/skip 0. serial 재배정·비전용 이름·serial 없는 명령을 검사해 기기 조작 전 차단한다. network cleanup도 다른 AVD에는 보내지 않으며 기존 FAIL을 DEFERRED로 덮지 않는다. retry AVD PID는 살아 있었으나 예상 ADB serial과 연결되지 않았고 같은 serial은 타 AVD를 반환했다. 원인은 미확정; 검증한 자기 PID만 종료·디스크 보존. Android Push 재검증은 ENV-P09-AVD/DEFERRED_ENV로 남기고 독립 iOS Push를 실행한다. 다른 기기·ADB server를 종료/재설정하지 않는다.
+
+- 배치24 C 완료(부분)/D 시작: source 5eaf31f59f0d187a24bffb5007543744359ca076에서 전체 Python 119 PASS/skip 0, self-check 9/9 PASS/exit 0(whqw6w9q, tests47/예상실패3/checks9), 독립 iOS Unity Push PASS/exit 0(5wsdfn1e, tracked-clean/rejectedReconnect6/deviceTokens0). Android Push 재검증 ENV-P09-AVD 대기, 원래 Strict 52PASS/4FAIL/1대기/exit1 및 P05 FAIL 보존. D는 Hosted unit 연결/false·Unity비활성 조건을 유지하고 관련 commit scan→handoff FF push→Hosted-only dispatch 1회→최종 감사 기록을 수행한다.
+
+- 배치24 C/D 준비 커밋 전: source별 실제 결과와 T01/T03/T06/T08 local 변경 근거를 감사에 기록했다. 원장 일괄 PASS 변경 없음. 다음은 code 변경 없이 scan/FF push/Hosted-only 1회다.
+
+- 배치24 D push 전/커밋 전: 원격 CodingBot000/GameBridge_SDK(public), local fix/unity-android-mock-e2e-evidence/upstream origin/fix 확인. handoff 원격 8eec64a→local6313963 10 commit 조상/FF 확인. gitleaks 전 범위 exit0/탐지0, 31경로에 금지 파일·raw log·서명/실키·cache·binary 없음. 이 기록은 별도 docs commit으로 추가·staged scan 후 HEAD:handoff 정상 push한다. Unity 변수 총0, false 입력 dispatch 1회만 허용된 범위다. 자동 재실행·main·force·Release 없음.
+
+- 배치24 D push 성공: 로컬/원격 handoff HEAD 8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18 일치. FF push만 수행했다. repository 변수 재조회 총0(활성 Unity 변수 없음). 지금 해당 SHA의 release_validation=false Hosted-only dispatch 1회 요청하며 완료 전 PASS로 기록하지 않는다.
+
+- 배치24 D dispatch 1회 수락: run 43862394352, 실제 source 8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18, release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352 . 실행 완료 전이며 자동 재실행하지 않는다.
+
+- 배치24 D 원격 중간 결과: run43862394352 source8c8fc62에서 inventory-contracts SUCCESS, backend-postgres SUCCESS, unity-e2e SKIPPED. Android/macOS는 진행 중, basic/release는 아직 최종 미확인이다. 원격 전체 PASS로 기록하지 않는다.
+
+- 배치24 D 원격 검증: inventory 실제 unittest 32 suite/113건 PASS(FAILED 요약0), Backend·Android job SUCCESS, Unity SKIPPED. 로컬119와 원격113은 scope가 다르며 기존 CI 미연결4파일6건은 로컬에서만 실행했다. 이번 변경 단위는 모두 Hosted에 연결됐다. macOS synthetic host와 basic/release 최종 결과를 기다린다.
+
+- 배치24 D 완료: run43862394352 source8c8fc627858c098b68c7cedcd0f2dacbcf4b8c18 workflow_dispatch(false) 전체 SUCCESS. inventory/Backend/Android/macOS/basic-ci 5 SUCCESS, Unity/Release 2 SKIPPED. 원격 unit32suite113 PASS, BackendJUnit13, Android45+1+1, SwiftXCTest17, synthetic host는 >0·실패/skip0 검사 통과(정확건수 미출력). 자동 재실행 없음. 로컬119/self9/iOSPush와 구분한다. Android Push ENV-P09-AVD, 최초Strict FAIL, P05 FAIL/ENV26 OPEN/Provider WAITING_USER/self-hosted 미검증 유지. 최종 docs scan·commit·FF push·HEAD 대조만 남았다.
+
+- 배치24 최종 커밋 전: Hosted7개job 최종 상태와 source별 검증·남은 환경/내부 항목을 정제 evidence에 기록했다. 추가 코드 변경·원격 재실행 없음. 최종 문서만 stage/scan/FF push하고 local/remote HEAD 및 기존 미추적3개 디렉터리를 확인한다.
+
+- 배치25 A 시작: 기준 f6915e35f28e06a0d88e053a66883505bc7bc881 및 기존 미추적3개 디렉터리 확인. ENV-P09-AVD의 serial/이름/PID/실제 listen port를 읽기 전용 대조하며 타 AVD·앱·기기/ADB server kill·restart·초기화는 하지 않는다. 첫 adb devices 조회에서 daemon 부재로 CLI가 자동 시작을 출력했고 이후 명시적 server 조작은 하지 않는다. A 독립 PASS/환경 준비 없이는 C 전체 Strict를 실행하지 않는다. B/C/D를 순차 수행하고 최종 통합 보고한다.
+
+- 배치25 A 검증: PID/console·ADB port 양쪽 소유, 요청 이름·port 불일치/PID 재사용/반쪽 연결/다중 owner 거부, 기존 기기 guard 및 CI gate 15건 PASS(exit0/skip0). 현재 타 AVD의 요청5560과 실제5560/5561 owner PID89772 일치를 읽기 전용 확인했다. 배치24는 요청5570·자기 PID가 있어도 실제 console/ADB listen이 없고 serial이 타 AVD에 연결됐던 관측이다. 포트 소유 불일치는 확인됐지만 최초 경쟁/실패 시점은 보존 증거가 없어 확정하지 않는다. 새 guard는 예상 PID와 실제 두 port 소유를 매 명령 전 요구한다.
+
+- 배치25 A 실행 준비 커밋 전: 관련 단위16건 PASS/skip0, progress/manifest/diff exit0. 예상 PID 및 실제 console·ADB 소유 증거 요구를 추가했다. 새 전용 AVD 생성/실제 Push는 아직 NOT_RUN이며 tracked-clean commit 후 준비한다. 기존 실제 사용자 AVD·앱·ADB server는 변경하지 않는다.
+
+- 배치25 A 검증/커밋 전: source b55ffe722cfd9bd2663cd3e193343cebb0b4c202 tracked-clean의 Android Unity LOCAL_MOCK Push exit0/PASS(artifacts/unity-android-push-l_yu9kmb). PID22235가5582/5583 양 port 소유, serial·AVD명 일치. 필수7 marker·수신/중복/main-thread/background/실제 emulator망 차단·재연결/session/token삭제0 확인. 초기 systemui 전체화면 안내를 관측해 Got it1회 클릭(UI 보조, 무인CI 아님). 새 자기 emulator만 종료·디스크 보존, 기존 AVD/ADB server조작 없음. ENV-P09-AVD는 이 local 검증에서 RESOLVED. B로 이동하며 C Strict는 새 전용전체환경 준비 후 최대1회다.
+
+- 배치25 B 시작: 배치24 StoreKit18.6 최초 실패/단독 retry 성공의 source·checkpoint·XCTest/Simulator/Backend/timeout를 대조한다. 원인 미확정 위험을 유지하고 26.5 재실행·timeout 증가는 하지 않는다. Testcontainers 요구와 현재 별도PostgreSQL 격리의 차이를 코드·실행 증거로 판단해 처리 방향을 정한다.
+
+- 배치25 B 검증/방향 결정: StoreKit 최초 두 실패와 단독성공은 SDK runtime diff없음, 동일180초(DB)·75초(phase) 제한. 실패 DB 둘 모두 sessions1/purchases0/ledger0, 성공 둘은 purchases1/ledger1/delta100. DB recovery 최초부분stdout폐기·xcresult미완결 및 당시bootstate미보존으로 정확정지위치미확정, process는history진입후timeout. 두원인을합치거나후속PASS로간헐위험을해소처리하지 않는다. 현재 Docker PostgreSQL은 기능·fresh schema 불변식은 증명하나 Testcontainers 수명관리 literal요구는 충족하지 않는다. 기존fixture/보호를 유지한 Testcontainers2.0.5 별도opt-in 실행경로를 최소 보강해 실제 검증한다. 신규container만 시작/정리하고 기존개발DB는 변경하지 않는다.
+
+- 배치25 B Testcontainers 최초 검증 exit1/0 tests: Gradle init script의 nullable labels map 접근이 Kotlin compile에서 거부됐다. container 시작 전 실패라 기존DB/기기 영향 없음. safe nullable lookup으로 수정 후 같은 경로를 재검증한다. 미구현/미실행을 PASS로 기록하지 않는다.
+
+- 배치25 B Testcontainers 2차: 새 loopback container 실제 시작/owned cleanup 확인, 기존 local7건 중5 PASS/2 FAIL(exit1). 두 Finalization 시험은 기존public schema의 users/products를 사용하므로 marker만 초기화한 TC bootstrap이 불충분했다. 원장조건을 바꾸지 않고 프로젝트와 동일 Flyway migration+mock catalog 전체를 새container에 적용해 보강한다. 기존DB/시험assertion 변경 없음.
+
+- 배치25 B 3차: Testcontainers local7건은 실제모두PASS/Gradle0, 전체Flyway bootstrap도성공했다. wrapper는 cleanup확인실패로전체FAIL1을 반환했다. 실제 Docker inspect1 stderr가 소문자 no such object였고 새container삭제는확인됐다. 알려진not-found만대소문자정규화로판정하고 permission/daemon오류는거부하는단위검사후전체4case검증한다. 원본FAIL보고서는수정하지않는다.
+
+- 배치25 B 검증/커밋 전: Testcontainers2.0.5/PG17.6 신규loopback container4개에서 기존fixture11건 실행(정상10+의도된원장변이failure1), case Gradle exit0/1/0/0, wrapper exit0. 네container 실제시작·label·loopback owner·stop/삭제확인. 변이는기존named invariant assertion과일치하고정상복원1건도검사했다. bootstrap/cleanup파서초기실패원본보존. 새계약단위5건PASS, JDBC42.7.11/Flyway11.7.2는프로젝트기존해결버전고정. 기존devDB·assertion·timeout변경없음. source9c94234+구현중harness로실행했으며C에서commit된현재소스로다시검증한다. StoreKit18.6 간헐위험원인미확정유지.
+
+- 배치25 C 시작: 기존CI미연결4파일6건과새binding/TC계약단위를Hosted에연결하고측정/오류/집계회귀·새격리self9를검증한다. TC11건은예상실패1과검사4를보존해별도Strict lane에연결한다. A currentAndroid PushPASS 확보, C용새PII/Push전용AVD와실제PIDport소유를준비한경우에만commit후ci-unity-e2e.sh 전체Strict최대1회실행한다.
+
+- 배치25 C 검증/실행준비 커밋 전: 전체 Python131건PASS/skip0(38파일),기존미연결4파일6건은순수fixture/XML/파일복사검사로Linux Hosted적합하여모두연결. 신규binding/TC단위도연결하고backend Hosted에실제TC4case경로추가. actionlint/progress/manifest/diff exit0. TC는별도required Strict lane(tests11/expectedFailures1/outerchecks1/childChecks4)으로분리한다. self-only는사용하지않는iOSproject/Simulator생성을생략한다. currentcommit에서새전용DB self9 및TC 경로부터확인후C전체AVD준비조건을판단한다.
+
+- 배치25 C 실제검증/Strict전 커밋: source43d255a39f9efd28e630fad40889cec9d255365d에서 self9/9 PASS(exit0, tests47/예상failure3/checks9; harness-self-rl7_n0r_) 및TC4case11test/예상failure1 PASS(exit0; purchase-testcontainers-86d9mge4). self-only 불필요Simulator 생성없음. Unity active/staging147 PASS. C새PIO5578/PID36894 및Push5580/PID36901 각각이console+ADB양port소유·AVD이름·boot완료일치. A독립PASS와C전용환경이확인돼 이문서commit후tracked-clean source에서ci-unity-e2e.sh 전체경로1회만 실행한다. 기존P05FAIL은유지한다.
+
+- 배치25 C 검증/커밋 전: source e46cb6520272334d9816d951274b91bd39133b9b tracked-clean의ci-unity-e2e.sh/전체Strict1회실행완료. verify-all-q_sj2gpu:58lane/57PASS/기존P05기록FAIL1/신규FAIL0/대기0,exit1. tests226(예상negative4포함),checks57(고유56,TC내부4별도),samples100,Players4. self9·TC11·StoreKit18.6두복구·Android/iOS현재Push·PII·Editor통과. AndroidPush PID36901/양port소유확인,reconnect2; iOS reconnect6/LOCAL_TRANSPORT_FAULT,각deviceTokens0. PII양원장1/delta100. C UI안내각1회관측클릭,무인CI검증은별도. 모든생성기기/DB/로그보존,완료된이번전용process만종료. 최초배치24간헐위험/P05FAIL/Provider13대기는제거하지않는다.
+
+- 배치25 D 시작: A~C 현재증거로P09-T01~T08의명시완료조건을개별판단한다. P05 FAIL/26OPEN/실Provider13WAIT/self-hosted·Release미검증은분리유지. 근거있는로컬상태만변경하고table에서집계를재계산·원장/음성검사통과후scan/FF push/false Hosted-only1회를수행한다.
+
+- 배치25 D 원장 편집1차는 blocker ID가 Task셀에참조된것을중복행으로오인한assert에서exit1,파일쓰기전에중단됐다. 원장상태/집계는갱신되지않았음을확인했고행시작조건으로수정해다시검증한다. 제품/하네스검증실패가아니다.
+
+- [P09-T01] 배치25 D 판정: 50 ID/entry·잘못된fixture거부·정상복원,현재Kotlin10/Swift12+C#checker. localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T02] 배치25 D 판정: core/bridge·mutation은실행,실제assert총수미측정. PARTIAL. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T03] 배치25 D 판정: auth48·독립sandbox401 case1·PII2Player 확인. synthetic localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T04] 배치25 D 판정: TC11/정확한negative1/정상복원과SQL/Native복구. 코드IMPLEMENTED,18.6간헐위험미확정으로PARTIAL. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T05] 배치25 D 판정: 현재Android/iOS Push2+PII2·Native/Host·packaging음성PASS. mock·OS구간·UI보조구분,localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T06] 배치25 D 판정: 단위131·실제Strict58lane가knownP05FAIL1을보존하고다른57PASS. 0/1/2및측정/source/소유계약localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T07] 배치25 D 판정: 38파일Hosted연결·TC backend·localCI1회·actionlint완료. 실제self-hosted/Release미검증으로PARTIAL. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- [P09-T08] 배치25 D 판정: 현재새전용환경9필수lane전부PASS·정확변이실패·정상복원·독립401확인.localPASS. 증거 docs/evidence/p09-batch25-integrated.md; source e46cb6520272334d9816d951274b91bd39133b9b.
+
+- 배치25 D 집계는64행에서자동재계산,임의성공건수추가/분모삭제없음.실Provider13 WAITING_USER/P05 FAIL/ENV26 OPEN 유지.
+
+- 배치25 D 감사 커밋 전: 계획과source별실제증거를대조해5개localPASS·3개PARTIAL을반영했고원장/음성/manifest/diff통과. TCgap/미연결unit/현재AVD대기는해소,간헐원인/actual assert/self-hosted는남김. 원래StrictFAIL및26.5/실Provider대기보존. 다음은범위·비밀정보검사후handoff FF push/false Hosted1회다.
+
+- 배치25 D push 전/커밋 전: CodingBot000/GameBridge_SDK public 확인, handoff 원격 f6915e3이local2b2b6b7의조상으로FF가능. 신규7commit/21text path의gitleaks exit0·탐지0,금지키/서명/원본로그/cache/빌드/binary delta없음. 이기록만추가scan·commit후명시handoff FF push한다. repo변수0/runner0,변경된Hosted를false입력1회실행하고self-hosted/Release는비활성으로유지한다.
+
+- 배치25 D FF push 성공: local/remote handoff HEAD59b98349689171cc8a75d9652f248708645a85c2 일치. repo변수재조회0,code/Hosted연결변경이있어 release_validation=false dispatch1회만지금요청한다. 진행중결과를PASS로기록하지않는다. self-hosted/Release는비활성유지한다.
+
+- 배치25 D dispatch1회수락: run43889958441,source59b98349689171cc8a75d9652f248708645a85c2,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441 . 현재in_progress이며job최종확인전PASS로기록하지않는다. 원격재실행은하지않는다.
+
+- 배치25 D 원격중간검증: source59b9834 run43889958441 inventory38suite/131건PASS/FAILED요약0,Backend(TC포함)·Android jobSUCCESS,UnitySKIPPED. 기존미연결6건도원격실행범위에포함됐다. macOS synthetic host및basic/Release 최종상태는아직대기하며전체SUCCESS로기록하지않는다.
+
+- 배치25 D 최종검증: run43889958441 source59b98349689171cc8a75d9652f248708645a85c2 전체SUCCESS. inventory/Backend/Android/macOS/basic-ci 5SUCCESS,Unity/Release 2SKIPPED. 원격38suite/131unit PASS,backend기존JUnit13+TC11(예상failure1,정확변이/정상복원),Swift17및synthetic Host검사통과. false dispatch1회만수행·재실행없음. 이후최종문서만commit/scan/FF push하고Head일치를확인한다.
+
+- 배치25 최종 커밋 전: 원격7job 최종결과와local5PASS/3PARTIAL·source별actual counts·잔여작업을확정했다. 최종문서만scan/commit/FF push하고HEAD와미추적3개디렉터리보존을대조한다. 추가코드/원격재실행없음.
+
+- 배치26 A 시작: 기준6d200b064b5cd8ea5ebca76bf3b58c1bd0086e6d/추적변경없음/기존미추적Demo·cache보존. 명시작업브랜치 handoff/p09-resume-20261113을같은HEAD에서생성해전환했다(main/fix이력변경없음). R01~R12의실행test/actualassertion/static선언을구분하는test-only계측과mutation복원기준을확보한다. 이후B18.6제한진단/C실질CoreBridge분리/D통합·Hosted1회까지진행한다. P05FAIL/26OPEN/Provider13WAIT/self-hosted미검증유지.
+
+- 배치26 A 초기검증: Kotlin선택10 test PASS/실행helper50,Swift12 PASS/helper122,C#managed smoke0 tests/check1/helper391 확인. 기본framework건수와assertions실행을구분했다. Xcode spec경로첫참조오류는실제ios/Framework/project.yml로정정해test-only helper를CBridge target에도포함했다. 분기없는valid parse testcase의helper0은0 tests라는뜻이아니며implicit throw/check는별도UNMEASURED다. shipping API/runtime변경은아직없다.
+
+- 배치26 A 계측초기통합 exit0: Kotlin10/50,Swift12/122,managedcheck1/391,stress100sample의helper316(warmup15/sample300/final1),정상복원391 확인. Mutation partial helper1에서unknown request-ID guard가duplicate보다먼저실패했음을trace로발견했다. 기존감지의민감도는유효하지만duplicate 전용 probe로정상0/변이nonzero를확인하도록범위를정확히보강한다. 정적호출수/manifest항목수는실행수로대체하지않는다.
+
+- 배치26 A 계측 준비 커밋 전: 실제Kotlin10/50·Swift12/122·managed391·stress316·Unity2/32 확인,전체Python136 PASS/skip0,APIbaseline/progress/manifest/diff통과. 동적helper호출/정상·예상오류/partial변이/정적선언·미측정범위구분. duplicate-only 정상0/변이nonzero와원본hash복원 검증을보강했다. 현재shipping runtime은6d와동일. commit후동일cohort/조건분기control로A최종baseline을확정한다.
+
+- 배치26 A 검증/커밋 전: commit b6fd5379c8ec31b110904754e744325bd39d61c9 tracked-clean baseline core-assertions-2u0cmwrq PASS/exit0. Kotlin10test/helper50,Swift12/122,managedcheck1/391,원본복원391,분기control OFF0/ON1로392,stress316(15/300/1),Unity2/32. duplicate-only정상probe0/helper2,변이nonzero/partialhelper1·NullReference의정확한duplicate단계감지·원본hash동일확인. R01~R12 shared-test/label attribution과JNI Player/implicit signals/전체assertoutcomes UNMEASURED를명시했다. 정적manifest목록은숫자실행으로합산하지않는다. 최종P09T02판정은D의실제영향검증과함께검토한다. B제한진단으로이동.
+
+- 배치26 B 시작: 배치24최초18.6실패/24retry/25통합성공을source/configuration/Xcode/boot/health/순서/checkpoint와대조한다. 필요한test-only관측만추가하고SDK구매·지급·finish/recovery는변경하지않는다. 구분가능한controlled가설각1회범위,기존timeout유지·26.5재조사없음. 미재현이면미확정위험으로종료하고C실질리팩토링을계속한다.
+
+- 배치26 B 진단 준비 검증/커밋 전: read-only toolchain Xcode26.6/17F113 확인,0b6fb72·4b23529·e46cb65의GameBridge.storekit SHA동일. 최초failures의버전/boot/부분로그누락한계유지. test-only monotonic API전후trace/XCTest attachment/config SHA/health·boot·test단계관측추가,Python진단단위3 PASS/Swiftparse0. --diagnose는새owned18.6를따로boot관측하고nonparallel·전용DerivedData로각영향경로1회만검증한다. test180/phase75제한및SDK구매·지급·finish/recovery동작은변경하지않는다.
+
+- 배치26 B controlled DB 경로1회: source5bca33f의새owned18.6/nonparallel/별도DerivedData,실제XCTest1PASS/skip0/exit0(artifacts/xcode-storekit-e2e-s3e8c47b). Xcode26.6/17F113,source configurationSHA확인. 첫built-app경로검색은0개로built일치는아직미검증이며아래추가확인으로정정한다. backend-ready8.75s,boot-ready30.92s,teststart32.22s/return67.96s를단조시계로관측했다. 기존180초제한그대로며최초간헐원인은재현되지않아미확정유지. 다음process경로도fresh환경1회만관측한다.
+
+- 배치26 B 제한진단종료/커밋 전: source5bca33f(후속진행문서변경외코드동일) controlled18.6 DB1회XCTest1PASS/exit0,process1회재시작PASS/exit0. 실제built config는.app/PlugIns/시험bundle에있어첫root-app검색0개를정정했고확인SHA4ead4675...로기존과동일. XCTest15단계attachment수집(최초start약5.94s/purchase1.39s/recover1.09s),processTransaction.all prepare3.93s/recover0.92s,unfinished0.18s/0.005s 관측. 최초timeout재현없음·원인미확정위험유지,추가반복종료. 새owned기기process만종료/디스크DB보존. P09T04 PARTIAL/26.5미조사/P05FAIL유지. C반드시계속한다.
+
+- 배치26 C/P10-T01 시작: P09T08 localPASS에의존조건충족;self-hosted대기는중단사유아님. shippingKotlin/SwiftCoordinator는플랫폼고유동시성으로유지하고C#RequestRegistry의3중event공통header검증과Finish/finally의동일소유removal중복을선정했다. publicAPI·Native소스/CABI/wire기준을기록하고,변경전동일cohort+추가eventheader negative matrix를실행한뒤책임경계별작게refactor/검증/commit한다.
+
+- 배치26 C baseline: shipping 변경 전 3종 event×7 invalid header 및 정상 callback matrix를 추가해 managed418 helper/exit0 확인. API snapshot 첫 시도는 기존에 없는 contracts/openapi.yaml 참조로exit1/쓰기없음, 실제 존재하는 wire·public-api와Native shipping hash/C ABI exports/C#선언을기록했다. OpenAPI 부재는UNMEASURED로표시하며전체binary ABI검증으로주장하지않는다. 변경전baseline검사PASS.
+
+- 배치26 C1 검증/커밋 전: RequestRegistry의3중event session/id/time/payload header검증을private TryReadEventEnvelope로집중하고kind별body/disposed/callback전달은유지했다. 변경전/후같은managed matrix+race cohort actualhelper418=198normal+220expected,process0동일. 기존API baseline및새79파일Native/C#선언/C-export/wire scope baselinePASS. 공개/internal호출표면변경없음;단순공통추상화가아닌동일검증3곳→1곳. public/wire/source/export변경음성단위3PASS. Kotlin/Swift coordinator는각각Mutex/actor·generation고유상태소유로이영역형식통일이득낮아이번수정제외했다.
+
+- 배치26 C2 검증/커밋 전: RequestRegistry Finish/finally의동일pending-entry reference확인+remove를private RemoveOwned로모았다. lookup/remove 및필요한ignored계수는같은gate안,Completion通知는기존대로밖. finally중복정리는ignored를추가하지않고Dispose clear/abandon순서및cancellation/timeouterror선택은유지. 같은matrix+100racecohort418=198normal+220expected/exit0,duplicate-only정상0/변이nonzero감지,API/source/wire검사PASS. 공개/Internal/C ABI변경없음. 실제새빌드/플랫폼·최종회귀는D에서검증한다.
+
+- 배치26 D 시작: 현재변경의전체Python·Kotlin/SwiftCoreBridge·managed/stress/mutation·API/ABI/contract·self9·원장검사를통합하고현재source에서Native패키지/UPMstaging을새로생성한다. old변경전staging을현재C#runtime증거로쓰지않는다. 소유입증전용기기에서실제Native/Unity LOCAL_MOCK와조건부Strict최대1회,모두commit후falseHosted1회를검증한다. P09T04/P09T07PARTIAL/P05FAIL/Provider대기유지.
+
+- 배치26 D 준비검증/커밋 전: 전체Python143건PASS/skip0(신규assert계약/진단/surface/staging단위),API/source/wire·progress·actionlint/diff통과. build-unity consumer에도current checkout source검사를추가해old147-checksum-valid staging을실제exit1로거부(현재runtime를old로검증하지않음). 새단위4파일을Hosted연결했다. 현재codecommit뒤Native/Maven/XCFramework/UPM을새경로로재생성하고currentSource/hash/ABI를검증한다.
+
+- 배치26 D 실제검증/플랫폼준비: commitdc45a2f tracked-clean에서새Maven+Android/R8 build0,Xcodedevice/simulatorarchive+XCFramework0,새UPM147checksum0. Native javap3종class publicsurface와GB_*4개export(2slice)모두변경전동일. shipping79파일/currentstage hash 기록. current post-refactor ledger core-assertions-zn69jotl exit0: Kotlin10/50,Swift12/122,managed418=198+220,restore418,branch419(OFF0/ON1),stress316,Unity2/32,duplicate정상0/변이nonzero/원본hash동일. 변화전cohort391에header matrix27을추가한418이며전후동일matrix418비교. 추가Native/actualJNI·self9·조건부Strict를이어서검증한다.
+
+- 배치26 D 실행소스확정 커밋 전: Native추가sdk-unity-bridge JUnit1/실패skip0도current code에서통과. 새Maven/XCFramework/UPM checksum·javap/nm ABI표면·postassert ledger·old-stage 거부증거를보존했다. 다음source에서freshDB self9,전용R09 JNI/C ABI및현재Unity실행/조건부Strict1회만수행한다. oldstaging은사용하지않는다.
+
+
+- 배치26 D 환경 블로커/검증: source d86ccc23ceb14dc6a81d93c2317de0c78f5d708e의 fresh self9는 tests47(예상negative3)/checks9/exit0, harness-self-5b5bz9vm PASS. 현재 R09 Android Player 빌드는 CLI license status active/exit0인데 Editor LicensingClient IPC channel 부재·60초 reconnect 실패를 8분 이상 반복했고 APK 생성/Player 실행 전이었다. 소유 project+PID9961을 재확인해 해당 Editor만 종료했으며 raw runner exit1/RESULT FAIL UNITY_IMPORT_OR_ANDROID_BUILD_FAILED는 보존했다(artifacts/unity-android-e2e-0tikbq7v). 제품 assertion 실패로 단정하지 않으며 실제 Android JNI/현재 Player는 DEFERRED_ENV/NOT_RUN이다. 계정·라이선스 재활성화/우회/반복빌드는 하지 않았다.
+- 배치26 D Strict 환경 판단: 전용 AVD 두 개의 PID/양 port/serial/이름/boot는 준비됐으나 실제 Unity 실행환경은 미준비. full request 및 c-full.log 없이 실행횟수0, 전체 Strict DEFERRED_ENV. 준비 controller만 SIGINT해 finally에서 소유 emulator들을 종료했고 디스크/DB/원본 로그·기존 사용자 기기를 보존했다. 기존 배치25 Strict 결과는 역사 증거로 유지하며 이번 source 실행으로 재사용하지 않는다. 독립 iOS C ABI 시험은 현재 source/new18.6 Simulator에서 별도로 수행 중이다.
+
+
+- [P09-T02] 배치26 완료 조건 판정: Kotlin10 tests/50 helpers(37normal+13expected),Swift12/122(112+10),managed0tests/check1/418(198+220),UnityEditor2/32,stress0tests/100samples/316 helpers를 실제 scope로 분리했다. R01~R12 구조화 결과·공유 native testcase 중복배분 금지·분기 OFF0/ON1·duplicate-only mutation 정상0/변이nonzero/원본hash일치/정상전체418 복원을 확인했다. 전체 assertion outcomes/래퍼밖 implicit signal/JNI assertion은 UNMEASURED이며 현재 Android JNI Player는 환경 대기다. 배치26 A의 명시 완료 조건을 충족해 IMPLEMENTED/PASS로 전환한다. 모든 플랫폼의 현재 Player PASS나 assertion 전체 측정 완료 선언은 아니다.
+- [P10-T01] 배치26 D 독립 iOS 실제 검증: source d86ccc2, 새 owned18.6 Simulator의 CBridge testHostPushEventRoutingAndDedup XCTest1 PASS/skip0/exit0(35.92초). xcresult deviceId 일치, 시험 후 정확한 기기 Shutdown 상태 확인; shutdown149는 이미 Shutdown인 기기에 대한 응답이며 실패한 시험으로 계산하지 않는다. Android 새 APK/Player는 ENV-UNITY-LICENSE-IPC로 미실행이며 full Strict 실행0/DEFERRED_ENV. 관련 raw FAIL은 보존한다. 두 private refactor와 unit/Editor/API·선정 ABI 확인 범위는 완료했으나 현재 Unity Player 회귀를 끝내지 못해 Task 전체 IN_PROGRESS/PARTIAL 유지.
+- 배치26 D 원격 준비/커밋 전: 새 assertion 계측·진단·staging 검사 unit143 PASS/skip0, 새 self9 PASS. 원장64행 재집계 및 T02 local PASS 근거·T04/T07 PARTIAL·P05 FAIL/ENV26 OPEN/Provider13 WAIT를 분리한다. 원장 편집 첫 시도는 64행 선택 assertion에서 쓰기 전 exit1이었다. 행 시작 정규식으로 대상을 한정해 수정했으며 제품 검증 실패와 구분한다. Native shipping byte/hash와 wire/public API 보존 검사도 Hosted inventory에 연결한다. 다음은 staged 명시 파일·원장/manifest/meta/actionlint/diff 검사 및 전체 push 범위 secret/생성물/PII 점검이다.
+
+- 배치26 D 문서 검사 exit1은 blocker행 삽입 anchor가 Task셀의 동일 ID 참조를 먼저 선택한 편집 오류였다. 변경 전 행을 복원하고 행 시작 anchor로 실제 blocker 원장에만 추가했다. historical 집계 문구도 보존했으며 원장 검사를 재실행한다. 제품/하네스 테스트 실패를 숨긴 것이 아니다.
+
+- 배치26 D 검증/커밋 직전: 원장64행·manifest50·Unity metadata·Core79파일 source/API/wire·actionlint·diff 검사 exit0, CI gate7+workflow mode2 PASS. repo CodingBot000/GameBridge_SDK public 재확인, Actions variables0/runners0(등록/변경 없음). 코드·계측·현재 실행 증거를 명시 파일로만 stage하고 staged 및 기준6d200b0 이후 전체 range의 비밀정보/금지 생성물/PII를 검사한 뒤 handoff FF push한다. false Hosted dispatch는 아직0회다.
+
+- 배치26 D push 점검/커밋 전: 전체8개 기존 commit와 staged 범위를 gitleaks v8.24.2 redact=100으로 검사해 exit0/탐지0. 변경39개 text path에 금지 key·서명·Unity license·원본log·cache·APK/Xcode 산출물·binary 없음. 별도 PII 패턴의3개 후보는 기준source에 이미 있던 synthetic-person@example.invalid 고정 시험 fixture임을 line별 대조했다. 실제 개인정보/실키가 아니며 제품코드 유일 변경은 RequestRegistry.cs다. 원격 handoff는 local의 조상(0 behind/8 ahead),변수0/runner0. 이 기록 및 검증 증거만 명시 stage·scan·commit 후 FF push하고 false Hosted1회를 요청한다.
+
+- 배치26 D FF push 검증/원격 Task 시작: local/remote handoff HEAD c34b419e3a2c719e5d615362f179b38f59b1a241 일치,6d200b0→c34b419 FF 성공. 보존된 미추적3경로 외 tracked clean. repo변수0 재확인. 모든 제품/계측/하네스 소스 commit 후 release_validation=false Hosted-only dispatch1회를 요청한다. Unity self-hosted/Release SKIPPED가 최종 확인되기 전 원격PASS로 기록하지 않는다.
+
+- 배치26 D Hosted-only dispatch1회 수락: run43934095574,source c34b419e3a2c719e5d615362f179b38f59b1a241,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43934095574 . 현재 in_progress이며 최종 job 결과 대기. 재실행·Release 활성화는 하지 않는다.
+
+- 배치26 D 원격 중간 검증: run43934095574 source c34b419,inventory SUCCESS/Unity SKIPPED,나머지 job 진행 중. 완료 job 로그 조회는 workflow 미완료 상태에서 exit1/빈 반환이라 test0건 또는 계측PASS로 단정하지 않았다. 현재 소유 테스트 Editor/AVD PID6개 모두 종료 및 독립 C ABI 기기 Shutdown을 read-only로 확인했다. full 요청/로그 부재도 재확인(호출0), raw runtime FAIL과 환경 대기 기록을 유지한다.
+
+- 배치26 D 원격 검증: 공식 completed-job API 로그에서 inventory42파일/143 Python건·FAILED요약0·Core source/API/wire gatePASS 확인. Backend jobSUCCESS,Android Maven/R8까지SUCCESS,Swift synthetic Simulator host는아직진행중이다. 앞선 commentary의Android완료선기록은 즉시진행중으로정정한뒤최종SUCCESS를확인했으며 최종보고는공식job상태만사용한다. run43934095574 단일실행/UnitySKIPPED이며basic/Release최종상태는대기다.
+
+
+- [P09-T07] 배치26 D 최종 원격 검증/커밋 전: run43934095574/sourcec34b419,단1회false입력의전체SUCCESS. Hosted4+basic SUCCESS,Unity/Release SKIPPED를공식job상태로확인했다. inventory42파일/143건·Core source gatePASS,Backend TC11/negative1·복원,Swift17/failure0및syntheticSimhost stepSUCCESS. P09T07 PARTIAL(전용runner/remoteUnity/Release미검증),T04 PARTIAL(18.6간헐미확정),T02localPASS·T01첫범위PARTIAL은유지한다. 최종문서에는모든source·rawFAIL/DEFERRED/UNMEASURED·Strict호출0·기존대기를분리하고작업별9commit이력을남긴다. 다음최종문서commit만scan후handoffFFpush/localremote일치및미추적3경로보존을확인한다. 원격재실행은하지않는다.
+
+- 배치26 최종 검증/커밋 직전: 최종8개 staged경로는공개용Markdown문서뿐이며원본log/key/서명/cache/binary/산출물없음,stagedgitleaks exit0/탐지0. 원장64행·manifest50·meta·Core79파일 API/source/wire·구조화R12개JSON·diff exit0. c34b419 이후 shipping/test/harness/workflow 변경0이고원격단일SUCCESS소스와코드동일. main=e4b677e/fix=6d200b0 그대로보존. 이문서commit을handoff에FFpush후실제local/remoteHEAD와미추적3경로상태를최종보고한다.
+
+- [P10-T01] 배치27 A 시작: 요청문서와 AGENTS/START_HERE·현재원장·마지막로그를 대조했다. branch handoff 및 시작HEADcf276b7 일치,tracked clean/기존미추적3경로보존. 공식log read-only 대조→새전용project CLI/direct 실제Editor smoke 각1회,근거있는 수정최대2회로IPC복구를판정한다. A 실제PASS 전 Player강행없음. C Strict최대1회,완료시에만T02제품변경;차단되면독립감사/회귀설계·E검증/CI/FF인계를끝까지수행한다.
+
+- 배치27 A 관측: batch26 공식Client로그에서 CLI1.0.0-beta.13/LocalIPC1.19.0-rc.3에대한기존HubClient505 Unsupported protocol response와EditorClient1.18.1의globalmutex획득실패를확인했다. PID/시각상관관측이며단일rootcause확정은아니다. 현재CLI상태active/exit0. 공식direct smoke새project를시작했으나marker미생성/Clientmutex실패를관측중이며최종verdict대기. 라이선스/Hub/사용자프로세스조작없음. 비교대기중독립D책임경계read-only검토에착수한다(제품T02수정은C완료전금지).
+
+- 배치27 A direct검증: 새project/공식Editor -batchmode -quit -projectPath -executeMethod -logFile 1회,210초timeout/실제wrapper124/검증exit2(DEFERRED_ENV),smoke JSON/marker없음,compiler CS오류0. Clientmutex획득실패·IPC재연결관측이최종까지지속됐다. own process group만기한종료했고기존Hub/Client/타Editor변경없음. 다음CLI동일smoke새project1회를비교한다.
+
+- 배치27 A/E 관측 도구 보강 시작: raw로그를공개하지않고IPC오류범주·실제Editor메서드receipt/marker/exit를대조하는명시실행형smoke진단하네스를추가한다. active또는부분로그만으로PASS하지않고timeout/nonzero/다른runreceipt/compile실패를구분한다. 이미수행중인CLI/direct비교는각1회로끝내며새하네스추가때문에실제Editor재실행하지않는다. 제품API/라이선스확인/실행gate변경없음.
+
+- 배치27 A 최종검증/블로커: CLI새project비교1회는timeout180초/actualCLIexit6/181.47초,validator exit2,receipt/marker없음,CS compile오류0/IPC부재5회. direct1회는timeout210초/124/210.05초였다. 실제Editor smokePASS가없어A DEFERRED_ENV,복구미완료다. 확인된관측층은protocol505/Clientglobalmutex거부와Editorchannel부재이며누가mutex를유지하는지까지확정하지않는다. 공식명령옵션에서안전한수정근거가없어추가수정시도0/최대2,Hub/라이선스/계정/전체프로세스조작없이대기로전환한다. B현재Player NOT_RUN,C전체Strict호출0/DEFERRED_ENV,T01PARTIAL유지. D는제품변경없이경계감사·최대2후보·회귀설계를수행하고E독립검증/CI/FF인계를계속한다.
+
+- 배치27 A/E 검증: 새순수진단계약6단위PASS/skip0(licenseactive만으로PASS거부,timeout부분결과/비영/foreign·duplicate receipt/compile실패/원본payload비공개). raw실행2건을새판정함수로read-only재분석해둘다DEFERRED_ENV확인했으며Editor재실행은없다. staging147/currentSDKsource일치·PackageCache Notifications2.5.0/Newtonsoft3.2.2 확인. B준비검사는유효하나Player실행은A미충족으로NOT_RUN. 현재소스/API/wire검사·전체Python및별도Native/managed 회귀를E에서진행한다.
+
+- [P10-T02] 배치27 D 감사/설계 완료(REVIEW_ONLY): Native인증/UI/세션저장·구매계정/증빙/완료·Push host/등록/router·전송redaction경계를파일/함수/기존테스트로대조했다. 후보는Android bound-session codec/검증과Swift grant 응답decoder 두개뿐,추가회귀설계는NOT_RUN. Android두refresh flow의저장/profile순서차이와Swiftgeneration/MainActor·동일attempt retry/finish순서를보존하도록기록했다. Push는분리근거가충분해새후보추가없음. A차단/C미충족이므로제품변경0,T02완료승격없음. E전체회귀/새하네스CI연결/인계로이동한다.
+
+- 배치27 E 검증/커밋 전: Python전체149건PASS/skip0,새진단6건은Hosted inventory에연결했다. 원장64행·manifest50·meta·Core source/API/wire·actionlint·diff PASS,staging147/currentSDKsource·exactCache일치. A실제direct/CLI는각1회DEFERRED_ENV(124/6),다시실행없음. 공개정제IPC JSON·T02감사/설계를추가했고shipping제품/baseline파일변경0. 원본log/개인정보/라이선스파일은추적하지않는다. 진단도구는미래재개용이며이번실제비교는보존된artifact wrapper명령으로수행했음을분리한다. commit후고정source에서Core·Native·managed/mutation/self9를검증한다.
+
+- 배치27 A/E 커밋 직전: 두실제Editor비교DEFERRED_ENV·추가수정0·B/C미실행과raw보존/정제IPC JSON을기록했다. 신규진단하네스는6unit/전체Python149PASS·actionlint/API/progress검사PASS이며현재실패log재분석만추가(Editor추가실행0). 이진단/CI연결과A증거를독립commit하고D감사문서를다음별도commit으로남긴뒤고정source의E실행을수행한다. 공개에는원본Client/Hub/CLI로그·라이선스·개인정보를올리지않는다.
+
+- [P10-T02] 배치27 D 검증/독립 커밋 전: 책임감사문서의호출경로·후보2·기존testcase·미실행설계·선행차단근거를확인했다. T02원장은IN_PROGRESS/PARTIAL유지,감사활동만REVIEW_ONLY이며DEP-P10-T01을명시했다. 제품source/API/baseline파일변경0. A진단commit39a3076 이후이문서와진행기록만별도commit하고고정sourceE검증으로계속한다.
+
+- 배치27 E Core/API 실제검증: sourceffed5c2 tracked-clean의core-assertions-_jnkfd1a exit0/PASS. Kotlin10test/50helper,Swift12/122,managed0test/check1/418(198normal+220expected),duplicate정상2/0→변이부분1/nonzero→원본hash동일/정상복원418,분기419/추가OFF0ON1,stress100samples/316. Editor는include하지않아NOT_RUN. 보존batch26artifact의shipping79hash·UPMmanifest/checksum147·javap3class·Cexport4개양slice현재재대조PASS(새build아님). E뒤이은Native회귀는같은shipping code이며현재미커밋변경은이결과문서뿐이다.
+
+- 배치27 E Native 검증/커밋 전: ffed5c2와같은shipping79hash(전후실측동일)에서Android선택Core/session·auth·purchase·push fake JUnit42건/실패error skip0·Gradle0,Swift선택Native/session/store/push XCTest38건/실패skip0·exit0. 현재미커밋은결과문서뿐이며실제OS/Provider/Player실행은아니다. lifecycle100samples/liveClient·Transport0·helper316 및API/선정ABI대조도기록한다. 이독립회귀증거commit후새격리DB/role의self9만수행하고전체Strict/Editor/Player는A미충족으로재실행하지않는다.
+
+- [P09-T08] 배치27 E self검증/커밋 전: sourceb540e7b tracked-clean의새DB/role에서self-only9/9PASS/exit0(harness-self-natvatov,strict-isolated-sj48fr5f),tests47/의도negative3/checks9/예상외failure0/skip0. checkererrors null은미측정으로보존,fullStrict호출0·Simulator/Player생성없음. Core/Native/ABI·자가시험정제JSON을추가했다. repository CodingBot000/GameBridge_SDK public,변수0/runner0 정상API응답확인;remotehandoff CF276b7이local조상(0behind/3ahead). 모든소스commit후증거/문서를scan하고FFpush/falseHosted1회를요청한다.
+
+- 배치27 E push검사/커밋 전: cf276b7이후4commit gitleaks exit0/탐지0,13개text경로에제품/baseline변경·key/서명/Unitylicense/원본log/cache/binary/산출물없음. PII후보3개는기존원장/로그의변경없는synthetic설명2개와새sanitizer시험용invalid-domain값1개뿐이다. 첫전파일패턴검사는기존기록후보를신규후보로보아assertionexit1이었으며line별기준source대조로확인했다. 전체Python43module/149건확인,Actions변수정상응답0/runner0. 현재commit후handoffFFpush/falseHosted단1회만실행한다.
+
+- 배치27 E FFpush 검증/Hosted Task 시작: local/remote handoff HEAD50cd34c2f3c97eca36708d4a2ed377da392247d7 일치,cf276b7→50cd34c FF성공. 코드/테스트/CI변경모두commit됐고기존미추적3경로외tracked clean. repo변수정상응답0재확인. release_validation=false Hosted-only1회를지금요청하며Unity/Release최종SKIPPED확인전전체원격PASS로기록하지않는다.
+
+- 배치27 E Hosted dispatch1회수락: run44057317769/source50cd34c2f3c97eca36708d4a2ed377da392247d7,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44057317769 . 현재in_progress,최종결과대기이며추가dispatch/재실행/runner등록/Release활성화없음. 직전push검사문구의경로개수오기를실제audit13개로정정했다(관측실패삭제없음).
+
+- 배치27 E 원격중간검증: run44057317769/source50cd34c,inventorySUCCESS·공식joblog43파일/149건PASS/FAILED요약0·신규진단6건연결·Core source/API/wire gatePASS. UnitySKIPPED. 나머지Android/Backend/Swift 및basic/Release최종상태는대기하며전체PASS로선기록하지않는다. 원격재실행없음.
+
+- 배치27 E 원격중간검증2: Android/Maven·R8와Backend최종SUCCESS,공식Backend로그에Testcontainers11건/의도mutationfailure1·정상복원receipt확인. Swift package fake stepSUCCESS이나syntheticSimulatorhost는아직진행중,전체job/Basic·Release최종상태대기. 단일dispatch유지. 별도조회에서오입력job ID의404는현재workflow실패가아니며공식run metadata의실제Swift job ID로상태를다시대조했다.
+
+
+- [P09-T07] 배치27 E 최종검증/문서커밋 전: 단일run44057317769/source50cd34c2f3c97eca36708d4a2ed377da392247d7,release_validation=false전체SUCCESS. Hosted4+basic SUCCESS,Unity/Release SKIPPED,inventory43파일/149건·진단6건·CoregatePASS를공식job/로그로확인했다. A/B/C환경대기·T01/T02PARTIAL·P05FAIL/ENV26OPEN/18.6간헐위험/Provider13WAIT/self-hosted미검증유지. 최종문서에모든commit/source/미실행·UNMEASURED를구분하고앞선경로개수오기13으로정정했다. 제품/test/harness/workflow는CI소스이후변경0,이문서만scan·commit·handoffFFpush후local/remoteHEAD및미추적3경로보존을확인한다. 추가원격실행없음.
+
+- 배치27 E 최종문서검증/커밋 직전: 원장/manifest/meta·두API/source baseline·정제JSON·diff검사PASS,CI이후제품/harness/test/workflow변경0. IPC JSON의124는direct실제Editor반환값이아닌outer timeout wrapper코드이고CLI6은실제CLI반환값임을명시했다. 두경로Editor child 종료값은미수집/UNMEASURED로분리했다. 최종문서와정제증거만명시stage·secret/생성물검사후commit/FFpush하고실제HEAD일치및Git상태를보고한다. 새실행/승격/재dispatch없음.
+
+- 배치27 최종커밋 직전: staged8개는Markdown/정제JSON문서뿐,secret검사exit0/탐지0·binary/원본로그/서명/license/build산출물없음. CI이후소스변경0,원장/두APIbaseline/diffPASS. 마지막문서commit후전체batchrange scan·handoff FFpush와remoteHEAD일치를검증하고,기존미추적Demo/cache만보존된Git상태를최종보고한다.
+
+- [P10-T01] 배치28 A 시작: 지시문·AGENTS/START_HERE·마지막원장/로그·branch/HEAD3955e4e/기존미추적3경로를확인했다. 문서의사용자Editor정상실행확인에대해사용자가“네가 정상실행 확인해줄수있나?”로확인을위임했다. 새전용project direct실제smoke1회로receipt/marker/exit를판정한다. 단순CLIactive는PASS아님. 실패시Player강행/반복없음;T01완료시에만C1/C2순차변경. 버전조회/실행/결과기록후독립검증과명시FF인계까지진행한다.
+
+- 배치28 A 관측/독립D 시작: Hub3.22.6/CLI1.0.0-beta.13/Editor6000.5.8f1,HubClient1.18.3+d7ffd15를read-only확인했다. EditorClient bundle표시1.2.0과실제실행Client product version1.18.1+9fbee8e는서로다른metadata로분리한다. 새direct smoke1회진행중IPCtimeout/receipt부재관측,최종결과대기. 이대기동안실제Editor·라이선스·사용자기기를조작하지않는D전체Python/API/staging검사를독립수행한다. B/C제품진입조건은아직미충족이다.
+
+- 배치28 D 독립검증: Python전체149건PASS/skip0(15.830초). 원장64행·manifest50·meta·두API/source/wire baseline·staging147·actionlint·diff exit0. 실제Editor는IPCtimeout/receipt미생성상태로아직verdict대기이며unitPASS를EditorPASS로바꾸지않는다. 제품/하네스/테스트/workflow변경0,미커밋은배치시작/검증문서뿐이다.
+
+- 배치28 A 최종검증/블로커: 위임된direct smoke1회는210초timeout/진단wrapper124·검증exit2(DEFERRED_ENV),receiptCorrelated=false/marker0/compile오류0. 실제Editor child종료반환값은미수집UNMEASURED로구분한다. 이번실행이시작한Client PID로그만read-only대조해mutex획득실패를확인했고productversion1.18.1+9fbee8e이다. 원본artifacts/unity-editor-smoke-w2bupii_와정제JSON보존,라이선스/계정/기존프로세스조작없음. B현재Player/R09플랫폼영향NOT_RUN·fullStrict0/DEFERRED_ENV,T01PARTIAL유지. C1/C2제품진입은선행미충족으로미실행이다. D독립Core/Native/자가시험·E문서/FF인계를계속하며동일Editor재실행없음.
+
+- 배치28 위임된Hub일반실행확인: CUA로Hub3.22.6의새전용artifact project만Add project from disk→해당project(6000.5.8f1)열기를1회수행했다. 실제Unity6000.5.8f1창/Scene·Hierarchy(Main Camera/Directional Light)·Project·Inspector정상UI를확인(PASS_UI_SCOPE)했고CUA결과확정후completion기록했다. 기존사용자project/계정/Cloud연결/라이선스설정변경없음;검증용GUIEditor는열린상태로보존한다. 앞선direct batchtimeout은삭제하지않고A자동receipt조건미충족으로B/Strict/C진입보류유지,추가자동smoke0회.
+- 배치28 실제관측부작용: 새GUIEditor상태바에Multiple ADB server instances 및다른SDK인스턴스종료경고가표시됐다. 에이전트가ADB kill/restart/설치·네트워크명령을호출하지않았으나Unity시작의자동동작관측이므로ADB상태완전불변이라고주장하지않는다. 대상SDK/프로세스/기기영향은미확정이며확인없이추가ADB조작하지않는다. 사용자에게commentary로알렸고정제JSON에분리기록했다.
+
+- 배치28 A/D 커밋 직전: 실제direct1회실패와HubGUI1회정상UI를서로다른scope로공개정제기록했다. 자동receipt/B/Strict/C조건미충족·실제ADB시작경고미확정도유지한다. Python149·문서/두API/staging/actionlint/diff통과,제품코드변경0. 이관측/설정인계를별도commit후고정source독립Core·Native·자가시험을검증한다. 원본화면/개인project목록/원시log/라이선스는commit하지않는다.
+
+- 배치28 D Core 검증: commit4d58d13 tracked-clean의core-assertions-7b_9fhgq exit0/PASS. Kotlin10/50helper,Swift12/122,managed418(198normal+220expected),복원418/branch419,stress100samples/helper316 및정확duplicate-only변이감지/원본hash복원확인. Editorinclude없음/JNI실제Player assertion UNMEASURED. 보존artifact의현재79source/checksum·javap3class/Cexport4x2재대조PASS(새build아님). Nativeauth/purchase/push회귀와self9는동일shippingcode에서계속한다.
+
+- 배치28 D Native 검증/커밋 전: source4d58d13과동일shipping79hash전후실측에서Android선택session/auth/purchase/push JUnit42건/failure0/error0/skip0/exit0,Swift38건/failure0/skip0/exit0. 미커밋은결과문서뿐이며실기기/스토어/푸시서비스통과가아니다. 현재5037 listener PID68316을lsof/ps로만읽었고사전owner/종료대상은UNMEASURED;ADB실행/서버조작없음. 이결과문서commit후새격리DB/role self9만수행하며fullStrict/Player/추가Editor실행없음.
+
+- [P09-T08] 배치28 D/E 검증: self source2737429c873e272b1576b519e709582670cf75ac tracked-clean에서새격리DB/role self-only9/9PASS/exit0(artifacts/harness-self-ewkzqy1d,strict-isolated-9y2p_lsi). tests47/의도negative3/checks9/예상외failure0/skip0,checkererrors미측정유지. self-only로Simulator/Player/전체Strict없음. 이번제품/harness/test/workflow/baseline변경0이라E조건의Hosted추가dispatch0/NOT_RUN,기존배치27CI는역사증거로만유지한다. 현재local/remotehandoff는FF가능(0behind/2ahead),repo public CodingBot000/GameBridge_SDK확인. 정제회귀JSON·상태/다음행동·최종보고를갱신하고scan/commit/FF인계를마친다.
+
+- 배치28 E 최종검증/커밋 직전: 공개문서/정제JSON만변경,제품/harness/test/scripts/workflow/baseline diff0. 정제JSON두개parse·원장64행·API/source/wire·metadata/manifest/diff검사PASS,Python149·Native42/38·Core/managed418·self9의scope를분리했다. 일반GUI정상과자동batch실패·ADB경고미확정·미실행B/Strict/C1C2·추가CI0을정확히기록했다. 원본log/화면·사용자project목록·라이선스/서명/빌드산출물을제외하고명시stage/scan/commit/FFpush후localremoteHEAD와Git상태를검증한다.
+
+- 배치28 E staged검증/커밋 직전: 명시stage8개는문서/정제JSON뿐이며gitleaks exit0/탐지0,binary/원본log/서명/license/생성물없음. baseline이후전체변경도문서10경로뿐이다. 마지막인계commit후전체범위scan→handoff동일branch FFpush→실제local/remoteSHA와tracked clean·기존미추적3경로보존을조회한다. GUI검증project는열린상태로남기며ADB추가명령/새Editor/Player/CI실행없음.
+
+- [P10-T01] 배치29 A 시작: 지시문·AGENTS/START_HERE·마지막원장/로그와branch/HEAD7fe7c4a/기존미추적3경로확인. GUI가열린전용artifact project만대상으로test-only메뉴를구성해실제C#컴파일·nonce/버전/소유경로·Unity객체생성/정리·메서드도달receipt를검증한다. batch전용Application.isBatchMode조건과GUI를구분하고새장시간batch는실행하지않는다. 이후현재소비projectGUI Player빌드,ADBread-only/전용기기소유증명조건부E2E,미충족시T02독립정상음성test까지연속수행한다.
+
+- 배치29 A 구현/검증·커밋 전: test-only GUI메뉴는실제UnityEngine객체생성/Transform조회/DestroyImmediate7조건과nonce·버전·projectpath·scriptSHA·Editor assembly/PID·시간receipt를검사한다. parser는GUI범위만PASS하며batch/Player로승격하지않는다. 누락runtime증거·stale source/nonce/script·다른project/version/batch·부분실패receipt음성5단위PASS/skip0,CI연결완료. 전용artifact project만준비하는명시도구를추가했다. 소스commit후기존열린project에복사·컴파일하여GUI에서메뉴를실제로실행한다. 제품SDK/라이선스/장시간batch수정없음.
+
+- 배치29 A 실제GUI컴파일 최초FAIL: test-only GameBridgeGuiVerification.cs의GetInstanceID가Unity6000.5.8f1에서CS0619(Use GetEntityId instead)로거부됐다. 신규메뉴미노출/메서드NOT_RUN,SDK제품회귀FAIL로분류하지않는다. 로그조회는실제GUIlog경로와default로그를구분한다. UnityEngine객체이름·active/Transform·DestroyImmediate검증으로호환수정하며조건7개/nonce/proof를약화하지않는다. 수정시도1회,원본실패보존.
+
+- 배치29 A 실제GUI 검증PASS: source dcc0b4c,nonce7bbe2cf1b06d4612be219d88ac488fb2,Editor6000.5.8f1/PID68110/Assembly-CSharp-Editor의RunProbe가실제메뉴로컴파일·실행됐다. 소유project/메서드/scriptSHA/nonce/time/receipt·freshlog1회검증,실제UnityGameObject이름/active/Transform·DestroyImmediate7조건통과. tests0/check1/enginechecks7,GUI범위PASS이며batch/PlayerNOT_RUN이다. 최초test-onlyCS0619실패/수정1회는보존했다. BcurrentSDK새소비project GUIbuild로계속한다.
+
+- [P10-T01] 배치29 B/C 입력계약 설계·구현 시작: A GUI실제메서드PASS에따라현재staging147/source/API·Maven/XCFramework/cache를확인한새소비project를준비한다. test-only메뉴가project내비밀아닌출력설정을검증하고기존BuildMockPlayer.Build를변경없이호출한다(환경값은그Editor프로세스에서만일시전달/복원). GUI APK를실제E2E에쓸경우명시receipt입력으로만허용하고nonce/source·147manifest·builder/scenario/log·APK SHA/size를엄격검사하며기존CLI실패→성공fallback은없다. B/C 실제빌드/실행은아직NOT_RUN이다.
+
+- 배치29 B/C 계약 검증/커밋 전: GUI Android메뉴는147패키지파일·builder/scenario/adapter SHA를실제검사후기존BuildMockPlayer를그대로호출하고실제APK size/SHA·원본빌드return·로그nonce를기록한다. GUI용명시입력은APK hash/크기/신선도/소유path/symlink/sourceancestor및보호SDK·scenario diff0/currentstage147·정확cache·원본빌드marker를검사하며,실패입력은ADB/DB전즉시차단하는음성단위추가. 기존CLI기본경로와Backend/원장/marker/PII검사본문은유지했다. unit통과후commit된source로새소비project준비·GUI빌드를진행한다. 실제B빌드/C실행은아직NOT_RUN이다.
+
+- 배치29 B 실제GUI Android빌드PASS: source7263444/nonce85e0d5036b344ac7b90ef95da9cb035f,새GameBridgeGuiAndroidB29 project에서Androidtarget전환후기존BuildMockPlayer.Build를실제호출했다. originalBuilderReturned=true,packageFilesVerified147,APK27072192bytes/실제SHA·원본GB_MOCK_BUILD PASS·freshnonce시작/완료로그·project/source/staging/cache·builder/scenario/adapter SHA입력계약모두재검증PASS. tests0/check1/players0,CLI/batchPASS아님. 이전probe전용Editor만정상Quit했고새소비project는Hub로열었다. C는5037owner/동일ADB실행경로·전용AVD/PID양port소유입증후에만진행한다.
+
+- 배치29 C 안전경계 구현/검증·커밋 전: GUI APK소비경로는명시emulator PID/이름/serial/양port와기존5037 serverPID·동일SDK adb실행파일을모든ADB호출직전에재검증한다. 다른기기/SDKclient·server kill/start명령·owner변경은실행전차단하며실패입력의ADB/DB도달0을확인했다. 신규GUI계약15건및기존emulator binding5건PASS/skip0,CI연결했다. 기존CLI모드/Player결제원장·PII·callback검사본문은유지한다. 실제C조건부실행은새전용AVD소유입증후1회수행하며기존서버를기동/종료하지않는다.
+
+- 배치29 C 실제Android E2E FAIL/exit1: GUI APK입력검증·새AVD부팅(PID80979/serial5590/이름/5590·5591양port소유)·기존Unity SDK ADBserver79436同경로가드·설치Success·Activity Status:ok까지통과했으나180초내Player완료marker가없어UNITY_PLAYER_RESULT_TIMEOUT(artifacts/unity-android-e2e-eb3lua0b). batch빌드실패와다른실제실행FAIL로보존한다. CUA가Qt Emulator를제어가능앱으로노출하지않아UI확인/조작은불가했고UI원인으로단정하지않는다. 원본DB/AVD/로그보존,controller는자기emulator만종료,이후serialbinding없어추가ADB조회안함. DBread-only확인첫시도는prefix검사에서실행전중단됐고실제producer의gamebridge_ci_10hex규약대조후해당신규DB만조회했다. 근거없는동일실행반복없음. D제품변경은보류하고독립후보정상/음성test를진행하며iOS는별도GUIexport가능성을확인한다.
+
+- [P10-T02] 배치29 D 독립test 구현 시작: Android실행timeout으로T01완료조건미충족/PARTIAL이므로codec/decoder제품변경은하지않는다. 기존Nativeauth/HTTPSink 경로에저장binding/잘못된session/저장실패순서,GRANTED·ALREADY_GRANTED/잘못된grant/다른account/로그아웃후늦은HTTPgrant를정상음성case로구현한다. fakegateway/URLProtocol만사용하고실Provider·finalization정책변경없음. 전체Native149/self9를관성적으로반복하지않고변경된AuthProvider testclass와GUI하네스영향을검증한다.
+
+- 배치29 D test 검증: Swift AppleAuthProviderTests20건/실패skip0/exit0(신규grant정상·잘못된응답/다른account·logout후늦은HTTPgrant거부포함). Kotlin첫호출은ANDROID_HOME미지정으로task의존성계산단계exit1/테스트0건이었다. 소스/assertion수정없이기존설치SDK경로를해당subprocess환경에명시해재검증한다. 최초환경실패원본보존,성공으로위장하지않는다.
+
+- 배치29 B/C iOS 독립검증 시작: Android timeout을iOS결과로확대하지않고새전용iOS소비project에서기존BuildMockIosPlayer를GUI메뉴로호출하는export경로를구성한다. 출력설정은project-local/비밀아님,현재147패키지·builder/scenario·exporttree/PBX hash/nonce로그를검사한다. 원본Builder/SDK/finish정책변경없음. export가실제성공하고입력계약을검증한경우에만새ownedSimulator/DB로기존iOSE2E의원장·callback/PII검사를그대로진행한다. 아직iOSexport/Player NOT_RUN.
+
+- [P10-T02] 배치29 D 실제독립회귀/커밋 전: Android GoogleAuthProviderTest18건(신규3)/failure0/error0/skip0/Gradle0,Swift AppleAuthProviderTests20건(신규2)/failure0/skip0/exit0. stored binding/잘못된credentials의network전거부·profile후save실패순서,정상grant2status/잘못된grant·account및logout후늦은HTTPgrant CANCELED를실제주입경로로검증했다. SDK제품/refactor/finish순서변경0이며T02전체완료아님. 기존동시refresh/tombstone/같은idempotency retry회귀도같은class에서유지됐다. Swift20class를Hosted필터/required suite 검사에연결했다. Kotlin최초SDK설정실패는보존.
+
+- 사용자 요청 안전중단/커밋 직전: 현재빌드/Player/시험Backend·Gradle/Swift testcase진행없음,ownedemulator80979/controller종료·AVD/DB/로그보존,Android소비GUI79170은idle로남긴다. 미완료iOS helper/준비·export입력계약·음성4건은Python syntax/GUI단위19PASS를확인한코드상태로localcommit하되실제iOS컴파일/export/PlayerNOT_RUN이다. 신규unit을Hosted연결했지만아직CI미실행. docs/evidence/p10-batch29-resume.md에모든source/nonce/artifact·실패/미실행·재개명령·금지조건을기록했다. 이번push0/dispatch0,네트워크작업시작없이pause한다. T01/T02PARTIAL/기존FAIL·외부대기유지.
+
+- 중단기록검증: 문서작성의첫호출은마지막PROGRESS머리말갱신전에import re 누락NameError로멈췄다. 이미기록된체크포인트/실패·unit결과는보존하고머리말/USER_SETUP만정정완료했다. 원장검사·Python문법·새iOS4음성/정상unit은exit0. 실제iOSGUI실행/전체회귀는미실행으로명시한다. offline secret검사후로컬중단commit만남기고정지한다.
+
+- 중단전offline secret검토: version명시go-run은deprecation metadata lookup차단으로실행불가였다. 캐시source 직접실행으로6commit전체scan은exit1/finding2. 모두b1e3c73 candidate-tests.json18/19의testSourceHashes값이며실제Kotlin/Swift test파일SHA256과독립계산일치→credential아닌metadata오탐확인. publicJSON은path/sha256배열로정리했고기존이력/실패를삭제·amend/ignore하지않았다. rawexit1과정확재검토근거를resume문서에기록했다. 네트워크/push/CI없음.
+
+- 사용자요청중단확정/최종localcommit전: 마지막staged문서offline gitleaks exit0/탐지0,원장/diff검사PASS. 이전6commit scan의2개sourcehash metadata오탐은별도근거/exit1그대로보존했다. 현재활성시험/빌드/Player없음,새네트워크/push/CI없음. 사용자재개지시전작업을진행하지않으며resume문서의정확한다음명령에서시작한다.
+
+- 사용자 재개 지시 수신: HEAD953a5a5/동일handoff/기존미추적3경로보존·중단문서/AGENTS/START_HERE/원장/로그대조완료. 사용자요청pause는해제됐다. 기존Androidtimeout·GUI APK/후보test PASS는보존하고새근거없는재실행없음. 현재Editor·5037owner는read-only로새로조회했으며과거PID/AX index재사용하지않는다. 다음미실행iOS GUI소비project준비→실제컴파일/export입력검증→가능시별도Simulator E2E·E검증/명시FF/Hosted1회로이어간다.
+
+- 배치29 재개 iOS 실제GUI export PASS: source953a5a5/nonceb0626c0dfa914789b0fe2eee01d2a3af,새GameBridgeGuiIosB29를Hub로열고실제iOS target전환·기존BuildMockIosPlayer.Build를GUI에서호출했다. 원본Builder return/147SDKfiles·script/adapter/scenario·PBX/exporttreeSHA·nonce로그·현재source보호경로diff0입력계약검증PASS. tests0/check1/Player0,GUIexportPASS는batch나Simulator실행PASS가아니다. 이전Android전용GUI만정상종료했으며사용자project/라이선스/기존기기를조작하지않았다. 이제해당검증된export로새Simulator/DB의기존E2E를독립1회수행한다.
+
+- 배치29 iOS GUI입력 의존성검사 보강/커밋 전: 실제export PASS후E2E소비계약을점검해iOS에도정확embedded Notifications2.5.0/Newtonsoft3.2.2검사를명시하고summary에보존했다(기존Android같은검사공유). 잘못된version음성unit포함GUI20단위PASS/skip0. C#Builder/SDK/export바이트변경없음,receipt빌드source953a5a5는보호경로diff0인현재harness/doc후속commit의ancestor로기록한다. 실제Simulator실행은아직미실행이며commit후시작한다.
+
+- 배치29 iOS 실제Simulator E2E PASS/exit0: sourced543556 tracked-clean,GUIexport buildsource953a5a5와보호SDK/scenario바이트동일성검증후Xcode ad-hoc Simulator build·C ABI4symbols·새Simulator/DB·initialize/login/products/purchase/wallet/logout 및PII24marker·Backendtrace·원장1/delta100통과(artifacts/unity-ios-e2e-c4qqwuvs). 실Apple/스토어/APNs아님. receipt의UUID8D737ECF-CD32-4069-A64D-30D3D5176210와새DB suffix로deviceName소유를대조한뒤해당기기만shutdown/데이터보존,다른Simulator조작없음. AndroidFAIL과합치지않는다.
+- 배치29 E 영향하네스최종회귀: 코드변경이있어전체Python을최종1회수행,169건PASS/skip0(18.793초). 이번에전체Native·self9/Strict를관성재실행하지않았고이전증거와구분한다. 원장/manifest/meta/API-source-wire/actionlint/diffPASS. T01은AndroidFAIL/나머지미실행조건때문에PARTIAL이며T02제품refactor진입없음,독립신규tests만PASS다.
+
+- 배치29 E 입력경계검토·검증: GUI용ADBguard dispatch가configured client의basename만검사하면renamed실행파일로빠질수있는경로를발견해configured실제path도검사하도록보강했다. subprocess전거부unit추가. PII주scenario뿐아니라보조PiiProbe/link.xml의현재checkout일치도양GUI입력에서검사하고변이음성추가. 실제두소비project보조소스일치확인,GUI22단위PASS/skip0. 실제실행은원래동일SDK의adb·원래보조소스였으므로이두보강으로플랫폼E2E를반복하지않는다. SDK제품/기존검사약화없음. 변경된harness최종전체Python을다시검증한다(이전169PASS도보존).
+
+- 배치29 E 현재결과/커밋 전: A GUI컴파일메서드·AndroidAPK·iOSexport와실제iOSPlayer는PASS,AndroidPlayer는timeoutFAIL로보존,StrictNOT_RUN·T01/T02PARTIAL. 후보제품변경0/신규test3+2는18/20class에서PASS,GUI22/전체Python171 PASS와이전169PASS를분리했다. API/source/wire·manifest/meta/actionlint/diffPASS. source별정제JSON/인계문서를갱신했다. 원격repo public/변수0/runner0/behind0 ahead9 확인,전체이력scan실제exit1의2finding은정확한b1e3c73 test-sourceSHA metadata와재계산일치(신규finding0)로review,원래이력삭제/ignore없음. 문서commit후명시handoffFFpush/falseHosted1회만수행한다.
+
+- 배치29 E push전검사/커밋 전: 전체변경경로는text의하네스/test/CI·정제문서뿐이며SDK제품/contract·binary·금지키/서명/license/원본로그/캐시/APK/Xcode산출물delta0. PII gate첫검사는기존harness합성identity설명을새후보로보아중단됐고기준source같은line/invalid-domain값대조로검토했다. 모든후보는변경없는합성fixture/설명이다. gitleaks는정확히b1e3c73 sourceSHA metadata2건오탐만재확인(실제exit1보존),새finding없음. repo public/변수0/runner0·FF이력확인. 이문서commit후handoffFFpush,새소스와test를포함한falseHosted단1회로검증한다.
+
+- 배치29 E FFpush 검증/Hosted 시작: local/remote handoff HEAD3fd95f459355d5abdab98ff9c622a7bd5675d0d1일치,7fe7c4a→3fd95f4 FF성공. 코드/test/CI변경모두commit됐고기존미추적3경로외tracked clean. 변수정상API응답0을재확인했다. release_validation=false Hosted-only단1회를지금요청하며최종job결과대기전원격PASS로기록하지않는다. runner등록/main/force/Release실행없음.
+
+- 배치29 E Hosted dispatch1회수락: run44096116650/source3fd95f459355d5abdab98ff9c622a7bd5675d0d1,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44096116650 . 현재진행중이며최종결과대기,추가dispatch/재실행/runner등록/Unity활성변수변경/Release없음.
+
+- 배치29 E 원격중간검증: run44096116650/source3fd95f4 inventorySUCCESS,공식job로그47파일/171건PASS/FAILED요약0와GUI4모듈연결확인. UnitySKIPPED,나머지Hosted/basic/Release최종상태대기이며전체PASS선기록없음. 단일dispatch유지.
+
+- 배치29 E 추가정적관측: 보존APK의arm64 libgame/libmain/libunity/libil2cpp·manifest UnityPlayerGameActivity/native lib=game을read-only대조했다. 현재자료에서해당누락/mismatch가관측되지않았다는범위이며timeout원인/정상실행증명아님,추가device실행없음. 원격Android/Backend SUCCESS,Swift package단계SUCCESS·host시험대기,코드변경/추가dispatch없음.
+
+
+- [P09-T07] 배치29 E 최종원격검증/문서커밋 전: run44096116650/source3fd95f459355d5abdab98ff9c622a7bd5675d0d1,false입력1회전체SUCCESS. Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED. 공식Python47모듈171/Swift37(후보20포함)/TC11·의도변이1및정상복원확인. 신규code/test모두검증source에포함됐고이후문서변경뿐이다. AndroidFAIL/Strict미실행·T01/T02PARTIAL·P05FAIL/ENV26OPEN/18.6위험/Provider13WAIT/self-hosted미검증보존. 단계별source·모든commit·남은작업을최종문서에기록후stage scan/localcommit/handoffFFpush와localremoteHEAD/미추적보존을검증한다. 추가dispatch없음.
+
+- 배치29 E 최종stage검증/커밋 직전: 명시11개파일은Markdown/정제JSON문서뿐,staged gitleaks 실제exit0/탐지0·diff0오류. 전체이력의b1e3c73 sourcehash2건오탐(actualexit1)은별도재계산근거로유지했다. 원장64행집계22구현/42진행·local20PASS/1FAIL/43PARTIAL일치. CI이후code/test/harness/workflow delta0. 마지막문서commit후handoff동일branch FFpush/localremoteHEAD·tracked clean/기존미추적3경로보존을확인한다. 추가CI/실기기/Provider/Release실행없음.
+
+- [P10-T01] 배치30 A 시작: 지시문·AGENTS/START_HERE/원장/마지막로그·branch/HEAD2c8e7a7/기존미추적3경로대조완료. B29 원본/소비scenario/builder/harness와B25PASS를읽고설치/Activity·process/runtime/Scene/Awake/Start/intent/SDK객체/init/callback/HTTP를분리한다. 첫marker가init완료뒤라는코드상한계를확인했으며Start미도달로단정하지않는다. 원본을보존하고필요한진단만추가→새GUI APK·새전용AVD1회,원인별수정후최대1추가실행조건을지킨다. SDK제품/timeout/성공조건/서버/타기기변경없음.
+
+- 배치30 A 대조결과: B25/B29 모두Unity6000.5.8f1 serializedversion/arm64IL2CPP·같은선택PlayerSettings와동일Pii scenario SHA,Scene에올바른script GUID참조확인. libmain/libc++동일이지만libunity/libgame/libil2cpp/swappy바이트는달라전체Native동일로주장하지않는다. debugger대기/nativeWait0 등선택boot옵션동일,build GUID/network주소는공개제외. B29설치/Activity응답확인외실제PID생존·Scene/Awake/Start/intent/SDK/init는UNMEASURED,emulator VkInstance관측은graphics호출부분증거뿐이다. initialize는HTTP없고첫dev-auth는SignInAPI뒤이므로DB0을Start미도달로단정하지않는다. B의조기단계/다중로그관측이필요하다.
+
+- 배치30 B 구현 시작: Android전용표준/PII/UTF8소비scenario에실제Awake/sceneIndex·Start/focus/pause·intent존재/유효성(bool만)·SDK생성·init호출/반환/예외·첫auth API직전marker를추가한다. 제품SDK/await순서/완료시점/기존성공·실패marker는바꾸지않는다. 하네스는동일소유guard하의PID생존·resumed/focus·모든logcatbuffer/AndroidRuntime/ANR/native-load·UI hierarchy·Backendhealth/첫trace관측을ignored raw와정제범주로분리한다. 로그수집불가를정상으로판정하지않는다.
+
+- 배치30 B 진단계약검증/커밋 전: startup진단8건/GUI입력7건PASS/skip0(무marker는UNMEASURED,init호출과반환구분,package crash/ANR·knownSystemUI증거,raw비공개/secretredaction·PID종료관측·log수집불가거부·HTTP첫관측시간미위조). 원래180초deadline은Activity응답직후로유지해진단수집으로대기창을늘리지않는다. defaultCLI옵션은유지하고 --startup-diagnostics를명시한다. 새marker는고정point/유효성bool/engineelapsed뿐이며기존성공/실패조건·SDK/await순서변경0. CI연결및별도GUI projectlabel검증추가. commit된source에서새B30A소비project/APK를준비한다.
+
+- 배치30 B/C 전검증·커밋 전: 새계측GUI APK가실제원본Builder로생성됐고147package·source/scenarioSHA·nonce로그·APK크기/hash·현재입력계약재검증PASS. package crash판정은FATAL/해당Process 또는해당Native tombstone을요구하도록구체화했고optional UI idle timeout은UNMEASURED/124로표시하되소유권실패는전파하는음성추가(진단9건PASS). mandatorylog/PID수집실패는여전히E2E성공불가다. SDK제품/await/원래성공/timeout조건변경0. commit후새전용AVD1회진단실행을시작한다.
+
+- 배치30 C 첫진단재현 관측/블로커: 앱PID4639생존·Activityresumed·Unity Initialize engine version/PlayerInitEngineGraphics OK가실제allbuffer로그에있으나Awake/Start marker없음·Backendtrace0. NativeFocus lost이후UIhierarchy의framework package android에Viewing full screen/To exit swipe/Got it 안내가실제존재했다. 초기detector의SystemUI전용조건이이를False로놓친문제(진단하네스)를android도허용하도록수정/음성검증했고focusfield부재는UNMEASURED로정정했다(원본보존). 이것은OS안내관측이며닫은뒤실제회복검증전SDK원인완전확정/PASS로표시하지않는다. Qt CUA표면한계로필요한정상UIack은사용자직접조작가능여부/이전용기기ADB UI입력명시요청을async문의했고답변전그조작을강행하지않는다. SDK제품변경0.
+
+- 배치30 C 최초진단실행 종료FAIL/exit1(UNITY_PLAYER_RESULT_TIMEOUT,artifacts/unity-android-e2e-pe_0tdqo). 원래180초marker판정뒤failure후속관측까지194.418초이며수락deadline은늘리지않았다. 전체로그/프로세스/Activity/UI가수집됐고마지막PID4639생존·UnityNative그래픽초기화·Activityresumed확인,Awake/Start/intent/SDK/init/HTTP는미도달관측. 실제Viewingfullscreen/Gotit의android소유UI와NativeFocusLost는새증거다. corrected detector true는원본을덮지않은별도재분석. OSguide정상ack뒤회복검증전원인완전확정/SDKPASS로기록하지않는다. controller는자기AVD PID94221만종료했고이후기기명령없음. UI조작응답대기중제품변경/동일재실행강행없음.
+
+- 배치30 독립호환성검증: 기존iOS actualPASS sourced543556와현재HEAD의UnitySDK·iOSSource/CABI·iOS공급scenario·공통PiiProbe/link소스gitdiff0확인. 이증거의동일제품범위는유효하나이번새iOS실행으로표시하지않고무조건재실행하지않는다. AndroidUI응답대기동안새SDK제품변경/Push/JNI/전체Native/self9/Strict를선행조건없이강행하지않는다.
+
+- 배치30 C/E 독립입력계약검증: framework android/SystemUI의고정Viewingfullscreen·정확히1개enabled Gotit·유효bounds만선택하는순수함수와음성4건PASS를추가했다. 다른app·권한prompt·중복/disabled/badgeometry는거부한다. 이코드는좌표식별만하며실제UI입력0,사용자응답전ACK를하지않는다. 변경하네스관련전체Python을검증하되조건미충족Push/JNI/CoreNative全/self9/Strict/제품refactor는아직미실행으로유지한다.
+
+- 배치30 E 독립최종회귀: 변경harness관련전체Python185건/49모듈PASS/skip0(16.813초),startup10·정상안내선택4음성/정상unit포함. API/source/wire·staging147·manifest/meta·progress/actionlint/diffPASS. 현재UIACK방식응답대기로추가E2E/Push/JNI/CoreNative/Strict는NOT_RUN·T01/T02PARTIAL유지. C첫실패는마지막확인Nativeengine/graphics+PID/Activity와최초미확인Scene/Awake/Start로분리했고UI안내ACK/인과회복검증은미실행이다. 독립순수selector는좌표만식별해실제입력0이며CI에연결했다.
+
+- 배치30 UI입력대기 체크포인트: 독립Python185·compile-only/API/staging검증은완료했으나정상OS안내ACK방식사용자응답전실제UI입력/추가C실행을하지않는다. 과거첫진단AVD는종료/원본보존,현재B30A GUI는idle. docs/evidence/p10-batch30-ui-handoff.md에사실/마지막확인단계/미측정/응답후최대1추가재검증과D/E순서를기록했다. 향후조건부코드변경이남아전체code/test최종commit후1회원격CI/push는아직시작하지않았다. 배치완료선언/사용자요청pause로오표기하지않는다.
+
+- 사용자 명시요청 수신(2026-11-18 Asia/Seoul): “이 전용 AVD에 한해 ADB UI 입력으로 안내를 닫아줘”. CUA대체기술범위가이전용재검증AVD의정확한비구속Viewingfullscreen/Gotit ACK에한해허용됐다. 다른app/권한/설정/서버조작허용아님. 새source/APK/새전용AVD·기존동일SDKserver/양port를재검증하고허용된추가E2E최대1회만진행한다. before/after UI·tap1/foreground/조기marker·Backend/원장을실측하고원본첫FAIL은보존한다.
+
+- 배치30 C 명시ACK구현/검증·커밋 전: --ack-known-fullscreen-notice는GUIreceipt/진단/소유바인딩이모두있는경로의명시옵션일때만작동한다. 실제freshXML의정상교육header·단일enabled Gotit/bounds만식별하고같은run guard를통해1회tap,전후XML/시간/exit·unattendedCI=false를기록한다. default입력0/권한·타app prompt입력0/단일정확serial좌표음성검증PASS. 실제UI입력은아직0이며허용된추가C검증을위해새B30B project/APK를생성한다. 기존첫FAIL·AVD·DB/로그보존,SDK제품/await/성공/timeout조건변경0.
+
+- 배치30 C 추가재검증 시작: 사용자명시전용ADB UI ACK요청범위에서새GUI B30B APK(현재source/147/nonce/hash검증)·새AVD B30_START_B_20261118_ACK·5594/5595·현재동일UnitySDK server98843을확인했다. 기존A/B29AVD·설치app/DB보존. 아래controller에서소유PID/양port/이름/serial을실측한뒤명시ACK옵션의E2E를1회만수행한다. 정상교육안내이외tap/권한/설정/서버변경없으며원래180초/기존auth-purchase-PII-원장조건유지. 허용추가1회를이실행에서사용하며더반복하지않는다.
+
+- [P10-T01] 배치30 C 재검증 PASS/exit0: source6f813a79ffe2b8b932a7b562f326613950c7d7fc·GUI buildsource c07a264/APK f8f402fd. 새전용AVD에서정확한Viewing full screen 안내를사용자허용범위로1회tap(exit0,14.528s). 동일PID4479에서focus회복·안내소멸·Awake/Start/intent/SDK/init반환/auth진입관측,첫HTTP22.937s·완료27.976s·PII포함marker34·Backendauth/catalog/entitlements/verify/logout·원장1/delta100 PASS. 일반OS안내가이재현의managed진입을막았음은전후실측으로확인됐으나B29원본UI미수집때문에과거원인을소급확정하지않는다. 무인CI PASS아님/실Provider미검증. controller는자기PID99860만종료·AVD/DB/원본보존,첫진단FAIL도유지. 정제증거p10-batch30-android-e2e-b.json. D Core/duplicate·API/ABI/source대조를시작하고Push/JNI/Strict자동경로의미충족조건은별도평가한다.
+
+- [P10-T01] 배치30 D Core 검증 PASS/exit0(artifacts/core-assertions-vkyulm0x,source6f813a7): Kotlin10건/helper50,Swift12건/helper122,managed checker1/helper418(정상198/예상오류220),stress100samples/helper316. duplicate-only 변이 process134 1회감지·정상probe0·원본SHA복원·복원418/분기419확인. 새Editor/Player/실Provider회귀와구분한다. Push는현재GUIreceipt 미지원의자동batch빌드전용,JNI는새UTF8 APK/설치없는전용기기·정상안내조작조건이남아 NOT_RUN/DEFERRED_ENV. 이미확인된batch실패를반복하거나설치보존gate/사용자ACK범위를넓혀우회하지않는다. Strict의자동batch정상선행조건미충족으로실행0/DEFERRED_ENV,T01/T02PARTIAL유지. C결과commit전원장명령첫호출은잘못된scripts/check-progress.py 경로라exit2였고실제scripts/verify-progress.py로정정검증한다(실패숨김없음). API/ABI/최종Python 검증을계속한다.
+
+- 배치30 E 검증 환경 정정: 최초 full Python은기본python3에jsonschema가없어module import1error/exit1(186loader항목)였다. 제품test실패가아니며원본final-python.log보존,이미준비된p01-schema-venv Python으로정확히같은suite를재실행한다. actionlint첫호출은PATH없음127,캐시binary 직접호출은기존custom self-hosted label 미등록오류1이므로기존허용label을명시한검증설정으로재검사한다(원본로그보존/워크플로우약화없음). 원장·API·manifest·meta·staging147검사는각exit0이다.
+
+- 배치30 D/E 결과/커밋 직전: 정확한venv의전체Python187건/49모듈PASS/skip0(16.309초),원장·API/source/wire·manifest·metadata·staging147·명시custom runner label actionlint 각exit0. 최초기본Python import실패와actionlint PATH/label실패는원본보존. 79shipping SHA·3Java class선정javap·양iOSslice Cexport4개가배치26보존artifact와일치,현재GUI APK source/receipt/147/hash 재검증PASS(새Native빌드아님). 현재iOS보호소스는d543556 실제PASS와diff0(새iOS실행아님). Core/duplicate 결과와환경상미실행Push/JNI/Strict를정확히분리했으며T01/T02PARTIAL·제품refactor0유지. 최종정제문서/보안점검/FF인계·falseHosted1회를이어간다.
+
+- 배치30 E 정제문서/커밋 전: 통합보고10항목·PROGRESS/WORK_LOG/USER_SETUP/FINAL_REPORT·source별JSON을현재결과로정리했다. 초기UI입력대기는사용자명시요청과실제1회ACK/PASS로해소됐으나과거이력보존. Push/JNI/Strict미완료·T01/T02PARTIAL/Provider13WAIT를명시하고재개조건을기록했다. 전체push범위scanner0/탐지0,이전범위1/기존SHA오탐2를독립재계산했고전체commit text/산출물제외·FFancestor·repo public/vars0/runners0확인. 명시stage/scan/commit뒤handoff FFpush·falseHosted1회수행한다.
+
+- 배치30 E 최종stage검증/커밋 직전: 명시stage6개는정제Markdown/JSON뿐이며실제staged blob복사scan exit0/탐지0,원장/diff검사PASS. origin handoff와0behind/9ahead·FF가능확인. 원본로그/키/서명/license/생성물/미추적Demo·cache는stage하지않았다. 모든code/test는이미commit됐으며이문서commit후전체push범위재scan→handoff동일branch FFpush→변수정상응답재확인후Hosted false1회만수행한다.
+
+- 배치30 E FFpush 확인/Hosted 시작: local/remote handoff HEAD a1cc004139193d175f6964cf11be7051f6e5b5f7 일치,origin2c8e7a7에서FFpush성공/exit0. 전체push범위secret실제exit0·탐지0,tracked clean·기존미추적3경로보존. 변수정상API exit0/vars0을다시확인했고모든code/test가원격source에포함됐다. release_validation=false Hosted-only 단1회를이source에서요청하며최종상태전PASS기록없음. 추가Unity/runner/Release활성화·main/force없음.
+
+- 배치30 E Hosted dispatch1회수락: run44115202057/sourcea1cc004139193d175f6964cf11be7051f6e5b5f7,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44115202057 . 현재 in_progress 이며결과대기,추가dispatch/재실행/runner등록/Unity변수/Release없음.
+
+- 배치30 E 원격관측: watch에서inventory-contracts SUCCESS/UnitySKIPPED를확인했으나전체run진행중job log조회gh exit1로아직공식Python합계재추출은미완료다. 원격결과를로컬187건으로대신채우지않고전체완료후로그를다시확인한다. 새dispatch/코드변경없음.
+
+- 배치30 E 상태해석 보강: 전체SDK의기존BLOCKED_INTERNAL판정을최신보고에도명시했다. Push자동batch환경미충족과GUIreceipt확장미구현(내부후속작업)을구분하며후자를사용자인증대기로넘기지않는다. 이번범위의Android회복PASS로T01/T02나전체SDK를완료표기하지않는다. 원격은단일run최종결과대기이며추가실행없음.
+
+- 배치30 E 원격로그 확인: 공식GitHub jobs/{id}/logs 직접조회exit0에서49module run/187Python건·FAILED요약0을재추출했다. 앞선gh run view 진행중archive조회exit1과구분한다. inventory/Backend SUCCESS,UnitySKIPPED,Android/Swift최종대기. 추가dispatch없음.
+
+- 배치30 E 원격중간결과: Android-native·inventory-contracts·Backend-postgres 세job SUCCESS,UnitySKIPPED. Backend공식로그는TC local7/의도변이1(예상exit1)/정상복원1/sandbox2로총11executed tests·예상mutation failure1을확인했다. Swift synthetic Simulator host가진행중이며전체run/basic/Release판정은아직대기다. 원격Unity/전체Strict/실Provider로확대하지않는다.
+
+- [P09-T07] 배치30 E 최종원격검증/문서커밋 전: run44115202057/sourcea1cc004139193d175f6964cf11be7051f6e5b5f7,false 단1회 SUCCESS. Hosted4/basic SUCCESS,Unity/ReleaseSKIPPED,공식Python49모듈187·Swift37(auth20포함)·TC11/의도변이1·정상복원확인. synthetic iOS host step/xcresultgatePASS이지만quietlog의정확test수UNMEASURED·Unity실행아님. 이후code/test변화0,최종정제보고/USER_SETUP/원장/로그만변경. T01/T02PARTIAL·전체BLOCKED_INTERNAL/P05FAIL/Provider13WAIT와미완료Push/JNI/Strict조건을유지한다. 최종stage scan/원장·diff확인→문서commit/동일handoff FFpush/HEAD일치와기존미추적3경로보존을검증한다. 추가dispatch없음.
+
+- 배치30 E 최종stage검증/커밋 직전: 명시7개문서blob text/JSONparse·원장64행·diff검사PASS,staged offline gitleaks 실제exit0/탐지0. Hosted 이후harness/test/SDK/workflow/baseline변화0,실제완료run과미실행scope·내부후속구현을분리했다. 최종문서commit뒤전체이번push범위scan·handoff FF가능성/remoteHEAD·tracked clean·초기미추적3경로보존을실제조회한다. 추가CI/Player/Provider/Release실행없음.
+
+- [P10-T01] 배치31 A/B/C 시작: 지시문·AGENTS/START_HERE·계획0~4와배치30결과/현재handoff HEAD089f1a8/기존미추적3경로확인. 구매PII Player PASS와원본FAIL·단일AVD ACK범위를고정한다. Push는자동batch전용이며GUIreceipt미지원,UTF8개별E2E는GUI지원하지만R09 wrapper가전달하지않고Android실패시iOS판정도없다는공백확인. 원본Builder·현재147/staging/cache·source/nonce/receipt/hash·매ADB소유가드를재사용해명시GUI입력을추가하고defaultbatch/fallback·기존DB/Proxy/Player판정은유지한다. 새AVD안내ACK는기존허가를확대하지않으며실제새안내가관측되면해당UI입력만보류한다. 아직새실제빌드/Player/Strict/제품refactor/원격작업NOT_RUN.
+
+- 배치31 B/C 입력계약 구현/검증·커밋 전: GUI preparer에push variant/LateCallbackProbe/link를추가하고shared loader가주/보조scenario·147package/cache·receipt/APK/source/nonce를동일검사한다. Push명시GUI 경로는batch를호출하지않고기존Backend/Proxy/DB/Player전체본문을실행하며동일SDKserver/AVDPID·양port가드를매ADB전유지한다. wrapper기본both/CLI는그대로이고platform명시별실행·R09 GUI전달/필수UTF8 marker/probe·현재clean원장검사·Android/iOS독립결과와소유Simulator만shutdown을추가했다. 새GUI 계약fixtures/기존GUI36건PASS/skip0(exit0),누락aux/변조APK·다른scenario/오래된receipt/source·invalidGUI의ADB/Backend전거부/별도platform실행을검증했고CI에연결했다. 아직실제새GUI컴파일/APK/Player는NOT_RUN,ACK자동확대0·SDK제품변경0. commit후각새GUI project에서원본Builder를실제로실행한다.
+
+- 배치31 B/D 신규환경블로커: CUA에서Hub3.22.6 파일선택창이GoTo경로를수락하지않고초기화해다른근거(정확한path/자동완성/AX메뉴)로확인후정상Quit했다. 재시작에서설치된Hub가4.0.1로바뀌었고Unity Hub Software License Terms 화면(Disagree/Agree disabled)이새로표시됐다. 에이전트가update/install/약관동의/계정/라이선스설정변경을요청한것아니며기존환경의재시작후새화면관측이다. 새법적약관동의는CUA정책상행동시점명시확인필수라진행하지않았다. 새GUI Push/UTF8 project는준비됐지만컴파일/APK/Player아직NOT_RUN. 해당GUI입력만사용자확인대기로두고음성fixture/구조적검사·Core/source/ABI 등독립작업계속. 약관차단을CLI/저장설정조작으로우회하지않는다.
+
+- 배치31 B/C/F 독립검증 시작: 새GUI 양variant의엄격입력fixture36PASS뒤실제Push명시GUI분기가기존Backend build에도달하며batch fallback0임을검증하는경계case를추가했다(현재GUI37PASS/skip0). R09 malformed/非object·bool원장거부와iOS timeout의소유기기shutdown을확인했다. 새Hub약관확인은pending이며동의/우회/새기기UI조작없음. 제품코드는변경0,Core/duplicate·현재source/선정ABI와변경완료후전체Python 단1회를지금수행한다. 새APKs/실제Push/JNI Player/Strict는NOT_RUN이다.
+
+- 배치31 F 독립결과/커밋 전: full Python202건/51모듈PASS/skip0(16.704초,최종code변경뒤1회),GUI37경계unitPASS. Core artifacts/core-assertions-pq_thtsw exit0:Kotlin10/helper50,Swift12/helper122,managed418(198정상/220예상오류),stress100/helper316,duplicate-only process134감지1·정상probe0·원본hash복원/418·분기419. 실행시harness/test/doc미커밋변경이있었고SDK79shipping SHA는전후동일임을분리기록. API/manifest/meta/staging147/actionlint/progress각0·선정javap3class/Cexport양slice4개동일. iOS구매PII d543556·독립CABI d86ccc2와보호source diff0인반면,과거iOSUnityPush e46cb65와는RequestRegistry.cs변경1개가남아current Push검증을승계하지않는다. 따라서새Android뿐아니라current iOSPush/Strict도미완료로T01/T02PARTIAL·제품개선보류. 새HubEULA입력은pending/GUI APK0/Player0이며해당경계외검증완료. 보완code/정제JSON·문서만별도commit한다.
+
+- 배치31 F 블로커/수정前: R09의실패·누락계약최종검토에서iOS xcresult JSON이object아닌배열일때AttributeError로result.json판정저장이중단되는내부하네스결함을신규fixture로재현했다(9unit중error1/exit1, r09-malformed-before.log). 실제iOS test실행실패나약관동의가아니며소유Simulator shutdown은finally에서수행됐다. 잘못된summary형식을명시FAIL/정확code로기록하도록최소보강하고음성복구검증후,코드변경이있으므로전체Python을최종source에서재검증한다. 이전202PASS는그실행당시의결과로보존하며약관UI대기는계속pending이다.
+
+- 배치31 F R09 오류수정 검증/커밋 전: xcresult summary는JSONobject 및passed/failed/skipped integer를명시검증하며잘못된형식을IOS_RESULT_UNAVAILABLE/FAIL로저장하고소유기기shutdown을유지한다. 기존재현error1을보존했고GUI38unit PASS/skip0,전체Python203건/51모듈PASS/skip0(17.370초,code수정후재검증)로복구확인. 이전202건성공은수정전별도증거다. Core/Native shipping/ABI는변화없어반복하지않는다. Hub4.0.1새약관화면은읽기전용재확인에서도남아있고사용자직접동의/명시허용은아직없다. GUI컴파일/APK/각새AVD실행은보류하고독립검증·인계만진행,새terms회피/이전ACK확대/실Provider/Strict실행0. 전체code/test를이commit으로확정하고통합문서·scan/FF인계와Hosted false1회를수행한다.
+
+- 배치31 F 통합문서/커밋 전: A~F/최종보고11항목·source별JSON·이전배치30연결·USER_SETUP/FINAL_REPORT를갱신했다. GUI입력구현/fixture검증과실제미실행·새Hub약관동의대기를명확히분리했다. 공식CLI project등록2개각0/launch0,현재5037read-only listener0/ADB명령0도기록. 최종Python203/GUI38·Core/API/ABI/stagingPASS,새미형식summary오류재현/복구와과거iOSPush current-gap유지. 모든code/test commit완료,새range scan0/탐지0·기존history1/정확sourcehash오탐2보존. 명시stage scan·원장검사뒤handoff FFpush/vars정상0재확인/falseHosted1회만수행한다. 약관승인pending의존GUI단계는강행하지않는다.
+
+- 배치31 F stage검증/커밋 직전: 명시7개정제문서text/JSONparse·원장/diff PASS,실제staged blob scan0/탐지0. origin handoff0behind/3ahead·FFancestor확인. 키/서명/license/rawlog/DB/APK/Library/Temp/Xcode생성물·미추적Demo/cache는stage하지않았다. 이문서commit뒤전체이번range재scan/FFpush→코드source원격일치/vars0정상응답확인→release_validation=false Hosted단1회. 새Hub약관/실제GUI·Player pending을CI통과로대체하지않는다.
+
+- 배치31 F FFpush 확인/Hosted 시작: local/remote handoff HEAD5af3aff08686d330d107bee2bb6482c7e6ed1383 일치,origin089f1a8→5af3aff FFpush exit0. 모든code/test포함·전체이번range scan0/탐지0·생성물0·tracked clean/초기미추적3경로보존. vars정상API exit0/total0재확인. release_validation=false Hosted-only 단1회를이source에서요청하며결과전PASS표기없음. 새약관입력pending·실제GUI/Player/Strict는미실행으로유지하고추가실행/약관동의/runner등록/Release없음.
+
+- 배치31 F Hosted dispatch1회수락: run44126492891/source5af3aff08686d330d107bee2bb6482c7e6ed1383,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44126492891 . 현재진행상태최종대기이며새동의/Player/추가dispatch/재실행/Unity활성변수/runner/Release없음.
+
+- 배치31 F 원장정합성: 과거Android구매PII timeout의존성은배치30같은scope신규PASS로RESOLVED 처리하되원본FAIL/과거원인미확정은보존했다. 새환경ENV-HUB-NEW-TERMS와현Player영향DEP-P10-PLAYER-IMPACT를원장에등록하고T01은여전히PARTIAL. 기존자동IPC블로커를자동batch/Strict범위로명시해GUI제품성공과혼동하지않는다. 64Task의구현/검증집계변화없음. Hosted run44126492891/source5af3aff 진행결과대기,추가dispatch없음.
+
+- 배치31 F 문서검사 정정: 새블로커행삽입의첫문자열치환이P09-T07 Task행마지막셀을먼저매치해원장parser가expected six fields를검출했다(문서오류,제품test아님). 정확한blocker table행앵커로복구했고기존64Task행/집계는그대로다. 다시원장검사하며코드/test/CI source변화없음.
+
+- 배치31 F 원격중간검증: run44126492891 inventory-contracts SUCCESS/UnitySKIPPED. 공식jobs/logs API exit0에서Python51모듈203건·FAILED요약0·신규GUI/R09모듈연결을재추출했다. Backend/Android진행·macOS Swift queued로전체결과는대기,추가dispatch/runner활성화없음. 원장문서앵커수정후검사PASS/64행집계보존·이후코드변경0.
+
+- 배치31 F CI진행중추가결함 재현: 새iOS독립runner가생성UUID를canonical소문자로만들지만simctl list의대문자UUID와직접비교해already-Shutdown exit149를cleanup실패로오판하는경계결함을10unit중failure1/exit1로재현(r09-uppercase-before.log). 다른기기조작이나실제XCTest실패가아니다. UUID비교만대소문자무관하게고치고회귀를추가한다. 이추가code/test는이미요청한단일Hosted source5af3aff에포함되지않으므로원격203건결과와최종로컬검증을구분하며,1회제약을지켜추가dispatch/재실행은하지않는다. 마지막후속수정의Hosted검증미완료를최종보고에명시한다.
+
+- 배치31 F UUID수정 결과/커밋 전: 실제형식의대문자simctl UUID fixture로재현한cleanup오판을비교1곳casefold로수정했고GUI39unit/최종Python204건·51모듈PASS/skip0(17.796초)확인. 이후Hosted source5af3aff(203건)와추가수정의범위를명시하고추가dispatch0유지. 사용자응답은“직접 약관 확인·동의 후 알려줄게”로,동의완료나에이전트동의허용이아니라직접처리예정임을기록한다. 해당GUI는계속보류하며사용자조작에간섭하지않는다. 독립적으로변경된R09 iOS runner를새소유18.6Simulator에서1회실행해C ABI/XCTest/cleanup을실측한다(새UnityPlayer아님). codecommit후실행하며기존Simulator/DB는보존한다.
+
+- 배치31 C 독립iOS 실제시도1 FAIL: source7e07c70,artifacts/r09-utf8-5lb0vxs3,wrapper1/childxcodebuild70. 생성UUID를소문자로정규화해전달한destination id를Xcode가매치하지못했고available목록에는같은소유UUID대문자형이실제존재했다. XCTest실행전destination선택실패로tests0/NOT_RUN이며SDKtestcase실패로치환하지않는다. 자기Simulator만shutdown149후조회Shutdown확인/디스크보존,타기기조작0. 원본available목록은private로그에만보존한다. simctl이반환한정확한UUID표기를명령에유지하고비교시에만casefold하는최소수정+destination인자음성검증뒤새소유기기로근거있는재검증1회를진행한다. 이후수정은원격CI source밖임을계속명시한다.
+
+- 배치31 C destination수정 검증/커밋 직전: UUID유효성만검사하고simctl원문UUID를Xcode/기기명령에그대로전달하며조회비교만양쪽소문자로수행하도록수정했다. 대문자destination인자보존·alreadyShutdown149확인포함GUI39unit PASS/skip0. 최초실제70/시험0을보존했고SDK/승인/timeout변경없음. commit된새source에서신규Simulator1회재검증후최종Python을현재source로검증한다. 사용자약관직접처리완료메시지는아직대기중이며Hub에입력하지않는다.
+
+- 배치31 C 실제독립iOS 재검증 PASS: sourcea812cddc0215dcaf3e340dfc0308f89d2830dac1 tracked-clean,artifacts/r09-utf8-70ipi4ww,wrapper/child exit0. 새전용18.6Simulator CAAD6B11-E8E7-4E5F-A3F2-8CC0A2413CB4와xcresult실제deviceId일치·CBridge testHostPushEventRoutingAndDedup1건(한글/emoji UTF8 bytes·callback/event·중복route)PASS/failure0/skip0. 자기기기shutdown149뒤list의Shutdown을casefold비교로확인했고두시도디스크/기존Simulator보존. 첫source7e07의destination70/시험0FAIL은정제증거와원본으로보존. AndroidJNI/UnityiOSPlayer 실행아님. 실제runner수정이완료됐으므로current source에서fullPython을최종재검증하며이후Hosted source5af와의변경2파일/추가검증미완료를명시한다. 약관직접처리완료메시지는아직대기.
+
+- [P09-T07/P10-T01] 배치31 F 최종결과/문서커밋 전: run44126492891/source5af3aff08686d330d107bee2bb6482c7e6ed1383,false 단1회SUCCESS(Hosted4/basicSUCCESS,Unity/ReleaseSKIPPED),공식Python203/Swift37/TC11·변이1확인. CI요청뒤UUID후속2commit은포함되지않아최종code전체원격검증이라고기록하지않는다. sourcea812cdd최종localPython204/GUI39·새iOSCABI1실제PASS/ownedcleanup확인,최초destination70/시험0FAIL보존. 사용자직접약관처리완료통지는대기·GUI/APK/Android Player/Strict0/T01T02PARTIAL유지. code후속diff2파일과정제모든scope·원장복구/64집계를문서로정리했고stage scan/commit/동일handoffFFpush/HEAD일치·초기미추적3경로보존을확인한다. 추가CI/약관동의/main/force/Release없음.
+
+- 배치31 F 최종stage검증/커밋 직전: 명시9개문서는text/JSONparse·원장64행·diff PASS,staged scanner실제exit0/탐지0. 최종sourcea812cdd local204/실제CABI1과Hosted source5af3aff203건SUCCESS의범위를구분했고후속2파일의원격미검증을명시했다. 두실제시도/실패0tests·성공1test/ownedcleanup·사용자직접약관완료대기·현재GUI미실행/Strict0/T01T02PARTIAL을보존한다. 문서commit후전체이번range scan·freshfetch/FF확인/동일handoffpush·localremoteHEAD/초기미추적3경로보존을조회한다. 추가dispatch/약관동의/사용자조작간섭없음.
+
+- [P10-T01/P10-T02] 배치32 A 시작: 지시문A~J·AGENTS/START_HERE·계획계약/마지막원장·배치31/책임감사27·현재HEAD3639a1d/동일handoff/초기미추적3경로확인. 사용자는일반권장설정과추가실행권한을위임했다. 새법적약관은기존직접처리완료미통지상태라동의/우회하지않고현재UI를확인한다. GUI의존단계대기시에도Task32명시범위에따라격리local branch D1/D2제품후보baseline/실제구현/회귀·E사전계측·F분리패키징·G/P11사전감사·H검증을진행한다. 후보제품은T01PARTIAL이면handoff에통합/push하지않는다. 원격CI는배치31 UUID후속수정을포함한모든최종handoff code/test정리뒤1회만수행한다. 기존P05FAIL/Provider13WAIT/Strict·self-hosted미검증/사용자기기·DB·license보존.
+
+- 배치32 A/B 환경확인: CUA에서Hub4.0.1은새약관화면대신정상Projects와등록된두소유project를실제로보여준다. 에이전트약관동의0/우회0이며현재동의버튼조작이필요없음을확인해GUI개발을이어간다. Stage147/source/Builder/scenario/LateCallback/link/cache·source8aadancestor/보호경로diff0/출력미존재를재검증PASS. Hub의두project Editor선택이비어있어설치된6000.5.8f1을명시한뒤새GUI빌드부터실행한다. 이미승인된기술적설정과일반권한은재질문하지않는다.
+
+- [P10-T02] 배치32 D 격리후보 시작: T01은현재PARTIAL이므로Task32명시허용에따라candidate/p10-t02-batch32-20261118 worktree(기준3639a1d)를생성했다. handoff의Native제품파일은변경하지않고후보별기존Kotlin18/Swift20 baseline→내부codec/grantdecode분리→동일회귀/음성/API검사→각localcommit으로보존한다. T01PASS전handoff통합/push없음. A/B GUI Push빌드는소유project에서기존Builder실행중이며후보baseline은독립적으로진행한다.
+
+- 배치32 B1 검증/후보D baseline: PushGUI기존 Builder실제PASS,nonceac3018583bfa47cca483c96521536726/source8aadcf4/147files/APK27074492bytes/SHA97a2e42a76f71c72aae68769c4574787562f18ef263fab77e46d72ab333bc648. strictreceipt/current-source/cache/주·보조scenario·hash검사PASS(tests0/check1/Player0). 격리candidate baseline은KotlinGoogleAuthProvider18/SwiftAppleAuthProvider20·실패skip0/각exit0,보고서/hash/원본XML보존. 실제개선은각후보branch에서만진행하고handoff제품변경0유지. 다음UTF8GUI와B3iOSPush GUI입력구현/음성검증을계속한다.
+
+- 배치32 B3 구현 시작: 기존iOSPush는batch export만지원하고cleanup에서소유Simulator종료가없어,새GUI push variant/보조소스·strict export receipt를명시입력으로추가한다. 기존원본Builder/실제Xcodead-hoc Simulator build·Backend/Proxy·모든marker·token0판정은유지한다. GUI실패→CLI fallback0,잘못된receipt는Xcode/DB/기기전거부,새로생성한자기Simulator만종료/상태확인한다. helper C# Builder/SDK제품은수정하지않고기존공급scene를재사용한다. UTF8 GUI는별도소유project로전환/컴파일중이다.
+
+- 배치32 B3 입력시험 최초결과: GUI43unit중새iOS positive fixture1건이macOS /var→/private/var canonical path 비교불일치로실패(exit1). 실제validator는소유export를정규화해올바르게반환했고fixture의기대path만.resolve가빠졌다. validator/판정조건은변경하지않고기대경로를정규화해재확인한다. 기존42건은PASS이며원본로그보존. UTF8실제GUI APK는별도로PASS/27073808bytes/SHA0a4a8b1b5e2319eccf21a4eadfd2a26a15279110e6e826900fc759d478aa23ac,147/receipt/source관계통과·JNI실행은아직NOT_RUN이다.
+
+- 배치32 A/B3 검증/커밋 전: 두Android실제GUI APK(Push/UTF8)·147/cache/source/receipt검증PASS·Player미실행과iOSPush새명시export입력/보조소스/트리hash/기기cleanup fixture43PASS를분리했다. 최초fixture경로1실패는기대값정규화로복구/validator변경0. 잘못된export의Xcode/DB/Simulator/batch전 거부와자기UUID/이름/Shutdown확인검증추가,CI연결했다. Hub는정상Projects/Editor실행상태로약관버튼조작없이진행했다. 후보D1제품은격리local e6e1de7(기존18+추가2/API PASS)로handoff미통합. handoff제품/원장/지급·finish정책변경0,이harnesscommit뒤새iOSPush GUI project를준비한다.
+
+- 배치32 B4 새전용기기 준비/정상안내 범위: 사용자최신“추가권한전부승인/권장안자율진행”을이번배치의새소유GameBridge 테스트AVD에한정해적용한다. 정확한android/SystemUI Viewingfull screen/Gotit교육안내만기존strict selector·매호출PID/양port/동일SDKserver가드의명시옵션으로각최대1회닫는다. 배치30의과거허가를재사용한것아니며계정/permission/법적약관/보안설정/타기기조작은포함하지않는다. Push도기존동일Collector의명시GUI+진단옵션에서만이ACK를지원하고기본입력0을유지한다. 해당보완의범위음성unit후commit된source로각새AVD검증을시작한다.
+
+- 배치32 B4 검증/실행 직전: 정상안내ACK입력범위8unit PASS/skip0. 현재5037은Unity6000.5.8f1 SDK adb PID31840 하나임을read-only확인했고local Docker unix context/Postgres gamebridge-sdk-local-postgres-1 healthy. 기존server기동/종료명령0·타기기조작0. 소유UTF8Editor는idle로유지해server변경을피한다. 새GameBridge_V2_B32_PUSH_A_20261118/5596·5597,UTF8_A/5598·5599를각따로생성하고매명령소유가드를입증한경우에만검증한다. 원래marker/DB/Proxy/timeout판정을유지하며새명시교육안내option만전달한다. 이commit후tracked-clean에서Push부터실행한다.
+
+- 배치32 B1 최초기기준비/진입FAIL: 새AVD A의소유PID34033/5596·5597/이름guard·boot통과후상위Push wrapper가새ACK옵션을미전달/미인식해argparse exit2로중단했다. Player/Backend/설치/ACK까지도달0이며SDKtest실패아님(내부CLI연결누락). 자기emulator만finally종료·AVD보존. 상위wrapper에도명시옵션검증/전달과CLI연결음성을추가하고새source commit후새B AVD에서첫실제Player시험을진행한다. 동일실패무조건재시도/기존AVD재사용없음.
+
+- 배치32 B1 CLI연결수정 검증/커밋 전: 상위Push wrapper가명시ACK옵션을파싱하고GUI/owned binding이있을때만Android자식에전달하도록보강,default입력0/다른platform승계0 유지. 관련GUI45unit PASS/skip0. 원본A는argparse2/Player0으로보존했고새B controller는별도로그/AVD명으로준비했다. 동일현재server31840과원본APK/receipt를검증한tracked-clean source에서첫실제Push를수행한다. 진행중에는primary source를동결하고격리candidate만독립작업한다.
+
+- 배치32 B1 실제Push B FAIL/exit1(source48dc7de,artifacts/unity-android-push-ihs2a2a8): initialize/login/register·수신1/중복main-thread·BG/FG markerPASS뒤network InvalidOperationException. WAIT_OFFLINE→FAIL90.023초·reconnected marker0이기존90초RECONNECT_TIMEOUT분기와일치하나메시지는로그에없어추론으로명시한다. reconnect거절2관측,logout/session/최종token0은미실행. 정상교육안내는child동일가드로1회ACK(exit0,41.497초). raw controller uiInputs0은controller직접입력0이었고childACK1/HOME와구분표기하도록후속controller수정,원본은보존. 종료뒤추가read-onlyADB진단은소유가드가EMULATOR_BINDING_UNAVAILABLE로subprocess전 거부했고실제추가ADB0. 모든AVD/DB/log보존. GUIguard와legacyidentity가같은명령에서중복증명을여러번해임계창을소모할수있음을발견했다. GUI는매실제명령직전동일강도GuiAdbGuard만사용하고legacy경로를유지하며,고정18초fault대기를기존요구조건거절>=1관측시반환(상한18유지)으로바꾼다. 성공assertion/앱90초/대기상한증가없음. 안전/시간trace 음성검증뒤다른신규기기에서검증한다.
+
+- 배치32 B1 timing/guard 검증·커밋 전: 새5unit은GUI모드에서도매명령GuiAdbGuard가server변경을subprocess전 거부하고legacy명령은종전PID/identity증명을유지함을확인했다. 거절관측대기는첫failure관측시즉시반환/미관측시종전18초상한/기존거절시추가sleep0을검증했다. 앱90초·host22초reconnect·성공marker/DB조건은변경없음. command category/소요시간만secret없는trace로저장하고실패시marker도보존,실제launch상태필드를정확히갱신한다. 기존B failure는유지하고먼저독립UTF8 JNI를새AVD에서검증한다. sourcecommit후tracked-clean 시작,기존소유UTF8Editor/server유지.
+
+- 배치32 B2 첫준비경로도상위R09 wrapper의ACK옵션미인식argparse2로Player/Backend/설치전 중단됐다(UTF8_A PID42438/5598·5599소유/boot는확인,실제JNI0·controller종료/데이터보존). B1과동일계열의입력연결누락이별도wrapper에남았음을확인했다. R09에도조건부명시전달을연결하고두상위wrapper parser를노출해privatecontroller가AVD생성전 정확한인자계약을검사하도록보강한다. source/조건검증unit후새기기첫실제JNI를실행,timeout증가/기존성공AVD재사용없음.
+
+- 배치32 B2 CLI계약修復/커밋 전: R09상위parser/명령생성에명시ACK+GUI+진단필수조건을연결했고,Push/R09모두argument_parser를통해기기없이정확한인자검증이가능해졌다. GUI46unit PASS/skip0. 새controller는AVD생성전 실제wrapper parser와명령구성을검사한뒤에만기동한다. A준비실패는원본/설치0/실JNI0으로유지,새B에서첫실제JNI를진행한다. Native후보넓은회귀47Android/43Swift도모두PASS이며미통합상태보존.
+
+- 배치32 B2 실제JNI PASS/exit0(sourceb6bd767): 새UTF8_B PID44685/serial5598/5598·5599 및sameSDKserver31840가드·정상교육안내1회ACK/원본GUIAPK0a4a8b1b...·필수GB_UTF8_JNI_ROUNDTRIP와전체mock callback/Backend/SQL원장1/delta100통과(artifacts/unity-android-e2e-oqkoqd_3,R09wrapperajz6mwxj). tracked-clean 시작·child실제PASS/Android만실행/새 iOS실행아님. controller는자기AVD만종료·disk/DB/log보존. 최초UTF8_A argv2/Player0은유지. 다음새Push_C에동일원본APK/새harness source/명령timing추적·重複proof제거/거절조건동기를적용해근거있는재검증한다. iOSPush GUI project는준비/등록돼있으며Android서버변경을피해그실행후Editor전환한다.
+
+- [P10-T03] 배치32 E 사전계측 구현 시작: 현재Push 자식은GUI입력을읽은단계(초기HEAD/clean메타데이터수집뒤)이며이후primary변경은관련없은새계측파일/문서뿐이다. 기존Core/Player성공판정은변경하지않는다. 독립.NET Release fake transport/실제RequestRegistry와새격리LOCAL_MOCK HTTP/DB의warmup20·measurement100·p50/p95/max/잔존수·멱등충돌계측을구현한다. 실제실행은빌드/Player부하종료후로분리하고T02정식완료전 사전계측으로표시한다. Native memory/UI jank/Unity startup은NOT_RUN이며기존100samples/316helper를성능시간으로대체하지않는다.
+
+- 배치32 B1 실제재검증C PASS/exit0(source1ec45b9,artifacts/unity-android-push-bwjh5gqj): 새PUSH_C PID46481/5596·5597/sameSDKserver31840·원본GUIAPK97a2e42a...의같은SDK/90초조건에서전체6필수Push marker·dedup/mainthread/BG-FG/network/reconnect실패/session/latecallback·최종DBtoken0통과. 정상교육안내child1회ACK/코드source초기clean,실행중추가는새계측파일/문서뿐이었고관련소스동결. 소유controller종료·모든기기/DB/로그보존. B의network90초FAIL/부분PASS와A/UTF8_A의argv2/Player0은삭제하지않는다. 중복legacyproof제거+거절관측동기화조합으로회복했으며어느한항목만단독원인이라고단정하지않는다. 두Android검증종료후소유UTF8Editor만정상Quit해신규iOSPush GUI export로전환한다.
+
+- 배치32 B3 실제GUI export PASS/실행 직전: sourcebf10f53/nonce9312d8c3e3f442f38d468eefc18323e1,원본Builder/147SDK/cache·3076exportfiles/트리SHA240382641e18305287cdf61ffb7d3ff6e7480436b5acb9fb7ca88e5431496eb0/PBX·주/보조source strict입력통과. tests0/check1/Player0와분리해이commit뒤명시GUI입력으로Xcode ad-hoc build·새owned18.6Simulator/새DB의원래Push/Proxy/6marker/token0검사를1회수행한다. UI약관조작0/기존기기재사용0·독립NativeCABI만으로UnityPush통과처리없음.
+
+- 배치32 B3 실제현재iOSPush PASS/exit0(source01892c8,artifacts/unity-ios-push-rb4s3i0g): strictGUIexport/현재C#Registry·Xcodead-hoc build·새18.6Simulator/DB에서전체 6필수marker(dedup/mainthread/BG-FG/localtransport network-recovery/reconnect실패/session/latecallback)·token0통과. 자기Simulator shutdown/state/name/UUID확인및원본disk/DB/log보존. 원격APNs/실기기/OS전체network단절로기록하지않는다. AndroidJNI/Push새 PASS와같은제품source 관계를확보했으므로계획T01명시완료(API/기존동작/관련회귀·전후증거)와추가통합/Strict/Release조건을분리재평가한다. 当전 Core/API/원장확인뒤에만T01상태변경/후보formal통합을검토한다. Strict는자동batch/전용환경미확인으로0/DEFERRED_ENV이며SDK전체BLOCKED_INTERNAL/P05FAIL등은유지.
+
+- 배치32 E 계측도구검증/커밋 전: 새독립.NET Release probe가warmup20와100측정을분리하고실제Stopwatch값으로create/init·callback제품조회·shutdown/dispose·8inflight/duplicate/cancel/late응답·pending/weakref잔존을계측한다. 별도localHTTP/PG probe는catalog/동일멱등키반복/409충돌100개씩과원장1·100을검사한다. rawsample없는숫자/316helper선언/위조p95·나쁜clock/build/남은pending을거부하는4unit PASS. source/time/build/OS를보존하고realStore/Unity성능주장없음. 모든agent Nativebuild/Player가끝나고소유Editoridle인현재commit된source로최초실측하며사용자프로세스는중단하지않는다. 후보packaging/Native47·43은완료/보존,측정은T03사전증거다.
+
+- 배치32 E 최초실측 aggregateFAIL(source4793bc4,performance-local-0t0528ka): managed는Release/Stopwatch/warmup20+100각측정·pending/live0으로실제PASS. Backend는catalog120/200과초회verify1/200까지도달했으나기존WalletSnapshot.coinBalance가JSON문자열인데driver가숫자100으로비교해ValueError로중단했다. 제품/원장장애아닌계측harness계약오독으로Backend전체PASS가아니다. 원본보존·정확한문자열100비교/음성fixture추가. 이미유효한managed실측은별도artifact로보존·반복하지않고명시backend-only 새측정/새DB로재확인한다. source/시간/범위혼동없음.
+
+- 배치32 E backend계약수정 검증/커밋 전: WalletSnapshot의정확한문자열100/같은purchaseID와숫자·bool·잘못된문자열거부5unit PASS. Driver는측정scope별PARTIAL/실패code를보존하고backend-only를명시해이전managed실측을새실행으로재표시하지않는다. 제품API/샘플수/warmup/원장조건변경0. 기존managed p50/p95/max는원본4793source에서유효하고이번반복은수정된Backend부분만새DB에서실행한다.
+
+- 배치32 E 검증/P09의존 self9 시작: 원본4793의managed실측은warmup20+100각Release/Stopwatch로PASS·pending/live0,수정eff5의Backend-only 새측정도catalog/동일멱등키/409충돌 각100(+warmup20)·원장1/delta100 PASS/exit0(performance-local-jn_wziif). JSON문자열수량오독의첫aggregateFAIL은보존,이미유효한managed는반복0/별도source로분리했다. Core-current10/12/helpers50·122/managed418/복원·변이134·stress100/316도PASS. T01명시조건최종판정에앞서현재하네스의P09-T08 self-only 필수9개를새격리DB/role로검증한다. 전체Strict/새Simulator/Player를호출하지않으며사용자DB보존.
+
+- 배치32 C 판정/커밋 전: DEVELOPMENT_PLAN 명시Core완료(API baseline·관련회귀·취소/late semantics·전후소스/결과)와Task32가구분한추가전체Strict/Release를대조해T01 IMPLEMENTED/로컬PASS로판정. 기존79file기존 Coreguard·P08API·現Core10/12/418/변이복원·신규AndroidJNI/Push·현재iOSPush·유효기존구매PII/CABI·現self9전체 PASS 근거를decision문서에연결했다. 64Task그대로구현23/진행41·localPASS21/FAIL1/PARTIAL42; P05FAIL/Strict0·ENV/Provider13WAIT/SDK BLOCKED_INTERNAL유지. 의존을우회하지않고이closing commit을고정한뒤검증된Native후보를정식T02로통합한다. 기존Core baseline변경0/후속phase정확4파일전이검사를추가해검증약화없이CI를유지한다.
+
+- [P10-T02] 배치32 D1 정식통합 시작: T01 closing4485b2f로명시제품조건PASS판정후격리후보e6e1de7의정확한Kotlin2제품파일/추가test2를handoff에반영했다. 전후bytehash를p10-feature-batch32 전이기준으로고정하며원본Core기준은변경하지않는다. 기존18baseline동일소스+후보20/넓은47증거와별개로현재handoff에서18+2를동일명령재실행한다. 저장순서/refresh·cancel·tombstone/공개API/정책변경없음. Swift후보는다음별도정식commit이며로컬branch21b5f71은보존한다.
+
+- [P10-T02] 배치32 D2 정식통합 준비: T01PASS조건에따라후보fc3da2f의Swift순수decoder/기존sink위임·추가3test를정확한동일bytes로handoff에반영했다. 기존 attemptId/auth closure/account검사·retry/late result/acceptGrant/finish/journal위치는변경없다. 현재handoff의기존20+신규3를동일명령검증하며D1과D2는별도commit으로보존한다. 모든변경뒤새Core종결＋Native exact4파일전이검사(기존 baseline hash고정/나머지Core·wire불변)와fresh패키징/영향E2E를수행한다.
+
+- 배치32 D1 정식검증/커밋 전: handoff의기존GoogleAuthProvider18+codec2=20건·failure/error/skip0/Gradle0. candidatee6e1de7와제품bytes동일·기존storage/profile/save/operation401/refresh/cancel/logout/tombstone/사전거부의미보존. 전후baseline183639근거와현재20을구분한다. 이commit은Kotlin제품3파일만정식통합하며Swift와전이검사/CI연결은다음별도commit이다. 기존Corebaseline덮어쓰기없음,T01closing4485고정·전체SDK/ReleasePASS아님.
+
+- 배치32 D2/전이검사 검증·커밋 전: handoff AppleAuthProvider20+GrantDecoder3=23 PASS/failure/skip0/Swift0,후보fc3da2f와제품bytes동일. attempt/auth/account/idempotency/late grant/finish/journal·공개API변경0. 원본Coreguard는closed4485 Git tree에서그대로PASS하고현재tree는정확승인Native4파일hash/추가2개파일집합·나머지Core/Native/wire byte불변·Cexports불변을확인했다. 전이checker8unit이Coreprivate/Wire/승인Native의추가drift·잘못된preimage/경로·元baselinehash변경·존재하지않는closedref를거부한다. 元baseline파일변경0/기존Core검사unit유지,CIinventory fullhistory와새phase체인·신규Native2/3 test필수연결. E1/E2각formalcommit후현재SDKfresh패키지/소비·회귀/모의구매PII를검증한다.
+
+- [P10-T04] 배치32 F handoff신규빌드 시작: 정식D1/D2 Native sourceff2d0d5를기준으로이제handoff자체에서새Maven3모듈/AAR/sample/별도R8와새XCFramework device/sim을artifacts/batch32/handoff/...에생성한다. candidate산출물은사전검증으로보존할뿐새handoff빌드성공근거로대체하지않는다. 원본version/API·C ABI 유지·checksum/Swift module/소비자검증뒤그새staging으로post-T02 구매PII신규GUI소비를수행한다. T03사전계측/Native profiling·전체Release미완료로T04전체PARTIAL유지.
+
+- 배치32 신규환경블로커: 완료된소유iOS Editor를GUI로전환하려는CUA조회가“The Mac is locked and automatic unlock could not unlock it; unlock manually”를반환했다. 잠금해제/비밀번호입력/우회는진행하지않고사용자수동해제만요청한다. GUI후속새package소비2건은보류,이미검증한T01/Native후보/정식단위/신규handoff Nativebuild·소비/147staging은분리유지. 문서감사/CLI계약/일반headless검증/scan 등독립작업은계속한다. T02와T04최종플랫폼검증은미실행으로정확히남기며Stage모두PASS로변경하지않는다.
+
+- 배치32 H 변경후현재handoff 검증 시작: 정식Native두후보와동일한현재handoff source를freshbuild했으며현재auth/purchase/push/session을Native보고서실수로재확인한다(candidate결과재표시아님). 새Maven/R8·XCFramework/Swift source/binary import/147staging을같은handoff기준확인뒤새staging으로self9/Testcontainers검증을수행한다. Mac잠금은GUI후속만중단하고headless검증계속한다.
+
+- [P11-T01] 배치32 G 사전읽기완료/문서수정 시작: 64Task·각증거경로를대조해누락path0/제품TODO-FIXME-NotImplemented표식0을확인했으나기능완성근거로쓰지않는다. FEATURE_MATRIX의110checksum/COMPATIBILITY의Unity미검증·이전 ENV-002/START_HERE계획전용소개가현재실측과불일치해정정한다. contracts/openapi.yaml은기존계획에있지만부재(기존Core baseline에서도미존재명시)로P11기계계약문서gap을등록,實행Controller/docsAPI/Bridge schemas와구분한다. P11전체완료/실Provider13·P05실패·self-hosted/Strict제약은유지한다.
+
+- 배치32 F/H 현재handoff검증 결과: ff2d0d5제품 source의freshAndroid/Maven/AAR/R8·device+sim XCFramework·SwiftPM sourceconsumer·SimulatorSDK binarymodule typecheck·UPM147체크섬·선정3Java class/Cexports4양slice 모두PASS. GoogleAuthProvider는compiler synthetic private accessors를제외한공개bytecode surface도전과동일(전체ABI주장아님). 현재Native폭넓은회귀Android47/Swift43 failures/skip0,P08sourceAPI/닫힌Core＋정확Native전이검사PASS. Testcontainers11실행(의도변이1 exit1·정상복원0포함)PASS. 후보기능제품bytes는candidatee6/fc와동일하며정식handoff에별도5ef87e5/ff2d0d5로통합; candidate21b5f71은로컬이력보존/원격push0. T02코드구현은완료하되Mac잠금으로새package post-change GUI소비필수검증이남아로컬PARTIAL,SDK/Release완료아님.
+
+- 배치32 H 최종현재코드검증: 전체 Python229/55모듈PASS/skip0(18.532초),현재Native47Android/43Swift·새handoff source/binary Swift소비·Maven/R8/XCFramework/147checksum·P08API/원본Core종결+Native exact전이guard PASS. 새Native source/새package로self9 재검증9/9PASS(이전T01판정用self9와Source/staging이변경돼재실행필요),TC11(정상10/의도변이1과정상복원)PASS. test/check/sample/expected failure/Player수는분리한다. 기존 P05FAIL·실Provider13/Native profile/GUIpost형검증은미완료. 새 Hub4에서정상GUI/실제Builder環境이확인된변경근거로 기존tiny direct batch diagnostic을소유새project/nonce/session/210초상한에서단1회수행한다. 라이선스활성화/파일수정/사용자process종료없고실패시동일재시도없음. 이진단이전체Strict는아니다.
+
+- 배치32 자동Editor direct진단PASS: ff2d0d5,새소유project/nonce862871954f4d43b3a0879b56a0a20bf1·실제batch C# method/receipt·정확6000.5.8f1·marker1/exit0/7.26초,missingChannel/IPC/compileerror0(tests0/check1/Player0). Mac잠금은CUA UI조작제약이며이자동실행을GUI검증이라고재표시하지않는다. 기존 빌드script는unity run CLI를사용하므로이제동일한tiny--mode cli를새소유project/210초상한에서한번확인한다. 직접실행PASS로CLI/전체Strict/Player까지PASS로추론하지않는다. 라이선스파일/활성화/타process조작0. 전체Strict는전용환경까지완비될때만최대1 유지.
+
+- 배치32 자동Editor CLI tiny진단도PASS/exit0(실제batch method·nonce receipt·marker1/compileerror0,unity-editor-smoke-fxlcmqqv). 기존build script의unity run 경로정상도별도확인했으므로Mac잠금중후속새package소비를GUI대신원래CLI batch 경로로실행가능하다. GUI검증으로재표시하지않는다. CLI에서도같은명시PID/AVD/양port/동일SDKserver Guard를사용하도록분리하고known教育안내는명시diagnostics+전부binding일때만허용한다. GUIreceipt요구를CLI에가짜로충족시키지않고실제원본batchBuilder/APK와최종DB/PII판정을유지한다. Default ACK0/불완전binding/타SDK기기거부는강화unit뒤실제실행한다. 전체 Strict는별도완전한전용환경확인전 0이며tiny PASS로대체하지않는다.
+
+- 배치32 H CLI대체후속경로 검증/커밋 전: batch direct와cli실제nonce method완료PASS에근거해원래CLI consumer경로로현재Native변경후E2E를수행한다. GUI실행이라고claim하지않고실제원본batchBuilder/APK·동일staging/source검사·PII/SQL/marker/시간제한을유지한다. 새 3unit은CLI/GUI동일GuiAdbGuard 생성·부분binding거부/legacyACK없는경로유지·completebinding없는notice입력거부와유효CLI입력처리를검증했다. 매명령PID/AVD/양port/server/exe는동일강도,GUIreceipt를위조하거나OS잠금을우회하지않는다. Code완료후새기기PostPII/새iOSCLI 소비를실측하고새fullPython은그후최종source에서재검증한다.
+
+- 배치32 CLI후속단계 사전조건: 현재5037listener0으로기존server31840을재사용하지않는다. 새AVD전 한정SDK server를loopback에직접foreground server nodaemon으로생성해OS bind가경쟁時실패하도록하고기존daemon을kill/restart하지않는다(공식ADB -L/foreground문법확인). 생성된자기PID/실행파일만실측·기록하고기기명령은같은guard를통과시킨다. 실효환경의server socket/host/port override는사전거부해검증한5037과다른endpoint로명령이가지않도록보강한다. Mac잠금중새GUI조작아닌명시CLI batch 소비로분리/기존성공기기보존/시간상한유지. 첫파일수정호출은작업디렉터리오타로process생성전 거부돼변경0이었고정확한저장소로정정했다.
+
+- 배치32 후속CLI 명시binding 검증/커밋 전: CLI/GUI동일Guard3기본검사와실효env endpoint변경거부/legacybinding검사총9건PASS/skip0. 사용자Mac잠금을해제하거나GUI조작을대체하는스크립트가아니라이미정상확인한원래자동batch builder를명시선택한다. 실제SDK코드/가격/retention/시간제한/marker·PII·SQL조건변경0. 다음새own foreground SDK서버/새PostNativePII AVD와현재147staging을사용하고자기서버·기기만종료해기존daemon/process는건드리지않는다. 현코드commit뒤초기tracked-clean을확인한실제플랫폼검증을수행한다.
+
+- 배치32 CLI후속서버최초준비FAIL/기기0: foreground -L tcp:127.0.0.1:5037을설치된adb36이“specified hostname unsupported”로bind전 거부했다. 기존5037listener0/daemon교체0/AVD생성0/Player0으로원본보존. 같은foreground OS bind방식에서지원되는tcp:5037(기본localhost, -a없음)으로정정하고실제listen주소가loopback임을추가확인한다. UI/SDK/시간제한변경아닌테스트서비스시작인자수정이며다른server를kill/restart하지않는다.
+
+- 배치32 post-Native CLI A는새 SDK/package의APK9823d4fc4ca24706018d9d8f99f8f6b7710c5ada4732003b46afab26589fb541생성/Backendready까지통과했으나설치전 GUI_DEVICE_OR_ADB_BINDING_CHANGED/DEFERRED_ENV2로중단됐다. ownADB로그에“adb server killed by remote request”가있어batch종료시server수명변화를확인했다. 원본은BUILT_NOT_RUN·실제Player0/새DB/AVD보존,기준을무시해성공시키지않는다. ADB공식commandline source의server socket/ANDROID_ADB_SERVER_PORT precedence를확인했으며원래Builder를runtime5037과분리된5038의build전용환경에서한번검증한다. 두port기존listener0확인·같은SDK/ownedforeground runtime·-a없음/loopback·기존server교체0. APK검증이지PlayerPASS아님을분리하고실험이성공한경우만공개harness에명시옵션을추가한다.
+
+- 배치32 batch/runtime ADB분리 실험PASS: 동일기존 Builder가5038 build전용env에서APK생성0,동시에5037 runtime foregroundPID66577은전후동일하게살아있음/빌드port종료0관측(AVD/Player0). 이검증된분리를명시--build-adb-port옵션으로추가,GUI/불완전runtimebinding/5037 재사용/이미소유된buildport는거부한다. helper는OS에직접bind한같은 SDK foregroundPID만소유/정리하고다른daemon을교체/kill-server하지않는다. 기존 build/PII/DB판정은동일. 새 4unit이busy/invalid포트·실행파일변조·child환경분리·자기process만정리·builder가종료한경우를검증PASS. runtimeguard/시간제한완화없음. 새post PII B에서현재Native/package첫실제Player를재검증한다.
+
+- 배치32 post-Native 실제Android B FAIL/exit1(3seglcb1,source0d6df8f): 分離build/runtime endpoint로같은ownedruntimePID67934가유지돼APK설치/Activity/Native engine·Awake까지확인했다. 그러나Start/SDK/HTTP전appEXIT_SELF status0로종료해기존 180초timeout; crash/ANR관측0·안내1회ACK·beforeGUI와selectedsettings/boot옵션차이없음(buildGUID 등identity제외). NativeSDK진입0으로새 Authhelper원인확정불가,실패/AVD/DB/log보존. Mac잠금중창표면영향을분리하는근거로새headless(-no-window)AVD만바꿔한번대조한다. 동일SDK/API/newNativepackage/성공조건/CPU2/RAM2GB/timeout/JSONCLI구조는유지한다. 이것도같은실패면근거없는추가반복없이Root미확정/부분으로유지한다.
+
+- 배치32 post-T02 Android새source/새package 실제PASS(source5bc3cd0,zr28pnb1): CLI기존 builder/freshNative81 source/package d11a2.../별도buildport5038·runtime5037/새headless같은 image·2CPU/2GB에서전단계/Nativecallback/PII24marker·Backend/원장1/delta100/exit0,초기tracked-clean. 최초window형실행Awake후 EXIT_SELF0/timeout과원장未실행을별도보존,hostWindow영향대조회복으로기록하며특정Nativehelper근본원인확정은아님. 기존SDK/시간제한/성공조건변경0. 自己emulator/runtimeforeground만종료·AVD/DB/log보존,기존daemon kill/restart0. 이후sourceCode변경없이전체 Python237/57모듈PASS/skip0(25.101초). 다음iOS도새Native/package의명시CLI batch·새 sim/DB·기존 PII/SQL판정으로1회검증하며GUI와구분한다.
+
+- 배치32 post-T02 iOS 실제PASS/exit0(sourcedaf3cd9,artifacts/unity-ios-e2e-mmev5ejd): 새Native/package d11a2...의원래CLI batch export·Xcodead-hoc·새 18.6Simulator·DB에서24필수PII/Native/mainthread marker·Backend各trace·원장1/delta100/초기tracked-clean확인. 실제생성UUID473D3E40-A8E9-43FF-91DA-04F8E76E2FFA와db-suffix deviceName을read-only대조한뒤그기기만shutdown/후속Shutdown확인·disk/DB/log보존. Android새현재source실제Pii와Native20/23·넓은47/43·API/전이/선정ABI·freshpackage/소비검증이모두충족돼P10T02명시로컬완료조건PASS로판정. RootSDK전체완료/실Provider/Strict/Release/Native메모리Profiling성공은아니며P05FAIL/Provider13WAIT 등유지.
+
+- 배치32 I/J 최종scan/커밋 전: 전체코드최종237/57모듈연결·Native47/43·현재source/패키지/양플랫폼post E2E와정확한Source/실패한계·AJ/15항목·후보→정식커밋맵을통합문서에정리했다. 신규range scanner0/탐지0,역사range scanner1/기존hash오탐2는현재test SHA독립재계산일치로검토/보존. 全commit text/금지생성물0,원장64/구현24·진행40/localPASS22·FAIL1·PARTIAL41정합,57module全CI연결확인. repo public/vars0/runners0·handoffFF이력확인. 명시stage/scan/문서commit後allcode포함sourceFFpush·정상vars0再확인·falseHosted1회만수행한다. Macunlock필수대기는CLI회복/실제검증완료로해소했지만GUI잠금자체를해제했다고claim하지않는다.
+
+- 배치32 I/J stage검증/커밋 직전: 명시16개README/정제문서·JSON의파싱/text·원장/누락경로·diff 검사PASS,실제staged blob scanner exit0/탐지0. 코드/테스트는현재최종Source에서237검증됐고이후변경은결과문서뿐이다. 모든개발키/로그/DB/라이선스/빌드출력·기존Demo/cache는stage하지않았다. 마지막문서commit후전체이번범위재scan·freshfetch/FF확인·동일handoffpush·localremote 일치확인→vars정상응답0뒤singlefalseHosted로배치31UUID후속/전체현재Native·harness/test를함께검증한다.
+
+- 배치32 I FFpush확인/단일Hosted시작: local/remote handoff HEAD2017771d355cb56865f44ef1ddf9e4faad78442d 일치,3639a1d→2017771 FFpush exit0. 모든현재code/test/배치31UUID후속·정식Native변경과새전이guard가해당source에포함됐고trackedclean/초기미추적3경로보존. 마지막전체range scan0/탐지0·정상vars API0/total0 재확인. release_validation=false Hosted-only 단1회를이source에서요청하며최종결과前PASS기록없음. 추가실Provider/OS잠금조작/main/force/runner/Release없음.
+
+- 배치32 I Hosted dispatch1회수락: run44165459795/source2017771d355cb56865f44ef1ddf9e4faad78442d,release_validation=false. https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44165459795 . 현재최종결과대기이며추가dispatch/retry/Unity활성변수/runner/Release없음. 소스동결후코드변경0,최종결과와local/remoteHEAD만기록한다.
+
+- 배치32 I 원격중간검증: run44165459795 inventory-contracts SUCCESS/UnitySKIPPED. 공식job logs API exit0에서Python57모듈237건 및닫힌原Core기준+정확Native전이guard PASS를확인했다. 新KotlinCodec/SwiftDecoder 포함native job과Backend/기본집계최종결과는대기이며추가dispatch/소스변경없음. 원격수와로컬237일치,배치31UUID후속을포함한최종source2017771검증이다.
+
+- 배치32 I 원격추가관측: Android-native/Backend-postgres SUCCESS. 공식logs에서필수StoredGoogleSessionCodecTest/JUnit gate와TC11/의도변이1/정상복원을확인했다. Swift package단계도SUCCESS후syntheticSimulatorhost최종대기이며전체PASS를앞서기록하지않는다. 추가dispatch0/현재code tree2017771불변,검토한local문서링크누락0.
+
+- 배치32 I/J 최종원격결과/문서커밋 전: run44165459795/source2017771d355cb56865f44ef1ddf9e4faad78442d,false 단1회SUCCESS. Hosted4/basic SUCCESS,Unity/ReleaseSKIPPED. 공식Python57모듈237·原Core＋Native전이guard·신규KotlinCodec/JUnit·Swift40/Decoder3·TC11/의도변이1/정상복원·synthetic iOShost job확인. quiet host정확test수UNMEASURED/Unity실행아님. 배치31UUID후속과전체현재code/test포함,이후코드변경0. AJ/15항목·후보→정식커밋맵·64Task24/40/local22/1/41 및모든실패/미완료scope를문서로정리했고최종문서stage scan/commit/동일handoffFFpush/localremoteHEAD·원래미추적3경로보존을검증한다. 추가CI/실Provider/main/force/Release없음.
+
+- 배치32 J 최종stage검증/커밋 직전: 명시7개결과문서text/JSONparse·64Task원장·diff PASS,실제staged scanner exit0/탐지0. 검증source2017771뒤SDK/harness/tests/workflow/baseline코드변경0이다. 마지막문서commit後freshfetch·전체이번range scan·handoffFF가능성·push·최종remoteHEAD/추적파일clean·초기미추적3경로와candidate로컬branch보존을실제조회한다. 추가dispatch/원격branch/candidatepush/실Provider/main/force/Release없음.
+
+## 배치33 부분 작업 — Strict 보호 및 API 문서
+
+- 시작 source `56c1a615d6818c018f627d80f1130ab9c2eb9870`. 기존 미추적 Demo와 캐시는 보존했다.
+- 전체 Strict의 필수 소유권 preflight가 아직 완성되지 않아 `--run-local`은 DB 등 자원 생성 전에 `DEFERRED_ENV`/2로 종료한다. 별도 `--self-check` 동작은 유지한다. 이는 소유권 검증 구현이나 전체 Strict 실행을 대체하지 않는다.
+- `python3 -m unittest discover -s harness -p 'test_strict_timeout.py' -v`: exit 0, 3 tests. 자원 생성 전 종료를 별도 프로세스로 확인했다.
+- `bash scripts/verify-external.sh --check-config`: exit 2, 7개 항목 모두 MISSING_OR_INVALID. 값 출력 및 Provider 호출 없음. 실제 연동 NOT_RUN.
+- `python3 scripts/verify-progress.py`: exit 0. 제품 검증과 별개다.
+- API 문서에서 배치32 Android/iOS LOCAL_MOCK Player와 Push 검증을 반영했다. StoreKit Player와 실 Provider는 여전히 미검증이다.
+- 재개: 전체 preflight 및 fixture, Native/Player 측정, 새 패키징, OpenAPI, 64 Task 감사, 회귀 및 Hosted CI가 남았다. 이번 부분 작업은 전체 배치 완료가 아니다.
+
+## 배치33 A — HTTP 계약 초안 및 소스 guard
+
+- 실제 mapping 24 method/path, profile별 28 controller binding을 조사했다. `contracts/openapi.yaml`은 JSON 형식의 YAML 1.2이며 Bridge schema와 별개다.
+- `artifacts/batch33-tools/bin/python -m openapi_spec_validator contracts/openapi.yaml`: 0 (openapi-spec-validator 0.7.2). 최초 빈 required 배열 오류는 수정한 뒤 재검증했다.
+- `python3 -m unittest discover -s harness -p test_openapi_contract.py -v`: 0, 정상1/음성6. path, method, security permitAll, 필수 수락 header, error schema, profile 변조 검출.
+- DTO 응답 shape와 endpoint별 오류 도달성의 실행 대응은 아직 완전하지 않다. default error와 catalog profile 설명에 한계를 명시했다. BUG-017은 OPEN/PARTIAL 유지하며 Provider 검증으로 승격하지 않는다.
+- 전체 Python 시험 및 새 Android/iOS 패키징은 병행 실행 중이며 결과는 후속 기록한다.
+
+## 배치33 B — 원장 및 외부 설정 감사
+
+- `python3 harness/audit-ledger.py`: exit0, 64 Task/13 open blocker/제품 marker0. 각 Task 완료 기준을 JSON taskReview에 연결했다. 원장 inventory 검증은 완료 기준 충족의 전수 증명이 아니므로 상태 승격0.
+- `python3 -m unittest discover -s harness -p test_external_config.py -v`: exit0/2 tests. 실제 Backend 설정 parser의 productIds/rootCertificatePaths 배열 요구와 checker를 맞췄다.
+- `bash scripts/verify-external.sh --check-config`: exit2, 7항목 MISSING_OR_INVALID. 비밀값 출력/Provider 호출0. USER_SETUP에 항목별 사용자 작업과 검증 한계를 추가했다.
+
+## 배치33 C — Swift Core Simulator 계측
+
+- `xcrun swiftc -O -parse-as-library ...` 및 standalone macOS 측정 exit0. 후속 `python3 harness/run-swift-coordinator-performance.py --run-local` exit0, 증거 artifacts/swift-performance-f093e33f5dc04637b84d46d5a51f39df.
+- 명시한 새 iPhone16/iOS18.6 UUID/name 일치 후 boot/spawn, 자신이 만든 UUID만 shutdown했다. 원본 device 디스크 보존.
+- 실제 Core SdkCoordinator와 immediate fake provider, warmup20/measurement100, p50/p95/max 및 프로세스 peakRSS와 weak 잔존을 JSON에 기록했다. runtime/allocator와 peakRSS 증가를 누수로 판정하지 않는다. 실제 iPhone/C ABI/continuation/session/Unity/Android 계측으로 일반화하지 않는다.
+- 나머지 Native/Unity 성능 계측은 미완료이며 T03 PARTIAL, 개선율 주장 없음.
+
+## 배치33 D — 새 패키지와 소비자
+
+- GAMEBRIDGE_MAVEN_REPO=artifacts/batch33/maven의 절대경로로 `bash scripts/build-android.sh --mock`: exit0. publish 3모듈/sample/R8 성공.
+- GAMEBRIDGE_IOS_OUTPUT_DIR=artifacts/batch33/ios의 절대경로로 `bash scripts/build-ios.sh --xcframework`: exit0, device/simulator archive 및 신규 XCFramework 성공.
+- 새 Maven으로 `scripts/smoke-android-maven-consumer.sh`: exit0, 새 독립 release APK와 mapping/manifest 검사. `scripts/smoke-ios-source-consumer.sh`: exit0/macOS source 소비. 새 simulator framework import 및 GameBridgeConfig 사용 `xcrun swiftc ... -c`: exit0.
+- `scripts/package-sdk.sh` 새 Maven/XCFramework→artifacts/batch33/upm: exit0. `python3 harness/check-staging.py artifacts/batch33/upm`: exit0/147파일. verify-xcframework device arm64/sim arm64+x86_64 및 4 export PASS.
+- `git diff a83561a -- android ios unity` empty. 빌드 도중 도구/문서 변경은 있었으나 shipping source 동일. 이전 패키지 bytes 재사용0. binary API 전체·신규 Unity 소비는 미실행. T04 PARTIAL.
+
+## 배치33 E/F — 읽기 전용 inventory와 차단 근거
+
+- `python3 harness/strict-preflight.py --staging artifacts/batch33/upm --output artifacts/batch33/preflight.json`: exit2. git/source, Docker daemon, 실행파일 존재, staging checker 실제 관측을 기록했다. E1/E2 전체 환경 계약 완성은 아니다.
+- Unity 실행파일은 있지만 license/module attestation 미완료, source staging attestation/전체 required lane 환경/ADB PID와 양 endpoint/별도 AVD·StoreKit Simulator/DB role·Backend secret scope 계약 미완료를 구체적으로 기록했다. 임시 bool로 통과시키지 않는다.
+- E2 생성0, 전체 Strict 제품 실행0/NOT_RUN. a83561a guard 유지. 기존 P05 FAIL과 ENV-STOREKIT-26 및18.6 간헐 위험은 보존. E3 확장 fixture는 아직 미완료다.
+
+## 배치33 G/H — 문서·로컬 후보·회귀
+
+- Python 기본 환경 첫 전체 실행 exit1/244 tests/error1: jsonschema 모듈 부재. 의존성 venv의 `artifacts/batch33-tools/bin/python -m unittest discover -s harness -p 'test_*.py'`: exit0/247 tests/27.730초. 추가 spec validator0.7.2를 schema requirements와 Hosted 문법 검사에 연결했다.
+- UNITY_EDITOR_PATH를 설치된6000.5.8f1로 명시한 `scripts/smoke-csharp-registry.sh` 및 `scripts/stress-csharp-lifecycle.sh`: 각각 exit0. managed418(정상198/예상오류220), lifecycle100이며 Unity Player 실행이 아니다.
+- `python3 harness/check-api-baseline.py --help`는 이 script에서 help 전용처리가 없어 실제 source baseline 검사로 실행됐고 exit0. binary compatibility로 확대하지 않는다.
+- README/START_HERE/API/INTEGRATION/SECURITY/COMPATIBILITY/FEATURE_MATRIX/USER_SETUP/FINAL_REPORT에 현재 증거·한계 반영. artifacts/batch33/DEV_RC에 새 staging+문서+manifest를 조합했고 소스 예제는 저장소 경로를 유지한다. 공개 게시0.
+- `gh api .../actions/variables`: 정상0개, `.../actions/runners`: 정상0개. 코드 commit 및 검토 후 fresh fetch/FF 확인하고 false Hosted 1회만 dispatch한다. H의 TC 변이·self9 등 요청 전부는 아직 실행하지 않았으며 부분 인계로 표시한다.
+- 추가 검토: diff의 private-key/AWS/Google/GitHub credential 패턴 매치0(제한된 패턴 검사이며 full scanner 아님). 신규 포함파일은 소스/문서/정제JSON뿐이고 빌드/DB/라이선스/기존미추적 경로는 제외했다. actionlint 실행은 기존 custom self-hosted label 미등록으로 exit1이며 변경한 Hosted 문법 문제는 관측하지 않았다. 해당 기존 label은 변경하지 않는다.
+
+## 배치33 H — 원격 실패 수정 및 독립 회귀
+
+- Hosted run44269328731/source deb907414706b132f4e1976e77bcc72524bb2587 단1회. inventory-contracts에서 source-bindings 파일 열거 순서가 macOS/Linux 간 달라 OpenAPI 정상 시험1이 실패했다. source 기준 정렬 비교와 정상 순서반전 fixture를 추가했다. 기존 profile/header/security 음성은 유지한다.
+- `python3 -m unittest discover -s harness -p test_openapi_contract.py -v`: exit0/8. 최종 `artifacts/batch33-tools/bin/python -m unittest discover -s harness -p 'test_*.py'`: exit0/248/18.795초. CI 이후 코드 수정이므로 원격 미검증으로 유지하며 재dispatch하지 않는다.
+- `... run-strict-local-isolated.py --run-local --self-check`: exit1, artifacts/harness-self-cwnajai_. 9개 lane 자체표시 PASS이나 실행 중 WORK_LOG의 binding count29→28 정정으로 전체 sourceDigest가 바뀌어 provenance 집계가 실패했다. 원본 결과 유지. 전체Strict 실행이 아니며 상태를 소급 PASS로 바꾸지 않는다.
+- `python3 harness/run-purchase-testcontainers.py --run-local`: exit0. artifacts/purchase-testcontainers-xvscmso9. 총11실행/정상10+의도변이1, mutation exit1/복원exit0, container 정리 검증. 소스 고정 후 자체시험만 재확인한다.
+- 소스 고정 84e1026 후 동일 신규격리 `--self-check` 재실행: exit0, artifacts/harness-self-yphsxwat/전체집계 PASS. 9lane/47test/check9/예상실패3(정상44)을 구분한다. DB/role 원본 유지, 자기 Backend만 종료. 첫 FAIL을 덮어쓰지 않았다. 이 명령은 fullStrict가 아니다. 후속 기록은 문서만 변경한다.
+- Hosted 최종44269328731/source deb907414706b132f4e1976e77bcc72524bb2587: FAILURE. Backend/Android/Swift-iOS-Simulator SUCCESS, inventory와basic FAILURE, Unity/Release SKIPPED. OpenAPI 문법 단계는 성공, 정상source비교 열거순서 오류는84e1026으로 수정/로컬248·self9로 확인했고 FFpush했다. 원격수정검증 NOT_RUN/재dispatch0. 최종결과 문서만 별도commit/동일handoff FFpush한다.
+
+## 배치34 A — OpenAPI 의미·DTO·실제 HTTP
+
+- 시작3313c847e77c17be5130451b091196db8eee0383. source/profile/header를 정규화하되 중복 binding/value는 거부한다. source만 정렬하던 비교를 보강했다. 정상 nested순서·누락·중복·DTO type/required 음성 포함15 unit PASS.
+- DTO 정적 checker는 실제 Kotlin data class의 필드·자료형·nullability·required를 대조한다. Map/동적 응답은 이 parser로 증명하지 않고 실제 HTTP fixture 범위를 따른다.
+- `artifacts/batch33-tools/bin/python harness/run-openapi-http.py --run-local`: 최초 local-mock에서 sandbox auth route의503예상과 달리404라 fixture 기대값을 실제Profile에 맞췄다(원본 artifacts/openapi-http-d4elgpn4). 후속7c5ql0ck는 PASS이지만 누락필수헤더가500임을 관측했다. 실제ApiErrors의 MissingRequestHeaderException 분류를 고쳐400/INVALID_ARGUMENT으로 회귀했다.
+- `backend/gradlew -p backend test --tests '*HttpInfrastructureTest' --rerun-tasks`: exit0. 새 MockMvc 누락header 시험 포함. 이후 HTTP runner exit0/artifacts/openapi-http-jr324w0t,24operation별 runtime scope 기록/성공·오류 body schema·requestId 대조. raw body/token/key는 결과에 저장하지 않는다.
+- 관측한 오류HTTP status를 OpenAPI에 개별 추가했고 문법검사 exit0. 합성Sandbox 성공/Provider설정실패의 추가실행과 SSE payload 전체 대조가 남아 BUG-017 OPEN을 유지한다. profile absence404를 Sandbox 성공으로 세지 않는다.
+
+## 배치34 B — 64 Task 개별 완료기준 검토
+
+- 계획의64개 완료기준을 원장/기존증거와 대조해 각각 충족범위·미충족조건·사용자/환경의존·권장상태를 docs/evidence/p11-batch34-task-audit.json에 기록했다. 근거전수연결이 부족한 Task는 그 부족을 명시적으로 남겼으며 완료로 해석하지 않는다.
+- [P00-T03] 최소프로젝트 조건은 배치33 Android/sample/독립R8, iOS source/archive, 현재 Backend bootJar, 기존 양Unity LOCAL_MOCK Player로 충족했다. `git diff daf3cd9 -- android ios unity`0으로 현재Native/UPM동일source임을 확인(새실행주장아님). 기존ENV-002/003은 원장에도RESOLVED였으므로해당행만IMPLEMENTED/PASS로정정했다.
+- P05-T03 FAIL, 외부13 WAITING_USER, P09-T07 self-hosted/Release PARTIAL유지. 기타Task의내부미완료와검증미완료는개별gap에구분했으며P11전체완료로승격하지않는다. FEATURE_MATRIX의OpenAPI부재라는오래된문구정정.
+- B 후속 원장검사는 행25/39로바꾼뒤상단선언24/40을갱신하지않아exit1이었다. 상단구현25/진행39·로컬23/1/40으로정정하고재검사한다. 이전실패를성공으로소급하지않는다.
+
+## 배치34 C — 실제 packaged C ABI 계측
+
+- `python3 harness/run-swift-cabi-performance.py --run-local`: exit0, artifacts/swift-cabi-performance-661607840ecb4676aebaa5695c555370. 기존SwiftCore실험을반복하지않고배치33simulator framework를링크한새실행파일로GB_SetCallback/Dispatch/Shutdown을호출했다.
+- 새전용iPhone16/iOS18.6 UUID/name검증후실행/자기UUID만shutdown. init/status/shutdown 각warmup20·sample100,120session·360correlatedcallback,측정harnessoutstanding0. p50/p95/max·peakRSS JSON보존. peakRSS증가를누수로판정하지않는다. Nativeprivatepending/Taskcancel/continuation은NOT_RUN/NOT_OBSERVED이며잔존0으로위장하지않는다.
+- 도구소스는당시untracked/HEAD3313c84이며Native배포bytes변경없음을분리했다. C1Android는D의신규JNI소비자환경port소유충돌로생성전차단, C3Unityscene/frame계측은아직미실행. T03 PARTIAL.
+
+## 배치34 D — 남은 Binary 및 신규 Unity 소비
+
+- 배치32 handoff Maven과새배치33Maven의sdk-core SdkCoordinator/BridgeProtocol, bridge BridgeFacade, android.auth.GoogleAuthProvider를`javap -public`으로선정비교했다. 4class출력동일/hash기록. 최초GoogleAuthProvider의잘못된package명은javap1로거부했고실제jar명단으로확인후정정했다. Kotlinmetadata전체ABI보증아님. `git diff a83561a -- android ios unity`0.
+- 배치32의검증된소유controller를새name/port5602/staging33으로복제한`python3 artifacts/batch34/run-owned-android.py`: exit1,원본port소유검사가기존사용중endpoint를발견해자원생성전중단. 기존server/기기를kill/restart하지않았다. artifacts/batch34-android-controller.log원본보존,새Androidbuild/Player0.
+- `UNITY_EDITOR_PATH=...6000.5.8f1/... python3 harness/run-unity-ios-mock-e2e.py --run-local --staging artifacts/batch33/upm --package-cache artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache --pii-probe --adhoc`: exit0, artifacts/unity-ios-e2e-5gvhn9ti. 新consumer/UPMimport·batchCLIexport·Xcodebuild·새SimulatorPlayer,24marker/Backend trace/ledger1·100 PASS. GUI·실Apple아님.
+- 원본runner는신규Simulator를retained Booted로두므로후속에서생성DBsuffix와정확UUID/name/iOS18.6을대조해자기기기만shutdown0. 원본result변경없이정제증거에후속cleanup기록. 신규Native再build없고T03의존/새Android미실행으로T04 PARTIAL유지.
+
+## 배치34 E/F — 실제 E1 판정 및 E2 identity 계약
+
+- `strict_environment_contract.py`는실제verify-all의required_names/self_names를AST로추출한다. required누락·duplicate/20종필수조건의미확인을DEFERRED_ENV/2로판정하며모두실관측true인fixture는PASS/0이다. E2는source/ADB exe·PID/endpoint/별도AVD/Simulator/StoreKit/Backend/DB/checksum identity를대조해변조FAIL/1.
+- `python3 -m unittest discover -s harness -p test_strict_environment_contract.py -v`: exit0/6시험. 각필수조건누락및각identity변조는subTest로검사(시험수로중복합산안함). 원래결과0실행/error/parent-child guard는기존집계시험유지.
+- `python3 harness/strict-preflight.py --staging artifacts/batch33/upm --output artifacts/batch34/preflight.json`: exit2. UPMchecksum/원본source/Native Gitdiff,Editor실행파일·Android/iOSmodule,Runtime18.6,현재5037/5038/18080 listener를실관측했다. 모든check를항상실패시키는상수가아닌조건별판정으로변경했다.
+- license/서로다른AVD·secret·소유계획/TC준비관측은미완료여서E1대기. E2실제자원생성및全wrapperidentity배선도미완료라guard를해제하지않았고전체Strict제품실행0. fixtures를실환경완료로부르지않는다.
+- Android후속은관측상ADB port가free로변해1회새output으로재확인했으나현재E미커밋변경으로tracked-clean guard가exit1,생성0이었다. source고정후가용성을다시검사할예정이며기존실패원본보존.
+- 배치34 D 실제조건변화후검증: source fd7a55f tracked-clean으로고정하고free port를재검사한 `python3 artifacts/batch34/run-owned-android-c.py` exit0. artifacts/unity-android-e2e-kh0h6vqc의신규UPMimport→CLIbuild→실제JNI LOCAL_MOCK PII Player PASS. runtime5037/build5038·emulator5602/5603·PID/name소유검증후자기AVD/ADB종료. 원본a/b실패는보존하며새Player성공으로덮지않는다. 이번새소비Android/iOS각1PASS,성능계측과는별개.
+
+## 배치34 A2 후속 — 합성 Sandbox 직렬화 응답 대조
+
+- test-only OpenApiCapture는실제TestRestTemplate 응답을읽어body type/field구조만수집하고모든문자열값을redacted로바꾼다. 원본response는다시읽을수있도록복원하며raw token/proof/requestbody를기록하지않는다. env미설정이면아무interceptor도추가하지않는다.
+- 첫임시실행은Sandbox와LOCAL_MOCK을같은DB에묶어제품의DBprofile소유guard가실패(10tests/5failure)했다. guard를완화하지않고별도새DB/role그룹으로분리했다. 후속Sandbox5tests는PASS였으나literal /purchases/bindings와/{purchaseId}가동시에매치된검사기오류로exit1. Spring의literal우선규칙을반영해정정,원본vap1ywf4/07fil6v8보존.
+- `artifacts/batch33-tools/bin/python harness/run-openapi-synthetic.py --run-local`: exit0/artifacts/openapi-synthetic-tdhrysda. Sandbox5+Local5/실패·error·skip0,실제응답132건shape/schema/requestId대조PASS. 기존LOCAL_MOCK32관측과합쳐24operation모두성공200범위가있다. synthetic proof/verifier/HTTP adapter이며실Provider아님.
+- `backend/gradlew -p backend test --tests '*OpenApiCaptureTest' --tests '*HttpInfrastructureTest' --rerun-tasks`: exit0/4시험. 문자열증빙제거·schema타입보존과누락header400을확인했다. request body reference/required도실Controller DTO에대조하고누락음성을추가해OpenAPI16unit PASS.
+- SSE event payload전체및동적Map필드의보다엄밀한계약이남아BUG-017 OPEN. 모든default오류분기를실행했다고주장하지않는다.
+
+## 배치34 G/H 준비
+
+- 현재9문서와PROGRESS상단의배치32시점 stale checkpoint를배치34현재사실로정리했다. 기존실패/증거파일은유지한다. DEV_RC는동일Native bytes와실제147checksum·새양Unity소비범위를명시해보강하며공개Release는생성하지않는다.
+- 최종Python262/17.004초 exit0, OpenAPI16/문법PASS. 기존고정source fd7a55f에서Core/managed/변이복원·self9/TC11은통과했고제품Native source변경0이다. 추가HTTPcapture는test-only/no-op-by-default,실행시문자열값제거4unit과10syntheticHTTP시험으로확인했다.
+- H 마지막소스고정 `...run-strict-local-isolated.py --run-local --self-check`: exit0/artifacts/harness-self-mlczwg79,source6b8d884.9lane/47test/정상44·예상음성3/check9. docs·code변경없이진행해provenance정상. fullStrict아님.
+- `run-core-assertions.py --run-local`: exit0/sourcefd7a55f/artifacts/core-assertions-s21jc8dt. Kotlin10/50helper,Swift12/122helper,managed418/복원418/분기419·duplicate mutation감지/100 lifecycle samples·316helper. `run-purchase-testcontainers.py --run-local`: exit0/sourcefd7a55f/artifacts/purchase-testcontainers-xkvwuum7/11실행·예상변이1·정상복원/container정리. 이후shipping product변경없음(HTTPcapture는test-only).
+- actionlint는검증된custom runner label을로컬config에명시해exit0. diff한정privatekey/AWS/Google/GitHub credential패턴0(전체secret scanner아님). 새진입코드/정제문서/JSON만stage하고생성물/원본log·DB·license/개인파일은제외한다. 기존Demo/cache보존. Unityopt-in정상API0개확인후FFpush/새falseHosted1회만예정.
+
+## 배치34 C3 추가 — 실제 Unity Player·Scene·Frame
+
+- GitHub CLI연결 timeout대기중 독립계측공백을줄였다. 새 `tests/UnityPlayerPerformance/PlayerPerformance.cs`와명시적 `--performance-probe`를전용CLI PII소비자에만추가했다. 실제stage의production SDK파일은바꾸지않았다.
+- `...run-unity-ios-mock-e2e.py --run-local --staging artifacts/batch33/upm --package-cache artifacts/unity-ios-mock.8xjMY7/project/Library/PackageCache --pii-probe --performance-probe --adhoc`: exit0/artifacts/unity-ios-e2e-wlv8tkox. 新project/Xcode/Simulator実Player,120 lifecycle/임시Scene,각warmup20·sample100,실제frame1000. main thread callback조건을확인했다.
+- runtimeUnity Profiler API의total allocated/managed used를forcedGC전후관측했다. pendingAfterCompletedCallsMax0, weakclients1. 전체누수·프레임안정성·CPU blocking을증명하지않고추가root분석대기로기록한다. 첫app초기화는baselineflow라시간을수집하지않았고이값은후속반복계측이다. Profiler GUI실행없음.
+- 실제저장결과에summary수치계약을후적용해PASS. rawsample은보관하지않아percentile재계산검증은NOT_CHECKED로명시한다. 잘못된count/NaN/pending양수/메모리boolean거부와weak1관측보존1시험추가,기존5와총6PASS. 기존GUI wrapper/cache14시험도PASS. 新UUID/name/DBsuffix/runtime일치후자기Simulator만shutdown0.
+- GitHub CLI fetch는github.com443 timeout,뒤의varsAPI도timeout이었다. connectedGitHub read에서실제handoff HEAD3313c847e77c17be5130451b091196db8eee0383확인. 이후CLIvars정상0이재확인돼최신codecommit후FFpush/단1회Hosted를이어간다. 아직dispatch0.
+- 추가Player계측과summaryguard뒤최종Python263/16.708초 PASS/0이며scope의첫app-init/CPUblocking/raw-percentile재계산미검증·weak1관측을9문서/RC/통합문서에반영했다. Gitfetch정상회복후originancestor확인0. 모든코드/test/workflow를고정한새source에서falseHosted1회및동일source자체시험/TC/Core를마지막으로확인한다. 이뒤코드변경없이결과문서만갱신한다.
+
+## 배치34 H 최종 원격·동일source 검증
+
+- 648bb807baeab4e83b037856a9ae04f84e8a2154로freshfetch/ancestor0·FFpush0·ls-remote일치확인. `gh api .../actions/variables --jq .total_count`정상0후 `gh workflow run verify.yml --ref handoff/p09-resume-20261113 -f release_validation=false`1회,run44287600414. network실패는그이전이며중복dispatch없음.
+- 최종SUCCESS:inventory/Backend/Android/Swift-iOS/basic SUCCESS,Unity/Release SKIPPED. connectedGitHub 공식job134744193895로그에서OpenAPI문법·정상·순서반전/중복/누락fixture 및60 Python invocation/263 test확인. syntheticHTTP10/MockMvc4는local전용실행범위라Hosted와합산하지않는다.
+- 동일648source Core v3o3wh48/self cn8tm4r9/TC27qjah_h 각exit0. CoreKotlin10/helper50·Swift12/helper122·managed418/정상복원418·분기419/duplicate mutation, lifecycle100samples/helper316. self9/47test(정상44/예상음성3)/check9. TC11/정상10·의도변이1·정상복원/자기container정리.
+- 최종E1 read-only재검사 source648/tracked-clean/required58·20조건의구체적누락exit2. E2creator/全wrapper실소유배선미완료로실제Strict0회. 정상fixture와실환경대기를구분했다.
+- 이후code/test/workflow변경0. 64Task감사후속에새소비/성능closed조건과정확한잔여를추가했고결과문서/정제evidence만commit/FFpush한다. 기존원본실패/기기/DB/Demo/cache·새backend/.kotlin보존.
+- 인계직전 `bash scripts/verify-external.sh --check-config`: exit2/7항목모두MISSING_OR_INVALID,실Provider호출0. DEV_RC최종문서·CI source648/실제SDKbuild sourcea835를분리하고outer SHA256와내부147checksum을모두재검사PASS. 정식ReleaseReady=false. 최종문서커밋이후CI code와diff가docs만인지확인후FFpush/remoteHEAD일치/미추적보존을조회한다.
+
+## 포트폴리오 최종화 시작 — 사용자 문서36 / [P11-T01] [P11-T02] [P11-T03]
+
+- 시작beba1ff949dc42721d3bb43cdd7727cff41ca1fc/handoff. tracked-clean, 기존미추적harness/cache·scripts/cache·unity/Demo 보존.
+- 로컬 Recruit2개회사.md의 W/G 자격/우대·직무를 확인했다. 경력3/7년·상용/출시·대외협업·해외근무조건은 이개인프로젝트로증명하지않는다. Kotlin/Swift/C#/SDK/Bridge/REST/연동문서·선정호환성의실제근거를중심으로재구성한다.
+- 기존README/INTEGRATION/CHANGELOG 등에배치34성과와이전Unity미검증문구가혼재하고USER_SETUP의초기계획NOT_STARTED/계획변수명이남아있음을확인했다. 최신설명은현재문서에통합하고과거실행/실패원본은evidence/Git/WORK_LOG에보존한다.
+- weak1은 기존120cycle/마지막weakcount1/pending0와cleanup소스를우선검토한다. async계측프레임이살아있는시점GC이며heap root/증가곡선이없어누수원인은미확정이다. 새로운P0재현근거가없으므로무근거제품수정/성능프로젝트를추가하지않고제한조사결과를기록한다.
+- [P11-T01] 조사결과확정: SDK static active/driver·iOS static transport/current/Message/queue와request pending/cancel 등록정리 경로를현재소스로대조했다. 테스트async Run이반환하기전GC/weak count라는참조가설을분리했고heap root/시간곡선/clean-stack 대조가없는한근본원인을확정하지않았다. 추가재현0/제품수정0,신규P0확인없음(누수없다는증명아님). 제공공고fingerprint·검토소스hash와관측범위를portfolio-finalization.json에기록,3사례·EdgeCase·미확정위험은ENGINEERING_NOTES에통합했다.
+- [P11-T02] Quick Start와설계문서확정: 신규SDKAPI를만들지않고현재constructor10인자·facade11호출·기존NativeDemo/consumer/scripts를대조했다. MonoBehaviour context에서await·서버entitlement·명시적Push·Shutdown/Dispose를설명했다. MockPushBroker의user/app/installation scope와DevPushHTTP시험을검토해별도A sender session의개발발송설명을연결했고UI/Native token을추출하라고안내하지않는다.
+- SSE의ready/push/heartbeat·session ownership,Map catalog/purchase/device/send 필드를Controller와대조해API.md에보강했다. 기계schema/하네스는변경하지않고BUG-017 OPEN/세부자동검사잔여를KnownLimitation으로둔다.
+- 정적문서검토: local링크150 모두존재,SDK호출이름11개가현재source에존재,Python발송예제AST문법PASS. 이예제를실행했다고세지않는다. `python3 scripts/verify-progress.py`0,`git diff --check`0. Native/Backend/Unity/harness/tests/contracts/workflow는CI648과diff0이므로기존263·Core/원장/ABI/Player검증을날짜갱신목적으로반복하지않는다.
+
+## 포트폴리오 종료 판정·로컬 RC — [P11-T03] [P11-T04]
+
+- 사용자문서36의9종료기준을대조해PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS로확정하고개발종료를권고/기록했다. SDK원장BLOCKED_INTERNAL·64행25/39·local23/1/40·외부13WAIT를유지하며P11행도일괄PASS로바꾸지않았다.
+- 원장몇행의이미RESOLVED ENV-002는현재남은조건(특정UTF8/status근거연결·UI/DomainReload·추가profiling 등)설명으로정정하고상태는그대로뒀다. BUG-017의과거파일부재표현도현재24operation/검증/세부검사잔여로정정,OPEN유지. 원본실패와이력은삭제하지않았다.
+- AGENTS/START_HERE/DECISIONS에사용자승인종료범위를기록해P1/P2·Provider·Strict·추가성능을자동필수배치로재개하지않도록했다. 새로운명시적요청때만선택적backlog를다룬다.
+- artifacts/portfolio-final/DEV_RC는기존동일UPM147을복사하고최종README/가이드/판정/manifest를조합했다. SDK0.1.0-dev/Nativebuilda835/검증code648/SDKSHA6fc4...와문서checksum을분리했다. snapshot문서의repo-relative source/evidence참조는handoff GitHub링크로바꿔로컬묶음에서도열수있게했다. rootchecksum160항목및내부147sha전부일치,Native재빌드0.
+- 최종문서검토: local링크169/anchor11/오류0,SourceDiff648대비제품·Native·harness·tests·contracts·workflow0,원장검사0/diff검사0. 새제품·Player·성능·전체Strict·CI실행0. CI재사용은문서only변경조건에따르며기존실패/제한은따로공개했다.
+- 전체Strict는마지막preflight DEFERRED_ENV/2와E2미완료로0회유지. 현재소스조건상안전한전체실행을입증하지못하므로guard/required58/recorded P05FAIL을바꾸지않았다. weak추가재현0/수정0·누수미확정,새P0확인없음이라는제한조사결론을유지한다.
+
+## 포트폴리오 최종 인계 — [P11-T04]
+
+- `git fetch origin handoff/p09-resume-20261113`0,originancestor검사0,`git push origin HEAD:handoff/p09-resume-20261113`0. beba1ff→e45188b FF이며main/force/Release/runner/실Provider변경없음.
+- `git rev-parse HEAD`와`git ls-remote origin refs/heads/handoff/p09-resume-20261113`가e45188b73b70f3e54061f9ed5298ec9207903d62로일치했다. tracked-clean,기존harness/cache·scripts/cache·unity/Demo3경로비추적상태보존.
+- 이번전체diff는Markdown/정제portfolio JSON뿐이고기존evidence파일및제품/Native/Unity/Backend/harness/tests/contracts/workflow를수정하지않았다. 제한된credential패턴검사0·diff0·원장0,문서169link/11anchor와RC상위160/SDK147checksum검토PASS. 새테스트/Player/CI0이며마지막code648bb80의Hosted44287600414 SUCCESS근거를유지한다.
+- 문서최종화commit7a575b7(설계/제한조사),c744d29(통합가이드/공고대응),e45188b(판정/종료정책)을보존한다. 이번인계기록commit은Git이력에서별도조회하고동일handoff FFpush후최종local/remote를확인한다. PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS로개발을종료하며선택적backlog를자동재개하지않는다.
+
+## 사용자 문서37 / 소셜 확장 A 시작
+
+- 기존 종료 규칙 중 새 명시 요청의 범위만 재개. git switch -c feature/social-login-20261119 exit0. SDK64행/기존포트폴리오판정·실패원본과 미추적3경로 보존, remote변경없음.
+- 기존AppleAuth/GoogleAuth/JNI/C ABI/AuthFlow/JWT/구매account scope를 조사했다. 공식Google release/9.2.0 헤더의nonce overload 확인, iOS16유지를위해9.2.0 pin을권장선택했다. 서버nonce검증을생략하지않는다. Meta/Apple 공식 문서도 다음배치에참고하며 opaque access token·OIDC JWT·code를분리한다.
+
+## 소셜 확장 A — 구현/로컬 결과
+
+- GoogleSignIn9.2.0 exact SPM 및resolved transitive pins. customnonce가있는공식signIn overload사용,Bundle client/server ID·reversed scheme preflight,활성UIKitpresenter,논리취소/공유UI중복guard/late결과무시. Host callback은Swift helper/GB_HandleAuthURL만forward,rawOAuthURL/code는C#을통과하지않는다. 기존C ABI4개유지+추가함수1.
+- 새SocialAuthProvider는Google전용store·app/mode/backend/client-ID결속·opaqueGameBridge세션/refresh single-flight/tombstone/logout generation을사용한다. 기존Apple 공개constructor를보존하면서내부BackendSessionAccess에token/userId만전달해Apple store/push의기존원장/accountbinding을재사용한다. Provider전환은기존계정을로그아웃하고새proof를검증하며자동병합/Mockfallback없음.
+- swift test --package-path ios --filter 'SocialAuthProviderTests|AppleAuthProviderTests|CBridgeTests': exit0/29. 늦은credential afterclose는exchange/persist되지않고중복signin BUSY,앱/설정격리·refresh/logout검증. backend/gradlew -p backend test --tests '*IdentityVerifierTest' --tests '*AudiencePolicyTest':0,JWTnonce/issuer/audience서명기존경계유지.
+- 최초archive65는SDKSwiftenum명GIDSignInErrorCode를GIDSignInError로정정. consumer actor warning은Sendable callback에서값만복사후MainActor hop으로수정해재빌드0. 초기실패/로그보존. 소스하드닝별checkpoint출력을새폴더에보존했고최종Native는ios-a-delivery device/sim archive/XCFramework0.
+- Source iOS sample build0/Google resource bundles확인,별도SocialBinaryConsumer가packagedXCF+GoogleSPM만import/link하여Simulator build0(실행없음). 설치된Unity PBX assembly로IosHook.csproj compile+기존PBX/plist멱등검사0. package-sdk.sh 새Native+source변경없는AndroidMaven→upm-a 147checksum0. 전체UnityPlayer/GoogleUI/계정실연동은NOT_RUN/WAITING_USER.
+- A evidence docs/evidence/social-login/a-ios-google.json. sourceSnapshot은base dc3+포함변경/fileSHA이며커밋identity는Git에서조회한다. 원래64행/이전포트폴리오실패·Source648증거를이번기능PASS로덮지않았다. 새실계정시험·remote push없음.
+- B 설계 검토 정정(미배포 코드): Classic access token을전역1회소비하면Meta의정상재로그인/동일token재발급을막으므로초기fingerprint-blacklist초안을폐기했다. 실제로는challenge에proof_type을결속하고매시도Meta debug로valid/app/user/expiry/scopes를다시검증한다. 같은challenge재생은거부하고Limited→Classic downgrade도거부한다. 유효Classic bearer의새challenge 재사용은OAuth성질상허용하며nonce결속을보장한다고주장하지않는다. Native/TLS/로그비노출·iOSLimited권장으로위험범위를명시한다. 기존사용자DB/계정/원장은건드리지않고새테스트DB의forward migration만추가한다.
+
+## 소셜 B — 로컬 검증과 의존성 제한
+
+- FACEBOOK enum append/C#3; Classic accessToken와 Limited idToken proofType, V10 forward migration. Meta debug와 공식RS256 JWKS 검증, FBAppID:subject로 양경로 identity 일치·이메일 병합 없음. 공통 Native 세션 access로 기존 원장/구매/푸시 권위 재사용.
+- Android Kotlin 기존Google/Bridge+Social3 테스트 exit0, Backend FacebookVerifier3 exit0, 합성 소유DB HTTP3 exit0(초기 공유rate-limit429 실패는 테스트context격리로 수정; rate를 높이지 않음). C# AuthProvider routing/비밀 payload 차단 계약 exit0. iOS 생산 manifest+검증된 공식 localbinary cache Swift30 exit0.
+- Meta 원격 SPM download 지연: owned Swift/Xcode 프로세스만 중지. ZIP SHA2566개 upstream과 일치. 첫 Python unzip의symlink손실로 codesign 실패65, ditto로 원래서명 복원후6개검증0/Simulator archive0. 원본실패 보존. 서명disable/resign/SDKpatch 없음. 원격기본 경로 DEFERRED_ENV; 실Facebook WAITING_USER.
+- B 커밋 전 최신 Backend identity namespace HTTP·Android staging/R8·Simulator source 재검사를 수행한다. 다음 C만 진행하며 옛64Task 상태/Strict/CI는 재개하지 않는다.
+
+- B 최종 소스 재검사: Facebook HTTP3 exit0/owned DB gamebridge_ci_abaf17e7c9, build-android.sh --mock Maven+R8 consumer exit0, 최신 Simulator archive exit0. 실제 Provider·새UnityPlayer未실행.
+
+## 소셜 C 시작 — Android Apple 웹 인증
+
+- B commit121d2c6. Apple 공식 authorize/form_post/token 및 Services ID–Primary App ID 관계를 확인. AndroidX Browser1.9.0 stable 선택. 서버는 state/nonce+ES256 client secret/code exchange를 소유하고 Native에는 verifier-bound 일회용 handle만 복귀시킨다. 기존 SessionService/원장 재사용, code를 ID token으로 위장하지 않는다.
+- C 첫 컴파일은 테스트가 존재하지 않는 jackson Kotlin module을 import해 실패1; 기존 ObjectMapper 사용으로 수정. 첫 HTTP6은 ServletServerHttpRequest의 form parameter 재구성으로 replay body가 빈 것으로 처리되어400. callback만 bounded HttpServletRequest stream을 직접 읽도록 수정하고 OpenAPI form 계약 guard를 명시했다. 기존 JSON 필터를 약화하지 않음. 원본log/XML 보존.
+
+## 소셜 C 및 전체 확장 최종 검증
+
+- Android AppleGateway: 공식Custom Tabs1.9.0, Host소유AppLink forwarding·등록staleURL Native소비, 메모리verifier/시도flow결속, 브라우저닫기/lifecycle취소/180초timeout. Backend AppleWebFlow:5분state/nonce hash, codehash unique·교환전stage원자claim, ES256 server p8 clientsecret5분, HTTPS form_post boundedraw수신, 정확ServicesID JWT검증,60초handle+S256verifier 원자1회수령후 기존SessionService발급. V11 forward, 데이터reset/merge0.
+- 후속 HTTP실패는 테스트클라이언트가303을추적해존재하지않는합성도메인을조회한원인: 테스트redirect만비활성화후6test0. 원본별log/XML보존. 기존Google/Apple AuthHTTP2가proofType생략400임을발견(서버에Jackson Kotlin default지원없음): Controller입력nullable+명시ID_TOKEN기본값으로수정해HTTP2/AuthFlowDB1 PASS. 이중호환성을Kotlin함수default만으로주장하지않는다.
+- 최종Backend선정20(신규AppleHTTP6/FBHTTP3/설정2/JWT6/Audience1/Rate1/민감타입1)0failure/skip,exit0; 새ownedDB gamebridge_ci_22718d625e. 별도기존인증HTTP2+FlowDB1/Mock지급HTTP1+LedgerDB제약1모두exit0,각ownedDB/schema보존.
+- Android Native47+Bridge9 exit0/skip0(기존Google/구매/수명·새Apple URL/완료세션/선택marker·설정실패시기존identity유지포함). Swift최종31=Social7/Apple20/CBridge4 exit0. 공통challenge대기중shutdown후UI를열지않게양Nativeguard추가/늦은응답회귀PASS. C#enum/provider/typed비밀비노출/no-fallback exit0.
+- Native최종device/sim archive/XCF0, finalbinaryconsumer의Google+Meta link/resource/embed0. AndroidMaven/sample/기본R8+Meta포함별도consumerR8 모두0. Unity PBX hookcompile+기존PBX/plist멱등0(최초잘못된Native target smoke 입력실패는기록하고실제Sampletarget으로정정;제품수정없음). xcodegen PATH누락66은기존pinned tool사용으로정정. 새Unityexport/Player/실OAuth UI/instrumentation/실계정은미실행.
+- 최종upm-final의147checksum전부일치/packaging0. OpenAPI27operations sourceguard0,form/303본문비노출변이포함18test0. verify-progress.py0,기존64행상태변경없음. Meta remoteSPM지연DEFERRED_ENV·공식SHA/codesign검증cache우회아닌upstream기능사용,모든실ProviderWAITING_USER.
+- 문서USER_SETUP/API/INTEGRATION/FEATURE_MATRIX/CHANGELOG/README와SOCIAL_AUTH_HANDOFF,정제evidence C갱신. 한원인당수정3회제한유지. 남은선정internal빌드/테스트FAIL없음; Classic논리취소후물리callback대기BUSY·실기기/새Player/기본remoteSPM미검증제한명시. 기존미추적3경로보존,생성bin/obj만ignore추가. A9848e56/B121d2c6/C로배치별로컬commit만,원격작업0. 세배치종료후옛P00–P11은재개하지않는다.
+- 최종diff검토에서닫힌Android social account action이호출전에차단되도록closed/epochguard1개를보강하고같은Apple수명시험에action미실행assertion추가. 최종Native47+Bridge9 재검사0,최신maven-delivery/R8재빌드0. NativeDemoREADME에새버튼/Host설정/실연동미검증을추가하고최신binary+문서를upm-handoff147로재묶음/전checksum0(이전산출물보존). Markdown링크검사초안은정상angle-bracket경로를잘못판정해parser만정정;최종97개경로모두존재. 제품문서링크누락은없었다.
+
+## 문서38 인계 시작 — [SOC-HANDOFF]
+
+- 37의push/PR금지를이번요청으로명시해제. feature/social-login-20261119·9848e56/121d2c6/23536d2존재확인,tracked diff0,미추적cache109+5/Demo27파일hash snapshot 로컬보존.
+- git fetch origin0/main5ed09e55cc0d7889e9d801524c8f9c3eb9420d29. main은oldbase e4b677e이고feature359commit/main5commit분기,PR516파일중소셜3commit 자체77파일. 요청한브랜치/과거commit을재작성하지않고feature에origin/main만merge하여기존README보강을보존한다. git merge-tree dry-run은README/API/INTEGRATION3문서만content conflict/exit1. 제품source충돌없음.
+- GitHub plugin repo접근과push권한확인,동일feature PR없음. 지정title/main대상PR을생성하고파일목록을local merge-base diff와대조한다. CI기존Unity미완료와소셜신규실패를구분하며무관한원장/Provider/Player는재개하지않는다.
+
+## 문서38 PR 및 CI 구분 — [SOC-HANDOFF]
+
+- README/API/INTEGRATION3충돌을main의기능가이드·QuickStart·공통API와기존소셜/HTTP/Host계약을병존하도록해결. 경로109/진행원장/diff PASS. merge commit e8823e0은23536d2+main5ed09e5 두parent를보존하며제품source변경0.
+- git push -u origin feature/social-login-20261119 exit0,원격HEAD e8823e0d1e1d36d907cb527e9c9fde587a8e9bd6 일치. plugin으로지정title/main대상PR4생성: https://github.com/CodingBot000/GameBridge_SDK/pull/4 . GitHub516파일과localdiff정렬집합동일,extra0. 본문에누적baseline/소셜77범위·Meta캐시·미검증·테스트를명시.
+- 과거PR2/head4cf5fb9 run44339264161: unity-runtime-required는license/실행미구현을exit2로보고,local-gate는Unityfailure전파exit1. linux-backend-android/ios-simulator는success. 새로운소셜회귀의근거로취급하지않는다.
+- 새PR run44499239447의inventory job135474312716은AppleStore.swift snapshotchanged로exit1. 로컬strictoldguard에서는GooglePlayStore/APPLEstore bytes와C#AuthProvider추가가거부됨도확인. 사용자37승인확장을oldfreeze로판정한신규CI계약불일치이며실OAuth/Unityruntime실패아님.
+- 수정1: 원래contracts/baseline과P08/P10 guard3개를일절수정하지않음. 별도contracts/social-auth-transition.json에dc3→승인23536d2 source26경로의pre/posthash기록. 새check-social-auth-transition은현재shipping전체·선언·CABI를고정승인commit과대조하고추가/누락/변조·원본baseline변경을거부한다. 기존guard는owned historicaldc3 worktree에서그대로실행해P08/P10모두PASS확인. AuthProvider0/1/2+FB3와기존CABI4개+GB_HandleAuthURL만허용. 이검사를CI에명시연결하고새음성5개(범위/전후hash/enum선언/ABI외drift)PASS. 바이너리ABI/실Provider/Player를이source검사로주장하지않는다.
+- `.github/workflows/verify.yml` inventory의실제run block을추출해로컬그대로실행: exit0/총268 unittest(60run),원본historicalguard/current26경로전환·소셜음성5포함. 기존pycache보존을위해별도PYTHONPYCACHEPREFIX지정. 최초Hosted Backend/Android success,Swift in_progress,Unity skipped확인. 기본Meta remote환경대기는유지하고캐시/서명/guard를약화하지않는다.

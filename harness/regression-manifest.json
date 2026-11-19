@@ -195,6 +195,71 @@
       ],
       "mode": "ISOLATED_LOCAL_DB_AND_FAKE",
       "platform": "Backend/Android"
+    },
+    "unity-consumer-e2e": {
+      "command": [
+        "python3",
+        "harness/run-unity-consumer-e2e.py"
+      ],
+      "mode": "UNITY_PLAYER_AND_ISOLATED_DB",
+      "platform": "Unity Android/iOS simulator"
+    },
+    "native-utf8-e2e": {
+      "command": [
+        "python3",
+        "harness/run-r09-utf8.py"
+      ],
+      "mode": "UNITY_ANDROID_PLAYER_AND_IOS_SIMULATOR",
+      "platform": "Android JNI/iOS C ABI"
+    },
+    "ios-host-unity-e2e": {
+      "command": [
+        "python3",
+        "harness/run-r43-host.py"
+      ],
+      "mode": "IOS_SIMULATOR_SYNTHETIC_HOST_AND_UNITY",
+      "platform": "iOS simulator Unity/Swift"
+    },
+    "native-token-redaction": {
+      "command": [
+        "python3",
+        "harness/run-r22-native-redaction.py",
+        "--run-local"
+      ],
+      "mode": "LOCAL_MOCK",
+      "platform": "Android/iOS Native"
+    },
+    "backend-redaction": {
+      "command": [
+        "backend/gradlew",
+        "-p",
+        "backend",
+        "test",
+        "--tests",
+        "com.gamebridge.config.HttpInfrastructureTest",
+        "--tests",
+        "com.gamebridge.config.LocalMockTraceFilterTest"
+      ],
+      "mode": "SYNTHETIC",
+      "platform": "Backend"
+    },
+    "unity-pii-e2e": {
+      "command": [
+        "python3",
+        "harness/run-unity-pii-optin.py"
+      ],
+      "mode": "LOCAL_MOCK",
+      "platform": "Unity Android/iOS",
+      "timeoutSeconds": 3300
+    },
+    "r40-permission-e2e": {
+      "command": [
+        "python3",
+        "harness/run-r40-permission-optin.py"
+      ],
+      "mode": "OS_AND_FAKE",
+      "platform": "Android/iOS",
+      "timeoutSeconds": 3600
     }
   },
   "scenarios": [
@@ -468,19 +533,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R09"
       ],
       "candidateSuites": [
-        "contracts",
-        "android-unit",
-        "ios-unit"
+        "native-utf8-e2e"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r09-jni-cabi-utf8.md",
+      "note": "Actual Unity Android JNI Player and iOS Simulator C ABI; real devices/remote providers remain separate.",
+      "assertions": [
+        {
+          "suite": "native-utf8-e2e",
+          "testFile": "tests/UnityAndroidUtf8Consumer/MockPlayerScenario.cs",
+          "testCase": "GB_UTF8_JNI_ROUNDTRIP PASS"
+        },
+        {
+          "suite": "native-utf8-e2e",
+          "testFile": "ios/Tests/GameBridgeCoreTests/CBridgeTests.swift",
+          "testCase": "testHostPushEventRoutingAndDedup"
+        }
+      ]
     },
     {
       "id": "R10",
@@ -522,7 +597,7 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
@@ -531,8 +606,20 @@
       "candidateSuites": [
         "unity-editor"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Isolated consumer Editor runner and test sources exist; Unity Editor execution and fresh player build remain unverified."
+      "evidence": "docs/evidence/r11-unity-scene-domain-reload.md",
+      "note": "Actual isolated Unity Editor play mode with domain reload enabled and disabled; synthetic callback injection, not OS push.",
+      "assertions": [
+        {
+          "suite": "unity-editor",
+          "testFile": "tests/UnityConsumer/Editor/ConsumerLifecycleTests.cs",
+          "testCase": "GB_CONSUMER_"
+        },
+        {
+          "suite": "unity-editor",
+          "testFile": "scripts/check-unity-test-result.py",
+          "testCase": "required lifecycle completion marker missing"
+        }
+      ]
     },
     {
       "id": "R12",
@@ -852,17 +939,53 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R22"
       ],
       "candidateSuites": [
-        "auth-regression"
+        "auth-regression",
+        "purchase-regression",
+        "native-token-redaction",
+        "backend-redaction",
+        "unity-pii-e2e"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r22-synthetic-redaction.md",
+      "note": "Synthetic local key/token/proof/PII assertions across backend errors/logs, Native bridges and Android/iOS Unity Players; real providers remain separate.",
+      "assertions": [
+        {
+          "suite": "backend-redaction",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/config/HttpInfrastructureTest.kt",
+          "testCase": "unexpected exception never exposes request secret"
+        },
+        {
+          "suite": "purchase-regression",
+          "testFile": "backend/src/test/kotlin/com/gamebridge/purchase/GooglePurchaseHttpIntegrationTest.kt",
+          "testCase": "synthetic credential leaked in server log"
+        },
+        {
+          "suite": "native-token-redaction",
+          "testFile": "android/sdk-core/src/test/kotlin/com/gamebridge/LocalMockIntegrationTest.kt",
+          "testCase": "session token leaked in bridge response"
+        },
+        {
+          "suite": "native-token-redaction",
+          "testFile": "ios/Tests/GameBridgeCoreTests/LocalMockIntegrationTests.swift",
+          "testCase": "session token leaked in bridge result"
+        },
+        {
+          "suite": "unity-pii-e2e",
+          "testFile": "tests/UnityPiiProbe/PiiProbe.cs",
+          "testCase": "GB_PII_PROBE PASS"
+        },
+        {
+          "suite": "unity-pii-e2e",
+          "testFile": "harness/check-unity-pii-evidence.py",
+          "testCase": "sourceTrackedDirty"
+        }
+      ]
     },
     {
       "id": "R23",
@@ -1428,17 +1551,40 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R40"
       ],
       "candidateSuites": [
-        "push-regression"
+        "push-regression",
+        "r40-permission-e2e"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r40-os-and-mock.md",
+      "note": "Actual Android and iOS OS denial and managed mock denial separately executed; iOS GUI denial was externally assisted, remote push remains unverified.",
+      "assertions": [
+        {
+          "suite": "r40-permission-e2e",
+          "testFile": "tests/UnityAndroidPermissionConsumer/MockPlayerScenario.cs",
+          "testCase": "GB_PERMISSION_RESULT PASS ANDROID_OS_DENIED"
+        },
+        {
+          "suite": "r40-permission-e2e",
+          "testFile": "tests/UnityIosPermissionConsumer/MockIosPlayerScenario.cs",
+          "testCase": "GB_IOS_PERMISSION_RESULT PASS IOS_OS_DENIED"
+        },
+        {
+          "suite": "r40-permission-e2e",
+          "testFile": "tests/UnityMockPermission/Program.cs",
+          "testCase": "PERMISSION_DENIED"
+        },
+        {
+          "suite": "push-regression",
+          "testFile": "harness/run-push-regression.py",
+          "testCase": "mock-permission-denied"
+        }
+      ]
     },
     {
       "id": "R41",
@@ -1517,17 +1663,29 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R43"
       ],
       "candidateSuites": [
-        "push-regression"
+        "ios-host-unity-e2e"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Candidate suites do not establish full scenario coverage; verify assertions before promoting."
+      "evidence": "docs/evidence/r43-ios-host-unity-boundary.md",
+      "note": "Separate synthetic iOS host delegate XCTest and Unity Player host callback; real remote APNs and devices are not verified.",
+      "assertions": [
+        {
+          "suite": "ios-host-unity-e2e",
+          "testFile": "ios/PushTests/PushHostTests.swift",
+          "testCase": "testSyntheticHostCallbacksAndCompletion"
+        },
+        {
+          "suite": "ios-host-unity-e2e",
+          "testFile": "tests/UnityIosHostCallbackConsumer/MockIosPlayerScenario.cs",
+          "testCase": "GB_MOCK_HOST_CALLBACK PASS"
+        }
+      ]
     },
     {
       "id": "R44",
@@ -1697,18 +1855,34 @@
       "level": "REGRESSION",
       "mode": "LOCAL_OR_FAKE",
       "required": true,
-      "coverage": "PARTIAL",
+      "coverage": "IMPLEMENTED",
       "entry": [
         "python3",
         "harness/run-scenario.py",
         "R49"
       ],
       "candidateSuites": [
-        "unity-editor",
-        "package"
+        "unity-consumer-e2e"
       ],
-      "evidence": "docs/WORK_LOG.md",
-      "note": "Isolated consumer Editor runner and test sources exist; Unity Editor execution and fresh player build remain unverified."
+      "evidence": "docs/evidence/r49-unity-fresh-consumers.md",
+      "note": "Existing Android and iOS fresh Unity LOCAL_MOCK Player evidence; wrapper requires fresh current-source runs, external stores and real devices remain separate.",
+      "assertions": [
+        {
+          "suite": "unity-consumer-e2e",
+          "testFile": "scripts/prepare-unity-android-mock.sh",
+          "testCase": "cp -R \"$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk\""
+        },
+        {
+          "suite": "unity-consumer-e2e",
+          "testFile": "scripts/prepare-unity-ios-mock.sh",
+          "testCase": "cp -R \"$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk\""
+        },
+        {
+          "suite": "unity-consumer-e2e",
+          "testFile": "harness/run-unity-consumer-e2e.py",
+          "testCase": "data.get('unityPlayer')=='PASS'"
+        }
+      ]
     },
     {
       "id": "R50",

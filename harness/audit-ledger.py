@@ -47,6 +47,15 @@ def main() -> int:
               'workingTree':'HEAD plus uncommitted changes may be present','status':status,'taskCount':len(rows),
               'implementation':dict(implementations),'local':dict(local),'external':dict(external),'scenarioCoverage':dict(coverage),
               'openBlockers':blockers,'trackedSourceMarkers':markers,'notes':['Untracked user files and ignored artifacts were not scanned.','Text search cannot prove feature completeness.']}
+    # Keep every task's own completion criterion attached to the current ledger.
+    # Inventory is evidence for review, never an automatic PASS promotion.
+    result['taskReview'] = []
+    for row in rows:
+        section = re.search(r'^#### ' + re.escape(row[0]) + r'\b(.*?)(?=^#### |\Z)', plan, re.M | re.S)[1]
+        criterion = re.search(r'^- 완료 확인: (.+)$', section, re.M)
+        result['taskReview'].append(dict(id=row[0], implementation=row[2], local=row[3], external=row[4],
+            evidence=row[5], blocker=row[6], completionCriterion=criterion[1] if criterion else 'MISSING',
+            review='FAIL_RETAINED' if row[3]=='FAIL' else 'EXTERNAL_PENDING' if row[4]=='WAITING_USER' else 'LOCAL_PASS_RECORDED' if row[3]=='PASS' else 'CRITERION_REVIEW_PENDING'))
     artifacts = ROOT/'artifacts'; artifacts.mkdir(exist_ok=True); output = Path(tempfile.mkdtemp(prefix='ledger-audit-',dir=artifacts))
     (output/'audit.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(f"Audit complete: {len(rows)} tasks; status {status}; open blockers {len(blockers)}; tracked source markers {len(markers)}")

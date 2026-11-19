@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MissingServletRequestParameterException
+import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
@@ -79,7 +80,7 @@ class ApiErrors {
     @ExceptionHandler(NoResourceFoundException::class)
     fun notFound(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON)
         .body(mapOf("code" to "UNSUPPORTED_OPERATION", "message" to "Not found", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
-    @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class, MissingServletRequestParameterException::class)
+    @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class, MissingServletRequestParameterException::class, MissingRequestHeaderException::class)
     fun invalid(request: HttpServletRequest): ResponseEntity<Map<String, Any>> = ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
         .body(mapOf("code" to "INVALID_ARGUMENT", "message" to "Invalid request", "requestId" to (request.getAttribute("requestId") ?: "unknown"), "retryable" to false))
 

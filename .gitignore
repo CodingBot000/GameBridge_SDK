@@ -8,12 +8,19 @@ Temp/
 Obj/
 Logs/
 UserSettings/
-.env.local
+.env
+.env.*
+!.env.example
+!.env.*.example
 *.p8
 *.p12
 *.jks
 *.keystore
 *.mobileprovision
+*.ulf
+*.apk
+*.aab
+*.ipa
 google-services.json
 GoogleService-Info.plist
 local.properties
@@ -38,3 +45,5 @@ tests/UnityIosHost/bin/
 tests/UnityIosHost/obj/
 tests/UnityIosHostQueue/bin/
 tests/UnityIosHostQueue/obj/
+tests/SocialAuthContract/bin/
+tests/SocialAuthContract/obj/

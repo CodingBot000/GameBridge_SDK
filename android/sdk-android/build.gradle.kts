@@ -7,10 +7,13 @@ android { namespace = "com.gamebridge.sdk"; compileSdk = 36
 }
 dependencies {
     api(project(":sdk-core"))
+    implementation("androidx.browser:browser:1.9.0")
     implementation("androidx.credentials:credentials:1.6.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.6.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     implementation("com.android.billingclient:billing:9.1.0")
+    compileOnly("com.facebook.android:facebook-login:18.3.0")
+    testImplementation("com.facebook.android:facebook-login:18.3.0")
     compileOnly("com.google.firebase:firebase-messaging:26.0.1")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")

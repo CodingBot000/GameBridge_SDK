@@ -1,0 +1,9 @@
+<linker>
+  <assembly fullname="GameBridge.Runtime">
+    <type fullname="GameBridge.GameBridgeClient" preserve="all" />
+    <type fullname="GameBridge.Core.RequestRegistry" preserve="all" />
+    <type fullname="GameBridge.Platforms.AndroidTransport" preserve="all" />
+    <type fullname="GameBridge.Platforms.AndroidTransport/CallbackProxy" preserve="all" />
+    <type fullname="GameBridge.Platforms.IosTransport" preserve="all" />
+  </assembly>
+</linker>

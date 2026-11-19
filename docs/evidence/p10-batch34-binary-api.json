@@ -1,0 +1,35 @@
+{
+  "sourceHead": "ec4a03676c01a0b9c2e033bb53a85de8ca0e2a41",
+  "baseline": "batch32 handoff Maven",
+  "candidate": "batch33 fresh Maven",
+  "shippingSourceDiffFromBatch33": false,
+  "selectedPublicJvmApi": [
+    {
+      "module": "sdk-core",
+      "classes": [
+        "com.gamebridge.SdkCoordinator",
+        "com.gamebridge.BridgeProtocol"
+      ],
+      "equal": true,
+      "sha256": "042989015af957a16fef264e2e25fcf6a5bfe63efa41610e5c507e2c447ea56a"
+    },
+    {
+      "module": "sdk-unity-bridge",
+      "classes": [
+        "com.gamebridge.bridge.BridgeFacade"
+      ],
+      "equal": true,
+      "sha256": "3d8bc5f52b397628518bcd3a3d4cb6bd7bf5f03227f177e056ce45880197ff24"
+    },
+    {
+      "module": "sdk-android",
+      "classes": [
+        "com.gamebridge.android.auth.GoogleAuthProvider"
+      ],
+      "equal": true,
+      "sha256": "e319f2dfa95d8f00a1a5fe1e91b77b552ec6e6a5f7254375bfe73538569d2758"
+    }
+  ],
+  "scope": "Selected JVM bytecode API only, not all Kotlin metadata ABI",
+  "status": "PASS"
+}

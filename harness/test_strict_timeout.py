@@ -1,0 +1,23 @@
+"""Bounded strict orchestration allows explicitly opted-in Player runs to finish."""
+import importlib.util
+from pathlib import Path
+import unittest
+import subprocess
+import sys
+spec=importlib.util.spec_from_file_location('strict_isolated',Path(__file__).parent/'run-strict-local-isolated.py')
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+class StrictTimeoutTests(unittest.TestCase):
+    def test_full_strict_defers_before_creating_resources(self):
+        result = subprocess.run([sys.executable, str(Path(__file__).parent / 'run-strict-local-isolated.py'), '--run-local'], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('DEFERRED_ENV', result.stdout)
+        self.assertIn('no lanes executed', result.stdout)
+
+    def test_explicit_editor_and_newtonsoft_paths_are_preserved(self):
+        editor,managed=module.editor_paths({'UNITY_EDITOR_PATH':'/custom/Editor/Unity','NEWTONSOFT_DLL':'/custom/Newtonsoft.dll'})
+        self.assertEqual(str(editor),'/custom/Editor/Unity');self.assertEqual(str(managed),'/custom/Newtonsoft.dll')
+    def test_only_explicit_unity_push_opt_in_extends_outer_limit(self):
+        self.assertEqual(module.strict_timeout({}),900)
+        self.assertEqual(module.strict_timeout({'GAMEBRIDGE_RUN_UNITY_PUSH_E2E':'false'}),900)
+        self.assertEqual(module.strict_timeout({'GAMEBRIDGE_RUN_UNITY_PUSH_E2E':'true'}),5400)
+if __name__=='__main__':unittest.main()

@@ -5,11 +5,11 @@ import GameBridgeCore
 
 @MainActor
 final class ApplePurchaseAccountSource {
-    private let auth: AppleAuthProvider
+    private let auth: any BackendSessionAccess
     private let request: (String) async throws -> Data
     private var cached: (generation: Int, account: ApplePurchaseAccount)?
-    init(auth: AppleAuthProvider, request: @escaping (String) async throws -> Data) { self.auth = auth; self.request = request }
-    convenience init(auth: AppleAuthProvider, client: BackendClient) {
+    init(auth: any BackendSessionAccess, request: @escaping (String) async throws -> Data) { self.auth = auth; self.request = request }
+    convenience init(auth: any BackendSessionAccess, client: BackendClient) {
         self.init(auth: auth) { accessToken in
             try await client.request(path: "/v1/purchases/bindings", method: "GET", accessToken: accessToken).json
         }
@@ -19,7 +19,7 @@ final class ApplePurchaseAccountSource {
         return cached.account
     }
     func refresh() async throws -> ApplePurchaseAccount? {
-        let account = try await auth.withAuthenticatedSession { session in
+        let account = try await auth.withBackendSession { session in
             let data = try await request(session.accessToken)
             return try parseAppleBinding(userId: session.userId, data: data)
         }

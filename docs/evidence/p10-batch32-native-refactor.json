@@ -1,0 +1,101 @@
+{
+  "scope": "P10-T02 real Native source refactor, local provider fakes and actual package consumers; no real provider claim",
+  "coreCompletedSourceHead": "4485b2fec8db8f06ee9405ed4a87de434782d0a1",
+  "baseline": {
+    "sourceHead": "3639a1d3de15698553bb6c29ad51f0864e01a883",
+    "workingTree": "documentation edits only; shipping source baseline unchanged",
+    "androidTests": 18,
+    "swiftTests": 20,
+    "failures": 0,
+    "skipped": 0,
+    "androidExitCode": 0,
+    "swiftExitCode": 0,
+    "hashes": [
+      {
+        "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/GoogleAuthProvider.kt",
+        "sha256": "5d8168383c56b37747356a7eebd99c2981cdbe292fc72968e51def7c4fe520b6"
+      },
+      {
+        "path": "ios/Sources/GameBridgeApple/AppleHttpProofSink.swift",
+        "sha256": "37caab851c47c532e01bb8ec065550f72f63078ab26f433db2c1999359e5fb2f"
+      }
+    ]
+  },
+  "candidateBranch": "candidate/p10-t02-batch32-20261118",
+  "candidateHead": "21b5f71cb371ce902b491c85add2e7a536573a3f",
+  "candidateProductCommits": [
+    "e6e1de7c49f92ea9f625e20d560f73a9b7fdeeb2",
+    "fc3da2f6a1db35459e57a23bff5dff8d062911a2"
+  ],
+  "formalProductCommits": [
+    "5ef87e59a67889909757afd251ccc02fca3fb240",
+    "ff2d0d5aa864b42ad048faf4dea713e851deaa95"
+  ],
+  "formalSelectedTests": {
+    "android": {
+      "retainedBaseline": 18,
+      "addedCodecTests": 2,
+      "tests": 20,
+      "failures": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    "swift": {
+      "retainedBaseline": 20,
+      "addedDecoderTests": 3,
+      "tests": 23,
+      "failures": 0,
+      "skipped": 0,
+      "exitCode": 0
+    }
+  },
+  "formalBroadNativeRegression": {
+    "sourceHead": "ff2d0d5aa864b42ad048faf4dea713e851deaa95",
+    "shippingSourceChanged": true,
+    "android": {
+      "exitCode": 0,
+      "tests": 47,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "scope": "Native fake/session/host forwarding tests; no real OAuth/store/push/OS UI",
+    "swift": {
+      "exitCode": 0,
+      "tests": 43,
+      "failures": 0,
+      "errorModel": "included-in-failures",
+      "skipped": 0
+    },
+    "status": "PASS"
+  },
+  "exactReviewedChanges": [
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/GoogleAuthProvider.kt",
+      "beforeSha256": "5d8168383c56b37747356a7eebd99c2981cdbe292fc72968e51def7c4fe520b6",
+      "afterSha256": "a2c91252c1315fbce265219f141d506a6dc91fbd0300fe4b2e1d5e6b07fc34b2"
+    },
+    {
+      "path": "android/sdk-android/src/main/kotlin/com/gamebridge/android/auth/StoredGoogleSessionCodec.kt",
+      "beforeSha256": null,
+      "afterSha256": "ae5ebb7431cc322e08fe3747885a75a3ae02f32ed81d9f885d5b6e5ae1a0aa5e"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/AppleHttpProofSink.swift",
+      "beforeSha256": "37caab851c47c532e01bb8ec065550f72f63078ab26f433db2c1999359e5fb2f",
+      "afterSha256": "a26e32e162a7b502e8bb051f36d15fbc50743a93b116fc8ae7b4450841799231"
+    },
+    {
+      "path": "ios/Sources/GameBridgeApple/AppleGrantDecoder.swift",
+      "beforeSha256": null,
+      "afterSha256": "86551907b9d676efe6811a8eb0b9714aab75c2ee3fba40bddfa02fd9f3960d4e"
+    }
+  ],
+  "originalCoreBaselineUnchanged": true,
+  "candidateProductBytesIntegrated": true,
+  "candidateBranchPushed": false,
+  "postChangeActualAndroid": "p10-batch32-post-native-android.json",
+  "postChangeActualIos": "p10-batch32-post-native-ios.json",
+  "realProviders": "13 WAITING_USER",
+  "status": "IMPLEMENTED / local PASS / actual providers unverified"
+}

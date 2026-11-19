@@ -1,5 +1,9 @@
 package com.gamebridge.config
 
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
+import org.slf4j.LoggerFactory
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.junit.jupiter.api.Test
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController
 private class ValidationController {
     data class Input(@field:NotBlank val value: String)
     @PostMapping("/validation-test") fun post(@Valid @RequestBody input: Input) = input
+    @PostMapping("/header-test") fun header(@org.springframework.web.bind.annotation.RequestHeader("Idempotency-Key") key: String) = mapOf("accepted" to true)
+    @PostMapping("/error-test") fun error(@RequestBody input: Input): Nothing = throw IllegalStateException(input.value)
 }
 
 class HttpInfrastructureTest {
@@ -29,4 +35,35 @@ class HttpInfrastructureTest {
             check(result.response.contentAsString.contains(id))
         }
     }
+    @Test fun `missing required header returns sanitized invalid argument`() {
+        val mvc = MockMvcBuilders.standaloneSetup(ValidationController()).setControllerAdvice(ApiErrors())
+            .addFilters<org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder>(RequestIdFilter()).build()
+        mvc.perform(post("/header-test"))
+            .andExpect(status().isBadRequest).andExpect(jsonPath("$.code").value("INVALID_ARGUMENT"))
+            .andExpect(header().exists("X-Request-Id"))
+    }
+    @Test fun `unexpected exception never exposes request secret in response or application error log`() {
+        val secret = "synthetic-error-secret-93f4"
+        val syntheticEmail = "synthetic-person@example.invalid"
+        val syntheticPhone = "+1-202-555-0107"
+        val logger = LoggerFactory.getLogger(ApiErrors::class.java) as Logger
+        val appender = ListAppender<ILoggingEvent>().apply { start() }
+        logger.addAppender(appender)
+        try {
+            val mvc = MockMvcBuilders.standaloneSetup(ValidationController()).setControllerAdvice(ApiErrors())
+                .addFilters<org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder>(RequestIdFilter()).build()
+            val result = mvc.perform(post("/error-test").contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer $secret").content("{\"value\":\"$secret $syntheticEmail $syntheticPhone\"}"))
+                .andExpect(status().isInternalServerError).andExpect(jsonPath("$.code").value("INTERNAL_ERROR"))
+                .andReturn()
+            val sensitive = listOf(secret, syntheticEmail, syntheticPhone)
+            for (value in sensitive) check(!result.response.contentAsString.contains(value))
+            check(appender.list.isNotEmpty())
+            check(appender.list.all { event -> sensitive.none { event.formattedMessage.contains(it) } && event.throwableProxy == null })
+        } finally {
+            logger.detachAppender(appender)
+            appender.stop()
+        }
+    }
+
 }

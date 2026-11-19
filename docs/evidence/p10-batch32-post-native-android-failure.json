@@ -1,0 +1,48 @@
+{
+  "status": "FAIL",
+  "scope": "Unity Android Player -> Kotlin Bridge -> LOCAL_MOCK Backend/PostgreSQL",
+  "sourceHead": "0d6df8ff0399c8db1c9da5a83448ceee2055cdb1",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "LAUNCHED_PENDING",
+  "realGoogleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "retainsTestDatabase": true,
+  "utf8Probe": false,
+  "stagingManifestSha256": "d11a2b063b488f3a80b75eb9afa30f262c47fccbe3f6a947d7da1f80bcf04959",
+  "emulatorPid": 67978,
+  "adbServerPid": 67934,
+  "unityBuildMode": "CLI_EXPLICIT_OWNED_BINDING",
+  "emulatorAvd": "GameBridge_V2_B32_POST_NATIVE_PII_B_20261118",
+  "emulatorSerial": "emulator-5600",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "piiProbe": true,
+  "buildAdbPort": 5038,
+  "unityApkSha256": "f41ef7e0ce478d9e1e6fb4ced7e4095655d27c9ea996983d853150816ec4aa1f",
+  "backendJarSha256": "532fdbfe70fbf3373f4d918cb0813ffe23fecc12652d76523ea5b3590bbfc459",
+  "backend": "LOCAL_MOCK_READY",
+  "startupDiagnostics": "startup-diagnostics/summary.json",
+  "backendHealthConfirmedBeforeLaunch": true,
+  "errorCode": "UNITY_PLAYER_RESULT_TIMEOUT",
+  "evidence": "artifacts/unity-android-e2e-3seglcb1",
+  "lastConfirmedPoint": "Awake",
+  "firstUnconfirmedPoint": "Start/SDK object/init/HTTP",
+  "exitInfo": {
+    "reason": "EXIT_SELF",
+    "status": 0,
+    "appCrashOrAnrObserved": false
+  },
+  "normalNoticeAcknowledgements": [
+    {
+      "kind": "explicit-known-fullscreen-notice",
+      "tapAttempts": 1,
+      "exitCode": 0,
+      "atSeconds": 19.364,
+      "unattendedCI": false
+    }
+  ],
+  "sourceCause": "UNCONFIRMED: no SDK entry observed; CLI/native refactor/locked host window effects not yet isolated",
+  "oldFailedAttemptsPreserved": true
+}

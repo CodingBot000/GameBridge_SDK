@@ -1,0 +1,1164 @@
+{
+  "codeHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
+  "python": {
+    "tests": 263,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 16.708,
+    "exitCode": 0,
+    "localCodeHead": "06f7120",
+    "later648bb80Difference": "documentation only",
+    "hostedSameCodeTests": 263
+  },
+  "core": {
+    "sourceHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
+    "status": "PASS",
+    "scope": "test-only helper invocation measurement",
+    "executions": [
+      {
+        "name": "kotlin",
+        "tests": 10,
+        "checks": 1,
+        "status": "PASS",
+        "exitCode": 0,
+        "failures": 0,
+        "errors": 0,
+        "errorModel": "separate",
+        "skipped": 0,
+        "normalAssertions": 37,
+        "expectedErrorChecks": 13,
+        "assertionsExecuted": 50,
+        "records": [
+          {
+            "platform": "kotlin-jvm",
+            "test": "BridgeProtocolTest.rejects invalid envelopes and unrelated requests",
+            "normalAssertions": 3,
+            "expectedErrorChecks": 8,
+            "assertionsExecuted": 11,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "BridgeProtocolTest.accepts request and pending response",
+            "normalAssertions": 0,
+            "expectedErrorChecks": 0,
+            "assertionsExecuted": 0,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "ModelFixtureTest.shared fixture round trips without loss",
+            "normalAssertions": 3,
+            "expectedErrorChecks": 0,
+            "assertionsExecuted": 3,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "ModelFixtureTest.missing required nullable field and unknown enum are rejected",
+            "normalAssertions": 0,
+            "expectedErrorChecks": 2,
+            "assertionsExecuted": 2,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "SdkCoordinatorTest.initialization joins same config and rejects different config",
+            "normalAssertions": 6,
+            "expectedErrorChecks": 2,
+            "assertionsExecuted": 8,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "SdkCoordinatorTest.shutdown cancels an unfinished initialization",
+            "normalAssertions": 2,
+            "expectedErrorChecks": 0,
+            "assertionsExecuted": 2,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "SdkCoordinatorTest.interactive calls are mutually exclusive",
+            "normalAssertions": 1,
+            "expectedErrorChecks": 1,
+            "assertionsExecuted": 2,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "BridgeDispatcherTest.diagnostics expose only typed bounded events without payload or failure details",
+            "normalAssertions": 10,
+            "expectedErrorChecks": 0,
+            "assertionsExecuted": 10,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "BridgeDispatcherTest.provider results and sanitized failures retain request correlation",
+            "normalAssertions": 6,
+            "expectedErrorChecks": 0,
+            "assertionsExecuted": 6,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          },
+          {
+            "platform": "kotlin-jvm",
+            "test": "BridgeDispatcherTest.status returns correlated response and unimplemented purchase fails explicitly",
+            "normalAssertions": 6,
+            "expectedErrorChecks": 0,
+            "assertionsExecuted": 6,
+            "assertionOutcomes": "UNMEASURED",
+            "scope": "counted test helper invocations"
+          }
+        ],
+        "assertionOutcomes": "UNMEASURED"
+      },
+      {
+        "name": "swift",
+        "tests": 12,
+        "checks": 1,
+        "status": "PASS",
+        "exitCode": 0,
+        "failures": 0,
+        "errors": null,
+        "errorModel": "included-in-failures",
+        "skipped": 0,
+        "normalAssertions": 112,
+        "expectedErrorChecks": 10,
+        "assertionsExecuted": 122,
+        "records": [
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 15,
+            "expectedErrorChecks": 8,
+            "normalAssertions": 7,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[BridgeProtocolTests testRejectsMalformedInputs]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 0,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 0,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[BridgeProtocolTests testValidEnvelopes]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 6,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 6,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[CBridgeTests testCopiedUTF8AndCorrelatedResponse]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 21,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 21,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[CBridgeTests testHostPushEventRoutingAndDedup]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 5,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 5,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[CBridgeTests testInvalidLengthsAreRejectedWithoutReadingAndBridgeSurvives]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 61,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 61,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[CBridgeTests testMockInitializationAndSessionIsolation]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 2,
+            "expectedErrorChecks": 2,
+            "normalAssertions": 0,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[ModelFixtureTests testMissingNullableAndUnknownEnumAreRejected]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 3,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 3,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[ModelFixtureTests testSharedFixtureRoundTrip]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 6,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 6,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[SdkCoordinatorTests testConcurrentInitializeAndShutdown]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 1,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 1,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[SdkCoordinatorTests testInteractiveCallsAreMutuallyExclusive]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 1,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 1,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[SdkCoordinatorTests testRequireReadyBeforeInitializationFails]"
+          },
+          {
+            "assertionOutcomes": "UNMEASURED",
+            "assertionsExecuted": 1,
+            "expectedErrorChecks": 0,
+            "normalAssertions": 1,
+            "platform": "swift-xctest",
+            "scope": "counted test helper invocations",
+            "test": "-[SdkCoordinatorTests testShutdownDuringInitialization]"
+          }
+        ],
+        "assertionOutcomes": "UNMEASURED"
+      },
+      {
+        "name": "csharp",
+        "tests": 0,
+        "checks": 1,
+        "status": "PASS",
+        "exitCode": 0,
+        "failures": 0,
+        "errors": null,
+        "errorModel": "checker-exit",
+        "skipped": 0,
+        "normalAssertions": 198,
+        "expectedErrorChecks": 220,
+        "assertionsExecuted": 418,
+        "records": [
+          {
+            "platform": "csharp-managed",
+            "test": "registry-smoke",
+            "normalAssertions": 198,
+            "expectedErrorChecks": 220,
+            "assertionsExecuted": 418,
+            "assertionOutcomes": "UNMEASURED",
+            "complete": true,
+            "sites": [
+              {
+                "file": "registry-smoke.cs",
+                "line": 171,
+                "kind": "normal",
+                "label": "stale session must be ignored",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 174,
+                "kind": "normal",
+                "label": "unrelated request ID must be ignored",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 176,
+                "kind": "normal",
+                "label": "trailing JSON must be ignored",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 178,
+                "kind": "normal",
+                "label": "correlated response",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 182,
+                "kind": "normal",
+                "label": "duplicate response ignored exactly once",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 184,
+                "kind": "normal",
+                "label": "malformed JSON ignored safely",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 187,
+                "kind": "expectedError",
+                "label": "expected BRIDGE_PROTOCOL_MISMATCH",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 190,
+                "kind": "expectedError",
+                "label": "expected BRIDGE_PROTOCOL_MISMATCH",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 193,
+                "kind": "expectedError",
+                "label": "expected BUSY",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 198,
+                "kind": "expectedError",
+                "label": "logout revoke uncertainty retained",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 203,
+                "kind": "expectedError",
+                "label": "untrusted native code redacted",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 207,
+                "kind": "expectedError",
+                "label": "expected TIMEOUT",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 210,
+                "kind": "normal",
+                "label": "late timed-out response ignored",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 214,
+                "kind": "expectedError",
+                "label": "expected CANCELED",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 217,
+                "kind": "normal",
+                "label": "verified purchase event",
+                "count": 2
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 221,
+                "kind": "normal",
+                "label": "purchase event accepted after timeout",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 223,
+                "kind": "normal",
+                "label": "stale event ignored",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 225,
+                "kind": "normal",
+                "label": "unconfirmed purchase ignored",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 227,
+                "kind": "normal",
+                "label": "numeric enum ignored",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 228,
+                "kind": "normal",
+                "label": "safe push route",
+                "count": 2
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 232,
+                "kind": "normal",
+                "label": "push event accepted",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 233,
+                "kind": "normal",
+                "label": "unsafe route ignored",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 235,
+                "kind": "normal",
+                "label": "internal host request dispatched",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 237,
+                "kind": "normal",
+                "label": "token event fingerprint",
+                "count": 2
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 240,
+                "kind": "normal",
+                "label": "token event accepted",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 241,
+                "kind": "normal",
+                "label": "raw token rejected",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 138,
+                "kind": "normal",
+                "label": "shared event header rejects invalid PurchaseUpdated",
+                "count": 7
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 141,
+                "kind": "normal",
+                "label": "shared event header preserves valid PurchaseUpdated",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 138,
+                "kind": "normal",
+                "label": "shared event header rejects invalid PushOpened",
+                "count": 7
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 141,
+                "kind": "normal",
+                "label": "shared event header preserves valid PushOpened",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 138,
+                "kind": "normal",
+                "label": "shared event header rejects invalid PushTokenChanged",
+                "count": 7
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 141,
+                "kind": "normal",
+                "label": "shared event header preserves valid PushTokenChanged",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 245,
+                "kind": "expectedError",
+                "label": "expected BUSY",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 247,
+                "kind": "expectedError",
+                "label": "expected NOT_INITIALIZED",
+                "count": 100
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 114,
+                "kind": "normal",
+                "label": "profile fixture round trip",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 114,
+                "kind": "normal",
+                "label": "product fixture round trip",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 114,
+                "kind": "normal",
+                "label": "purchase fixture round trip",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 114,
+                "kind": "normal",
+                "label": "error fixture round trip",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 264,
+                "kind": "expectedError",
+                "label": "required nullable error field",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 265,
+                "kind": "normal",
+                "label": "Korean profile",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 266,
+                "kind": "normal",
+                "label": "64-bit string",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 269,
+                "kind": "expectedError",
+                "label": "unknown enum",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 272,
+                "kind": "expectedError",
+                "label": "strict numeric string",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 277,
+                "kind": "normal",
+                "label": "public error redaction",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 281,
+                "kind": "normal",
+                "label": "profile credential field redaction",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 283,
+                "kind": "normal",
+                "label": "purchase credential field redaction",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 285,
+                "kind": "normal",
+                "label": "push credential field redaction",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 288,
+                "kind": "expectedError",
+                "label": "fingerprint redaction",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 291,
+                "kind": "expectedError",
+                "label": "required nullable",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 295,
+                "kind": "expectedError",
+                "label": "expected UNSUPPORTED_PROVIDER",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 298,
+                "kind": "expectedError",
+                "label": "expected ALREADY_INITIALIZED_DIFFERENT_CONFIG",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 304,
+                "kind": "normal",
+                "label": "pending must not grant",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 307,
+                "kind": "normal",
+                "label": "canceled must not grant",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 310,
+                "kind": "normal",
+                "label": "fake duplicate",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 312,
+                "kind": "normal",
+                "label": "fake wallet grants once",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 315,
+                "kind": "normal",
+                "label": "fake push",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 318,
+                "kind": "normal",
+                "label": "shutdown status",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 322,
+                "kind": "normal",
+                "label": "initial mode unknown",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 323,
+                "kind": "expectedError",
+                "label": "expected NOT_INITIALIZED",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 325,
+                "kind": "normal",
+                "label": "facade initialized",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 326,
+                "kind": "normal",
+                "label": "capability snapshot",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 327,
+                "kind": "normal",
+                "label": "facade sign-in",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 328,
+                "kind": "normal",
+                "label": "facade products",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 329,
+                "kind": "normal",
+                "label": "facade fake purchase",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 330,
+                "kind": "normal",
+                "label": "facade wallet",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 331,
+                "kind": "normal",
+                "label": "facade restore",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 332,
+                "kind": "normal",
+                "label": "facade sync",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 333,
+                "kind": "normal",
+                "label": "fake permission",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 334,
+                "kind": "normal",
+                "label": "fake registration",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 336,
+                "kind": "normal",
+                "label": "attach must not prompt",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 337,
+                "kind": "normal",
+                "label": "mock bypasses host permission",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 338,
+                "kind": "normal",
+                "label": "mock bypasses host registration",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 339,
+                "kind": "normal",
+                "label": "mock must not prompt OS",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 341,
+                "kind": "normal",
+                "label": "fake config",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 342,
+                "kind": "normal",
+                "label": "diagnostic snapshot",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 343,
+                "kind": "normal",
+                "label": "offline native diagnostics",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 345,
+                "kind": "normal",
+                "label": "facade shutdown",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 351,
+                "kind": "normal",
+                "label": "xcode mode forwarded",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 352,
+                "kind": "normal",
+                "label": "xcode development key forwarded",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 356,
+                "kind": "normal",
+                "label": "initialization must not prompt Android permission",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 357,
+                "kind": "normal",
+                "label": "Android host denial",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 358,
+                "kind": "normal",
+                "label": "explicit Android permission request",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 365,
+                "kind": "normal",
+                "label": "missing configuration key visible in capability",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 369,
+                "kind": "normal",
+                "label": "typed native diagnostics",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 373,
+                "kind": "expectedError",
+                "label": "expected BRIDGE_PROTOCOL_MISMATCH",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 375,
+                "kind": "normal",
+                "label": "sandbox host permission",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 376,
+                "kind": "normal",
+                "label": "sandbox host registration",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 377,
+                "kind": "normal",
+                "label": "sandbox explicit host calls",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 384,
+                "kind": "normal",
+                "label": "cold push waits for ready",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 385,
+                "kind": "normal",
+                "label": "cold push delivered after ready",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 388,
+                "kind": "normal",
+                "label": "same config sends one init",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 391,
+                "kind": "normal",
+                "label": "same config identical ready results",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 402,
+                "kind": "expectedError",
+                "label": "race error",
+                "count": 100
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 403,
+                "kind": "normal",
+                "label": "cancel shutdown race completes once",
+                "count": 100
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 410,
+                "kind": "normal",
+                "label": "same configuration joins initialization",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 412,
+                "kind": "expectedError",
+                "label": "different config",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 413,
+                "kind": "expectedError",
+                "label": "expected CANCELED",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 420,
+                "kind": "normal",
+                "label": "new session after shutdown",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 426,
+                "kind": "normal",
+                "label": "native fingerprint accepted",
+                "count": 1
+              },
+              {
+                "file": "registry-smoke.cs",
+                "line": 430,
+                "kind": "expectedError",
+                "label": "expected BRIDGE_PROTOCOL_MISMATCH",
+                "count": 1
+              }
+            ]
+          }
+        ],
+        "assertionOutcomes": "UNMEASURED"
+      },
+      {
+        "name": "lifecycle-stress",
+        "tests": 0,
+        "checks": 1,
+        "samples": 100,
+        "assertions": {
+          "executed": 316,
+          "warmup": 15,
+          "samples": 300,
+          "finalChecks": 1,
+          "outcomes": "UNMEASURED"
+        },
+        "evidence": "artifacts/lifecycle-stress.jaRDIq/result.json"
+      },
+      {
+        "name": "duplicate-guard-mutation",
+        "tests": 0,
+        "checks": 1,
+        "expectedProcessFailures": 1,
+        "mutatedProcessExitCode": 134,
+        "partialAssertions": {
+          "normalAssertions": 1,
+          "expectedErrorChecks": 0,
+          "assertionsExecuted": 1
+        },
+        "normalProbeExitCode": 0,
+        "normalProbeAssertions": {
+          "normalAssertions": 2,
+          "expectedErrorChecks": 0,
+          "assertionsExecuted": 2
+        },
+        "probe": "duplicate-completion-only",
+        "sourceUnchanged": true
+      },
+      {
+        "name": "normal-after-mutation",
+        "tests": 0,
+        "checks": 1,
+        "normalAssertions": 198,
+        "expectedErrorChecks": 220,
+        "assertionsExecuted": 418,
+        "sourceUnchanged": true
+      },
+      {
+        "name": "conditional-branch-control",
+        "tests": 0,
+        "checks": 1,
+        "normalAssertions": 199,
+        "expectedErrorChecks": 220,
+        "assertionsExecuted": 419,
+        "branchOffExecutions": 0,
+        "branchOnExecutions": 1
+      }
+    ]
+  },
+  "selfCheck": {
+    "sourceHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
+    "summary": {
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": "all required local lanes executed and passed"
+    },
+    "lanes": [
+      {
+        "name": "progress-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "samples": 0,
+        "players": 0,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "manifest-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "samples": 0,
+        "players": 0,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "package-negative",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "samples": 0,
+        "players": 0,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "contract-negative",
+        "status": "PASS",
+        "tests": 22,
+        "checks": 1,
+        "samples": 0,
+        "players": 0,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0,
+        "expectedFailures": 2
+      },
+      {
+        "name": "bridge-mutation",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "samples": 0,
+        "players": 0,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "ledger-mutation",
+        "status": "PASS",
+        "tests": 2,
+        "checks": 1,
+        "samples": 0,
+        "players": 0,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0,
+        "expectedFailures": 1
+      },
+      {
+        "name": "failed-and-zero-test",
+        "status": "PASS",
+        "tests": 0,
+        "checks": 1,
+        "samples": 0,
+        "players": 0,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      },
+      {
+        "name": "sandbox-fake-token",
+        "status": "PASS",
+        "exitCode": 0,
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "checks": 1,
+        "samples": 0,
+        "players": 0
+      },
+      {
+        "name": "normal-contracts",
+        "status": "PASS",
+        "tests": 22,
+        "checks": 1,
+        "samples": 0,
+        "players": 0,
+        "failures": 0,
+        "errors": null,
+        "exitCode": 0
+      }
+    ]
+  },
+  "testcontainers": {
+    "sourceHead": "648bb807baeab4e83b037856a9ae04f84e8a2154",
+    "status": "PASS",
+    "tests": 11,
+    "checks": 4,
+    "expectedFailures": 1
+  },
+  "evidence": [
+    "artifacts/batch34-python-player-final.log",
+    "artifacts/core-assertions-v3o3wh48",
+    "artifacts/harness-self-cn8tm4r9",
+    "artifacts/purchase-testcontainers-27qjah_h"
+  ],
+  "earlierEvidenceRetained": [
+    "artifacts/batch34-python-final.log",
+    "artifacts/core-assertions-s21jc8dt",
+    "artifacts/harness-self-mlczwg79",
+    "artifacts/purchase-testcontainers-xkvwuum7"
+  ],
+  "scope": "Separate test/helper/check/sample/Player counts, never summed; no full Strict or Provider proof."
+}

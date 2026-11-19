@@ -7,36 +7,55 @@ import shutil
 import subprocess
 import tempfile
 import time
+import uuid
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from measurement_contract import record_execution, counted_lane
+
+from execution_evidence import metadata
+
+from process_output import timeout_output
+
 ROOT = Path(__file__).resolve().parent.parent
 
-def run(command, env, log):
-    started = time.time_ns()
+def run(command, env, log, timeout=600):
+    started = time.time_ns();invocation=uuid.uuid4().hex
+    env=env.copy();env['GAMEBRIDGE_HARNESS_RUN_ID']=invocation
     try:
         process = subprocess.run(command, cwd=ROOT, env=env, text=True, errors='replace',
-                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=600, check=False)
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=False)
         code, output = process.returncode, process.stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
-        code, output = 2, f'{type(exc).__name__}: suite unavailable or timed out\n'
+        code, output = 2, timeout_output(exc) if isinstance(exc,subprocess.TimeoutExpired) else f'{type(exc).__name__}: suite unavailable\n'
     log.write_text(output, encoding='utf-8')
+    record_execution(command, code, output, log, started, invocation)
     return code, output, started
 
+class JUnitCounts(tuple):
+    def __new__(cls, tests, failures, skipped, errors):
+        value = super().__new__(cls, (tests, failures, skipped)); value.errors = errors; return value
+
+
 def junit_counts(paths, started):
-    tests = failures = skipped = 0
+    tests = failures = errors = skipped = 0
     try:
         for path in paths:
             if path.stat().st_mtime_ns < started: raise ValueError('stale report')
             data = ET.parse(path).getroot().attrib
-            tests += int(data['tests']); failures += int(data['failures']) + int(data['errors']); skipped += int(data['skipped'])
-    except (OSError, ET.ParseError, KeyError, ValueError): return (0, 0, 0)
-    return tests, failures, skipped
+            counts = [int(data[k]) for k in ('tests','failures','errors','skipped')]
+            if any(x < 0 for x in counts): raise ValueError('negative count')
+            tests += counts[0]; failures += counts[1]; errors += counts[2]; skipped += counts[3]
+    except (OSError, ET.ParseError, KeyError, ValueError): return JUnitCounts(0,0,0,0)
+    return JUnitCounts(tests, failures, skipped, errors)
 
-def item(name, code, counts):
-    tests, failures, skipped = counts
-    status = 'PASS' if code == 0 and tests > 0 and failures == 0 and skipped == 0 else ('DEFERRED_ENV' if code == 2 else 'FAIL')
-    return {'suite':name, 'status':status, 'exitCode':code, 'tests':tests, 'failures':failures, 'skipped':skipped}
+
+def item(name, code, counts, error_model='included-in-failures', measurement=None):
+    model = 'separate' if isinstance(counts, JUnitCounts) else error_model
+    errors = counts.errors if isinstance(counts, JUnitCounts) else None
+    return counted_lane(name, code, counts, errors, model,
+                        measurement or ('checker' if model == 'checker-exit' else 'tests'))
+
 
 def main() -> int:
     artifacts = ROOT/'artifacts'; artifacts.mkdir(exist_ok=True)
@@ -70,7 +89,7 @@ def main() -> int:
         results.append(item('swift-native-fake', code, (tests, failures, skipped)))
     else: results.append(item('swift-native-fake', 2, (0,0,0)))
     head = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False).stdout.strip()
-    report = {'scope':'synthetic-auth-session-only', 'sourceHead':head, 'workingTree':'HEAD plus uncommitted changes may be present',
+    report = {'scope':'synthetic-auth-session-only', **metadata(), 'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'suites':results}
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n', encoding='utf-8')
     for value in results: print(f"{value['suite']}: {value['status']} (tests={value['tests']}, exit={value['exitCode']})")

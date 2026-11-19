@@ -40,8 +40,8 @@ class AuthRateLimitFilter(
     private val limiter = AuthRateLimiter(challengeLimit, exchangeLimit)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val operation = if (request.method == "POST") when (request.requestURI) {
-            "/v1/auth/challenges" -> "challenge"
-            "/v1/auth/exchange" -> "exchange"
+            "/v1/auth/challenges", "/v1/auth/apple-web/start" -> "challenge"
+            "/v1/auth/exchange", "/v1/auth/apple-web/callback", "/v1/auth/apple-web/complete" -> "exchange"
             else -> null
         } else null
         if (operation != null && !limiter.allow(request.remoteAddr ?: "unknown", operation)) {

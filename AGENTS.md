@@ -59,3 +59,10 @@
 - 외부 인증 부족은 `WAITING_USER`, SDK/엔진 미설치나 실행 불가는 `DEFERRED_ENV`, 내부 버그는 `FAIL`/`BLOCKED_INTERNAL`이다. 서로 바꿔 쓰지 않는다.
 - 명령을 실행하지 않았으면 `NOT_RUN`; 일부만 실행했으면 `PARTIAL`. 실패를 `|| true`로 숨기지 않는다.
 - 릴리스 가능 여부는 `docs/DEVELOPMENT_PLAN.md`의 종료 조건으로 판단한다. 초안 파일에는 구현 완료 사실이 없다.
+
+## 사용자 문서36에 따른 포트폴리오 개발 종료
+
+- 포트폴리오 완료는 기존64 Task의 SDK 제품화 완료와 별도로 판정한다. 최종 판정은 docs/FINAL_REPORT.md다.
+- PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS로 종료한 뒤 남은 P1/P2·Provider·Strict·추가성능 항목을 자동 필수 배치로 재개하지 않는다. 위 P00~P11 계속 진행 기본 규칙보다 이 사용자 지정 종료 범위가 우선한다.
+- 추가 개발은 새로운 명시적 사용자 요청이 있을 때만 진행한다. 기존 FAIL/PARTIAL/WAITING_USER와 원본 증거는 유지한다. 새로 심각한 P0 또는 핵심 증거 무효가 확인되면 근거와 함께 별도 판정한다.
+- 공개 Release·main 변경·force push·실Provider·runner 등록은 이 최종화 범위에 포함되지 않는다.

@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scope": "post Native T02 current source/fresh package actual iOS Simulator purchase/PII; not GUI or real store",
+  "sourceHead": "daf3cd97a3811da6f235ff21e4e901a539373773",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "PASS",
+  "realAppleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "stagingManifestSha256": "d11a2b063b488f3a80b75eb9afa30f262c47fccbe3f6a947d7da1f80bcf04959",
+  "iosSimulatorBinarySha256": "a42dd4cd1fe04807df07e5d164b77c05b1c288d57d46330d3002fc191dc9b160",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "piiProbe": true,
+  "signing": "local-ad-hoc",
+  "unityBinarySha256": "2d7e534e60c78713dad2330a755fa022ebcd5ee45c11f8e7421e3913041bb5be",
+  "simulator": "473D3E40-A8E9-43FF-91DA-04F8E76E2FFA",
+  "unityMarkerCount": 24,
+  "backendTraceCounts": {
+    "mock-auth": 1,
+    "catalog": 1,
+    "entitlements": 2,
+    "verify": 1,
+    "logout": 1
+  },
+  "ledgerCount": 1,
+  "ledgerDelta": 100,
+  "evidence": "artifacts/unity-ios-e2e-mmev5ejd",
+  "unityBuildMode": "CLI_ORIGINAL_BATCH",
+  "ownedSimulatorShutdownExitCode": 0,
+  "ownedSimulatorShutdownConfirmed": true
+}

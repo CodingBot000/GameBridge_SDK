@@ -38,6 +38,33 @@ class GoogleAuthBridgeHandlerTest {
         assertEquals("INVALID_ARGUMENT", send("store.purchase").getValue("error").jsonObject.getValue("code").jsonPrimitive.content)
         send("sdk.shutdown"); assertTrue(closed)
     }
+    @Test fun `capabilities identify only missing sandbox configuration keys`() {
+        val fake = object : GoogleAuthBridgeApi {
+            override suspend fun signIn() = error("must not sign in during initialization")
+            override suspend fun restore(): UserProfile? = null
+            override suspend fun signOut() {}
+            override fun close() {}
+        }
+        fun capabilities(client: Boolean, products: Boolean): JsonObject {
+            val handler = GoogleAuthBridgeHandler { _, _, _ -> fake }
+            val payload = buildJsonObject {
+                put("providerMode", "PLATFORM_SANDBOX"); put("appId", "demo"); put("backendBaseUrl", "https://example.invalid")
+                put("requestTimeoutMs", 30000)
+                if (client) put("googleServerClientId", "public-fixture-id")
+                if (products) put("storeProductIds", buildJsonObject { put("coins_100", "coins-fixture"); put("premium_unlock", "premium-fixture") })
+            }
+            return handler.invoke("sdk.initialize", payload).jsonObject.getValue("capabilities").jsonObject
+        }
+        val missing = capabilities(client = false, products = false)
+        assertEquals("googleServerClientId required", missing.getValue("auth").jsonObject.getValue("reason").jsonPrimitive.content)
+        assertEquals("googleServerClientId, coinsStoreProductId, premiumStoreProductId required", missing.getValue("store").jsonObject.getValue("reason").jsonPrimitive.content)
+        assertEquals("installationId required", missing.getValue("push").jsonObject.getValue("reason").jsonPrimitive.content)
+        val clientOnly = capabilities(client = true, products = false)
+        assertEquals("coinsStoreProductId, premiumStoreProductId required", clientOnly.getValue("store").jsonObject.getValue("reason").jsonPrimitive.content)
+        val productsOnly = capabilities(client = false, products = true)
+        val reason = productsOnly.getValue("store").jsonObject.getValue("reason").jsonPrimitive.content
+        assertEquals("googleServerClientId required", reason); assertFalse(reason.contains("coins-fixture")); assertFalse(reason.contains("premium-fixture"))
+    }
     @Test fun `sandbox purchase is pending until server confirmation`() {
         val fake = object : GoogleAuthBridgeApi {
             override suspend fun signIn() = UserProfile("d2719c4e-d533-47ee-9efd-838791ea79c8", null, "GOOGLE")

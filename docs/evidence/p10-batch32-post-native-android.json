@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "scope": "post Native T02 current source/fresh package CLI batch actual Android purchase/PII; not GUI or real store",
+  "sourceHead": "5bc3cd0565173b980217705b3db0b18f58710047",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "PASS",
+  "realGoogleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "retainsTestDatabase": true,
+  "utf8Probe": false,
+  "stagingManifestSha256": "d11a2b063b488f3a80b75eb9afa30f262c47fccbe3f6a947d7da1f80bcf04959",
+  "emulatorPid": 72895,
+  "adbServerPid": 72852,
+  "unityBuildMode": "CLI_EXPLICIT_OWNED_BINDING",
+  "emulatorAvd": "GameBridge_V2_B32_POST_NATIVE_PII_C_20261118",
+  "emulatorSerial": "emulator-5600",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "piiProbe": true,
+  "buildAdbPort": 5038,
+  "unityApkSha256": "2783a96e899ce1db56bc8e20af22b2409f95faa761dd66a9e1920af89c7343f3",
+  "backendJarSha256": "532fdbfe70fbf3373f4d918cb0813ffe23fecc12652d76523ea5b3590bbfc459",
+  "backend": "LOCAL_MOCK_READY",
+  "startupDiagnostics": "startup-diagnostics/summary.json",
+  "backendHealthConfirmedBeforeLaunch": true,
+  "unityMarkerCount": 34,
+  "backendTraceCounts": {
+    "mock-auth": 1,
+    "catalog": 1,
+    "entitlements": 2,
+    "verify": 1,
+    "logout": 1
+  },
+  "ledgerCount": 1,
+  "ledgerDelta": 100,
+  "evidence": "artifacts/unity-android-e2e-zr28pnb1",
+  "emulatorDisplay": "headless -no-window, same CPU2/RAM2048/image and original timeouts",
+  "normalNoticeAcknowledgements": [
+    {
+      "kind": "explicit-known-fullscreen-notice",
+      "tapAttempts": 1,
+      "exitCode": 0,
+      "atSeconds": 14.021,
+      "unattendedCI": false
+    }
+  ],
+  "previousFailureEvidence": "p10-batch32-post-native-android-failure.json",
+  "causalLimit": "Recovery after headless variation under locked host; do not attribute the earlier self-exit to one internal Native helper."
+}

@@ -1,0 +1,48 @@
+{
+  "databaseId": 44269328731,
+  "headSha": "deb907414706b132f4e1976e77bcc72524bb2587",
+  "status": "completed",
+  "conclusion": "failure",
+  "url": "https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44269328731",
+  "jobs": [
+    {
+      "name": "backend-postgres",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "android-native",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "swift-ios-simulator",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "inventory-contracts",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "unity-e2e",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "basic-ci",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "release-readiness",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "dispatches": 1,
+  "release_validation": false,
+  "followupCode": "84e1026",
+  "followupRemoteVerification": "NOT_RUN"
+}

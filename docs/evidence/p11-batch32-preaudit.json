@@ -1,0 +1,54 @@
+{
+  "sourceHead": "ff2d0d5aa864b42ad048faf4dea713e851deaa95",
+  "scope": "P11 preliminary documentation/source-marker audit; not exhaustive security review or final SDK completion",
+  "taskCount": 64,
+  "implementationCounts": {
+    "IMPLEMENTED": 23,
+    "IN_PROGRESS": 41
+  },
+  "localCounts": {
+    "PASS": 21,
+    "PARTIAL": 42,
+    "FAIL": 1
+  },
+  "missingTaskEvidencePaths": [],
+  "plannedMachineReadableOpenApiExists": false,
+  "runtimeMarkers": [],
+  "reviewedDocs": {
+    "README.md": true,
+    "START_HERE.md": true,
+    "docs/FEATURE_MATRIX.md": true,
+    "docs/USER_SETUP.md": true,
+    "docs/COMPATIBILITY.md": true,
+    "docs/FINAL_REPORT.md": true
+  },
+  "knownDocCorrections": [
+    "FEATURE_MATRIX stale staging110 vs147",
+    "COMPATIBILITY incorrectly claims Unity Player/import unverified and obsolete ENV-002",
+    "START_HERE planning-only intro stale",
+    "README latest scope/evidence needs current source links"
+  ],
+  "unfinishedRuntimeValidation": [
+    "StoreKit26.5 FAIL/18.6 intermittent risk",
+    "realProvider13 WAITING_USER",
+    "self-hosted and release unverified",
+    "fullStrict automatic batch env unresolved",
+    "native memory/UI profiling NOT_RUN"
+  ],
+  "p11TaskStatus": "IN_PROGRESS/PARTIAL",
+  "finalReviewedStatus": {
+    "taskCount": 64,
+    "implementationCounts": {
+      "IMPLEMENTED": 24,
+      "IN_PROGRESS": 40
+    },
+    "localCounts": {
+      "PASS": 22,
+      "PARTIAL": 41,
+      "FAIL": 1
+    },
+    "sourceHead": "daf3cd97a3811da6f235ff21e4e901a539373773"
+  },
+  "docCorrectionsApplied": true,
+  "newInternalGap": "BUG-017 planned machine OpenAPI contract absent"
+}

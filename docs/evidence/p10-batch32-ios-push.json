@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "scope": "actual Unity iOS Simulator LOCAL_MOCK Push/Lifecycle; transport fault, not OS-wide network block or APNs",
+  "sourceHead": "01892c8e347431a076a85f3530d4b98eec22512f",
+  "sourceTrackedDirty": false,
+  "player": "PASS",
+  "background": "PASS",
+  "networkRecovery": "PASS_LOCAL_TRANSPORT_FAULT",
+  "processRestart": "NOT_RUN",
+  "unityBuildMode": "GUI_EXPLICIT_RECEIPT",
+  "guiBuildSourceHead": "bf10f5330d67dc553e0a06b02e3c5b87e709490a",
+  "guiBuildRunId": "9312d8c3e3f442f38d468eefc18323e1",
+  "guiExportReceiptSha256": "762f6773cd833be23f7d65c4463511285f40abfd0f3d1815d359e5650fe75216",
+  "exportSha256": "240382641e18305287cdf61ffb7d3ff6e7480436b5acb9fb7ca88e5431496eb0",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "binarySha256": "41d037c98ce0e0ac5cfc0f598ffffde440b373cd89051dc77c942e490cce6056",
+  "simulator": "2D5EC4AB-978E-475A-B352-C4F25BDD9A63",
+  "rejectedReconnectAttempts": 6,
+  "mockPush": "PASS",
+  "deduplication": "PASS",
+  "mainThread": "PASS",
+  "reconnectFailure": "PASS",
+  "sessionSwitch": "PASS",
+  "deviceTokens": 0,
+  "ownedSimulatorShutdownExitCode": 0,
+  "ownedSimulatorShutdownConfirmed": true,
+  "evidence": "artifacts/unity-ios-push-rb4s3i0g"
+}

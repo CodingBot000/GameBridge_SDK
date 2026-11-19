@@ -1,57 +1,59 @@
-# GameBridge SDK 개발 보고서
+# GameBridge 포트폴리오 최종 보고
 
-## 판정
+**포트폴리오: PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS — 개발 종료.**
 
-**BLOCKED_INTERNAL.** P00–P11의 모든 계획 Task를 원장에 등록했으며 개발과 로컬 검증을 진행했다. 전체 제품, Unity 통합 및 실제 스토어·푸시 서비스는 검증되지 않았고 내부 미구현도 남았다. 이 문서는 상용 배포 승인이나 sandbox 검증 완료를 뜻하지 않는다. 자세한 Task별 상태와 증거는 [PROGRESS](PROGRESS.md), 실행 이력은 [WORK_LOG](WORK_LOG.md)에 있다.
+**전체 SDK 제품화: BLOCKED_INTERNAL.** 기존64 Task는 구현25/진행39, 로컬PASS23/FAIL1/PARTIAL40, 실제 Provider13건 WAITING_USER다. 두 판정을 합치거나 미완료 행을 삭제하지 않았다.
 
-P11 감사 당시 64개 Task 중 IMPLEMENTED 2개, 나머지는 진행 또는 미착수였다. 실연동 대상 13개 중 PASS는 0개다. 회귀 manifest의 50개 시나리오는 R12·R50 및 인증·구매 synthetic 회귀를 포함해 44개 IMPLEMENTED, 6개 PARTIAL로 전체 통과가 아니다. 이후 원장 갱신에 따른 최신 집계는 PROGRESS가 기준이다.
+## 무엇을 완성했는가
 
-## 확인한 범위
+Kotlin Android·Swift iOS·C# Unity 공통 SDK, Android JNI/iOS Swift C ABI, Native 인증·스토어·Push adapter, Spring Boot/PostgreSQL Backend와 로컬 패키지·검증 체계를 구현한 개인 포트폴리오다. 상용 적용·출시·실제 고객 지원 실적으로 제시하지 않는다.
 
-- Android Kotlin, iOS Swift 및 Unity C# 경계의 계약·fake 테스트와 일부 local-mock HTTP/PostgreSQL 시험을 실행했다. 인증, 구매 중복 지급 방지 및 응답 유실 복구, 푸시 토큰 등록·삭제의 제한된 경로를 확인했다. 실제 제공자 테스트와 구분한다.
-- Android emulator Keystore와 iOS simulator Keychain의 인스턴스 재생성 복구를 확인했지만 실제 기기 프로세스 종료·Unity player 복구는 확인하지 않았다.
-- Android Maven 산출물의 독립 R8 소비 빌드, iOS static XCFramework의 simulator Swift 소비 링크, UPM staging checksum을 확인했다. Unity 신규 프로젝트 import 및 IL2CPP는 실행하지 않았다.
-- 회귀 하네스가 누락된 증거, 시나리오 및 중복 콜백 guard 제거를 감지하는 부정 시험을 실행했다. Unity 푸시 전달 미검증과 미완성 시나리오 때문에 전체 검증은 통과하지 않았다. 최근 strict 집계는 `artifacts/verify-all-k8z14qqw/summary.md`이며 실행된 Native synthetic·local DB 검사는 통과했지만 Unity Editor 미실행, Unity push 환경 대기, 부분 시나리오와 기존 실패로 전체 FAIL이다. CI 설정은 로컬 점검만 했으며 원격 실행하지 않았다.
-- 리팩토링은 하네스 이후 진행했다. baseline API 소스 비교와 별도 C# consumer 컴파일을 확인했으나 바이너리 ABI 및 Unity 실행을 보장하지 않는다. 독립 .NET fake 수명주기 100회 측정 p50 0.1467ms, p95 0.2125ms는 Unity나 기기 성능 수치가 아니다.
+제공 공고 W(웹젠)의 SDK/Library·Edge Case·데이터 기반 문제 해결·기술 문서화 요구와, G(그라비티)의 Unity/Native 공통 SDK·REST·빌드/버전·호환성 업무에 대응한다. [README 대응표](../README.md#공고-요구와-실제-대응)에서 요구별 소스·문서를 찾을 수 있다. 경력3/7년·상용 플랫폼·출시·대외 협업·해외근무 조건은 기존 이력서·본인 증빙과 별도다.
 
-## 남은 내부 작업과 실패
+| 결과물 | 검토 위치 |
+| --- | --- |
+| 프로젝트 목적·공고 대응·빠른 증거 | [README](../README.md) |
+| 설치·초기화·LOCAL_MOCK 로그인/구매·서버 잔액·Push·종료 | [INTEGRATION](INTEGRATION.md)와 기존 Native/Offline Demo |
+| 계층·비밀정보·상태 소유권, Edge Case, 문제 해결3사례 | [ENGINEERING_NOTES](ENGINEERING_NOTES.md), [SECURITY](SECURITY.md) |
+| 공개 API·비동기/오류·HTTP/Bridge·SSE/Map 계약 | [API](API.md) |
+| 패키지/version/source/checksum·선정 ABI·소비 범위 | [COMPATIBILITY](COMPATIBILITY.md), [CHANGELOG](CHANGELOG.md) |
+| 실제 Provider를 선택할 때의 로컬 준비 | [USER_SETUP](USER_SETUP.md) |
+| 개발 원장과 실패 원본 추적 | [PROGRESS](PROGRESS.md), [WORK_LOG](WORK_LOG.md), 각 evidence와 Git 이력 |
 
-| 항목 | 상태 및 영향 |
-|---|---|
-| BUG-013 | XCODE_STOREKIT 격리 fake 서버 지급 및 Native/Unity bridge를 구현했다. iOS 18.6 상품 조회와 일회성 synthetic 지급·finish를 확인했으나, 추가 시험에서 동일 미완료 거래의 JWS가 바뀌어 중복 지급 위험을 발견했다. 완료 후 연속 구매의 고정 필드는 한 시험에서 구분됐지만 재시작 복구의 유일성은 미확인이다. iOS 18 이상과 host 소모품 이력 설정, 거래 후보 단일성 및 durable attempt를 요구하도록 보강했다. local DB 응답 유실과 Keychain 인스턴스 재생성 복구는 통과했으며 전용 iOS 18.6 simulator 앱 재시작 시험에서 journal 재생성 실패를 재현한 뒤 중복 거래 방지 수정으로 재시험 PASS (`artifacts/xcode-process-recovery-f_w2fsya`). 실제 기기·Unity 실행은 미검증이다. iOS 26.5 StoreKit 시험은 Code 3으로 실패했다. |
-| BUG-014 | LOCAL_MOCK Backend→Android·Swift Native 수신은 전용 DB E2E 통과했다. Unity player와 실제 기기 lifecycle은 미검증이다. |
-| BUG-015 | Native 진단 ring의 Unity 비동기 조회를 구현하고 fake/managed compile을 확인했다. 실제 Unity player에서의 연결은 미검증이다. |
-| BUG-009 | 응답 유실 복구의 실제 기기 프로세스 재시작 및 Unity player 검증이 남았다. |
-| P09 | 6개 부분 검증, R12 독립 fake·R50 하네스 음성 및 인증·구매 synthetic 회귀 구현; Unity Editor runner는 구현했으나 실행 결과가 없다. strict 전체 gate는 성공이 아니다. |
+## 개발 종료 기준 판정
 
-## 환경 및 사용자 설정
+| 사용자 기준 | 판정·근거 |
+| --- | --- |
+| 핵심 LOCAL_MOCK 실제 실행 | 새 [Android](evidence/p10-batch34-unity-android.json)/[iOS](evidence/p10-batch34-unity-ios.json) Player→Native→Backend→원장 PASS |
+| Android/iOS/Unity 연동 구조 | 실제 JNI·C ABI·UPM 소비와 현재 소스·소유권 문서 대응 |
+| 구매 지급·세션 핵심 불변식 | 원장1건/100코인, TC 변이·복원, session/late/duplicate 및 managed/Core 회귀 증거 |
+| 심각한 P0 결함 확인 여부 | 검토한 범위에서 신규 P0 확인 없음. weak1은 원인·누수 미확정으로 공개 |
+| 패키지/source 연관성 | Native build a83561a와 현재 shipping source diff0, SDK147 checksum·선정 ABI·새 양 소비 |
+| 공개 API/Edge Case 근거 | [회귀](evidence/p10-batch34-regression.json) 및 [대표 입력/기대/관측](ENGINEERING_NOTES.md#대표-edge-case) |
+| 코드와 맞는 통합 가이드 | 실제 constructor·public API·Host 예제·scripts·Controllers 대조, 문서 정합성 검토 |
+| 대표 문제 해결 사례 | ADB 수명/port 분리, OpenAPI 순서 이식성, 전체화면 안내와 reconnect 실패 분리. 미확정 원인은 단정하지 않음 |
+| 미검증·실패 공개 | 아래 제한과 원장의 FAIL/PARTIAL/WAITING_USER 유지 |
 
-Unity Editor 라이선스 오류(ENV-002)와 계획된 버전 확인(ENV-001)으로 Unity import/player 검증이 보류됐다. iOS 26.5 simulator의 StoreKit local 시험은 실패(ENV-STOREKIT-26)했다. 이후 별도 앱 재시험도 SKTestSession 생성에서 timeout (`artifacts/xcode-process-recovery-p8qyld6o`)이었으며 동일 계측의 iOS 18.6 대조는 PASS였다. 실제 Google/Apple 인증, 스토어, FCM/APNs의 계정·앱 등록·서명 및 기기 준비는 [USER_SETUP](USER_SETUP.md)에 정리했다. `bash scripts/verify-external.sh --check-config`는 설정 형태만 확인하며 실연동 테스트가 아니다.
+위 기준으로 **포트폴리오 개발 종료를 권고하고 이번 개발을 종료한다.** 새 P1/P2 개선점이나 실제 Provider 연동을 자동 다음 필수 배치로 넘기지 않는다. 새 P0가 재현되거나 핵심 증거가 무효임이 확인되면 그 근거로 별도 PORTFOLIO_BLOCKED 판정을 재검토한다.
 
-## 로컬 산출물
+## 확정한 실행 근거
 
-[산출물 manifest](evidence/p11-artifact-manifest.json)는 실제 파일별 SHA-256과 크기를 기록한다. 산출물은 Git에 포함되지 않는 로컬 개발 결과이며 공개 release가 아니다. P10 빌드는 `d02b8ed`와 당시 미커밋 P10-T04 변경을 사용했고 해당 변경은 `3bf8d0a`에 커밋됐다. 깨끗한 checkout에서 재현한 빌드라고 주장하지 않는다.
+마지막 제품·하네스·계약 코드는 `648bb807baeab4e83b037856a9ae04f84e8a2154`다. [Hosted44287600414](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44287600414)는 SUCCESS, inventory/Backend/Android/Swift-iOS/basic PASS이며 Unity/Release는 SKIPPED다. Ubuntu에서 OpenAPI 정상/순서 반전과 Python263을 확인했다.
 
-| 산출물 | 경로 | 확인 범위 |
-|---|---|---|
-| Android Maven | `artifacts/maven-p10-20261111-b` | 별도 소비자 R8 build |
-| iOS XCFramework | `artifacts/ios-package-p10-20261111-a/GameBridgeNative.xcframework` | simulator Swift link, device C ABI symbol |
-| Unity UPM staging | `artifacts/upm-staging-p10-20261111-a` | checksum 및 build hook 시험; Unity import 미실행 |
+같은 code의 Core는 Kotlin10/Swift12, managed418 검사·변이·복원, self9 lane/47test(정상44·예상음성3), TC11(정상10·예상변이1)·복원·자기 container 정리를 통과했다. HTTP24 operation의 성공 근거와 DTO23, LOCAL32관측·합성10시험/132구조·오류 MockMvc4를 따로 기록했다. test/helper/check/sample/Player 수를 합산하지 않는다. 정확한 source·실행 범위는 [회귀](evidence/p10-batch34-regression.json), [Hosted](evidence/p10-batch34-hosted.json)를 따른다.
 
-진단 연결 이후 `52f60f7` 소스 기준 새 산출물은 `artifacts/maven-diag-20261111`, `artifacts/ios-diag-20261111/GameBridgeNative.xcframework`, `artifacts/upm-diag-20261111`에 생성했다. Android R8 consumer 빌드와 UPM checksum은 통과했고 Unity import는 실행하지 않았다. 파일별 해시는 [새 manifest](evidence/diagnostics-artifact-manifest.json)에 있다.
+이번 최종화는 문서·기존 자료/소스 검토·동일 산출물 RC 정리다. 제품/하네스/계약 코드를 바꾸지 않아 CI·Player·전체 회귀를 날짜 갱신 목적으로 반복하지 않았다. 새 문서의 API-name/링크/예제 문법·source diff와 패키지 checksum을 필요한 범위에서 검토했다. 최종 문서 commit은 Git 이력과 인계 메시지에서 확인한다.
 
-현재 소스 `10e2a3c` 기준 재생성 산출물은 `artifacts/maven-current-20261111`, `artifacts/ios-current-20261111/GameBridgeNative.xcframework`, `artifacts/upm-current-20261111`이다. Android R8 consumer 빌드, iOS simulator Swift link·device symbol, UPM checksum을 확인했다. Unity import 및 실제 기기 실행은 미검증이다. [현재 산출물 해시](evidence/current-artifact-manifest.json)를 참조한다.
+## 제한된 위험 처리
 
-최신 재생성 산출물은 `artifacts/maven-final-20261111`, `artifacts/ios-final-20261111/GameBridgeNative.xcframework`, `artifacts/upm-final-20261111`이며 source `6a3fea5`에서 빌드했다. Android R8 consumer, iOS simulator Swift link와 device symbol, UPM 체크섬을 확인했다. [최신 해시 목록](evidence/final-artifact-manifest.json)을 참조한다. Unity import·실기기 검증은 미실행이다.
+- **weak client1:** 기존120cycle 자료와 cleanup 소스를 검토했다. active/driver·transport current/Message/queue·pending/cancel 등록 정리 경로가 있다. 계측 async 프레임이 끝나기 전 GC/weak count를 읽으므로 테스트 참조·await/런타임 root 가설을 분리했다. root chain·증가 곡선·clean-stack 대조는 없어 누수 여부를 확정하지 않는다. 추가 재현0/제품 수정0으로 제한 조사를 종료한다. [조사](ENGINEERING_NOTES.md#제한-조사--weak-client1개).
+- **BUG-017:** 중요 HTTP 사용 범위의 SSE/Map 필드를 현재 소스와 대조해 API 문서에 보강했다. 기계 schema와 자동 검사 잔여는 OPEN으로 남긴다. 포트폴리오 종료를 막는 필수 신규 개발로 전환하지 않는다.
+- **전체 Strict:**58 required lane·원래 P05 기록 실패를 유지한다. E2 생성/전 wrapper 소유권 배선 미완료이므로 전체 실행0회, 마지막 preflight는 DEFERRED_ENV/2다. 안전 기준을 낮추지 않았다.
+- **기존 실패·외부 대기:** P05-T03 FAIL, ENV-STOREKIT-26 OPEN, iOS18.6 간헐 위험, 실 Provider13 WAITING_USER, 실기기/self-hosted/Release 미검증을 유지한다.
+- **추가 profiling:** Android JNI heap·iOS continuation·Unity CPU blocking/첫 app 초기화는 NOT_RUN이다. 현재 실측은 환경별 관측이며 성능 향상률·상용 안정성을 주장하지 않는다.
 
-XCFramework arch·C ABI 선검사를 적용해 다시 staging한 최신 UPM은 `artifacts/upm-validated-20261111`이며 [파일별 해시](evidence/validated-upm-manifest.json)가 있다. Unity import는 미실행이다.
+## 최종 로컬 후보와 선택적 backlog
 
-최신 제품 소스 `2bc9d77`에서 Android Maven `artifacts/maven-2bc9d77`, iOS XCFramework `artifacts/ios-2bc9d77/GameBridgeNative.xcframework`, UPM staging `artifacts/upm-2bc9d77`을 재생성했다. Android R8 consumer, iOS arch별 C ABI 및 UPM checksum은 통과했다. [산출물 해시](evidence/artifacts-2bc9d77.json); Unity import 및 실기기는 미실행이다.
+최종 로컬 경로는 `artifacts/portfolio-final/DEV_RC`이며 Native 재빌드 없이 검증된 UPM/Maven/XCFramework와 현재 문서를 묶는다. SDK0.1.0-dev·build source·검증 code·내부147 checksum·상위 문서 checksum·제한을 manifest에 분리한다. 생성 바이너리는 Git에 넣지 않고 공개 Release/registry/스토어 배포를 하지 않는다.
 
-최신 iOS 수정 반영본은 source `e9b64fb`의 `artifacts/ios-e9b64fb/GameBridgeNative.xcframework`, `artifacts/upm-e9b64fb`이며 [파일별 SHA-256](evidence/artifacts-e9b64fb.json)을 기록했다. Android 트리는 `2bc9d77` 이후 변경이 없어 해당 Maven R8 consumer 산출물을 재사용했다. iOS arch별 C ABI, arm64 simulator 독립 Swift consumer link 및 UPM checksum은 통과했고 Unity import·실기기는 미실행이다.
-
-## 주요 이력과 재개
-
-P09 하네스는 `e0afb97`, `196ae97`, `7770943`, `02005a4`, `864d2b6`, `35f1912`, `a93cf52` 등에 기록됐다. P10 리팩토링·호환성은 `36db140`, `e689dd7`, `d02b8ed`, `3bf8d0a`, P11 감사·설정 점검은 `31b683c`, `35bf2bd`에 기록됐다. 이후 문서 커밋은 `git log`에서 확인한다.
-
-다음 개발은 BUG-013과 P09 미완성 시나리오를 해결하고 BUG-014·015 실제 Unity 검증을 진행하며 각 범위의 검증을 추가하는 것이다. 사용자 설정이 준비되면 USER_SETUP의 해당 항목에서 실제 플랫폼 검증을 별도로 실행한다. 자동 push, 공개 배포와 스토어 업로드는 수행하지 않았다.
+Unreal/Godot/Windows Native·C++ 포팅, Kubernetes/AWS/GCP 운영, 실 Google/Apple/결제/FCM/APNs와 정식 출시는 이번 개발에서 제외한다. 선택적 제품화가 필요할 때만 [backlog](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)와 USER_SETUP을 사용한다. 포트폴리오의 현재 SDK·Native Plugin·REST·문서화·문제 해결 증거를 해당 경험으로 확대하지 않는다.

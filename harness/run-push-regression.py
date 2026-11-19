@@ -11,6 +11,8 @@ import tempfile
 import time
 from pathlib import Path
 
+from execution_evidence import metadata
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.dont_write_bytecode = True
 spec = importlib.util.spec_from_file_location('auth_runner', ROOT/'harness/run-auth-regression.py')
@@ -60,15 +62,18 @@ def main() -> int:
                 data = json.loads(summary.stdout) if summary.returncode == 0 else {}
                 counts = (int(data.get('totalTestCount',0)),int(data.get('failedTests',0)),int(data.get('skippedTests',0)))
             except (OSError, ValueError, subprocess.TimeoutExpired): pass
-        results.append(common.item('ios-host-simulator-synthetic',code,counts))
+        results.append(common.item('ios-host-simulator-synthetic',code,counts,error_model='included-in-failures'))
     else: results.append(common.item('ios-host-simulator-synthetic',2,(0,0,0)))
+    code, text, _ = common.run(['bash','scripts/smoke-unity-mock-permission.sh'],env,output/'mock-permission.log')
+    marker = 'PASS: mock permission denied, registration blocked, re-request denied (standalone managed test)'
+    results.append(common.item('mock-permission-denied',code,(1 if marker in text else 0,0,0),error_model='checker-exit'))
     staging = env.get('GAMEBRIDGE_UPM_STAGING')
     if staging:
         code, text, _ = common.run(['python3','harness/check-staging.py',staging],env,output/'staging.log')
-        results.append(common.item('upm-staging-integrity',code,(1 if 'Staging integrity PASS:' in text else 0,0,0)))
+        results.append(common.item('upm-staging-integrity',code,(1 if 'Staging integrity PASS:' in text else 0,0,0),error_model='checker-exit'))
     else: results.append(common.item('upm-staging-integrity',2,(0,0,0)))
     code, text, _ = common.run(['python3','harness/check-package-negative.py'],env,output/'package-negative.log')
-    results.append(common.item('package-negative-fixtures',code,(1 if 'Package negatives PASS:' in text else 0,0,0)))
+    results.append(common.item('package-negative-fixtures',code,(1 if 'Package negatives PASS:' in text else 0,0,0),error_model='checker-exit'))
     if env.get('GAMEBRIDGE_RUN_MOCK_PUSH_HARNESS') == 'true':
         code, text, _ = common.run(['python3','harness/run-mock-push-e2e.py','--run-local'],env,output/'mock-e2e.log')
         match = re.search(r'Evidence directory: (artifacts/mock-push-e2e-[A-Za-z0-9_.-]+)', text)
@@ -81,11 +86,16 @@ def main() -> int:
                     head = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
                     if data.get('sourceHead') == head and data.get('status') == 'PASS' and len(data.get('suites',[])) == 2 and all(x.get('status') == 'PASS' for x in data['suites']): counts = (2,0,0)
             except (OSError,ValueError,subprocess.CalledProcessError): pass
-        results.append(common.item('local-push-native-db-e2e',code,counts))
+        results.append(common.item('local-push-native-db-e2e',code,counts,error_model='checker-exit'))
     else: results.append(common.item('local-push-native-db-e2e',2,(0,0,0)))
-    results.append({'suite':'unity-player-notifications','status':'DEFERRED_ENV','exitCode':2,'tests':0,'failures':0,'skipped':0})
+    if env.get('GAMEBRIDGE_RUN_UNITY_PUSH_E2E') == 'true':
+        code, text, _ = common.run(['python3','harness/run-unity-push-current.py'], env, output/'unity-push.log', timeout=3300)
+        counts = (2 if 'Unity push current-run PASS: Android and iOS LOCAL_MOCK Players, 2 tests' in text else 0,0,0)
+        results.append(common.item('unity-player-notifications',code,counts,error_model='checker-exit',measurement='players'))
+    else:
+        results.append({'suite':'unity-player-notifications','status':'DEFERRED_ENV','exitCode':2,'tests':0,'failures':0,'skipped':0})
     head = subprocess.run(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=False).stdout.strip()
-    report = {'scope':'push-and-package-partial','sourceHead':head,'workingTree':'HEAD plus uncommitted changes may be present',
+    report = {'scope':'push-and-package-partial',**metadata(),'workingTree':'HEAD plus uncommitted changes may be present',
               'timestampUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'suites':results}
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     for item in results: print(f"{item['suite']}: {item['status']} (tests={item['tests']}, exit={item['exitCode']})")

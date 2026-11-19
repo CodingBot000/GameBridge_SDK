@@ -1,0 +1,103 @@
+# P09 완료 조건·미검증 항목 감사 — 2026-11-16
+
+## 최신 배치25 최종 local 감사
+
+[배치25 source별 결과](p09-batch25-integrated.md): current code e46cb6520272334d9816d951274b91bd39133b9b. A독립Android Push PASS/PID·양port소유확인, currentStrict58lane=57PASS/기존P05기록FAIL1/신규실패·대기0(exit1),측정tests226/checks57/samples100/Players4. actual tests에는의도된negative4가포함된다. 단위131·self9·Testcontainers11 확인.
+
+| Task | 실제 반영 상태(구현/local) | 근거/잔여 |
+|---|---|---|
+| P09-T01 | IMPLEMENTED/PASS | ID/entry50·fixture음성/정상복원·platform미실행구분 완료 |
+| P09-T02 | IN_PROGRESS/PARTIAL | guard mutation·회귀/100samples확인,actual assert총수미측정 |
+| P09-T03 | IMPLEMENTED/PASS | synthetic48·독립fake-token401·PII2,realProvider와분리 |
+| P09-T04 | IMPLEMENTED/PARTIAL | Testcontainers도구차이는실제로해소,SQL/Native복구현재PASS. 18.6간헐원인미확정위험유지 |
+| P09-T05 | IMPLEMENTED/PASS | fresh currentPush2·PII2·Native/Host/packaging음성,OS/mock/UI보조구분 |
+| P09-T06 | IMPLEMENTED/PASS | typed측정/source/증거fail-closed·실제0/1/2·knownFAIL보존 |
+| P09-T07 | IMPLEMENTED/PARTIAL | 38파일전체Hosted연결·TC backend/localCI구현. self-hosted/Release미검증 |
+| P09-T08 | IMPLEMENTED/PASS | current전용환경9필수lane·정확negative·정상복원·독립401 |
+
+이번에는단순제안이아니라위5개local PASS를실제원장에반영했고64행에서집계를재계산했다. 다른3개는PARTIAL로남겼다. P05FAIL/ENV26OPEN/외부13대기/실기기·self-hosted미검증은별도유지한다. 아래배치24및최초감사내용은당시기록이며최신판정과구분한다. 이번 [Hosted run43889958441](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43889958441)은전체SUCCESS(Hosted4+basic성공,Unity/ReleaseSKIPPED),unit38파일131건과TC11실행을확인했다.
+
+
+## 최신 배치24 재평가 — 2026-11-16
+
+최신 코드 source 5eaf31f59f0d187a24bffb5007543744359ca076, [실행별 통합 evidence](p09-batch24-integrated.md). Python 119건·실제 자체시험 9 lane·독립 iOS Push PASS. Strict source 0b6fb72 원본은 57 lane/52 PASS/4 FAIL/1 환경 대기/exit 1이며, 그 이후 영향 재검증을 전체 Strict 성공으로 취급하지 않는다. 아래 최초 감사와 후속 기록은 당시 이력이다.
+
+| Task | 최신 local 근거와 완료 조건 | 재평가/변경 근거 | 잔여 조건 |
+|---|---|---|---|
+| P09-T01 | 50 required ID/entry 검사, 현재 Kotlin10·Swift12 및 C# checker, fixture 변조 실패/정상 복원 | IMPLEMENTED/PASS(local)로 바꿀 근거 있음. mapping50은 실제 test50이 아님 | 전체 플랫폼/real 서비스 검증으로 확장 금지 |
+| P09-T02 | 계약·guard mutation, 실제 stress100 samples, Editor2 | PARTIAL 유지 | assertion 총수와 전체 R01~R12 current-source 조합 미수집 |
+| P09-T03 | auth 실제48, sandbox 지정 fake-token 401 실제1, PII Android/iOS 2 Player | IMPLEMENTED/PASS(synthetic local)로 바꿀 근거 있음 | 실제 Google/Apple은 별도 프로젝트 Task WAITING_USER |
+| P09-T04 | DB/Native/응답 유실49 PASS, 원장 mutation, StoreKit 영향 retry 둘 PASS | PARTIAL 유지 | 최초18.6 timeout 간헐 원인 미확정, Testcontainers 계획 차이, P05 26.5 FAIL 및 실제 스토어 대기 |
+| P09-T05 | Native/Host/packaging PASS, 현재 PII 두 Player 및 독립 iOS Push PASS | PARTIAL 유지 | Android Push 원본 READY timeout·재검증 ENV-P09-AVD. OS 안내 보조와 실제 remote Push/기기 미검증 |
+| P09-T06 | 단위119 중 집계14/errors10/measurement10/nested4/execution13/runtime1/device2/self-report2. 프로세스0/1/2, 실제 Strict 실패·대기 보존 | IMPLEMENTED/PASS(local 집계 계약)로 바꿀 근거 있음 | 전체 Strict green 및 Release 가능을 의미하지 않음 |
+| P09-T07 | 새 하네스 단위 Hosted 연결, false 입력·Unity비활성 유지, actionlint PASS | PARTIAL 유지. [이번 Hosted run43862394352](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352) SUCCESS: Hosted4+basic 성공, Unity/Release SKIPPED | 전용 self-hosted 격리·Unity/Release 원격 미검증. 기존 CI 미연결4파일6건은 local only |
+| P09-T08 | 최신 source self-check9/9 PASS,47 실제 tests 중 예상 failure3, 정상 복원·독립401 확인 | IMPLEMENTED/PASS(local 자체시험)로 바꿀 근거 있음 | 실제 Provider/원격 Unity를 대체하지 않음 |
+
+원장의 8개 Task 상태는 일괄 변경하지 않고 IN_PROGRESS/PARTIAL을 유지했다. 위 네 Task의 local 상태 변경 **근거를 제시**하며 전체 P09 완료를 선언하지 않는다. P05-T03 FAIL, ENV-STOREKIT-26 OPEN, Provider WAITING_USER13, self-hosted 미검증, Android Push 재검증 대기를 유지한다.
+
+## 최초 감사 기록 보존
+
+
+감사 기준은 로컬 및 handoff 원격 HEAD `129b1bb8f98a74e109178d0c13214d03876855a3`다. 이번에는 계획·소스·보존 JSON·문서와 Git diff를 읽고 정적 원장/manifest 검사만 수행했다. 전체 Strict, Unity Player, DB mutation, GitHub Actions를 재실행하지 않았다. 아래 상태는 감사 판단이며 기존 Task 원장의 IN_PROGRESS/PARTIAL을 수정하지 않았다.
+
+## Task별 완료 조건 대조
+
+| Task / 계획 완료 조건 | 실제 구현 | 확보된 실행 근거 | 현재 판정 | 잔여 조건 / 다음 행동 |
+|---|---|---|---|---|
+| **P09-T01** 모든 required ID/entry, 잘못된 fixture 실패, 없는 platform 자동 제외 금지 | [manifest](../../harness/regression-manifest.json), [inventory 검사](../../harness/check-manifest.py), [scenario 실행](../../harness/run-scenario.py), [contract runner](../../harness/run-contracts.py) 존재. 공통 schema·fixture 및 세 언어 parser 구현 | [contract 이력](p09-contracts-20261111.md), [자체시험](p09-self-check-20261113.md). source 5d716bd strict에서 Kotlin 10·Swift 12·C# smoke 1, 각각 exit 0·failure/skip 0. Hosted-only inventory SUCCESS는 정적·하네스 범위 | 명시적 local 완료 조건의 상당 부분 충족. 50/50 IMPLEMENTED는 assertion/evidence 매핑이며 실행 PASS 50건이 아님. baselineStatus INCOMPLETE 유지 | **충족:** 필수 50 ID/entry·fixture 음성·환경 대기 구분. **내부/미검증:** 전체 시나리오별 현재 실행 근거의 연결·freshness를 일괄 완료로 주장할 수 없음. 개별 경계가 필요한 경우 선택적으로 증거 보강 |
+| **P09-T02** R01~R12, duplicate guard mutation 실패·복원, 실행/assert 수 기록 | [Kotlin coordinator 시험](../../android/sdk-core/src/test/kotlin/com/gamebridge/SdkCoordinatorTest.kt), [Swift coordinator](../../ios/Tests/GameBridgeCoreTests/SdkCoordinatorTests.swift), [managed smoke](../../scripts/registry-smoke.cs), [bridge mutation](../../harness/check-bridge-mutation.py) 존재 | [Core/Bridge](core-bridge-scenarios.md), [R09 JNI/C ABI](r09-jni-cabi-utf8.md), [R11 Editor reload](r11-unity-scene-domain-reload.md), [R12 stress](r12-lifecycle-stress.md). source 5d716bd strict: contract 10/12/smoke 1, stress 100, mutation checker PASS/exit 0. mutation 내부는 guard 제거 뒤 예상 비영·NullReferenceException 경로 검사 | 로컬 핵심 동작·변이 감지 증거 있음. assertion 총수는 별도 수집하지 않음. Native/managed와 실제 Editor/Player 사례가 각각 다른 source 증거 | **충족:** mutation·복원, 경쟁/late callback 사례. **내부:** checker 호출 수와 실제 assertion/test 수의 일관된 표시. **미검증:** 모든 R01~R12가 현재 HEAD에서 모든 플랫폼으로 다시 실행됐다는 주장은 불가. real device는 별도 |
+| **P09-T03** R13~R22 local fixture 실행, fake token sandbox 거부; real token은 별도 대기 | [auth runner](../../harness/run-auth-regression.py), [독립 401 testcase](../../backend/src/test/kotlin/com/gamebridge/auth/AuthHttpIntegrationTest.kt), [PII 검증](../../harness/check-unity-pii-evidence.py) | source 5d716bd strict: backend synthetic 6·sandbox DB 3·Android 17·Swift 22 모두 failure/skip 0, exit 0. [자체시험](p09-self-check-20261113.md)의 지정 fake identity 401 JUnit 1 PASS. [합성 redaction](r22-synthetic-redaction.md) 및 [현재 Player](p09-current-unity-player-20261113.md) PII 2 PASS | 명시된 synthetic local 완료 조건 근거가 있음. 실제 Google/Apple 인증 성공은 없음 | **충족:** test-key/fake 인증·세션·sandbox dev-auth 거부 및 PII 범위. **미검증:** 로그 모든 형식·모든 실제 OS 저장소/기기. **대기:** real Provider credential과 실제 계정 시험. local PASS의 상태 승격은 별도 제안 대상으로만 남김 |
+| **P09-T04** R23~R39, PostgreSQL 동시성/복구, 원장 제약 음성 및 정상; zero-test 금지 | [purchase runner](../../harness/run-purchase-regression.py), [원장 mutation](../../harness/check-ledger-mutation.py), [DB invariant](../../backend/src/test/kotlin/com/gamebridge/purchase/LedgerInvariantDatabaseTest.kt) 존재. DB 방식은 명시 opt-in의 별도 Docker PostgreSQL·fresh schema | [DB 시나리오](purchase-db-scenarios.md), [원장 음성](p09-ledger-mutation-20261113.md). source 5d716bd strict: DB 7+2, Native 18+16, 응답 유실 3+3, 18.6 StoreKit DB/프로세스 1+1, exit 0·failure/skip 0. 별도 mutation Gradle 1(예상 failure 1), 정상 Gradle 0(1 PASS) | 주요 synthetic 원장·복구 증거 있음. 26.5 StoreKit 미해결은 해당 Task와 연계. 실제 스토어 결제 미검증 | **내부/계획 차이:** 계획의 Testcontainers 방식은 build/test 코드에서 확인되지 않음; 현재 전용 PostgreSQL 대체가 승인된 예외인지 확인 필요(기존 DB 증거는 유효). **알려진 FAIL:** [26.5 원인 분리](p05-storekit-26-isolation.md). **대기:** 실제 스토어·기기 |
+| **P09-T05** R40~R50, fake/OS 구분, binary 제거 음성, clean consumer | [push runner](../../harness/run-push-regression.py), [fresh push wrapper](../../harness/run-unity-push-current.py), [패키지 음성](../../harness/check-package-negative.py) 존재 | [현재 Unity PII/Push](p09-current-unity-player-20261113.md): source 5d716bd, 각 gate Android/iOS 2 PASS, tracked-clean·nonce·PII 원장 1/100. [R40](r40-os-and-mock.md), [R43](r43-ios-host-unity-boundary.md), [R49](r49-unity-fresh-consumers.md). strict의 push 10개 suite 모두 PASS/skip 0; 필요한 artifact 제거 checker PASS | LOCAL_MOCK Player와 packaging의 구체적 실행 근거 있음. Android 최초 안내 수동 개입, iOS 네트워크는 local transport fault, R40 iOS denial도 수동 보조 | **충족:** 로컬 Push/수명주기·packaging 음성. **미검증:** 양 wrapper/각 R의 모든 current-HEAD 조합을 실행한 것은 아님. **대기:** 무인 전용 Unity 환경·real FCM/APNs/기기. 과거 실행과 현재 실행을 구분 |
+| **P09-T06** per-suite counts/exit/mode/환경/source/evidence, 누락·skip·외부 대기 fail-closed; 4가지 집계 조건 | [verify-all](../../harness/verify-all.py), [aggregator](../../harness/result_aggregator.py), [집계 단위](../../harness/test_aggregation.py). mapping은 tests 0/check 1/50 mapped로 분리됨 | [Strict 기준선](p09-strict-baseline-20261113.md) 46 PASS/1 FAIL/2 대기 뒤 [현재 Player strict](p09-current-unity-player-20261113.md)에서 source 5d716bd의 49 lane: 48 PASS/1 기록 FAIL, exit 1. 집계 단위 14건 PASS. 외부 13 WAITING_USER 별도 | 전체 strict는 미통과. 집계 신뢰성의 내부 잔여 조건이 있어 완료 승격 불가 | **내부:** simple marker를 tests=1로 기록하는 경우, nested의 errors 필드 미전달, aggregator의 errors 미검사. 현재 일부 JUnit runner는 errors를 failures에 합산하지만 독립 errors 계약은 방어되지 않음. 오류를 0으로 간주하지 말아야 함. **알려진 FAIL:** recorded P05-T03가 의도대로 차단 |
+| **P09-T07** workflow static·로컬 대응 검사, hosted와 Unity license lane 분리, Unity 미실행 대기 표시 | [workflow](../../.github/workflows/verify.yml), [결합 Unity gate](../../scripts/ci-unity-e2e.sh), [release gate](../../scripts/ci-release-gate.sh). PR/hosted-only와 explicit release 조건 분리 | [Hosted-only run 43840984922](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43840984922), source f8d644e: 4 hosted+basic SUCCESS, Unity·Release SKIPPED, 전체 SUCCESS. [모드 evidence](p09-ci-modes.md), [self-hosted 점검](p09-self-hosted-readiness.md), gate 7+mode 2 및 actionlint PASS | Hosted-only 검증 범위는 충족. self-hosted DEFERRED_ENV·명시 Release 원격 검증 미실행을 유지 | **내부 후속:** 독립 Player/Strict 구조화 결과 인터페이스는 제안만 존재. **대기:** runner 등록/전용 계정·VM·개인 파일 접근 격리·exact artifacts·fresh 기기 입증. Hosted 성공을 Release 성공으로 승격 금지 |
+| **P09-T08** 문서·실패/0건·required 제거·binary 누락·fake token 주입 음성, 정상 복원, 감지 못한 경우 수정 | [자체시험](../../harness/run-self-check.py), [manifest guard](../../harness/run-scenario.py), [fresh XML 판정](../../harness/check-ledger-mutation.py), [self report 단위](../../harness/test_self_check_report.py) 존재 | [9개 lane 자체시험](p09-self-check-20261113.md): source c9f9dfb+당시 미커밋 보강, exit 0, 9/9 PASS, 예상 외 failure/error/skip 0. source 5d716bd strict도 같은 자체시험을 실제 호출해 PASS. 계약 변조 22건/예상 failure 2, 원장 2건/예상 failure 1, sandbox 독립 JUnit 1건, 정상 계약 22건 + C# smoke, 문서/manifest/package/bridge·0건 checker 별도 | local 자체시험의 명시적 완료 확인은 충족한 근거가 가장 강함. 현재 source 전체 자체시험을 이번에 재실행한 것은 아님 | **충족:** 요구 음성 사례와 정상 복원, 독립 sandbox 401. **잔여:** 현재 source snapshot 및 상위 집계의 정확한 측정 계약 확정. 원격 Unity·실 Provider는 local 자체시험 PASS로 대체하지 않음 |
+
+## 실행 source와 감사 HEAD의 관계
+
+- raw 보존 결과 `artifacts/verify-all-e2d8gd77/result.json`은 source `5d716bd96cd8b8d3bcbc58b90f0cbf83ef7ad968`, 전체 FAIL/exit 1, 48 PASS/1 FAIL이다. `sourceDirty=true`는 보존한 미추적 파일을 포함한다. 개별 PII·Push Player는 같은 source, `sourceTrackedDirty=false`였다.
+- `git diff 5d716bd HEAD -- <관련 경로>`에서 Core/Bridge contract/coordinator·managed smoke, auth runner/backend 인증 시험/PII wrapper, 자체시험·ledger mutation·contract negative 경로는 변경 없음으로 확인했다. 이는 해당 범위의 과거 근거를 유지하는 이유이며 current-HEAD 재실행 PASS를 뜻하지 않는다.
+- 이후 StoreKit 테스트 계측·독립 runner, manifest guard의 clean-checkout 준비, CI gate 단위와 실행 모드는 바뀌었다. 이들은 [StoreKit evidence](p05-storekit-26-isolation.md), [hosted CI](p09-hosted-ci.md), [모드 CI](p09-ci-modes.md)에 별도 SHA·결과가 있다.
+- Hosted-only source `f8d644e83dd8219578c19c4d1330e9846e35a35b` 이후 감사 기준 HEAD까지의 변경은 해당 원격 결과 문서다. 모든 required lane과 플랫폼이 같은 한 번의 current-HEAD 실행에서 통과했다는 증거는 없다.
+- manifest는 50개 IMPLEMENTED, baselineStatus INCOMPLETE다. 이는 실행 entry·assertion/evidence 매핑이며 실제 실행 50 PASS가 아니다. Provider WAITING_USER 13건은 전체 프로젝트의 외부 검증 대상 Task 수로, P09 테스트 13건이 아니다.
+
+## 상태 변경 제안 — 이번에는 적용하지 않음
+
+P09-T01의 local ID/entry·fixture 완료 확인, P09-T03의 synthetic local 거부 확인, P09-T08의 명시적 음성/복원 확인은 기존 증거로 충족한 범위가 있다. 특히 T08은 local 검증 PASS 제안 근거를 갖지만, 전체 계획의 구현 범위 및 source snapshot 관계를 승인된 검증 범위로 정리한 뒤에만 별도 상태 변경을 검토한다. 현재 원장은 8개 모두 IN_PROGRESS/PARTIAL로 보존한다. T06의 집계 공백과 알려진 P05 실패, T07 전용 환경 대기가 있으므로 P09 전체 완료 선언은 부적절하다.
+
+## 다음 Codex 작업 — 하나만 제안
+
+**P09-T06: required lane의 독립 `errors` 누락/무시 방지.** 현재 `verify-all.py` nested 복사는 failures만 전달하며 `result_aggregator.py`의 PASS 분기도 errors를 검사하지 않는다. 소스상 테스트 수 양수·failures 0·errors 1인 PASS-shaped 결과가 차단될 근거가 없다. 이는 정적 감사 발견이며 이번에 변조 실행으로 재현하거나 코드 수정하지 않았다.
+
+완료 조건: (1) nested 결과의 errors를 수집·보존하고 (2) required lane에 errors가 있으면 전체 exit 1을 반환하며 (3) 정상·errors 양수·필드 형태 오류/누락의 계약을 정해 단위 음성/정상 검사로 검증하고 (4) 기존 missing/zero/skip·static mapping 분리를 유지한다. 기존 보고서에서 errors가 failures에 합산되는 lane의 호환성을 명시한다. 이 한 단위는 로컬 disposable 결과로 독립 실행 가능하고 전용 self-hosted 구축·Provider 인증·iOS 26.5 재시도 없이 집계 신뢰성의 빈틈을 줄인다. 전체 Strict 재실행 여부는 그 다음 별도 결정이다.
+
+이번 감사는 문서만 변경했고 기존 FAIL·외부 대기·PARTIAL 및 미추적 사용자 파일을 유지한다.
+
+## 감사 후 P09-T06 errors 보강 — 2026-11-16
+
+위 감사에서 지적한 독립 errors 누락·무시 공백은 [errors 계약 evidence](p09-errors-contract.md)의 로컬 fixture 검증으로 보강했다. JUnit 독립 errors, Swift 합산 호환, checker 미측정을 구분하며 tests 25건 PASS와 정상/오류 process exit 0/1을 확인했다. 전체 Strict 재실행은 없고 Task 상태는 PARTIAL이다. 다음 한 작업은 simple marker 호출과 실제 테스트 수의 구분이다.
+
+## 감사 후 simple 측정 보강 — 2026-11-16
+
+[simple 측정 계약](p09-measurement-contract.md)에 따라 기본 marker는 tests 0/checks 1, stress는 samples, PII 검증은 players로 분리했다. 검증된 로그 receipt가 없는 checker-only PASS를 거부한다. 관련 단위 35건 통과, 제품 suite 및 Strict 재실행 없음. 다음 한 작업 후보는 nested 측정 단위 보존이다.
+
+## 배치24 최종 인계
+
+Hosted-only source8c8fc62, [run43862394352](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43862394352) 전체 SUCCESS. 새 하네스 단위 포함 원격113건 통과. 로컬119·자체시험9 및 iOS Push 실제 current-source 결과와 scope를 구분했다. A/B/D 수행 완료, C는 Android Push 재검증 ENV-P09-AVD로 PARTIAL. 기존 Strict 및 최초 runtime 실패와 후속 성공을 모두 보존한다. 위 Task별 상태 제안은 전체 P09/Release 완료 선언이 아니다.
+
+## 배치25 진행
+
+잔여 환경·검증·상태 감사의 후속은 [배치25 evidence](p09-batch25-integrated.md)에 기록한다. 배치24의 실패·미실행·후속 성공은 수정하지 않는다.
+
+## 배치25 원격 검증 후 확정
+
+source59b9834의Hosted-only1회SUCCESS. 모든Python38파일/131건이원격검증됐고Backend TC11(예상negative1포함)도통과했다. P09 local상태는T01/T03/T05/T06/T08 PASS,T02/T04/T07 PARTIAL로확정했다. 이외부CI성공으로P05기존FAIL·18.6간헐위험·self-hosted/Release미검증을숨기지않는다. [최종배치25](p09-batch25-integrated.md).
+
+
+## 배치26 후속 — assertion 계측 및 Core 리팩토링
+
+[배치26 통합 증거](p09-batch26-integrated.md)와 [구조화 계측](p09-batch26-assertions.json)이 배치25의 T02 미측정 gap을 보강했다. 실제 helper 수/예상 오류 검사/testcase/정적 매핑·공유 scope를 분리하고 정확 duplicate-only mutation·원본 복원도 확인해 T02 local IMPLEMENTED/PASS로 전환한다. 전체 assertion outcomes/일부 JNI scope는 UNMEASURED이며 모든 플랫폼 current Player PASS라는 의미가 아니다.
+
+T04는 StoreKit18.6 controlled 경로 각1회 PASS에도 최초 간헐 원인 미확정으로 PARTIAL, T07은 전용 self-hosted/Release 미검증으로 PARTIAL 유지. T01/T03/T05/T06/T08 기존 localPASS 근거는 유지한다. P10-T01은 두 private Core 개선·새 패키지/API·선정 ABI·계측/Editor/자체시험·독립 C ABI를 검증했으나 새 Android Unity 빌드가 LicensingClient IPC 차단(raw FAIL/exit1, Player NOT_RUN)으로 멈춰 IN_PROGRESS/PARTIAL. 이번 전체 Strict는 실행0/DEFERRED_ENV이고 배치25 Strict/Player 결과는 역사 증거로 보존한다. P05 FAIL/ENV26OPEN/Provider13WAIT·실기기/원격 Unity 미검증 유지.
+
+배치26 최종Hosted sourcec34b419의 [단일run43934095574](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/43934095574)은SUCCESS,Hosted4+basic SUCCESS,Unity/ReleaseSKIPPED였다. 원격unit42파일/143건확인. 이는현재Player 미실행/Strict0회 및18.6원인미확정을해결하지않으며위후속상태를유지한다.

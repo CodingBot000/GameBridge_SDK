@@ -13,7 +13,7 @@ final class AppleStoreRuntime {
     private let sink: AppleHttpProofSink
     private let serviceConfig: ServiceConfigurationRepository
 
-    init(auth: AppleAuthProvider, client: BackendClient, productIds: [String: String], verificationConcurrency: Int = 1, serviceConfig: ServiceConfigurationRepository? = nil,
+    init(auth: any BackendSessionAccess, client: BackendClient, productIds: [String: String], verificationConcurrency: Int = 1, serviceConfig: ServiceConfigurationRepository? = nil,
          onVerified: @escaping (String, ServerGrant) -> Void = { _, _ in }) throws {
         guard Set(productIds.keys) == Set(["coins_100", "premium_unlock"]),
               productIds.values.allSatisfy({ !$0.isEmpty }), Set(productIds.values).count == 2,

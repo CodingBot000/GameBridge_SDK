@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "scope": "Unity iOS Simulator -> Swift C ABI -> LOCAL_MOCK Backend/PostgreSQL",
+  "sourceHead": "d543556580f72142507c57f57537891fb7d1c1e7",
+  "sourceTrackedDirty": false,
+  "unityPlayer": "PASS",
+  "signing": "local-ad-hoc",
+  "unityBinarySha256": "7302ec7281a4a04857e082b0bbd966ee040b38509c14ca09d9c91c6963a8bea5",
+  "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+  "guiBuildSourceHead": "953a5a5535ceb1698ec8ea84a0a1a8b3c2d73b9e",
+  "guiBuildRunId": "b0626c0dfa914789b0fe2eee01d2a3af",
+  "unityBuildMode": "GUI_EXPLICIT_EXPORT",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "piiProbe": true,
+  "unityMarkerCount": 24,
+  "backendTraceCounts": {
+    "mock-auth": 1,
+    "catalog": 1,
+    "entitlements": 2,
+    "verify": 1,
+    "logout": 1
+  },
+  "ledgerCount": 1,
+  "ledgerDelta": 100,
+  "realAppleLogin": "NOT_RUN",
+  "realStorePurchase": "NOT_RUN",
+  "evidence": "artifacts/unity-ios-e2e-c4qqwuvs/result.json",
+  "ownSimulator": {
+    "uuid": "8D737ECF-CD32-4069-A64D-30D3D5176210",
+    "state": "Shutdown",
+    "dataRetained": true,
+    "shutdownExitCode": 0
+  },
+  "tests": 0,
+  "checks": 1,
+  "players": 1,
+  "batchStrict": "NOT_RUN"
+}

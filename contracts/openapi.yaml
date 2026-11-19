@@ -1,0 +1,2599 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "GameBridge implemented HTTP API",
+    "version": "0.1.0-dev",
+    "description": "HTTP contract distinct from Bridge JSON Schema. Profile gates are mandatory. Never log tokens, signed proofs, credential files or keys. Sessions intentionally return access/refresh credentials to the authenticated caller. Local mock/Xcode grants are not store verification. Static correspondence is checked; provider tests remain pending."
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "get_health",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/config/HttpInfrastructure.kt",
+            "profiles": [
+              "all"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/auth/challenges": {
+      "post": {
+        "operationId": "post_v1_auth_challenges",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/auth/AuthFlow.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChallengeOutput"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChallengeInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/auth/exchange": {
+      "post": {
+        "operationId": "post_v1_auth_exchange",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/auth/AuthFlow.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionTokens"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/devices/{installationId}/push-token": {
+      "put": {
+        "operationId": "put_v1_devices__installationId__push_token",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/push/DeviceRegistrationController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          },
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/push/MockDevices.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "installationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Registration"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/MockDeviceInput"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DeviceRegistrationInput"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      },
+      "delete": {
+        "operationId": "delete_v1_devices__installationId__push_token",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/push/DeviceRegistrationController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          },
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/push/MockDevices.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "installationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unregistration"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/dev/push/send": {
+      "post": {
+        "operationId": "post_v1_dev_push_send",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/push/DevPushController.kt",
+            "profiles": [
+              "local-mock",
+              "sandbox"
+            ],
+            "headers": [
+              "X-Admin-Key"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Admin-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for acceptance; Idempotency-Key is a canonical UUID. Development/admin keys must match configured values."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevPushInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/dev/push/stream": {
+      "get": {
+        "operationId": "get_v1_dev_push_stream",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/push/MockPushStreamController.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "installationId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "ready=connected; push JSON messageId/route/campaignId; heartbeat comments. Session and installation ownership checked repeatedly."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/config": {
+      "get": {
+        "operationId": "get_v1_config",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/push/MockDevices.kt",
+            "profiles": [
+              "all"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Config"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/catalog": {
+      "get": {
+        "operationId": "get_v1_catalog",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/StoreReadController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          },
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "description": "Rows contain productId, storeProductId and type; sandbox/production also include platform. No localized store price."
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/entitlements": {
+      "get": {
+        "operationId": "get_v1_entitlements",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/StoreReadController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          },
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletSnapshot"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/purchases/{purchaseId}": {
+      "get": {
+        "operationId": "get_v1_purchases__purchaseId",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/StoreReadController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "purchaseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseState"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/purchases/bindings": {
+      "get": {
+        "operationId": "get_v1_purchases_bindings",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/PurchaseBindings.kt",
+            "profiles": [
+              "all"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseBinding"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/purchases/verify": {
+      "post": {
+        "operationId": "post_v1_purchases_verify",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": [
+              "Idempotency-Key"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required: mock verify accepts a nonblank key up to 128 characters; Apple/Google verify require a canonical UUID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MockPurchaseOutput"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MockPurchaseInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/dev/xcode-storekit/account": {
+      "post": {
+        "operationId": "post_v1_dev_xcode_storekit_account",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/MockXcodeStoreKitController.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": [
+              "X-Development-Key"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Development-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for acceptance; Idempotency-Key is a canonical UUID. Development/admin keys must match configured values."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/XcodeAccount"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/dev/xcode-storekit/grant": {
+      "post": {
+        "operationId": "post_v1_dev_xcode_storekit_grant",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/MockXcodeStoreKitController.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": [
+              "X-Development-Key"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Development-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for acceptance; Idempotency-Key is a canonical UUID. Development/admin keys must match configured values."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/XcodeGrantOutput"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/XcodeGrantInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/dev/xcode-storekit/wallet": {
+      "post": {
+        "operationId": "post_v1_dev_xcode_storekit_wallet",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/MockXcodeStoreKitController.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": [
+              "X-Development-Key"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Development-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for acceptance; Idempotency-Key is a canonical UUID. Development/admin keys must match configured values."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletSnapshot"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/purchases/google/readiness": {
+      "post": {
+        "operationId": "post_v1_purchases_google_readiness",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/GooglePurchaseController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadinessInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/purchases/google/verify": {
+      "post": {
+        "operationId": "post_v1_purchases_google_verify",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/GooglePurchaseController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": [
+              "Idempotency-Key"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required: mock verify accepts a nonblank key up to 128 characters; Apple/Google verify require a canonical UUID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleGrantResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GooglePurchaseInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/purchases/apple/readiness": {
+      "post": {
+        "operationId": "post_v1_purchases_apple_readiness",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/ApplePurchaseController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadinessInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/purchases/apple/verify": {
+      "post": {
+        "operationId": "post_v1_purchases_apple_verify",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/purchase/ApplePurchaseController.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": [
+              "Idempotency-Key"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required: mock verify accepts a nonblank key up to 128 characters; Apple/Google verify require a canonical UUID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppleGrantResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplePurchaseInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "operationId": "post_v1_auth_refresh",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/session/Sessions.kt",
+            "profiles": [
+              "all"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionTokens"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "get_v1_me",
+        "security": [
+          {
+            "BearerSession": []
+          }
+        ],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/session/Sessions.kt",
+            "profiles": [
+              "all"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionProfile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "post_v1_auth_logout",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/session/Sessions.kt",
+            "profiles": [
+              "all"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignedOut"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/dev/auth": {
+      "post": {
+        "operationId": "post_v1_dev_auth",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/session/Sessions.kt",
+            "profiles": [
+              "local-mock"
+            ],
+            "headers": [
+              "X-Development-Key"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Development-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for acceptance; Idempotency-Key is a canonical UUID. Development/admin keys must match configured values."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Server generated UUID; incoming values are not trusted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionTokens"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error; HTTP status and code follow ApiErrors, SecurityConfiguration and filters. Includes 400/401/403/404/409/429/500/503; request body limit may return 413. Endpoint-specific error reachability is not exhaustively runtime-verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Observed in LOCAL_MOCK contract fixture; profile and input dependent. Other responses remain default.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MockInput"
+              }
+            }
+          }
+        },
+        "description": "Active profiles and source controllers are listed in x-source-bindings. Logout accepts a bearer session or refresh token body. Development endpoints require explicit keys/allowlist and never accept production proofs as mock."
+      }
+    },
+    "/v1/auth/apple-web/start": {
+      "post": {
+        "operationId": "post_apple_web_start",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/auth/AppleWebFlow.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppleWebStartInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Native-only authentication flow response; Cache-Control no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppleWebStartOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/apple-web/callback": {
+      "post": {
+        "operationId": "post_apple_web_callback",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/auth/AppleWebFlow.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/AppleWebCallbackForm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "303": {
+            "description": "Registered HTTPS App Link; contains only one-use verifier-bound opaque handle",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-referrer"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/apple-web/complete": {
+      "post": {
+        "operationId": "post_apple_web_complete",
+        "security": [],
+        "x-source-bindings": [
+          {
+            "source": "backend/src/main/kotlin/com/gamebridge/auth/AppleWebFlow.kt",
+            "profiles": [
+              "sandbox",
+              "production"
+            ],
+            "headers": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppleWebCompleteInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Native-only authentication flow response; Cache-Control no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppleWebCompleteOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerSession": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "requestId",
+          "retryable"
+        ]
+      },
+      "SessionTokens": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresAt",
+          "userId"
+        ]
+      },
+      "SessionProfile": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "RefreshInput": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "LogoutInput": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "MockInput": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject"
+        ]
+      },
+      "ChallengeInput": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "proofType": {
+            "type": "string",
+            "enum": [
+              "ID_TOKEN",
+              "FACEBOOK_ACCESS_TOKEN",
+              "FACEBOOK_LIMITED_ID_TOKEN"
+            ],
+            "default": "ID_TOKEN",
+            "nullable": true,
+            "description": "Omitted or null preserves legacy ID_TOKEN; Facebook requires an explicit non-ID_TOKEN proof type."
+          }
+        },
+        "required": [
+          "appId",
+          "provider"
+        ]
+      },
+      "ChallengeOutput": {
+        "type": "object",
+        "properties": {
+          "challengeId": {
+            "type": "string"
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "challengeId",
+          "nonce",
+          "expiresAt"
+        ]
+      },
+      "ExchangeInput": {
+        "type": "object",
+        "properties": {
+          "challengeId": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "idToken": {
+            "type": "string",
+            "writeOnly": true,
+            "nullable": true
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "proofType": {
+            "type": "string",
+            "enum": [
+              "ID_TOKEN",
+              "FACEBOOK_ACCESS_TOKEN",
+              "FACEBOOK_LIMITED_ID_TOKEN"
+            ],
+            "default": "ID_TOKEN",
+            "nullable": true,
+            "description": "Omitted or null preserves legacy ID_TOKEN; Facebook requires an explicit non-ID_TOKEN proof type."
+          },
+          "accessToken": {
+            "type": "string",
+            "nullable": true,
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "challengeId",
+          "provider"
+        ],
+        "description": "Legacy Google/Apple idToken stays compatible. Facebook requires explicit proofType. Classic uses accessToken/Meta debug, no nonce claim. Limited uses signed idToken/nonce; challenge proof type blocks downgrade. Valid Classic bearer reuse needs a new challenge and new Meta validation; same challenge replay is rejected."
+      },
+      "WalletSnapshot": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "coinBalance": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "premiumEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "userId",
+          "coinBalance",
+          "revision",
+          "updatedAt",
+          "premiumEnabled"
+        ]
+      },
+      "PurchaseBinding": {
+        "type": "object",
+        "properties": {
+          "appleAccountToken": {
+            "type": "string"
+          },
+          "googleObfuscatedAccountId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "appleAccountToken",
+          "googleObfuscatedAccountId"
+        ]
+      },
+      "MockPurchaseInput": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "proof": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "productId",
+          "proof",
+          "quantity"
+        ]
+      },
+      "MockPurchaseOutput": {
+        "type": "object",
+        "properties": {
+          "serverPurchaseId": {
+            "type": "string"
+          },
+          "fulfillmentStatus": {
+            "type": "string"
+          },
+          "finalizationStatus": {
+            "type": "string"
+          },
+          "entitlements": {
+            "$ref": "#/components/schemas/WalletSnapshot"
+          }
+        },
+        "required": [
+          "serverPurchaseId",
+          "fulfillmentStatus",
+          "finalizationStatus",
+          "entitlements"
+        ]
+      },
+      "ApplePurchaseInput": {
+        "type": "object",
+        "properties": {
+          "storeProductId": {
+            "type": "string"
+          },
+          "signedTransaction": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "storeProductId",
+          "signedTransaction"
+        ]
+      },
+      "GooglePurchaseInput": {
+        "type": "object",
+        "properties": {
+          "storeProductId": {
+            "type": "string"
+          },
+          "purchaseToken": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "storeProductId",
+          "purchaseToken"
+        ]
+      },
+      "ReadinessInput": {
+        "type": "object",
+        "properties": {
+          "storeProductId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "storeProductId"
+        ]
+      },
+      "AppleGrantResult": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "bindingId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "transactionKey": {
+            "type": "string"
+          },
+          "serverPurchaseId": {
+            "type": "string"
+          },
+          "fulfillmentStatus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "bindingId",
+          "productId",
+          "transactionKey",
+          "serverPurchaseId",
+          "fulfillmentStatus"
+        ]
+      },
+      "GoogleGrantResult": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "serverPurchaseId": {
+            "type": "string"
+          },
+          "fulfillmentStatus": {
+            "type": "string"
+          },
+          "proofFingerprint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "accountId",
+          "productId",
+          "serverPurchaseId",
+          "fulfillmentStatus",
+          "proofFingerprint"
+        ]
+      },
+      "XcodeGrantInput": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string"
+          },
+          "bindingId": {
+            "type": "string"
+          },
+          "attemptId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "productId",
+          "transactionId",
+          "bindingId",
+          "attemptId"
+        ]
+      },
+      "XcodeGrantOutput": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "bindingId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "transactionKey": {
+            "type": "string"
+          },
+          "serverPurchaseId": {
+            "type": "string"
+          },
+          "fulfillmentStatus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "bindingId",
+          "productId",
+          "transactionKey",
+          "serverPurchaseId",
+          "fulfillmentStatus"
+        ]
+      },
+      "XcodeAccount": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "bindingId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "bindingId"
+        ]
+      },
+      "DeviceRegistrationInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "provider": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "provider",
+          "platform"
+        ]
+      },
+      "MockDeviceInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "provider": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "appId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "provider",
+          "platform",
+          "appId"
+        ]
+      },
+      "Registration": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "tokenFingerprint": {
+            "type": "string"
+          },
+          "registered": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "provider",
+          "tokenFingerprint",
+          "registered"
+        ]
+      },
+      "Unregistration": {
+        "type": "object",
+        "properties": {
+          "registered": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "registered"
+        ]
+      },
+      "DevPushInput": {
+        "type": "object",
+        "properties": {
+          "installationId": {
+            "type": "string"
+          },
+          "messageId": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "campaignId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "installationId",
+          "messageId",
+          "route",
+          "title",
+          "body"
+        ]
+      },
+      "Config": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "string"
+          },
+          "maintenanceEnabled": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "maintenanceEnabled",
+          "expiresAt",
+          "source"
+        ]
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "Ready": {
+        "type": "object",
+        "properties": {
+          "ready": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ready"
+        ]
+      },
+      "SignedOut": {
+        "type": "object",
+        "properties": {
+          "signedOut": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "signedOut"
+        ]
+      },
+      "PushAccepted": {
+        "type": "object",
+        "properties": {
+          "delivery": {
+            "type": "string"
+          },
+          "accepted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "delivery",
+          "accepted"
+        ]
+      },
+      "PurchaseState": {
+        "type": "object",
+        "properties": {
+          "serverPurchaseId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "storeStatus": {
+            "type": "string"
+          },
+          "fulfillmentStatus": {
+            "type": "string"
+          },
+          "finalizationStatus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "serverPurchaseId",
+          "productId",
+          "storeStatus",
+          "fulfillmentStatus",
+          "finalizationStatus"
+        ]
+      },
+      "AppleWebStartInput": {
+        "type": "object",
+        "required": [
+          "appId",
+          "verifierChallenge"
+        ],
+        "properties": {
+          "appId": {
+            "type": "string"
+          },
+          "verifierChallenge": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$"
+          }
+        }
+      },
+      "AppleWebStartOutput": {
+        "type": "object",
+        "required": [
+          "flowId",
+          "authorizationUrl",
+          "returnUri",
+          "expiresAt"
+        ],
+        "properties": {
+          "flowId": {
+            "type": "string"
+          },
+          "authorizationUrl": {
+            "type": "string"
+          },
+          "returnUri": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        }
+      },
+      "AppleWebCompleteInput": {
+        "type": "object",
+        "required": [
+          "appId",
+          "flowId",
+          "handle",
+          "verifier"
+        ],
+        "properties": {
+          "appId": {
+            "type": "string",
+            "writeOnly": false
+          },
+          "flowId": {
+            "type": "string",
+            "writeOnly": false
+          },
+          "handle": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "verifier": {
+            "type": "string",
+            "writeOnly": true
+          }
+        }
+      },
+      "AppleWebCompleteOutput": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "CANCELED",
+              "FAILED"
+            ]
+          },
+          "session": {
+            "$ref": "#/components/schemas/SessionTokens",
+            "nullable": true
+          }
+        }
+      },
+      "AppleWebCallbackForm": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "code": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "error": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string",
+            "description": "Untrusted Apple first-consent data; ignored for identity"
+          }
+        }
+      }
+    }
+  }
+}

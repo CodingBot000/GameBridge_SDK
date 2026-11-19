@@ -87,6 +87,13 @@ class LocalMockIntegrationTest {
             }
             val encoded = (dispatcher.dispatch(request.toString().toByteArray()) as BridgeDispatchResult.Message).json
             assertFalse(encoded.contains(key)); assertFalse(encoded.contains("accessToken")); assertFalse(encoded.contains("refreshToken"))
+            store.value?.let { stored ->
+                val sessionTokens = Json.parseToJsonElement(stored).jsonObject
+                for (field in listOf("accessToken", "refreshToken")) {
+                    val raw = sessionTokens[field]?.jsonPrimitive?.content
+                    if (!raw.isNullOrEmpty()) assertFalse(encoded.contains(raw), "session token leaked in bridge response")
+                }
+            }
             val response = BridgeProtocol.parse(encoded.toByteArray())
             assertEquals(kotlinx.serialization.json.JsonPrimitive(true), response["ok"], "operation $operation failed")
             return response.getValue("result").jsonObject
@@ -98,6 +105,9 @@ class LocalMockIntegrationTest {
             put("installationId", kotlinx.serialization.json.JsonPrimitive(installation))
         })
         send("auth.signIn", kotlinx.serialization.json.buildJsonObject { put("provider", kotlinx.serialization.json.JsonPrimitive("MOCK")) })
+        val storedTokens = Json.parseToJsonElement(assertNotNull(store.value)).jsonObject
+        val secretValues = listOf("accessToken", "refreshToken").map { storedTokens.getValue(it).jsonPrimitive.content }
+        for (secret in secretValues) assertTrue(secret.isNotBlank(), "synthetic session token missing")
         assertEquals("MOCK", send("push.permission").getValue("provider").jsonPrimitive.content)
         assertTrue(send("push.register").getValue("registered").jsonPrimitive.content.toBoolean())
         send("push.unregister")
@@ -107,6 +117,11 @@ class LocalMockIntegrationTest {
         assertEquals(before + 100, send("store.entitlements").getValue("coinBalance").jsonPrimitive.content.toLong())
         assertEquals(kotlinx.serialization.json.JsonPrimitive(true), send("auth.restore").getValue("sessionRestored"))
         send("auth.signOut"); assertNull(store.load()); send("sdk.shutdown")
+        System.getenv("GAMEBRIDGE_R22_SERVER_LOG")?.let { path ->
+            val serverLog = java.io.File(path).readText()
+            for (secret in secretValues + key) assertFalse(serverLog.contains(secret), "synthetic credential leaked in server log")
+            java.io.File(requireNotNull(System.getenv("GAMEBRIDGE_R22_ANDROID_MARKER"))).writeText("PASS\n")
+        }
     }
 
     @Test fun `persisted mock transaction recovers after committed response is lost`() = runBlocking {

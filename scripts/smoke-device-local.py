@@ -10,7 +10,12 @@ import urllib.error
 import urllib.request
 import uuid
 
-BASE = 'http://127.0.0.1:18080'
+BASE = os.environ.get('GAMEBRIDGE_SMOKE_BASE_URL', 'http://127.0.0.1:18080')
+if not BASE.startswith('http://127.0.0.1:') or not BASE[len('http://127.0.0.1:'):].isdigit():
+    print('CONFIG_REQUIRED: loopback GAMEBRIDGE_SMOKE_BASE_URL', file=sys.stderr); sys.exit(2)
+DB = os.environ.get('GAMEBRIDGE_SMOKE_DB_NAME', 'gamebridge_local')
+if not DB.replace('_', '').isalnum() or not DB.isascii():
+    print('CONFIG_REQUIRED: GAMEBRIDGE_SMOKE_DB_NAME', file=sys.stderr); sys.exit(2)
 KEY = os.environ.get('GAMEBRIDGE_DEV_AUTH_KEY', '')
 if len(KEY) < 32:
     print('CONFIG_REQUIRED: GAMEBRIDGE_DEV_AUTH_KEY', file=sys.stderr); sys.exit(2)
@@ -37,7 +42,7 @@ def main():
     def row_count(identifier):
         canonical = str(uuid.UUID(identifier))
         sql = "SELECT count(*) FROM device_tokens WHERE installation_id='" + canonical + "'::uuid"
-        result = subprocess.run(['docker', 'exec', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', 'gamebridge_local', '-tAc', sql], capture_output=True, text=True, check=True)
+        result = subprocess.run(['docker', 'exec', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', DB, '-tAc', sql], capture_output=True, text=True, check=True)
         return int(result.stdout.strip())
     payload = {'provider': 'MOCK', 'platform': 'MOCK', 'appId': 'gamebridge-sample', 'token': 'mock:' + str(uuid.uuid4())}
     auth_a = {'Authorization': 'Bearer ' + a['accessToken']}; auth_b = {'Authorization': 'Bearer ' + b['accessToken']}
@@ -68,7 +73,7 @@ def main():
     status, _ = call('PUT', refresh_path, payload, auth_a4); check(status == 200, 'refresh logout device')
     digest = hashlib.sha256(a4['refreshToken'].encode()).hexdigest()
     sql = "UPDATE sessions SET expires_at=now()-interval '1 second' WHERE refresh_hash=decode('" + digest + "','hex');"
-    process = subprocess.run(['docker', 'exec', '-i', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', 'gamebridge_local', '-v', 'ON_ERROR_STOP=1', '-tA'], input=sql, capture_output=True, text=True, check=True)
+    process = subprocess.run(['docker', 'exec', '-i', 'gamebridge-sdk-local-postgres-1', 'psql', '-U', 'gamebridge', '-d', DB, '-v', 'ON_ERROR_STOP=1', '-tA'], input=sql, capture_output=True, text=True, check=True)
     check(process.stdout.strip() == 'UPDATE 1', 'expire owned test session')
     status, _ = call('POST', '/v1/auth/logout', {'refreshToken': a4['refreshToken']}); check(status == 200 and row_count(refresh_device) == 0, 'refresh logout deletes device token')
     print(f'LOCAL_MOCK device checks passed: {count}; no remote push tested')

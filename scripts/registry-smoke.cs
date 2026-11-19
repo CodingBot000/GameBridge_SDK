@@ -43,11 +43,55 @@ internal static class Program
         public Task<GameBridge.PushPermission> RequestPermissionAsync(CancellationToken cancellation) { PermissionCalls++; return Task.FromResult(new GameBridge.PushPermission { provider = "APNS", permission = "GRANTED" }); }
         public Task<GameBridge.PushRegistration> RegisterAsync(CancellationToken cancellation) { RegisterCalls++; return Task.FromResult(new GameBridge.PushRegistration { provider = "APNS", registered = true, permission = "GRANTED", tokenFingerprint = "abcdef123456", updatedAt = "2026-11-10T00:00:00Z" }); }
     }
-    private static void Check(bool condition, string label) { if (!condition) throw new Exception(label); }
-    private static async Task Expect(string code, Task task)
+    private static readonly object assertionGate = new object();
+    private static readonly Dictionary<string, JObject> assertionSites = new Dictionary<string, JObject>();
+    private static int normalAssertions, expectedErrorChecks;
+    private static void RecordAssertion(string kind, string label, string file, int line)
     {
+        lock (assertionGate)
+        {
+            if (kind == "expectedError") expectedErrorChecks++; else normalAssertions++;
+            var key = file + ":" + line + ":" + kind + ":" + label;
+            if (!assertionSites.TryGetValue(key, out var site))
+            {
+                site = new JObject { ["file"] = System.IO.Path.GetFileName(file), ["line"] = line, ["kind"] = kind, ["label"] = label, ["count"] = 0 };
+                assertionSites.Add(key, site);
+            }
+            site["count"] = (int)site["count"] + 1;
+        }
+    }
+    private static void Verify(bool condition, string label) { if (!condition) throw new Exception(label); }
+    private static void Check(bool condition, string label,
+        [System.Runtime.CompilerServices.CallerFilePath] string file = "",
+        [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+    {
+        RecordAssertion("normal", label, file, line); Verify(condition, label);
+    }
+    private static void CheckExpected(bool condition, string label,
+        [System.Runtime.CompilerServices.CallerFilePath] string file = "",
+        [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+    {
+        RecordAssertion("expectedError", label, file, line); Verify(condition, label);
+    }
+    private static void ReportAssertions(bool complete)
+    {
+        lock (assertionGate)
+        {
+            var sites = new JArray(); foreach (var value in assertionSites.Values) sites.Add(value.DeepClone());
+            Console.WriteLine("GB_ASSERTIONS_JSON " + new JObject { ["platform"] = "csharp-managed", ["test"] = "registry-smoke",
+                ["normalAssertions"] = normalAssertions, ["expectedErrorChecks"] = expectedErrorChecks,
+                ["assertionsExecuted"] = normalAssertions + expectedErrorChecks, ["assertionOutcomes"] = "UNMEASURED",
+                ["complete"] = complete, ["sites"] = sites }.ToString(Newtonsoft.Json.Formatting.None));
+            Console.WriteLine("GB_ASSERTIONS_END registry-smoke");
+        }
+    }
+    private static async Task Expect(string code, Task task,
+        [System.Runtime.CompilerServices.CallerFilePath] string file = "",
+        [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+    {
+        RecordAssertion("expectedError", "expected " + code, file, line);
         try { await task; throw new Exception("expected " + code); }
-        catch (SdkException error) { Check(error.Code == code, "expected " + code + ", got " + error.Code); }
+        catch (SdkException error) { Verify(error.Code == code, "expected " + code + ", got " + error.Code); }
     }
     private static string Response(JObject request, string session = null, string operation = null, bool ok = true) => new JObject {
         ["protocolVersion"] = 1, ["sdkSessionId"] = session ?? (string)request["sdkSessionId"], ["kind"] = "response",
@@ -61,8 +105,62 @@ internal static class Program
         foreach (var name in new[] { "auth", "store", "push", "config" }) caps[name] = new JObject { ["supported"] = true, ["configured"] = true, ["mode"] = mode, ["reason"] = JValue.CreateNull() };
         return new JObject { ["state"] = "READY", ["mode"] = mode, ["capabilities"] = caps };
     }
+    private static void CheckFixtureRoundTrip<T>(JToken value, string name)
+    {
+        var model = WireModels.Decode<T>(value);
+        var serializer = Newtonsoft.Json.JsonSerializer.Create(new Newtonsoft.Json.JsonSerializerSettings {
+            Converters = new[] { new Newtonsoft.Json.Converters.StringEnumConverter() }
+        });
+        Check(JToken.DeepEquals(value, JToken.FromObject(model, serializer)), name + " fixture round trip");
+    }
     private static async Task Main()
     {
+        var complete = false;
+        try { await Run(); complete = true; }
+        finally { ReportAssertions(complete); }
+    }
+    private static void EventHeaderMatrix(RequestRegistry registry, JObject purchase, JObject push, JObject token, Func<int> callbacks)
+    {
+        var goodPush = (JObject)push.DeepClone(); goodPush["payload"]["route"] = "store";
+        var goodToken = (JObject)token.DeepClone(); goodToken["payload"]["tokenFingerprint"] = "abcdef123456";
+        var variants = new Action<JObject>[] {
+            x => x["sdkSessionId"] = Guid.NewGuid().ToString("D"), x => x["eventId"] = "invalid-guid",
+            x => x["occurredAt"] = "2026-11-10T00:00:00+00:00", x => x["occurredAt"] = "invalid-time",
+            x => x["payload"] = new JArray(), x => x.Remove("occurredAt"), x => x.Remove("eventId")
+        };
+        foreach (var valid in new[] { purchase, goodPush, goodToken })
+        {
+            foreach (var invalidate in variants)
+            {
+                var changed = (JObject)valid.DeepClone(); invalidate(changed);
+                var before = callbacks(); var ignored = registry.IgnoredMessages;
+                registry.HandleMessage(changed.ToString());
+                Check(callbacks() == before && registry.IgnoredMessages == ignored + 1, "shared event header rejects invalid " + (string)valid["type"]);
+            }
+            var ready = callbacks(); registry.HandleMessage(valid.ToString());
+            Check(callbacks() == ready + 1, "shared event header preserves valid " + (string)valid["type"]);
+        }
+    }
+    private static async Task DuplicateCompletionProbe()
+    {
+        string sent = null;
+        using (var registry = new RequestRegistry(json => sent = json, Guid.NewGuid()))
+        {
+            var task = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5));
+            var completions = 0;
+            var observed = task.ContinueWith(_ => Interlocked.Increment(ref completions), TaskContinuationOptions.ExecuteSynchronously);
+            var response = Response(JObject.Parse(sent));
+            registry.HandleMessage(response); await task; await observed;
+            Check(completions == 1 && registry.PendingCount == 0, "duplicate probe first completion owned once");
+            var ignored = registry.IgnoredMessages;
+            registry.HandleMessage(response);
+            Check(completions == 1 && registry.PendingCount == 0 && registry.IgnoredMessages == ignored + 1, "duplicate probe second completion rejected");
+        }
+        Console.WriteLine("GB_DUPLICATE_PROBE PASS");
+    }
+    private static async Task Run()
+    {
+        if (Environment.GetEnvironmentVariable("GAMEBRIDGE_MUTATION_DUPLICATE_ONLY") == "true") { await DuplicateCompletionProbe(); return; }
         string sent = null;
         var registry = new RequestRegistry(value => sent = value, Guid.NewGuid());
         var one = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5));
@@ -71,6 +169,9 @@ internal static class Program
         var request = JObject.Parse(sent);
         registry.HandleMessage(Response(request, session: Guid.NewGuid().ToString("D")));
         Check(!one.IsCompleted, "stale session must be ignored");
+        var wrongId = JObject.Parse(Response(request)); wrongId["requestId"] = Guid.NewGuid().ToString("D");
+        registry.HandleMessage(wrongId.ToString());
+        Check(!one.IsCompleted, "unrelated request ID must be ignored");
         registry.HandleMessage(Response(request) + "{}");
         Check(!one.IsCompleted, "trailing JSON must be ignored");
         registry.HandleMessage(Response(request));
@@ -94,12 +195,12 @@ internal static class Program
         request = JObject.Parse(sent); var logoutFailure = JObject.Parse(Response(request, ok: false));
         logoutFailure["error"]["nativeCode"] = "REVOCATION_UNCONFIRMED"; registry.HandleMessage(logoutFailure.ToString());
         try { await logout; throw new Exception("expected logout failure"); }
-        catch (SdkException error) { Check(error.NativeCode == "REVOCATION_UNCONFIRMED", "logout revoke uncertainty retained"); }
+        catch (SdkException error) { CheckExpected(error.NativeCode == "REVOCATION_UNCONFIRMED", "logout revoke uncertainty retained"); }
         var secretFailure = registry.RequestAsync("auth.signOut", new JObject(), TimeSpan.FromSeconds(5));
         request = JObject.Parse(sent); var secretResponse = JObject.Parse(Response(request, ok: false));
         secretResponse["error"]["nativeCode"] = "sensitive-token"; registry.HandleMessage(secretResponse.ToString());
         try { await secretFailure; throw new Exception("expected failure"); }
-        catch (SdkException error) { Check(error.NativeCode == null && !error.ToString().Contains("sensitive-token"), "untrusted native code redacted"); }
+        catch (SdkException error) { CheckExpected(error.NativeCode == null && !error.ToString().Contains("sensitive-token"), "untrusted native code redacted"); }
         var timed = registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromMilliseconds(30));
         var timedRequest = JObject.Parse(sent); var timedCompletions = 0;
         var timedObserved = timed.ContinueWith(_ => Interlocked.Increment(ref timedCompletions), TaskContinuationOptions.ExecuteSynchronously);
@@ -138,6 +239,7 @@ internal static class Program
             ["type"] = "PushTokenChanged", ["occurredAt"] = "2026-11-10T00:00:00Z", ["payload"] = new JObject { ["registered"] = true, ["tokenFingerprint"] = "abcdef123456", ["errorCode"] = JValue.CreateNull() } };
         registry.HandleMessage(tokenEvent.ToString()); Check(tokenEvents == 1, "token event accepted");
         tokenEvent["payload"]["tokenFingerprint"] = "raw-token"; registry.HandleMessage(tokenEvent.ToString()); Check(tokenEvents == 1, "raw token rejected");
+        EventHeaderMatrix(registry, updateEvent, pushEvent, tokenEvent, () => eventCount + pushCount + tokenEvents);
         var waiting = new List<Task>();
         for (var i = 0; i < 100; i++) waiting.Add(registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
         await Expect("BUSY", registry.RequestAsync("sdk.status", new JObject(), TimeSpan.FromSeconds(5)));
@@ -153,25 +255,40 @@ internal static class Program
             }
         }
         var fixture = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(Environment.GetEnvironmentVariable("GAMEBRIDGE_ROOT"), "contracts/fixtures/models/roundtrip.json")));
+        CheckFixtureRoundTrip<GameBridge.UserProfile>(fixture["profile"], "profile");
+        CheckFixtureRoundTrip<GameBridge.StoreProduct>(fixture["product"], "product");
+        CheckFixtureRoundTrip<GameBridge.PurchaseResult>(fixture["purchase"], "purchase");
+        CheckFixtureRoundTrip<GameBridge.SdkError>(fixture["error"], "error");
+        var missingError = (JObject)fixture["error"].DeepClone(); missingError.Remove("nativeCode");
+        try { WireModels.Decode<GameBridge.SdkError>(missingError); throw new Exception("missing error nullable field accepted"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable error field"); }
         Check(WireModels.Decode<GameBridge.UserProfile>(fixture["profile"]).displayName == "별빛 🎮", "Korean profile");
         Check(WireModels.Decode<GameBridge.StoreProduct>(fixture["product"]).priceMicros == "9223372036854775807", "64-bit string");
         var invalidProduct = (JObject)fixture["product"].DeepClone(); invalidProduct["type"] = "UNKNOWN";
         try { WireModels.Decode<GameBridge.StoreProduct>(invalidProduct); throw new Exception("unknown enum accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "unknown enum"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "unknown enum"); }
         var numericPrice = (JObject)fixture["product"].DeepClone(); numericPrice["priceMicros"] = 123;
         try { WireModels.Decode<GameBridge.StoreProduct>(numericPrice); throw new Exception("numeric price accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "strict numeric string"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "strict numeric string"); }
         var secretError = (JObject)fixture["purchase"].DeepClone();
         secretError["error"] = new JObject { ["code"] = "AUTH_FAILED", ["message"] = "sensitive-token", ["retryable"] = false,
             ["requestId"] = JValue.CreateNull(), ["nativeCode"] = "sensitive-token", ["details"] = new JObject { ["token"] = "sensitive-token" } };
         var safeError = WireModels.Decode<GameBridge.PurchaseResult>(secretError).error;
         Check(safeError.message == "Operation failed" && safeError.nativeCode == null && safeError.details.Count == 0, "public error redaction");
+        const string syntheticSecret = "synthetic-sensitive-fixture-2026";
+        var secretProfile = (JObject)fixture["profile"].DeepClone();
+        secretProfile["accessToken"] = syntheticSecret; secretProfile["refreshToken"] = syntheticSecret;
+        Check(!Newtonsoft.Json.JsonConvert.SerializeObject(WireModels.Decode<GameBridge.UserProfile>(secretProfile)).Contains(syntheticSecret), "profile credential field redaction");
+        var secretPurchase = (JObject)fixture["purchase"].DeepClone(); secretPurchase["purchaseToken"] = syntheticSecret; secretPurchase["receipt"] = syntheticSecret;
+        Check(!Newtonsoft.Json.JsonConvert.SerializeObject(WireModels.Decode<GameBridge.PurchaseResult>(secretPurchase)).Contains(syntheticSecret), "purchase credential field redaction");
+        var secretPush = new JObject { ["provider"] = "MOCK", ["registered"] = true, ["permission"] = "GRANTED", ["tokenFingerprint"] = "mock-fingerprint", ["updatedAt"] = "2026-01-01T00:00:00Z", ["token"] = syntheticSecret };
+        Check(!Newtonsoft.Json.JsonConvert.SerializeObject(WireModels.Decode<GameBridge.PushRegistration>(secretPush)).Contains(syntheticSecret), "push credential field redaction");
         var badPush = new JObject { ["provider"] = "MOCK", ["registered"] = true, ["permission"] = "GRANTED", ["tokenFingerprint"] = new string('a', 64), ["updatedAt"] = "2026-01-01T00:00:00Z" };
         try { WireModels.Decode<GameBridge.PushRegistration>(badPush); throw new Exception("raw token-sized fingerprint accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "fingerprint redaction"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "fingerprint redaction"); }
         var missingProfile = (JObject)fixture["profile"].DeepClone(); missingProfile.Remove("displayName");
         try { WireModels.Decode<GameBridge.UserProfile>(missingProfile); throw new Exception("missing nullable field accepted"); }
-        catch (SdkException error) { Check(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable"); }
+        catch (SdkException error) { CheckExpected(error.Code == "BRIDGE_PROTOCOL_MISMATCH", "required nullable"); }
         var fake = new EditorOfflineTransport();
         var fakeRegistry = new RequestRegistry(fake.Dispatch, Guid.NewGuid());
         fake.Message += fakeRegistry.HandleMessage;
@@ -241,7 +358,11 @@ internal static class Program
         Check(permissionTransport.Requests == 1, "explicit Android permission request"); permissionFacade.Dispose();
         var hostTransport = new HeldTransport(); var hostFacade = new GameBridge.GameBridgeClient(hostTransport);
         var hostInit = hostFacade.InitializeAsync(new GameBridge.GameBridgeConfig("demo", GameBridge.ProviderMode.PlatformSandbox, "https://example.invalid"));
-        hostTransport.Reply(hostTransport.Requests[0], InitResponse("PLATFORM_SANDBOX")); await hostInit;
+        var sandboxInit = InitResponse("PLATFORM_SANDBOX");
+        sandboxInit["capabilities"]["auth"]["configured"] = false;
+        sandboxInit["capabilities"]["auth"]["reason"] = "googleServerClientId required";
+        hostTransport.Reply(hostTransport.Requests[0], sandboxInit); await hostInit;
+        Check(!hostFacade.GetCapabilities().Features["auth"].Configured && hostFacade.GetCapabilities().Features["auth"].Reason == "googleServerClientId required", "missing configuration key visible in capability");
         var diagnosticsTask = hostFacade.GetNativeDiagnosticsAsync();
         hostTransport.Reply(hostTransport.Requests[hostTransport.Requests.Count - 1], new JObject { ["events"] = new JArray(new JObject {
             ["kind"] = "AUTH", ["outcome"] = "FAILED", ["timestamp"] = "2026-11-10T00:00:00Z", ["requestId"] = Guid.NewGuid().ToString("D") }) });
@@ -278,7 +399,7 @@ internal static class Program
             var observed = pendingRace.ContinueWith(_ => Interlocked.Increment(ref raceCompletions), TaskContinuationOptions.ExecuteSynchronously);
             await Task.WhenAll(Task.Run(() => cancellation.Cancel()), Task.Run(() => raceRegistry.Dispose()));
             try { await pendingRace; throw new Exception("race unexpectedly succeeded"); }
-            catch (SdkException error) { Check(error.Code == "CANCELED" || error.Code == "NOT_INITIALIZED", "race error"); }
+            catch (SdkException error) { CheckExpected(error.Code == "CANCELED" || error.Code == "NOT_INITIALIZED", "race error"); }
             await observed; Check(raceCompletions == 1 && raceRegistry.PendingCount == 0, "cancel shutdown race completes once");
         }
         var held = new HeldTransport(); var concurrent = new GameBridge.GameBridgeClient(held);
@@ -288,7 +409,7 @@ internal static class Program
             var secondInit = concurrent.InitializeAsync(config);
             Check(held.Requests.Count == 1, "same configuration joins initialization");
             try { _ = concurrent.InitializeAsync(new GameBridge.GameBridgeConfig("other", GameBridge.ProviderMode.EditorOffline, null)); throw new Exception("different config accepted"); }
-            catch (SdkException error) { Check(error.Code == "ALREADY_INITIALIZED_DIFFERENT_CONFIG", "different config"); }
+            catch (SdkException error) { CheckExpected(error.Code == "ALREADY_INITIALIZED_DIFFERENT_CONFIG", "different config"); }
             callerCancellation.Cancel(); await Expect("CANCELED", firstInit);
             held.Reply(held.Requests[0], InitResponse());
             await secondInit;

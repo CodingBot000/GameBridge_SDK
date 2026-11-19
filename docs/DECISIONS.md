@@ -1,5 +1,7 @@
 # 개발 결정 기록
 
+과거 결정과 당시 상태를 보존하는 이력이다. 현재 실행·종료 판정은 [FINAL_REPORT](FINAL_REPORT.md)를 따른다. 아래 초기 미구현/미실행 표현을 현재 상태로 재사용하지 않는다.
+
 - P00-T01: 제공 문서가 들어 있는 디렉터리를 신규 로컬 Git 저장소로 초기화했다. 원격 저장소는 추가하지 않았다.
 
 - 2026-11-10 사용자 결정 USER-RETRY: 완료 처리 자동 worker는 동시 1개, 5초부터 지수 백오프를 기본으로 한다. local-mock 설정 `GAMEBRIDGE_FINALIZATION_CONCURRENCY`(기본 1), `GAMEBRIDGE_FINALIZATION_INITIAL_BACKOFF_SECONDS`(기본 5), `GAMEBRIDGE_FINALIZATION_POLL_INTERVAL_MS`(기본 5000)로 반영했다. 같은 DB의 worker는 동일 concurrency 설정이 필요하다. 실제 Provider에는 해당 코드와 검증이 준비된 뒤 적용한다.
@@ -47,3 +49,11 @@
 ### Xcode 테스트 거래 충돌·보관 (2026-11-11)
 
 사용자가 후속 권장안 결정을 위임했다. Xcode 테스트 거래는 Native에 최소 시도 UUID와 후보 식별자만 보관하고 StoreKit 완료 확인 뒤 삭제한다. 개발 서버는 거래 키와 시도 UUID의 일대일 결합을 개발 DB 수명 동안 보존하며 다른 시도가 같은 키를 주장하면 충돌로 거부한다. 증빙 원문은 저장하지 않는다. 실 Apple sandbox/production 정책이 아니다.
+
+### P09 Testcontainers 실행 경로 — 배치25 (2026-11-16)
+
+기존공유개발container의별도DB/fresh schema 검증은유효하지만원계획Testcontainers와같다고취급하지않는다. 배치25 기술선택으로기존구매fixture를그대로실행하는opt-in init script/runner를추가했다. Testcontainers2.0.5,PG17.6-alpine3.22,기존JDBC42.7.11/Flyway11.7.2를고정했다. 일반SDK·backendbuild의의존성/검증정책을바꾸지않는다. 새loopback-only container와소유label만사용·정리하고,기존개발DB는건드리지않는다. 원장변이의정확한예상실패와정상복원·sandbox합성HTTP를모두요구한다. native/self-check의기존전용DB경로는유지하고C Strict에별도TC검증을연결한다. StoreKit간헐위험분류는이선택과분리한다.
+
+## 2026-11-18 — 사용자 문서36: 포트폴리오 개발 종료
+
+목표는 두 공고의 SDK 직무에 대응하는 검증 가능한 포트폴리오다. PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS와 기존 SDK BLOCKED_INTERNAL을 별도로 유지한다. 전체 Strict·실Provider13·모든 OS/성능 완료를 포트폴리오 종료의 절대조건으로 두지 않는다. 신규 P0가 확인되지 않고 최종 보고의 기준을 충족하면 개발을 종료한다. 추가 P1/P2와 실서비스 연동은 선택적 backlog이며 명시적 새 요청 없이 재개하지 않는다. weak1은 추가 재현/제품수정0회·원인미확정, BUG-017 OPEN과기존StoreKit실패도보존한다. 이번동결은문서/동일바이너리 RC 정리이며버전·공개API·정책·데이터수명은바꾸지않는다.

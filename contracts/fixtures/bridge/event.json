@@ -1,0 +1,9 @@
+{
+  "protocolVersion": 1,
+  "sdkSessionId": "dc9a46f4-8e20-4880-bcbb-ac45033157ca",
+  "kind": "event",
+  "eventId": "0d8d9f42-7a55-4bb0-bc5a-8a8871b1a5d2",
+  "payload": {
+    "name": "sync"
+  }
+}

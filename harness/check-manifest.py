@@ -6,13 +6,15 @@ import re
 import sys
 from pathlib import Path
 
+from manifest_commands import ALLOWED_COMMANDS
+
 ROOT = Path(__file__).resolve().parent.parent
 
-def check(root: Path, manifest_path: Path | None = None) -> list[str]:
+def check(root: Path, manifest_path: Path | None = None, manifest_data=None) -> list[str]:
     errors = []
     try:
         plan = (root / 'docs/DEVELOPMENT_PLAN.md').read_text(encoding='utf-8')
-        manifest = json.loads((manifest_path or root / 'harness/regression-manifest.json').read_text(encoding='utf-8'))
+        manifest = manifest_data if manifest_data is not None else json.loads((manifest_path or root / 'harness/regression-manifest.json').read_text(encoding='utf-8'))
         expected = re.findall(r'^\| (R\d\d) \|', plan, re.M)
         scenarios = manifest['scenarios']; suites = manifest['suites']
         ids = [x['id'] for x in scenarios]
@@ -46,13 +48,21 @@ def check(root: Path, manifest_path: Path | None = None) -> list[str]:
             for suite in entry.get('candidateSuites', []):
                 if suite not in suites: errors.append(f'{ident}: unknown suite {suite}')
         for ident, suite in suites.items():
+            timeout = suite.get('timeoutSeconds', 600)
+            if type(timeout) is not int or not 1 <= timeout <= 3600: errors.append(f'{ident}: invalid timeout')
             command = suite.get('command')
             if not isinstance(command, list) or not command or not all(isinstance(x, str) and x for x in command):
                 errors.append(f'{ident}: invalid command'); continue
+            def local_file(value):
+                path = Path(value)
+                return (not path.is_absolute() and '..' not in path.parts and
+                        (root / path).is_file() and (root / path).resolve().is_relative_to(root.resolve()))
+            if tuple(command) != ALLOWED_COMMANDS.get(ident): errors.append(f'{ident}: command not allowed')
             executable = command[0]
-            if '/' in executable and not (root / executable).is_file(): errors.append(f'{ident}: missing command {executable}')
-            if executable == 'python3' and len(command) > 1 and not (root / command[1]).is_file(): errors.append(f'{ident}: missing entry {command[1]}')
-    except (OSError, ValueError, KeyError, TypeError) as exc:
+            if '/' in executable and not local_file(executable): errors.append(f'{ident}: invalid local command')
+            if executable in ('python3', 'bash') and (len(command) < 2 or not local_file(command[1])):
+                errors.append(f'{ident}: invalid local entry')
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, IndexError) as exc:
         errors.append(f'manifest read/shape error: {exc}')
     return errors
 

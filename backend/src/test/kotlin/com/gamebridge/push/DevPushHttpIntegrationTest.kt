@@ -20,6 +20,7 @@ import kotlin.test.*
 @org.springframework.test.annotation.DirtiesContext(classMode = org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @EnabledIfEnvironmentVariable(named = "GAMEBRIDGE_RUN_DB_TESTS", matches = "true")
 class DevPushHttpIntegrationTest {
+    @org.junit.jupiter.api.BeforeEach fun captureOpenApiShape() { com.gamebridge.contracts.OpenApiCapture.install(rest) }
     @Autowired lateinit var rest: TestRestTemplate
     @Autowired internal lateinit var broker: MockPushBroker
     @Autowired lateinit var db: org.springframework.jdbc.core.JdbcTemplate

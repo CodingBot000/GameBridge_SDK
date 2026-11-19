@@ -1,0 +1,32 @@
+{
+  "identifier": "ISOLATIONMINIMAL",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "ISOLATIONPRODUCT",
+      "localizations": [
+        {
+          "description": "Local test coins",
+          "displayName": "100 Coins",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "isolation_coin",
+      "referenceName": "Isolation Coin",
+      "type": "Consumable"
+    }
+  ],
+  "settings": {
+    "_billingGracePeriodEnabled": false,
+    "_renewalBillingIssuesEnabled": false,
+    "_storefront": "USA",
+    "_timeRate": 0
+  },
+  "subscriptionGroups": [],
+  "version": {
+    "major": 2,
+    "minor": 0
+  }
+}

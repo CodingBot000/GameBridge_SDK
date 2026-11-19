@@ -1,0 +1,35 @@
+{
+  "sourceHead": "68e7334b985cd66fe3abc261138b268c90d60d5c",
+  "trackedClean": false,
+  "tools": {
+    "java": true,
+    "docker": true,
+    "xcrun": true,
+    "swift": true,
+    "dotnet": false
+  },
+  "dockerDaemonReachable": true,
+  "unityExecutablePresent": true,
+  "unityLicenseAndModules": "NOT_VERIFIED",
+  "staging": {
+    "status": "PASS",
+    "checksumCheckerExit": 0,
+    "sourceAttestation": "NOT_IMPLEMENTED"
+  },
+  "E1": "DEFERRED_ENV",
+  "E2": "NOT_RUN",
+  "strict": "NOT_RUN",
+  "exitCode": 2,
+  "missingContracts": [
+    "Complete required lane/environment inventory",
+    "Unity executable/license/modules runtime attestation",
+    "Current package source attestation",
+    "ADB build/runtime executable PID and port ownership plan",
+    "Distinct owned PII/Push AVD and serial/PID/console/ADB ports",
+    "Dedicated Simulator/StoreKit runtime ownership",
+    "Dedicated PostgreSQL role and Testcontainers readiness",
+    "Backend port/secret scope attestation"
+  ],
+  "resourceCreations": 0,
+  "note": "This inventory does not authorize full Strict. a83561a guard remains active."
+}

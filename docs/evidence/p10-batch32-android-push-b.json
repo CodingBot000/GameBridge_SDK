@@ -1,0 +1,57 @@
+{
+  "status": "FAIL",
+  "scope": "Unity Android LOCAL_MOCK push; not FCM",
+  "sourceHead": "48dc7de36d1cd22d411c57b80b9e3917f27a9315",
+  "sourceTrackedDirty": false,
+  "player": "BUILT_NOT_RUN",
+  "background": "NOT_RUN",
+  "networkRecovery": "NOT_RUN",
+  "processRestart": "NOT_RUN",
+  "adbServerPid": 31840,
+  "avd": "GameBridge_V2_B32_PUSH_B_20261118",
+  "emulatorBinding": {
+    "pid": 35268,
+    "serial": "emulator-5596",
+    "avd": "GameBridge_V2_B32_PUSH_B_20261118",
+    "consolePort": 5596,
+    "adbPort": 5597,
+    "portsOwned": true
+  },
+  "unityBuildMode": "GUI_EXPLICIT_RECEIPT",
+  "guiBuildSourceHead": "8aadcf44bf6bd42dddb634ef8bedcba04ac87120",
+  "guiBuildRunId": "ac3018583bfa47cca483c96521536726",
+  "guiBuildReceiptSha256": "c51cf65e6a183d54a28630ee9120526b967450aa9e600a981cbc14a4beb6bfe2",
+  "embeddedCachedPackages": {
+    "com.unity.mobile.notifications": "2.5.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "stagingManifestSha256": "80669aac976b861342e594fe739ad94904c5c1c836111652cd19a10ff68c8eba",
+  "apkSha256": "97a2e42a76f71c72aae68769c4574787562f18ef263fab77e46d72ab333bc648",
+  "startupDiagnostics": "startup-diagnostics/summary.json",
+  "rejectedReconnectAttempts": 2,
+  "errorCode": "PLAYER_REPORTED_FAILURE",
+  "evidence": "artifacts/unity-android-push-ihs2a2a8",
+  "normalNoticeAcknowledgements": [
+    {
+      "kind": "explicit-known-fullscreen-notice",
+      "tapAttempts": 1,
+      "exitCode": 0,
+      "atSeconds": 41.497,
+      "unattendedCI": false
+    }
+  ],
+  "observedPartialChecks": [
+    "initialize",
+    "login",
+    "register",
+    "receive-deduplicate-main-thread",
+    "background-foreground-main-thread"
+  ],
+  "failureStage": "network",
+  "reportedExceptionType": "InvalidOperationException",
+  "networkWaitSecondsObserved": 90.023,
+  "inference": "No reconnect receive marker and 90.023s after WAIT_OFFLINE match the scenario RECONNECT_TIMEOUT branch; exception message was not logged.",
+  "unregisterLogout": "NOT_RUN",
+  "currentSourceStillUnchangedSdk": true,
+  "controllerUiFieldCorrection": "raw controller uiInputs=0 described its own direct inputs; child performed one acknowledged notice tap and HOME. Future controller fields are labelled separately."
+}

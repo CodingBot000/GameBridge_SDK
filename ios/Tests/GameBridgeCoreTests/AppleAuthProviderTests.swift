@@ -21,6 +21,26 @@ private final class AppleProofProtocol: URLProtocol {
     }
     override func stopLoading() {}
 }
+private final class DelayedAppleGrantProtocol: URLProtocol {
+    static let lock = NSLock()
+    static var pending: DelayedAppleGrantProtocol?
+    static var onStart: (() -> Void)?
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {
+        Self.lock.lock(); Self.pending = self; let entered = Self.onStart; Self.lock.unlock()
+        entered?()
+    }
+    static func complete(_ data: Data) {
+        lock.lock(); let instance = pending; pending = nil; onStart = nil; lock.unlock()
+        guard let instance else { return }
+        let response = HTTPURLResponse(url: instance.request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+        instance.client?.urlProtocol(instance, didReceive: response, cacheStoragePolicy: .notAllowed)
+        instance.client?.urlProtocol(instance, didLoad: data)
+        instance.client?.urlProtocolDidFinishLoading(instance)
+    }
+    override func stopLoading() {}
+}
 private final class RetryAppleProofProtocol: URLProtocol {
     static let lock = NSLock()
     static var attempts: [String] = []
@@ -87,6 +107,56 @@ private final class AppleFakeBackend: AppleAuthBackend {
     func revoke(session: AppleSession) async throws { revoked = true; if revokeFails { throw SdkFailure("NETWORK_UNAVAILABLE") } }
 }
 final class AppleAuthProviderTests: XCTestCase {
+    @MainActor func testGrantDecodeRetainsNormalValuesAndRejectsMalformedResponses() async throws {
+        let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
+        let auth = AppleAuthProvider(config: config, store: AppleMemoryStore(), gateway: AppleFakeGateway(), backend: AppleFakeBackend())
+        let user = try await auth.signIn(); let binding = UUID(), purchase = UUID()
+        let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [AppleProofProtocol.self]
+        let sink = AppleHttpProofSink(auth: auth, client: try BackendClient(config: config, sessionConfiguration: configuration))
+        let proof = ApplePurchaseProof(transactionId: 42, productId: "coins", binding: binding, signedTransaction: "test-only-jws")
+        func body(_ status: String) -> [String: String] {
+            ["userId": user.userId, "bindingId": binding.uuidString, "productId": "coins", "transactionKey": "42",
+             "serverPurchaseId": purchase.uuidString, "fulfillmentStatus": status, "futureField": "ignored"]
+        }
+        for status in ["GRANTED", "ALREADY_GRANTED"] {
+            AppleProofProtocol.responseBody = try JSONSerialization.data(withJSONObject: body(status))
+            let value = try await sink.verify(proof, userId: UUID(uuidString: user.userId)!)
+            XCTAssertEqual(value.userId, UUID(uuidString: user.userId)); XCTAssertEqual(value.bindingId, binding)
+            XCTAssertEqual(value.serverPurchaseId, purchase); XCTAssertEqual(value.transactionKey, "42")
+            XCTAssertEqual(value.productId, "coins"); XCTAssertEqual(value.fulfillmentStatus, status)
+        }
+        var badUUID = body("GRANTED"); badUUID["serverPurchaseId"] = "invalid"
+        var missing = body("GRANTED"); missing.removeValue(forKey: "transactionKey")
+        for response in [body("REJECTED"), badUUID, missing] {
+            AppleProofProtocol.responseBody = try JSONSerialization.data(withJSONObject: response)
+            do { _ = try await sink.verify(proof, userId: UUID(uuidString: user.userId)!); XCTFail("malformed grant accepted") }
+            catch let error as SdkFailure { XCTAssertEqual(error.code, "BRIDGE_PROTOCOL_MISMATCH") }
+        }
+        AppleProofProtocol.capturedPath = nil
+        do { _ = try await sink.verify(proof, userId: UUID()); XCTFail("foreign account accepted") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "PURCHASE_ACCOUNT_MISMATCH") }
+        XCTAssertNil(AppleProofProtocol.capturedPath)
+    }
+    @MainActor func testLogoutRejectsLateValidGrantBeforeReturningItToStore() async throws {
+        let config = GameBridgeConfig(appId: "demo", mode: .platformSandbox, backendBaseURL: "https://example.com")
+        let backend = AppleFakeBackend(), store = AppleMemoryStore()
+        let auth = AppleAuthProvider(config: config, store: store, gateway: AppleFakeGateway(), backend: backend)
+        let user = try await auth.signIn(); let binding = UUID(), purchase = UUID()
+        let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [DelayedAppleGrantProtocol.self]
+        let sink = AppleHttpProofSink(auth: auth, client: try BackendClient(config: config, sessionConfiguration: configuration))
+        let entered = expectation(description: "proof HTTP reached")
+        DelayedAppleGrantProtocol.onStart = { entered.fulfill() }
+        let proof = ApplePurchaseProof(transactionId: 42, productId: "coins", binding: binding, signedTransaction: "test-only-jws")
+        let pending = Task { try await sink.verify(proof, userId: UUID(uuidString: user.userId)!) }
+        await fulfillment(of: [entered], timeout: 3)
+        try await auth.signOut(); XCTAssertNil(store.value)
+        let response = try JSONSerialization.data(withJSONObject: ["userId":user.userId,"bindingId":binding.uuidString,
+            "productId":"coins","transactionKey":"42","serverPurchaseId":purchase.uuidString,"fulfillmentStatus":"GRANTED"])
+        DelayedAppleGrantProtocol.complete(response)
+        do { _ = try await pending.value; XCTFail("late grant escaped old session") }
+        catch let error as SdkFailure { XCTAssertEqual(error.code, "CANCELED") }
+        XCTAssertTrue(backend.revoked); XCTAssertNil(store.value)
+    }
     func testAppleHttpRevokeFallsBackToRefresh() async throws {
         SessionProtocol.reset(.timeout)
         let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [SessionProtocol.self]

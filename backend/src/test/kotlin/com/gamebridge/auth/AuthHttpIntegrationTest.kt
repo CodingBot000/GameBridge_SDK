@@ -50,6 +50,7 @@ class TestIdentityConfiguration {
 @Import(TestIdentityConfiguration::class)
 @EnabledIfEnvironmentVariable(named = "GAMEBRIDGE_RUN_AUTH_DB_TESTS", matches = "true")
 class AuthHttpIntegrationTest {
+    @org.junit.jupiter.api.BeforeEach fun captureOpenApiShape() { com.gamebridge.contracts.OpenApiCapture.install(rest) }
     @Autowired lateinit var rest: TestRestTemplate
     @Autowired lateinit var db: JdbcTemplate
     @Autowired lateinit var sessions: com.gamebridge.session.SessionService
@@ -72,6 +73,12 @@ class AuthHttpIntegrationTest {
             .expirationTime(Date.from(Instant.now().plusSeconds(600))).claim("nonce", nonce).build()
         return SignedJWT(JWSHeader.Builder(JWSAlgorithm.RS256).keyID("test-only").build(), claims)
             .apply { sign(RSASSASigner(FixtureKey.key.toPrivateKey())) }.serialize()
+    }
+    @Test fun `sandbox rejects mock identity token with 401`() {
+        val challenge = rest.postForEntity("/v1/auth/challenges", mapOf("appId" to "test-app", "provider" to "GOOGLE"), Map::class.java)
+        assertEquals(200, challenge.statusCode.value())
+        val rejected = rest.postForEntity("/v1/auth/exchange", mapOf("challengeId" to challenge.body!!["challengeId"], "provider" to "GOOGLE", "idToken" to "mock:identity:synthetic"), Map::class.java)
+        assertEquals(401, rejected.statusCode.value())
     }
     @Test fun `http exchange verifies tokens and challenge replay while retaining first display name`() {
         val unsetConfig = rest.getForEntity("/v1/config", Map::class.java)

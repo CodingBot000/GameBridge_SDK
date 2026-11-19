@@ -3,7 +3,22 @@
 > 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
 
 
-포트폴리오 개발 종료 후 **실제 Provider 연동을 선택할 때만** 사용하는 절차입니다. 설정 준비와 실연동 PASS는 별개이며 현재13개 Task의 WAITING_USER를 유지합니다. 로컬 실행은 [Quick Start](INTEGRATION.md), 증명된 결과는 [COMPATIBILITY](COMPATIBILITY.md)가 기준입니다.
+현재 **실계정 소셜 로그인 검증을 준비하는 단계**입니다. 설정 준비와 실연동 PASS는 별개이며 기존 13개 외부 연동 Task의 WAITING_USER 원장을 유지합니다. 로컬 실행은 [Quick Start](INTEGRATION.md), 증명된 결과는 [COMPATIBILITY](COMPATIBILITY.md)가 기준입니다.
+
+## 다음 단계 — 실제 소셜 로그인 검증 준비
+
+최신 Unity **LOCAL_MOCK** 양 플랫폼 실행은 통과했지만 Google·Apple·Facebook의 **실계정 로그인은 아직 한 번도 실행하지 않았습니다.** 실제 검증은 플랫폼별 인증 콘솔 설정 후 진행하며, 한 Provider의 정상/취소/실패/세션 복원/로그아웃을 분리해서 확인합니다.
+
+| 시험 경로 | 사용자가 준비해야 하는 사항 | 코드·테스트 준비 상태 |
+| --- | --- | --- |
+| iOS Google | Google Cloud iOS OAuth Client ID, Backend용 Server Client ID, Bundle ID·URL Scheme·테스트 계정 | GoogleSignIn 9.2.0, custom nonce, Backend 검증 구현·Fake/계약 PASS |
+| Android Facebook | Meta App ID/Client Token, Android 패키지·서명 Key Hash·테스트 계정·서버 전용 App Secret | Meta 18.3.0 Classic, Backend debug 검증·Fake/계약 PASS |
+| iOS Facebook | 동일 Meta 앱의 iOS 플랫폼 설정·URL Scheme·테스트 계정 및 Backend App Secret | Meta 18.1.1 Limited/Classic·Backend JWT 검증·Fake/계약 PASS |
+| Android Apple | Apple Developer Primary App ID·Services ID, Team/Key ID·서버 전용 p8, 소유 HTTPS callback/return 도메인·Android App Links | 웹 OAuth·Custom Tabs·서버 code 교환·일회용 handle 구현·보안 테스트 PASS |
+
+실제 ID·서비스 설정이 준비되면 **먼저 1개 플랫폼/Provider를 선택해 시험용 Host 앱과 별도 Backend Sandbox에서 실행**합니다. 단순 로그인 성공뿐 아니라 Provider 계정과 GameBridge Backend 사용자·세션 결속, 취소·재시도·세션 복원·로그아웃을 확인하고 나머지 경로로 확장합니다. 새 Unity Player의 LOCAL_MOCK 결과를 실제 OAuth PASS로 승격하지 않습니다.
+
+**보안:** 실제 App Secret·Apple p8·로그인 토큰·개인 식별 정보는 Git/Unity 에셋/채팅/원본 로그에 넣지 않습니다. 사용자 로컬 비밀 저장소에서 공급하고, Codex는 사용자의 콘솔 로그인·약관 동의·비밀키 발급을 자동으로 가정하지 않습니다.
 
 ## 준비·권한 경계
 
@@ -28,7 +43,9 @@
 
 | 변수 | 앱별 JSON/파일 형태 | 연결 |
 | --- | --- | --- |
-| `GAMEBRIDGE_AUTH_AUDIENCES_JSON` | appId→GOOGLE/APPLE의 비어 있지 않은 문자열 배열 | OAuth/Apple audience와 서버 identity 검증 |
+| `GAMEBRIDGE_AUTH_AUDIENCES_JSON` | appId→GOOGLE/APPLE/FACEBOOK의 비어 있지 않은 문자열 배열 | OAuth/Apple audience와 서버 identity 검증 |
+| `GAMEBRIDGE_FACEBOOK_AUTH_CONFIG_JSON` | appId→Meta appId·Backend 전용 appSecret·requiredScopes | Facebook Classic Access Token 검증 |
+| `GAMEBRIDGE_APPLE_WEB_CONFIG_JSON` | appId→Services ID·callbackUri·returnUri·teamId·keyId·privateKeyPath | Android Apple 웹 OAuth 서버 code 교환 |
 | `GAMEBRIDGE_GOOGLE_PURCHASE_CONFIG_JSON` | appId→packageName·productIds 문자열 배열·credentialPath | Google purchase/finalizer |
 | `GAMEBRIDGE_APPLE_PURCHASE_CONFIG_JSON` | appId→bundleId·productIds 배열·rootCertificatePaths 파일 배열 | Apple server library 검증 |
 | `GAMEBRIDGE_FCM_CONFIG_JSON` | appId→projectId·credentialPath | Firebase Admin 발송 |

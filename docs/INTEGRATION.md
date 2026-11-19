@@ -1,13 +1,13 @@
 # Quick Start와 Host 통합
 
-> 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
+> 현재 소셜 인증 구현·Unity LOCAL_MOCK 검증은 [기능 매트릭스](FEATURE_MATRIX.md), OAuth 구현/검증 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md), Meta Embed 후 iOS Player 결과는 [IOS_META_EMBED_FIX](IOS_META_EMBED_FIX.md)를 참고하세요. **실제 Provider 계정 로그인은 별도 검증 대상**입니다.
 
 
 목표는 기존 샘플을 통해 LOCAL_MOCK의 초기화→로그인→상품/구매→서버 잔액→Push→종료 경계를 확인하는 것입니다. 실제 스토어 거래·원격 푸시를 실행하지 않습니다. 검증된 환경은 [COMPATIBILITY](COMPATIBILITY.md), 내부 소유권은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)을 따릅니다.
 
 ## 어디서 시작하나요?
 
-**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. Backend·실계정이 없어도 공개 API의 구조를 확인할 수 있지만, 새 소셜 기능의 Unity Player 실행은 미검증이며 기존 선정 LOCAL_MOCK 소비·Player 근거와 구분합니다.
+**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. 별도 **Android/iOS Unity LOCAL_MOCK Player는 확장 이후 실제 실행 PASS**했지만, 이 결과는 **Google·Apple·Facebook 실계정 OAuth UI**의 성공을 의미하지 않습니다.
 
 | 하려는 일 | 먼저 읽을 곳 |
 | --- | --- |
@@ -21,9 +21,10 @@
 
 ## 1. 패키지 준비
 
-저장소 루트에서 작업합니다. 소셜 확장이 포함된 이 환경의 로컬 staging은 `artifacts/meta-embed.wu_f4khd/upm`입니다. 이 staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있으며, Unity UPM 패키지 루트는 `com.gamebridge.sdk/`, 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 기존 `artifacts/portfolio-final/DEV_RC`와 `artifacts/social-login/upm-handoff`는 iOS Meta Embed 수정 전의 과거 검증 자료로 보존하며 새 iOS 패키지로 선택하지 않습니다.
+저장소 루트에서 작업합니다. **문서42 로컬 검증 worktree**에서 생성한 staging 예시는 `artifacts/meta-embed.wu_f4khd/upm`입니다. **다른 checkout 또는 새 `main` checkout에는 이 경로가 없을 수 있습니다.** staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있고 Unity 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 기존 `artifacts/portfolio-final/DEV_RC`와 `artifacts/social-login/upm-handoff`는 iOS Meta Embed 수정 전 후보이므로 신규 통합 검증용으로 선택하지 마세요.
 
 ```sh
+# 문서42의 로컬 검증 디렉터리가 실제 존재하는 checkout에서만 실행
 export GAMEBRIDGE_UPM_STAGING="$PWD/artifacts/meta-embed.wu_f4khd/upm"
 python3 harness/check-staging.py "$GAMEBRIDGE_UPM_STAGING"
 ```
@@ -257,6 +258,6 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 
 ## 문서42 — Unity iOS Meta 동적 의존성
 
-Unity Export Hook은 FacebookLogin18.1.1을 UnityFramework와 Host App 양쪽에 strong 연결합니다. Host App의 SPM 제품 소유를 통해 Xcode가 FBAEMKit/FBSDKCoreKit_Basics/FBSDKCoreKit/FBSDKLoginKit 네 개를 최종 앱 Frameworks에 Embed·서명합니다. GameBridgeNative는 static 연결이며 GoogleSignIn9.2.0도 유지합니다. 기존 Host 소유 SPM 설정 충돌은 명시 실패하고 덮어쓰지 않습니다.
+Unity Export Hook은 FacebookLogin 18.1.1을 UnityFramework와 Host App 양쪽에 strong 연결합니다. Host App SPM 제품 소유로 Xcode가 FBAEMKit/FBSDKCoreKit_Basics/FBSDKCoreKit/FBSDKLoginKit 네 개를 최종 앱 Frameworks에 Embed·서명하도록 수정했습니다. GameBridgeNative는 static 연결이며 GoogleSignIn 9.2.0도 유지합니다. 기존 Host 소유 SPM 설정 충돌은 명시 실패하고 덮어쓰지 않습니다. **새 iOS 18.6 Unity LOCAL_MOCK Player의 실제 E2E는 PASS**(23 marker, DB 1건/100코인, logout 후 활성 세션 0)했으며 [실행 기록](IOS_META_EMBED_FIX.md)을 보존했습니다. 실제 Meta 계정 로그인은 미검증입니다.
 
 수정 Hook은 새 패키징·새 Unity Export에 자동 반영됩니다. 이전 staging/export/app을 재사용하거나 완성된 앱에 framework만 복사해 적용하지 않습니다. 새 iOS18.6 LOCAL_MOCK Player에서 초기화·로그인·상품·Mock 구매·잔액·로그아웃과 원장1건/100코인·로그아웃후활성session0을 확인했습니다. 실제 OAuth·스토어·원격푸시는 미검증이며 [수정·검증 근거](IOS_META_EMBED_FIX.md)를 따릅니다.

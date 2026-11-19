@@ -14,6 +14,21 @@ BUNDLE='com.gamebridge.sdk.mockiosconsumer'
 STEPS=('initialize','login','products','purchase','wallet','logout')
 OPS=('mock-auth','catalog','entitlements','verify','logout')
 
+def verify_meta_embedding(app, unity_binary, must, signed):
+    # Meta18.1.1 Login's actual strong dependencies. Never hand-copy them into
+    # a built app: the permanent export hook must make Xcode embed/sign them.
+    names=('FBAEMKit','FBSDKCoreKit_Basics','FBSDKCoreKit','FBSDKLoginKit')
+    linked=must(['otool','-L',unity_binary],'UNITY_DEPENDENCY_INSPECTION_FAILED')
+    for name in names:
+        if '@rpath/'+name+'.framework/'+name not in linked:
+            raise RuntimeError('META_DEPENDENCY_LINK_MISSING_'+name)
+        framework=app/'Frameworks'/(name+'.framework')
+        if not (framework/name).is_file():
+            raise RuntimeError('META_FRAMEWORK_NOT_EMBEDDED_'+name)
+        if signed: must(['codesign','--verify','--strict',framework],'META_FRAMEWORK_SIGNATURE_INVALID_'+name)
+    if signed: must(['codesign','--verify','--strict',app],'IOS_APP_SIGNATURE_INVALID')
+    return {'frameworks':list(names),'signaturesVerified':signed,'scope':'final app bundle before Player launch'}
+
 def main():
     parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--pii-probe',action='store_true'); parser.add_argument('--performance-probe',action='store_true',help='Dedicated Player measurements after the PII baseline'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); parser.add_argument('--gui-project',type=Path);parser.add_argument('--gui-export-receipt',type=Path);args=parser.parse_args()
     if args.performance_probe and (not args.pii_probe or args.gui_project): parser.error('performance requires isolated CLI PII consumer')
@@ -108,6 +123,7 @@ def main():
         if app is None or not binary.is_file(): raise RuntimeError('SIMULATOR_APP_MISSING')
         symbols=must(['nm','-g',binary],'NM_FAILED')
         if any(not re.search(r'\b_GB_'+name+r'\b',symbols) for name in ('ProtocolVersion','SetCallback','Dispatch','Shutdown')): raise RuntimeError('C_ABI_SYMBOL_MISSING')
+        result['metaEmbedding']=verify_meta_embedding(app,binary,must,args.adhoc)
         result['unityPlayer']='BUILT_NOT_RUN'; result['unityBinarySha256']=digest(binary)
         bootjar=run(['backend/gradlew','-p','backend','bootJar'],timeout=240)
         (out/'backend-build.log').write_text(bootjar.stdout)

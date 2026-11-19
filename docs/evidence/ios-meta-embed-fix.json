@@ -1,0 +1,130 @@
+{
+  "scope": "doc42 Unity iOS Meta embed fix only",
+  "base": "36ca83638125f5ccdf915a5b55dda71633a326b5",
+  "sourceSnapshot": {
+    "base": "36ca83638125f5ccdf915a5b55dda71633a326b5",
+    "sourceState": "base plus working iOS packaging fix; exact tested file digests below",
+    "files": {
+      "unity/Packages/com.gamebridge.sdk/Editor/IosXcodeBuildHook.cs": "7232e253e213f230523f130d9d3f5e70b665ae381f2353450ffdbe9b77230a31",
+      "harness/run-unity-ios-mock-e2e.py": "b5c7988c334a07bee88e39a364abf6d302cea56d42133301861de4bd25d0835c"
+    },
+    "checksumCount": 147,
+    "manifestSha256": "997fd8dea785aafa859c7ddb319492a101583bc6b59978e799ff3c8952a8bf36",
+    "nativeArtifacts": "retained doc41 main36ca836 Maven/XCFramework; Native/Android/Backend bytes unchanged, Android not rerun"
+  },
+  "hookUnit": {
+    "exit": 0,
+    "independentChecks": 40,
+    "oracle": "real Unity PBX API + Apple plutil",
+    "covers": [
+      "new export",
+      "legacy export upgrade",
+      "reload/repeat idempotence",
+      "static Native/Google/Host settings preservation",
+      "version/missing/weak/foreign dependencies rejected"
+    ]
+  },
+  "oldAppNegativeGate": "META_FRAMEWORK_NOT_EMBEDDED_FBAEMKit",
+  "before": {
+    "unityFrameworkProducts": [
+      "GoogleSignIn",
+      "FacebookLogin"
+    ],
+    "hostAppFacebookProduct": false,
+    "embeddedMetaFrameworks": []
+  },
+  "after": {
+    "unityFrameworkProducts": [
+      "GoogleSignIn",
+      "FacebookLogin"
+    ],
+    "hostAppProducts": [
+      "FacebookLogin"
+    ],
+    "strongDependencies": {
+      "@rpath/FBAEMKit.framework/FBAEMKit": "LC_LOAD_DYLIB",
+      "@rpath/FBSDKCoreKit_Basics.framework/FBSDKCoreKit_Basics": "LC_LOAD_DYLIB",
+      "@rpath/FBSDKCoreKit.framework/FBSDKCoreKit": "LC_LOAD_DYLIB",
+      "@rpath/FBSDKLoginKit.framework/FBSDKLoginKit": "LC_LOAD_DYLIB"
+    },
+    "embeddedFrameworks": [
+      "FBAEMKit",
+      "FBSDKCoreKit_Basics",
+      "FBSDKCoreKit",
+      "FBSDKLoginKit"
+    ],
+    "signaturesVerified": true,
+    "facebookPin": {
+      "identity": "facebook-ios-sdk",
+      "kind": "remoteSourceControl",
+      "location": "https://github.com/facebook/facebook-ios-sdk",
+      "state": {
+        "revision": "80d0ee82f6370d1bace1431a80cb80575f98ee90",
+        "version": "18.1.1"
+      }
+    },
+    "staticNativePreserved": true,
+    "manualCopyIntoApp": false
+  },
+  "e2e": {
+    "exit": 0,
+    "status": "PASS",
+    "attempts": 1,
+    "markers": 23,
+    "metaEmbedding": {
+      "frameworks": [
+        "FBAEMKit",
+        "FBSDKCoreKit_Basics",
+        "FBSDKCoreKit",
+        "FBSDKLoginKit"
+      ],
+      "signaturesVerified": true,
+      "scope": "final app bundle before Player launch"
+    },
+    "trace": {
+      "mock-auth": 1,
+      "catalog": 1,
+      "entitlements": 2,
+      "verify": 1,
+      "logout": 1
+    },
+    "ledgerCount": 1,
+    "ledgerDelta": 100,
+    "sessions": 1,
+    "activeSessionsAfterLogout": 0,
+    "independentSqlExit": 0,
+    "database": "gamebridge_ci_6b30891c23",
+    "simulator": "F0292C8E-D65A-4901-84A2-FA43AA6BCA93",
+    "runtime": "iOS18.6",
+    "xcode": "26.6/17F113",
+    "unity": "6000.5.8f1",
+    "cli": "1.0.1",
+    "signing": "Simulator ad-hoc",
+    "dyldErrorMatches": 0,
+    "redaction": "PASS"
+  },
+  "upm": {
+    "count": 147,
+    "manifestSha256": "997fd8dea785aafa859c7ddb319492a101583bc6b59978e799ff3c8952a8bf36",
+    "integrityExit": 0
+  },
+  "android": "Doc41 PASS retained; not rerun",
+  "oauth": "NOT_RUN",
+  "realStore": "NOT_RUN",
+  "remotePush": "NOT_RUN",
+  "releaseReady": false,
+  "cleanup": {
+    "ownSimulatorShutdown": true,
+    "simulatorAndDbRetained": true
+  },
+  "localLogs": {
+    "run": "artifacts/meta-embed.wu_f4khd",
+    "e2e": "artifacts/unity-ios-e2e-rhtr8rw7"
+  },
+  "limitations": [
+    "LOCAL_MOCK only",
+    "Bridge and HTTP request IDs are independent spaces; no shared-ID propagation claim",
+    "Vendor bundle labels are not SDK release identifiers; release proven by SPM pin",
+    "E2E ran on base plus recorded working-file hashes, checked against final commit"
+  ]
+}

@@ -2008,3 +2008,10 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - fetch후origin/main5ed09e5 확인. merge-base e4b677e에서main5commit·기존handoff+소셜359commit 분기,예상PR516파일/소셜3배치77파일. 지정브랜치와기존commitSHA를유지하며main의README/API/INTEGRATION보강을feature에merge하여보존한다. main자체는변경하지않음. PR에서기존누적baseline과소셜범위를명확히구분한다.
 - 문서38: feature push e8823e0와PR#4 생성,GitHub516파일=로컬diff집합동일. 이전PR#2 CI44339264161은unity-runtime-required 미구현exit2/local-gate연쇄실패,Native/Linux PASS. 새PR CI44499239447 inventory는승인된social변경을기존P08/P10 bytefreeze가거부한별도신규실패로판정. 기존baseline/guard를수정하지않고closed dc3에원래검사를수행한뒤승인23536d2의26경로·enumappend·CABI추가만현재소스와대조하는명시적전환검사를추가한다. 새guard/음성5검증PASS,동일inventory step로컬재검사중.
 - 문서38 CI수정1 로컬검증: GitHub와동일inventory step전체268 test/60 suite exit0,원본P08/P10 guard의historical실행과current source전환·5음성 포함. 최초Hosted run의Backend/Android는SUCCESS,Swift진행중,Unity는SKIPPED. 수정한코드는guard/새전환record/CI호출뿐이며Native/Backend/Unity제품을바꾸지않았다.
+
+## 사용자 문서42 — Unity iOS Meta 동적 의존성 Embed 수정
+
+- main36ca836에서별도fix/ios-meta-embed-20261119 worktree시작. 원본41실패·DB/기기/UPM·원본feature와미추적경로보존. Android의41PASS는유지하고재실행하지않는다.
+- 원본앱/otool/PBX/서명을대조: UnityFramework는FBAEMKit/FBSDKCoreKit_Basics/FBSDKCoreKit/FBSDKLoginKit4개를strong참조하지만.app에는UnityFramework/UnityRuntime만존재. 정상ad-hoc서명과기존@executable_path/Frameworks runpath확인. FacebookLogin SPM제품이UnityFramework에만연결되고HostApp의package제품소유/Embed가없음이원인. Meta18.1.1/Google9.2/staticNative링크를유지하여영속ExportHook을수정하고독립PBX회귀→새iOSPlayer로검증한다.
+- 수정안: FacebookLogin의UnityFramework strong링크를유지하며같은SPM제품을HostApp에도소유/strong링크시켜Xcode가4개동적의존성을자동Embed·서명하게한다. packageGUID/버전·target별제품/강링크를검증해중복추가와잘못된의존성을거부한다. 실제UnityAssembly+Apple plutil oracle의독립40검사PASS. iOS실행기에최종앱의4개framework및서명사전검사추가,원본실패앱은실제로명시거부PASS. 새staging/새소비자E2E대기.
+- 문서42 최종로컬결과: 새iOS18.6/Unity6000.5.8f1 소비프로젝트/E2E attempt1 exit0/Player PASS,23marker·6단계/redaction 및Backend필수trace·원장1건/+100·logout후활성session0. HostAppFacebookLogin제품연결로Meta4개모두.app/Frameworks에포함,strict서명0·강LC_LOAD_DYLIB유지·런타임dyld오류0확인. 새UPM147/SHA256SUMS997fd8de… PASS. Android41PASS유지/이번실행0,실OAuth·실결제·원격push·Release NOT_RUN. 독립40회귀/원본앱누락거부와별도docs/IOS_META_EMBED_FIX.md/evidence기록;최소범위commit/push/PR만진행.

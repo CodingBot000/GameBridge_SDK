@@ -21,10 +21,10 @@
 
 ## 1. 패키지 준비
 
-저장소 루트에서 작업합니다. 소셜 확장이 포함된 이 환경의 로컬 staging은 `artifacts/social-login/upm-handoff`입니다. 이 staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있으며, Unity UPM 패키지 루트는 `com.gamebridge.sdk/`, 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 기존 `artifacts/portfolio-final/DEV_RC`는 과거 검증 자료로 보존하며 신규 소셜 패키지로 선택하지 않습니다.
+저장소 루트에서 작업합니다. 소셜 확장이 포함된 이 환경의 로컬 staging은 `artifacts/meta-embed.wu_f4khd/upm`입니다. 이 staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있으며, Unity UPM 패키지 루트는 `com.gamebridge.sdk/`, 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 기존 `artifacts/portfolio-final/DEV_RC`와 `artifacts/social-login/upm-handoff`는 iOS Meta Embed 수정 전의 과거 검증 자료로 보존하며 새 iOS 패키지로 선택하지 않습니다.
 
 ```sh
-export GAMEBRIDGE_UPM_STAGING="$PWD/artifacts/social-login/upm-handoff"
+export GAMEBRIDGE_UPM_STAGING="$PWD/artifacts/meta-embed.wu_f4khd/upm"
 python3 harness/check-staging.py "$GAMEBRIDGE_UPM_STAGING"
 ```
 
@@ -254,3 +254,9 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 인증 취소/브라우저 닫기/timeout은 실패로 종료한다. Native logout은 SDK 세션을 폐기하며 브라우저의 Apple SSO 쿠키를 관리하지 않는다. 실기기 브라우저 복귀·App Link 검증·Apple 실제 로그인은 아직 실행하지 않았다. 신규 flow 행은 감사용 hash/verified identity를 보존하며 이번 코드가 기존 데이터나 흐름을 자동 삭제하지 않는다. 운영 보존 정책/정리 작업을 임의 도입하지 않았다.
 
 공식 근거: [다른 플랫폼 Apple 인증](https://developer.apple.com/documentation/signinwithapple/incorporating-sign-in-with-apple-into-other-platforms), [웹 Services ID 구성](https://developer.apple.com/help/account/capabilities/configure-sign-in-with-apple-for-the-web), [서버 code 교환](https://developer.apple.com/documentation/signinwithapplerestapi/generate-and-validate-tokens), [Android Browser 릴리스](https://developer.android.com/jetpack/androidx/releases/browser).
+
+## 문서42 — Unity iOS Meta 동적 의존성
+
+Unity Export Hook은 FacebookLogin18.1.1을 UnityFramework와 Host App 양쪽에 strong 연결합니다. Host App의 SPM 제품 소유를 통해 Xcode가 FBAEMKit/FBSDKCoreKit_Basics/FBSDKCoreKit/FBSDKLoginKit 네 개를 최종 앱 Frameworks에 Embed·서명합니다. GameBridgeNative는 static 연결이며 GoogleSignIn9.2.0도 유지합니다. 기존 Host 소유 SPM 설정 충돌은 명시 실패하고 덮어쓰지 않습니다.
+
+수정 Hook은 새 패키징·새 Unity Export에 자동 반영됩니다. 이전 staging/export/app을 재사용하거나 완성된 앱에 framework만 복사해 적용하지 않습니다. 새 iOS18.6 LOCAL_MOCK Player에서 초기화·로그인·상품·Mock 구매·잔액·로그아웃과 원장1건/100코인·로그아웃후활성session0을 확인했습니다. 실제 OAuth·스토어·원격푸시는 미검증이며 [수정·검증 근거](IOS_META_EMBED_FIX.md)를 따릅니다.

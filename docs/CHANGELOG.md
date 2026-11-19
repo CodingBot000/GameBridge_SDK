@@ -1,5 +1,16 @@
 # 변경 이력
 
+> 개발 버전 `0.1.0-dev`의 변경 기록입니다. **병합됐다는 사실과 실제 Provider·Release 검증 완료는 다릅니다.** 최초 포트폴리오 DEV_RC의 동결 근거는 보존하고, 이후 승인된 확장을 아래에 별도로 기록합니다.
+
+## 2026-11-20 — 소셜 인증 확장 및 Unity iOS Host 패키징 통합
+
+- [PR #4](https://github.com/CodingBot000/GameBridge_SDK/pull/4): iOS Google, Android/iOS Facebook, Android Apple 웹 인증 구현. Backend Provider 증명 분리·기존 session/구매 원장 재사용·Native/Unity 라우팅 확장. 실제 계정 OAuth는 **WAITING_USER**.
+- [PR #5](https://github.com/CodingBot000/GameBridge_SDK/pull/5): Unity iOS Export Hook에서 Meta 18.1.1 동적 의존성을 Host App에 Embed·서명하도록 수정; 반복 적용 멱등성 검사 및 iOS Player 사전 검사 추가. 원인과 [iOS E2E PASS](IOS_META_EMBED_FIX.md) 기록.
+- Android Unity LOCAL_MOCK은 PR #4 병합 소스에서 로컬 PASS(33 marker, 지급 1건/100코인); PR #5에서는 Android 변경·재실행하지 않음. iOS Unity LOCAL_MOCK은 수정 소스에서 로컬 PASS(23 marker, 지급 1건/100코인, 로그아웃 후 활성 세션 0).
+- [PR #5 Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965)의 필수 5개 Job SUCCESS; Unity E2E/Release SKIPPED. `main` Merge commit `18e22af8800626a50364350f3ff56b596d00cf39`. 공식 SDK/플랫폼 실계정 테스트·실스토어 거래·원격 푸시는 NOT_RUN.
+
+## 이전 개발 이력 (작성 당시 원문)
+
 > 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
 
 

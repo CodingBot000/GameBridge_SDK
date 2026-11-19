@@ -2001,3 +2001,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - B 최종 소스 재검사: Facebook HTTP3 exit0/owned DB gamebridge_ci_abaf17e7c9, build-android.sh --mock Maven+R8 consumer exit0, 최신 Simulator archive exit0. 실제 Provider·새UnityPlayer未실행.
 - 소셜 C IN_PROGRESS: HTTPS form_post callback, state/nonce/code 재생 방어, verifier-bound 60초 handle 및 Android Custom Tabs/App Link Native 경로를 구현한다. 실제 Apple 계정/Services ID/키·도메인 구성은 WAITING_USER.
 - 소셜 C/확장 종료: Android Apple웹 OAuth·BackendHTTPS form_post/code교환/ES256·verifier-bound1회handle·기존session/원장연결 IMPLEMENTED. 최종Backend20+별도기존Auth/Mock/원장5 PASS,Android47+Bridge9 PASS,Swift31 PASS,C#PASS,OpenAPI27/변이18 PASS. device/sim XCF·binary소비/Meta포함AndroidR8·Maven/UPM147 PASS. proofType생략legacyHTTP호환을실제검증후수정. 실제4경로WAITING_USER·Meta기본remoteSPM DEFERRED_ENV·새UnityPlayer/실기기UI未실행. 선정내부시험미해결FAIL없음. 세배치를로컬commit으로종료,기존64행/개발종료·Strict0상태유지. 세부명령/제한/설정은SOCIAL_AUTH_HANDOFF.md와evidence/social-login/c-android-apple.json.
+
+## 사용자 문서38 — GitHub 소셜 확장 인계
+
+- 시작23536d2/feature/social-login-20261119, tracked-clean·기존미추적3경로보존. 사용자명시로push/PR금지만해제,main병합/Release/실Provider/새Player는허용하지않음.
+- fetch후origin/main5ed09e5 확인. merge-base e4b677e에서main5commit·기존handoff+소셜359commit 분기,예상PR516파일/소셜3배치77파일. 지정브랜치와기존commitSHA를유지하며main의README/API/INTEGRATION보강을feature에merge하여보존한다. main자체는변경하지않음. PR에서기존누적baseline과소셜범위를명확히구분한다.

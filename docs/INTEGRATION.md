@@ -5,9 +5,23 @@
 
 목표는 기존 샘플을 통해 LOCAL_MOCK의 초기화→로그인→상품/구매→서버 잔액→Push→종료 경계를 확인하는 것입니다. 실제 스토어 거래·원격 푸시를 실행하지 않습니다. 검증된 환경은 [COMPATIBILITY](COMPATIBILITY.md), 내부 소유권은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)을 따릅니다.
 
+## 어디서 시작하나요?
+
+**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. Backend·실계정이 없어도 공개 API의 구조를 확인할 수 있지만, 새 소셜 기능의 Unity Player 실행은 미검증이며 기존 선정 LOCAL_MOCK 소비·Player 근거와 구분합니다.
+
+| 하려는 일 | 먼저 읽을 곳 |
+| --- | --- |
+| Unity에서 Mock 로그인·상품 UI를 둘러보기 | [Editor Offline Demo](../unity/Packages/com.gamebridge.sdk/Samples~/Offline%20Demo/README.md) |
+| Android/iOS Native와 로컬 Backend 연결 준비 | 아래 **1. 패키지 준비**와 **3. LOCAL_MOCK Backend** |
+| Google/Apple/Facebook 인증·스토어·푸시 샌드박스 설정 | [USER_SETUP](USER_SETUP.md) |
+| C# 메서드·이벤트·오류 확인 | [API](API.md) |
+| 실제 완료/실패/미실행 확인 | [기능 매트릭스](FEATURE_MATRIX.md) · [진행 원장](PROGRESS.md) |
+
+> 이 페이지는 **Native/Host 통합 세부사항**을 다룹니다. Unity 패키지 소스만 가져온다고 Android AAR, iOS XCFramework 및 Host 설정이 자동으로 모두 준비되지는 않습니다. 실제 계정·스토어·원격 푸시 결과는 별도 검증이 필요합니다.
+
 ## 1. 패키지 준비
 
-저장소 루트에서 작업합니다. 이 개발 환경의 최종 로컬 후보는 `artifacts/portfolio-final/DEV_RC`입니다. 그 안의 `upm`에는 SDK147파일의 `SHA256SUMS`, 상위에는 문서/manifest까지 포함한 별도 checksum이 있습니다.
+저장소 루트에서 작업합니다. 기존 동결 포트폴리오 후보는 `artifacts/portfolio-final/DEV_RC`입니다. 새 소셜 확장의 최신 로컬 패키지는 `artifacts/social-login/upm-handoff`이며, 옛 후보가 새 소셜 코드를 포함한다고 가정하지 않습니다. 그 안의 `upm`에는 SDK147파일의 `SHA256SUMS`, 상위에는 문서/manifest까지 포함한 별도 checksum이 있습니다.
 
 ```sh
 export GAMEBRIDGE_UPM_STAGING="$PWD/artifacts/portfolio-final/DEV_RC/upm"

@@ -4344,3 +4344,9 @@
 - 최종upm-final의147checksum전부일치/packaging0. OpenAPI27operations sourceguard0,form/303본문비노출변이포함18test0. verify-progress.py0,기존64행상태변경없음. Meta remoteSPM지연DEFERRED_ENV·공식SHA/codesign검증cache우회아닌upstream기능사용,모든실ProviderWAITING_USER.
 - 문서USER_SETUP/API/INTEGRATION/FEATURE_MATRIX/CHANGELOG/README와SOCIAL_AUTH_HANDOFF,정제evidence C갱신. 한원인당수정3회제한유지. 남은선정internal빌드/테스트FAIL없음; Classic논리취소후물리callback대기BUSY·실기기/새Player/기본remoteSPM미검증제한명시. 기존미추적3경로보존,생성bin/obj만ignore추가. A9848e56/B121d2c6/C로배치별로컬commit만,원격작업0. 세배치종료후옛P00–P11은재개하지않는다.
 - 최종diff검토에서닫힌Android social account action이호출전에차단되도록closed/epochguard1개를보강하고같은Apple수명시험에action미실행assertion추가. 최종Native47+Bridge9 재검사0,최신maven-delivery/R8재빌드0. NativeDemoREADME에새버튼/Host설정/실연동미검증을추가하고최신binary+문서를upm-handoff147로재묶음/전checksum0(이전산출물보존). Markdown링크검사초안은정상angle-bracket경로를잘못판정해parser만정정;최종97개경로모두존재. 제품문서링크누락은없었다.
+
+## 문서38 인계 시작 — [SOC-HANDOFF]
+
+- 37의push/PR금지를이번요청으로명시해제. feature/social-login-20261119·9848e56/121d2c6/23536d2존재확인,tracked diff0,미추적cache109+5/Demo27파일hash snapshot 로컬보존.
+- git fetch origin0/main5ed09e55cc0d7889e9d801524c8f9c3eb9420d29. main은oldbase e4b677e이고feature359commit/main5commit분기,PR516파일중소셜3commit 자체77파일. 요청한브랜치/과거commit을재작성하지않고feature에origin/main만merge하여기존README보강을보존한다. git merge-tree dry-run은README/API/INTEGRATION3문서만content conflict/exit1. 제품source충돌없음.
+- GitHub plugin repo접근과push권한확인,동일feature PR없음. 지정title/main대상PR을생성하고파일목록을local merge-base diff와대조한다. CI기존Unity미완료와소셜신규실패를구분하며무관한원장/Provider/Player는재개하지않는다.

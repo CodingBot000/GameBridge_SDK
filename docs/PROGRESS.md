@@ -2015,3 +2015,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 원본앱/otool/PBX/서명을대조: UnityFramework는FBAEMKit/FBSDKCoreKit_Basics/FBSDKCoreKit/FBSDKLoginKit4개를strong참조하지만.app에는UnityFramework/UnityRuntime만존재. 정상ad-hoc서명과기존@executable_path/Frameworks runpath확인. FacebookLogin SPM제품이UnityFramework에만연결되고HostApp의package제품소유/Embed가없음이원인. Meta18.1.1/Google9.2/staticNative링크를유지하여영속ExportHook을수정하고독립PBX회귀→새iOSPlayer로검증한다.
 - 수정안: FacebookLogin의UnityFramework strong링크를유지하며같은SPM제품을HostApp에도소유/strong링크시켜Xcode가4개동적의존성을자동Embed·서명하게한다. packageGUID/버전·target별제품/강링크를검증해중복추가와잘못된의존성을거부한다. 실제UnityAssembly+Apple plutil oracle의독립40검사PASS. iOS실행기에최종앱의4개framework및서명사전검사추가,원본실패앱은실제로명시거부PASS. 새staging/새소비자E2E대기.
 - 문서42 최종로컬결과: 새iOS18.6/Unity6000.5.8f1 소비프로젝트/E2E attempt1 exit0/Player PASS,23marker·6단계/redaction 및Backend필수trace·원장1건/+100·logout후활성session0. HostAppFacebookLogin제품연결로Meta4개모두.app/Frameworks에포함,strict서명0·강LC_LOAD_DYLIB유지·런타임dyld오류0확인. 새UPM147/SHA256SUMS997fd8de… PASS. Android41PASS유지/이번실행0,실OAuth·실결제·원격push·Release NOT_RUN. 독립40회귀/원본앱누락거부와별도docs/IOS_META_EMBED_FIX.md/evidence기록;최소범위commit/push/PR만진행.
+
+## 사용자 후속 요청 — 병합 후 문서 정합성 정리 (2026-11-20)
+
+- 기준: `main` Merge commit `18e22af8800626a50364350f3ff56b596d00cf39` (PR #4 소셜 인증 확장, PR #5 iOS Meta Embed 수정). 이 기록은 새 기능 Phase나 기존 64 Task의 완료 판정 변경이 아니다.
+- 현재 로컬 근거: Android Unity LOCAL_MOCK Player는 PR #4 병합 소스 `36ca836`에서 PASS(33 marker/DB 지급1건·100코인); PR #5에서 Android 변경·재실행 없음. iOS는 Meta Embed 수정 소스에서 새 Player PASS(23 marker/DB 지급1건·100코인/로그아웃 후 active session0). 정제 증거는 `docs/evidence/ios-meta-embed-fix.json`에 보존.
+- Hosted CI: PR #5 Run44538602965 Inventory/Backend/Android/Swift/Basic SUCCESS, Unity E2E·Release SKIPPED. 실계정 OAuth·실스토어·원격푸시는 미검증 상태.
+- README/FEATURE_MATRIX/SOCIAL_AUTH_HANDOFF/COMPATIBILITY/FINAL_REPORT/INTEGRATION/USER_SETUP/CI/CHANGELOG를 현재 결과로 정리하되 과거 DEV_RC·StoreKit FAIL·Strict 미완료·64 Task·원본 로그는 보존. 실계정 OAuth 검증은 별도의 후속 사용자 승인 단계로 분리.
+- **문서 검증:** GitHub branch 자료 기준 Markdown fence 수 검증, 9개 주 문서 상대 링크 총 172개 검사(존재하지 않는 Git 트리 경로 0건), README 이미지 3개 유지. 제품 코드·바이너리 변경·새 Player/외부 Provider 실행 없음.

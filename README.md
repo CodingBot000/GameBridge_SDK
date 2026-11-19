@@ -101,8 +101,10 @@ await sdk.RegisterPushAsync();
 | --- | --- | --- | --- | --- |
 | iOS Google | A 구현, 공식GoogleSignIn9.2.0/custom nonce | Swift31·JWT/Audience·기존HTTP 회귀 PASS | device/sim XCFramework·source/binary 소비 build·UPM147 PASS (Player未실행) | WAITING_USER |
 | Android Facebook | B 구현, Meta18.3.0 Classic | Kotlin/Backend HTTP·C# PASS | Maven/R8 소비 PASS | WAITING_USER |
-| iOS Facebook | B 구현, Meta18.1.1 Limited/Classic | Swift31·서버 증명 분리 PASS | 공식 검증 cache로 device/sim XCF·binary 소비·UPM PASS; 원격 다운로드 대기 | WAITING_USER |
+| iOS Facebook | B 구현, Meta18.1.1 Limited/Classic | Swift31·서버 증명 분리 PASS | 로컬 공식 검증 cache로 XCF·binary 소비·UPM PASS; Hosted CI 원격 다운로드·Job PASS | WAITING_USER |
 | Android Apple | C 구현, 공식 웹 OAuth/Custom Tabs | 서버HTTP6·Native URL/세션/라우팅 PASS | Maven/R8·JNI·UPM PASS (OAuth UI/새Player未실행) | WAITING_USER |
+
+로컬 개발환경에서는 Meta 원격 다운로드 제한으로 upstream SHA256·codesign을 확인한 공식 cache를 사용했습니다. 이후 [GitHub Hosted CI Run44499923500](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44499923500/job/135476850100)에서는 Meta18.1.1 공식 바이너리6개 다운로드와 `swift-ios-simulator` Job 성공을 확인했습니다. 실제 Facebook 계정 로그인은 여전히 `WAITING_USER`, 신규 Unity Player E2E는 `NOT_RUN`입니다.
 
 세부 명령·실패 이력·환경 제한은 [소셜 확장 인계](docs/SOCIAL_AUTH_HANDOFF.md), 콘솔/키 설정은 [USER_SETUP](docs/USER_SETUP.md)을 참고하세요.
 
@@ -220,7 +222,7 @@ bash scripts/verify-all.sh --available
 ## 검증 현황과 제한사항
 
 - **확인한 범위:** 새 인증의 Native/Fake·계약·Backend·Maven/R8·device/sim XCFramework·binary 소비 및 UPM147 checksum. 기존 선정 LOCAL_MOCK Player 근거는 아래 동결 표에 분리했습니다.
-- **미검증:** 새 소셜 확장의 Unity Player·실계정 OAuth·실기기 App Link/브라우저 복귀, 실제 스토어 거래, 원격 FCM/APNs. Meta 기본 원격 SwiftPM binary 다운로드는 DEFERRED_ENV이며 공식 SHA/codesign 검증 cache로 로컬 빌드했습니다.
+- **미검증:** 새 소셜 확장의 Unity Player·실계정 OAuth·실기기 App Link/브라우저 복귀, 실제 스토어 거래, 원격 FCM/APNs. Meta 다운로드는 위의 로컬 cache 사용 이력과 Hosted CI 원격 다운로드 성공을 구분합니다.
 - **기록된 실패:** iOS 26.5 로컬 StoreKit 상품 조회 시험. iOS 18.6의 일부 별도 시험 PASS가 이를 대체하지 않습니다.
 - **전체 판정:** 제품 전체 검증 게이트는 통과한 상태가 아닙니다. 자세한 실패·보류·환경 제약은 [진행 원장](docs/PROGRESS.md)과 [최종 보고](docs/FINAL_REPORT.md)에서 확인하세요.
 

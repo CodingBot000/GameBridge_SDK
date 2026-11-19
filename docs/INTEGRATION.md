@@ -21,14 +21,14 @@
 
 ## 1. 패키지 준비
 
-저장소 루트에서 작업합니다. 기존 동결 포트폴리오 후보는 `artifacts/portfolio-final/DEV_RC`입니다. 새 소셜 확장의 최신 로컬 패키지는 `artifacts/social-login/upm-handoff`이며, 옛 후보가 새 소셜 코드를 포함한다고 가정하지 않습니다. 그 안의 `upm`에는 SDK147파일의 `SHA256SUMS`, 상위에는 문서/manifest까지 포함한 별도 checksum이 있습니다.
+저장소 루트에서 작업합니다. 소셜 확장이 포함된 이 환경의 로컬 staging은 `artifacts/social-login/upm-handoff`입니다. 이 staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있으며, Unity UPM 패키지 루트는 `com.gamebridge.sdk/`, 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 기존 `artifacts/portfolio-final/DEV_RC`는 과거 검증 자료로 보존하며 신규 소셜 패키지로 선택하지 않습니다.
 
 ```sh
-export GAMEBRIDGE_UPM_STAGING="$PWD/artifacts/portfolio-final/DEV_RC/upm"
+export GAMEBRIDGE_UPM_STAGING="$PWD/artifacts/social-login/upm-handoff"
 python3 harness/check-staging.py "$GAMEBRIDGE_UPM_STAGING"
 ```
 
-다른 checkout에는 생성 바이너리가 없습니다. 아래는 **새 패키지가 필요한 경우**의 기존 빌드 명령입니다. 이미 검증된 동일 산출물을 검토하는 데 재실행할 필요는 없습니다. 출력 경로는 존재하지 않는 새 절대 경로여야 합니다.
+이 로컬 staging과 생성 바이너리는 Git에 포함되지 않으므로 새 checkout에는 없습니다. 새 checkout에서는 아래 빌드·패키징 절차로 패키지를 생성해야 합니다. 이미 검증된 동일 산출물을 검토하는 데 재실행할 필요는 없습니다. 출력 경로는 존재하지 않는 새 절대 경로여야 합니다.
 
 ```sh
 export GAMEBRIDGE_MAVEN_REPO="$PWD/artifacts/my-dev-maven"

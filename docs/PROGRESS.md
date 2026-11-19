@@ -2006,3 +2006,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - 시작23536d2/feature/social-login-20261119, tracked-clean·기존미추적3경로보존. 사용자명시로push/PR금지만해제,main병합/Release/실Provider/새Player는허용하지않음.
 - fetch후origin/main5ed09e5 확인. merge-base e4b677e에서main5commit·기존handoff+소셜359commit 분기,예상PR516파일/소셜3배치77파일. 지정브랜치와기존commitSHA를유지하며main의README/API/INTEGRATION보강을feature에merge하여보존한다. main자체는변경하지않음. PR에서기존누적baseline과소셜범위를명확히구분한다.
+- 문서38: feature push e8823e0와PR#4 생성,GitHub516파일=로컬diff집합동일. 이전PR#2 CI44339264161은unity-runtime-required 미구현exit2/local-gate연쇄실패,Native/Linux PASS. 새PR CI44499239447 inventory는승인된social변경을기존P08/P10 bytefreeze가거부한별도신규실패로판정. 기존baseline/guard를수정하지않고closed dc3에원래검사를수행한뒤승인23536d2의26경로·enumappend·CABI추가만현재소스와대조하는명시적전환검사를추가한다. 새guard/음성5검증PASS,동일inventory step로컬재검사중.
+- 문서38 CI수정1 로컬검증: GitHub와동일inventory step전체268 test/60 suite exit0,원본P08/P10 guard의historical실행과current source전환·5음성 포함. 최초Hosted run의Backend/Android는SUCCESS,Swift진행중,Unity는SKIPPED. 수정한코드는guard/새전환record/CI호출뿐이며Native/Backend/Unity제품을바꾸지않았다.

@@ -4350,3 +4350,12 @@
 - 37의push/PR금지를이번요청으로명시해제. feature/social-login-20261119·9848e56/121d2c6/23536d2존재확인,tracked diff0,미추적cache109+5/Demo27파일hash snapshot 로컬보존.
 - git fetch origin0/main5ed09e55cc0d7889e9d801524c8f9c3eb9420d29. main은oldbase e4b677e이고feature359commit/main5commit분기,PR516파일중소셜3commit 자체77파일. 요청한브랜치/과거commit을재작성하지않고feature에origin/main만merge하여기존README보강을보존한다. git merge-tree dry-run은README/API/INTEGRATION3문서만content conflict/exit1. 제품source충돌없음.
 - GitHub plugin repo접근과push권한확인,동일feature PR없음. 지정title/main대상PR을생성하고파일목록을local merge-base diff와대조한다. CI기존Unity미완료와소셜신규실패를구분하며무관한원장/Provider/Player는재개하지않는다.
+
+## 문서38 PR 및 CI 구분 — [SOC-HANDOFF]
+
+- README/API/INTEGRATION3충돌을main의기능가이드·QuickStart·공통API와기존소셜/HTTP/Host계약을병존하도록해결. 경로109/진행원장/diff PASS. merge commit e8823e0은23536d2+main5ed09e5 두parent를보존하며제품source변경0.
+- git push -u origin feature/social-login-20261119 exit0,원격HEAD e8823e0d1e1d36d907cb527e9c9fde587a8e9bd6 일치. plugin으로지정title/main대상PR4생성: https://github.com/CodingBot000/GameBridge_SDK/pull/4 . GitHub516파일과localdiff정렬집합동일,extra0. 본문에누적baseline/소셜77범위·Meta캐시·미검증·테스트를명시.
+- 과거PR2/head4cf5fb9 run44339264161: unity-runtime-required는license/실행미구현을exit2로보고,local-gate는Unityfailure전파exit1. linux-backend-android/ios-simulator는success. 새로운소셜회귀의근거로취급하지않는다.
+- 새PR run44499239447의inventory job135474312716은AppleStore.swift snapshotchanged로exit1. 로컬strictoldguard에서는GooglePlayStore/APPLEstore bytes와C#AuthProvider추가가거부됨도확인. 사용자37승인확장을oldfreeze로판정한신규CI계약불일치이며실OAuth/Unityruntime실패아님.
+- 수정1: 원래contracts/baseline과P08/P10 guard3개를일절수정하지않음. 별도contracts/social-auth-transition.json에dc3→승인23536d2 source26경로의pre/posthash기록. 새check-social-auth-transition은현재shipping전체·선언·CABI를고정승인commit과대조하고추가/누락/변조·원본baseline변경을거부한다. 기존guard는owned historicaldc3 worktree에서그대로실행해P08/P10모두PASS확인. AuthProvider0/1/2+FB3와기존CABI4개+GB_HandleAuthURL만허용. 이검사를CI에명시연결하고새음성5개(범위/전후hash/enum선언/ABI외drift)PASS. 바이너리ABI/실Provider/Player를이source검사로주장하지않는다.
+- `.github/workflows/verify.yml` inventory의실제run block을추출해로컬그대로실행: exit0/총268 unittest(60run),원본historicalguard/current26경로전환·소셜음성5포함. 기존pycache보존을위해별도PYTHONPYCACHEPREFIX지정. 최초Hosted Backend/Android success,Swift in_progress,Unity skipped확인. 기본Meta remote환경대기는유지하고캐시/서명/guard를약화하지않는다.

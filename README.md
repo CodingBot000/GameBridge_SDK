@@ -1,6 +1,6 @@
 # GameBridge SDK
 
-> 문서37 소셜 확장 구현·로컬 검증 완료. 문서38에 따라 feature 브랜치 push와 main 대상 PR을 인계하며 main 병합/Release는 하지 않습니다. [검증·환경 제한](docs/SOCIAL_AUTH_HANDOFF.md)을 확인하세요.
+> 개인 포트폴리오용 개발 SDK (`0.1.0-dev`). 소셜 로그인 확장 [PR #4](https://github.com/CodingBot000/GameBridge_SDK/pull/4) 및 iOS Meta 의존성 수정 [PR #5](https://github.com/CodingBot000/GameBridge_SDK/pull/5)를 `main`에 통합했습니다. **개발용 병합과 Release 준비 완료는 다릅니다.**
 
 ![Status](https://img.shields.io/badge/status-development-orange)
 ![Version](https://img.shields.io/badge/version-0.1.0--dev-blue)
@@ -11,9 +11,11 @@
 **Android/iOS Google·Apple·Facebook 로그인**, **Google Play Billing / Apple StoreKit**, **FCM / APNs**를 연결하는 코드를 포함하며, 게임 계정·구매·재화·푸시를 Unity C# API로 다룹니다. Unity C# SDK, Kotlin/Swift 네이티브 브리지, Spring Boot·PostgreSQL Backend로 구성되어 있습니다. 기능 구현과 실제 플랫폼에서의 검증은 구분합니다.
 
 > [!IMPORTANT]
-> **현재 버전은 `0.1.0-dev` (개발 중)이며 배포 가능한 상용 SDK가 아닙니다.** Native·Fake·로컬 Backend 및 기존 LOCAL_MOCK 양 Player의 선정 경로를 검증했습니다. 새 소셜 확장의 Unity Player·실계정 OAuth, 실제 스토어 거래와 FCM/APNs 원격 전달은 미검증입니다. 기존 Player 근거는 동결된 과거 소스에 한정됩니다. 아래 Quick Start 역시 **Editor용 가상 데이터 예제**이며 실제 구매를 수행하지 않습니다.
+> **현재 버전은 `0.1.0-dev`이며 상용 배포 가능한 SDK가 아닙니다.** 소셜 확장 이후 **Android/iOS Unity Player에서 LOCAL_MOCK 초기화→로그인→상품 조회→가상 구매→서버 지급·잔액→로그아웃**을 각각 실제 실행해 확인했습니다. 반면 **Google·Apple·Facebook 실계정 OAuth UI, 실제 스토어 거래, FCM/APNs 원격 전달은 여전히 미검증**입니다. 아래 Quick Start는 별도의 Editor용 가상 데이터 예제입니다.
 
 **바로가기:** [주요 기능](#주요-기능) · [기능별 사용 안내](#기능별-사용-안내) · [Quick Start](#quick-start--unity-editor-offline) · [API](docs/API.md) · [통합 가이드](docs/INTEGRATION.md) · [검증 현황](#검증-현황과-제한사항)
+
+**최신 통합 검증:** Android는 PR #4 병합 소스(`36ca836`)의 로컬 Unity Player에서 33개 marker·원장 1건/100코인을 확인했습니다(후속 PR #5에서는 Android 코드 변경·재실행 없음). iOS는 [Meta Framework Embed 수정](docs/IOS_META_EMBED_FIX.md) 소스에서 새 Unity Player **23개 marker, 원장 1건/100코인, 로그아웃 후 활성 세션 0건**을 확인했습니다. [최신 PR #5 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965)는 Backend·Android·Swift·Inventory·Basic 모두 성공했으며 Unity E2E/Release는 SKIPPED입니다. **로컬 Player 실행 ≠ Hosted CI Unity 실행 ≠ 실계정 로그인**입니다.
 
 ## 주요 기능
 
@@ -40,16 +42,16 @@
 | **Facebook** | 새 Meta18.3.0 Classic Login | 새 Meta18.1.1 Limited(기본)/Classic Login |
 | **Mock** | `LocalMock` 개발용 로그인 | `LocalMock` 개발용 로그인 |
 
-네 새 경로는 Native·Backend·Unity 라우팅 구현과 로컬 Fake/Contract/소비 빌드 검증을 마쳤습니다. **실제 Google·Apple·Facebook 계정 로그인과 새 소셜 기능의 Unity Player는 미검증**입니다. `AuthProvider`의 기존 MOCK0/GOOGLE1/APPLE2를 유지하고 FACEBOOK3을 추가했습니다.
+추가된 네 경로(iOS Google, 양 플랫폼 Facebook, Android Apple)는 Native·Backend·Unity 라우팅 구현 및 Fake/계약/소비 빌드 검증을 마쳤습니다. **새 패키지의 Unity LOCAL_MOCK Player는 양 플랫폼 PASS**이지만 **실제 Google·Apple·Facebook 인증 UI와 로그인 성공은 아직 검증하지 않았습니다.** `AuthProvider`의 기존 MOCK0/GOOGLE1/APPLE2를 유지하고 FACEBOOK3을 추가했습니다.
 
 ```csharp
-// PlatformSandbox로 초기화된 sdk와 각 Native Host/Backend 설정이 필요합니다.
-var google = await sdk.SignInAsync(AuthProvider.GOOGLE);
-// 아래 두 호출은 선택 가능한 제공자 예시입니다. 계정 자동 연결/병합은 없습니다.
-var apple = await sdk.SignInAsync(AuthProvider.APPLE);
-var facebook = await sdk.SignInAsync(AuthProvider.FACEBOOK);
+// PlatformSandbox 설정 및 Native Host/Backend 등록 이후 사용 예시.
+// GOOGLE / APPLE / FACEBOOK 중 원하는 제공자 한 개를 선택합니다.
+var user = await sdk.SignInAsync(AuthProvider.GOOGLE);
 var session = await sdk.RestoreSessionAsync();
 await sdk.SignOutAsync();
+// 다른 선택지: AuthProvider.APPLE 또는 AuthProvider.FACEBOOK
+// 각 제공자를 연속 호출해 같은 계정을 자동 연결하지 않습니다.
 ```
 
 토큰·Authorization Code·서버 키는 Native/Backend에서 처리하며 Unity에 원본을 공개하지 않습니다. Facebook Classic access token과 Limited JWT는 서로 다른 검증 계약입니다. Apple 웹 인증은 서버의 state/nonce/code 교환과 Native verifier에 결속된 일회용 완료 handle을 사용합니다. [소셜 증명 계약](contracts/social-auth.md), [Host 통합](docs/INTEGRATION.md), [외부 설정](docs/USER_SETUP.md)을 따릅니다.
@@ -99,12 +101,12 @@ await sdk.RegisterPushAsync();
 
 | 새 인증 경로 | 구현 | 로컬 검증 | Native/패키지 | 실제 계정 |
 | --- | --- | --- | --- | --- |
-| iOS Google | A 구현, 공식GoogleSignIn9.2.0/custom nonce | Swift31·JWT/Audience·기존HTTP 회귀 PASS | device/sim XCFramework·source/binary 소비 build·UPM147 PASS (Player未실행) | WAITING_USER |
-| Android Facebook | B 구현, Meta18.3.0 Classic | Kotlin/Backend HTTP·C# PASS | Maven/R8 소비 PASS | WAITING_USER |
-| iOS Facebook | B 구현, Meta18.1.1 Limited/Classic | Swift31·서버 증명 분리 PASS | 로컬 공식 검증 cache로 XCF·binary 소비·UPM PASS; Hosted CI 원격 다운로드·Job PASS | WAITING_USER |
-| Android Apple | C 구현, 공식 웹 OAuth/Custom Tabs | 서버HTTP6·Native URL/세션/라우팅 PASS | Maven/R8·JNI·UPM PASS (OAuth UI/새Player未실행) | WAITING_USER |
+| iOS Google | 공식 GoogleSignIn 9.2.0 / custom nonce | Swift·JWT/Audience·기존 HTTP 회귀 PASS | device/sim XCFramework·소비 빌드 PASS; Unity LOCAL_MOCK Player PASS는 별도 | WAITING_USER |
+| Android Facebook | Meta 18.3.0 Classic | Kotlin/Backend HTTP·C# 계약 PASS | Maven/R8 소비 PASS; Unity LOCAL_MOCK Player PASS는 별도 | WAITING_USER |
+| iOS Facebook | Meta 18.1.1 Limited/Classic | Swift·Backend 증명 분리 PASS | Native/UPM 및 Hosted CI PASS; [Meta 4개 동적 Framework Embed·Unity LOCAL_MOCK Player PASS](docs/IOS_META_EMBED_FIX.md) | WAITING_USER |
+| Android Apple | 웹 OAuth / Custom Tabs | 서버 HTTP·Native URL/세션/라우팅 PASS | Maven/R8·JNI·UPM PASS; 실기기 브라우저·App Link 미검증 | WAITING_USER |
 
-로컬 개발환경에서는 Meta 원격 다운로드 제한으로 upstream SHA256·codesign을 확인한 공식 cache를 사용했습니다. 이후 [GitHub Hosted CI Run44499923500](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44499923500/job/135476850100)에서는 Meta18.1.1 공식 바이너리6개 다운로드와 `swift-ios-simulator` Job 성공을 확인했습니다. 실제 Facebook 계정 로그인은 여전히 `WAITING_USER`, 신규 Unity Player E2E는 `NOT_RUN`입니다.
+이전 로컬 환경에서는 Meta 공식 SDK 바이너리의 검증된 캐시를 사용했지만 [Hosted CI Run 44499923500](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44499923500/job/135476850100)에서는 Meta 18.1.1 공식 바이너리 6개 다운로드가 성공했습니다. **신규 Unity Player의 LOCAL_MOCK 실행은 완료**, **신규 소셜 로그인 자체의 실제 OAuth UI/세션 실연동은 `WAITING_USER`**입니다.
 
 세부 명령·실패 이력·환경 제한은 [소셜 확장 인계](docs/SOCIAL_AUTH_HANDOFF.md), 콘솔/키 설정은 [USER_SETUP](docs/USER_SETUP.md)을 참고하세요.
 
@@ -127,9 +129,9 @@ flowchart TB
 
 | 구성 요소 | 현재 개발·확인 기준 | 주의 |
 | --- | --- | --- |
-| Unity | 패키지 설정: **6000.5** / 관리 코드 컴파일 기준: **6000.5.8f1** | 기존 선정 소비/Player 근거 있음. 소셜 확장 새 Player 미검증 |
-| Android | Kotlin·JNI, API 36 빌드, JDK 21 | 기존 LOCAL_MOCK Player 근거 있음. 새 OAuth Player·실Provider 미검증 |
-| iOS | Swift·C ABI, Xcode 26.6, XCFramework 소비 링크 | 기존 LOCAL_MOCK Player 근거 있음. 새 OAuth Player·실기기/실Provider 미검증 |
+| Unity | 패키지 설정 **6000.5**, 실행 검증 **6000.5.8f1** | 소셜 확장 후 LOCAL_MOCK Android/iOS Player PASS; 실제 OAuth UI 미검증 |
+| Android | Kotlin·JNI, API 36 빌드, JDK 21 | 최신 소셜 확장 포함 LOCAL_MOCK Player PASS; 실제 Provider 미검증 |
+| iOS | Swift·C ABI, Xcode 26.6, iOS 18.6 Simulator | Meta Embed 수정 후 새 LOCAL_MOCK Player PASS; 실제 OAuth·실기기 미검증 |
 | Backend | Spring Boot·JDK 21·PostgreSQL 17 계열 | 로컬/격리 시험 기준, 운영 검증 아님 |
 
 위 버전은 **확인된 개발 조합**이며 최소 지원 버전이나 다른 조합의 호환성 보증이 아닙니다. 자세한 내용은 [호환성](docs/COMPATIBILITY.md)과 [도구 버전](docs/TOOLCHAIN.md)을 확인하세요.
@@ -185,7 +187,7 @@ public sealed class GameBridgeQuickStart : MonoBehaviour
 }
 ```
 
-> **실행 검증 주의:** 예제는 저장소의 공개 C# API 및 Offline Demo 소스를 토대로 작성했습니다. 아래 동결 근거에 기존 선정 Unity 소비·Player 실행 이력이 있습니다. 이 Quick Start 예제 자체의 실행 결과나 새 소셜 기능의 Import·Player 통과를 뜻하지 않습니다.
+> **실행 검증 주의:** 위 Quick Start의 Editor Offline Demo 예제 자체는 별도 실행 결과를 주장하지 않습니다. Android/iOS LOCAL_MOCK Player의 실제 실행과 실제 제공자 OAuth 테스트는 각각 다른 검증 범위입니다.
 
 ## Android / iOS Native 연동
 
@@ -221,8 +223,8 @@ bash scripts/verify-all.sh --available
 
 ## 검증 현황과 제한사항
 
-- **확인한 범위:** 새 인증의 Native/Fake·계약·Backend·Maven/R8·device/sim XCFramework·binary 소비 및 UPM147 checksum. 기존 선정 LOCAL_MOCK Player 근거는 아래 동결 표에 분리했습니다.
-- **미검증:** 새 소셜 확장의 Unity Player·실계정 OAuth·실기기 App Link/브라우저 복귀, 실제 스토어 거래, 원격 FCM/APNs. Meta 다운로드는 위의 로컬 cache 사용 이력과 Hosted CI 원격 다운로드 성공을 구분합니다.
+- **확인한 범위:** 신규 소셜 Provider 구현·Fake/계약/Backend·Maven/R8·device/sim XCFramework·소비 빌드, 최신 SDK의 Android/iOS Unity **LOCAL_MOCK Player 및 서버 지급 원장**. iOS Meta Embed 복구와 신규 UPM 147개 체크섬도 검증했습니다.
+- **미검증:** 실제 Google·Apple·Facebook OAuth UI 및 세션, 실기기 App Link/브라우저 복귀, 실제 스토어 거래, 원격 FCM/APNs. GitHub Actions의 Unity E2E/Release는 SKIPPED입니다.
 - **기록된 실패:** iOS 26.5 로컬 StoreKit 상품 조회 시험. iOS 18.6의 일부 별도 시험 PASS가 이를 대체하지 않습니다.
 - **전체 판정:** 제품 전체 검증 게이트는 통과한 상태가 아닙니다. 자세한 실패·보류·환경 제약은 [진행 원장](docs/PROGRESS.md)과 [최종 보고](docs/FINAL_REPORT.md)에서 확인하세요.
 
@@ -235,6 +237,7 @@ bash scripts/verify-all.sh --available
 | [샘플: Offline Demo](unity/Packages/com.gamebridge.sdk/Samples~/Offline%20Demo/README.md) | Backend 없는 Unity Editor Fake 둘러보기 |
 | [샘플: Native Demo](unity/Packages/com.gamebridge.sdk/Samples~/Native%20Demo/README.md) | LOCAL_MOCK 및 플랫폼 Sandbox 설정 |
 | [호환성](docs/COMPATIBILITY.md) · [기능별 확인](docs/FEATURE_MATRIX.md) | 플랫폼 지원 범위와 미검증 항목 |
+| [iOS Meta Embed 수정](docs/IOS_META_EMBED_FIX.md) · [소셜 인증 인계](docs/SOCIAL_AUTH_HANDOFF.md) | 실제 Unity Player 재검증과 이전 인증 계약·테스트 이력 |
 | [보안](docs/SECURITY.md) · [사용자 설정](docs/USER_SETUP.md) | 비밀정보·Host 소유권·실연동 준비 |
 | [진행 원장](docs/PROGRESS.md) · [작업 기록](docs/WORK_LOG.md) | 개발 내부 진행 및 실제 검증 증거 |
 | [변경 이력](docs/CHANGELOG.md) | 개발 버전별 변경 사항 |
@@ -271,4 +274,4 @@ bash scripts/verify-all.sh --available
 실제 Google/Apple 계정·스토어·FCM/APNs·실기기 PASS와 구분합니다. 전체 Strict0회, P05-T03 StoreKit FAIL/환경 위험, self-hosted 미검증과 weak1은 [Known Limitations](docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)에 공개합니다.
 
 
-기존 포트폴리오는 PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS로 종료했고 전체 SDK 제품화 원장은 BLOCKED_INTERNAL을 유지합니다. 이번 명시 요청은 소셜 확장과 GitHub 인계만 다루며 상용 Release나 main 병합은 하지 않습니다.
+포트폴리오 판정은 `PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS`이며 전체 SDK 제품화 원장은 별도 `BLOCKED_INTERNAL` 상태입니다. 소셜 확장과 iOS Embed 수정은 `main`에 통합됐지만 상용 Release는 없으며 실계정 인증 검증은 다음 단계로 남아 있습니다.

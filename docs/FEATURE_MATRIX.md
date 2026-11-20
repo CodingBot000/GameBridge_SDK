@@ -1,34 +1,42 @@
-# 구현·호출 경로와 실제 범위
+# 기능별 구현·검증 현황
 
-> 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
+> **기준:** [PR #4 — 소셜 인증 확장](https://github.com/CodingBot000/GameBridge_SDK/pull/4)과 [PR #5 — iOS Meta Embed 수정](https://github.com/CodingBot000/GameBridge_SDK/pull/5)을 `main`에 통합한 개발용 SDK `0.1.0-dev`. **코드 구현, Fake 테스트, Unity LOCAL_MOCK Player 실행, 실제 Provider 로그인은 서로 다른 판정**입니다.
 
+## 실제 확인한 기능
 
-이 표는 기능을 찾기 위한 현재 지도입니다. 기존64 Task의 별도 상태는 [PROGRESS](PROGRESS.md), 포트폴리오 종료 판정은 [FINAL_REPORT](FINAL_REPORT.md)를 따릅니다.
-
-| 기능 | 공개 진입점·실제 구현 | 확인한 범위 | 남은 범위 |
+| 기능 | 공개 API·구성 | 확인된 범위 | 아직 확인하지 않은 범위 |
 | --- | --- | --- | --- |
-| 초기화·종료·상태 | `GameBridgeSdk`/`GameBridgeClient`, Native coordinator·BridgeFacade/Swift C ABI | Core/managed·실제 양 Player·C ABI·Player100cycle | first app init·CPU blocking·weak1 root 미확정 |
-| 로그인·세션 | `SignInAsync/RestoreSessionAsync/SignOutAsync`, Native HTTP/storage·Backend session/identity | LOCAL_MOCK Player·test key/synthetic·refresh/session 회귀 | 실 Google/Apple와 모든 세션/실기기 조합 |
-| 상점·지급·복구 | `GetProductsAsync/PurchaseAsync/GetEntitlementsAsync/SyncPurchasesAsync`, Native store adapters·Backend verifier/원장/finalizer | local 구매/잔액·원장1/100·TC 변이복원·LOCAL_MOCK 복구 증거 | 실스토어·StoreKit 기존 실패/환경 위험·일부 복구 조건 |
-| Push 권한·등록·해제 | facade Push API, AndroidPushHostAdapter/IosPushHostAdapter·Native backend registration | mocked 권한·simulated 등록/삭제·OS 조건별 기존 시험 | 실 token·FCM/APNs·실기기 |
-| Push 수신·열기 | `PushReceived/PushOpened/PushTokenChanged`, Native/host forwarding·PushRouter | LOCAL_MOCK 양 Player의 dedupe/main thread/session·연결 복구 | 실제 notification tap·remote·모든 OS/lifecycle |
-| 설정·진단·PII | `GetServiceConfigAsync/GetDiagnostics/GetNativeDiagnosticsAsync`, cache/maintenance/typed ring·정제 오류 | Native/fake/HTTP·Player PII/진단 | 실제 운영 보안 심사·모든 장애 시나리오 |
-| 샘플·설치 | NativeDemo/OfflineDemo, Compose/SwiftUI sample, Gradle/Xcode hook | 새 양 Unity 소비·Native sample build·프로그램 방식 demo callback | 실제 사용자 포인터/렌더링·상용 UX 검증 |
-| 패키지·API·계약 | Maven/AAR/XCFramework/UPM, public API/Bridge schema/HTTP OpenAPI |147 checksum·선정JVM4/C ABI4·R8/Swift·OpenAPI24 성공 구조 | 모든 ABI/Unity/OS·SSE/Map 세부 기계 검사 |
+| 초기화·세션 | `GameBridgeSdk`, `SignInAsync`, `RestoreSessionAsync`, `SignOutAsync` | Android/iOS Unity LOCAL_MOCK Player, Native·Backend 세션/회귀 | 실제 Google·Apple·Facebook OAuth 세션 |
+| 상품·구매·재화 | `GetProductsAsync`, `PurchaseAsync`, `GetEntitlementsAsync`, `SyncPurchasesAsync` | LOCAL_MOCK Player→Backend→PostgreSQL 원장 **플랫폼별 1건/100코인**; 기존 멱등·복원 테스트 | 실제 Google Play/Apple Sandbox 거래, 일부 StoreKit 문제 |
+| 푸시 | `RequestPushPermissionAsync`, `RegisterPushAsync`, `UnregisterPushAsync`, `PushReceived/Opened` | Host adapter·Native/Mock 등록·수신·중복 억제의 선정 기존 시험 | FCM/APNs 실제 원격 전달·실기기 |
+| 설정·진단 | `GetServiceConfigAsync`, `GetStatus`, `GetCapabilities`, `GetDiagnostics` | Native·Fake/HTTP·선정 Player 진단, 정제 검사 | 운영 수준의 전체 장애·PII 감사 |
+| 샘플·패키지 | NativeDemo/OfflineDemo, Android Maven/AAR, iOS static XCFramework, Unity UPM | R8·Swift 소비 빌드, 새 UPM **147개 checksum**, 양 플랫폼 LOCAL_MOCK Player | 상용 배포/다수 Unity·OS 조합/실계정 Host UI |
 
-주요 소스 연결은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 재현 명령과 source별 증거는 [COMPATIBILITY](COMPATIBILITY.md)에 모았습니다. 과거 GUI/CLI/Player/StoreKit/Provider의 범위를 한 개의 PASS로 합치지 않습니다. 이 표로 원장의 PARTIAL/FAIL을 일괄 승격하지 않습니다.
+## 플랫폼별 소셜 인증
 
-## 문서37 소셜 확장 B
-
-Android Facebook Classic / iOS Facebook Limited·Classic: IMPLEMENTED, Fake/Contract PASS, 실제 로그인 WAITING_USER. 기존 Android Google/iOS Apple/LOCAL_MOCK 유지.
-
-## 문서37 최종 플랫폼 지원 (기존 동결 표보다 우선)
-
-| 경로 | 구현/Fake·계약 | Native/패키지 | 실제 계정 |
+| Provider | Android | iOS | 실제 계정 검증 |
 | --- | --- | --- | --- |
-| iOS Google9.2.0 | IMPLEMENTED/PASS | device/sim XCF·binary consumer·UPM PASS | WAITING_USER |
-| Android Facebook18.3.0 | IMPLEMENTED/PASS | Maven·Meta포함R8 consumer PASS | WAITING_USER |
-| iOS Facebook18.1.1 | IMPLEMENTED/PASS | device/sim XCF·binary consumer PASS (공식 local SDK cache) | WAITING_USER |
-| Android Apple 웹 | IMPLEMENTED/PASS | Android Native/JNI·Maven/R8·UPM PASS | WAITING_USER |
+| Google | 기존 Credential Manager·Backend ID Token 검증 구현 | GoogleSignIn **9.2.0**, custom nonce 구현·Fake/계약 PASS | 두 플랫폼 모두 **WAITING_USER** |
+| Apple | 웹 OAuth·Custom Tabs·서버 code 교환 구현·보안 테스트 PASS | 기존 AuthenticationServices 구현 | 두 플랫폼 모두 **WAITING_USER** |
+| Facebook | Meta **18.3.0** Classic, Backend token debug 검증 구현 | Meta **18.1.1** Limited/Classic·JWT 검증 분리 구현 | 두 플랫폼 모두 **WAITING_USER** |
+| 개발용 Mock | LOCAL_MOCK Player PASS | LOCAL_MOCK Player PASS | 실계정 Provider와 무관 |
 
-새 Unity Player와 실기기 OAuth UI/복귀 시험 NOT_RUN. Meta 기본원격SPM download DEFERRED_ENV, 공식 SHA/codesign 검증 cache만 사용. 기존64 Task·포트폴리오 동결 snapshot은 이 확장의 실연동 근거가 아니다.
+**신규 소셜 확장 4개 경로(iOS Google, Android/iOS Facebook, Android Apple)의 Native·Backend·Bridge 코드는 구현했지만 실제 계정 로그인 UI/브라우저 복귀·세션 발급을 검증한 결과는 없습니다.** Android/iOS Unity Player PASS는 `AuthProvider.MOCK` 기반 호출 경로를 검증한 것입니다.
+
+## 현재 통합 회귀 증거
+
+| 영역 | 결과 및 근거 |
+| --- | --- |
+| Android Unity LOCAL_MOCK | PR #4 병합 소스 `36ca836`의 후속 로컬 검증 **PASS**, 33개 marker·구매 원장 1건/100코인. PR #5는 Android 코드를 변경하거나 재실행하지 않음 |
+| iOS Unity LOCAL_MOCK | Meta Embed 수정 소스의 새 Simulator Player **PASS**, 23개 marker·원장 1건/100코인·로그아웃 후 활성 세션 0건. [실행·빌드 증거](IOS_META_EMBED_FIX.md), [정제 JSON](evidence/ios-meta-embed-fix.json) |
+| Hosted CI | [PR #5 Run 44538602965](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965): Inventory/Backend/Android/Swift/Basic **SUCCESS**. Unity E2E·Release Readiness **SKIPPED** |
+| iOS 의존성 | `FBAEMKit`, `FBSDKCoreKit_Basics`, `FBSDKCoreKit`, `FBSDKLoginKit` Host 앱 Embed·서명 복구 확인. [변경 기록](IOS_META_EMBED_FIX.md) |
+
+## 범위와 남은 위험
+
+- **포트폴리오:** `PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS`. **전체 SDK 제품화:** 기존 `BLOCKED_INTERNAL` 판정과 64개 Task 원장을 유지합니다. [최종 보고](FINAL_REPORT.md) 참조.
+- 실제 OAuth·실기기 Android App Link·Google Play/Apple Sandbox 실결제·FCM/APNs 원격 전달은 미검증입니다.
+- 기존 iOS 26.5 StoreKit 로컬 상품 조회 FAIL, 전체 Strict 미실행, weak client 원인 미확정은 그대로 남아 있습니다. [알려진 제한](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업).
+- 과거 DEV_RC와 [기존 동결 검증](COMPATIBILITY.md#이전-포트폴리오-dev_rc-검증-기록)은 당시 소스의 증거이며, 새로운 소셜 Provider의 실연동 결과가 아닙니다.
+
+구현 책임과 코드 위치는 [설계·문제 해결](ENGINEERING_NOTES.md), 소비자 설정은 [통합 안내](INTEGRATION.md), 실제 소셜 계정 연동 준비는 [사용자 설정](USER_SETUP.md)을 참고하세요.

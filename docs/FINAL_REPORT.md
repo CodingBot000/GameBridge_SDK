@@ -1,5 +1,19 @@
 # GameBridge 포트폴리오 최종 보고
 
+> 아래 원래의 종료 판정과 64개 Task 집계는 **문서36 당시 포트폴리오 스냅샷**으로 보존합니다. 이후 사용자 승인으로 별도 소셜 로그인 확장·iOS 패키징 보완을 진행했습니다. 과거 수치·FAIL/WAITING_USER를 소급 변경하지 않습니다.
+
+## 이후 통합·검증 추록 (2026-11-20)
+
+- **GitHub 통합:** [소셜 로그인 확장 PR #4](https://github.com/CodingBot000/GameBridge_SDK/pull/4), [iOS Meta Embed 수정 PR #5](https://github.com/CodingBot000/GameBridge_SDK/pull/5)가 모두 `main`에 병합됨. 최종 Merge commit `18e22af8800626a50364350f3ff56b596d00cf39`.
+- **Android:** PR #4 병합 소스 `36ca836`에서 Unity LOCAL_MOCK Player → Native JNI → Backend → PostgreSQL **PASS**(marker 33개, 원장 1건/100코인). PR #5에서 Android 소스 변경이나 재실행 없음.
+- **iOS:** Meta 의존성 Host App Embed 수정 후 새 Unity LOCAL_MOCK Player → Swift C ABI → Backend → PostgreSQL **PASS**(marker 23개, 원장 1건/100코인, 로그아웃 후 활성 세션 0). [원인·실행 기록](IOS_META_EMBED_FIX.md) / [정제된 증거](evidence/ios-meta-embed-fix.json).
+- **최신 Hosted CI:** [Run 44538602965](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965) 기본 5개 Job SUCCESS, Unity E2E/Release SKIPPED. 실제 Player 검증은 로컬에서 수행.
+- **현재 결론:** 포트폴리오 `PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS` 유지. SDK 전체 제품화 원장은 별도 `BLOCKED_INTERNAL` 유지. **실계정 소셜 OAuth, 실제 스토어 거래, 원격 푸시는 미검증**이며 상용 Release 없음.
+
+최신 기능별 판정은 [기능 매트릭스](FEATURE_MATRIX.md), 패키지/소스 구분은 [호환성](COMPATIBILITY.md), 실계정 시험 준비는 [사용자 설정](USER_SETUP.md)을 참고하세요.
+
+## 문서36 당시 종료 판정 및 기록 (원본)
+
 **포트폴리오: PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS — 개발 종료.**
 
 **전체 SDK 제품화: BLOCKED_INTERNAL.** 기존64 Task는 구현25/진행39, 로컬PASS23/FAIL1/PARTIAL40, 실제 Provider13건 WAITING_USER다. 두 판정을 합치거나 미완료 행을 삭제하지 않았다.

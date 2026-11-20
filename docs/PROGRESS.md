@@ -2030,3 +2030,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 독립Native Host com.gamebridge.sdk.googleoauth.test를우선사용,SDKGoogle9.2/기존nonce·challenge/JWT검증유지. Google전용수동로그인/취소/복원/logout UI와인증없는HTTPS준비probe만추가. Unity host com.gamebridge.sdk.mockiosconsumer는Native 실계정검증뒤별도iOS OAuth Client/Nativecallback설정으로확장한다.
 - 로컬HTTPS+격리sandboxDB/개발CA를준비하되trust는전용새Simulator에만적용. TLS검증우회/외부유료서버없음. 사용자Console iOS/Web client IDs가없으므로actual OAuth WAITING_USER를유지한다.
 - 문서43 로컬준비검증: 독립Native target Simulator빌드/실행PASS(35.9초),실제앱의기본URLSession/SDK TLS→HTTPS/config PASS. 전용CA지정HTTPS health/config200,CA미지정curl60(검증거부),sandbox DB profile확인/session·identity·challenge0. ClientIDs없어서challenge503 CONFIG_REQUIRED가정상차단. public xcconfig주입은synthetic IDs의showBuildSettings로검증(앱인증실행0). 실OAuth WAITING_USER/NOT_RUN·UnityOAuth NOT_RUN. 로컬HTTPS18443/새sandboxDB/전용Sim을준비하고Console2종iOS·Web client입력/실행절차를문서화했다.
+
+## iOS Google 실제 OAuth 검증 (2026-11-20)
+
+- 별도 Native Host 실계정 검증을 시작했다. 공개 Client ID와 iOS 콜백 Scheme을 로컬에 적용했다. 실제 로그인 결과는 확인 전이다.
+- Native Host 빌드, Client ID/URL Scheme/audience 일치, 시뮬레이터 HTTPS 검증을 통과했다. Google 실제 로그인 화면을 열었으며 사용자 인증 및 앱 복귀를 기다린다.
+- iOS 18.6 전용 Native Host의 실제 Google 계정 로그인 PASS. 앱에서 SDK 로그인 성공을 확인했고, sandbox DB에서 Google 인증 요청 사용 1건, Google identity 1건, 활성 SDK 세션 1건을 확인했다. 초기 시도는 AUTH_FAILED였으며 확인 시점에 해당 인증 요청이 만료돼 있었다. 새 요청으로 인증 성공을 확인했다.

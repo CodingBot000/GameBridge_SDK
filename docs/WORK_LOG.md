@@ -4388,3 +4388,9 @@
 - XcodeBuildMCP named profile로NativeHost빌드/실행SUCCEEDED/35.9s. 최초default launch env가probe에전달되지않은상태는명시env launch로해결해AUTH_CONFIG WAITING_USER/TLS PASS marker및UI확인. 로그인/동의/restore/logout실행0. privateTLS준비helper의닫힌log handle오류는기존생성DB/Sim/keys를보존한채control만정정. YAML수정의nested targets개수assumption도top-level만선택하도록수정. 원본오류기록보존.
 - xcconfig override실경로는synthetic public IDs의xcodebuild showBuildSettings exit0으로검증,그ID로앱빌드/로그인없음. Google9.2/Core nonce·Backend검증변경0. 새Host는인증자동시작·TLSoverride·ATS HTTP예외없음. 설정example와정확한Console/BundleID/명령을IOS_GOOGLE_OAUTH_PREP/USER_SETUP에기록. 실OAuth·다른Provider·결제·push·Release·push/PR/main병합은NOT_RUN으로유지한다.
 - 준비용backend stop/start/status를실제로검증하고HTTPS/DB불변식을재확인했다. 현재PID95952/loopback18443이며사용자Console설정후같은전용DB·키로audience만적용해restart한다. NativeHost와전용Sim은준비상태로남기고status/stop명령을제공한다. 새checkout/실기기에는별도준비가필요하다. 이로써외부설정대기를명확히하고이번준비작업을종료한다.
+
+## iOS Google 실제 OAuth 검증 (2026-11-20)
+
+- Console에서 발급된 iOS/Web Client ID와 역순 URL Scheme을 보관 파일과 대조했다. Git에서 제외된 xcconfig와 Backend audience JSON에 반영했다.
+- backend-control.py stop/start 및 xcodebuild 종료 0. 앱 런타임 AUTH_CONFIG READY, TLS PASS 확인. 테스트 전용 iPhone 16에서 Google 로그인 화면 도달. 사용자 로그인 후 Backend ID Token 교환과 세션 생성을 확인한다.
+- 사용자 Google 인증 후 첫 시도는 AUTH_FAILED/활성 세션 0건. 관찰 시점에 5분 요청이 만료 상태였으며 최초 실패 원인을 단정하지 않았다. 새 요청에서 Native Host의 Signed in SDK user 표시를 확인했다. 전용 sandbox DB의 집계 SELECT 종료 0: Google 인증 요청 총 3건, 사용 1건, Google identity 1건, 활성 세션 1건. 계정 식별자 및 토큰은 증거에 기록하지 않았다.

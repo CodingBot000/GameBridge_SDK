@@ -4394,3 +4394,9 @@
 - Console에서 발급된 iOS/Web Client ID와 역순 URL Scheme을 보관 파일과 대조했다. Git에서 제외된 xcconfig와 Backend audience JSON에 반영했다.
 - backend-control.py stop/start 및 xcodebuild 종료 0. 앱 런타임 AUTH_CONFIG READY, TLS PASS 확인. 테스트 전용 iPhone 16에서 Google 로그인 화면 도달. 사용자 로그인 후 Backend ID Token 교환과 세션 생성을 확인한다.
 - 사용자 Google 인증 후 첫 시도는 AUTH_FAILED/활성 세션 0건. 관찰 시점에 5분 요청이 만료 상태였으며 최초 실패 원인을 단정하지 않았다. 새 요청에서 Native Host의 Signed in SDK user 표시를 확인했다. 전용 sandbox DB의 집계 SELECT 종료 0: Google 인증 요청 총 3건, 사용 1건, Google identity 1건, 활성 세션 1건. 계정 식별자 및 토큰은 증거에 기록하지 않았다.
+
+## Unity iOS Google 실제 OAuth (2026-11-20)
+
+- 기존 검증용 UPM과 버전 고정 캐시에서 별도 소비 프로젝트를 생성했다. 초기 export는 IMGUI 모듈과 SdkException 네임스페이스 누락으로 실패했으며 수정 후 export 및 xcodebuild는 종료 0. 생성된 UnityAppController에 GB_HandleAuthURL을 연결했고, 서명 검증 및 앱 런타임 GB_UNITY_GOOGLE PREFLIGHT PASS 확인. 검증용 경로 artifacts/unity-ios-mock.00xJo4. Console 양식에 Unity 번들 com.gamebridge.sdk.mockiosconsumer를 입력했으며 발급 확인 대기.
+- GameBridge Unity iOS Test 클라이언트를 사용자 확인 후 발급했다. 재빌드 종료 0, 최종 앱의 Bundle ID·iOS Client ID·역순 Scheme·기존 Web audience 일치 및 TLS 예외 없음 확인. 앱에 GB_UNITY_GOOGLE PREFLIGHT PASS를 확인했다. 인증 전 sandbox 기준 Google 요청 3건/사용 1건/identity 1건/활성 세션 1건은 네이티브 검증까지의 값이다.
+- 사용자 인증 후 Unity Player의 GB_UNITY_GOOGLE SIGN_IN PASS 확인. sandbox 집계 SELECT 종료 0. Unity 실행 전후 사용된 Google 인증 요청 1→2건, Google identity 1건 유지, 관련 세션 누적 1→2건, 검증 시 활성 세션 1건. 계정 식별자 및 OAuth 토큰은 검증 기록에 남기지 않았다. 검증 범위는 전용 iOS Simulator와 HTTPS sandbox다.

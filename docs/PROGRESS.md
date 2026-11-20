@@ -2036,3 +2036,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 별도 Native Host 실계정 검증을 시작했다. 공개 Client ID와 iOS 콜백 Scheme을 로컬에 적용했다. 실제 로그인 결과는 확인 전이다.
 - Native Host 빌드, Client ID/URL Scheme/audience 일치, 시뮬레이터 HTTPS 검증을 통과했다. Google 실제 로그인 화면을 열었으며 사용자 인증 및 앱 복귀를 기다린다.
 - iOS 18.6 전용 Native Host의 실제 Google 계정 로그인 PASS. 앱에서 SDK 로그인 성공을 확인했고, sandbox DB에서 Google 인증 요청 사용 1건, Google identity 1건, 활성 SDK 세션 1건을 확인했다. 초기 시도는 AUTH_FAILED였으며 확인 시점에 해당 인증 요청이 만료돼 있었다. 새 요청으로 인증 성공을 확인했다.
+
+## Unity iOS Google 실제 OAuth (2026-11-20)
+
+- Unity 6000.5.8f1 전용 iOS Player를 별도 내보내고 iOS 18.6에서 PLATFORM_SANDBOX 초기화 및 HTTPS config 요청을 확인했다. Unity 전용 iOS OAuth Client ID 발급 확인 및 실계정 로그인 대기.
+- Unity 전용 iOS OAuth 클라이언트를 발급해 Player에 반영했다. 빌드·서명·실행 및 HTTPS 사전 검사 PASS. 실계정 로그인 결과 확인 대기.
+- Unity iOS Simulator 실계정 Google 로그인 PASS. Unity에서 SignInAsync(AuthProvider.GOOGLE)가 Google 사용자 프로필을 반환했고, 백엔드는 기존 Google identity에 새 SDK 세션을 생성했다.

@@ -2023,3 +2023,10 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Hosted CI: PR #5 Run44538602965 Inventory/Backend/Android/Swift/Basic SUCCESS, Unity E2E·Release SKIPPED. 실계정 OAuth·실스토어·원격푸시는 미검증 상태.
 - README/FEATURE_MATRIX/SOCIAL_AUTH_HANDOFF/COMPATIBILITY/FINAL_REPORT/INTEGRATION/USER_SETUP/CI/CHANGELOG를 현재 결과로 정리하되 과거 DEV_RC·StoreKit FAIL·Strict 미완료·64 Task·원본 로그는 보존. 실계정 OAuth 검증은 별도의 후속 사용자 승인 단계로 분리.
 - **문서 검증:** GitHub branch 자료 기준 Markdown fence 수 검증, 9개 주 문서 상대 링크 총 172개 검사(존재하지 않는 Git 트리 경로 0건), README 이미지 3개 유지. 제품 코드·바이너리 변경·새 Player/외부 Provider 실행 없음.
+
+## 사용자 문서43 — iOS Google 실제 OAuth 사전 준비
+
+- main76c90b2/별도prepare/ios-google-oauth-20261120 worktree. 실OAuth·Console설정·사용자로그인·push/PR/병합/Release는실행하지않음. 기존feature/파일/DB/Unity프로젝트보존.
+- 독립Native Host com.gamebridge.sdk.googleoauth.test를우선사용,SDKGoogle9.2/기존nonce·challenge/JWT검증유지. Google전용수동로그인/취소/복원/logout UI와인증없는HTTPS준비probe만추가. Unity host com.gamebridge.sdk.mockiosconsumer는Native 실계정검증뒤별도iOS OAuth Client/Nativecallback설정으로확장한다.
+- 로컬HTTPS+격리sandboxDB/개발CA를준비하되trust는전용새Simulator에만적용. TLS검증우회/외부유료서버없음. 사용자Console iOS/Web client IDs가없으므로actual OAuth WAITING_USER를유지한다.
+- 문서43 로컬준비검증: 독립Native target Simulator빌드/실행PASS(35.9초),실제앱의기본URLSession/SDK TLS→HTTPS/config PASS. 전용CA지정HTTPS health/config200,CA미지정curl60(검증거부),sandbox DB profile확인/session·identity·challenge0. ClientIDs없어서challenge503 CONFIG_REQUIRED가정상차단. public xcconfig주입은synthetic IDs의showBuildSettings로검증(앱인증실행0). 실OAuth WAITING_USER/NOT_RUN·UnityOAuth NOT_RUN. 로컬HTTPS18443/새sandboxDB/전용Sim을준비하고Console2종iOS·Web client입력/실행절차를문서화했다.

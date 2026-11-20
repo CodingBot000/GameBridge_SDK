@@ -133,3 +133,7 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 인증 취소/브라우저 닫기/timeout은 실패로 종료한다. Native logout은 SDK 세션을 폐기하며 브라우저의 Apple SSO 쿠키를 관리하지 않는다. 실기기 브라우저 복귀·App Link 검증·Apple 실제 로그인은 아직 실행하지 않았다. 신규 flow 행은 감사용 hash/verified identity를 보존하며 이번 코드가 기존 데이터나 흐름을 자동 삭제하지 않는다. 운영 보존 정책/정리 작업을 임의 도입하지 않았다.
 
 공식 근거: [다른 플랫폼 Apple 인증](https://developer.apple.com/documentation/signinwithapple/incorporating-sign-in-with-apple-into-other-platforms), [웹 Services ID 구성](https://developer.apple.com/help/account/capabilities/configure-sign-in-with-apple-for-the-web), [서버 code 교환](https://developer.apple.com/documentation/signinwithapplerestapi/generate-and-validate-tokens), [Android Browser 릴리스](https://developer.android.com/jetpack/androidx/releases/browser).
+
+## 문서43 — iOS Google 실제 OAuth 사전 준비
+
+독립 Native Host는 com.gamebridge.sdk.googleoauth.test /GameBridgeGoogleOAuthHost, App scope gamebridge-google-oauth-test를 사용한다. Native 실제 계정 검증 후 Unity bundle com.gamebridge.sdk.mockiosconsumer의 별도 iOS client로 확장한다. iOS/Web Client ID·reversed scheme·Backend audience의 정확한 주입 위치, 로컬 HTTPS/전용sandbox DB 상태 및 다음 실행 명령은 [IOS_GOOGLE_OAUTH_PREP](IOS_GOOGLE_OAUTH_PREP.md)를 따른다. 현재 Native 앱의 인증 없는 HTTPS 준비 probe만 PASS이고 실제 로그인은 WAITING_USER/NOT_RUN이다. Console 생성·사용자 로그인·약관 동의는 사용자가 직접 수행하며 토큰/client secret은 Git·로그에 넣지 않는다.

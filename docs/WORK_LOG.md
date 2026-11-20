@@ -4379,3 +4379,12 @@
 - 변경: 최신 LOCAL_MOCK Android/iOS Player PASS와 실제 OAuth WAITING_USER 분리, PR 병합 상태 정정, Meta Hosted 원격 다운로드/로컬 cache 구분, DEV_RC·과거 실패 스냅샷 보존, 실계정 설정 경로 표로 정리. SDK/Backend/Native/CI 소스와 기존 실패 원장은 건드리지 않음.
 - 읽기 전용 문서 검증: GitHub 트리 1119경로에서 상대 링크 172개 검사, 존재하지 않는 경로 0건. 관련 Markdown fence 개수 짝수, README 외부 이미지 참조 3개 보존. 이는 링크·구조 검사이며 예제 명령 또는 실제 계정/Player 테스트 실행 근거가 아님.
 - 코드 빌드·Unity Player·실OAuth·결제·푸시 새 실행: NOT_RUN. 기존 로컬 테스트 성공과 CI 결과는 별도 과거 증거로 인용.
+
+## 문서43 시작 — [GOOGLE-OAUTH-PREP]
+
+- fetch main76c90b2bfec3ec9c5da34399e9f59f0193fe4e16,별도prepare worktree. 원본checkout/untracked·Native/E2E보고서와기존DB/Sim보존. 사용자직접Console/로그인/약관절차와서버OAuth실행을분리한다.
+- SampleApp bundle com.gamebridge.sdk.sample.dev20261110/Mock·Apple·Push포함,Unityconsumer bundle com.gamebridge.sdk.mockiosconsumer를현재코드에서확인. 독립Native Google Host bundle com.gamebridge.sdk.googleoauth.test/전용Appscope gamebridge-google-oauth-test 선택. 기존GoogleSignIn9.2와nonce/JWT교환NativeAPI를그대로사용한다. SwiftUI onOpenURL 및AppDelegate가Google URL을Native로forward하며원본URL/토큰출력없음.
+- 로컬devCA/localhost SAN인증서·PKCS12를ignored run에0600으로생성,CA는새Sim36AF68C1-490B-4D2C-965E-022B0B97E4F5에만신뢰. macOS/systemtrust변경0. 별도DB gamebridge_ci_f0ab9b0dfb sandbox/HTTPS18443 준비,health/config200/무CA curl60/challenge미설정503확인. SQL은profile sandbox/session0/challenge0/identity0. 비밀값은로그/보고/Git출력없음.
+- XcodeBuildMCP named profile로NativeHost빌드/실행SUCCEEDED/35.9s. 최초default launch env가probe에전달되지않은상태는명시env launch로해결해AUTH_CONFIG WAITING_USER/TLS PASS marker및UI확인. 로그인/동의/restore/logout실행0. privateTLS준비helper의닫힌log handle오류는기존생성DB/Sim/keys를보존한채control만정정. YAML수정의nested targets개수assumption도top-level만선택하도록수정. 원본오류기록보존.
+- xcconfig override실경로는synthetic public IDs의xcodebuild showBuildSettings exit0으로검증,그ID로앱빌드/로그인없음. Google9.2/Core nonce·Backend검증변경0. 새Host는인증자동시작·TLSoverride·ATS HTTP예외없음. 설정example와정확한Console/BundleID/명령을IOS_GOOGLE_OAUTH_PREP/USER_SETUP에기록. 실OAuth·다른Provider·결제·push·Release·push/PR/main병합은NOT_RUN으로유지한다.
+- 준비용backend stop/start/status를실제로검증하고HTTPS/DB불변식을재확인했다. 현재PID95952/loopback18443이며사용자Console설정후같은전용DB·키로audience만적용해restart한다. NativeHost와전용Sim은준비상태로남기고status/stop명령을제공한다. 새checkout/실기기에는별도준비가필요하다. 이로써외부설정대기를명확히하고이번준비작업을종료한다.

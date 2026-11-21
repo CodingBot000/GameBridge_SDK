@@ -4379,3 +4379,29 @@
 - 변경: 최신 LOCAL_MOCK Android/iOS Player PASS와 실제 OAuth WAITING_USER 분리, PR 병합 상태 정정, Meta Hosted 원격 다운로드/로컬 cache 구분, DEV_RC·과거 실패 스냅샷 보존, 실계정 설정 경로 표로 정리. SDK/Backend/Native/CI 소스와 기존 실패 원장은 건드리지 않음.
 - 읽기 전용 문서 검증: GitHub 트리 1119경로에서 상대 링크 172개 검사, 존재하지 않는 경로 0건. 관련 Markdown fence 개수 짝수, README 외부 이미지 참조 3개 보존. 이는 링크·구조 검사이며 예제 명령 또는 실제 계정/Player 테스트 실행 근거가 아님.
 - 코드 빌드·Unity Player·실OAuth·결제·푸시 새 실행: NOT_RUN. 기존 로컬 테스트 성공과 CI 결과는 별도 과거 증거로 인용.
+
+## 문서43 시작 — [GOOGLE-OAUTH-PREP]
+
+- fetch main76c90b2bfec3ec9c5da34399e9f59f0193fe4e16,별도prepare worktree. 원본checkout/untracked·Native/E2E보고서와기존DB/Sim보존. 사용자직접Console/로그인/약관절차와서버OAuth실행을분리한다.
+- SampleApp bundle com.gamebridge.sdk.sample.dev20261110/Mock·Apple·Push포함,Unityconsumer bundle com.gamebridge.sdk.mockiosconsumer를현재코드에서확인. 독립Native Google Host bundle com.gamebridge.sdk.googleoauth.test/전용Appscope gamebridge-google-oauth-test 선택. 기존GoogleSignIn9.2와nonce/JWT교환NativeAPI를그대로사용한다. SwiftUI onOpenURL 및AppDelegate가Google URL을Native로forward하며원본URL/토큰출력없음.
+- 로컬devCA/localhost SAN인증서·PKCS12를ignored run에0600으로생성,CA는새Sim36AF68C1-490B-4D2C-965E-022B0B97E4F5에만신뢰. macOS/systemtrust변경0. 별도DB gamebridge_ci_f0ab9b0dfb sandbox/HTTPS18443 준비,health/config200/무CA curl60/challenge미설정503확인. SQL은profile sandbox/session0/challenge0/identity0. 비밀값은로그/보고/Git출력없음.
+- XcodeBuildMCP named profile로NativeHost빌드/실행SUCCEEDED/35.9s. 최초default launch env가probe에전달되지않은상태는명시env launch로해결해AUTH_CONFIG WAITING_USER/TLS PASS marker및UI확인. 로그인/동의/restore/logout실행0. privateTLS준비helper의닫힌log handle오류는기존생성DB/Sim/keys를보존한채control만정정. YAML수정의nested targets개수assumption도top-level만선택하도록수정. 원본오류기록보존.
+- xcconfig override실경로는synthetic public IDs의xcodebuild showBuildSettings exit0으로검증,그ID로앱빌드/로그인없음. Google9.2/Core nonce·Backend검증변경0. 새Host는인증자동시작·TLSoverride·ATS HTTP예외없음. 설정example와정확한Console/BundleID/명령을IOS_GOOGLE_OAUTH_PREP/USER_SETUP에기록. 실OAuth·다른Provider·결제·push·Release·push/PR/main병합은NOT_RUN으로유지한다.
+- 준비용backend stop/start/status를실제로검증하고HTTPS/DB불변식을재확인했다. 현재PID95952/loopback18443이며사용자Console설정후같은전용DB·키로audience만적용해restart한다. NativeHost와전용Sim은준비상태로남기고status/stop명령을제공한다. 새checkout/실기기에는별도준비가필요하다. 이로써외부설정대기를명확히하고이번준비작업을종료한다.
+
+## iOS Google 실제 OAuth 검증 (2026-11-20)
+
+- Console에서 발급된 iOS/Web Client ID와 역순 URL Scheme을 보관 파일과 대조했다. Git에서 제외된 xcconfig와 Backend audience JSON에 반영했다.
+- backend-control.py stop/start 및 xcodebuild 종료 0. 앱 런타임 AUTH_CONFIG READY, TLS PASS 확인. 테스트 전용 iPhone 16에서 Google 로그인 화면 도달. 사용자 로그인 후 Backend ID Token 교환과 세션 생성을 확인한다.
+- 사용자 Google 인증 후 첫 시도는 AUTH_FAILED/활성 세션 0건. 관찰 시점에 5분 요청이 만료 상태였으며 최초 실패 원인을 단정하지 않았다. 새 요청에서 Native Host의 Signed in SDK user 표시를 확인했다. 전용 sandbox DB의 집계 SELECT 종료 0: Google 인증 요청 총 3건, 사용 1건, Google identity 1건, 활성 세션 1건. 계정 식별자 및 토큰은 증거에 기록하지 않았다.
+
+## Unity iOS Google 실제 OAuth (2026-11-20)
+
+- 기존 검증용 UPM과 버전 고정 캐시에서 별도 소비 프로젝트를 생성했다. 초기 export는 IMGUI 모듈과 SdkException 네임스페이스 누락으로 실패했으며 수정 후 export 및 xcodebuild는 종료 0. 생성된 UnityAppController에 GB_HandleAuthURL을 연결했고, 서명 검증 및 앱 런타임 GB_UNITY_GOOGLE PREFLIGHT PASS 확인. 검증용 경로 artifacts/unity-ios-mock.00xJo4. Console 양식에 Unity 번들 com.gamebridge.sdk.mockiosconsumer를 입력했으며 발급 확인 대기.
+- GameBridge Unity iOS Test 클라이언트를 사용자 확인 후 발급했다. 재빌드 종료 0, 최종 앱의 Bundle ID·iOS Client ID·역순 Scheme·기존 Web audience 일치 및 TLS 예외 없음 확인. 앱에 GB_UNITY_GOOGLE PREFLIGHT PASS를 확인했다. 인증 전 sandbox 기준 Google 요청 3건/사용 1건/identity 1건/활성 세션 1건은 네이티브 검증까지의 값이다.
+- 사용자 인증 후 Unity Player의 GB_UNITY_GOOGLE SIGN_IN PASS 확인. sandbox 집계 SELECT 종료 0. Unity 실행 전후 사용된 Google 인증 요청 1→2건, Google identity 1건 유지, 관련 세션 누적 1→2건, 검증 시 활성 세션 1건. 계정 식별자 및 OAuth 토큰은 검증 기록에 남기지 않았다. 검증 범위는 전용 iOS Simulator와 HTTPS sandbox다.
+
+## 문서44 — iOS Google OAuth 최종 보완 (2026-11-22)
+
+- 문서44 시작. 원격 prepare HEAD bfbc644/main 76c90b2 확인. 기존 사용자 gradlew.bat 수정 보존. Google 전용 콜백 Export opt-in을 추가했고, 실제 Unity/Xcode PBX API를 사용하는 독립 검사 62건을 통과했다.
+- 회귀 검증: smoke-ios-hook.sh 종료 0 (62 checks), Unity 6000.5.8f1 새 Export 2회 종료 0 및 각각 후처리기 2회 재실행 검증. 두 AppController 동일. 최초 staging manifest 명령의 경로 공백 및 local repeat runner의 PYTHONPATH 문제를 수정 후 재실행했다. Xcode Debug iOS Simulator arm64 빌드 종료 0, C ABI 3종 링크 및 Google/Meta 버전, Meta 동적 framework 4종 Embed·서명, 최종 앱 서명 확인. 기존 Native·Unity 실계정 기록과 이번 Export 검증을 분리했다.

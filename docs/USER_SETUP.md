@@ -84,7 +84,7 @@ bash scripts/verify-external.sh --check-config
 
 공식 GoogleSignIn-iOS9.2.0을pin했다. Google OAuth의iOS Client ID,Backend용Server Client ID,Bundle ID와reversed iOS Client ID URL Scheme을Host에설정한다. sample은 GIDClientID/GIDServerClientID 및CFBundleURLTypes를 build setting GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID/GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID/GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID로받는다. 값은public client identifier이며서버secret이아니다.
 
-기존URL callback에서 Swift GameBridgeGoogleHost.handle 또는Native GB_HandleAuthURL을명시적으로forward한다. C#이rawOAuthURL/code를받거나로그에출력하지않는다. [Host예시](../ios/host-examples/SocialAuthCallbacks.md)를따른다. Backend GAMEBRIDGE_AUTH_AUDIENCES_JSON의GOOGLE 허용audience는실제발급토큰의server client ID와일치시킨다. custom nonce는기존server challenge 그대로전달하며JWTnonce가없거나다르면거부한다.
+기본 Unity AppController를 쓰는 iOS 프로젝트는 iOS Scripting Define Symbols에 `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK`을 추가한 후 Export한다. 별도 AppController를 쓰는 Host는 기존 네이티브 URL 핸들러에 `GB_HandleAuthURL`을 연결한다. 두 경로는 각 Host에서 하나만 사용한다. [Host 예시](../ios/host-examples/SocialAuthCallbacks.md)를 따른다. Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`의 Google audience는 Web Client ID와 일치해야 한다. 인증 URL과 토큰은 네이티브에서 처리한다.
 
 계정/콘솔이없으면real login은WAITING_USER다. source fake와archive가실제로그인성공이아니다. 새Nativeframework는공식GoogleSignIn 및AppAuth/SPM resource를소비자에서link해야하며Unityhook은exact9.2.0 dependency를추가한다. 옛포트폴리오DEV_RC는이코드를포함하지않는다.
 
@@ -133,3 +133,7 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 인증 취소/브라우저 닫기/timeout은 실패로 종료한다. Native logout은 SDK 세션을 폐기하며 브라우저의 Apple SSO 쿠키를 관리하지 않는다. 실기기 브라우저 복귀·App Link 검증·Apple 실제 로그인은 아직 실행하지 않았다. 신규 flow 행은 감사용 hash/verified identity를 보존하며 이번 코드가 기존 데이터나 흐름을 자동 삭제하지 않는다. 운영 보존 정책/정리 작업을 임의 도입하지 않았다.
 
 공식 근거: [다른 플랫폼 Apple 인증](https://developer.apple.com/documentation/signinwithapple/incorporating-sign-in-with-apple-into-other-platforms), [웹 Services ID 구성](https://developer.apple.com/help/account/capabilities/configure-sign-in-with-apple-for-the-web), [서버 code 교환](https://developer.apple.com/documentation/signinwithapplerestapi/generate-and-validate-tokens), [Android Browser 릴리스](https://developer.android.com/jetpack/androidx/releases/browser).
+
+## 문서43 — iOS Google 실제 OAuth 사전 준비
+
+독립 Native Host와 Unity iOS 앱은 별도 iOS Client ID와 콜백 Scheme을 사용한다. 로컬 HTTPS 백엔드와 전용 sandbox DB 준비 명령은 [IOS_GOOGLE_OAUTH_PREP](IOS_GOOGLE_OAUTH_PREP.md)에 있다. 두 앱의 실계정 로그인 결과와 현재 Unity Export 절차는 [IOS_GOOGLE_OAUTH_VERIFICATION](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 있다.

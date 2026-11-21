@@ -15,6 +15,31 @@ packages:
   GameBridge:
     path: ..
 targets:
+  GameBridgeGoogleOAuthHost:
+    type: application
+    platform: iOS
+    sources:
+      - path: ../GoogleOAuthHost
+        excludes: ['*.plist', '*.xcconfig', '*.example']
+    dependencies:
+      - package: GameBridge
+        product: GameBridgeCore
+      - package: GameBridge
+        product: GameBridgeApple
+      - package: GoogleSignIn
+        product: GoogleSignInSwift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.gamebridge.sdk.googleoauth.test
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: ../GoogleOAuthHost/Info.plist
+        SWIFT_VERSION: '5.0'
+        GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID: ''
+        GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID: ''
+        GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID: gamebridge-google-oauth-unconfigured
+        GAMEBRIDGE_GOOGLE_APP_ID: gamebridge-google-oauth-test
+        GAMEBRIDGE_GOOGLE_BACKEND_HOST: localhost
+        GAMEBRIDGE_GOOGLE_BACKEND_PORT: '18443'
   GameBridgeSample:
     type: application
     platform: iOS

@@ -84,7 +84,7 @@ bash scripts/verify-external.sh --check-config
 
 공식 GoogleSignIn-iOS9.2.0을pin했다. Google OAuth의iOS Client ID,Backend용Server Client ID,Bundle ID와reversed iOS Client ID URL Scheme을Host에설정한다. sample은 GIDClientID/GIDServerClientID 및CFBundleURLTypes를 build setting GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID/GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID/GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID로받는다. 값은public client identifier이며서버secret이아니다.
 
-기존URL callback에서 Swift GameBridgeGoogleHost.handle 또는Native GB_HandleAuthURL을명시적으로forward한다. C#이rawOAuthURL/code를받거나로그에출력하지않는다. [Host예시](../ios/host-examples/SocialAuthCallbacks.md)를따른다. Backend GAMEBRIDGE_AUTH_AUDIENCES_JSON의GOOGLE 허용audience는실제발급토큰의server client ID와일치시킨다. custom nonce는기존server challenge 그대로전달하며JWTnonce가없거나다르면거부한다.
+기본 Unity AppController를 쓰는 iOS 프로젝트는 iOS Scripting Define Symbols에 `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK`을 추가한 후 Export한다. 별도 AppController를 쓰는 Host는 기존 네이티브 URL 핸들러에 `GB_HandleAuthURL`을 연결한다. 두 경로는 각 Host에서 하나만 사용한다. [Host 예시](../ios/host-examples/SocialAuthCallbacks.md)를 따른다. Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`의 Google audience는 Web Client ID와 일치해야 한다. 인증 URL과 토큰은 네이티브에서 처리한다.
 
 계정/콘솔이없으면real login은WAITING_USER다. source fake와archive가실제로그인성공이아니다. 새Nativeframework는공식GoogleSignIn 및AppAuth/SPM resource를소비자에서link해야하며Unityhook은exact9.2.0 dependency를추가한다. 옛포트폴리오DEV_RC는이코드를포함하지않는다.
 
@@ -136,4 +136,4 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 
 ## 문서43 — iOS Google 실제 OAuth 사전 준비
 
-독립 Native Host는 com.gamebridge.sdk.googleoauth.test /GameBridgeGoogleOAuthHost, App scope gamebridge-google-oauth-test를 사용한다. Native 실제 계정 검증 후 Unity bundle com.gamebridge.sdk.mockiosconsumer의 별도 iOS client로 확장한다. iOS/Web Client ID·reversed scheme·Backend audience의 정확한 주입 위치, 로컬 HTTPS/전용sandbox DB 상태 및 다음 실행 명령은 [IOS_GOOGLE_OAUTH_PREP](IOS_GOOGLE_OAUTH_PREP.md)를 따른다. 현재 Native 앱의 인증 없는 HTTPS 준비 probe만 PASS이고 실제 로그인은 WAITING_USER/NOT_RUN이다. Console 생성·사용자 로그인·약관 동의는 사용자가 직접 수행하며 토큰/client secret은 Git·로그에 넣지 않는다.
+독립 Native Host와 Unity iOS 앱은 별도 iOS Client ID와 콜백 Scheme을 사용한다. 로컬 HTTPS 백엔드와 전용 sandbox DB 준비 명령은 [IOS_GOOGLE_OAUTH_PREP](IOS_GOOGLE_OAUTH_PREP.md)에 있다. 두 앱의 실계정 로그인 결과와 현재 Unity Export 절차는 [IOS_GOOGLE_OAUTH_VERIFICATION](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 있다.

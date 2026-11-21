@@ -4400,3 +4400,8 @@
 - 기존 검증용 UPM과 버전 고정 캐시에서 별도 소비 프로젝트를 생성했다. 초기 export는 IMGUI 모듈과 SdkException 네임스페이스 누락으로 실패했으며 수정 후 export 및 xcodebuild는 종료 0. 생성된 UnityAppController에 GB_HandleAuthURL을 연결했고, 서명 검증 및 앱 런타임 GB_UNITY_GOOGLE PREFLIGHT PASS 확인. 검증용 경로 artifacts/unity-ios-mock.00xJo4. Console 양식에 Unity 번들 com.gamebridge.sdk.mockiosconsumer를 입력했으며 발급 확인 대기.
 - GameBridge Unity iOS Test 클라이언트를 사용자 확인 후 발급했다. 재빌드 종료 0, 최종 앱의 Bundle ID·iOS Client ID·역순 Scheme·기존 Web audience 일치 및 TLS 예외 없음 확인. 앱에 GB_UNITY_GOOGLE PREFLIGHT PASS를 확인했다. 인증 전 sandbox 기준 Google 요청 3건/사용 1건/identity 1건/활성 세션 1건은 네이티브 검증까지의 값이다.
 - 사용자 인증 후 Unity Player의 GB_UNITY_GOOGLE SIGN_IN PASS 확인. sandbox 집계 SELECT 종료 0. Unity 실행 전후 사용된 Google 인증 요청 1→2건, Google identity 1건 유지, 관련 세션 누적 1→2건, 검증 시 활성 세션 1건. 계정 식별자 및 OAuth 토큰은 검증 기록에 남기지 않았다. 검증 범위는 전용 iOS Simulator와 HTTPS sandbox다.
+
+## 문서44 — iOS Google OAuth 최종 보완 (2026-11-22)
+
+- 문서44 시작. 원격 prepare HEAD bfbc644/main 76c90b2 확인. 기존 사용자 gradlew.bat 수정 보존. Google 전용 콜백 Export opt-in을 추가했고, 실제 Unity/Xcode PBX API를 사용하는 독립 검사 62건을 통과했다.
+- 회귀 검증: smoke-ios-hook.sh 종료 0 (62 checks), Unity 6000.5.8f1 새 Export 2회 종료 0 및 각각 후처리기 2회 재실행 검증. 두 AppController 동일. 최초 staging manifest 명령의 경로 공백 및 local repeat runner의 PYTHONPATH 문제를 수정 후 재실행했다. Xcode Debug iOS Simulator arm64 빌드 종료 0, C ABI 3종 링크 및 Google/Meta 버전, Meta 동적 framework 4종 Embed·서명, 최종 앱 서명 확인. 기존 Native·Unity 실계정 기록과 이번 Export 검증을 분리했다.

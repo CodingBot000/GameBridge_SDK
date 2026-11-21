@@ -2042,3 +2042,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Unity 6000.5.8f1 전용 iOS Player를 별도 내보내고 iOS 18.6에서 PLATFORM_SANDBOX 초기화 및 HTTPS config 요청을 확인했다. Unity 전용 iOS OAuth Client ID 발급 확인 및 실계정 로그인 대기.
 - Unity 전용 iOS OAuth 클라이언트를 발급해 Player에 반영했다. 빌드·서명·실행 및 HTTPS 사전 검사 PASS. 실계정 로그인 결과 확인 대기.
 - Unity iOS Simulator 실계정 Google 로그인 PASS. Unity에서 SignInAsync(AuthProvider.GOOGLE)가 Google 사용자 프로필을 반환했고, 백엔드는 기존 Google identity에 새 SDK 세션을 생성했다.
+
+## 문서44 — iOS Google OAuth 최종 보완 (2026-11-22)
+
+- 문서44에 따라 기존 준비 브랜치에 Unity iOS Export 콜백 연동과 실계정 증거 정리를 추가한다.
+- 실계정 증거를 별도 문서와 JSON에 기록했다. 새 Unity Export 2회와 반복 hook, Simulator arm64 Xcode 빌드, 링크·Embed·서명 검사 PASS. 이번 변경의 실계정 재시험은 NOT_RUN.

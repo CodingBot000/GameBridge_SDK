@@ -11,7 +11,7 @@ func application(_ app: UIApplication, open url: URL,
 }
 ```
 
-For a standard Unity-generated AppController, add `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK` to the iOS **Scripting Define Symbols** before exporting. The iOS postprocessor attaches one native forwarding block to the existing URL method. It consumes the registered Google scheme before Unity receives a URL event. Other schemes keep the current handler path, including existing Facebook integration. A missing or changed handler, or competing forwarding in the generated file, fails the opt-in export with a build error.
+For a standard Unity-generated AppController, add `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK` to the iOS **Scripting Define Symbols** before exporting. The iOS postprocessor attaches native forwarding to the existing AppController URL method and, when present, Unity's stock SceneDelegate warm and cold URL paths. It consumes the registered Google scheme before Unity receives a URL event. Other schemes keep the current handler path, including existing Facebook integration. A missing or changed handler, or competing forwarding in the generated file, fails the opt-in export with a build error.
 
 For an app with a custom AppController, a custom scene delegate, or Unity as a Library, leave the define unset and forward once from the actual Host callback before its normal URL handling. Use the framework header's C ABI:
 

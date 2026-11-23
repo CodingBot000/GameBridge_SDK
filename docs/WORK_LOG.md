@@ -4405,3 +4405,11 @@
 
 - 문서44 시작. 원격 prepare HEAD bfbc644/main 76c90b2 확인. 기존 사용자 gradlew.bat 수정 보존. Google 전용 콜백 Export opt-in을 추가했고, 실제 Unity/Xcode PBX API를 사용하는 독립 검사 62건을 통과했다.
 - 회귀 검증: smoke-ios-hook.sh 종료 0 (62 checks), Unity 6000.5.8f1 새 Export 2회 종료 0 및 각각 후처리기 2회 재실행 검증. 두 AppController 동일. 최초 staging manifest 명령의 경로 공백 및 local repeat runner의 PYTHONPATH 문제를 수정 후 재실행했다. Xcode Debug iOS Simulator arm64 빌드 종료 0, C ABI 3종 링크 및 Google/Meta 버전, Meta 동적 framework 4종 Embed·서명, 최종 앱 서명 확인. 기존 Native·Unity 실계정 기록과 이번 Export 검증을 분리했다.
+
+## 문서45 — iOS Google OAuth 세션 수명 검증 (2026-11-23)
+
+- 기준 main ab75800을 확인해 격리 브랜치를 생성했다. 기존 앱과 Keychain을 보존하기 위해 별도 iOS 18.6 Simulator를 사용한다.
+- 전용 iOS 18.6 Simulator와 기존 유효 CA 사용. Unity 6000.5.8f1 새 Export/반복 hook 및 Xcode 26.6 Native/Unity 빌드·서명 검사 종료 0. Swift SocialAuthProviderTests 10건 및 격리 DB 합성 HTTP 수명주기·challenge replay 2건 모두 종료 0, 실제 계정 세션 갱신과 구분. Native 복원에서 신규 challenge/세션 0; 로그아웃에서 이번 Native 세션만 폐기되고 복원 결과 없음. 취소 challenge는 사용되지 않았고 새 인증 화면에 도달했다.
+- 합성 URL에 인증 코드나 토큰을 넣지 않고 기준 Player에서 Scene 경로 누락을 재현했다. UnityScene.mm의 applyURL과 willConnectToSession에 opt-in 자동 연동을 추가했다. 독립 hook 71 checks 종료 0, 새 Export 반복 hook marker 확인. Native 재시도는 계정 인증 없이 5분 challenge를 넘겨 실제 성공 미확인.
+- scene 보완 빌드에서 warm 합성 URL의 LLDB C 진입점 hit 1, C# 이벤트 0, DB 변경 0 확인. 새 Xcode 빌드와 서명·Meta 4종 확인 종료 0. 실제 Unity Google UI 취소 후 CANCELED 및 challenge 1건 증가/미사용, 세션 0건 증가. 재시작 없이 Unity 로그인 재시도 화면 도달.
+- Unity 계정 입력 대기 중 두 요청 TIMEOUT(세션 0건), 사용자와 새 요청을 연 뒤 SIGN_IN PASS URL_EVENTS 0. 차분 SQL 종료 0: challenge 신규 사용 1건/신규 세션 1건/identity 동일. 앱 재실행 RESTORE PASS에서 challenge/세션 변화 0. SIGN_OUT PASS 및 이후 RESTORE NO_SESSION; 이번 Unity 세션만 revoked, 다른 행 불변. 실계정 흐름의 ABI breakpoint hit 0, 합성 warm 콜백 1회와 별도로 판정한다.

@@ -74,6 +74,51 @@ class AuthHttpIntegrationTest {
         return SignedJWT(JWSHeader.Builder(JWSAlgorithm.RS256).keyID("test-only").build(), claims)
             .apply { sign(RSASSASigner(FixtureKey.key.toPrivateKey())) }.serialize()
     }
+    @Test fun googleSessionLifecycleWithSyntheticIdentity() {
+        val identity = VerifiedIdentity(IdentityProvider.GOOGLE, "https://accounts.google.com", "lifecycle-" + UUID.randomUUID(), "test-google")
+        val first = sessions.createVerified(identity, "test-app", null)
+        val sibling = sessions.createVerified(identity, "test-app", null)
+        val oldHash = MessageDigest.getInstance("SHA-256").digest(first.accessToken.toByteArray())
+        assertEquals(1, db.update("UPDATE sessions SET expires_at=now()-interval '1 second' WHERE access_hash=?", oldHash))
+        fun me(accessToken: String): Int {
+            val headers = HttpHeaders().apply { setBearerAuth(accessToken) }
+            return rest.exchange("/v1/me", HttpMethod.GET, HttpEntity<Void>(headers), Map::class.java).statusCode.value()
+        }
+        fun refresh(token: String) =
+            rest.postForEntity("/v1/auth/refresh", mapOf("refreshToken" to token), Map::class.java)
+        assertEquals(401, me(first.accessToken))
+        val rotated = refresh(first.refreshToken)
+        assertEquals(200, rotated.statusCode.value())
+        val body = assertNotNull(rotated.body)
+        val access = body["accessToken"] as String
+        val nextRefresh = body["refreshToken"] as String
+        assertEquals(first.userId, body["userId"])
+        assertTrue(first.accessToken != access && first.refreshToken != nextRefresh)
+        assertEquals(200, me(access))
+        assertEquals(401, refresh(first.refreshToken).statusCode.value())
+        assertEquals(401, refresh(nextRefresh).statusCode.value())
+        assertEquals(401, me(access))
+        assertEquals(200, me(sibling.accessToken))
+
+        val logout = rest.postForEntity("/v1/auth/logout", mapOf("refreshToken" to sibling.refreshToken), Map::class.java)
+        assertEquals(200, logout.statusCode.value())
+        assertEquals(401, me(sibling.accessToken))
+        assertEquals(401, refresh(sibling.refreshToken).statusCode.value())
+    }
+    @Test fun googleChallengeReplayDoesNotIssueAnotherSession() {
+        val challenge = rest.postForEntity("/v1/auth/challenges", mapOf("appId" to "test-app", "provider" to "GOOGLE"), Map::class.java)
+        assertEquals(200, challenge.statusCode.value())
+        val body = assertNotNull(challenge.body)
+        val proof = signed("https://accounts.google.com", "test-google", body["nonce"] as String, "replay-" + UUID.randomUUID())
+        val input = mapOf("challengeId" to body["challengeId"], "provider" to "GOOGLE", "idToken" to proof)
+        val first = rest.postForEntity("/v1/auth/exchange", input, Map::class.java)
+        assertEquals(200, first.statusCode.value())
+        val replay = rest.postForEntity("/v1/auth/exchange", input, Map::class.java)
+        assertEquals(409, replay.statusCode.value())
+        assertEquals("AUTH_REPLAY_DETECTED", replay.body?.get("code"))
+        val user = UUID.fromString(assertNotNull(first.body)["userId"] as String)
+        assertEquals(1, db.queryForObject("SELECT count(*) FROM sessions WHERE user_id=?", Int::class.java, user))
+    }
     @Test fun `sandbox rejects mock identity token with 401`() {
         val challenge = rest.postForEntity("/v1/auth/challenges", mapOf("appId" to "test-app", "provider" to "GOOGLE"), Map::class.java)
         assertEquals(200, challenge.statusCode.value())

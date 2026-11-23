@@ -72,6 +72,23 @@ namespace GameBridge.Editor
             if (!File.Exists(path))
                 throw new BuildFailedException("GameBridge Google callback requires the exported UnityAppController.mm.");
             string source = File.ReadAllText(path);
+            string updated = WithGoogleAppCallback(source);
+            string scenePath = Path.Combine(output, "Classes", "UI", "UnityScene.mm");
+            string plistPath = Path.Combine(output, "Info.plist");
+            string scene = null, updatedScene = null;
+            if (File.Exists(scenePath))
+            {
+                scene = File.ReadAllText(scenePath);
+                updatedScene = WithGoogleSceneCallback(scene);
+            }
+            else if (File.Exists(plistPath) && File.ReadAllText(plistPath).Contains("UnityScene"))
+                throw new BuildFailedException("GameBridge Google callback requires the exported UnityScene.mm for scene-based URL handling.");
+
+            if (source != updated) File.WriteAllText(path, updated);
+            if (scene != updatedScene) File.WriteAllText(scenePath, updatedScene);
+        }
+        private static string WithGoogleAppCallback(string source)
+        {
             string newline = source.Contains("\r\n") ? "\r\n" : "\n";
             string anchor = OpenUrlSelector + newline + "{" + newline;
             int insert = source.IndexOf(anchor, StringComparison.Ordinal);
@@ -89,10 +106,46 @@ namespace GameBridge.Editor
                     header >= 0 && header < insert;
                 if (!exact)
                     throw new BuildFailedException("GameBridge Google callback conflicts with existing or modified Host forwarding. Use only one forwarding path.");
-                return;
+                return source;
             }
             string updated = source.Insert(insert, callback);
-            File.WriteAllText(path, header >= 0 && header < insert ? updated : AppControllerHeader + newline + updated);
+            return header >= 0 && header < insert ? updated : AppControllerHeader + newline + updated;
+        }
+        private static string WithGoogleSceneCallback(string source)
+        {
+            string newline = source.Contains("\r\n") ? "\r\n" : "\n";
+            string implementation = "@implementation UnityScene {";
+            string coldSelection = "    _pendingURLContext = [self firstValidContextFromContexts: connectionOptions.URLContexts];" + newline;
+            string warmHandler = "- (void)applyURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {" + newline;
+            const string helperName = "GameBridgeConsumeGoogleSceneURL";
+            string helper = ("static BOOL " + helperName + "(NSURL *url)\n{\n" + GoogleCallback + "    return NO;\n}\n\n").Replace("\n", newline);
+            string cold = "    if (" + helperName + "(_pendingURLContext.URL)) _pendingURLContext = nil;" + newline;
+            string warm = "    if (" + helperName + "(url)) return;" + newline;
+            int Where(string anchor)
+            {
+                int position = source.IndexOf(anchor, StringComparison.Ordinal);
+                if (position < 0 || position != source.LastIndexOf(anchor, StringComparison.Ordinal))
+                    throw new BuildFailedException("GameBridge Google callback requires the stock Unity scene URL handlers. For a custom Host, forward explicitly.");
+                return position;
+            }
+            int implementationStart = Where(implementation);
+            int coldStart = Where(coldSelection) + coldSelection.Length;
+            int warmStart = Where(warmHandler) + warmHandler.Length;
+            if (implementationStart >= coldStart || coldStart >= warmStart)
+                throw new BuildFailedException("GameBridge Google callback requires the stock Unity scene URL handlers.");
+            int header = source.IndexOf(AppControllerHeader + newline, StringComparison.Ordinal);
+            if (source.Contains(CallbackMarker) || source.Contains("GB_HandleAuthURL") || source.Contains(helperName))
+            {
+                bool exact = source.IndexOf(helper + implementation, StringComparison.Ordinal) == implementationStart - helper.Length &&
+                    source.IndexOf(coldSelection + cold, StringComparison.Ordinal) == coldStart - coldSelection.Length &&
+                    source.IndexOf(warmHandler + warm, StringComparison.Ordinal) == warmStart - warmHandler.Length &&
+                    source.IndexOf("GB_HandleAuthURL", StringComparison.Ordinal) == source.LastIndexOf("GB_HandleAuthURL", StringComparison.Ordinal) &&
+                    header >= 0 && header < implementationStart;
+                if (!exact) throw new BuildFailedException("GameBridge Google callback conflicts with existing or modified Unity scene forwarding.");
+                return source;
+            }
+            string updated = source.Insert(warmStart, warm).Insert(coldStart, cold).Insert(implementationStart, helper);
+            return header >= 0 && header < implementationStart ? updated : AppControllerHeader + newline + updated;
         }
         private static void EnsureGooglePackage(PBXProject project, string output, string projectPath)
         {

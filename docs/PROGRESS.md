@@ -2047,3 +2047,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - 문서44에 따라 기존 준비 브랜치에 Unity iOS Export 콜백 연동과 실계정 증거 정리를 추가한다.
 - 실계정 증거를 별도 문서와 JSON에 기록했다. 새 Unity Export 2회와 반복 hook, Simulator arm64 Xcode 빌드, 링크·Embed·서명 검사 PASS. 이번 변경의 실계정 재시험은 NOT_RUN.
+
+## 문서45 — iOS Google OAuth 세션 수명 검증 (2026-11-23)
+
+- 기준 main ab75800을 확인해 격리 브랜치를 생성했다. 기존 앱과 Keychain을 보존하기 위해 별도 iOS 18.6 Simulator를 사용한다.
+- 네이티브 실계정 로그인, 앱 재실행 후 복원, 로그아웃과 대상 세션 폐기 PASS. Google UI 취소는 CANCELED·세션 미생성 확인 후 앱 재시작 없이 재인증 화면을 열었다. Unity 새 자동 콜백 Export·빌드·설치 PASS, 실제 로그인 대기.
+- 병합 기준 Unity 6 Player에서 합성 등록 Scheme 전달 시 Native ABI hit 0건 및 C# URL 이벤트 1건으로 stock UnityScene 경로 누락을 재현했다. 자동 Export가 warm/cold Scene URL을 네이티브에서 소비하도록 보완했다.
+- 수정 후 signed Unity Player에서 등록 Scheme 합성 입력이 C ABI에 1회 들어가고 Unity URL 이벤트·신규 DB 세션은 0건이었다. Google UI 취소는 CANCELED, challenge 미사용, 새 세션 없음으로 확인했다. 같은 Unity 앱에서 재인증 화면을 열고 사용자 인증 대기 중이다.
+- 수정된 자동 콜백 Unity 빌드에서 실계정 로그인·앱 재실행 후 복원·로그아웃 PASS. Backend에서 기존 identity 재사용, 새 challenge 1회 소비, Unity 시험 세션만 폐기 확인. 실제 인증 ABI 진입 0건과 합성 warm ABI 진입 1건을 분리했다.

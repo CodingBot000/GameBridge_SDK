@@ -1,5 +1,10 @@
 # GameBridge SDK 작업 로그
 
+## 문서46 — Unity iOS Export 복구
+
+- 기준 main 09db0706에서 독립 작업 시작. 실패 사례와 회귀를 확인한다.
+- 잘못된 AppController 뒤 orphan marker가 남는 기존 실패를 재현했다. 수정 후 같은 폴더 재시도, 파일 반영 단계 네 곳의 중단 복구, Host 편집 보존을 포함해 PBX·콜백 검사 157개 통과. Unity 6000.5.8f1 새 Export 및 두 차례 반복 훅, iOS Simulator Xcode 빌드, Meta 동적 프레임워크 4개의 서명 검증을 통과했다. iOS 18.6의 합성 URL 시험에서 콜드 시작의 Unity absoluteURL은 비어 있었고 warm Google URL은 관리 이벤트 0건, 일반 Host URL은 1건이었다.
+
 이 파일은 append 중심으로 관리한다. 이전 실패를 삭제하거나 성공으로 덮어쓰지 않는다. 초기 상태에는 실제 개발 기록이 없다.
 
 ## 세션 시작 기록 양식

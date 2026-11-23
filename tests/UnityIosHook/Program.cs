@@ -163,10 +163,48 @@ class Program
     {
         string root = Path.Combine(Path.GetTempPath(), "gamebridge-ios-hook-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(root);
         string fresh = Path.Combine(root, "fresh"), upgrade = Path.Combine(root, "upgrade"); Directory.CreateDirectory(fresh); Directory.CreateDirectory(upgrade);
-        TestNewExport(fresh); TestUpgradeAndErrors(upgrade); TestGoogleCallback(fresh);
+        TestNewExport(fresh); TestUpgradeAndErrors(upgrade); TestGoogleCallback(fresh); TestGoogleSceneCallback(fresh);
         string initial = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict><key>Existing</key><string>keep</string></dict></plist>";
         string first = GameBridge.Editor.IosXcodeBuildHook.EnableXcodeStoreKitHistory(initial), second = GameBridge.Editor.IosXcodeBuildHook.EnableXcodeStoreKitHistory(first);
         Check(first == second && second.Contains("keep"), "StoreKit plist idempotence/Host preservation");
         Console.WriteLine("Unity iOS Hook PASS: " + checks + " PBX and URL callback checks; fixtures " + root);
+    }
+    static void TestGoogleSceneCallback(string directory)
+    {
+        string classes = Path.Combine(directory, "Classes");
+        string controller = Path.Combine(classes, "UnityAppController.mm");
+        File.WriteAllText(controller, "- (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options\n{\n    return YES;\n}\n");
+        string ui = Path.Combine(classes, "UI");
+        Directory.CreateDirectory(ui);
+        string scene = Path.Combine(ui, "UnityScene.mm");
+        File.WriteAllText(Path.Combine(directory, "Info.plist"), "<string>UnityScene</string>");
+        Action apply = () => GameBridge.Editor.IosXcodeBuildHook.ConfigureGoogleCallback(directory);
+        MustFail(apply, "missing Unity scene", "requires the exported UnityScene.mm");
+        const string original = @"@implementation UnityScene {
+}
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
+    _pendingURLContext = [self firstValidContextFromContexts: connectionOptions.URLContexts];
+    NSURL *url = [self pendingURL];
+    UnitySetAbsoluteURL(url.absoluteString.UTF8String);
+}
+- (void)applyURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    UnitySetAbsoluteURL(url.absoluteString.UTF8String);
+}
+@end";
+        File.WriteAllText(scene, original);
+        apply();
+        string once = File.ReadAllText(scene);
+        Check(once.IndexOf("GameBridgeConsumeGoogleSceneURL(_pendingURLContext.URL)", StringComparison.Ordinal) <
+            once.IndexOf("NSURL *url = [self pendingURL]", StringComparison.Ordinal) &&
+            once.Contains("if (GameBridgeConsumeGoogleSceneURL(_pendingURLContext.URL)) _pendingURLContext = nil;"),
+            "discard the owned cold URL before Unity reads it");
+        Check(once.Contains("if (GameBridgeConsumeGoogleSceneURL(url)) return;\n    UnitySetAbsoluteURL"),
+            "discard the owned warm URL before the Unity URL setter");
+        apply();
+        Check(File.ReadAllText(scene) == once, "scene repeat must preserve source bytes");
+        File.WriteAllText(scene, once.Replace("if (GameBridgeConsumeGoogleSceneURL(url)) return;", ""));
+        MustFail(apply, "damaged scene forwarding", "conflicts with existing or modified Unity scene forwarding");
+        File.WriteAllText(scene, original.Replace("firstValidContextFromContexts:", "customContext:"));
+        MustFail(apply, "different scene handler", "requires the stock Unity scene URL handlers");
     }
 }

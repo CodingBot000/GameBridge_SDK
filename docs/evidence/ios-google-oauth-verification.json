@@ -94,5 +94,88 @@
     ],
     "callbackRuntimeInvocation": "NOT_RUN",
     "accountSignIn": "NOT_RUN"
+  },
+  "lifecycle20261123": {
+    "sourceCommit": "ab75800af6fdf77dd9acc3adfb491f15622a29e2",
+    "stagingManifestSha256": "b318a58bb2bd50b78ba068e5794482198069a5b055ae30388e559e0b417b2f0b",
+    "environment": {
+      "unity": "6000.5.8f1",
+      "xcode": "26.6 (17F113)",
+      "runtime": "iOS 18.6"
+    },
+    "native": {
+      "realSignIn": "PASS",
+      "coldLaunchRestore": "PASS",
+      "restoreNewChallenges": 0,
+      "restoreNewSessions": 0,
+      "logout": "PASS",
+      "restoreAfterLogout": "NO_SESSION",
+      "targetRevocation": "PASS",
+      "canceledGoogleUi": "PASS",
+      "canceledChallengeConsumed": false,
+      "canceledNewSessions": 0,
+      "retryOpenedWithoutRestart": "PASS",
+      "retryAccountSignIn": "NOT_RUN",
+      "retryChallenge": "expired without account completion"
+    },
+    "unity": {
+      "freshExportExit": 0,
+      "repeatHook": "PASS",
+      "automaticCallbackConfigured": true,
+      "buildExit": 0,
+      "install": "PASS",
+      "realSignIn": "PASS",
+      "restore": "PASS",
+      "logout": "PASS",
+      "callbackAbiRuntime": "SYNTHETIC PASS",
+      "baselineSceneCallback": "FAIL",
+      "baselineSyntheticManagedEvents": 1,
+      "baselineSyntheticAbiEntries": 0,
+      "fixedSceneCallback": "SYNTHETIC PASS",
+      "fixedSyntheticManagedEvents": 0,
+      "fixedSyntheticAbiEntries": 1,
+      "fixedSyntheticNewSessions": 0,
+      "optInHookChecks": 71,
+      "optInHookExit": 0,
+      "coldSceneRuntime": "NOT_RUN",
+      "canceledGoogleUi": "PASS",
+      "canceledChallengeConsumed": false,
+      "canceledNewSessions": 0,
+      "retryOpenedWithoutRestart": "PASS",
+      "managedUrlEventsDuringSignIn": 0,
+      "liveOAuthAbiEntries": 0,
+      "liveAccountBuildWasAutomaticallyExported": true,
+      "timedOutAttemptsBeforeSuccess": 2,
+      "restoreNewChallenges": 0,
+      "restoreNewSessions": 0,
+      "restoreAfterLogout": "NO_SESSION",
+      "targetRevocation": "PASS",
+      "otherSessionRowsUnchanged": true,
+      "successfulAttempt": {
+        "newConsumedChallenges": 1,
+        "newSdkSessions": 1,
+        "existingIdentityReused": true
+      }
+    },
+    "synthetic": {
+      "swiftTests": 10,
+      "swiftExit": 0,
+      "backendHttpTests": 2,
+      "backendExit": 0,
+      "refreshRotation": "SYNTHETIC PASS",
+      "oldRefreshRejection": "SYNTHETIC PASS",
+      "challengeReplay": "SYNTHETIC PASS"
+    },
+    "realSessionRefresh": "NOT_RUN",
+    "realTokenReplay": "NOT_RUN",
+    "baselineStagingManifestSha256": "cf27a37346525d62189511f05dec21ab6e20fa4a6bd132d2c8b2ac382294b36f",
+    "backendEvidence": {
+      "nativeTestSession": "N1",
+      "unityTestSession": "U1",
+      "nativeLogoutRevokedOnly": "N1",
+      "unityLogoutRevokedOnly": "U1",
+      "historicalRowsPreserved": true,
+      "comparison": "per-session run-local pseudonyms; no account identifiers or credentials"
+    }
   }
 }

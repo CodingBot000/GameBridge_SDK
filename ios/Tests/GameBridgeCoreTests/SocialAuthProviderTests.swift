@@ -6,6 +6,9 @@ import XCTest
 private final class SocialProtocol:URLProtocol {
     static var pauseChallenge=false
     static var waiting:SocialProtocol?
+    static var pauseRefresh=false
+    static var waitingRefresh:SocialProtocol?
+    static var failRefresh=false
     static var meUnauthorized=false
     static var requests=[String]()
     static var wrongUser=false
@@ -15,14 +18,19 @@ private final class SocialProtocol:URLProtocol {
     override class func canonicalRequest(for request:URLRequest)->URLRequest {request}
     override func startLoading() {
         if Self.pauseChallenge && request.url!.path.hasSuffix("challenges") {Self.waiting=self;return}
+        if Self.pauseRefresh && request.url!.path.hasSuffix("refresh") {Self.waitingRefresh=self;return}
         respond()
     }
     func respond() {
         let path=request.url!.path;Self.requests.append(path)
         var status=200;var body:[String:Any]
         if path.hasSuffix("challenges") {body=["challengeId":"22222222-2222-4222-8222-222222222222","nonce":"server-nonce","expiresAt":"2035-01-01T00:00:00Z"]}
-        else if path.hasSuffix("exchange") || path.hasSuffix("refresh") {
-            if path.hasSuffix("refresh") {Self.meUnauthorized=false}
+        else if path.hasSuffix("refresh") && Self.failRefresh {
+            status=503;body=["code":"NETWORK_UNAVAILABLE"]
+        } else if path.hasSuffix("refresh") {
+            Self.meUnauthorized=false
+            body=["accessToken":"synthetic-rotated-access","refreshToken":"synthetic-rotated-refresh","userId":Self.user,"expiresAt":"2035-01-01T00:00:00Z"]
+        } else if path.hasSuffix("exchange") {
             body=["accessToken":"synthetic-native-access","refreshToken":"synthetic-native-refresh","userId":Self.user,"expiresAt":"2035-01-01T00:00:00Z"]
         } else if path=="/v1/me" {
             if Self.meUnauthorized {status=401;body=["code":"SESSION_EXPIRED"]}
@@ -45,7 +53,7 @@ private final class SocialStore:TokenStore {var value:String?;func load()throws-
         let configuration=URLSessionConfiguration.ephemeral;configuration.protocolClasses=[SocialProtocol.self]
         return try SocialAuthProvider(config:GameBridgeConfig(appId:app,mode:.platformSandbox,backendBaseURL:"https://backend.invalid"),provider:name,settingsBinding:binding,store:store,gateway:gateway,sessionConfiguration:configuration)
     }
-    override func setUp(){SocialProtocol.pauseChallenge=false;SocialProtocol.waiting=nil;SocialProtocol.requests=[];SocialProtocol.meUnauthorized=false;SocialProtocol.wrongUser=false;SocialProtocol.nonce=""}
+    override func setUp(){SocialProtocol.pauseChallenge=false;SocialProtocol.waiting=nil;SocialProtocol.pauseRefresh=false;SocialProtocol.waitingRefresh=nil;SocialProtocol.failRefresh=false;SocialProtocol.requests=[];SocialProtocol.meUnauthorized=false;SocialProtocol.wrongUser=false;SocialProtocol.nonce=""}
     func testNonceAndOpaqueSessionStayNativeAndRestoreRefreshLogout()async throws {
         let store=SocialStore();let gateway=SocialGateway();let provider=try make(store,gateway)
         let profile=try await provider.signIn();XCTAssertEqual(profile.provider,"GOOGLE");XCTAssertEqual(SocialProtocol.nonce,"server-nonce")
@@ -62,6 +70,78 @@ private final class SocialStore:TokenStore {var value:String?;func load()throws-
         SocialProtocol.requests=[];gateway.fail=true
         do {_ = try await provider.signIn();XCTFail("cancel")} catch let error as SdkFailure {XCTAssertEqual(error.code,"CANCELED")}
         XCTAssertFalse(SocialProtocol.requests.contains("/v1/auth/exchange"));XCTAssertNil(store.value)
+    }
+    func testConcurrentRestoresShareOneRefreshAndPersistRotatedTokens() async throws {
+        let store = SocialStore()
+        let provider = try make(store, SocialGateway())
+        _ = try await provider.signIn()
+        SocialProtocol.requests = []
+        SocialProtocol.meUnauthorized = true
+        SocialProtocol.pauseRefresh = true
+        let first = Task { try await provider.restore() }
+        let second = Task { try await provider.restore() }
+        for _ in 0..<1000 {
+            if SocialProtocol.waitingRefresh != nil && SocialProtocol.requests.filter({ $0 == "/v1/me" }).count == 2 { break }
+            try await Task.sleep(nanoseconds: 1_000_000)
+        }
+        let refresh = try XCTUnwrap(SocialProtocol.waitingRefresh)
+        XCTAssertEqual(SocialProtocol.requests.filter { $0 == "/v1/me" }.count, 2)
+        XCTAssertEqual(store.value, "{\"state\":\"refresh_pending\"}")
+        SocialProtocol.pauseRefresh = false
+        refresh.respond()
+        let profiles = try await [first.value, second.value]
+        XCTAssertEqual(profiles.compactMap { $0?.userId }, [SocialProtocol.user, SocialProtocol.user])
+        XCTAssertEqual(SocialProtocol.requests.filter { $0 == "/v1/auth/refresh" }.count, 1)
+        XCTAssertTrue(store.value?.contains("synthetic-rotated-refresh") == true)
+    }
+
+    func testFailedRefreshDoesNotRetryOldTokenFromStorage() async throws {
+        let store = SocialStore()
+        let provider = try make(store, SocialGateway())
+        _ = try await provider.signIn()
+        SocialProtocol.meUnauthorized = true
+        SocialProtocol.failRefresh = true
+        do {
+            _ = try await provider.restore()
+            XCTFail("expected refresh failure")
+        } catch let error as SdkFailure {
+            XCTAssertEqual(error.code, "NETWORK_UNAVAILABLE")
+        }
+        XCTAssertEqual(store.value, "{\"state\":\"refresh_pending\"}")
+        do {
+            _ = try await make(store, SocialGateway()).restore()
+            XCTFail("an interrupted rotation cannot replay the previous token")
+        } catch let error as SdkFailure {
+            XCTAssertEqual(error.code, "SESSION_EXPIRED")
+        }
+        XCTAssertEqual(SocialProtocol.requests.filter { $0 == "/v1/auth/refresh" }.count, 1)
+    }
+
+    func testSignOutDuringRefreshDoesNotRestoreLocalSession() async throws {
+        let store = SocialStore()
+        let provider = try make(store, SocialGateway())
+        _ = try await provider.signIn()
+        SocialProtocol.meUnauthorized = true
+        SocialProtocol.pauseRefresh = true
+        let restore = Task { try await provider.restore() }
+        for _ in 0..<1000 {
+            if SocialProtocol.waitingRefresh != nil { break }
+            try await Task.sleep(nanoseconds: 1_000_000)
+        }
+        _ = try XCTUnwrap(SocialProtocol.waitingRefresh)
+        do {
+            try await provider.signOut()
+            XCTFail("a concurrent rotation makes server revocation unconfirmed")
+        } catch let error as SdkFailure {
+            XCTAssertEqual(error.nativeCode, "REVOCATION_UNCONFIRMED")
+        }
+        do {
+            _ = try await restore.value
+            XCTFail("sign-out must cancel the refresh")
+        } catch let error as SdkFailure {
+            XCTAssertEqual(error.code, "CANCELED")
+        }
+        XCTAssertNil(store.value)
     }
     func testConfigurationAndProviderStorageDoNotCrossAppOrSettings()async throws {
         let store=SocialStore();let gateway=SocialGateway();_ = try await make(store,gateway).signIn()

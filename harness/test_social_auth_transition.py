@@ -34,4 +34,20 @@ class SocialTransitionTests(unittest.TestCase):
         current=copy.deepcopy(self.approved);current['files']['core.cs']['declarations']=['public changed']
         self.assertTrue(self.check(current=current))
 
+class LogoutTransitionTests(unittest.TestCase):
+    def test_only_reviewed_postimages_and_unchanged_wire_are_accepted(self):
+        closed = {'files': {p: {'sha256': 'a'*64} for p in m.LOGOUT_FILES}, 'swiftCExports': ['GB_Dispatch']}
+        closed['files']['core.cs'] = {'sha256': 'c'*64}
+        record = {'before': m.LOGOUT_BASE, 'files': {p: {'before': 'a'*64, 'after': 'b'*64} for p in m.LOGOUT_FILES}}
+        current = copy.deepcopy(closed)
+        for name in m.LOGOUT_FILES:
+            current['files'][name]['sha256'] = 'b'*64
+        self.assertEqual([], m.check_logout_transition(closed, current, record))
+        for name in current['files']:
+            drift = copy.deepcopy(current)
+            drift['files'][name]['sha256'] = 'd'*64
+            self.assertTrue(m.check_logout_transition(closed, drift, record))
+        drift = dict(current, swiftCExports=[])
+        self.assertTrue(m.check_logout_transition(closed, drift, record))
+
 if __name__=='__main__':unittest.main()

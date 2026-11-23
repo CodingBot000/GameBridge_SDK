@@ -10,6 +10,7 @@ import UIKit
 /// Routes authentication without sharing credentials, provider storage or purchase owners.
 @MainActor final class PlatformAuthBridgeHandler {
     private let apple:AppleAuthBridgeHandler
+    private let appleSessionStore: TokenStore
     private let marker:TokenStore
     private let factory:(String,GameBridgeConfig,[String:Any]) throws -> SocialAuthProvider
     private let emitter:() -> (AppleStorePurchaseResult) -> Void
@@ -21,8 +22,14 @@ import UIKit
     private var store:AppleStore?
     private var storeSession:AppleStoreSession?
     private var push:ApplePushClient?
-    init(apple:AppleAuthBridgeHandler,marker:TokenStore,factory:@escaping (String,GameBridgeConfig,[String:Any])throws->SocialAuthProvider,emitter:@escaping ()->(AppleStorePurchaseResult)->Void) {
-        self.apple=apple;self.marker=marker;self.factory=factory;self.emitter=emitter
+    init(apple: AppleAuthBridgeHandler, marker: TokenStore, appleSessionStore: TokenStore,
+         factory: @escaping (String, GameBridgeConfig, [String: Any]) throws -> SocialAuthProvider,
+         emitter: @escaping () -> (AppleStorePurchaseResult) -> Void) {
+        self.apple = apple
+        self.marker = marker
+        self.appleSessionStore = appleSessionStore
+        self.factory = factory
+        self.emitter = emitter
     }
     private func appleInvoke(_ op:String,_ body:[String:Any]) async throws -> Any {
         if !appleInitialized {guard let payload else {throw SdkFailure("NOT_INITIALIZED")};_ = try await apple.invoke("sdk.initialize",payload:payload);appleInitialized=true}
@@ -39,6 +46,34 @@ import UIKit
         guard let ids=payload?["storeProductIds"] as? [String:String],let storeSession else {throw SdkFailure("CONFIG_REQUIRED")}
         let value=try storeSession.createStore(productIds:ids);value.setPurchaseUpdatedHandler(emitter());try await value.start();store=value;return value
     }
+    private func restoredSelection(_ raw: String, app: String, backend: String) throws -> String {
+        guard let saved = try? JSONDecoder().decode([String: String].self, from: Data(raw.utf8)),
+              let savedApp = saved["appId"], !savedApp.isEmpty,
+              let savedBackend = saved["backend"], !savedBackend.isEmpty,
+              let provider = saved["provider"], ["APPLE", "GOOGLE", "FACEBOOK"].contains(provider)
+        else { throw SdkFailure("SESSION_EXPIRED") }
+
+        if savedApp == app && savedBackend == backend { return provider }
+        // Older releases could leave the Apple selection after a successful local logout.
+        // An unreadable, malformed or refresh-pending session item still belongs to the old scope.
+        guard provider == "APPLE", (try? (appleSessionStore.load() == nil)) == true else {
+            throw SdkFailure("SESSION_EXPIRED")
+        }
+        try marker.clear()
+        return "APPLE"
+    }
+
+    private func signOutSelected() async throws {
+        store?.stop()
+        store = nil
+        if selected == "APPLE" {
+            _ = try await appleInvoke("auth.signOut", [:])
+        } else {
+            try await socialProvider().signOut()
+        }
+        try marker.clear()
+    }
+
     func cancelInFlight() {store?.stop();store=nil;social?.close()}
     func invoke(_ op:String,payload body:[String:Any]) async throws -> Any {
         if op=="sdk.initialize" {
@@ -51,10 +86,8 @@ import UIKit
             if let raw=body["installationId"] {guard let text=raw as? String,let uuid=UUID(uuidString:text),uuid.uuidString.lowercased()==text.lowercased() else {throw SdkFailure("CONFIG_REQUIRED")}}
             if let config {guard config==value,let payload,try JSONSerialization.data(withJSONObject:payload,options:.sortedKeys)==JSONSerialization.data(withJSONObject:body,options:.sortedKeys) else {throw SdkFailure("ALREADY_INITIALIZED_DIFFERENT_CONFIG")}}
             if config==nil {selected="APPLE"}
-            if let raw=try marker.load() {
-                guard let data=raw.data(using:.utf8),let saved=try? JSONSerialization.jsonObject(with:data) as? [String:String],saved["appId"]==app,saved["backend"]==url,
-                      let provider=saved["provider"],["APPLE","GOOGLE","FACEBOOK"].contains(provider) else {throw SdkFailure("SESSION_EXPIRED")}
-                selected=provider
+            if let raw = try marker.load() {
+                selected = try restoredSelection(raw, app: app, backend: url)
             }
             config=value;payload=body
             var capabilities:[String:Any]=[:]
@@ -70,19 +103,23 @@ import UIKit
                 var prepared:SocialAuthProvider?
                 if next != "APPLE" {prepared=try factory(next,config,payload ?? [:]);try prepared!.validateSignInConfiguration()}
                 else if !appleInitialized {guard let payload else {throw SdkFailure("NOT_INITIALIZED")};_ = try await apple.invoke("sdk.initialize",payload:payload);appleInitialized=true}
-                if selected=="APPLE" {_ = try await appleInvoke("auth.signOut",[:])} else {try await socialProvider().signOut();social?.close()}
-                try marker.clear();social=prepared;storeSession=try prepared?.storeSession();push=nil;selected=next
+                try await signOutSelected()
+                social?.close()
+                social=prepared;storeSession=try prepared?.storeSession();push=nil;selected=next
                 if let id=(payload?["installationId"] as? String).flatMap(UUID.init(uuidString:)),let prepared {push=try prepared.pushClient(installationId:id)}
             }
             let result:Any = selected=="APPLE" ? try await appleInvoke(op,body) : try object(try await socialProvider().signIn())
             try marker.save(String(decoding:JSONSerialization.data(withJSONObject:["appId":config.appId,"backend":config.backendBaseURL!,"provider":selected]),as:UTF8.self))
             return result
         }
+        if op == "auth.signOut" {
+            try await signOutSelected()
+            return [:] as [String: String]
+        }
         if selected=="APPLE" {return try await appleInvoke(op,body)}
         let auth=try socialProvider()
         switch op {
         case "auth.restore":let user=try await auth.restore();return ["signedIn":user != nil,"user":try user.map(object) ?? NSNull(),"expiresAt":NSNull(),"sessionRestored":user != nil]
-        case "auth.signOut":store?.stop();store=nil;try await auth.signOut();try marker.clear();return [:] as [String:String]
         case "config.get":guard let storeSession else {throw SdkFailure("NOT_INITIALIZED")};let effective=try await storeSession.serviceSettings();let f=ISO8601DateFormatter();f.formatOptions=[.withInternetDateTime,.withFractionalSeconds];return ["revision":effective.settings.revision,"maintenanceEnabled":effective.settings.maintenanceEnabled,"message":effective.settings.message as Any? ?? NSNull(),"expiresAt":f.string(from:effective.settings.expiresAt),"source":effective.source == .remote ? "NETWORK":"CACHE"]
         case "store.products":return try object(try await activeStore().products())
         case "store.entitlements":return try object(try await activeStore().entitlements())
@@ -99,7 +136,10 @@ import UIKit
 }
 #if canImport(UIKit) && canImport(AuthenticationServices)
 @MainActor func makePlatformAuthBridgeHandler(emitter:@escaping ()->(AppleStorePurchaseResult)->Void) -> PlatformAuthBridgeHandler {
-    PlatformAuthBridgeHandler(apple:makeAppleAuthBridgeHandler(makeEmitter:emitter),marker:KeychainTokenStore(service:"com.gamebridge.sdk.unity.social.selection"),factory: { provider,config,initialization in
+    let appleStore = KeychainTokenStore(service: "com.gamebridge.sdk.unity.apple")
+    let apple = makeAppleAuthBridgeHandler(sessionStore: appleStore, makeEmitter: emitter)
+    let selection = KeychainTokenStore(service: "com.gamebridge.sdk.unity.social.selection")
+    return PlatformAuthBridgeHandler(apple: apple, marker: selection, appleSessionStore: appleStore, factory: { provider,config,initialization in
         if provider=="FACEBOOK" {
             guard let id=Bundle.main.object(forInfoDictionaryKey:"FacebookAppID") as? String else {throw SdkFailure("CONFIG_REQUIRED")}
             let mode=Bundle.main.object(forInfoDictionaryKey:"GameBridgeFacebookLoginMode") as? String ?? "LIMITED"

@@ -4413,3 +4413,8 @@
 - 합성 URL에 인증 코드나 토큰을 넣지 않고 기준 Player에서 Scene 경로 누락을 재현했다. UnityScene.mm의 applyURL과 willConnectToSession에 opt-in 자동 연동을 추가했다. 독립 hook 71 checks 종료 0, 새 Export 반복 hook marker 확인. Native 재시도는 계정 인증 없이 5분 challenge를 넘겨 실제 성공 미확인.
 - scene 보완 빌드에서 warm 합성 URL의 LLDB C 진입점 hit 1, C# 이벤트 0, DB 변경 0 확인. 새 Xcode 빌드와 서명·Meta 4종 확인 종료 0. 실제 Unity Google UI 취소 후 CANCELED 및 challenge 1건 증가/미사용, 세션 0건 증가. 재시작 없이 Unity 로그인 재시도 화면 도달.
 - Unity 계정 입력 대기 중 두 요청 TIMEOUT(세션 0건), 사용자와 새 요청을 연 뒤 SIGN_IN PASS URL_EVENTS 0. 차분 SQL 종료 0: challenge 신규 사용 1건/신규 세션 1건/identity 동일. 앱 재실행 RESTORE PASS에서 challenge/세션 변화 0. SIGN_OUT PASS 및 이후 RESTORE NO_SESSION; 이번 Unity 세션만 revoked, 다른 행 불변. 실계정 흐름의 ABI breakpoint hit 0, 합성 warm 콜백 1회와 별도로 판정한다.
+
+## 문서46 — iOS 로그아웃과 인증 CI
+
+- 기준 main 09db0706에서 독립 작업 시작. 실패 사례와 회귀를 확인한다.
+- Apple 로그아웃 뒤 선택 기록 잔존과 새 appId 초기화의 SESSION_EXPIRED를 수정 전 테스트로 재현했다. 라우터가 성공한 로그아웃의 선택 기록을 정리하고, 구버전 Apple 선택 기록은 해당 Keychain 항목이 없을 때만 제거한다. 로컬 Swift 38개, sandbox DB HTTP 2개, 전이 검사와 iOS Simulator Native 빌드를 통과했다. 기본 PR CI가 Swift 인증 회귀와 격리 DB HTTP 2개를 실행하도록 추가했다.

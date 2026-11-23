@@ -2055,3 +2055,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 병합 기준 Unity 6 Player에서 합성 등록 Scheme 전달 시 Native ABI hit 0건 및 C# URL 이벤트 1건으로 stock UnityScene 경로 누락을 재현했다. 자동 Export가 warm/cold Scene URL을 네이티브에서 소비하도록 보완했다.
 - 수정 후 signed Unity Player에서 등록 Scheme 합성 입력이 C ABI에 1회 들어가고 Unity URL 이벤트·신규 DB 세션은 0건이었다. Google UI 취소는 CANCELED, challenge 미사용, 새 세션 없음으로 확인했다. 같은 Unity 앱에서 재인증 화면을 열고 사용자 인증 대기 중이다.
 - 수정된 자동 콜백 Unity 빌드에서 실계정 로그인·앱 재실행 후 복원·로그아웃 PASS. Backend에서 기존 identity 재사용, 새 challenge 1회 소비, Unity 시험 세션만 폐기 확인. 실제 인증 ABI 진입 0건과 합성 warm ABI 진입 1건을 분리했다.
+
+## 문서46 — iOS 로그아웃과 인증 CI
+
+- 기준 main 09db0706에서 독립 작업 시작. 실패 사례와 회귀를 확인한다.
+- Apple 로그아웃 뒤 선택 기록 잔존과 새 appId 초기화의 SESSION_EXPIRED를 수정 전 테스트로 재현했다. 라우터가 성공한 로그아웃의 선택 기록을 정리하고, 구버전 Apple 선택 기록은 해당 Keychain 항목이 없을 때만 제거한다. 로컬 Swift 38개, sandbox DB HTTP 2개, 전이 검사와 iOS Simulator Native 빌드를 통과했다. 기본 PR CI가 Swift 인증 회귀와 격리 DB HTTP 2개를 실행하도록 추가했다.

@@ -1,0 +1,8 @@
+// Copy to GoogleOAuth.local.xcconfig (ignored). Client IDs are public identifiers.
+// No Google client secret, OAuth token, Apple key or Meta secret belongs here.
+GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID = REPLACE_WITH_IOS_CLIENT_ID.apps.googleusercontent.com
+GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID = REPLACE_WITH_WEB_CLIENT_ID.apps.googleusercontent.com
+GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID = com.googleusercontent.apps.REPLACE_WITH_IOS_CLIENT_ID
+GAMEBRIDGE_GOOGLE_APP_ID = gamebridge-google-oauth-test
+GAMEBRIDGE_GOOGLE_BACKEND_HOST = localhost
+GAMEBRIDGE_GOOGLE_BACKEND_PORT = 18443

@@ -1,0 +1,5 @@
+{
+  "gamebridge-google-oauth-test": {
+    "GOOGLE": ["REPLACE_WITH_WEB_CLIENT_ID.apps.googleusercontent.com"]
+  }
+}

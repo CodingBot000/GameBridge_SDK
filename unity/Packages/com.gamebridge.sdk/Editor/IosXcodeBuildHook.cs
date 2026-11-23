@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Callbacks;
@@ -12,6 +13,29 @@ namespace GameBridge.Editor
 {
     internal static class IosXcodeBuildHook
     {
+        private const string GoogleCallbackDefine = "GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK";
+        private const string AppControllerHeader = "#import <GameBridgeNative/GameBridgeNative.h>";
+        private const string CallbackMarker = "// GameBridge Google OAuth callback";
+        private const string OpenUrlSelector =
+            "- (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options";
+        private const string GoogleCallback = @"    // GameBridge Google OAuth callback
+    NSString *googleClientID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@""GIDClientID""];
+    if ([googleClientID isKindOfClass:[NSString class]] &&
+        [googleClientID hasSuffix:@"".apps.googleusercontent.com""])
+    {
+        NSArray<NSString *> *parts = [googleClientID componentsSeparatedByString:@"".""];
+        NSString *googleScheme = [parts.reverseObjectEnumerator.allObjects componentsJoinedByString:@"".""];
+        if (url.scheme != nil && [url.scheme caseInsensitiveCompare:googleScheme] == NSOrderedSame)
+        {
+            NSData *callback = [url.absoluteString dataUsingEncoding:NSUTF8StringEncoding];
+            if (callback.length > 0 && callback.length <= 8192)
+                GB_HandleAuthURL(static_cast<const uint8_t *>(callback.bytes), static_cast<int32_t>(callback.length));
+            // Never forward a registered Google callback to Unity's managed URL event.
+            return YES;
+        }
+    }
+";
+
         [PostProcessBuild(100)]
         internal static void OnPostprocessBuild(BuildTarget target, string path)
         {
@@ -35,10 +59,40 @@ namespace GameBridge.Editor
             if (string.IsNullOrEmpty(guid)) guid = project.AddFile(relative, relative, PBXSourceTree.Source);
             project.AddFileToBuild(project.GetUnityFrameworkTargetGuid(), guid);
             ConfigureAuthPackages(project, path, projectPath);
+            if (PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.iOS).Split(';').Contains(GoogleCallbackDefine))
+                ConfigureGoogleCallback(path);
             project.WriteToFile(projectPath);
 #if GAMEBRIDGE_XCODE_STOREKIT
             File.WriteAllText(plistPath, EnableXcodeStoreKitHistory(File.ReadAllText(plistPath)));
 #endif
+        }
+        internal static void ConfigureGoogleCallback(string output)
+        {
+            string path = Path.Combine(output, "Classes", "UnityAppController.mm");
+            if (!File.Exists(path))
+                throw new BuildFailedException("GameBridge Google callback requires the exported UnityAppController.mm.");
+            string source = File.ReadAllText(path);
+            string newline = source.Contains("\r\n") ? "\r\n" : "\n";
+            string anchor = OpenUrlSelector + newline + "{" + newline;
+            int insert = source.IndexOf(anchor, StringComparison.Ordinal);
+            if (insert < 0 || insert != source.LastIndexOf(anchor, StringComparison.Ordinal))
+                throw new BuildFailedException("GameBridge Google callback requires one stock Unity openURL handler. For a custom Host, forward the callback explicitly.");
+            insert += anchor.Length;
+
+            string callback = GoogleCallback.Replace("\n", newline);
+            int header = source.IndexOf(AppControllerHeader + newline, StringComparison.Ordinal);
+            if (source.Contains(CallbackMarker) || source.Contains("GB_HandleAuthURL"))
+            {
+                bool exact = source.IndexOf(callback, StringComparison.Ordinal) == insert &&
+                    source.IndexOf(CallbackMarker, StringComparison.Ordinal) == source.LastIndexOf(CallbackMarker, StringComparison.Ordinal) &&
+                    source.IndexOf("GB_HandleAuthURL", StringComparison.Ordinal) == source.LastIndexOf("GB_HandleAuthURL", StringComparison.Ordinal) &&
+                    header >= 0 && header < insert;
+                if (!exact)
+                    throw new BuildFailedException("GameBridge Google callback conflicts with existing or modified Host forwarding. Use only one forwarding path.");
+                return;
+            }
+            string updated = source.Insert(insert, callback);
+            File.WriteAllText(path, header >= 0 && header < insert ? updated : AppControllerHeader + newline + updated);
         }
         private static void EnsureGooglePackage(PBXProject project, string output, string projectPath)
         {

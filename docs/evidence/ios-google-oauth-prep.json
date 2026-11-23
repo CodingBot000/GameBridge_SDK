@@ -1,0 +1,86 @@
+{
+  "scope": "document43 iOS Google real OAuth preparation only",
+  "base": "76c90b2bfec3ec9c5da34399e9f59f0193fe4e16",
+  "nativeHost": {
+    "bundleId": "com.gamebridge.sdk.googleoauth.test",
+    "appId": "gamebridge-google-oauth-test",
+    "backendURL": "https://localhost:18443",
+    "clientIdsConfigured": false,
+    "atsExceptions": false,
+    "signatureExit": 0,
+    "nativeHttpsProbe": "PASS",
+    "authConfig": "WAITING_USER",
+    "oauth": "NOT_RUN",
+    "callbackPaths": [
+      "SwiftUI onOpenURL",
+      "AppDelegate openURL -> GameBridgeGoogleHost.handle"
+    ]
+  },
+  "configurationInjection": {
+    "xcodebuildExit": 0,
+    "xcconfigOverridesDefaults": true,
+    "probeValues": "synthetic public IDs; build-settings read only; no app rebuilt/launched with these values",
+    "bundleId": "com.gamebridge.sdk.googleoauth.test"
+  },
+  "backendHttps": {
+    "health": 200,
+    "publicConfig": 200,
+    "withoutExplicitCaCurlExit": 60,
+    "trustedCaHostnameValidation": "PASS",
+    "challengeWithoutConsoleConfig": {
+      "http": 503,
+      "code": "CONFIG_REQUIRED"
+    },
+    "profile": "sandbox",
+    "sessionCount": 0,
+    "challengeCount": 0,
+    "identityCount": 0,
+    "dbQueryExit": 0,
+    "certPublicMetadata": "notBefore=Nov 20 09:50:57 2026 GMT\nnotAfter=Nov 27 09:50:57 2026 GMT\nsha256 Fingerprint=A4:16:CF:89:06:1B:76:94:20:D2:AA:7F:2B:E2:79:C5:70:44:B1:82:91:23:88:97:37:E6:C1:C2:A2:EC:A3:32\n",
+    "privateEnvMode": "0600",
+    "oauth": "NOT_RUN",
+    "cost": "local only; no external server"
+  },
+  "environment": {
+    "port": 18443,
+    "backendURL": "https://localhost:18443",
+    "database": "gamebridge_ci_f0ab9b0dfb",
+    "profile": "sandbox",
+    "simulator": "36AF68C1-490B-4D2C-965E-022B0B97E4F5",
+    "simulatorName": "GameBridge-Google-OAuth-Prep-0617a027",
+    "runtime": "iOS18.6",
+    "nativeBundleId": "com.gamebridge.sdk.googleoauth.test",
+    "unityBundleId": "com.gamebridge.sdk.mockiosconsumer",
+    "appId": "gamebridge-google-oauth-test",
+    "caCertificate": "/Users/switch/Development/App/GameSDK/GameBridge_SDK_Codex_Plan_v1/artifacts/google-oauth43-0jo7b1cn/source/artifacts/google-oauth-prep.3ms136td/tls/ca.pem",
+    "trustScope": "new owned Simulator only; no macOS/system trust changes",
+    "oauth": "NOT_RUN"
+  },
+  "nativeBuild": {
+    "status": "SUCCEEDED",
+    "durationMs": 35883,
+    "scheme": "GameBridgeGoogleOAuthHost",
+    "bundle": "com.gamebridge.sdk.googleoauth.test",
+    "simulatorOnly": true,
+    "signing": "local ad-hoc"
+  },
+  "backendBuildExit": 0,
+  "backendRestartControl": "PASS",
+  "googleSdk": "9.2.0 unchanged",
+  "clientIds": "WAITING_USER",
+  "oauth": "NOT_RUN",
+  "userLoginAndConsent": "NOT_RUN",
+  "unityOAuth": "NOT_RUN",
+  "otherProviders": "NOT_RUN",
+  "purchasePushRelease": "NOT_RUN",
+  "remoteOperations": "NOT_RUN",
+  "backendHasNoGoogleAudience": "CONFIG_REQUIRED is expected before Console inputs",
+  "privateMaterial": "ignored local run only;0600; not included",
+  "macSystemTrustModified": false,
+  "codeSha256": {
+    "ios/GoogleOAuthHost/GoogleOAuthHost.swift": "16eac6172638b0b552a0563acab007d8f3e8bdd7db5e52e3a5c3bec1fa359694",
+    "ios/GoogleOAuthHost/Info.plist": "7a7d42dca3ac9928df762d335a17395df73bf8756c830f950b9836567251abca",
+    "ios/Framework/project.yml": "456200af8d0b387222bbf4e910b2aa894e09749e9455a378d73b11ac70b50355",
+    "scripts/generate-ios-project.sh": "8910ad41411d72f0937cf6d0d7a32e69edfbc3bb38e3e2a1bf43ac486371cb99"
+  }
+}

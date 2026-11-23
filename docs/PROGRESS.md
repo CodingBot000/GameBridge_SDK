@@ -2023,3 +2023,27 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Hosted CI: PR #5 Run44538602965 Inventory/Backend/Android/Swift/Basic SUCCESS, Unity E2E·Release SKIPPED. 실계정 OAuth·실스토어·원격푸시는 미검증 상태.
 - README/FEATURE_MATRIX/SOCIAL_AUTH_HANDOFF/COMPATIBILITY/FINAL_REPORT/INTEGRATION/USER_SETUP/CI/CHANGELOG를 현재 결과로 정리하되 과거 DEV_RC·StoreKit FAIL·Strict 미완료·64 Task·원본 로그는 보존. 실계정 OAuth 검증은 별도의 후속 사용자 승인 단계로 분리.
 - **문서 검증:** GitHub branch 자료 기준 Markdown fence 수 검증, 9개 주 문서 상대 링크 총 172개 검사(존재하지 않는 Git 트리 경로 0건), README 이미지 3개 유지. 제품 코드·바이너리 변경·새 Player/외부 Provider 실행 없음.
+
+## 사용자 문서43 — iOS Google 실제 OAuth 사전 준비
+
+- main76c90b2/별도prepare/ios-google-oauth-20261120 worktree. 실OAuth·Console설정·사용자로그인·push/PR/병합/Release는실행하지않음. 기존feature/파일/DB/Unity프로젝트보존.
+- 독립Native Host com.gamebridge.sdk.googleoauth.test를우선사용,SDKGoogle9.2/기존nonce·challenge/JWT검증유지. Google전용수동로그인/취소/복원/logout UI와인증없는HTTPS준비probe만추가. Unity host com.gamebridge.sdk.mockiosconsumer는Native 실계정검증뒤별도iOS OAuth Client/Nativecallback설정으로확장한다.
+- 로컬HTTPS+격리sandboxDB/개발CA를준비하되trust는전용새Simulator에만적용. TLS검증우회/외부유료서버없음. 사용자Console iOS/Web client IDs가없으므로actual OAuth WAITING_USER를유지한다.
+- 문서43 로컬준비검증: 독립Native target Simulator빌드/실행PASS(35.9초),실제앱의기본URLSession/SDK TLS→HTTPS/config PASS. 전용CA지정HTTPS health/config200,CA미지정curl60(검증거부),sandbox DB profile확인/session·identity·challenge0. ClientIDs없어서challenge503 CONFIG_REQUIRED가정상차단. public xcconfig주입은synthetic IDs의showBuildSettings로검증(앱인증실행0). 실OAuth WAITING_USER/NOT_RUN·UnityOAuth NOT_RUN. 로컬HTTPS18443/새sandboxDB/전용Sim을준비하고Console2종iOS·Web client입력/실행절차를문서화했다.
+
+## iOS Google 실제 OAuth 검증 (2026-11-20)
+
+- 별도 Native Host 실계정 검증을 시작했다. 공개 Client ID와 iOS 콜백 Scheme을 로컬에 적용했다. 실제 로그인 결과는 확인 전이다.
+- Native Host 빌드, Client ID/URL Scheme/audience 일치, 시뮬레이터 HTTPS 검증을 통과했다. Google 실제 로그인 화면을 열었으며 사용자 인증 및 앱 복귀를 기다린다.
+- iOS 18.6 전용 Native Host의 실제 Google 계정 로그인 PASS. 앱에서 SDK 로그인 성공을 확인했고, sandbox DB에서 Google 인증 요청 사용 1건, Google identity 1건, 활성 SDK 세션 1건을 확인했다. 초기 시도는 AUTH_FAILED였으며 확인 시점에 해당 인증 요청이 만료돼 있었다. 새 요청으로 인증 성공을 확인했다.
+
+## Unity iOS Google 실제 OAuth (2026-11-20)
+
+- Unity 6000.5.8f1 전용 iOS Player를 별도 내보내고 iOS 18.6에서 PLATFORM_SANDBOX 초기화 및 HTTPS config 요청을 확인했다. Unity 전용 iOS OAuth Client ID 발급 확인 및 실계정 로그인 대기.
+- Unity 전용 iOS OAuth 클라이언트를 발급해 Player에 반영했다. 빌드·서명·실행 및 HTTPS 사전 검사 PASS. 실계정 로그인 결과 확인 대기.
+- Unity iOS Simulator 실계정 Google 로그인 PASS. Unity에서 SignInAsync(AuthProvider.GOOGLE)가 Google 사용자 프로필을 반환했고, 백엔드는 기존 Google identity에 새 SDK 세션을 생성했다.
+
+## 문서44 — iOS Google OAuth 최종 보완 (2026-11-22)
+
+- 문서44에 따라 기존 준비 브랜치에 Unity iOS Export 콜백 연동과 실계정 증거 정리를 추가한다.
+- 실계정 증거를 별도 문서와 JSON에 기록했다. 새 Unity Export 2회와 반복 hook, Simulator arm64 Xcode 빌드, 링크·Embed·서명 검사 PASS. 이번 변경의 실계정 재시험은 NOT_RUN.

@@ -1,0 +1,98 @@
+{
+  "scope": "Native and Unity iOS real-account Google OAuth over a local HTTPS sandbox",
+  "realAccountDateKst": "2026-11-20",
+  "environment": {
+    "runtime": "iOS 18.6 Simulator",
+    "deviceModel": "iPhone 16",
+    "signing": "local ad-hoc",
+    "unity": "6000.5.8f1",
+    "googleSignIn": "9.2.0",
+    "backendProfile": "sandbox",
+    "tls": "verified localhost HTTPS with a development CA trusted in the dedicated Simulator",
+    "appScope": "gamebridge-google-oauth-test"
+  },
+  "native": {
+    "recordCommit": "631fda2",
+    "sourceCommit": "e76d066ab6b8e89604d12fd8a6f52e19258f6124",
+    "bundle": "com.gamebridge.sdk.googleoauth.test",
+    "accountSignIn": "PASS",
+    "buildExit": 0,
+    "proof": [
+      "Native SDK successful sign-in screen",
+      "Backend consumed the Google challenge and issued an SDK session"
+    ],
+    "firstAttempt": {
+      "result": "AUTH_FAILED",
+      "cause": "undetermined",
+      "challengeAtInspection": "expired",
+      "activeSessions": 0
+    },
+    "database": {
+      "queryExit": 0,
+      "challengesTotal": 3,
+      "challengesConsumed": 1,
+      "googleIdentities": 1,
+      "activeSdkSessions": 1
+    }
+  },
+  "unity": {
+    "recordCommit": "bfbc644",
+    "bundle": "com.gamebridge.sdk.mockiosconsumer",
+    "stagingManifestSha256": "997fd8dea785aafa859c7ddb319492a101583bc6b59978e799ff3c8952a8bf36",
+    "isolatedSceneScriptSha256": "aea233bde05037b3eae718785c1cb96c11f0bf8518126f44ef372c589506aa26",
+    "callback": "Locally attached in the generated Unity controller for this account run",
+    "accountSignIn": "PASS",
+    "exportExit": 0,
+    "buildExit": 0,
+    "proof": [
+      "GB_UNITY_GOOGLE SIGN_IN PASS",
+      "Real Google profile returned by SignInAsync(AuthProvider.GOOGLE)",
+      "Same Backend identity with a separate SDK session"
+    ],
+    "database": {
+      "queryExit": 0,
+      "challengesTotal": 4,
+      "challengesConsumed": 2,
+      "googleIdentities": 1,
+      "sdkSessionsTotal": 2,
+      "activeSdkSessions": 1
+    }
+  },
+  "notRunForEitherHost": [
+    "session restoration",
+    "token refresh",
+    "cancellation",
+    "logout",
+    "physical device"
+  ],
+  "newGoogleAccountRunForExportChange": "NOT_RUN",
+  "exportRegression": {
+    "dateKst": "2026-11-22",
+    "hookFixtureExit": 0,
+    "pbxAndCallbackChecks": 62,
+    "firstFreshUnityExportExit": 0,
+    "secondFreshUnityExportExit": 0,
+    "repeatHookChecksOnEachExport": 2,
+    "controllersByteIdentical": true,
+    "nativeCallbackPrecedesManagedUrlPath": true,
+    "xcodeSimulatorBuildExit": 0,
+    "signatureVerificationExit": 0,
+    "linkedCAbi": [
+      "GB_HandleAuthURL",
+      "GB_ProtocolVersion",
+      "GB_Dispatch"
+    ],
+    "resolvedDependencies": {
+      "googleSignIn": "9.2.0",
+      "meta": "18.1.1"
+    },
+    "verifiedMetaFrameworks": [
+      "FBAEMKit",
+      "FBSDKCoreKit_Basics",
+      "FBSDKCoreKit",
+      "FBSDKLoginKit"
+    ],
+    "callbackRuntimeInvocation": "NOT_RUN",
+    "accountSignIn": "NOT_RUN"
+  }
+}

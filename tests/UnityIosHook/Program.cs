@@ -122,14 +122,51 @@ class Program
         Check(!File.Exists(Path.Combine(foreign, "GameBridgeFacebookPackage.txt")), "foreign Host package must not be claimed");
 
     }
+    static void TestGoogleCallback(string dir)
+    {
+        string classes = Path.Combine(dir, "Classes");
+        Directory.CreateDirectory(classes);
+        string path = Path.Combine(classes, "UnityAppController.mm");
+        Action apply = () => GameBridge.Editor.IosXcodeBuildHook.ConfigureGoogleCallback(dir);
+        MustFail(apply, "missing controller", "requires the exported UnityAppController.mm");
+        const string selector = "- (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options";
+        const string host = "    UnitySetAbsoluteURL(url.absoluteString.UTF8String);\n    return YES;\n}\n";
+        string unmodified = selector + "\n{\n" + host;
+        File.WriteAllText(path, "custom controller");
+        MustFail(apply, "unsupported callback", "requires one stock Unity openURL handler");
+        File.WriteAllText(path, unmodified + unmodified);
+        MustFail(apply, "duplicate callback", "requires one stock Unity openURL handler");
+        File.WriteAllText(path, unmodified.Replace(host, "    GB_HandleAuthURL(bytes, length);\n" + host));
+        MustFail(apply, "existing host forwarding", "conflicts with existing or modified Host forwarding");
+
+        foreach (string newline in new[] { "\n", "\r\n" })
+        {
+            string source = ("// Existing Host settings\n" + unmodified).Replace("\n", newline);
+            File.WriteAllText(path, source);
+            apply();
+            string once = File.ReadAllText(path);
+            int bridge = once.IndexOf("GB_HandleAuthURL(", StringComparison.Ordinal);
+            int unity = once.IndexOf("UnitySetAbsoluteURL(", StringComparison.Ordinal);
+            Check(bridge >= 0 && unity > bridge && bridge == once.LastIndexOf("GB_HandleAuthURL(", StringComparison.Ordinal), "native forwarding must precede Unity exactly once");
+            Check(once.EndsWith(host.Replace("\n", newline), StringComparison.Ordinal), "unrecognized URL must retain original host path");
+            string between = once.Substring(bridge, unity - bridge);
+            Check(between.Contains("return YES;"), "Google callback must return before the Unity URL event");
+            apply();
+            Check(once == File.ReadAllText(path), "repeat must preserve controller bytes");
+            string damaged = once.Replace("GB_HandleAuthURL(", "RemovedCallback(");
+            File.WriteAllText(path, damaged);
+            MustFail(apply, "damaged forwarding", "conflicts with existing or modified Host forwarding");
+            Check(File.ReadAllText(path) == damaged, "conflict must preserve host source");
+        }
+    }
     static void Main(string[] args)
     {
         string root = Path.Combine(Path.GetTempPath(), "gamebridge-ios-hook-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(root);
         string fresh = Path.Combine(root, "fresh"), upgrade = Path.Combine(root, "upgrade"); Directory.CreateDirectory(fresh); Directory.CreateDirectory(upgrade);
-        TestNewExport(fresh); TestUpgradeAndErrors(upgrade);
+        TestNewExport(fresh); TestUpgradeAndErrors(upgrade); TestGoogleCallback(fresh);
         string initial = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict><key>Existing</key><string>keep</string></dict></plist>";
         string first = GameBridge.Editor.IosXcodeBuildHook.EnableXcodeStoreKitHistory(initial), second = GameBridge.Editor.IosXcodeBuildHook.EnableXcodeStoreKitHistory(first);
         Check(first == second && second.Contains("keep"), "StoreKit plist idempotence/Host preservation");
-        Console.WriteLine("Unity iOS Hook PASS: " + checks + " independent PBX checks; fixtures " + root);
+        Console.WriteLine("Unity iOS Hook PASS: " + checks + " PBX and URL callback checks; fixtures " + root);
     }
 }

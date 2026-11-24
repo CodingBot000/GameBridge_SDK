@@ -79,6 +79,13 @@ LOCAL_MOCK은 개발 auth·가짜 proof·simulated Push로 위 계층 경계를 
 - **검증:** [C 후속](evidence/p10-batch32-android-push-c.json)은 receive/dedupe/main-thread·재연결·session 전환·해제/logout PASS, token0을 기록한다.
 - **한계:** 교육 안내 대응은 확인했지만 B의 reconnect timeout 근본 원인이 제품 수정으로 해결됐다고 단정하지 않는다. 실제 FCM, OS 전체 망 단절, 프로세스 재시작 검증으로 확대하지 않는다.
 
+## 문제 해결 4 — Unity iOS OAuth Scene 콜백 경계
+
+- **증상:** PR #7 AppController 연결만 적용한 Player에 합성 Google 등록 URL 전달 시 Native ABI 진입 0건, Unity C# URL 이벤트 1건. stock UnityScene의 독립 URL 경로가 원인이었다.
+- **수정:** [PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8)의 opt-in Export hook에서 AppController와 UnityScene warm/cold 경로가 Google 등록 scheme을 Native에서 먼저 소비하도록 했다. 기존 Host 경로·충돌 감지·반복 적용을 보존했다.
+- **검증:** signed Player 합성 warm URL ABI 1회, Unity URL 이벤트·신규 Backend 세션 0건. 71개 PBX/URL 검사·새 Export/빌드 통과. 같은 자동 Export 앱의 실제 Google 로그인·복원·취소·로그아웃도 확인했다.
+- **경계:** 실제 OAuth ABI 진입은 0건. cold Scene URL 직접 주입·실계정 refresh/replay는 NOT_RUN이며 실제 로그인 성공과 합성 callback 검증을 구분한다. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md).
+
 ## 제한 조사 — weak client1개
 
 조사 범위는 기존 [Player 실측](evidence/p10-batch34-unity-performance.json)과 현재 cleanup 소스다. 추가 재현·제품 수정 시도는 **0회**다. 동일 실험을 반복해 성공 수를 늘리지 않았다.
@@ -96,7 +103,7 @@ LOCAL_MOCK은 개발 auth·가짜 proof·simulated Push로 위 계층 경계를 
 | --- | --- | --- |
 | 전체 Strict | NOT_RUN, 기존 E1 DEFERRED_ENV/2·E2 생성/전 lane 소유권 배선 미완료 | 안전한 별도 환경에서 계약 완성 후 최대1회. 기존 P05 실패 유지 |
 | StoreKit | P05-T03 FAIL, ENV-STOREKIT-26 OPEN,18.6 간헐 위험 | 전용 Runtime·테스트 계정·시나리오별 재현. LOCAL_MOCK 통과로 덮지 않음 |
-| 실 Provider13건 | WAITING_USER | [USER_SETUP](USER_SETUP.md)대로 로컬에서 계정·상품·권한·서명·실기기 준비 후 별도 승인된 시험 |
+| 외부 Provider (기존 13건 원장) | 문서36 당시 WAITING_USER 집계 보존. 후속 iOS Google Native/Unity Simulator 실제 인증 수명주기 일부 PASS, 나머지 경로는 [기능 매트릭스](FEATURE_MATRIX.md) 기준 | 실제 갱신/replay·실기기·다른 Provider는 별도 승인된 환경에서 검증 |
 | weak1 / 추가 profiling | 미확정 / Android JNI heap·iOS continuation·CPU blocking NOT_RUN | 실제 심각한 결함 조사가 필요할 때만 측정. 지금 자동 필수 배치로 넘기지 않음 |
 | OpenAPI |24 operation/DTO23·실제/합성 응답 구조 대조, BUG-017 OPEN | 문서의 SSE/Map 세부 계약을 기계 검사에 더 연결할 수 있음 |
 | 환경·출시 | Unity 한 버전·일부 OS, self-hosted/Release·실기기 미검증 | 지원 확대 또는 출시를 별도로 결정한 경우에만 진행 |

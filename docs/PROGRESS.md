@@ -2055,3 +2055,8 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 병합 기준 Unity 6 Player에서 합성 등록 Scheme 전달 시 Native ABI hit 0건 및 C# URL 이벤트 1건으로 stock UnityScene 경로 누락을 재현했다. 자동 Export가 warm/cold Scene URL을 네이티브에서 소비하도록 보완했다.
 - 수정 후 signed Unity Player에서 등록 Scheme 합성 입력이 C ABI에 1회 들어가고 Unity URL 이벤트·신규 DB 세션은 0건이었다. Google UI 취소는 CANCELED, challenge 미사용, 새 세션 없음으로 확인했다. 같은 Unity 앱에서 재인증 화면을 열고 사용자 인증 대기 중이다.
 - 수정된 자동 콜백 Unity 빌드에서 실계정 로그인·앱 재실행 후 복원·로그아웃 PASS. Backend에서 기존 identity 재사용, 새 challenge 1회 소비, Unity 시험 세션만 폐기 확인. 실제 인증 ABI 진입 0건과 합성 warm ABI 진입 1건을 분리했다.
+
+## 2026-11-25 — README 및 최신 검증 문서 정합성
+
+- PR #9 README 개편은 CI 성공 뒤 Merge commit `761be81e89995720dfa7713be62310ac13e06fc3`로 통합했다. PR #8 iOS Google 실제 계정/합성 수명주기 결과를 기능·API·호환성·보안·설정·CI·통합 문서에 반영한다. 기존 코드·테스트·증거 JSON 및 64 Task 원장 상태/집계는 변경하지 않는다.
+- 실제 Native/Unity Simulator 로그인·복원·UI 취소·로그아웃 PASS, 합성 refresh/replay·warm URL, 실제 ABI 진입 0, cold URL/실계정 refresh 미실행 및 Native 재로그인 성공 미관측을 구분한다. 이번 문서 작업은 새 Provider·Player·Release 시험이 아니다.

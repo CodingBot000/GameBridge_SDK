@@ -2,13 +2,20 @@
 
 > 아래 원래의 종료 판정과 64개 Task 집계는 **문서36 당시 포트폴리오 스냅샷**으로 보존합니다. 이후 사용자 승인으로 별도 소셜 로그인 확장·iOS 패키징 보완을 진행했습니다. 과거 수치·FAIL/WAITING_USER를 소급 변경하지 않습니다.
 
+## 후속 iOS Google 실계정 검증 및 README 통합
+
+- **SDK 통합:** [PR #7](https://github.com/CodingBot000/GameBridge_SDK/pull/7)·[PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8) 병합, 최신 SDK 변경 기준 `09db0706f0e53693d9fd44df290d9da4c49aba6b`. iOS Google Native·Unity iOS 18.6 Simulator 실제 계정 로그인·앱 재시작 후 복원·Google UI 취소·로그아웃 및 해당 Backend 세션 폐기 PASS. 자동 콜백을 사용한 Unity Player에서도 실제 로그인 PASS. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md) / [정제 증거](evidence/ios-google-oauth-verification.json).
+- **검증 경계:** 합성 warm 콜백 ABI 1회/C# 이벤트 0건, 실제 OAuth ABI 진입 0건. cold URL 직접 주입, 실계정 refresh/replay, Native 취소 후 재로그인 성공 및 실기기는 미확인. Unity 두 timeout 기록과 최초 Native 실패를 유지한다.
+- **문서·CI:** [PR #9](https://github.com/CodingBot000/GameBridge_SDK/pull/9) 병합 `761be81e89995720dfa7713be62310ac13e06fc3`; [PR #8 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45153886562) 및 [PR #9 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45174047873) 기본 5개 Job SUCCESS, Unity E2E·Release SKIPPED. 기존 LOCAL_MOCK, 실패·제한 및 64 Task 기록은 소급 변경하지 않는다.
+- **판정:** `PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS` 유지, 전체 SDK 제품화는 기존 `BLOCKED_INTERNAL` 유지. 나머지 Provider/스토어/푸시 검증 상태는 [기능 매트릭스](FEATURE_MATRIX.md)를 따른다.
+
 ## 이후 통합·검증 추록 (2026-11-20)
 
 - **GitHub 통합:** [소셜 로그인 확장 PR #4](https://github.com/CodingBot000/GameBridge_SDK/pull/4), [iOS Meta Embed 수정 PR #5](https://github.com/CodingBot000/GameBridge_SDK/pull/5)가 모두 `main`에 병합됨. 최종 Merge commit `18e22af8800626a50364350f3ff56b596d00cf39`.
 - **Android:** PR #4 병합 소스 `36ca836`에서 Unity LOCAL_MOCK Player → Native JNI → Backend → PostgreSQL **PASS**(marker 33개, 원장 1건/100코인). PR #5에서 Android 소스 변경이나 재실행 없음.
 - **iOS:** Meta 의존성 Host App Embed 수정 후 새 Unity LOCAL_MOCK Player → Swift C ABI → Backend → PostgreSQL **PASS**(marker 23개, 원장 1건/100코인, 로그아웃 후 활성 세션 0). [원인·실행 기록](IOS_META_EMBED_FIX.md) / [정제된 증거](evidence/ios-meta-embed-fix.json).
-- **최신 Hosted CI:** [Run 44538602965](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965) 기본 5개 Job SUCCESS, Unity E2E/Release SKIPPED. 실제 Player 검증은 로컬에서 수행.
-- **현재 결론:** 포트폴리오 `PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS` 유지. SDK 전체 제품화 원장은 별도 `BLOCKED_INTERNAL` 유지. **실계정 소셜 OAuth, 실제 스토어 거래, 원격 푸시는 미검증**이며 상용 Release 없음.
+- **당시 Hosted CI:** [Run 44538602965](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965) 기본 5개 Job SUCCESS, Unity E2E/Release SKIPPED. 실제 Player 검증은 로컬에서 수행.
+- **당시 결론:** 포트폴리오 `PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS` 유지. SDK 전체 제품화 원장은 별도 `BLOCKED_INTERNAL` 유지. **실계정 소셜 OAuth, 실제 스토어 거래, 원격 푸시는 미검증**이며 상용 Release 없음.
 
 최신 기능별 판정은 [기능 매트릭스](FEATURE_MATRIX.md), 패키지/소스 구분은 [호환성](COMPATIBILITY.md), 실계정 시험 준비는 [사용자 설정](USER_SETUP.md)을 참고하세요.
 

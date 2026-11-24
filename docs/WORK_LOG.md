@@ -4413,3 +4413,7 @@
 - 합성 URL에 인증 코드나 토큰을 넣지 않고 기준 Player에서 Scene 경로 누락을 재현했다. UnityScene.mm의 applyURL과 willConnectToSession에 opt-in 자동 연동을 추가했다. 독립 hook 71 checks 종료 0, 새 Export 반복 hook marker 확인. Native 재시도는 계정 인증 없이 5분 challenge를 넘겨 실제 성공 미확인.
 - scene 보완 빌드에서 warm 합성 URL의 LLDB C 진입점 hit 1, C# 이벤트 0, DB 변경 0 확인. 새 Xcode 빌드와 서명·Meta 4종 확인 종료 0. 실제 Unity Google UI 취소 후 CANCELED 및 challenge 1건 증가/미사용, 세션 0건 증가. 재시작 없이 Unity 로그인 재시도 화면 도달.
 - Unity 계정 입력 대기 중 두 요청 TIMEOUT(세션 0건), 사용자와 새 요청을 연 뒤 SIGN_IN PASS URL_EVENTS 0. 차분 SQL 종료 0: challenge 신규 사용 1건/신규 세션 1건/identity 동일. 앱 재실행 RESTORE PASS에서 challenge/세션 변화 0. SIGN_OUT PASS 및 이후 RESTORE NO_SESSION; 이번 Unity 세션만 revoked, 다른 행 불변. 실계정 흐름의 ABI breakpoint hit 0, 합성 warm 콜백 1회와 별도로 판정한다.
+
+## 2026-11-25 — 문서 정합성 (README PR #9 이후)
+
+- 기준 main `761be81e89995720dfa7713be62310ac13e06fc3` (PR #9 병합). PR #8 검증 문서·정제 JSON, PR #8/#9 Hosted CI 성공 기록 및 현재 상태 문서를 대조했다. 역사적 기록과 실패를 보존하고 현재 요약·링크·설정 설명을 정정한다. SDK/Backend/하네스/계약/기존 증거 JSON 변경 없음. 새로운 runtime 실행 또는 release 판정 없음.

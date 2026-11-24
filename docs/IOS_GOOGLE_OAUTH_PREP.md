@@ -1,6 +1,6 @@
 # iOS Google OAuth preparation — document43
 
-**Current status:** Native and Unity iOS Simulator real Google sign-in passed on 2026-11-20. See [current verification and Unity export setup](IOS_GOOGLE_OAUTH_VERIFICATION.md). The `NOT_RUN` values below describe the original preparation run.
+**Current status:** Native and Unity iOS Simulator real Google sign-in passed on 2026-11-20. The 2026-11-23 lifecycle run also verified restore, Google UI cancellation, logout and account sign-in on the automatically exported Unity Player. See [current verification and Unity export setup](IOS_GOOGLE_OAUTH_VERIFICATION.md) for limitations, including synthetic-only refresh/replay and warm URL routing. The `NOT_RUN` values below describe the original preparation run.
 
 Base:76c90b2bfec3ec9c5da34399e9f59f0193fe4e16. Preparation only; real OAuth, Console creation/login/consent, push/PR/main merge and Release are NOT_RUN.
 

@@ -1,5 +1,9 @@
 # iOS Google OAuth verification
 
+**Current status (2026-11-23, PR #8):** Real Google sign-in, cold-launch SDK-session restore, Google UI cancellation and logout passed on the Native and automatically exported Unity iOS 18.6 Simulator apps. Refresh rotation/replay and the warm Scene URL are synthetic checks; real-account SDK-token refresh/replay, cold URL injection and physical-device sign-in are NOT_RUN. The real OAuth flow recorded zero ABI breakpoint hits. A successful Native account retry after cancellation was not observed, and Unity had two timed-out attempts before success. The [lifecycle section](#session-lifecycle-and-automatic-callback-2026-11-23-kst) is the current result. The earlier JSON fields and records describe their original runs; `lifecycle20261123` is the later evidence.
+
+## Initial real-account and export records (2026-11-20 to 22)
+
 Native and Unity iOS Simulator sign-in with a real Google test account passed on **2026-11-20 (KST)**. Both apps used the same local HTTPS sandbox and the Web client audience. The Unity export integration was added and tested separately on **2026-11-22**. The callback in the previous real-account Unity run was attached locally to the generated project.
 
 | Check | Native app | Unity iOS Player |
@@ -12,12 +16,12 @@ Native and Unity iOS Simulator sign-in with a real Google test account passed on
 
 Both apps used `gamebridge-google-oauth-test` and `https://localhost:18443`, with certificate verification enabled. The Backend consumed a fresh challenge and created the session after validating the Google proof. The count of active sessions was one at each recorded inspection. The older session and new session were distinguished using the cumulative count. Native records are in `631fda2` and Unity records are in `bfbc644`. The [sanitized evidence](evidence/ios-google-oauth-verification.json) contains aggregates and build provenance.
 
-Account restoration, refresh, cancellation, logout and physical-device sign-in were not exercised for either Host. No new Google account sign-in was run for the export change.
+In these initial 2026-11-20 account and 2026-11-22 export runs, account restoration, refresh, cancellation, logout and physical-device sign-in were not exercised for either Host. No new Google account sign-in was run for that export change. The 2026-11-23 lifecycle follow-up below is separate.
 
 ## Configure a fresh Unity export
 
 1. Install the staged `com.gamebridge.sdk` with the matching iOS XCFramework. Select the iOS build target and use the bundle ID registered with the app's own iOS OAuth client.
-2. For a standard Unity-generated AppController, add `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK` in Player Settings under iOS **Scripting Define Symbols**, then export. For a custom AppController, scene delegate or Unity as a Library, use the actual Host URL delegate and the [native forwarding example](../ios/host-examples/SocialAuthCallbacks.md). Choose one forwarding path.
+2. For a standard Unity-generated AppController, add `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK` in Player Settings under iOS **Scripting Define Symbols**, then export. For a custom AppController, custom scene delegate or Unity as a Library, leave the opt-in define unset and use the actual Host URL delegate and the [native forwarding example](../ios/host-examples/SocialAuthCallbacks.md). Choose one forwarding path.
 3. Supply the iOS Client ID as `GIDClientID`, the Web Client ID as `GIDServerClientID`, and the reversed **iOS** Client ID as a URL scheme in the exported app's Info.plist. Apply these with the Host's build settings or plist postprocessor. Keep account configuration in ignored local files. The Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON` entry for the app scope must allow that exact Web Client ID.
 4. Build the iOS target, install on a Simulator that trusts the local CA, and set the SDK to `PLATFORM_SANDBOX` with the trusted HTTPS Backend URL. The test path uses `SignInAsync(AuthProvider.GOOGLE)`. The [preparation record](IOS_GOOGLE_OAUTH_PREP.md) describes the local Backend and Native Host setup.
 

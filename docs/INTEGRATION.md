@@ -1,13 +1,13 @@
 # Quick Start와 Host 통합
 
-> 현재 소셜 인증 구현·Unity LOCAL_MOCK 검증은 [기능 매트릭스](FEATURE_MATRIX.md), OAuth 구현/검증 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md), Meta Embed 후 iOS Player 결과는 [IOS_META_EMBED_FIX](IOS_META_EMBED_FIX.md)를 참고하세요. **실제 Provider 계정 로그인은 별도 검증 대상**입니다.
+> 현재 소셜 인증·Unity LOCAL_MOCK 상태는 [기능 매트릭스](FEATURE_MATRIX.md), 이전 구현 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md), Meta Embed 결과는 [IOS_META_EMBED_FIX](IOS_META_EMBED_FIX.md)를 참고하세요. iOS Google의 Native/Unity 실제 계정 및 최신 자동 콜백 통합은 [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 기록되어 있습니다.
 
 
 목표는 기존 샘플을 통해 LOCAL_MOCK의 초기화→로그인→상품/구매→서버 잔액→Push→종료 경계를 확인하는 것입니다. 실제 스토어 거래·원격 푸시를 실행하지 않습니다. 검증된 환경은 [COMPATIBILITY](COMPATIBILITY.md), 내부 소유권은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)을 따릅니다.
 
 ## 어디서 시작하나요?
 
-**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. 별도 **Android/iOS Unity LOCAL_MOCK Player는 확장 이후 실제 실행 PASS**했지만, 이 결과는 **Google·Apple·Facebook 실계정 OAuth UI**의 성공을 의미하지 않습니다.
+**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. 별도 **Android/iOS Unity LOCAL_MOCK Player는 확장 이후 실제 실행 PASS**했지만, 이 결과 자체는 실계정 OAuth UI 성공을 의미하지 않습니다. iOS Google 실계정 결과는 별도의 [검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)을 따릅니다.
 
 | 하려는 일 | 먼저 읽을 곳 |
 | --- | --- |
@@ -17,7 +17,7 @@
 | C# 메서드·이벤트·오류 확인 | [API](API.md) |
 | 실제 완료/실패/미실행 확인 | [기능 매트릭스](FEATURE_MATRIX.md) · [진행 원장](PROGRESS.md) |
 
-> 이 페이지는 **Native/Host 통합 세부사항**을 다룹니다. Unity 패키지 소스만 가져온다고 Android AAR, iOS XCFramework 및 Host 설정이 자동으로 모두 준비되지는 않습니다. 실제 계정·스토어·원격 푸시 결과는 별도 검증이 필요합니다.
+> 이 페이지는 **Native/Host 통합 세부사항**을 다룹니다. Unity 패키지 소스만 가져온다고 Android AAR, iOS XCFramework 및 Host 설정이 자동으로 모두 준비되지는 않습니다. 실제 계정·스토어·원격 푸시의 검증 여부는 [기능 매트릭스](FEATURE_MATRIX.md)에서 각각 확인합니다.
 
 ## 1. 패키지 준비
 
@@ -220,7 +220,7 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 
 검증 명령: `ANDROID_HOME="$HOME/Library/Android/sdk" android/gradlew -p android :sdk-android:testDebugUnitTest :sdk-unity-bridge:testDebugUnitTest`, `backend/gradlew -p backend test --tests '*FacebookVerifierTest'`, opt-in 소유 DB의 `FacebookAuthHttpTest`, `swift test --package-path ios --filter 'SocialAuthProviderTests|AppleAuthProviderTests|CBridgeTests'`. Fake/계약/빌드는 실로그인 증거가 아니다. 실제 Android/iOS Facebook 로그인·취소·앱 복귀는 콘솔 설정 후 별도 확인해야 한다.
 
-의존성 환경: SwiftPM 원격 Meta binary 다운로드가 지연되어 공식 ZIP 6개의 upstream SHA256과 codesign을 확인한 뒤 upstream의 `USE_LOCAL_FB_BINARIES=1` 기능으로 로컬 검증했다. 제품 manifest는 공식 URL/exact version을 유지한다. 기본 원격 다운로드 경로는 DEFERRED_ENV이며 서명 검사 해제·SDK 소스 패치는 하지 않았다.
+의존성 환경: SwiftPM 원격 Meta binary 다운로드가 지연되어 공식 ZIP 6개의 upstream SHA256과 codesign을 확인한 뒤 upstream의 `USE_LOCAL_FB_BINARIES=1` 기능으로 로컬 검증했다. 제품 manifest는 공식 URL/exact version을 유지한다. 당시 기본 원격 다운로드 경로는 DEFERRED_ENV였으며 서명 검사 해제·SDK 소스 패치는 하지 않았다. 이후 공식 원격 바이너리 다운로드·Swift Job은 [Hosted CI 44499923500](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44499923500/job/135476850100)에서 성공했다.
 
 공식 근거: [Meta Android Login](https://developers.facebook.com/docs/facebook-login/android/), [Meta Limited Login](https://developers.facebook.com/docs/facebook-login/limited-login/), [iOS SDK18.1.1](https://github.com/facebook/facebook-ios-sdk/releases/tag/v18.1.1). 증명 계약은 [social-auth](../contracts/social-auth.md)를 따른다.
 
@@ -260,4 +260,12 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 
 Unity Export Hook은 FacebookLogin 18.1.1을 UnityFramework와 Host App 양쪽에 strong 연결합니다. Host App SPM 제품 소유로 Xcode가 FBAEMKit/FBSDKCoreKit_Basics/FBSDKCoreKit/FBSDKLoginKit 네 개를 최종 앱 Frameworks에 Embed·서명하도록 수정했습니다. GameBridgeNative는 static 연결이며 GoogleSignIn 9.2.0도 유지합니다. 기존 Host 소유 SPM 설정 충돌은 명시 실패하고 덮어쓰지 않습니다. **새 iOS 18.6 Unity LOCAL_MOCK Player의 실제 E2E는 PASS**(23 marker, DB 1건/100코인, logout 후 활성 세션 0)했으며 [실행 기록](IOS_META_EMBED_FIX.md)을 보존했습니다. 실제 Meta 계정 로그인은 미검증입니다.
 
-수정 Hook은 새 패키징·새 Unity Export에 자동 반영됩니다. 이전 staging/export/app을 재사용하거나 완성된 앱에 framework만 복사해 적용하지 않습니다. 새 iOS18.6 LOCAL_MOCK Player에서 초기화·로그인·상품·Mock 구매·잔액·로그아웃과 원장1건/100코인·로그아웃후활성session0을 확인했습니다. 실제 OAuth·스토어·원격푸시는 미검증이며 [수정·검증 근거](IOS_META_EMBED_FIX.md)를 따릅니다.
+수정 Hook은 새 패키징·새 Unity Export에 자동 반영됩니다. 이전 staging/export/app을 재사용하거나 완성된 앱에 framework만 복사해 적용하지 않습니다. 새 iOS18.6 LOCAL_MOCK Player에서 초기화·로그인·상품·Mock 구매·잔액·로그아웃과 원장1건/100코인·로그아웃후활성session0을 확인했습니다. 이 LOCAL_MOCK 실행에서는 실제 OAuth·스토어·원격 푸시를 검증하지 않았으며 [수정·검증 근거](IOS_META_EMBED_FIX.md)를 따릅니다.
+
+## iOS Google 실제 계정 및 Unity Scene 콜백 (PR #7·#8)
+
+- iOS Export 후처리가 중단되면 원인을 해결한 뒤 같은 출력 폴더에서 다시 실행합니다. 복구에 필요한 기록은 출력 폴더에 유지합니다. 훅이 변경하려는 파일과 Host의 편집이 충돌하면 파일 경로와 함께 실패하므로 해당 충돌을 해결한 뒤 재시도합니다.
+
+- 표준 Unity iOS Export는 `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK`을 iOS Scripting Define Symbols에 추가합니다. AppController 및 stock UnityScene warm/cold URL 경로에 자동 연결됩니다. 커스텀 Host/Unity as a Library는 자동 연결을 끄고 실제 Native URL delegate에서 한 번만 전달합니다. [Host callback 예제](../ios/host-examples/SocialAuthCallbacks.md).
+- Bundle별 iOS OAuth Client ID·reversed scheme, Backend Web Client ID/audience, 신뢰 가능한 HTTPS를 설정합니다. 새로운 checkout에서는 최신 소스로 Native/UPM을 생성하고 예전 로컬 staging을 자동 재사용하지 않습니다.
+- 실제 계정 로그인·복원·UI 취소·로그아웃은 iOS 18.6 Simulator Native/Unity에서 PASS했습니다. 합성 warm URL Native ABI 처리와 실제 로그인은 별도 증거이며 cold URL 주입/실계정 refresh는 미실행입니다. [재현 및 검증 범위](IOS_GOOGLE_OAUTH_VERIFICATION.md) · [사용자 설정](USER_SETUP.md).

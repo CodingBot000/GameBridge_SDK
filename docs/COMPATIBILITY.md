@@ -2,22 +2,23 @@
 
 > 이 문서에는 **현재 소셜 확장 통합 상태**와 **소셜 확장 전 포트폴리오 DEV_RC의 역사적 검증 기록**이 함께 있습니다. 서로 다른 소스의 증거를 합쳐 한 번의 테스트 PASS로 표시하지 않습니다.
 
-## 현재 통합 상태 (2026-11-20)
+## 현재 통합 상태 (2026-11-23 검증, PR #9 문서 개편 포함)
 
 | 구분 | 확인한 내용 | 근거·제한 |
 | --- | --- | --- |
-| 코드 | [PR #4](https://github.com/CodingBot000/GameBridge_SDK/pull/4) + [PR #5](https://github.com/CodingBot000/GameBridge_SDK/pull/5) `main` 병합, HEAD `18e22af8800626a50364350f3ff56b596d00cf39` | 개발용 `0.1.0-dev`, Release 아님 |
+| 코드 | PR #4·#5 소셜/Embed 확장, [PR #7](https://github.com/CodingBot000/GameBridge_SDK/pull/7)·[PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8) iOS Google 인증/콜백 통합 (SDK 병합 SHA `09db0706f0e53693d9fd44df290d9da4c49aba6b`); [PR #9](https://github.com/CodingBot000/GameBridge_SDK/pull/9) README 문서 개편 병합 `761be81e89995720dfa7713be62310ac13e06fc3` | 개발용 `0.1.0-dev`, Release 아님 |
 | Android Unity LOCAL_MOCK | PR #4 병합 소스 `36ca836` 로컬 Player PASS, marker 33개, DB 원장 1건/100코인 | 문서41 로컬 검증; PR #5에서 Android 수정·재실행 없음 |
 | iOS Unity LOCAL_MOCK | Meta Embed 수정 소스에서 새 Unity 6000.5.8f1 / iOS 18.6 Simulator Player PASS, marker 23개, 원장 1건/100코인, 활성 세션 0 | [실행 결과](IOS_META_EMBED_FIX.md) / [정제 증거](evidence/ios-meta-embed-fix.json). 수정된 Hook·runner의 검증 해시를 최종 commit과 대조 |
-| 현재 iOS UPM | 소셜 확장·Meta Embed 수정 포함 로컬 staging 147개 checksum PASS, manifest SHA-256 `997fd8dea785aafa859c7ddb319492a101583bc6b59978e799ff3c8952a8bf36` | 생성 바이너리는 Git에 없음. [패키지 안내](INTEGRATION.md#1-패키지-준비) |
-| Hosted CI | [PR #5 Run 44538602965](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965) Hosted 필수 5개 Job SUCCESS | Unity E2E·Release Readiness SKIPPED |
-| 외부 Provider | Google·Apple·Facebook Native/Backend·브리지 코드/Fake·계약 검증 | 실제 계정·실기기 OAuth·스토어 결제·FCM/APNs 전송 미검증 |
+| iOS UPM — 2026-11-20 Meta Embed 단계 | 소셜 확장·Meta Embed 수정 포함 로컬 staging 147개 checksum PASS, manifest SHA-256 `997fd8dea785aafa859c7ddb319492a101583bc6b59978e799ff3c8952a8bf36` | 당시 산출물; 현재 Google 콜백 후속 stage와 구분. [패키지 안내](INTEGRATION.md#1-패키지-준비) |
+| Hosted CI | [PR #8 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45153886562) (code `c3dd91e`) 및 [PR #9 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45174047873) (README 변경) 기본 5개 Job SUCCESS | Unity E2E·Release Readiness SKIPPED; 실제 Player 검증은 로컬 |
+| 외부 Provider | iOS Google Native·Unity iOS 18.6 Simulator 실제 계정 로그인·앱 재시작 후 복원·Google UI 취소·로그아웃 및 해당 Backend 세션 폐기 PASS; Backend challenge·Identity·세션 결속 확인 | [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md). 실계정 refresh/replay, Native 취소 후 재로그인 성공, cold Scene URL 직접 주입, Android Google·양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 실기기 미완료 |
+| iOS Google 후속 패키징 | Unity 6000.5.8f1, Xcode 26.6 (17F113), iOS 18.6 Simulator; GoogleSignIn 9.2.0 / Meta 18.1.1; 자동 Export·71개 콜백/PBX 검사 및 서명 PASS | 수정 staging manifest SHA-256 `b318a58bb2bd50b78ba068e5794482198069a5b055ae30388e559e0b417b2f0b`. [실행별 증거](evidence/ios-google-oauth-verification.json); 이전 147개 checksum 수치를 새 stage에 소급 적용하지 않음 |
 
 **최신 Unity LOCAL_MOCK PASS는 소셜 인증 실계정 동작을 검증한 결과가 아닙니다.** 배포 지원 OS 범위·상용 안정성을 보증하지 않으며, 원래의 StoreKit 로컬 실패 및 Strict 미완료는 여전히 [알려진 제한](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)으로 남아 있습니다.
 
 ## 이전 포트폴리오 DEV_RC 검증 기록
 
-> 다음 버전·소스 SHA·DEV_RC checksum/Hosted 실행 표는 **문서36 당시 포트폴리오 후보**의 근거입니다. 위 최신 소셜 확장 UPM checksum과 혼동하지 마세요.
+> 다음 버전·소스 SHA·DEV_RC checksum/Hosted 실행 표는 **문서36 당시 포트폴리오 후보**의 근거입니다. 위 소셜 확장 및 iOS Google 후속 stage와 혼동하지 마세요.
 
 **SDK0.1.0-dev / Bridge protocol1 / 로컬 DEV_RC.** 아래는 실제 확인한 조합이며 모든 단말·OS·Unity 버전을 지원한다는 보증이 아닙니다. [최종 보고](FINAL_REPORT.md)는 포트폴리오 종료와 SDK 제품화 상태를 따로 판정합니다.
 

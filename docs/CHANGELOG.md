@@ -2,12 +2,21 @@
 
 > 개발 버전 `0.1.0-dev`의 변경 기록입니다. **병합됐다는 사실과 실제 Provider·Release 검증 완료는 다릅니다.** 최초 포트폴리오 DEV_RC의 동결 근거는 보존하고, 이후 승인된 확장을 아래에 별도로 기록합니다.
 
+## 2026-11-20~25 — iOS Google 인증 및 포트폴리오 문서 개편
+
+- [PR #7](https://github.com/CodingBot000/GameBridge_SDK/pull/7): Native/Unity iOS 실제 Google 로그인 기록, 독립 Native Host, 로컬 HTTPS sandbox, Google AppController 자동 콜백 Export 추가. 최초 실제 Unity 인증은 수동 콜백 연결 빌드에서 수행했으며 새 Export 검증과 구분.
+- [PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8): UnityScene warm/cold URL 처리 보완. 실제 계정 로그인·복원·UI 취소·로그아웃 PASS (Native/Unity); 합성 warm URL ABI 1회/C# 이벤트 0건, cold URL 직접 주입 NOT_RUN. 실계정 refresh/replay 미실행, 합성 Swift 10건·Backend HTTP 2건 통과. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md).
+- [PR #9](https://github.com/CodingBot000/GameBridge_SDK/pull/9): README를 공통 API·아키텍처·대표 검증 성과 중심으로 개편한 문서 변경. [PR #8 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45153886562) 및 [PR #9 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45174047873) 기본 5개 Job SUCCESS, Unity E2E/Release SKIPPED.
+- [PR #10](https://github.com/CodingBot000/GameBridge_SDK/pull/10): iOS Apple 로그아웃 후 Provider 선택 기록을 정리하고, 기존 Keychain 세션이 없다고 확인한 경우에만 다른 앱의 낡은 Apple 선택 기록을 정리한다. 인증 수명 회귀를 기본 PR CI에 연결한다.
+
+아래는 각 단계의 당시 기록이며 최신 판정은 [기능 매트릭스](FEATURE_MATRIX.md)를 따릅니다.
+
 ## 2026-11-20 — 소셜 인증 확장 및 Unity iOS Host 패키징 통합
 
-- [PR #4](https://github.com/CodingBot000/GameBridge_SDK/pull/4): iOS Google, Android/iOS Facebook, Android Apple 웹 인증 구현. Backend Provider 증명 분리·기존 session/구매 원장 재사용·Native/Unity 라우팅 확장. 실제 계정 OAuth는 **WAITING_USER**.
+- [PR #4](https://github.com/CodingBot000/GameBridge_SDK/pull/4): iOS Google, Android/iOS Facebook, Android Apple 웹 인증 구현. Backend Provider 증명 분리·기존 session/구매 원장 재사용·Native/Unity 라우팅 확장. 당시 실제 계정 OAuth는 **WAITING_USER**.
 - [PR #5](https://github.com/CodingBot000/GameBridge_SDK/pull/5): Unity iOS Export Hook에서 Meta 18.1.1 동적 의존성을 Host App에 Embed·서명하도록 수정; 반복 적용 멱등성 검사 및 iOS Player 사전 검사 추가. 원인과 [iOS E2E PASS](IOS_META_EMBED_FIX.md) 기록.
 - Android Unity LOCAL_MOCK은 PR #4 병합 소스에서 로컬 PASS(33 marker, 지급 1건/100코인); PR #5에서는 Android 변경·재실행하지 않음. iOS Unity LOCAL_MOCK은 수정 소스에서 로컬 PASS(23 marker, 지급 1건/100코인, 로그아웃 후 활성 세션 0).
-- [PR #5 Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965)의 필수 5개 Job SUCCESS; Unity E2E/Release SKIPPED. `main` Merge commit `18e22af8800626a50364350f3ff56b596d00cf39`. 공식 SDK/플랫폼 실계정 테스트·실스토어 거래·원격 푸시는 NOT_RUN.
+- [PR #5 Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965)의 필수 5개 Job SUCCESS; Unity E2E/Release SKIPPED. `main` Merge commit `18e22af8800626a50364350f3ff56b596d00cf39`. 이 단계에서는 공식 SDK/플랫폼 실계정 테스트·실스토어 거래·원격 푸시를 실행하지 않았다.
 
 ## 이전 개발 이력 (작성 당시 원문)
 

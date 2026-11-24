@@ -1,22 +1,22 @@
 # 선택적 실서비스 연동 준비
 
-> 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
+> 현재 Provider별 상태는 [기능 매트릭스](FEATURE_MATRIX.md), 이전 구현 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따릅니다. iOS Google 실제 계정 및 새 자동 콜백 재현 절차는 [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 있습니다.
 
 
-현재 **실계정 소셜 로그인 검증을 준비하는 단계**입니다. 설정 준비와 실연동 PASS는 별개이며 기존 13개 외부 연동 Task의 WAITING_USER 원장을 유지합니다. 로컬 실행은 [Quick Start](INTEGRATION.md), 증명된 결과는 [COMPATIBILITY](COMPATIBILITY.md)가 기준입니다.
+현재 iOS Google Native·Unity iOS 18.6 Simulator 실제 계정 로그인·앱 재시작 후 복원·Google UI 취소·로그아웃 및 해당 Backend 세션 폐기 PASS. 신규 사용자 환경에서는 여전히 OAuth 콘솔·Host·Backend 설정이 필요하며, 설정 준비와 실연동 PASS는 별개입니다. 문서36 당시 13개 외부 연동 Task 원장 집계는 소급 변경하지 않습니다. 로컬 실행은 [Quick Start](INTEGRATION.md), 검증된 조합은 [COMPATIBILITY](COMPATIBILITY.md)를 참고하세요.
 
 ## 다음 단계 — 실제 소셜 로그인 검증 준비
 
-최신 Unity **LOCAL_MOCK** 양 플랫폼 실행은 통과했지만 Google·Apple·Facebook의 **실계정 로그인은 아직 한 번도 실행하지 않았습니다.** 실제 검증은 플랫폼별 인증 콘솔 설정 후 진행하며, 한 Provider의 정상/취소/실패/세션 복원/로그아웃을 분리해서 확인합니다.
+Android/iOS LOCAL_MOCK과 iOS Google의 실제 OAuth 결과를 분리합니다. Android Google·양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 실기기 검증은 별도 사용자 승인·설정 후 선택적으로 진행합니다. 실제 갱신/replay·취소 후 모든 재시도 경로까지 완료된 것으로 보지 않습니다.
 
 | 시험 경로 | 사용자가 준비해야 하는 사항 | 코드·테스트 준비 상태 |
 | --- | --- | --- |
-| iOS Google | Google Cloud iOS OAuth Client ID, Backend용 Server Client ID, Bundle ID·URL Scheme·테스트 계정 | GoogleSignIn 9.2.0, custom nonce, Backend 검증 구현·Fake/계약 PASS |
+| iOS Google | Bundle별 iOS OAuth Client ID, Backend Web Client ID, URL Scheme·테스트 계정·신뢰된 HTTPS | GoogleSignIn 9.2.0; Native/Unity 실제 Simulator 로그인·복원·UI 취소·로그아웃 PASS (실계정 refresh/replay NOT_RUN) |
 | Android Facebook | Meta App ID/Client Token, Android 패키지·서명 Key Hash·테스트 계정·서버 전용 App Secret | Meta 18.3.0 Classic, Backend debug 검증·Fake/계약 PASS |
 | iOS Facebook | 동일 Meta 앱의 iOS 플랫폼 설정·URL Scheme·테스트 계정 및 Backend App Secret | Meta 18.1.1 Limited/Classic·Backend JWT 검증·Fake/계약 PASS |
 | Android Apple | Apple Developer Primary App ID·Services ID, Team/Key ID·서버 전용 p8, 소유 HTTPS callback/return 도메인·Android App Links | 웹 OAuth·Custom Tabs·서버 code 교환·일회용 handle 구현·보안 테스트 PASS |
 
-실제 ID·서비스 설정이 준비되면 **먼저 1개 플랫폼/Provider를 선택해 시험용 Host 앱과 별도 Backend Sandbox에서 실행**합니다. 단순 로그인 성공뿐 아니라 Provider 계정과 GameBridge Backend 사용자·세션 결속, 취소·재시도·세션 복원·로그아웃을 확인하고 나머지 경로로 확장합니다. 새 Unity Player의 LOCAL_MOCK 결과를 실제 OAuth PASS로 승격하지 않습니다.
+새로운 Provider 또는 새 환경을 검증할 때는 **1개 플랫폼/Provider를 선택해 시험용 Host 앱과 별도 Backend Sandbox에서 실행**합니다. 단순 로그인 성공뿐 아니라 Provider 계정과 GameBridge Backend 사용자·세션 결속, 취소·재시도·세션 복원·로그아웃을 확인하고 나머지 경로로 확장합니다. 새 Unity Player의 LOCAL_MOCK 결과를 실제 OAuth PASS로 승격하지 않습니다.
 
 **보안:** 실제 App Secret·Apple p8·로그인 토큰·개인 식별 정보는 Git/Unity 에셋/채팅/원본 로그에 넣지 않습니다. 사용자 로컬 비밀 저장소에서 공급하고, Codex는 사용자의 콘솔 로그인·약관 동의·비밀키 발급을 자동으로 가정하지 않습니다.
 
@@ -28,7 +28,7 @@
 | USER-UNITY |6000.5.8f1·모듈·새 양 Player 실제 검증 | 자기 환경의 Editor·module·license 준비, 약관/로그인 직접 처리 | 전용 self-hosted/Release는 미검증 |
 | USER-DEVICE | Android API34 AVD/iOS18.6 Simulator, 무서명 archive·ad-hoc Simulator | 실제 단말·앱 ID·서명·capability·기기 신뢰 | 실기기 미검증 |
 | USER-BACKEND | local/synthetic profile·DB·HTTP·verifier/sender 코드 | sandbox URL·별도 DB/role·secret 범위와 Provider 권한 준비 | 운영/외부 연결 미검증 |
-| USER-AUTH-GOOGLE | Credential Manager/nonce·서버 verifier·fake 경계 | OAuth client ID·audience·package·서명 fingerprint·테스트 계정 | WAITING_USER |
+| USER-AUTH-GOOGLE | Android Credential Manager, iOS GoogleSignIn/nonce·서버 verifier | Bundle/패키지별 Client ID·Web audience·서명 조건·테스트 계정 | iOS Simulator 실제 계정 및 기본 세션 수명 PASS; Android WAITING_USER; 실계정 refresh/replay·실기기 NOT_RUN |
 | USER-AUTH-APPLE | AuthenticationServices·nonce·서버 verifier·fake 경계 | Bundle/App ID·Sign in with Apple capability·audience·서명·계정 | WAITING_USER |
 | USER-BILLING-GOOGLE | Play Billing·검증/Google finalizer·synthetic 회귀 | 앱/internal testing·일회성 두 상품·테스터·서버 서비스 계정 권한 | WAITING_USER |
 | USER-BILLING-APPLE | StoreKit2·검증/finish·Xcode 로컬 일부 | App Store 상품·Sandbox tester·Bundle/환경·검증 신뢰 설정 | WAITING_USER, P05-T03 FAIL 별도 유지 |
@@ -84,9 +84,9 @@ bash scripts/verify-external.sh --check-config
 
 공식 GoogleSignIn-iOS9.2.0을pin했다. Google OAuth의iOS Client ID,Backend용Server Client ID,Bundle ID와reversed iOS Client ID URL Scheme을Host에설정한다. sample은 GIDClientID/GIDServerClientID 및CFBundleURLTypes를 build setting GAMEBRIDGE_GOOGLE_IOS_CLIENT_ID/GAMEBRIDGE_GOOGLE_SERVER_CLIENT_ID/GAMEBRIDGE_GOOGLE_IOS_REVERSED_CLIENT_ID로받는다. 값은public client identifier이며서버secret이아니다.
 
-기본 Unity AppController를 쓰는 iOS 프로젝트는 iOS Scripting Define Symbols에 `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK`을 추가한 후 Export한다. 별도 AppController를 쓰는 Host는 기존 네이티브 URL 핸들러에 `GB_HandleAuthURL`을 연결한다. 두 경로는 각 Host에서 하나만 사용한다. [Host 예시](../ios/host-examples/SocialAuthCallbacks.md)를 따른다. Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`의 Google audience는 Web Client ID와 일치해야 한다. 인증 URL과 토큰은 네이티브에서 처리한다.
+표준 Unity AppController 및 stock UnityScene을 사용하는 iOS 프로젝트는 iOS Scripting Define Symbols에 `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK`을 추가한 후 Export한다. 별도 AppController/scene delegate 또는 Unity as a Library Host는 자동 연결을 끄고 실제 네이티브 URL 핸들러에 `GB_HandleAuthURL`을 한 번 연결한다. 두 경로는 각 Host에서 하나만 사용한다. [Host 예시](../ios/host-examples/SocialAuthCallbacks.md)를 따른다. Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`의 Google audience는 Web Client ID와 일치해야 한다. 인증 URL과 토큰은 네이티브에서 처리한다.
 
-계정/콘솔이없으면real login은WAITING_USER다. source fake와archive가실제로그인성공이아니다. 새Nativeframework는공식GoogleSignIn 및AppAuth/SPM resource를소비자에서link해야하며Unityhook은exact9.2.0 dependency를추가한다. 옛포트폴리오DEV_RC는이코드를포함하지않는다.
+계정/콘솔이 없는 신규 환경의 실계정 시험은 WAITING_USER다. source fake와 archive는 실제 로그인 성공이 아니다. iOS Google은 후속 Native/Unity Simulator 실계정 로그인·복원·UI 취소·로그아웃을 별도로 확인했다. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md). 새 Native framework는 GoogleSignIn 및 AppAuth/SPM resource를 소비자에서 link해야 하며 Unity hook은 exact 9.2.0 dependency를 추가한다. 옛 포트폴리오 DEV_RC는 이 코드를 포함하지 않는다.
 
 ## 소셜 확장 B — Facebook (문서37)
 

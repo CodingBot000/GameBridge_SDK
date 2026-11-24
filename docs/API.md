@@ -2,7 +2,7 @@
 
 > GameBridge SDK `0.1.0-dev`의 **현재 공개 소스 기준**입니다. 아래 메서드가 존재한다는 사실과 실제 Unity Player/스토어에서 동작이 검증되었다는 사실은 다릅니다. 검증 상태는 [기능 매트릭스](FEATURE_MATRIX.md), [진행 원장](PROGRESS.md)을 확인하세요.
 
-> 소셜 확장: 양 플랫폼 GOOGLE/APPLE/FACEBOOK을 Native로 분기합니다. 원본 증명은 Unity에 노출하지 않습니다. 실제 OAuth는 WAITING_USER이며 [증거·제한](SOCIAL_AUTH_HANDOFF.md)을 따릅니다.
+> 소셜 확장: 양 플랫폼 GOOGLE/APPLE/FACEBOOK을 Native로 분기하며 원본 증명은 Unity에 노출하지 않습니다. iOS Google Native·Unity iOS 18.6 Simulator 실제 계정 로그인·앱 재시작 후 복원·Google UI 취소·로그아웃 및 해당 Backend 세션 폐기 PASS. 다른 플랫폼·Provider와 갱신/replay의 정확한 범위는 [기능 매트릭스](FEATURE_MATRIX.md) 및 [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)를 따릅니다.
 
 [README로 돌아가기](../README.md) · [통합 가이드](INTEGRATION.md) · [샘플 코드](../unity/Packages/com.gamebridge.sdk/Samples~/Offline%20Demo/OfflineDemo.cs)
 
@@ -22,7 +22,7 @@
 | `EditorOffline` | Unity Editor의 메모리 Fake | 실제 Backend·스토어·계정과 연결되지 않으며 Player에서 사용 불가 |
 | `LocalMock` | Android/iOS Native ↔ 로컬 Backend 개발 경로 | 개발키·테스트 Backend 필요. 가상 로그인/구매이며 실제 스토어가 아님 |
 | `XcodeStoreKit` | iOS의 Xcode 로컬 StoreKit 시험 | iOS 18 이상 및 별도 개발 설정 필요. 실제 Apple 서명 검증 아님 |
-| `PlatformSandbox` | Android/iOS Google·Apple·Facebook 및 플랫폼 스토어 Sandbox 경로 | 플랫폼 계정·Host 설정이 필요. 실제 통합 검증 미완료 |
+| `PlatformSandbox` | Android/iOS Google·Apple·Facebook 및 플랫폼 스토어 Sandbox 경로 | 선택한 Provider 계정·Host·Backend 설정 필요; iOS Google 실제 Simulator 검증은 별도 확인, 전체 실연동 완료 아님 |
 
 `GameBridgeConfig`는 앱 식별자, 모드, Backend 주소, 요청 시간 제한 등을 받습니다. `LocalMock` 및 `XcodeStoreKit`에서는 개발키·Mock 사용자(`A` 또는 `B`)를 별도로 요구합니다. 개발키는 로그·Unity Asset·`PlayerPrefs`에 보관하지 마세요.
 
@@ -87,14 +87,14 @@ catch (SdkException error)
 
 - **Editor Offline:** Fake/독립 관리 코드 시험 ≠ Unity Editor 실제 Play 검증.
 - **LOCAL_MOCK:** Native·Backend 로컬 시험 ≠ Unity Android/iOS Player 전체 통과.
-- **Platform Sandbox:** Provider 연결 코드·synthetic 시험 ≠ 실제 Google/Apple/Facebook 로그인·스토어·원격 푸시 성공.
+- **Platform Sandbox:** Provider 연결 코드·합성 시험과 실제 계정·스토어·푸시 실행은 별개입니다. iOS Google의 실제 계정 시험 및 합성 refresh/replay 결과는 [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)를 확인하세요.
 - **Xcode StoreKit:** iOS 18.6 일부 통과, iOS 26.5 별도 로컬 실패가 기록됨.
 
 구현·검증 결과의 최신 공식 근거는 [PROGRESS](PROGRESS.md), [WORK_LOG](WORK_LOG.md), [FINAL_REPORT](FINAL_REPORT.md)에서 확인하세요.
 
 ## SDK·HTTP·Bridge 세부 계약
 
-> 문서37의 최신 소셜 확장 상태·검증은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따른다. 아래 이전 포트폴리오 snapshot과 실Provider 검증을 구분한다.
+> 문서37의 소셜 확장 구현 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md), 현재 검증 범위는 [기능 매트릭스](FEATURE_MATRIX.md)를 따릅니다. 아래 이전 포트폴리오 snapshot과 후속 Provider 시험을 구분합니다.
 
 
 공개 Unity 표면은 [GameBridgeClient](../unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs), 설정은 [GameBridgeConfig](../unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs)가 기준입니다. 실제 사용 순서는 [Quick Start](INTEGRATION.md)를 따릅니다.

@@ -16,6 +16,8 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BEFORE = 'dc3ed4224d1c676e33ee92e8aa7aa6ceaa3c7855'
 APPROVED = '23536d22ed5a11c919c65b411c8807ff07e42b37'
+LOGOUT_BASE = '09db0706f0e53693d9fd44df290d9da4c49aba6b'
+LOGOUT_FILES = {'ios/UnityBridge/AppleAuthBridgeHandler.swift', 'ios/UnityBridge/PlatformAuthBridgeHandler.swift'}
 RECORD = ROOT / 'contracts/social-auth-transition.json'
 spec = importlib.util.spec_from_file_location('feature_closed_transition', ROOT/'harness/check-feature-refactor-transition.py')
 legacy = importlib.util.module_from_spec(spec)
@@ -51,12 +53,25 @@ def check_transition(before, approved, current, record):
     return errors
 
 
+def check_logout_transition(closed, current, transition):
+    if transition.get('before') != LOGOUT_BASE or set(transition.get('files', {})) != LOGOUT_FILES:
+        return ['iOS logout transition scope mismatch']
+    expected = dict(closed['files'])
+    for name, hashes in transition['files'].items():
+        if hashes.get('before') != closed['files'][name]['sha256'] or not re.fullmatch('[a-f0-9]{64}', hashes.get('after', '')):
+            return ['invalid reviewed logout transition: ' + name]
+        expected[name] = dict(expected[name], sha256=hashes['after'])
+    if current['files'] != expected or current['swiftCExports'] != closed['swiftCExports']:
+        return ['shipping source, public contract or C ABI drift outside reviewed iOS logout transition']
+    return []
+
+
 def main():
     try:
         record = json.loads(RECORD.read_text())
         if record.get('before') != BEFORE or record.get('approvedSource') != APPROVED:
             raise ValueError('fixed social authorization source mismatch')
-        for ref in (BEFORE, APPROVED):
+        for ref in (BEFORE, APPROVED, LOGOUT_BASE):
             subprocess.run(['git', 'merge-base', '--is-ancestor', ref, 'HEAD'], cwd=ROOT, check=True, capture_output=True)
         # Frozen guards and every frozen baseline file must remain byte-identical.
         frozen = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', BEFORE, '--', 'contracts/baseline'], cwd=ROOT, text=True).splitlines()
@@ -69,7 +84,10 @@ def main():
         before = legacy.snapshot_at(BEFORE)
         approved = legacy.snapshot_at(APPROVED)
         current = legacy.core.snapshot()
-        errors = check_transition(before, approved, current, record)
+        closed = legacy.snapshot_at(LOGOUT_BASE)
+        errors = check_transition(before, approved, closed, record)
+        transition = json.loads((ROOT/'contracts/ios-logout-transition.json').read_text())
+        errors += check_logout_transition(closed, current, transition)
         for name in current['files']:
             if (ROOT/name).is_symlink():
                 errors.append('shipping source symlink refused: '+name)
@@ -91,7 +109,7 @@ def main():
         subprocess.run(['git', 'worktree', 'add', '--detach', str(destination), BEFORE], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
         for guard in ['check-api-baseline.py', 'check-feature-refactor-transition.py']:
             subprocess.run([sys.executable, str(destination/'harness'/guard)], cwd=destination, check=True)
-        print('Frozen P08/P10 guards PASS at closed source; exact approved social extension source/API/export lock PASS')
+        print('Frozen P08/P10 guards PASS at closed source; reviewed social and iOS logout source/API/export transitions PASS')
         return 0
     except (OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.SubprocessError) as error:
         print('Social transition FAIL:', type(error).__name__)

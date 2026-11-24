@@ -144,10 +144,10 @@ extension AppleAuthBridgeApi {
     private let push: ApplePushClient?
     private let serviceSession: AppleStoreSession
     private let makeEmitter: () -> (AppleStorePurchaseResult) -> Void
-    init(config: GameBridgeConfig, productIds: [String: String]?, installationId: UUID?, makeEmitter: @escaping () -> (AppleStorePurchaseResult) -> Void) throws {
+    init(config: GameBridgeConfig, productIds: [String: String]?, installationId: UUID?, sessionStore: TokenStore, makeEmitter: @escaping () -> (AppleStorePurchaseResult) -> Void) throws {
         self.config = config; self.productIds = productIds; self.makeEmitter = makeEmitter
         guard let window = Self.window() else { throw SdkFailure("CONFIG_REQUIRED", nativeCode: "HOST_WINDOW") }
-        let provider = try AppleAuthProvider.create(config: config, store: KeychainTokenStore(service: "com.gamebridge.sdk.unity.apple"), window: window)
+        let provider = try AppleAuthProvider.create(config: config, store: sessionStore, window: window)
         self.provider = provider
         self.serviceSession = try AppleStoreSession(auth: provider, config: config)
         self.push = try installationId.map { try ApplePushClient(auth: provider, config: config, installationId: $0) }
@@ -207,7 +207,7 @@ extension AppleAuthBridgeApi {
     }
     func close() { dropStore(); provider.detachHost() }
 }
-@MainActor func makeAppleAuthBridgeHandler(makeEmitter: @escaping () -> (AppleStorePurchaseResult) -> Void) -> AppleAuthBridgeHandler {
-    AppleAuthBridgeHandler { try AppleSystemAuthBridgeApi(config: $0, productIds: $1, installationId: $2, makeEmitter: makeEmitter) }
+@MainActor func makeAppleAuthBridgeHandler(sessionStore: TokenStore, makeEmitter: @escaping () -> (AppleStorePurchaseResult) -> Void) -> AppleAuthBridgeHandler {
+    AppleAuthBridgeHandler { try AppleSystemAuthBridgeApi(config: $0, productIds: $1, installationId: $2, sessionStore: sessionStore, makeEmitter: makeEmitter) }
 }
 #endif

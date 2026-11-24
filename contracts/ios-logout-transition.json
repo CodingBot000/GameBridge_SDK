@@ -1,0 +1,13 @@
+{
+  "before": "09db0706f0e53693d9fd44df290d9da4c49aba6b",
+  "files": {
+    "ios/UnityBridge/AppleAuthBridgeHandler.swift": {
+      "before": "827d1abd0824a3baddf6fa3c4a5568fab120928704fc2c234a7752c1919afb79",
+      "after": "47a6078ea2d0256929c7478e04d3963f0342eaa5df33c9deba48a97741ee4b95"
+    },
+    "ios/UnityBridge/PlatformAuthBridgeHandler.swift": {
+      "before": "d0b28681d11f3be4ba65319f8c371efe21db68d6276fa6691a0f40850c237e5e",
+      "after": "e2d89f1d731003d78825737a1cc2f0924efd0d1857d31715a18f1ba3632a27d1"
+    }
+  }
+}

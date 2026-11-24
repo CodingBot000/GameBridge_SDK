@@ -2060,3 +2060,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - PR #9 README 개편은 CI 성공 뒤 Merge commit `761be81e89995720dfa7713be62310ac13e06fc3`로 통합했다. PR #8 iOS Google 실제 계정/합성 수명주기 결과를 기능·API·호환성·보안·설정·CI·통합 문서에 반영한다. 기존 코드·테스트·증거 JSON 및 64 Task 원장 상태/집계는 변경하지 않는다.
 - 실제 Native/Unity Simulator 로그인·복원·UI 취소·로그아웃 PASS, 합성 refresh/replay·warm URL, 실제 ABI 진입 0, cold URL/실계정 refresh 미실행 및 Native 재로그인 성공 미관측을 구분한다. 이번 문서 작업은 새 Provider·Player·Release 시험이 아니다.
+
+## 문서46 — iOS 로그아웃과 인증 CI
+
+- 기준 main 09db0706에서 독립 작업 시작. 실패 사례와 회귀를 확인한다.
+- Apple 로그아웃 뒤 선택 기록 잔존과 새 appId 초기화의 SESSION_EXPIRED를 수정 전 테스트로 재현했다. 라우터가 성공한 로그아웃의 선택 기록을 정리하고, 구버전 Apple 선택 기록은 해당 Keychain 항목이 없을 때만 제거한다. 로컬 Swift 38개, sandbox DB HTTP 2개, 전이 검사와 iOS Simulator Native 빌드를 통과했다. 기본 PR CI가 Swift 인증 회귀와 격리 DB HTTP 2개를 실행하도록 추가했다.
+
+- 2026-11-25 최신 main a7a4b73을 반영했다. PR #9·#12 문서와 기존 검증 기록을 보존했다.
+- PR #10 최신 main 통합 후보에서 Swift 38개, Backend sandbox HTTP 2개, 전이 단위 6개와 계약 가드, iOS Simulator GameBridgeNative 빌드가 모두 종료 0이었다. 실제 Provider 재인증은 실행하지 않았다.

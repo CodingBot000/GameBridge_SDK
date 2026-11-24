@@ -149,6 +149,24 @@ jobs:
           backend/gradlew -p backend test --rerun-tasks --tests com.gamebridge.auth.IdentityVerifierTest --tests com.gamebridge.purchase.LedgerInvariantDatabaseTest --tests com.gamebridge.purchase.GoogleGrantDatabaseTest --tests com.gamebridge.purchase.AppleGrantDatabaseTest --tests com.gamebridge.purchase.FinalizationDatabaseTest --tests com.gamebridge.purchase.PurchaseBindingsDatabaseTest
           python3 harness/check-junit.py backend/build/test-results/test/TEST-com.gamebridge.auth.IdentityVerifierTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.LedgerInvariantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.GoogleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.AppleGrantDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.FinalizationDatabaseTest.xml backend/build/test-results/test/TEST-com.gamebridge.purchase.PurchaseBindingsDatabaseTest.xml
 
+      - name: Google session lifecycle in a separate sandbox database
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '54329'
+          PGUSER: gamebridge_ci
+          PGPASSWORD: ci-only-postgres-password
+          GAMEBRIDGE_RUN_AUTH_DB_TESTS: 'true'
+          GAMEBRIDGE_TEST_DB_URL: jdbc:postgresql://127.0.0.1:54329/gamebridge_ci_auth
+          GAMEBRIDGE_TEST_DB_USER: gamebridge_ci
+          GAMEBRIDGE_TEST_DB_PASSWORD: ci-only-postgres-password
+        run: |
+          createdb --maintenance-db=postgres gamebridge_ci_auth
+          backend/gradlew -p backend test --rerun-tasks \
+            --tests com.gamebridge.auth.AuthHttpIntegrationTest.googleSessionLifecycleWithSyntheticIdentity \
+            --tests com.gamebridge.auth.AuthHttpIntegrationTest.googleChallengeReplayDoesNotIssueAnotherSession
+          report=backend/build/test-results/test/TEST-com.gamebridge.auth.AuthHttpIntegrationTest.xml
+          python3 harness/check-junit.py "$report" --require-test googleSessionLifecycleWithSyntheticIdentity --require-test googleChallengeReplayDoesNotIssueAnotherSession
+
       - name: Owned Testcontainers purchase invariants and mutation
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
@@ -194,8 +212,8 @@ jobs:
       - name: Swift package contract and fake tests
         run: |
           set -o pipefail
-          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|AppleAuthProviderTests|AppleGrantDecoderTests|StoreKitBillingProviderTests|PushRouterTests|OfflineFakeTests|BackendClientTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
-          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests AppleAuthProviderTests AppleGrantDecoderTests StoreKitBillingProviderTests PushRouterTests OfflineFakeTests BackendClientTests
+          swift test --package-path ios --filter 'BridgeProtocolTests|ModelFixtureTests|AppleAuthBridgeTests|ProviderSelectionTests|SocialAuthProviderTests|AppleAuthProviderTests|AppleGrantDecoderTests|StoreKitBillingProviderTests|PushRouterTests|OfflineFakeTests|BackendClientTests' 2>&1 | tee "$RUNNER_TEMP/swift-contract.log"
+          python3 harness/check-swift-output.py "$RUNNER_TEMP/swift-contract.log" BridgeProtocolTests ModelFixtureTests AppleAuthBridgeTests ProviderSelectionTests SocialAuthProviderTests AppleAuthProviderTests AppleGrantDecoderTests StoreKitBillingProviderTests PushRouterTests OfflineFakeTests BackendClientTests
           bash scripts/smoke-ios-source-consumer.sh
       - name: Install pinned XcodeGen locally
         run: |

@@ -22,7 +22,7 @@
 
 Kotlin Android·Swift iOS·C# Unity 공통 SDK, Android JNI/iOS Swift C ABI, Native 인증·스토어·Push adapter, Spring Boot/PostgreSQL Backend와 로컬 패키지·검증 체계를 구현한 개인 포트폴리오다. 상용 적용·출시·실제 고객 지원 실적으로 제시하지 않는다.
 
-제공 공고 W(웹젠)의 SDK/Library·Edge Case·데이터 기반 문제 해결·기술 문서화 요구와, G(그라비티)의 Unity/Native 공통 SDK·REST·빌드/버전·호환성 업무에 대응한다. [README 대응표](../README.md#공고-요구와-실제-대응)에서 요구별 소스·문서를 찾을 수 있다. 경력3/7년·상용 플랫폼·출시·대외 협업·해외근무 조건은 기존 이력서·본인 증빙과 별도다.
+제공 공고 W(웹젠)의 SDK/Library·Edge Case·데이터 기반 문제 해결·기술 문서화 요구와, G(그라비티)의 Unity/Native 공통 SDK·REST·빌드/버전·호환성 업무에 대응한다. [설계·Edge Case·문제 해결](ENGINEERING_NOTES.md)에서 요구별 소스·문서를 찾을 수 있다. 경력3/7년·상용 플랫폼·출시·대외 협업·해외근무 조건은 기존 이력서·본인 증빙과 별도다.
 
 | 결과물 | 검토 위치 |
 | --- | --- |

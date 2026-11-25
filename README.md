@@ -6,7 +6,7 @@
 
 > **프로젝트 상태:** 개인 개발 포트폴리오 `0.1.1-dev`입니다. 상용 배포용 릴리스가 아니며, 기능 구현과 실제 실행·검증 범위는 구분합니다.
 
-**바로가기:** [주요 기능](#주요-기능) · [아키텍처](#구조-한눈에-보기) · [기술적 핵심](#기술적-핵심) · [Quick Start](#quick-start--unity-editor-offline) · [검증 결과](#검증-현황과-제한사항)
+**바로가기:** [주요 기능](#주요-기능) · [아키텍처](#구조-한눈에-보기) · [기술적 핵심](#기술적-핵심) · [패키지 설치](#개발자용-pre-release-설치) · [Quick Start](#quick-start--unity-editor-offline) · [검증 결과](#검증-현황과-제한사항)
 
 **대표 검증 성과:** Android·iOS Native/Unity Google 실계정 로그인·복원·취소·로그아웃, 양 플랫폼 `0.1.0-dev → 0.1.1-dev` 업데이트 후 세션·미완료 구매 복구 및 중복 지급 방지를 검증했습니다.
 
@@ -63,6 +63,18 @@ flowchart TB
 
 구현 근거와 장애 분석: [설계·Edge Case·문제 해결](docs/ENGINEERING_NOTES.md) · [보안·데이터 소유권](docs/SECURITY.md)
 
+## 개발자용 Pre-release 설치
+
+[GitHub Pre-release v0.1.1-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev)에서 패키지를 다운로드할 수 있습니다. Release 자산 6개를 같은 디렉터리에 받은 뒤 `shasum -a 256 -c SHA256SUMS`로 확인합니다.
+
+| 대상 | 설치 방법 |
+| --- | --- |
+| **Unity** | Package Manager → **Add package from tarball**에서 `com.gamebridge.sdk-0.1.1-dev.tgz`를 선택합니다. Native Maven과 XCFramework를 포함하며 최소 Unity 버전은 6000.5입니다. |
+| **Android** | `GameBridge-Maven-0.1.1-dev.zip`을 풀고 Gradle 저장소에 `maven-repo`, `google()`, `mavenCentral()`을 추가한 뒤 `com.gamebridge:sdk-android:0.1.1-dev`를 사용합니다. |
+| **iOS** | `GameBridgeNative-0.1.1-dev.xcframework.zip`을 풀고 Xcode 앱 대상에 `GameBridgeNative.xcframework`를 링크한 뒤 **Do Not Embed**를 선택합니다. |
+
+GameBridge는 포트폴리오 평가와 비상업적 테스트에 사용할 수 있습니다. [Native 통합 및 Host 설정](docs/INTEGRATION.md) · [GameBridge 라이선스](LICENSE) · [외부 의존성 고지](THIRD_PARTY_NOTICES)
+
 ## Quick Start — Unity Editor Offline
 
 외부 계정·개발 서버 없이 SDK 인터페이스를 살펴볼 수 있는 **Unity Editor 전용 메모리 Fake** 예제입니다.
@@ -107,11 +119,11 @@ await sdk.SignOutAsync();
 | **패키징·계약** | 0.1.1-dev Maven·XCFramework·UPM, SHA-256, 기존 C# 소비자, 선정 JVM 4개 클래스·C ABI 5개 심볼 비교 | [Batch A](docs/evidence/batch-a47-dev-compatibility.md) |
 | **Google 실계정** | Android API 34 AVD / iOS 18.6 Simulator Native·Unity 로그인, UI 취소, 앱 재실행 후 복원, 로그아웃 및 서버 세션 폐기 | [Android](docs/evidence/android-google-live-20261125.md) · [iOS](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md) |
 | **Unity iOS 콜백·Export 복구** | PBX·콜백 검사 157개, 네 쓰기 지점의 중단 복구, Host 편집 보존, Framework Embed·서명 | [PR #11](https://github.com/CodingBot000/GameBridge_SDK/pull/11) |
-| **Hosted CI** | Inventory·Backend·Android·Swift/iOS·Basic **5개 Job 성공** | [PR #14 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45578953794) |
+| **Hosted CI** | Inventory·Backend·Android·Swift/iOS·Basic **5개 Job 성공** | [PR #15 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45595230503) |
 
 `EDITOR_OFFLINE`은 메모리 Fake, `LOCAL_MOCK`은 로컬 Native·Backend 개발 경로입니다. 가상 구매는 실제 스토어 거래가 아닙니다. 실제 Google 토큰 갱신/replay, Apple·Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs, 실기기, Unity 6000.4 및 전체 Strict/Hosted Unity E2E·Release 검증은 미완료이며 기존 StoreKit 26.5 실패도 유지합니다. [검증 범위](docs/FEATURE_MATRIX.md) · [알려진 제한](docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)
 
-**검증 환경:** Unity 6000.5.8f1 · Android API 30/34/36 AVD(빌드 API 36, JDK 21) · iOS 18.6/26.5 Simulator(Xcode 26.6) · Spring Boot/PostgreSQL. UPM 최소 Unity는 6000.5이며 모든 OS·Unity 버전의 지원을 보증하지 않습니다. 개발자용 배포 후보는 로컬에 있으며 GitHub Pre-release는 미공개입니다.
+**검증 환경:** Unity 6000.5.8f1 · Android API 30/34/36 AVD(빌드 API 36, JDK 21) · iOS 18.6/26.5 Simulator(Xcode 26.6) · Spring Boot/PostgreSQL. UPM 최소 Unity는 6000.5이며 모든 OS·Unity 버전의 지원을 보증하지 않습니다.
 
 ## 문서 안내
 

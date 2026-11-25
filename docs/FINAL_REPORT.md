@@ -8,7 +8,7 @@
 
 | 후속 작업 | 결과 |
 | --- | --- |
-| 배포 후보 | Maven 3개 모듈·XCFramework·UPM 및 checksum/소스 매니페스트/Release Notes 로컬 준비. 공개 Pre-release 미실행, 라이선스 결정 별도 |
+| 개발자용 배포 | [v0.1.1-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev) 공개. Maven·XCFramework·UPM 및 SHA-256·소스 매니페스트·Release Notes를 배포하고 다운로드 검증을 완료했다. |
 | 버전 교체 | Android API 34·iOS 18.6, 앱/DB 보존, 세션·미완료 구매 복구, 원장 각 1건/100코인; 선정 API/ABI 비교 PASS |
 | Unity·OS | Unity 6000.5.8f1, Android API 30·34·36 및 iOS 18.6·26.5 LOCAL_MOCK 검증; Unity 6000.4 DEFERRED_ENV 및 후속 범위 제외 |
 | Google | Android API 34 AVD·iOS 18.6 Simulator Native/Unity 실제 로그인·취소·복원·로그아웃 및 세션 폐기 PASS |

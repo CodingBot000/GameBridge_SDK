@@ -32,11 +32,23 @@ class Program
 }");
         return p;
     }
+    static void Apply(string directory, string path, bool callback, Action<string> afterWrite = null)
+    {
+        string source = Directory.CreateDirectory(Path.Combine(directory, "fixture.xcframework")).FullName;
+        File.WriteAllText(Path.Combine(source, "Info.plist"), "<plist/>");
+        GameBridge.Editor.IosXcodeBuildHook.ApplyExport(directory, path, source, callback, false, afterWrite);
+    }
+    static void ApplyCallback(string directory)
+    {
+        using var files = new GameBridge.Editor.IosExportFiles(directory, Path.Combine(directory, "project.pbxproj"));
+        GameBridge.Editor.IosXcodeBuildHook.PlanGoogleCallback(directory, files);
+        files.Commit();
+    }
     static string Configure(PBXProject p, string directory)
     {
         string path = Path.Combine(directory, "project.pbxproj"); p.WriteToFile(path);
-        GameBridge.Editor.IosXcodeBuildHook.ConfigureAuthPackages(p, directory, path);
-        p.WriteToFile(path); return p.WriteToString();
+        Apply(directory, path, false);
+        p.ReadFromFile(path); return p.WriteToString();
     }
     // Independent oracle: Apple's OpenStep parser, not the hook's text reader.
     static JsonDocument Graph(string text, string directory)
@@ -122,12 +134,88 @@ class Program
         Check(!File.Exists(Path.Combine(foreign, "GameBridgeFacebookPackage.txt")), "foreign Host package must not be claimed");
 
     }
+    static void TestRetryAfterInvalidHost(string dir)
+    {
+        var classes = Directory.CreateDirectory(Path.Combine(dir, "Classes")).FullName;
+        string pbx = Path.Combine(dir, "project.pbxproj"), host = Path.Combine(classes, "UnityAppController.mm");
+        Fixture().WriteToFile(pbx);
+        string original = File.ReadAllText(pbx);
+        File.WriteAllText(host, "invalid host");
+        MustFail(() => Apply(dir, pbx, true), "invalid host", "requires one stock Unity openURL handler");
+        Check(original == File.ReadAllText(pbx), "invalid host changed PBX");
+        Check(Directory.GetFiles(dir, "GameBridge*Package.txt").Length == 0, "invalid host left orphan package markers");
+        File.WriteAllText(host, StockHost);
+        Apply(dir, pbx, true);
+        AssertConfiguredExport(dir);
+    }
+    static void AssertConfiguredExport(string dir)
+    {
+        string pbx = File.ReadAllText(Path.Combine(dir, "project.pbxproj"));
+        using var graph = Graph(pbx, dir);
+        var objects = graph.RootElement.GetProperty("objects");
+        string google = File.ReadAllText(Path.Combine(dir, "GameBridgeGooglePackage.txt"));
+        string facebook = File.ReadAllText(Path.Combine(dir, "GameBridgeFacebookPackage.txt"));
+        AssertProduct(objects, Framework, "GoogleSignIn", google);
+        AssertProduct(objects, AppTarget, "FacebookLogin", facebook);
+        AssertProduct(objects, Framework, "FacebookLogin", facebook);
+    }
+    private const string StockHost = "- (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options\n{\n    return YES;\n}\n";
+    private static string PrepareExport(string dir)
+    {
+        Directory.CreateDirectory(Path.Combine(dir, "Classes"));
+        File.WriteAllText(Path.Combine(dir, "Classes/UnityAppController.mm"), StockHost);
+        string pbx = Path.Combine(dir, "project.pbxproj");
+        Fixture().WriteToFile(pbx);
+        return pbx;
+    }
+    private static void TestInterruptedExports(string root)
+    {
+        string clean = Path.Combine(root, "clean"), cleanPbx = PrepareExport(clean);
+        Apply(clean, cleanPbx, true);
+        AssertConfiguredExport(clean);
+        string expectedHost = File.ReadAllText(Path.Combine(clean, "Classes/UnityAppController.mm"));
+        // PBX, AppController, Google marker and Facebook marker are all changed.
+        for (int stopAfter = 1; stopAfter <= 4; stopAfter++)
+        {
+            string dir = Path.Combine(root, "interrupt-" + stopAfter);
+            string pbx = PrepareExport(dir), host = Path.Combine(dir, "Classes/UnityAppController.mm");
+            int writes = 0;
+            try
+            {
+                Apply(dir, pbx, true, path => { if (++writes == stopAfter) throw new IOException("simulated interruption"); });
+                throw new Exception("fault injection did not reach the target write");
+            }
+            catch (IOException e) when (e.Message == "simulated interruption") { }
+            if (stopAfter == 1)
+            {
+                string partialPBX = File.ReadAllText(pbx);
+                File.WriteAllText(host, StockHost + "// host edit after interruption");
+                MustFail(() => Apply(dir, pbx, true), "preserve concurrent Host edit", host);
+                Check(File.ReadAllText(host).EndsWith("// host edit after interruption"), "Host edit overwritten");
+                Check(File.ReadAllText(pbx) == partialPBX && !File.Exists(Path.Combine(dir, "GameBridgeGooglePackage.txt")), "conflict caused further writes");
+                File.WriteAllText(host, StockHost);
+            }
+            Apply(dir, pbx, true);
+            AssertConfiguredExport(dir);
+            Check(File.ReadAllText(host) == expectedHost, "recovery differs from clean export");
+            string saved = File.ReadAllText(pbx);
+            Apply(dir, pbx, true, _ => throw new Exception("idempotent run wrote a file"));
+            Check(File.ReadAllText(pbx) == saved, "repeat changed recovered PBX");
+        }
+
+        string legacy = Path.Combine(root, "legacy-orphans"), legacyPbx = PrepareExport(legacy);
+        File.WriteAllText(Path.Combine(legacy, "GameBridgeGooglePackage.txt"), "DEADBEEFDEADBEEFDEADBEEF");
+        File.WriteAllText(Path.Combine(legacy, "GameBridgeFacebookPackage.txt"), "CAFEBABECAFEBABECAFEBABE");
+        Apply(legacy, legacyPbx, true);
+        AssertConfiguredExport(legacy);
+    }
+
     static void TestGoogleCallback(string dir)
     {
         string classes = Path.Combine(dir, "Classes");
         Directory.CreateDirectory(classes);
         string path = Path.Combine(classes, "UnityAppController.mm");
-        Action apply = () => GameBridge.Editor.IosXcodeBuildHook.ConfigureGoogleCallback(dir);
+        Action apply = () => ApplyCallback(dir);
         MustFail(apply, "missing controller", "requires the exported UnityAppController.mm");
         const string selector = "- (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options";
         const string host = "    UnitySetAbsoluteURL(url.absoluteString.UTF8String);\n    return YES;\n}\n";
@@ -163,6 +251,8 @@ class Program
     {
         string root = Path.Combine(Path.GetTempPath(), "gamebridge-ios-hook-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(root);
         string fresh = Path.Combine(root, "fresh"), upgrade = Path.Combine(root, "upgrade"); Directory.CreateDirectory(fresh); Directory.CreateDirectory(upgrade);
+        TestRetryAfterInvalidHost(Path.Combine(root, "retry"));
+        TestInterruptedExports(root);
         TestNewExport(fresh); TestUpgradeAndErrors(upgrade); TestGoogleCallback(fresh); TestGoogleSceneCallback(fresh);
         string initial = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict><key>Existing</key><string>keep</string></dict></plist>";
         string first = GameBridge.Editor.IosXcodeBuildHook.EnableXcodeStoreKitHistory(initial), second = GameBridge.Editor.IosXcodeBuildHook.EnableXcodeStoreKitHistory(first);
@@ -178,7 +268,7 @@ class Program
         Directory.CreateDirectory(ui);
         string scene = Path.Combine(ui, "UnityScene.mm");
         File.WriteAllText(Path.Combine(directory, "Info.plist"), "<string>UnityScene</string>");
-        Action apply = () => GameBridge.Editor.IosXcodeBuildHook.ConfigureGoogleCallback(directory);
+        Action apply = () => ApplyCallback(directory);
         MustFail(apply, "missing Unity scene", "requires the exported UnityScene.mm");
         const string original = @"@implementation UnityScene {
 }

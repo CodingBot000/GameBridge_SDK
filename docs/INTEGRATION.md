@@ -264,6 +264,8 @@ Unity Export Hook은 FacebookLogin 18.1.1을 UnityFramework와 Host App 양쪽�
 
 ## iOS Google 실제 계정 및 Unity Scene 콜백 (PR #7·#8)
 
+- iOS Export 후처리가 중단되면 원인을 해결한 뒤 같은 출력 폴더에서 다시 실행합니다. 복구에 필요한 기록은 출력 폴더에 유지합니다. 훅이 변경하려는 파일과 Host의 편집이 충돌하면 파일 경로와 함께 실패하므로 해당 충돌을 해결한 뒤 재시도합니다.
+
 - 표준 Unity iOS Export는 `GAMEBRIDGE_IOS_GOOGLE_AUTH_CALLBACK`을 iOS Scripting Define Symbols에 추가합니다. AppController 및 stock UnityScene warm/cold URL 경로에 자동 연결됩니다. 커스텀 Host/Unity as a Library는 자동 연결을 끄고 실제 Native URL delegate에서 한 번만 전달합니다. [Host callback 예제](../ios/host-examples/SocialAuthCallbacks.md).
 - Bundle별 iOS OAuth Client ID·reversed scheme, Backend Web Client ID/audience, 신뢰 가능한 HTTPS를 설정합니다. 새로운 checkout에서는 최신 소스로 Native/UPM을 생성하고 예전 로컬 staging을 자동 재사용하지 않습니다.
 - 실제 계정 로그인·복원·UI 취소·로그아웃은 iOS 18.6 Simulator Native/Unity에서 PASS했습니다. 합성 warm URL Native ABI 처리와 실제 로그인은 별도 증거이며 cold URL 주입/실계정 refresh는 미실행입니다. [재현 및 검증 범위](IOS_GOOGLE_OAUTH_VERIFICATION.md) · [사용자 설정](USER_SETUP.md).

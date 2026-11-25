@@ -8,6 +8,7 @@
 - [PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8): UnityScene warm/cold URL 처리 보완. 실제 계정 로그인·복원·UI 취소·로그아웃 PASS (Native/Unity); 합성 warm URL ABI 1회/C# 이벤트 0건, cold URL 직접 주입 NOT_RUN. 실계정 refresh/replay 미실행, 합성 Swift 10건·Backend HTTP 2건 통과. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md).
 - [PR #9](https://github.com/CodingBot000/GameBridge_SDK/pull/9): README를 공통 API·아키텍처·대표 검증 성과 중심으로 개편한 문서 변경. [PR #8 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45153886562) 및 [PR #9 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45174047873) 기본 5개 Job SUCCESS, Unity E2E/Release SKIPPED.
 - [PR #10](https://github.com/CodingBot000/GameBridge_SDK/pull/10): iOS Apple 로그아웃 후 Provider 선택 기록을 정리하고, 기존 Keychain 세션이 없다고 확인한 경우에만 다른 앱의 낡은 Apple 선택 기록을 정리한다. 인증 수명 회귀를 기본 PR CI에 연결한다.
+- [PR #11](https://github.com/CodingBot000/GameBridge_SDK/pull/11): iOS Export는 쓰기 전 입력을 검증하고, 쓰기 중단 뒤 같은 폴더에서 복구한다. 복구 계획과 충돌한 Host 수정은 보존한다.
 
 아래는 각 단계의 당시 기록이며 최신 판정은 [기능 매트릭스](FEATURE_MATRIX.md)를 따릅니다.
 

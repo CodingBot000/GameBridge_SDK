@@ -4425,3 +4425,10 @@
 
 - 2026-11-25 최신 main a7a4b73을 반영했다. PR #9·#12 문서와 기존 검증 기록을 보존했다.
 - PR #10 최신 main 통합 후보에서 Swift 38개, Backend sandbox HTTP 2개, 전이 단위 6개와 계약 가드, iOS Simulator GameBridgeNative 빌드가 모두 종료 0이었다. 실제 Provider 재인증은 실행하지 않았다.
+
+## 문서46 — Unity iOS Export 복구
+
+- 기준 main 09db0706에서 독립 작업 시작. 실패 사례와 회귀를 확인한다.
+- 잘못된 AppController 뒤 orphan marker가 남는 기존 실패를 재현했다. 수정 후 같은 폴더 재시도, 파일 반영 단계 네 곳의 중단 복구, Host 편집 보존을 포함해 PBX·콜백 검사 157개 통과. Unity 6000.5.8f1 새 Export 및 두 차례 반복 훅, iOS Simulator Xcode 빌드, Meta 동적 프레임워크 4개의 서명 검증을 통과했다. iOS 18.6의 합성 URL 시험에서 콜드 시작의 Unity absoluteURL은 비어 있었고 warm Google URL은 관리 이벤트 0건, 일반 Host URL은 1건이었다.
+- 2026-11-25 PR #10 병합 커밋 9de7320을 반영했다. 이전 #11 Hosted 실행 45192218616은 Swift job이 러너 배정 기록·단계·로그 없이 cancelled였고 basic-ci는 swift=abandoned를 반환했다. 취소의 직접 원인은 미확정이며 이 실행에서 제품 컴파일·테스트 실패 증거는 없다.
+- 최신 통합 후보에서 PBX·콜백 157개와 네 쓰기 지점 장애 복구, Host 수정 보존, 전이 가드, 새 Unity Export 및 같은 폴더 반복 훅, iOS Simulator Xcode 빌드와 앱·Meta 프레임워크 4종 서명 검증이 모두 종료 0이었다. GoogleSignIn 9.2.0·Meta 18.1.1 및 XCFramework C ABI 4개를 확인했다. 실제 OAuth와 합성 URL 런타임 시험은 이번 후보에서 재실행하지 않았다.

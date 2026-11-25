@@ -1,7 +1,7 @@
 plugins { id("com.android.application"); kotlin("android"); id("org.jetbrains.kotlin.plugin.compose") }
 android {
     namespace = "com.gamebridge.sample"; compileSdk = 36
-    defaultConfig { applicationId = "com.gamebridge.sample"; minSdk = 26; targetSdk = 36; versionCode = 1; versionName = "0.1.0-dev"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+    defaultConfig { applicationId = "com.gamebridge.sample"; minSdk = 26; targetSdk = 36; versionCode = 1; versionName = project.version.toString(); testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
     buildFeatures { compose = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }

@@ -1816,7 +1816,7 @@
         {
           "suite": "android-dependency-negative",
           "testFile": "harness/check-android-dependency-negative.py",
-          "testCase": "sdk-core-0.1.0-dev.jar"
+          "testCase": "sdk-core-{VERSION}.jar"
         }
       ]
     },

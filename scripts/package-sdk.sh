@@ -1,26 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
+version="$(cat "$root/VERSION")"
 if [[ "$#" != 3 ]]; then
   echo 'Usage: package-sdk.sh ANDROID_MAVEN_REPO IOS_XCFRAMEWORK NEW_OUTPUT_DIR' >&2; exit 64
 fi
 maven="$1"; ios="$2"; output="$3"
 for module in sdk-core sdk-android sdk-unity-bridge; do
-  if [[ ! -f "$maven/com/gamebridge/$module/0.1.0-dev/$module-0.1.0-dev.pom" ]]; then
+  if [[ ! -f "$maven/com/gamebridge/$module/$version/$module-$version.pom" ]]; then
     echo "Missing $module Maven POM; run scripts/build-android.sh --mock first." >&2; exit 2
   fi
   ext=aar; [[ "$module" == sdk-core ]] && ext=jar
-  if [[ ! -f "$maven/com/gamebridge/$module/0.1.0-dev/$module-0.1.0-dev.$ext" ]]; then
+  if [[ ! -f "$maven/com/gamebridge/$module/$version/$module-$version.$ext" ]]; then
     echo "Missing $module binary; run scripts/build-android.sh --mock first." >&2; exit 2
   fi
 done
-if ! python3 - "$ios" <<'PYVERIFY'
+if ! python3 - "$ios" "$version" <<'PYVERIFY'
 import plistlib
 from pathlib import Path
 import sys
 root = Path(sys.argv[1])
 try:
     data = plistlib.loads((root / "Info.plist").read_bytes())
+    if data.get("GameBridgeSDKVersion") != sys.argv[2]:
+        raise ValueError("SDK version mismatch")
     found = set()
     for library in data["AvailableLibraries"]:
         if library.get("SupportedPlatform") != "ios":
@@ -32,9 +35,16 @@ try:
 except (OSError, KeyError, ValueError, AssertionError, plistlib.InvalidFileException):
     sys.exit(1)
 PYVERIFY
-then echo 'Missing XCFramework device/simulator slices; run scripts/build-ios.sh --xcframework first.' >&2; exit 2; fi
+then echo 'Missing XCFramework device/simulator slices or SDK version mismatch; run scripts/build-ios.sh --xcframework first.' >&2; exit 2; fi
 if [[ -e "$output" ]]; then echo 'Output already exists; choose a new directory.' >&2; exit 2; fi
 python3 "$root/scripts/verify-xcframework.py" "$ios"
+python3 - "$root/unity/Packages/com.gamebridge.sdk/package.json" "$version" <<'PYUPM'
+import json
+import sys
+from pathlib import Path
+if json.loads(Path(sys.argv[1]).read_text())["version"] != sys.argv[2]:
+    raise SystemExit("UPM version does not match VERSION")
+PYUPM
 mkdir -p "$(dirname "$output")"
 mkdir "$output"
 cp -R "$root/unity/Packages/com.gamebridge.sdk" "$output/com.gamebridge.sdk"

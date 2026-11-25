@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
+version="$(cat "$root/VERSION")"
+export GAMEBRIDGE_SDK_VERSION="$version"
 if [[ "${1:-}" != "--mock" || "$#" != 1 ]]; then echo "Usage: build-android.sh --mock" >&2; exit 64; fi
 : "${ANDROID_HOME:=$HOME/Library/Android/sdk}"
 export ANDROID_HOME

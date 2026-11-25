@@ -7,7 +7,10 @@ android {
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
 }
+val sdkVersion = providers.environmentVariable("GAMEBRIDGE_SDK_VERSION").orElse(
+    providers.provider { rootProject.file("../../VERSION").readText().trim() }
+)
 dependencies {
-    implementation("com.gamebridge:sdk-android:0.1.0-dev")
-    implementation("com.gamebridge:sdk-unity-bridge:0.1.0-dev")
+    implementation("com.gamebridge:sdk-android:${sdkVersion.get()}")
+    implementation("com.gamebridge:sdk-unity-bridge:${sdkVersion.get()}")
 }

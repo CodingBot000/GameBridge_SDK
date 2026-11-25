@@ -9,5 +9,5 @@ plugins {
 
 subprojects {
     group = "com.gamebridge"
-    version = "0.1.0-dev"
+    version = rootProject.file("../VERSION").readText().trim()
 }

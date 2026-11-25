@@ -18,7 +18,7 @@ public static class GameBridgeSampleRepeatImport
     }
     public static void Run()
     {
-        var samples = Sample.FindByPackage("com.gamebridge.sdk", "0.1.0-dev").ToArray();
+        var samples = Sample.FindByPackage("com.gamebridge.sdk", UnityEditor.PackageManager.PackageInfo.FindForAssetPath("Packages/com.gamebridge.sdk/package.json").version).ToArray();
         foreach (var name in new[] { "Editor Offline Demo", "Native Mock and Sandbox Demo" })
         {
             var sample = samples.Single(item => item.displayName == name);

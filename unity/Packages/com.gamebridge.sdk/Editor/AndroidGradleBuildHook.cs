@@ -15,7 +15,9 @@ namespace GameBridge.Editor
             var package = PackageInfo.FindForAssembly(typeof(AndroidGradleBuildHook).Assembly);
             if (package == null) throw new BuildFailedException("GameBridge package path unavailable.");
             var repo = Path.Combine(package.resolvedPath, "Editor", "GameBridgeArtifacts~", "Android", "maven-repo");
-            var pom = Path.Combine(repo, "com", "gamebridge", "sdk-unity-bridge", "0.1.0-dev", "sdk-unity-bridge-0.1.0-dev.pom");
+            var version = package.version;
+            if (!GradlePatcher.IsSdkVersion(version)) throw new BuildFailedException("Invalid GameBridge package version.");
+            var pom = Path.Combine(repo, "com", "gamebridge", "sdk-unity-bridge", version, $"sdk-unity-bridge-{version}.pom");
             if (!File.Exists(pom)) throw new BuildFailedException("GameBridge Maven repository is missing. Build and install the staged SDK package.");
             var root = Directory.GetParent(path)?.FullName ?? throw new BuildFailedException("Unity Gradle root missing.");
             var settingsPath = Path.Combine(root, "settings.gradle");
@@ -23,7 +25,7 @@ namespace GameBridge.Editor
             if (!File.Exists(settingsPath) || !File.Exists(libraryPath)) throw new BuildFailedException("Unity Gradle files missing.");
             string oldSettings = File.ReadAllText(settingsPath), oldLibrary = File.ReadAllText(libraryPath);
             string newSettings, newLibrary;
-            try { newSettings = GradlePatcher.AddRepository(oldSettings); newLibrary = GradlePatcher.AddDependency(oldLibrary); }
+            try { newSettings = GradlePatcher.AddRepository(oldSettings); newLibrary = GradlePatcher.AddDependency(oldLibrary, version); }
             catch (InvalidOperationException ex) { throw new BuildFailedException("GameBridge cannot safely patch Gradle: " + ex.Message); }
             var target = Path.Combine(root, "gamebridge-maven");
             ArtifactCopy.CopyOrVerify(repo, target);

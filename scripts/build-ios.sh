@@ -20,4 +20,18 @@ mkdir -p "$(dirname "$output")"
 mkdir "$output"
 xcodebuild archive -project "$project" -scheme GameBridgeNative -configuration Release -destination 'generic/platform=iOS' -archivePath "$output/device.xcarchive" SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES CODE_SIGNING_ALLOWED=NO
 xcodebuild archive -project "$project" -scheme GameBridgeNative -configuration Release -destination 'generic/platform=iOS Simulator' -archivePath "$output/simulator.xcarchive" SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES CODE_SIGNING_ALLOWED=NO
+version="$(cat "$root/VERSION")"
+python3 - "$output" "$version" <<'PYVERSION'
+import plistlib
+import sys
+from pathlib import Path
+root, version = Path(sys.argv[1]), sys.argv[2]
+for target in ("device", "simulator"):
+    path = root / f"{target}.xcarchive/Products/Library/Frameworks/GameBridgeNative.framework/Info.plist"
+    values = plistlib.loads(path.read_bytes())
+    values["CFBundleShortVersionString"] = version.split("-", 1)[0]
+    values["GameBridgeSDKVersion"] = version
+    path.write_bytes(plistlib.dumps(values))
+PYVERSION
 xcodebuild -create-xcframework -framework "$output/device.xcarchive/Products/Library/Frameworks/GameBridgeNative.framework" -framework "$output/simulator.xcarchive/Products/Library/Frameworks/GameBridgeNative.framework" -output "$output/GameBridgeNative.xcframework"
+/usr/libexec/PlistBuddy -c "Add :GameBridgeSDKVersion string $version" "$output/GameBridgeNative.xcframework/Info.plist"

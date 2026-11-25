@@ -4432,3 +4432,9 @@
 - 잘못된 AppController 뒤 orphan marker가 남는 기존 실패를 재현했다. 수정 후 같은 폴더 재시도, 파일 반영 단계 네 곳의 중단 복구, Host 편집 보존을 포함해 PBX·콜백 검사 157개 통과. Unity 6000.5.8f1 새 Export 및 두 차례 반복 훅, iOS Simulator Xcode 빌드, Meta 동적 프레임워크 4개의 서명 검증을 통과했다. iOS 18.6의 합성 URL 시험에서 콜드 시작의 Unity absoluteURL은 비어 있었고 warm Google URL은 관리 이벤트 0건, 일반 Host URL은 1건이었다.
 - 2026-11-25 PR #10 병합 커밋 9de7320을 반영했다. 이전 #11 Hosted 실행 45192218616은 Swift job이 러너 배정 기록·단계·로그 없이 cancelled였고 basic-ci는 swift=abandoned를 반환했다. 취소의 직접 원인은 미확정이며 이 실행에서 제품 컴파일·테스트 실패 증거는 없다.
 - 최신 통합 후보에서 PBX·콜백 157개와 네 쓰기 지점 장애 복구, Host 수정 보존, 전이 가드, 새 Unity Export 및 같은 폴더 반복 훅, iOS Simulator Xcode 빌드와 앱·Meta 프레임워크 4종 서명 검증이 모두 종료 0이었다. GoogleSignIn 9.2.0·Meta 18.1.1 및 XCFramework C ABI 4개를 확인했다. 실제 OAuth와 합성 URL 런타임 시험은 이번 후보에서 재실행하지 않았다.
+
+## 문서47 — Batch A 개발자용 패키징과 버전 호환성
+
+- main 3d9d5b8에서 PR #10·#11 병합을 확인했다. 동일 소스의 0.1.0-dev를 비교 기준으로 새로 빌드하고 차기 후보 0.1.1-dev를 적용한다.
+- 현재 소스의 두 버전을 빌드했다. Maven·XCFramework·UPM 정합성 확인, C# 기존 소비자와 JVM 4 클래스 및 C ABI 5 심볼 대조, Swift 9개, Android R8·훅 및 음성, iOS 훅 157개 통과. Unity iOS에서 이전 패키지를 현재 Backend에 연결한 뒤 후보를 덮어 설치해 세션과 미완료 구매를 복구했다. 원장 1건/100코인. 상세 [Batch A 검증](evidence/batch-a47-dev-compatibility.md).
+- 첫 Hosted 실행 45574138744에서 Android 빌드 진입점의 임시 fixture가 VERSION을 복사하지 않아, 의도한 Gradle 오류 대신 버전 파일 읽기에서 종료했다. fixture에 기준 VERSION을 추가해 기존 종료 코드 7 단언을 유지한다.

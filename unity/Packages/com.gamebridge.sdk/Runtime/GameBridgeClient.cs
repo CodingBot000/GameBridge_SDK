@@ -56,7 +56,7 @@ namespace GameBridge
         public DateTimeOffset SnapshotAt { get; }
         public SdkCapabilities Capabilities { get; }
         internal SdkStatus(string state, ProviderMode? mode, DateTimeOffset? initialized, DateTimeOffset snapshot, SdkCapabilities capabilities)
-        { State = state; Mode = mode; InitializedAt = initialized; SnapshotAt = snapshot; Capabilities = capabilities; SdkVersion = "0.1.0-dev"; Platform = "Unity"; }
+        { State = state; Mode = mode; InitializedAt = initialized; SnapshotAt = snapshot; Capabilities = capabilities; SdkVersion = "0.1.1-dev"; Platform = "Unity"; }
     }
     public sealed class InitResult { public SdkStatus Status { get; } internal InitResult(SdkStatus status) { Status = status; } }
 

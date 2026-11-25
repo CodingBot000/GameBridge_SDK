@@ -9,7 +9,7 @@ def load(name,path):
 common=load('android_e2e','harness/run-unity-android-mock-e2e.py');push=load('ios_push','harness/run-unity-ios-mock-push-e2e.py');restart=load('android_restart','harness/run-unity-android-mock-restart-e2e.py')
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--run-local',required=True,action='store_true');ap.add_argument('--staging',required=True,type=Path);ap.add_argument('--package-cache',type=Path);args=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--run-local',required=True,action='store_true');ap.add_argument('--staging',required=True,type=Path);ap.add_argument('--package-cache',type=Path);ap.add_argument('--previous-app', type=Path, help='Install this previously built Simulator app for prepare, then update to the staged candidate');args=ap.parse_args()
     out=Path(tempfile.mkdtemp(prefix='unity-ios-restart-',dir=ROOT/'artifacts'));must=common.must;run=common.run;server=log=proxy=None;players=[];markers=[];leaks=[]
     head=must(['git','rev-parse','HEAD'],'GIT_HEAD').strip();dirty=bool(must(['git','status','--porcelain','--untracked-files=no'],'GIT_STATUS').strip());result={'status':'FAIL','scope':'Unity iOS Simulator LOCAL_MOCK process restart; not StoreKit','sourceHead':head,'sourceTrackedDirty':dirty,'player':'NOT_RUN'}
     try:
@@ -28,7 +28,16 @@ def main():
         server,log,port,key=common.start_backend(ROOT/'backend/build/libs/gamebridge-backend.jar',out,db,password,54329)
         proxy=restart.FaultProxy(port);threading.Thread(target=proxy.serve_forever,daemon=True).start();proxyport=proxy.server_address[1]
         suffix=secrets.token_hex(5);sim=must(['xcrun','simctl','create','GameBridge-Unity-iOS-Restart-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],'SIMULATOR_CREATE').strip();result['simulator']=sim
-        for command in (['boot',sim],['bootstatus',sim,'-b'],['install',sim,app]):must(['xcrun','simctl']+command,'SIMULATOR_'+command[0].upper(),timeout=180)
+        initial_app=args.previous_app.resolve() if args.previous_app else app
+        if args.previous_app:
+            import plistlib
+            for candidate in (initial_app,app):
+                if plistlib.loads((candidate/'Info.plist').read_bytes())['CFBundleIdentifier']!=BUNDLE:
+                    raise common.GateError('UPGRADE_BUNDLE_ID_MISMATCH')
+            if common.sha256(initial_app/'Frameworks/UnityFramework.framework/UnityFramework')==common.sha256(app/'Frameworks/UnityFramework.framework/UnityFramework'):
+                raise common.GateError('UPGRADE_BINARY_UNCHANGED')
+            result['previousBinarySha256']=common.sha256(initial_app/'Frameworks/UnityFramework.framework/UnityFramework')
+        for command in (['boot',sim],['bootstatus',sim,'-b'],['install',sim,initial_app]):must(['xcrun','simctl']+command,'SIMULATOR_'+command[0].upper(),timeout=180)
         def launch(phase):
             env=os.environ.copy();env.update(SIMCTL_CHILD_GAMEBRIDGE_IOS_MOCK_URL=f'http://127.0.0.1:{proxyport}',SIMCTL_CHILD_GAMEBRIDGE_IOS_MOCK_KEY=key,SIMCTL_CHILD_GAMEBRIDGE_IOS_MOCK_PHASE=phase)
             p=subprocess.Popen(['xcrun','simctl','launch','--console',sim,BUNDLE],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1);players.append(p)
@@ -52,10 +61,13 @@ def main():
         launch('prepare');first=wait(r'GB_RESTART_PENDING PASS pid=(\d+)')
         if proxy.faults!=1 or ledger()!='1|100':raise common.GateError('FIRST_COMMIT_NOT_CONFIRMED')
         must(['xcrun','simctl','terminate',sim,BUNDLE],'TERMINATE_FAILED',timeout=30)
+        if args.previous_app:
+            must(['xcrun','simctl','install',sim,app],'UPGRADE_INSTALL_FAILED',timeout=120)
         launch('recover');second=wait(r'GB_RESTART_RESULT PASS LOCAL_MOCK MAIN_THREAD pid=(\d+)')
         if first==second or ledger()!='1|100':raise common.GateError('RESTART_OR_LEDGER_MISMATCH')
         log.flush();trace=(out/'server.log').read_text()
         if key in trace or password in trace:raise common.GateError('SECRET_IN_SERVER_LOG')
+        if args.previous_app:result['packageUpdate']='PASS'
         result.update(status='PASS',player='PASS',processRestart='PASS',sessionRestore='PASS',pendingRecovery='PASS',ledgerCount=1,ledgerDelta=100)
     except KeyboardInterrupt:result.update(status='INTERRUPTED',errorCode='USER_OR_ENV_INTERRUPTION')
     except common.GateError as error:result.update(status=error.category,errorCode=str(error))

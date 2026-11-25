@@ -137,4 +137,54 @@ class GoogleAuthBridgeHandlerTest {
         handler.invoke("push.unregister", buildJsonObject {}); assertTrue(unregistered)
     }
 
+    @Test fun `sandbox bridge retains wire errors from provider adapters`() {
+        fun register(provider: String, failure: Throwable): JsonObject {
+            val fake = object : GoogleAuthBridgeApi {
+                override suspend fun signIn(): UserProfile = error("unexpected sign-in")
+                override suspend fun restore(): UserProfile? = null
+                override suspend fun signOut() {}
+                override suspend fun registerPush(): String = throw failure
+                override fun close() {}
+            }
+            val dispatcher = BridgeDispatcher(GoogleAuthBridgeHandler(provider) { _, _, _ -> fake })
+            val session = UUID.randomUUID().toString()
+            fun send(operation: String, payload: JsonObject): JsonObject {
+                val request = buildJsonObject {
+                    put("protocolVersion", 1)
+                    put("sdkSessionId", session)
+                    put("requestId", UUID.randomUUID().toString())
+                    put("kind", "request")
+                    put("operation", operation)
+                    put("payload", payload)
+                }
+                val response = dispatcher.dispatch(request.toString().toByteArray()) as BridgeDispatchResult.Message
+                return BridgeProtocol.parse(response.json.toByteArray())
+            }
+            val initialized = send("sdk.initialize", buildJsonObject {
+                put("providerMode", "PLATFORM_SANDBOX")
+                put("appId", "fixture")
+                put("backendBaseUrl", "https://example.invalid")
+                put("requestTimeoutMs", 1000)
+                put("installationId", UUID.randomUUID().toString())
+            })
+            assertTrue(initialized.getValue("ok").jsonPrimitive.boolean)
+            return send("push.register", buildJsonObject {}).getValue("error").jsonObject
+        }
+
+        val google = register("GOOGLE", SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST"))
+        assertEquals(JsonPrimitive("CONFIG_REQUIRED"), google["code"])
+        assertEquals(JsonPrimitive("FIREBASE_HOST"), google["nativeCode"])
+        assertEquals(JsonPrimitive(false), google["retryable"])
+        assertEquals(buildJsonObject {}, google["details"])
+        for (provider in listOf("APPLE", "FACEBOOK")) {
+            val social = register(provider, SdkFailure("CONFIG_REQUIRED"))
+            assertEquals(JsonPrimitive("CONFIG_REQUIRED"), social["code"])
+            assertEquals(JsonNull, social["nativeCode"])
+            val timeout = register(provider, SdkFailure("TIMEOUT", retryable = true))
+            assertEquals(JsonPrimitive("TIMEOUT"), timeout["code"])
+            assertEquals(JsonPrimitive(true), timeout["retryable"])
+        }
+        assertFailsWith<LinkageError> { register("FACEBOOK", NoClassDefFoundError("synthetic")) }
+    }
+
 }

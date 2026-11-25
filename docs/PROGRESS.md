@@ -2110,3 +2110,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - RF-00 (PX-T19) 기준 `6ff2cafa1c54863720ffccd17c2164c30a119bfd`. 별도 worktree에서 Android·Unity 범위, 공개 태그 및 6개 자산 digest를 확정했다. 작업 ID는 RF-00~RF-08을 PX-T19~PX-T27에 대응한다.
 - RF-00 기준 Android Core/Native/Bridge 테스트와 C# 4개 조건 컴파일, 과거 소스 전이 및 원장 검사를 통과했다. RF-01 Adapter 정책 조사와 RF-04 선언 이동을 시작한다.
+- RF-01 (PX-T20) 기준 특성 검증 PASS. Google/Social의 wire nativeCode와 timeout retryable, Social 동기 LinkageError의 dispatcher 경계를 fixture로 고정했다. 실제 Android adapter 경계는 소스를 대조했고 RF-02/03 내부 테스트에서 보강한다.
+- RF-04 (PX-T23) 상태 모델 이동. C# 4개 조건 컴파일·Unity 메타데이터 검사 및 383줄 reflection 표면 대조가 통과했다. 실제 Editor 소비 검증은 RF-07에서 진행한다.

@@ -59,7 +59,11 @@ def collect(root, baseline=None):
     if baseline is not None:
         raw = git(root, 'ls-tree', '-r', '-z', baseline, '--name-only', '--', *SCOPES)
     else:
-        raw = git(root, 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', *SCOPES)
+        raw = git(root, 'ls-files', '-z', '--cached', '--', *SCOPES)
+        # Gradle creates these compiler sessions during a concurrent Native build.
+        # A tracked file there still participates in the shipping inventory.
+        raw += git(root, 'ls-files', '-z', '--others', '--exclude-standard', '--', *SCOPES,
+                   ':(exclude,glob)**/.kotlin/sessions/*.salive')
     files = {}
     for name in sorted(set(os.fsdecode(raw).split('\0')) - {'', RECORD}):
         if name.startswith(BRIDGE_TESTS):

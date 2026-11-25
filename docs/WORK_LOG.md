@@ -4451,3 +4451,16 @@
 ## 2026-11-25 — 최종 기술 문서 정합성
 
 - PR #14 병합 `949d4e0`, 실계정 증거 `c3bd278`, Batch A/B 및 기존 iOS Google 증거를 기준으로 README와 기술 문서를 정리했다. SDK 0.1.1-dev, Unity 6000.4 범위 제외, 실제 계정과 LOCAL_MOCK 분리, 기존 FAIL/Strict 및 64 Task 원장 보존. 변경 문장의 내부 경로 61개를 확인했으며 누락 0건이다. 제품 코드·기존 증거·배포 후보 바이트는 변경하지 않았다. 새 runtime 시험은 수행하지 않았다.
+
+## 문서49 — 개발자용 Pre-release 배포
+
+- 2026-11-25. `git fetch origin main`, `gh pr view 15`, `gh pr checks 15` 종료 0. PR #15가 `7a150d3`으로 병합됐고 일반 CI 5개 통과, Unity E2E 및 Release Readiness 건너뜀을 확인했다.
+- `shasum -a 256 -c SHA256SUMS`, 원본 ZIP 2개 `unzip -tq`, TGZ `tar -tzf`, `harness/check-staging.py`, 소스 커밋 ancestry/SDK 경로 diff 및 매니페스트 독립 대조 모두 종료 0. 실제 빌드 `468da05c1dcdbee5f608b84f7fa6a9d33a1f0c8c`; CI 검증 소스 `026716fdedfdf0ff59e2156d1bfa54a0309e5320`의 Git tree가 매니페스트와 일치한다. Batch B staging SHA-256 `2248c8dc3de252417bfd5fa39bfb3912e1347c7d348c68512fa0bead5a6997ae`, 파일 149개. 아카이브 3개 파일을 staging과 전수 비교(UPM 149, Maven 60, XCFramework 21)했다. XCFramework 검사 종료 0. Maven JAR/AAR의 클래스 네임스페이스는 com.gamebridge이며 AAR 내부 JAR은 classes.jar 1개씩이다.
+- XCFramework 정적 아카이브의 object와 정의 심볼을 확인했다. GoogleSignIn, AppAuth, AppCheck, GoogleUtilities, GTMAppAuth, GTMSessionFetcher, Promises, Facebook Swift wrapper와 IsAppEncrypted가 포함된다. 빌드 로그의 공급자 버전을 `ios/Package.resolved`와 대조하고 고정 revision의 LICENSE/NOTICE를 수집했다. Google 계열과 AppAuth는 Apache-2.0, IsAppEncrypted는 별도 저작권·허가문, Meta 18.1.1은 Facebook API 연동 목적 조건과 저작권 고지가 적용된다. XCFramework와 UPM 원본에는 해당 고지가 없다. [GoogleSignIn](https://github.com/google/GoogleSignIn-iOS/blob/9.2.0/LICENSE) · [Meta](https://github.com/facebook/facebook-ios-sdk/blob/v18.1.1/LICENSE) · [Apache 2.0 §4](https://www.apache.org/licenses/LICENSE-2.0#redistribution)
+- GitHub 저장소는 public이고 CLI 계정은 ADMIN이다. GitHub licenseInfo와 main에 프로젝트 라이선스가 없다. 사용자에게 자체 코드의 공개 배포 권한 및 외부 고지 추가를 확인 요청했다. 로컬 Release Notes 초안의 문서 링크는 기준 commit에서 존재 확인했다. 공개·다운로드 확인은 NOT_RUN이며 과거 StoreKit 실패와 Strict 제한은 계속 적용된다.
+- 아카이브 3개와 Android 내부 JAR/AAR에 대해 개인키·토큰·클라이언트 ID·서명/설정 파일명 패턴을 점검했고 일치 0건이었다. 원장 일관성 검사와 `git diff --check` 종료 0. README 설치 안내 패치는 로컬에서 적용 가능성을 확인했다. 실제 Release URL 확인 후 적용한다.
+
+- 사용자 승인에 따라 라이선스·고지 감사, 기존 바이너리 포장·매니페스트 갱신, GitHub Pre-release 배포 및 README 갱신을 시작한다.
+- 사용자 승인 범위를 `LICENSE`로 기록했다. iOS device arm64 및 Simulator arm64/x86_64 archive object 목록이 동일하고 Simulator의 linker file list와 일치했다. Xcode 체크아웃의 9개 SwiftPM revision, GoogleUtilities의 IsAppEncrypted license, Meta LICENSE/NOTICE 및 한국어 Meta 플랫폼 약관을 대조했다. Facebook Swift wrapper의 배포 범위를 Facebook API 연동으로 명시하고 원저작권·약관을 고지했다. Meta 동적 프레임워크는 소비 시 원 공급처에서 가져온다.
+- 저장소에 포함된 Gradle Wrapper JAR 2개의 SHA-256이 Gradle 8.13 공식 체크섬과 일치했다. Wrapper의 `META-INF/LICENSE` 사본을 저장소에 보존한다. Android Maven AAR/JAR에는 com.gamebridge 클래스와 자체 메타데이터가 있으며 Maven/Unity 런타임 의존성은 각각의 공급처에서 가져온다.
+- Maven 클래스의 Kotlin SMAP 인라인 소스 기록과 POM을 교차 검증했다. Kotlin stdlib 2.1.20, kotlinx.coroutines 1.10.2, kotlinx.serialization 1.8.1의 인라인 코드가 있어 원본 LICENSE/NOTICE 및 Kotlin 저작권을 Android/Unity 배포 고지에 추가했다.

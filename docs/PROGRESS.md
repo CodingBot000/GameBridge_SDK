@@ -2094,3 +2094,12 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 ## 2026-11-25 — 최종 기술 문서 정합성
 
 - PR #14 병합 `949d4e0`, 실계정 증거 `c3bd278`, Batch A/B 및 기존 iOS Google 증거를 기준으로 README와 기술 문서를 정리했다. SDK 0.1.1-dev, Unity 6000.4 범위 제외, 실제 계정과 LOCAL_MOCK 분리, 기존 FAIL/Strict 및 64 Task 원장 보존. 변경 문장의 내부 경로 61개를 확인했으며 누락 0건이다. 제품 코드·기존 증거·배포 후보 바이트는 변경하지 않았다. 새 runtime 시험은 수행하지 않았다.
+
+## 문서49 — 개발자용 Pre-release 배포
+
+- 2026-11-25 작업 시작. PR #15 병합 main `7a150d3`을 기준으로 Batch B 후보의 무결성, 소스 일치와 배포 권리를 확인한다.
+- Batch B 원본 아카이브 3개 및 SHA256SUMS·소스 매니페스트를 검증했다. 아카이브의 파일 149/60/21개가 검증 당시 staging과 일치한다. 실제 패키징 커밋 `468da05`와 검증 커밋 `026716f`에서 main `7a150d3`까지 VERSION·SDK·Backend·계약·빌드 스크립트 변경이 없다.
+- 공개 대기. 저장소의 프로젝트 배포 권리 및 공개 조건 확인이 필요하다. 원본 Unity TGZ 및 iOS ZIP은 GoogleSignIn·Meta 등의 정적 코드를 포함하며 공급자 라이선스 사본과 고지가 빠져 있다. SDK 파일을 그대로 재사용하고 외부 고지를 추가하는 방안을 사용자에게 확인 요청했다. Release Notes 로컬 초안을 준비했다. Release 생성·다운로드 검증·README 실제 링크 반영은 대기 중이다.
+
+- 2026-11-25 사용자 승인 수신. GameBridge 저작권을 유지하고 포트폴리오 평가 및 비상업적 테스트 사용을 허용한다. 의존성 재배포 조건을 충족하는 경우에 한해 공개한다.
+- iOS 세 ABI의 정적 아카이브 항목 54개가 서로 일치하며 빌드의 링크 입력 목록과 대조했다. 저장소에 사용 범위 `LICENSE`, `THIRD_PARTY_NOTICES`와 해당 공급자의 라이선스 원문을 추가했다. Gradle Wrapper는 저장소와 GitHub 소스 아카이브에 포함된다.

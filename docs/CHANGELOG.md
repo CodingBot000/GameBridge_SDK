@@ -1,10 +1,14 @@
 # 변경 이력
 
-> 개발 버전 `0.1.0-dev`의 변경 기록입니다. **병합됐다는 사실과 실제 Provider·Release 검증 완료는 다릅니다.** 최초 포트폴리오 DEV_RC의 동결 근거는 보존하고, 이후 승인된 확장을 아래에 별도로 기록합니다.
+> 개발 버전 `0.1.0-dev` 및 `0.1.1-dev`의 변경 기록입니다. **병합됐다는 사실과 실제 Provider·Release 검증 완료는 다릅니다.** 최초 포트폴리오 DEV_RC의 동결 근거는 보존하고, 이후 승인된 확장을 아래에 별도로 기록합니다.
 
 ## 0.1.1-dev 개발자용 후보
 
 - SDK 버전 메타데이터를 맞추고 Android 및 iOS Simulator의 호환성을 검사했다. Android API 34와 iOS 18.6에서 이전 SDK 위에 후보를 설치해 세션과 미완료 구매를 복구했다. [Batch A](evidence/batch-a47-dev-compatibility.md) · [Batch B](evidence/batch-b48-compatibility.md).
+
+- [PR #13](https://github.com/CodingBot000/GameBridge_SDK/pull/13): VERSION 기반 패키징 정합성, 기존 C# 소비자·선정 JVM/C ABI 비교, iOS LOCAL_MOCK 버전 교체.
+- [PR #14](https://github.com/CodingBot000/GameBridge_SDK/pull/14): Android LOCAL_MOCK 버전 교체, API 30·34·36 및 iOS 26.5 Player 검증. [PR #14 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45578953794) 기본 5개 SUCCESS, Unity/Release SKIPPED.
+- 2026-11-25: Android Native·Unity 실제 Google 계정 로그인, 취소 후 재시도, 복원 및 세션 폐기 PASS (API 34 AVD, HTTPS Sandbox). 제품 코드 변경 없음. [Android Google 검증](evidence/android-google-live-20261125.md). 실제 갱신/replay 및 실기기 미실행.
 
 ## 2026-11-20~25 — iOS Google 인증 및 포트폴리오 문서 개편
 

@@ -1,16 +1,17 @@
 # 선택적 실서비스 연동 준비
 
-> 현재 Provider별 상태는 [기능 매트릭스](FEATURE_MATRIX.md), 이전 구현 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따릅니다. iOS Google 실제 계정 및 새 자동 콜백 재현 절차는 [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 있습니다.
+> 현재 Provider별 상태는 [기능 매트릭스](FEATURE_MATRIX.md), 이전 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md)를 따릅니다. 실제 Google 검증은 [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 있습니다.
 
 
-현재 iOS Google Native·Unity iOS 18.6 Simulator 실제 계정 로그인·앱 재시작 후 복원·Google UI 취소·로그아웃 및 해당 Backend 세션 폐기 PASS. 신규 사용자 환경에서는 여전히 OAuth 콘솔·Host·Backend 설정이 필요하며, 설정 준비와 실연동 PASS는 별개입니다. 문서36 당시 13개 외부 연동 Task 원장 집계는 소급 변경하지 않습니다. 로컬 실행은 [Quick Start](INTEGRATION.md), 검증된 조합은 [COMPATIBILITY](COMPATIBILITY.md)를 참고하세요.
+현재 Android API 34 AVD 및 iOS 18.6 Simulator Native·Unity에서 Google 실제 계정 로그인·복원·UI 취소·로그아웃 및 해당 Backend 세션 폐기를 확인했습니다. 신규 환경에서는 여전히 OAuth 콘솔·Host·Backend 설정이 필요합니다. 문서36 당시 13개 외부 연동 Task 집계는 소급 변경하지 않습니다. [Quick Start](INTEGRATION.md) · [COMPATIBILITY](COMPATIBILITY.md).
 
 ## 다음 단계 — 실제 소셜 로그인 검증 준비
 
-Android/iOS LOCAL_MOCK과 iOS Google의 실제 OAuth 결과를 분리합니다. Android Google·양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 실기기 검증은 별도 사용자 승인·설정 후 선택적으로 진행합니다. 실제 갱신/replay·취소 후 모든 재시도 경로까지 완료된 것으로 보지 않습니다.
+Android/iOS LOCAL_MOCK과 실제 Google OAuth 결과를 분리합니다. 양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs, 실기기 및 실제 Google 갱신/replay는 별도 승인·설정 후 검증합니다. iOS Native 취소 후 재로그인 성공도 미확인입니다.
 
 | 시험 경로 | 사용자가 준비해야 하는 사항 | 코드·테스트 준비 상태 |
 | --- | --- | --- |
+| Android Google | APK applicationId·서명 SHA-1, Web Client ID·Backend audience, 테스트 계정·신뢰된 HTTPS | Native/Unity API 34 AVD 로그인·취소 후 재시도·복원·로그아웃 PASS |
 | iOS Google | Bundle별 iOS OAuth Client ID, Backend Web Client ID, URL Scheme·테스트 계정·신뢰된 HTTPS | GoogleSignIn 9.2.0; Native/Unity 실제 Simulator 로그인·복원·UI 취소·로그아웃 PASS (실계정 refresh/replay NOT_RUN) |
 | Android Facebook | Meta App ID/Client Token, Android 패키지·서명 Key Hash·테스트 계정·서버 전용 App Secret | Meta 18.3.0 Classic, Backend debug 검증·Fake/계약 PASS |
 | iOS Facebook | 동일 Meta 앱의 iOS 플랫폼 설정·URL Scheme·테스트 계정 및 Backend App Secret | Meta 18.1.1 Limited/Classic·Backend JWT 검증·Fake/계약 PASS |
@@ -28,7 +29,7 @@ Android/iOS LOCAL_MOCK과 iOS Google의 실제 OAuth 결과를 분리합니다. 
 | USER-UNITY |6000.5.8f1·모듈·새 양 Player 실제 검증 | 자기 환경의 Editor·module·license 준비, 약관/로그인 직접 처리 | 전용 self-hosted/Release는 미검증 |
 | USER-DEVICE | Android API34 AVD/iOS18.6 Simulator, 무서명 archive·ad-hoc Simulator | 실제 단말·앱 ID·서명·capability·기기 신뢰 | 실기기 미검증 |
 | USER-BACKEND | local/synthetic profile·DB·HTTP·verifier/sender 코드 | sandbox URL·별도 DB/role·secret 범위와 Provider 권한 준비 | 운영/외부 연결 미검증 |
-| USER-AUTH-GOOGLE | Android Credential Manager, iOS GoogleSignIn/nonce·서버 verifier | Bundle/패키지별 Client ID·Web audience·서명 조건·테스트 계정 | iOS Simulator 실제 계정 및 기본 세션 수명 PASS; Android WAITING_USER; 실계정 refresh/replay·실기기 NOT_RUN |
+| USER-AUTH-GOOGLE | Android Credential Manager, iOS GoogleSignIn/nonce·서버 verifier | Bundle/패키지별 Client ID·Web audience·서명 조건·테스트 계정 | Android AVD·iOS Simulator Native/Unity 실계정 및 기본 세션 수명 PASS; 실계정 refresh/replay·실기기 NOT_RUN |
 | USER-AUTH-APPLE | AuthenticationServices·nonce·서버 verifier·fake 경계 | Bundle/App ID·Sign in with Apple capability·audience·서명·계정 | WAITING_USER |
 | USER-BILLING-GOOGLE | Play Billing·검증/Google finalizer·synthetic 회귀 | 앱/internal testing·일회성 두 상품·테스터·서버 서비스 계정 권한 | WAITING_USER |
 | USER-BILLING-APPLE | StoreKit2·검증/finish·Xcode 로컬 일부 | App Store 상품·Sandbox tester·Bundle/환경·검증 신뢰 설정 | WAITING_USER, P05-T03 FAIL 별도 유지 |
@@ -143,3 +144,5 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 - 설치할 앱의 실제 `applicationId`와 APK 서명 인증서 SHA-1을 확인해 해당 Android OAuth 클라이언트에 등록한다. 독립 샘플의 앱 ID는 `com.gamebridge.sample`이다. Unity 소비 앱의 ID와 서명은 실제 Export를 기준으로 확인한다.
 - 기존 테스트 Google 프로젝트의 Web Client ID를 앱의 Google server client ID와 Backend의 해당 `appId` Google audience 양쪽에서 일치시킨다. 테스트 계정을 허용 목록에 추가한다.
 - Google Play 서비스가 있는 Android 기기 또는 Google APIs AVD, 기기가 신뢰하는 HTTPS를 제공하는 Sandbox Backend를 사용한다. Native 샘플 화면에서 appId, HTTPS URL, Web Client ID와 샘플 구성이 요구하는 상품 ID를 입력한다. 본인 인증과 동의는 사용자가 진행한다.
+
+위 Android 설정을 적용해 2026-11-25 실제 계정 검증을 완료했다. [Android Google 검증](evidence/android-google-live-20261125.md). 다른 앱이나 서명으로 다시 실행할 때는 해당 환경을 새로 등록해야 한다.

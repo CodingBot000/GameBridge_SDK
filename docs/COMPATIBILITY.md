@@ -1,8 +1,22 @@
 # 버전·호환성·검증 범위
 
-> 이 문서에는 **현재 소셜 확장 통합 상태**와 **소셜 확장 전 포트폴리오 DEV_RC의 역사적 검증 기록**이 함께 있습니다. 서로 다른 소스의 증거를 합쳐 한 번의 테스트 PASS로 표시하지 않습니다.
+> 최신 0.1.1-dev 검증을 먼저 정리하고, 이전 소셜 확장과 DEV_RC의 역사적 검증을 보존합니다. 서로 다른 소스의 증거를 합쳐 한 번의 테스트 PASS로 표시하지 않습니다.
 
-## 현재 통합 상태 (2026-11-23 검증, PR #9 문서 개편 포함)
+## 현재 통합 상태 — 0.1.1-dev (2026-11-25)
+
+| 영역 | 확인된 범위 | 근거·제한 |
+| --- | --- | --- |
+| SDK 소스·버전 | 패키지 소스 026716f, PR #13 병합 35cddc1, PR #14 통합 949d4e0; SDK 0.1.1-dev / Bridge v1 | Batch B 패키지 바이트는 Batch A와 동일; 로컬 후보, 공개 Release 없음 |
+| 패키징 | Maven 3개 모듈, XCFramework, UPM; SHA-256 및 source manifest | [Batch A](evidence/batch-a47-dev-compatibility.md); 배포 권리·프로젝트 라이선스 별도 결정 필요 |
+| 선정 API/ABI | 기존 C# 소비자, JVM 클래스 4개 공개 서명, iOS 3 slice의 C ABI 심볼 5개 비교 PASS | 전체 Kotlin metadata·API 호환 보증 아님 |
+| 버전 교체 | Android API 34·iOS 18.6에서 0.1.0-dev → 0.1.1-dev, 앱/DB 보존, 세션·미완료 구매 복구, 각 원장 1건/100코인 | [Batch A](evidence/batch-a47-dev-compatibility.md) · [Batch B](evidence/batch-b48-compatibility.md); LOCAL_MOCK |
+| Unity·OS | Unity 6000.5.8f1, Android API 30·34·36 AVD, iOS 18.6·26.5 Simulator | 6000.4 DEFERRED_ENV 및 후속 범위 제외; UPM 최소 6000.5 유지 |
+| Google 실계정 | Android API 34 AVD / iOS 18.6 Simulator Native·Unity 로그인·취소·복원·로그아웃 PASS | [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md); 실제 refresh/replay·실기기 미실행, iOS Native 취소 후 재로그인 성공 미확인 |
+| Hosted CI | [PR #14 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45578953794) 기본 5개 SUCCESS | Unity E2E·Release Readiness SKIPPED; Player 및 실계정은 로컬 |
+
+StoreKit 26.5 기존 FAIL 및 전체 Strict 제한은 유지합니다. iOS 26.5 LOCAL_MOCK 성공은 실제 StoreKit 거래 성공이 아닙니다.
+
+## 이전 소셜 확장 통합 상태 (2026-11-23 검증, PR #9 문서 개편 포함)
 
 | 구분 | 확인한 내용 | 근거·제한 |
 | --- | --- | --- |
@@ -69,7 +83,7 @@
 
 ## 버전 변경 시 Host 확인 원칙
 
-현재 공개 버전은0.1.0-dev 하나이며 정식 버전 간 마이그레이션 실적은 없습니다. 향후 배포를 선택하면 다음을 확인합니다.
+개발자용 0.1.0-dev 및 0.1.1-dev 사이의 실제 LOCAL_MOCK 버전 교체를 Android/iOS에서 검증했습니다. 공개 배포 및 정식 제품 버전 간 마이그레이션 실적은 없습니다. 후속 배포 시 다음을 확인합니다.
 
 1. `VERSION`, Maven coordinate, UPM `package.json`, Native version 표면과 manifest/checksum을 함께 대조합니다. wire protocol 버전은 SDK 버전과 별개입니다.
 2. 공개 API·필수 모델·error/async 의미, min OS/Unity·의존성, Host Activity/Delegate와 build hook 변경을 비교합니다.
@@ -80,4 +94,4 @@
 
 ## Batch B 대표 Unity·OS 조합
 
-Unity 6000.5.8f1에서 Android 30·34·36과 iOS 26.5 LOCAL_MOCK Player를 검증했다. iOS 18.6은 동일 패키지의 이전 버전 교체 시험을 근거로 한다. Unity 6000.4.0f1은 모바일 모듈과 고정된 샘플 시험 의존성이 없어 DEFERRED_ENV다. [대표 조합과 범위](evidence/batch-b48-compatibility.md).
+Unity 6000.5.8f1에서 Android 30·34·36과 iOS 26.5 LOCAL_MOCK Player를 검증했다. iOS 18.6은 동일 패키지의 이전 버전 교체 시험을 근거로 한다. Unity 6000.4.0f1은 모바일 모듈과 고정된 샘플 시험 의존성이 없어 DEFERRED_ENV이며 후속 개발 범위에서 제외한다. UPM 최소 Unity 6000.5 유지. [대표 조합과 범위](evidence/batch-b48-compatibility.md).

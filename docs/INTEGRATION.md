@@ -1,13 +1,13 @@
 # Quick Start와 Host 통합
 
-> 현재 소셜 인증·Unity LOCAL_MOCK 상태는 [기능 매트릭스](FEATURE_MATRIX.md), 이전 구현 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md), Meta Embed 결과는 [IOS_META_EMBED_FIX](IOS_META_EMBED_FIX.md)를 참고하세요. iOS Google의 Native/Unity 실제 계정 및 최신 자동 콜백 통합은 [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 기록되어 있습니다.
+> 현재 소셜 인증·Unity LOCAL_MOCK 상태는 [기능 매트릭스](FEATURE_MATRIX.md), 이전 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md), Meta Embed는 [IOS_META_EMBED_FIX](IOS_META_EMBED_FIX.md)를 참고하세요. 실제 Google 계정 결과는 [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 기록되어 있습니다.
 
 
 목표는 기존 샘플을 통해 LOCAL_MOCK의 초기화→로그인→상품/구매→서버 잔액→Push→종료 경계를 확인하는 것입니다. 실제 스토어 거래·원격 푸시를 실행하지 않습니다. 검증된 환경은 [COMPATIBILITY](COMPATIBILITY.md), 내부 소유권은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)을 따릅니다.
 
 ## 어디서 시작하나요?
 
-**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. 별도 **Android/iOS Unity LOCAL_MOCK Player는 확장 이후 실제 실행 PASS**했지만, 이 결과 자체는 실계정 OAuth UI 성공을 의미하지 않습니다. iOS Google 실계정 결과는 별도의 [검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)을 따릅니다.
+**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. 별도 **Android/iOS Unity LOCAL_MOCK Player는 확장 이후 실제 실행 PASS**했지만, 이 결과 자체는 실계정 OAuth UI 성공을 의미하지 않습니다. Google 실계정 결과는 [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)를 따릅니다.
 
 | 하려는 일 | 먼저 읽을 곳 |
 | --- | --- |
@@ -21,11 +21,11 @@
 
 ## 1. 패키지 준비
 
-저장소 루트에서 작업합니다. **문서42 로컬 검증 worktree**에서 생성한 staging 예시는 `artifacts/meta-embed.wu_f4khd/upm`입니다. **다른 checkout 또는 새 `main` checkout에는 이 경로가 없을 수 있습니다.** staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있고 Unity 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 기존 `artifacts/portfolio-final/DEV_RC`와 `artifacts/social-login/upm-handoff`는 iOS Meta Embed 수정 전 후보이므로 신규 통합 검증용으로 선택하지 마세요.
+저장소 루트에서 작업합니다. 현재 개발자용 SDK는 `0.1.1-dev`입니다. Batch A/B 최신 staging은 소스·checksum을 확인한 경우에만 재사용합니다. staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있고 Unity 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 예전 `artifacts/meta-embed.wu_f4khd/upm`, `artifacts/portfolio-final/DEV_RC`, `artifacts/social-login/upm-handoff`는 최신 후보가 아닙니다.
 
 ```sh
-# 문서42의 로컬 검증 디렉터리가 실제 존재하는 checkout에서만 실행
-export GAMEBRIDGE_UPM_STAGING="$PWD/artifacts/meta-embed.wu_f4khd/upm"
+# 최신 0.1.1-dev staging이 실제 존재할 때 해당 절대 경로를 지정
+export GAMEBRIDGE_UPM_STAGING="/absolute/path/to/verified-0.1.1-dev-staging"
 python3 harness/check-staging.py "$GAMEBRIDGE_UPM_STAGING"
 ```
 
@@ -178,8 +178,8 @@ export GAMEBRIDGE_MAVEN_REPO="$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk/Editor/
 Host의 `dependencyResolutionManagement.repositories`에 해당 local Maven 경로와 `google()`/`mavenCentral()`을 추가합니다. 아래 coordinate는 [독립 소비 앱](../android/consumer-check/app/build.gradle.kts)과 같습니다.
 
 ```kotlin
-implementation("com.gamebridge:sdk-android:0.1.0-dev")
-implementation("com.gamebridge:sdk-unity-bridge:0.1.0-dev")
+implementation("com.gamebridge:sdk-android:0.1.1-dev")
+implementation("com.gamebridge:sdk-unity-bridge:0.1.1-dev")
 ```
 
 네이티브 기본 흐름은 [Compose sample](../android/sample-app)을 참고합니다. Unity의 Activity attach/callback 등록은 `AndroidTransport`가 담당합니다. Native Host가 bridge를 직접 소비한다면 `BridgeFacade.attachHost(activity)`/`detachHost()`와 `setCallback` 수명을 맞춥니다.
@@ -273,3 +273,7 @@ Unity Export Hook은 FacebookLogin 18.1.1을 UnityFramework와 Host App 양쪽�
 ## 0.1.1-dev 업데이트 확인
 
 같은 applicationId와 서명을 유지하면 Android에서 앱을 지우지 않고 후보 APK를 설치할 수 있다. 실제 소비 앱은 새 Unity Export에서 후보 Maven 좌표를 받는다. 이전 Export에 Package Manager의 버전만 바꾸고 기존 Android Gradle 패치를 재사용하는 방식은 피한다. [실제 덮어 설치 기록](evidence/batch-b48-compatibility.md).
+
+## Android Google 실제 계정 검증
+
+Android API 34 AVD Native/Unity 실제 로그인·취소 후 재시도·앱 재실행 후 복원·로그아웃을 확인했다. 앱별 applicationId·APK 서명 SHA-1 등록, Web Client ID/Backend audience 일치 및 신뢰할 수 있는 HTTPS Sandbox가 필요하다. [Android Google 검증](evidence/android-google-live-20261125.md) · [사용자 설정](USER_SETUP.md). 시험용 CA 설정을 상용 Host에 복사하지 않는다.

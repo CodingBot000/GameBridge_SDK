@@ -2,6 +2,20 @@
 
 > 아래 원래의 종료 판정과 64개 Task 집계는 **문서36 당시 포트폴리오 스냅샷**으로 보존합니다. 이후 사용자 승인으로 별도 소셜 로그인 확장·iOS 패키징 보완을 진행했습니다. 과거 수치·FAIL/WAITING_USER를 소급 변경하지 않습니다.
 
+## 현재 포트폴리오 종료 판정 — 2026-11-25
+
+**포트폴리오: PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS.** SDK 0.1.1-dev / Bridge v1. PR #13·#14 통합 및 Android Google 후속 실계정 검증을 완료했다. SDK 제품화는 기존 BLOCKED_INTERNAL을 유지한다.
+
+| 후속 작업 | 결과 |
+| --- | --- |
+| 배포 후보 | Maven 3개 모듈·XCFramework·UPM 및 checksum/소스 매니페스트/Release Notes 로컬 준비. 공개 Pre-release 미실행, 라이선스 결정 별도 |
+| 버전 교체 | Android API 34·iOS 18.6, 앱/DB 보존, 세션·미완료 구매 복구, 원장 각 1건/100코인; 선정 API/ABI 비교 PASS |
+| Unity·OS | Unity 6000.5.8f1, Android API 30·34·36 및 iOS 18.6·26.5 LOCAL_MOCK 검증; Unity 6000.4 DEFERRED_ENV 및 후속 범위 제외 |
+| Google | Android API 34 AVD·iOS 18.6 Simulator Native/Unity 실제 로그인·취소·복원·로그아웃 및 세션 폐기 PASS |
+| Hosted CI | [PR #14 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45578953794) 기본 5개 SUCCESS, Unity E2E/Release SKIPPED |
+
+근거: [Batch A](evidence/batch-a47-dev-compatibility.md) · [Batch B](evidence/batch-b48-compatibility.md) · [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md). Android 취소 후 재로그인 성공은 확인했으나 iOS Native의 해당 성공, 양 플랫폼 실제 refresh/replay, 실기기 및 다른 실제 Provider/스토어/원격 Push는 미검증이다. 기존 StoreKit 26.5 FAIL, 전체 Strict 제한, weak client 원인 미확정 및 역사적 64 Task 원장을 보존한다. 신규 기능 및 호환성 확대는 이번 범위에서 종료한다.
+
 ## 후속 iOS Google 실계정 검증 및 README 통합
 
 - **SDK 통합:** [PR #7](https://github.com/CodingBot000/GameBridge_SDK/pull/7)·[PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8) 병합, 최신 SDK 변경 기준 `09db0706f0e53693d9fd44df290d9da4c49aba6b`. iOS Google Native·Unity iOS 18.6 Simulator 실제 계정 로그인·앱 재시작 후 복원·Google UI 취소·로그아웃 및 해당 Backend 세션 폐기 PASS. 자동 콜백을 사용한 Unity Player에서도 실제 로그인 PASS. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md) / [정제 증거](evidence/ios-google-oauth-verification.json).
@@ -81,4 +95,4 @@ Unreal/Godot/Windows Native·C++ 포팅, Kubernetes/AWS/GCP 운영, 실 Google/A
 
 ## 후속 0.1.1-dev 개발자용 후보
 
-선정 API/ABI와 Android·iOS의 LOCAL_MOCK 버전 교체를 확인했다. Unity 6000.5.8f1의 대표 OS 실행은 [Batch B 검증 기록](evidence/batch-b48-compatibility.md)에 있다. Android Google 실계정과 StoreKit·Strict 제한은 각 기존 원장에 남아 있다.
+선정 API/ABI와 Android·iOS의 LOCAL_MOCK 버전 교체를 확인했다. Unity 6000.5.8f1의 대표 OS 실행은 [Batch B 검증 기록](evidence/batch-b48-compatibility.md)에 있다. Android Google 실계정은 후속 검증에서 PASS했다 ([Android Google 검증](evidence/android-google-live-20261125.md)). StoreKit·Strict 제한은 각 기존 원장에 남아 있다.

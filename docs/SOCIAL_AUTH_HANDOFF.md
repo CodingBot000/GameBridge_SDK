@@ -2,14 +2,14 @@
 
 > 아래의 **개발 당시 기록**은 PR #4 이전의 로컬 검증 이력을 보존한 것입니다. 당시 작성된 'push/PR/병합하지 않았다', '새 Unity Player 미실행' 문장은 **현재 상태가 아닙니다.** 기존 증거와 실패 이력을 삭제하거나 소급 변경하지 않습니다.
 
-## 현재 통합 상태 (2026-11-23 검증, PR #9 문서 개편 포함)
+## 통합 상태 (2026-11-25 후속 검증 포함)
 
 - PR #4 소셜 확장, PR #5 Unity iOS Meta Embed 수정, [PR #7](https://github.com/CodingBot000/GameBridge_SDK/pull/7)·[PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8) Google OAuth 자동 콜백/실계정 수명 검증이 `main`에 통합됨. SDK 변경 병합 SHA `09db0706f0e53693d9fd44df290d9da4c49aba6b`. README 개편 [PR #9](https://github.com/CodingBot000/GameBridge_SDK/pull/9)는 문서 전용 변경.
 - Android LOCAL_MOCK Unity Player: PR #4 병합 소스 `36ca836` 기준 별도 로컬 검증 **PASS**, 33개 marker·원장 1건/100코인. PR #5는 Android 소스를 수정하지 않았으며 Android 재실행 없음.
 - iOS LOCAL_MOCK Unity Player: 수정 Hook을 적용한 새 Simulator 테스트 **PASS**, 23개 marker, 원장 1건/100코인, logout 후 active session 0. [전체 로컬 기록](IOS_META_EMBED_FIX.md) / [정제 증거](evidence/ios-meta-embed-fix.json).
 - [PR #8 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45153886562) 및 [PR #9 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45174047873): Backend·Android·Swift·Inventory·Basic SUCCESS; Unity E2E·Release SKIPPED. 이전 [PR #5 Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44538602965)와 로컬 Player 결과는 당시 근거로 보존.
 - **iOS Google Native·Unity iOS 18.6 Simulator 실제 계정 로그인·앱 재시작 후 복원·Google UI 취소·로그아웃 및 해당 Backend 세션 폐기 PASS.** 합성 refresh/replay PASS와 실제 계정 갱신/replay NOT_RUN을 구분하며, 취소 후 Native 재로그인 성공 및 cold Scene URL 주입은 미확인입니다. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md).
-- Android Google·양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 실기기은 미검증입니다. 공식 Meta iOS 18.1.1 바이너리 6개는 [Hosted CI 44499923500](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44499923500/job/135476850100)에서 원격 다운로드·Swift Job 성공; 아래 캐시 사용은 당시 로컬 환경의 기록입니다.
+- Android Google Native·Unity API 34 AVD 실제 로그인·취소 후 재시도·복원·로그아웃 PASS. [Android Google 검증](evidence/android-google-live-20261125.md). 양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 실기기는 미검증입니다. 공식 Meta iOS 18.1.1 바이너리 6개는 [Hosted CI 44499923500](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/44499923500/job/135476850100)에서 원격 다운로드·Swift Job 성공; 아래 캐시 사용은 당시 기록입니다.
 
 지금 확인해야 할 API/플랫폼 현황은 [기능 매트릭스](FEATURE_MATRIX.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)에서 확인하세요.
 

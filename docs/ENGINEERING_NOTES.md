@@ -103,7 +103,7 @@ LOCAL_MOCK은 개발 auth·가짜 proof·simulated Push로 위 계층 경계를 
 | --- | --- | --- |
 | 전체 Strict | NOT_RUN, 기존 E1 DEFERRED_ENV/2·E2 생성/전 lane 소유권 배선 미완료 | 안전한 별도 환경에서 계약 완성 후 최대1회. 기존 P05 실패 유지 |
 | StoreKit | P05-T03 FAIL, ENV-STOREKIT-26 OPEN,18.6 간헐 위험 | 전용 Runtime·테스트 계정·시나리오별 재현. LOCAL_MOCK 통과로 덮지 않음 |
-| 외부 Provider (기존 13건 원장) | 문서36 당시 WAITING_USER 집계 보존. 후속 iOS Google Native/Unity Simulator 실제 인증 수명주기 일부 PASS, 나머지 경로는 [기능 매트릭스](FEATURE_MATRIX.md) 기준 | 실제 갱신/replay·실기기·다른 Provider는 별도 승인된 환경에서 검증 |
+| 외부 Provider (기존 13건 원장) | 문서36 당시 WAITING_USER 집계 보존. Android API 34 AVD와 iOS 18.6 Simulator Native/Unity Google 실제 인증 수명주기 PASS (세부 범위는 [기능 매트릭스](FEATURE_MATRIX.md)) | 실제 갱신/replay·실기기·다른 Provider는 별도 승인된 환경에서 검증 |
 | weak1 / 추가 profiling | 미확정 / Android JNI heap·iOS continuation·CPU blocking NOT_RUN | 실제 심각한 결함 조사가 필요할 때만 측정. 지금 자동 필수 배치로 넘기지 않음 |
 | OpenAPI |24 operation/DTO23·실제/합성 응답 구조 대조, BUG-017 OPEN | 문서의 SSE/Map 세부 계약을 기계 검사에 더 연결할 수 있음 |
 | 환경·출시 | Unity 한 버전·일부 OS, self-hosted/Release·실기기 미검증 | 지원 확대 또는 출시를 별도로 결정한 경우에만 진행 |

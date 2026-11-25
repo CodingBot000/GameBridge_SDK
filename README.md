@@ -1,6 +1,6 @@
 # GameBridge SDK
 
-![Status](https://img.shields.io/badge/status-development-orange) ![Version](https://img.shields.io/badge/version-0.1.0--dev-blue) ![Platforms](https://img.shields.io/badge/platforms-Unity%20%7C%20Android%20%7C%20iOS-555555)
+![Status](https://img.shields.io/badge/status-development-orange) ![Version](https://img.shields.io/badge/version-0.1.1--dev-blue) ![Platforms](https://img.shields.io/badge/platforms-Unity%20%7C%20Android%20%7C%20iOS-555555)
 
 **Unity 게임에서 Android·iOS의 인증·결제·푸시 기능을 하나의 C# API로 사용하는 모바일 게임 SDK입니다.** Unity C# SDK와 Kotlin/Swift Native 브리지, Spring Boot·PostgreSQL Backend를 직접 연결해 플랫폼별 구현 차이와 서버 데이터의 책임을 분리했습니다.
 
@@ -8,7 +8,7 @@
 
 **바로가기:** [주요 기능](#주요-기능) · [아키텍처](#구조-한눈에-보기) · [기술적 핵심](#기술적-핵심) · [Quick Start](#quick-start--unity-editor-offline) · [검증 결과](#검증-현황과-제한사항)
 
-Batch B에서 Unity 6000.5.8f1의 Android API 30·34·36 및 iOS 26.5 LOCAL_MOCK Player를 검증했습니다. API 34에서는 0.1.0-dev에서 0.1.1-dev로 덮어 설치한 뒤 세션과 미완료 구매를 복구했습니다. [Batch B 검증](docs/evidence/batch-b48-compatibility.md).
+**대표 검증 성과:** Android·iOS Native/Unity Google 실계정 로그인·복원·취소·로그아웃, 양 플랫폼 `0.1.0-dev → 0.1.1-dev` 업데이트 후 세션·미완료 구매 복구 및 중복 지급 방지를 검증했습니다.
 
 ## 주요 기능
 
@@ -24,7 +24,7 @@ Batch B에서 Unity 6000.5.8f1의 Android API 30·34·36 및 iOS 26.5 LOCAL_MOCK
 
 | 제공자 | Android | iOS |
 | --- | --- | --- |
-| **Google** | Credential Manager | GoogleSignIn 9.2.0 |
+| **Google** | Credential Manager · 실계정 AVD 검증 | GoogleSignIn 9.2.0 · 실계정 Simulator 검증 |
 | **Apple** | 웹 OAuth · Custom Tabs | AuthenticationServices |
 | **Facebook** | Meta Classic Login | Meta Limited / Classic Login |
 | **Mock** | 개발용 `LOCAL_MOCK` | 개발용 `LOCAL_MOCK` |
@@ -59,7 +59,7 @@ flowchart TB
 - **인증·세션 보안:** Provider 증명과 nonce challenge를 Backend에서 검증하고, Native 보안 저장소(Android Keystore / iOS Keychain)를 사용합니다. Unity 이벤트·로그에는 인증 토큰 원문을 노출하지 않도록 경계를 분리했습니다.
 - **멱등 구매·재화 관리:** PostgreSQL 거래 유일성 제약과 멱등 원장으로 중복 지급을 방어하고, 구매 결과·서버 지급·재화 조회 및 응답 유실 후 복구를 별개 상태로 다룹니다.
 - **Unity iOS 연동 문제 해결:** Google OAuth의 AppController·UnityScene URL 경로를 분리해 처리하고, Meta 동적 Framework 4개의 Host 앱 Embed·서명 문제를 수정했습니다. Export 후처리의 반복 적용과 충돌 방지도 검증했습니다.
-- **패키징·회귀 체계:** Android Maven/AAR·R8 소비, iOS XCFramework·Swift 소비, Unity UPM 패키지, 계약·HTTP·Native·CI 검사를 연결했습니다.
+- **SDK 버전 관리·패키징:** Maven/AAR·R8, XCFramework·Swift 소비, UPM의 버전 정합성과 체크섬을 검사하고 기존 SDK 업데이트 시 선정 API·ABI 및 세션·미완료 구매 복구를 검증했습니다.
 
 구현 근거와 장애 분석: [설계·Edge Case·문제 해결](docs/ENGINEERING_NOTES.md) · [보안·데이터 소유권](docs/SECURITY.md)
 
@@ -102,14 +102,16 @@ await sdk.SignOutAsync();
 
 | 검증 영역 | 확인한 결과 | 근거 |
 | --- | --- | --- |
-| **Android·iOS Unity 통합** | `LOCAL_MOCK` Player → Native → Backend → PostgreSQL. 플랫폼별 가상 구매 원장 1건·100코인 지급 확인 | [Android](docs/evidence/p10-batch34-unity-android.json) · [iOS](docs/IOS_META_EMBED_FIX.md) |
-| **iOS Google 실계정** | Native·Unity 로그인, 앱 재시작 후 복원, UI 취소, 로그아웃 및 해당 Backend 세션 폐기 | [OAuth 검증 기록](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md) |
-| **Unity iOS 콜백** | 자동 Export·회귀 71개 검사; Scene 경로 합성 URL로 Native 처리와 C# 이벤트 비노출 확인 | [PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8) |
-| **Hosted CI** | Inventory·Backend·Android·Swift/iOS·Basic **5개 Job 성공** | [GitHub Actions](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45153886562) |
+| **SDK 업데이트·하위 호환성** | Android API 34·iOS 18.6에서 앱·DB 유지 후 버전 교체, 세션·미완료 구매 복구, 원장 각 1건/100코인 | [Batch A](docs/evidence/batch-a47-dev-compatibility.md) · [Batch B](docs/evidence/batch-b48-compatibility.md) |
+| **Unity·OS 호환성** | Unity 6000.5.8f1, Android API 30·34·36 및 iOS 18.6·26.5 LOCAL_MOCK Player | [호환성](docs/COMPATIBILITY.md) |
+| **패키징·계약** | 0.1.1-dev Maven·XCFramework·UPM, SHA-256, 기존 C# 소비자, 선정 JVM 4개 클래스·C ABI 5개 심볼 비교 | [Batch A](docs/evidence/batch-a47-dev-compatibility.md) |
+| **Google 실계정** | Android API 34 AVD / iOS 18.6 Simulator Native·Unity 로그인, UI 취소, 앱 재실행 후 복원, 로그아웃 및 서버 세션 폐기 | [Android](docs/evidence/android-google-live-20261125.md) · [iOS](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md) |
+| **Unity iOS 콜백·Export 복구** | PBX·콜백 검사 157개, 네 쓰기 지점의 중단 복구, Host 편집 보존, Framework Embed·서명 | [PR #11](https://github.com/CodingBot000/GameBridge_SDK/pull/11) |
+| **Hosted CI** | Inventory·Backend·Android·Swift/iOS·Basic **5개 Job 성공** | [PR #14 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45578953794) |
 
-`EDITOR_OFFLINE`은 메모리 Fake, `LOCAL_MOCK`은 로컬 Native·Backend 개발 경로입니다. 가상 구매는 실제 스토어 거래가 아닙니다. Hosted CI의 Unity E2E·Release 작업은 실행되지 않았으며, 다른 환경의 검증 범위·알려진 제한은 [기술 기록](docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)에 남겨 두었습니다.
+`EDITOR_OFFLINE`은 메모리 Fake, `LOCAL_MOCK`은 로컬 Native·Backend 개발 경로입니다. 가상 구매는 실제 스토어 거래가 아닙니다. 실제 Google 토큰 갱신/replay, Apple·Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs, 실기기, Unity 6000.4 및 전체 Strict/Hosted Unity E2E·Release 검증은 미완료이며 기존 StoreKit 26.5 실패도 유지합니다. [검증 범위](docs/FEATURE_MATRIX.md) · [알려진 제한](docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)
 
-**검증한 주요 조합:** Unity 6000.5.8f1 · Android API 36 빌드/JDK 21 · iOS 18.6 Simulator/Xcode 26.6 · Spring Boot/PostgreSQL 17. 전체 최소 지원 환경을 의미하지 않습니다.
+**검증 환경:** Unity 6000.5.8f1 · Android API 30/34/36 AVD(빌드 API 36, JDK 21) · iOS 18.6/26.5 Simulator(Xcode 26.6) · Spring Boot/PostgreSQL. UPM 최소 Unity는 6000.5이며 모든 OS·Unity 버전의 지원을 보증하지 않습니다. 개발자용 배포 후보는 로컬에 있으며 GitHub Pre-release는 미공개입니다.
 
 ## 문서 안내
 
@@ -117,8 +119,9 @@ await sdk.SignOutAsync();
 | --- | --- |
 | [API](docs/API.md) · [통합 가이드](docs/INTEGRATION.md) | C# API·오류·이벤트, Native 패키징과 Host 설정 |
 | [설계·문제 해결](docs/ENGINEERING_NOTES.md) · [보안](docs/SECURITY.md) | 브리지 경계·Edge Case·원장·토큰 소유권 |
-| [iOS Google OAuth](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md) · [iOS Meta Embed](docs/IOS_META_EMBED_FIX.md) | 실제 인증·Unity iOS 빌드 및 콜백 검증 |
+| [Android Google](docs/evidence/android-google-live-20261125.md) · [iOS Google](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md) | 실제 인증·세션 수명주기 검증 |
 | [진행 기록](docs/PROGRESS.md) · [변경 이력](docs/CHANGELOG.md) | 시점별 테스트 근거와 개발 이력 |
 | [호환성](docs/COMPATIBILITY.md) · [사용자 설정](docs/USER_SETUP.md) | 검증한 조합·플랫폼 연동 준비 |
+| [기능 매트릭스](docs/FEATURE_MATRIX.md) · [최종 보고](docs/FINAL_REPORT.md) | 실제 검증 범위와 완료 판정 |
 
 이 저장소는 개인 기술 포트폴리오이며, 상용 게임 출시나 외부 고객 운영 실적을 의미하지 않습니다.

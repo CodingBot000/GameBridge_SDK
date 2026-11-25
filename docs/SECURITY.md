@@ -24,7 +24,7 @@
 
 ## 세션·지급·삭제의 현재 계약
 
-서버는 Google/Apple identity의 issuer/audience/만료/nonce·서명 검증, challenge 원자 소비와 identity/session transaction을 갖습니다. test key/synthetic/LOCAL_MOCK 시험 외에 iOS Google 실제 계정의 Native·Unity Simulator 로그인, 동일 identity 재사용 및 세션 발급·폐기를 신뢰된 로컬 HTTPS sandbox에서 확인했습니다. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md). 실제 계정 SDK-token refresh/replay는 미실행이고 해당 회귀는 합성 시험입니다.
+서버는 Google/Apple identity의 issuer/audience/만료/nonce·서명 검증, challenge 원자 소비와 identity/session transaction을 갖습니다. test key/synthetic/LOCAL_MOCK 외에 Android/iOS Google Native·Unity의 실제 계정 로그인, 동일 identity 재사용 및 독립 세션 발급·폐기를 신뢰된 로컬 HTTPS Sandbox에서 확인했습니다. Android 시험에서 C# URL 이벤트 0건 및 시험 프로세스 로그의 JWT·OAuth 코드/토큰·Bearer 패턴 미검출을 확인했습니다. [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md). 실제 계정 SDK-token refresh/replay는 미실행이고 해당 회귀는 합성 시험입니다.
 
 Native 저장 session은 app ID·모드·Backend에 결속됩니다. refresh 이전에 token 없는 `refresh_pending` 표식으로 원자 교체하므로 응답 유실 후 옛 refresh token을 강제 재사용하지 않습니다. 기본7일 만료는 최초 발급부터 고정이라는 기존 결정이며 새 정책을 추가하지 않았습니다. 이전 형식 session은 자동 이전/삭제하지 않고 재인증합니다.
 
@@ -36,4 +36,4 @@ Native 저장 session은 app ID·모드·Backend에 결속됩니다. refresh 이
 
 형식이 맞는 requestId·허용 operation·정제된 상태를 사용해 추적합니다. HTTP 공통 오류는 sanitized message와 requestId를 반환합니다. PII callback·server trace·synthetic 응답의 문자열 제거와 예외 원문 비노출을 [실제 증거](evidence/p11-batch34-openapi-synthetic.json) 및 [오류 시험](../backend/src/test/kotlin/com/gamebridge/config/HttpInfrastructureTest.kt)으로 확인했습니다.
 
-Android Google·양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 실기기·키 rotation·운영 보안 심사는 미검증입니다. iOS Google 실계정 token refresh/replay 및 cold Scene URL 직접 주입도 미실행입니다. RTDN/Apple Server Notifications 운영, 환불 자동화·SLA는 범위 밖입니다. 로컬 StoreKit의 개발 서버 지급은 Apple JWS 서버 검증이 아니며 P05-T03의 실패/환경 위험을 유지합니다. 전체 Strict가 통과했다는 주장도 하지 않습니다.
+양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 실기기·키 rotation·운영 보안 심사는 미검증입니다. Android/iOS Google 실계정 token refresh/replay 및 iOS cold Scene URL 직접 주입도 미실행입니다. RTDN/Apple Server Notifications 운영, 환불 자동화·SLA는 범위 밖입니다. 로컬 StoreKit의 개발 서버 지급은 Apple JWS 서버 검증이 아니며 P05-T03의 실패/환경 위험을 유지합니다. 전체 Strict가 통과했다는 주장도 하지 않습니다.

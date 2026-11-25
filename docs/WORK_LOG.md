@@ -4447,3 +4447,7 @@
 ## Android Google 실제 계정 후속 검증 (2026-11-25)
 
 - PR #14 병합 main 949d4e0 기준. Native/Unity API 34에서 실계정 로그인, UI 취소 후 재시도, 프로세스 재시작 후 복원, 로그아웃과 지정 세션 폐기 PASS. 단일 identity에 독립 세션 2개, 폐기 2개. Unity URL 이벤트 0 및 프로세스 로그 민감 패턴 검사 통과. [실행 증거](evidence/android-google-live-20261125.md).
+
+## 2026-11-25 — 최종 기술 문서 정합성
+
+- PR #14 병합 `949d4e0`, 실계정 증거 `c3bd278`, Batch A/B 및 기존 iOS Google 증거를 기준으로 README와 기술 문서를 정리했다. SDK 0.1.1-dev, Unity 6000.4 범위 제외, 실제 계정과 LOCAL_MOCK 분리, 기존 FAIL/Strict 및 64 Task 원장 보존. 변경 문장의 내부 경로 61개를 확인했으며 누락 0건이다. 제품 코드·기존 증거·배포 후보 바이트는 변경하지 않았다. 새 runtime 시험은 수행하지 않았다.

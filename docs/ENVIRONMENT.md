@@ -8,3 +8,7 @@
 - Android Maven의 unsigned R8 독립 소비 빌드와 iOS 무서명 XCFramework device/simulator slice·별도 Simulator 링크를 확인했다. 서명된 실기기 실행과 실제 스토어 검증은 아니다.
 - iOS 18.6 local StoreKit 복구는 통과했으나 iOS 26.5에서는 test-only SKTestSession 생성이 timeout으로 실패했다. P05-T03 FAIL/ENV-STOREKIT-26 OPEN을 유지한다.
 - 실제 Google/Apple 인증·스토어·FCM/APNs와 실기기는 사용자 설정 후 별도 검증이다. GitHub Actions는 실행하지 않았다. 세부 버전·명령은 [TOOLCHAIN](TOOLCHAIN.md), 테스트 근거는 [PROGRESS](PROGRESS.md)와 [WORK_LOG](WORK_LOG.md)를 따른다.
+
+## 2026-11-25 후속 검증
+
+Unity 6000.5.8f1 및 Android API 30·34·36 AVD, iOS 18.6·26.5 Simulator LOCAL_MOCK과 Android/iOS 실제 Google 인증은 [COMPATIBILITY](COMPATIBILITY.md), [Android Google 검증](evidence/android-google-live-20261125.md), [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)를 따른다. Unity 6000.4는 모바일 모듈 및 시험 의존성 제한으로 DEFERRED_ENV이며 후속 범위에서 제외한다. iOS 26.5 LOCAL_MOCK은 기존 StoreKit 실패를 해소하지 않는다.

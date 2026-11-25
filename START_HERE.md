@@ -6,7 +6,7 @@
 
 ## 설치·시연
 
-- 로컬 `artifacts/portfolio-final/DEV_RC`가 있으면 checksum과 manifest를 확인하고 staged `package.json`으로 설치합니다.
+- 최신 개발자용 후보는 `0.1.1-dev`입니다. 동일 소스·checksum의 Batch A/B staging을 사용하거나 아래 절차로 재생성합니다. 이전 `artifacts/portfolio-final/DEV_RC`는 역사적 후보입니다.
 - 다른 checkout에는 Native 생성 바이너리가 없으므로 [기존 build/package 절차](docs/INTEGRATION.md#1-패키지-준비)를 사용합니다.
 - Editor Offline Demo는 fake UI, Native Demo는 Android/iOS LOCAL_MOCK 또는 명시한 Sandbox용입니다. 실제 Provider는 [USER_SETUP](docs/USER_SETUP.md)의 별도 사용자 준비와 승인이 필요합니다.
 

@@ -1,6 +1,6 @@
 # CI 검증 범위
 
-> **현재 기준:** [PR #8 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45153886562)와 [PR #9 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45174047873) 모두 `inventory-contracts`, `backend-postgres`, `android-native`, `swift-ios-simulator`, `basic-ci` **SUCCESS**, `unity-e2e`·`release-readiness` **SKIPPED**입니다. PR #9는 README 변경이며, [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md)의 실제 계정 시험과 Android/iOS LOCAL_MOCK Player는 **로컬 실행**입니다. Hosted Unity E2E나 Release 성공으로 표기하지 않습니다.
+> **현재 기준:** [PR #14 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45578953794) (head 6c3eacf, main 병합 949d4e0)에서 `inventory-contracts`, `backend-postgres`, `android-native`, `swift-ios-simulator`, `basic-ci` **SUCCESS**, `unity-e2e`·`release-readiness` **SKIPPED**. Android/iOS 실제 Google 및 LOCAL_MOCK Player 검증은 로컬에서 별도로 수행했습니다. [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md). Hosted Unity E2E나 Release 성공으로 표기하지 않습니다.
 
 ## 기존 게이트 설명 및 과거 실행 기록
 
@@ -35,3 +35,5 @@ PR과 기본 `workflow_dispatch`는 hosted 네 job 및 basic-ci만 결과를 판
 ## Batch A와 Batch B 검증 범위
 
 Batch A 후보 `026716f`의 [수동 Hosted 검증](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45574448608)과 [PR #13 필수 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45577041949)가 통과했다. Batch A는 main `35cddc1`로 병합했다. Batch B의 버전 교체 및 Unity Player는 별도 로컬 시험으로 기록한다. [로컬 증거](evidence/batch-b48-compatibility.md).
+
+PR #14의 기본 5개 Job 성공을 확인했다. 이후 Android 실계정 시험은 제품 코드 변경 없는 로컬 실행이며 별도 CI를 실행하지 않았다. 최종 문서 정리는 새 runtime 검증 결과가 아니다.

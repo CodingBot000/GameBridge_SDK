@@ -2114,3 +2114,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - RF-04 (PX-T23) 상태 모델 이동. C# 4개 조건 컴파일·Unity 메타데이터 검사 및 383줄 reflection 표면 대조가 통과했다. 실제 Editor 소비 검증은 RF-07에서 진행한다.
 - RF-02 (PX-T21) 독립 StoreLifecycle 추출 및 Bridge 회귀 PASS. RF-03 (PX-T22) optional Firebase 검사를 포함한 토큰 획득 공통화를 진행한다.
 - RF-03 (PX-T22) FCM 토큰 획득 추출 및 정책/취소/timeout 회귀 통과. 실제 Firebase 호출은 검증 범위 밖이다.
+- RF-05 (PX-T24) Strict diagnostics/capability decoder 추출 및 .NET fixture·등록/종료·늦은 callback·iOS Host queue 시험 통과.
+- RF-06 (PX-T25) 기존 전이를 고정 기준에 재실행하고 현재 shipping 경로·SHA-256을 독립 비교한다.

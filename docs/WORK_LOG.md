@@ -4481,3 +4481,4 @@
 - RF-02. Google/Social의 독립 Store scope, emitter 생성·UNDISPATCHED·Host attach·drop 순서를 보존했다. Bridge 단위 `testDebugUnitTest` 종료 0. 소유 Store 재사용/재생성, 교체 Host 재부착, 두 번 정리, 구독 취소와 close 실패 전파 검증.
 - RF-03 시작. FCM class load, adapter 동기 LinkageError 및 callback nativeCode 경계, timeout/cancel, 기존 provider HTTP 등록 범위를 그대로 둔다.
 - RF-03. Native 및 Bridge 단위 검사 종료 0. Firebase class 미포함/LinkageError, 권한 거부, callback 상세·중복·늦은 도달, caller 취소·timeout을 fixture로 확인했다. token 요청만 공통화해 Backend 등록 호출과 직접 token 전달 경로를 유지했다.
+- RF-05. `SocialAuthContract`, `check-csharp-compile.sh`, `smoke-csharp-registry.sh`(418 assertion), `stress-csharp-lifecycle.sh`, `smoke-unity-ios-host-queue.sh` 종료 0. 누락/null, 열거/타입, 시간대/정확 UUID, 200/201 경계, 추가 속성 무시 및 read-only snapshot을 검사했다. Native/Unity 실제 Player 증거는 RF-07에서 별도 수집한다.

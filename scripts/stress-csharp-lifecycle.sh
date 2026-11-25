@@ -20,6 +20,8 @@ cat > "$output/LifecycleStress.csproj" <<'PROJECT'
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/SdkStatusModels.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/DiagnosticDecoder.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/CapabilityDecoder.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/tests/LifecycleStress/Program.cs" />
     <Reference Include="Newtonsoft.Json"><HintPath>$(GAMEBRIDGE_NEWTONSOFT_DLL)</HintPath></Reference>
   </ItemGroup>

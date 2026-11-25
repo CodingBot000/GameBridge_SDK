@@ -19,6 +19,7 @@ class Transport:IWireTransport {
 }
 class Program {
  static async Task Main(){
+  BridgeDecoderChecks.Run();
   if((int)AuthProvider.MOCK!=0||(int)AuthProvider.GOOGLE!=1||(int)AuthProvider.APPLE!=2||(int)AuthProvider.FACEBOOK!=3)throw new Exception("enum ABI");
   var transport=new Transport();using(var client=new GameBridgeClient(transport)){
    await client.InitializeAsync(new GameBridgeConfig("app",ProviderMode.PlatformSandbox,"https://backend.invalid"));

@@ -34,23 +34,35 @@ class Handler(http.server.BaseHTTPRequestHandler):
         finally: conn.close()
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--run-local',required=True,action='store_true');ap.add_argument('--staging',type=Path,required=True);ap.add_argument('--serial',required=True);ap.add_argument('--expected-avd',required=True);args=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--run-local',required=True,action='store_true');ap.add_argument('--staging',type=Path,required=True);ap.add_argument('--serial',required=True);ap.add_argument('--expected-avd',required=True);ap.add_argument('--candidate-apk',type=Path);ap.add_argument('--install-no-streaming',action='store_true');ap.add_argument('--previous-apk',type=Path);args=ap.parse_args()
+    if args.previous_apk and not args.candidate_apk: ap.error('--previous-apk requires a prebuilt --candidate-apk')
     out=Path(tempfile.mkdtemp(prefix='unity-android-restart-',dir=ROOT/'artifacts'));must=common.must;run=common.run;server=log=proxy=None
     head=must(['git','rev-parse','HEAD'],'GIT_HEAD').strip();dirty=bool(must(['git','status','--porcelain','--untracked-files=no'],'GIT_STATUS').strip());result={'status':'FAIL','scope':'Unity Android LOCAL_MOCK process restart; not Play Billing','sourceHead':head,'sourceTrackedDirty':dirty,'player':'NOT_RUN'}
     try:
         stage=args.staging.resolve();must(['python3','harness/check-staging.py',stage],'STAGING_INVALID');common.verify_staged_source_matches_checkout(stage);adb=common.locate_adb(None)
         if not adb:raise common.GateError('ADB_MISSING','DEFERRED_ENV')
         serial,avd=common.find_dedicated_device(adb,args.serial,args.expected_avd)
-        env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage);prepared=must(['bash','scripts/prepare-unity-android-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
-        if not match:raise common.GateError('CONSUMER_PATH')
-        project=Path(match.group(1));shutil.copy2(ROOT/'tests/UnityAndroidRestartConsumer/MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs');apk=out/'restart-consumer.apk'
-        build=run(['bash','scripts/build-unity-android-mock.sh',project,apk],timeout=1200,env=env);(out/'unity-build.log').write_text(build.stdout)
-        if build.returncode:raise common.GateError('UNITY_BUILD_FAILED')
+        if args.candidate_apk:
+            apk=args.candidate_apk.resolve()
+            if not apk.is_file(): raise common.GateError('CANDIDATE_APK_MISSING')
+        else:
+            env=os.environ.copy();env['GAMEBRIDGE_UPM_STAGING']=str(stage);prepared=must(['bash','scripts/prepare-unity-android-mock.sh','--prepare'],'PREPARE_FAILED',env=env);match=re.search(r'^Prepared consumer: (/.+)$',prepared,re.M)
+            if not match:raise common.GateError('CONSUMER_PATH')
+            project=Path(match.group(1));shutil.copy2(ROOT/'tests/UnityAndroidRestartConsumer/MockPlayerScenario.cs',project/'Assets/MockPlayerScenario.cs');apk=out/'restart-consumer.apk'
+            build=run(['bash','scripts/build-unity-android-mock.sh',project,apk],timeout=1200,env=env);(out/'unity-build.log').write_text(build.stdout)
+            if build.returncode:raise common.GateError('UNITY_BUILD_FAILED')
+        initial=args.previous_apk.resolve() if args.previous_apk else apk
+        if args.previous_apk:
+            if not initial.is_file() or common.sha256(initial)==common.sha256(apk):
+                raise common.GateError('UPGRADE_APK_MISSING_OR_UNCHANGED')
+            result['previousApkSha256']=common.sha256(initial)
         result['apkSha256']=common.sha256(apk);must(['backend/gradlew','-p','backend','bootJar'],'BACKEND_BUILD',timeout=240)
         db,password=common.create_isolated_database('gamebridge-sdk-local-postgres-1','gamebridge',54329);result['database']=db
         server,log,port,key=common.start_backend(ROOT/'backend/build/libs/gamebridge-backend.jar',out,db,password,54329)
         proxy=FaultProxy(port);threading.Thread(target=proxy.serve_forever,daemon=True).start();proxyport=proxy.server_address[1]
-        common.wait_for_dedicated_device(adb,serial,avd);install=run([adb,'-s',serial,'install',apk],timeout=120);(out/'adb-install.log').write_text(install.stdout)
+        common.wait_for_dedicated_device(adb,serial,avd)
+        install_options=['--no-streaming'] if args.install_no_streaming else []
+        install=run([adb,'-s',serial,'install',*install_options,initial],timeout=120);(out/'adb-install.log').write_text(install.stdout)
         if install.returncode or 'Success' not in install.stdout:raise common.GateError('INSTALL_FAILED')
         must([adb,'-s',serial,'logcat','-c'],'LOGCAT_CLEAR')
         def launch(phase):
@@ -71,12 +83,18 @@ def main():
         def ledger():return must(['docker','exec','-i','gamebridge-sdk-local-postgres-1','psql','-X','-U','gamebridge','-d',db,'-t','-A','-v','ON_ERROR_STOP=1'],'LEDGER_QUERY',input_text='SELECT count(*),coalesce(sum(delta),0) FROM wallet_ledger;\n').strip()
         launch('prepare');wait('GB_RESTART_PENDING PASS')
         if proxy.faults!=1 or ledger()!='1|100':raise common.GateError('FIRST_COMMIT_NOT_CONFIRMED')
-        first=pid();must([adb,'-s',serial,'shell','am','force-stop',common.PACKAGE],'FORCE_STOP_FAILED');launch('recover');second=pid()
+        first=pid();must([adb,'-s',serial,'shell','am','force-stop',common.PACKAGE],'FORCE_STOP_FAILED')
+        if args.previous_apk:
+            update=run([adb,'-s',serial,'install','-r',*install_options,apk],timeout=120)
+            (out/'adb-update.log').write_text(update.stdout)
+            if update.returncode or 'Success' not in update.stdout: raise common.GateError('UPDATE_INSTALL_FAILED')
+        launch('recover');second=pid()
         if first==second or not first or not second:raise common.GateError('PROCESS_NOT_RESTARTED')
         wait('GB_RESTART_RESULT PASS LOCAL_MOCK MAIN_THREAD')
         if ledger()!='1|100':raise common.GateError('DUPLICATE_LEDGER')
         log.flush();trace=(out/'server.log').read_text()
         if key in trace or password in trace:raise common.GateError('SECRET_IN_SERVER_LOG')
+        if args.previous_apk: result['packageUpdate']='PASS'
         result.update(status='PASS',player='PASS',processRestart='PASS',sessionRestore='PASS',pendingRecovery='PASS',ledgerCount=1,ledgerDelta=100,firstPid=first,secondPid=second)
     except common.GateError as error:result.update(status=error.category,errorCode=str(error))
     except Exception as error:result['errorCode']=type(error).__name__

@@ -8,6 +8,8 @@
 
 **바로가기:** [주요 기능](#주요-기능) · [아키텍처](#구조-한눈에-보기) · [기술적 핵심](#기술적-핵심) · [Quick Start](#quick-start--unity-editor-offline) · [검증 결과](#검증-현황과-제한사항)
 
+Batch B에서 Unity 6000.5.8f1의 Android API 30·34·36 및 iOS 26.5 LOCAL_MOCK Player를 검증했습니다. API 34에서는 0.1.0-dev에서 0.1.1-dev로 덮어 설치한 뒤 세션과 미완료 구매를 복구했습니다. [Batch B 검증](docs/evidence/batch-b48-compatibility.md).
+
 ## 주요 기능
 
 | 기능 | Unity에서 사용하는 기능 | 핵심 API / 이벤트 |

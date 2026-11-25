@@ -2,6 +2,10 @@
 
 > 개발 버전 `0.1.0-dev`의 변경 기록입니다. **병합됐다는 사실과 실제 Provider·Release 검증 완료는 다릅니다.** 최초 포트폴리오 DEV_RC의 동결 근거는 보존하고, 이후 승인된 확장을 아래에 별도로 기록합니다.
 
+## 0.1.1-dev 개발자용 후보
+
+- SDK 버전 메타데이터를 맞추고 Android 및 iOS Simulator의 호환성을 검사했다. Android API 34와 iOS 18.6에서 이전 SDK 위에 후보를 설치해 세션과 미완료 구매를 복구했다. [Batch A](evidence/batch-a47-dev-compatibility.md) · [Batch B](evidence/batch-b48-compatibility.md).
+
 ## 2026-11-20~25 — iOS Google 인증 및 포트폴리오 문서 개편
 
 - [PR #7](https://github.com/CodingBot000/GameBridge_SDK/pull/7): Native/Unity iOS 실제 Google 로그인 기록, 독립 Native Host, 로컬 HTTPS sandbox, Google AppController 자동 콜백 Export 추가. 최초 실제 Unity 인증은 수동 콜백 연결 빌드에서 수행했으며 새 Export 검증과 구분.

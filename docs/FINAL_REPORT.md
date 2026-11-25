@@ -78,3 +78,7 @@ Kotlin Android·Swift iOS·C# Unity 공통 SDK, Android JNI/iOS Swift C ABI, Nat
 최종 로컬 경로는 `artifacts/portfolio-final/DEV_RC`이며 Native 재빌드 없이 검증된 UPM/Maven/XCFramework와 현재 문서를 묶는다. SDK0.1.0-dev·build source·검증 code·내부147 checksum·상위 문서 checksum·제한을 manifest에 분리한다. 생성 바이너리는 Git에 넣지 않고 공개 Release/registry/스토어 배포를 하지 않는다.
 
 Unreal/Godot/Windows Native·C++ 포팅, Kubernetes/AWS/GCP 운영, 실 Google/Apple/결제/FCM/APNs와 정식 출시는 이번 개발에서 제외한다. 선택적 제품화가 필요할 때만 [backlog](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)와 USER_SETUP을 사용한다. 포트폴리오의 현재 SDK·Native Plugin·REST·문서화·문제 해결 증거를 해당 경험으로 확대하지 않는다.
+
+## 후속 0.1.1-dev 개발자용 후보
+
+선정 API/ABI와 Android·iOS의 LOCAL_MOCK 버전 교체를 확인했다. Unity 6000.5.8f1의 대표 OS 실행은 [Batch B 검증 기록](evidence/batch-b48-compatibility.md)에 있다. Android Google 실계정과 StoreKit·Strict 제한은 각 기존 원장에 남아 있다.

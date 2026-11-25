@@ -4438,3 +4438,8 @@
 - main 3d9d5b8에서 PR #10·#11 병합을 확인했다. 동일 소스의 0.1.0-dev를 비교 기준으로 새로 빌드하고 차기 후보 0.1.1-dev를 적용한다.
 - 현재 소스의 두 버전을 빌드했다. Maven·XCFramework·UPM 정합성 확인, C# 기존 소비자와 JVM 4 클래스 및 C ABI 5 심볼 대조, Swift 9개, Android R8·훅 및 음성, iOS 훅 157개 통과. Unity iOS에서 이전 패키지를 현재 Backend에 연결한 뒤 후보를 덮어 설치해 세션과 미완료 구매를 복구했다. 원장 1건/100코인. 상세 [Batch A 검증](evidence/batch-a47-dev-compatibility.md).
 - 첫 Hosted 실행 45574138744에서 Android 빌드 진입점의 임시 fixture가 VERSION을 복사하지 않아, 의도한 Gradle 오류 대신 버전 파일 읽기에서 종료했다. fixture에 기준 VERSION을 추가해 기존 종료 코드 7 단언을 유지한다.
+
+## 문서48 — Batch B 최종 연동 및 호환성
+
+- Batch A CI와 체크섬을 확인하고 PR #13을 열었다. 0.1.1-dev 패키지 기준으로 Android 업데이트, Unity/OS 대표 조합과 실제 Google 설정을 준비한다.
+- Unity 6000.5 샘플 import/reimport, Android API 34 덮어 설치와 API 30·36, iOS 26.5 LOCAL_MOCK PASS. API 36 최초 스트리밍 설치 실패와 보호 가드 중단 및 새 AVD 비스트리밍 통과를 기록했다. Unity 6000.4는 모듈·의존성 제한으로 DEFERRED_ENV. Android Google 두 APK와 HTTPS Sandbox를 준비했고 사용자 콘솔 설정·직접 인증은 WAITING_USER다. [증거](evidence/batch-b48-compatibility.md).

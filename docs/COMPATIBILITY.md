@@ -77,3 +77,7 @@
 4. 저장된 session/pending 단서의 환경·계정 결속과 재인증 조건을 확인합니다. 새 형식에 맞추려고 기존 데이터를 임의 삭제/이전하지 않습니다.
 
 0.x-dev에 대해 무조건적인 하위 호환을 약속하지 않습니다. 실제 확인한 표면과 위험·설치 변경을 [CHANGELOG](CHANGELOG.md)에 기록합니다. StoreKit26 FAIL/18.6 위험·전체 Strict·실 Provider·self-hosted 등 Known Limitations는 [ENGINEERING_NOTES](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)에서 관리합니다.
+
+## Batch B 대표 Unity·OS 조합
+
+Unity 6000.5.8f1에서 Android 30·34·36과 iOS 26.5 LOCAL_MOCK Player를 검증했다. iOS 18.6은 동일 패키지의 이전 버전 교체 시험을 근거로 한다. Unity 6000.4.0f1은 모바일 모듈과 고정된 샘플 시험 의존성이 없어 DEFERRED_ENV다. [대표 조합과 범위](evidence/batch-b48-compatibility.md).

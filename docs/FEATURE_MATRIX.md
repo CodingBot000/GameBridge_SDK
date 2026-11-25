@@ -42,3 +42,7 @@ iOS Google 최신 실계정 증거는 [iOS Google 검증 기록](IOS_GOOGLE_OAUT
 - 과거 DEV_RC와 [기존 동결 검증](COMPATIBILITY.md#이전-포트폴리오-dev_rc-검증-기록)은 당시 소스의 증거이며, 새로운 소셜 Provider의 실연동 결과가 아닙니다.
 
 구현 책임과 코드 위치는 [설계·문제 해결](ENGINEERING_NOTES.md), 소비자 설정은 [통합 안내](INTEGRATION.md), 실제 소셜 계정 연동 준비는 [사용자 설정](USER_SETUP.md)을 참고하세요.
+
+## Batch B 0.1.1-dev 추가 근거
+
+Android API 34 버전 교체 및 API 30·36, iOS 26.5에서 LOCAL_MOCK을 확인했다. Android Google 실제 계정은 WAITING_USER다. [Batch B 실행 범위](evidence/batch-b48-compatibility.md).

@@ -31,3 +31,7 @@ standalone strict에서 현재 실행의 `GAMEBRIDGE_UNITY_PII_EVIDENCE`와 `GAM
 ## Hosted와 Release 실행 모드
 
 PR과 기본 `workflow_dispatch`는 hosted 네 job 및 basic-ci만 결과를 판단하며 Unity·release-readiness는 skipped다. `workflow_dispatch`의 `release_validation`을 명시적으로 true로 지정하고 repository의 기존 Unity opt-in 변수도 true일 때만 self-hosted Unity job이 실행된다. Release 요청 시 Unity가 skipped/failed이면 기존 release gate가 비영 종료한다. Unity와 전체 strict는 아직 단일 job으로 결합돼 있으며 독립 결과 인터페이스는 후속 작업이다. 이번 변경의 원격 Actions 실행 여부는 [모드 분리 evidence](evidence/p09-ci-modes.md)를 따른다.
+
+## Batch A와 Batch B 검증 범위
+
+Batch A 후보 `026716f`의 [Hosted 검증](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45574448608)이 통과했다. Batch B의 버전 교체 및 Unity Player는 별도 로컬 시험으로 기록한다. [로컬 증거](evidence/batch-b48-compatibility.md).

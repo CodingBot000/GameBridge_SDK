@@ -30,7 +30,7 @@ def verify_meta_embedding(app, unity_binary, must, signed):
     return {'frameworks':list(names),'signaturesVerified':signed,'scope':'final app bundle before Player launch'}
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--pii-probe',action='store_true'); parser.add_argument('--performance-probe',action='store_true',help='Dedicated Player measurements after the PII baseline'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); parser.add_argument('--gui-project',type=Path);parser.add_argument('--gui-export-receipt',type=Path);args=parser.parse_args()
+    parser=argparse.ArgumentParser(); parser.add_argument('--run-local',action='store_true',required=True); parser.add_argument('--sim-runtime', choices=['18-6','26-5'], default='18-6'); parser.add_argument('--staging',type=Path,required=True); parser.add_argument('--package-cache',type=Path); parser.add_argument('--host-callback-probe',action='store_true'); parser.add_argument('--native-demo-probe',action='store_true'); parser.add_argument('--pii-probe',action='store_true'); parser.add_argument('--performance-probe',action='store_true',help='Dedicated Player measurements after the PII baseline'); parser.add_argument('--adhoc',action='store_true',help='Use local ad-hoc Simulator signing; no Apple account'); parser.add_argument('--gui-project',type=Path);parser.add_argument('--gui-export-receipt',type=Path);args=parser.parse_args()
     if args.performance_probe and (not args.pii_probe or args.gui_project): parser.error('performance requires isolated CLI PII consumer')
     if sum((args.host_callback_probe,args.native_demo_probe,args.pii_probe)) > 1: parser.error('choose one specialized probe')
     if bool(args.gui_project)!=bool(args.gui_export_receipt):parser.error('GUI project and export receipt required together')
@@ -142,7 +142,7 @@ def main():
                     if reply.status==200: break
             except Exception: time.sleep(.25)
         else: raise RuntimeError('BACKEND_HEALTH_TIMEOUT')
-        sim=must(['xcrun','simctl','create','GameBridge-Unity-iOS-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-18-6'],'SIMULATOR_CREATE_FAILED').strip();result['simulator']=sim
+        sim=must(['xcrun','simctl','create','GameBridge-Unity-iOS-'+suffix,'com.apple.CoreSimulator.SimDeviceType.iPhone-16','com.apple.CoreSimulator.SimRuntime.iOS-'+args.sim_runtime],'SIMULATOR_CREATE_FAILED').strip();result['simulator']=sim
         for command in (['boot',sim],['bootstatus',sim,'-b'],['install',sim,app]): must(['xcrun','simctl']+command,'SIMULATOR_'+command[0].upper()+'_FAILED',timeout=180)
         launch_env=os.environ.copy(); launch_env.update(SIMCTL_CHILD_GAMEBRIDGE_IOS_MOCK_URL=f'http://127.0.0.1:{port}',SIMCTL_CHILD_GAMEBRIDGE_IOS_MOCK_KEY=key)
         player=subprocess.Popen(['xcrun','simctl','launch','--console',sim,BUNDLE],cwd=ROOT,env=launch_env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)

@@ -4484,3 +4484,4 @@
 - RF-05. `SocialAuthContract`, `check-csharp-compile.sh`, `smoke-csharp-registry.sh`(418 assertion), `stress-csharp-lifecycle.sh`, `smoke-unity-ios-host-queue.sh` 종료 0. 누락/null, 열거/타입, 시간대/정확 UUID, 200/201 경계, 추가 속성 무시 및 read-only snapshot을 검사했다. Native/Unity 실제 Player 증거는 RF-07에서 별도 수집한다.
 - RF-06. 범위 검사의 첫 실행은 직접 영향받는 Android Bridge 단위시험 3개를 제품 파일로 보아 실패했다. 테스트 디렉터리를 shipping 경로에서 분리한 후 신규 단위 8개 및 고정 기준의 원본 과거 Guard 실행이 종료 0이었다. 기존 승인 JSON과 스크립트는 그대로이며, 새 CI 진입에서 실제 과거 검사 실패를 전파한다.
 - RF-06의 버전 커밋은 VERSION, Native 버전 문자열 2개, Unity 모델·Offline 상태와 package.json만 동기화한다. 공개 0.1.1-dev와 Bridge v1이 비교 기준이다.
+- RF-07. 공개 앱보다 높은 Android versionCode 및 iOS build number를 지정할 수 있도록 현지 소비 테스트 fixture에 선택적 입력을 추가했다. 없는 입력에서 기존 fixture 정책을 유지한다.

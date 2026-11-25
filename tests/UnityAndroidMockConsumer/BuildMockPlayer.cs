@@ -18,6 +18,13 @@ public static class BuildMockPlayer
         const string scenePath = "Assets/GameBridgeMockScenario.unity";
         if (!EditorSceneManager.SaveScene(scene, scenePath)) throw new InvalidOperationException("scene save failed");
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.gamebridge.sdk.mockconsumer");
+        var versionCode = Environment.GetEnvironmentVariable("GAMEBRIDGE_TEST_ANDROID_VERSION_CODE");
+        if (versionCode != null)
+        {
+            if (!int.TryParse(versionCode, out var number) || number <= 0)
+                throw new InvalidOperationException("GAMEBRIDGE_TEST_ANDROID_VERSION_CODE must be positive");
+            PlayerSettings.Android.bundleVersionCode = number;
+        }
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
         EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
         var result = BuildPipeline.BuildPlayer(new[] { scenePath }, output, BuildTarget.Android, BuildOptions.Development);

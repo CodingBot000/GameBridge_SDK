@@ -21,6 +21,10 @@
 
 ## 1. 패키지 준비
 
+패키지를 바로 설치하려면 [GitHub Pre-release v0.1.1-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev)에서 내려받으세요. Unity는 Package Manager의 **Add package from tarball**로 설치합니다. Android Maven과 iOS XCFramework는 ZIP을 푼 뒤 [Native 소비 절차](#6-native-단독-앱과-host-연결)를 따릅니다. 호스트 설정은 설치 방식에 관계없이 적용됩니다.
+
+### 소스에서 빌드하거나 기존 로컬 staging 사용
+
 저장소 루트에서 작업합니다. 현재 개발자용 SDK는 `0.1.1-dev`입니다. Batch A/B 최신 staging은 소스·checksum을 확인한 경우에만 재사용합니다. staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있고 Unity 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 예전 `artifacts/meta-embed.wu_f4khd/upm`, `artifacts/portfolio-final/DEV_RC`, `artifacts/social-login/upm-handoff`는 최신 후보가 아닙니다.
 
 ```sh
@@ -29,7 +33,7 @@ export GAMEBRIDGE_UPM_STAGING="/absolute/path/to/verified-0.1.1-dev-staging"
 python3 harness/check-staging.py "$GAMEBRIDGE_UPM_STAGING"
 ```
 
-이 로컬 staging과 생성 바이너리는 Git에 포함되지 않으므로 새 checkout에는 없습니다. 새 checkout에서는 아래 빌드·패키징 절차로 패키지를 생성해야 합니다. 이미 검증된 동일 산출물을 검토하는 데 재실행할 필요는 없습니다. 출력 경로는 존재하지 않는 새 절대 경로여야 합니다.
+이 로컬 staging과 생성 바이너리는 Git에 포함되지 않으므로 새 checkout에는 없습니다. 직접 빌드할 때는 아래 빌드·패키징 절차로 생성합니다. 이미 검증된 동일 산출물을 검토하는 데 재실행할 필요는 없습니다. 출력 경로는 존재하지 않는 새 절대 경로여야 합니다.
 
 ```sh
 export GAMEBRIDGE_MAVEN_REPO="$PWD/artifacts/my-dev-maven"
@@ -46,7 +50,7 @@ bash scripts/package-sdk.sh "$GAMEBRIDGE_MAVEN_REPO" \
 ## 2. Unity UPM과 기존 샘플
 
 1. Unity6000.5.8f1 및 필요한 Android/iOS Build Support를 준비합니다. 계정·라이선스·약관은 사용자가 처리합니다.
-2. 새 소비 프로젝트의 Package Manager에서 **Add package from disk**로 staging의 `com.gamebridge.sdk/package.json`을 선택합니다. 소스만 Git으로 설치하면 Native artifact가 없으므로 hook이 setup error로 실패합니다.
+2. 새 소비 프로젝트의 Package Manager에서 **Add package from disk**로 staging의 `com.gamebridge.sdk/package.json`을 선택합니다. 공개 TGZ를 내려받았다면 **Add package from tarball**을 사용합니다. 소스만 Git으로 설치하면 Native artifact가 없으므로 hook이 setup error로 실패합니다.
 3. Package Manager Samples에서 **Native Mock and Sandbox Demo**를 import합니다. Unity UI와 호환 EventSystem을 준비하고 빈 GameObject에 `NativeDemo`를 붙입니다. 실제 검증에서 UI 패키지는2.5.0을 사용했습니다. [샘플 안내](<../unity/Packages/com.gamebridge.sdk/Samples~/Native Demo/README.md>)를 따릅니다.
 4. Native Demo는 Android/iOS Player용입니다. Editor에서 빠르게 fake UI를 볼 때는 **Editor Offline Demo**를 사용합니다. 두 모드의 결과를 합치지 않습니다.
 5. Android export는 SDK의 Maven hook, iOS export는 `IosXcodeBuildHook`이 staged XCFramework를 UnityFramework target에 연결합니다. Host 프로젝트의 기존 hook과 delegate를 임의 교체하지 않습니다.

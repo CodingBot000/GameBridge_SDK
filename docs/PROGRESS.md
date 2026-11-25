@@ -2103,3 +2103,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - 2026-11-25 사용자 승인 수신. GameBridge 저작권을 유지하고 포트폴리오 평가 및 비상업적 테스트 사용을 허용한다. 의존성 재배포 조건을 충족하는 경우에 한해 공개한다.
 - iOS 세 ABI의 정적 아카이브 항목 54개가 서로 일치하며 빌드의 링크 입력 목록과 대조했다. 저장소에 사용 범위 `LICENSE`, `THIRD_PARTY_NOTICES`와 해당 공급자의 라이선스 원문을 추가했다. Gradle Wrapper는 저장소와 GitHub 소스 아카이브에 포함된다.
+- [v0.1.1-dev 개발자용 Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev) 공개 완료. PR #16의 기본 CI 5개가 통과했으며 merge `055c5ee`에 사용 조건과 원본 고지가 포함된다. 태그 `e8f2f55`는 그 병합의 조상이다.
+- 공개 자산 6개를 인증 없이 내려받아 GitHub digest, 로컬 업로드본, SHA-256과 매니페스트를 대조했다. 원본 아카이브 파일 149/60/21개가 그대로이며 추가 고지 13/9/7개를 검증했다. README 및 통합 안내에 실제 링크와 패키지별 설치 방법을 반영했다. StoreKit 26.5 실패와 전체 Strict 제한은 유지한다.

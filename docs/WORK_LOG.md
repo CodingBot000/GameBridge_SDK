@@ -4437,3 +4437,4 @@
 
 - main 3d9d5b8에서 PR #10·#11 병합을 확인했다. 동일 소스의 0.1.0-dev를 비교 기준으로 새로 빌드하고 차기 후보 0.1.1-dev를 적용한다.
 - 현재 소스의 두 버전을 빌드했다. Maven·XCFramework·UPM 정합성 확인, C# 기존 소비자와 JVM 4 클래스 및 C ABI 5 심볼 대조, Swift 9개, Android R8·훅 및 음성, iOS 훅 157개 통과. Unity iOS에서 이전 패키지를 현재 Backend에 연결한 뒤 후보를 덮어 설치해 세션과 미완료 구매를 복구했다. 원장 1건/100코인. 상세 [Batch A 검증](evidence/batch-a47-dev-compatibility.md).
+- 첫 Hosted 실행 45574138744에서 Android 빌드 진입점의 임시 fixture가 VERSION을 복사하지 않아, 의도한 Gradle 오류 대신 버전 파일 읽기에서 종료했다. fixture에 기준 VERSION을 추가해 기존 종료 코드 7 단언을 유지한다.

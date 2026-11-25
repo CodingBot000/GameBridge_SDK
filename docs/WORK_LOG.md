@@ -4468,3 +4468,9 @@
 - [PR #16 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45604127932) 기본 5개 작업 성공, Unity E2E·Release Readiness 건너뜀. 병합 `055c5ee8388f80574d52a4f903e1e99d5e2890af`. 패키지 소스와 최신 main의 VERSION·SDK·Backend·계약·빌드 스크립트 diff 0.
 - `gh release create --draft --prerelease` 및 draft의 자산 6개 digest 확인 후 `gh release edit --draft=false --prerelease --latest=false` 종료 0. GitHub 공개 시각 2026-11-25 20:32:50 KST. 실제 태그 `e8f2f55c47798cd99afaea1a81e03a01a39d1121`과 매니페스트 일치. 공개 API의 Pre-release 상태, 비로그인 직접 다운로드 6개, `shasum -a 256 -c SHA256SUMS` 5개 항목, 매니페스트 및 추가 고지 검증 종료 0. 태그가 생성한 GitHub 소스 아카이브의 라이선스·고지 14개도 대조했다.
 - 실제 Release 링크와 Unity TGZ·Android Maven ZIP·iOS XCFramework ZIP 설치 절차를 README와 진입/통합 문서에 반영했다. 상용 Release 검증 및 전체 Strict는 기존 상태를 유지한다.
+
+## 문서50 — BridgeFacade / GameBridgeClient 리팩토링
+
+- RF-00 (PX-T19), 2026-11-26. main `6ff2cafa1c54863720ffccd17c2164c30a119bfd`의 전용 worktree 생성. `gh release view v0.1.1-dev`와 `git ls-remote`로 공개 대상 `e8f2f55c47798cd99afaea1a81e03a01a39d1121`, 6개 자산 digest 및 공개 매니페스트를 기록했다.
+- JDK 21.0.10, Xcode 26.6 17F113, Unity 6000.5.8f1의 Android/iOS 모듈 및 번들 .NET을 확인했다. 기존 Gradle 캐시로 `android/gradlew -p android --offline :sdk-core:test :sdk-android:testDebugUnitTest :sdk-unity-bridge:testDebugUnitTest` 종료 0. `scripts/check-csharp-compile.sh` 4개 조건 및 기존 `check-social-auth-transition.py`, `verify-progress.py` 종료 0.
+- RF-04 (PX-T23) 시작. 상태 모델을 같은 namespace/assembly 안에서 이동하며 Facade 수명주기와 AuthProvider ordinal을 유지한다.

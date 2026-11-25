@@ -1,7 +1,17 @@
 {
   "baselineSourceCommit": "6ff2cafa1c54863720ffccd17c2164c30a119bfd",
-  "sdkVersion": "0.1.1-dev",
+  "sdkVersion": "0.1.2-dev",
   "changes": [
+    {
+      "path": "VERSION",
+      "beforeSha256": "8fa915582066d3fa9eb8a5db00c6a51e5c1b104ebd943ab69a70c2c67029ca81",
+      "afterSha256": "7f6931ade5106257c23661445e56c7aba98ba22c112bc37e3a29963ad3035698"
+    },
+    {
+      "path": "android/sdk-core/src/main/kotlin/com/gamebridge/Version.kt",
+      "beforeSha256": "e1341c921fe9333ed41cba216c86a500bcc3d04445e819a349add20710a64a1a",
+      "afterSha256": "99659505690116c2101980acfd9fabc5eb3b7af3978705e37f27439db48274e5"
+    },
     {
       "path": "android/sdk-unity-bridge/src/main/kotlin/com/gamebridge/bridge/BridgeFacade.kt",
       "beforeSha256": "2de599bc55ff9a13c91c44a6693fb873c572c5c24c7fa021f157e050f5e2507a",
@@ -16,6 +26,11 @@
       "path": "android/sdk-unity-bridge/src/main/kotlin/com/gamebridge/bridge/BridgeStoreLifecycle.kt",
       "beforeSha256": null,
       "afterSha256": "64b586e91163f02c83ddeb1fe828597921c5a5523c716fac445a855cb9ccb65d"
+    },
+    {
+      "path": "ios/Sources/GameBridgeCore/Version.swift",
+      "beforeSha256": "e00f3fea2b762f958737df60da9dea2283c8ec8d71ed9f6ec3d60e37a9cf6b09",
+      "afterSha256": "246d5e4192c007589808a181733244f41cf454f099db716ad06010150a734dbd"
     },
     {
       "path": "unity/Packages/com.gamebridge.sdk/Runtime/Core/CapabilityDecoder.cs",
@@ -38,6 +53,11 @@
       "afterSha256": "bacec87ea2212bed825fd40854618b1ddfba82b4c593f38fece000d94218d3de"
     },
     {
+      "path": "unity/Packages/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs",
+      "beforeSha256": "77fb5d3d053d82f053161a756386a73e7d1df0772bd3d2bf2e91adced113bbfe",
+      "afterSha256": "4ab74005f3f59cc4af31595f16835245cf88ce921b44248daa263e04bd38eb25"
+    },
+    {
       "path": "unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs",
       "beforeSha256": "0206fe513f05bea196d511567fcbd7996498aba9a2ccdddbccc8a9831b16d060",
       "afterSha256": "25e76aea6e404e4a94a35e3c75b90e1309cff7dc00918fd6cfea6ded11fd605b"
@@ -45,12 +65,17 @@
     {
       "path": "unity/Packages/com.gamebridge.sdk/Runtime/SdkStatusModels.cs",
       "beforeSha256": null,
-      "afterSha256": "0cc9abed2ad0edfc2b082a91a9b6cfc6b9c553b3e4ffc253869ad8806169755e"
+      "afterSha256": "4cf0e5c96f75c4ca33108aa94bca8706206b988102ae810789913d806848770c"
     },
     {
       "path": "unity/Packages/com.gamebridge.sdk/Runtime/SdkStatusModels.cs.meta",
       "beforeSha256": null,
       "afterSha256": "b415077406f3635e275596653c2768b84cfa89684f409e3eaa4d0c51a84fdb0a"
+    },
+    {
+      "path": "unity/Packages/com.gamebridge.sdk/package.json",
+      "beforeSha256": "644b8c9c0ed350870df076991b76519320a6529e606eb970806bd41c4f9592c9",
+      "afterSha256": "7a2c0b0912e83afd638bbc36207202c5544adf2914883ff3102b47349b1f67b3"
     }
   ]
 }

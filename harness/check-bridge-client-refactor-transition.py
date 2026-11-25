@@ -30,7 +30,7 @@ VERSION_FILES = {
     MANAGED + 'Core/EditorOfflineTransport.cs',
     UPM + 'package.json',
 }
-VERSION = '0.1.1-dev'
+VERSION = '0.1.2-dev'
 SCOPES = ('VERSION', 'android', 'ios', 'unity', 'backend', 'contracts', 'config', 'infra')
 BRIDGE_TESTS = 'android/sdk-unity-bridge/src/test/'
 ORIGINAL_GUARDS = (
@@ -108,7 +108,7 @@ def verify_version(files):
 def verify_transition(before, after, record):
     if record['baselineSourceCommit'] != BASE or record['sdkVersion'] != VERSION:
         raise ValueError('fixed baseline or SDK version changed')
-    allowed = REFACTOR_FILES | (VERSION_FILES if VERSION != '0.1.1-dev' else set())
+    allowed = REFACTOR_FILES | VERSION_FILES
     entries = record['changes']
     paths = [entry['path'] for entry in entries]
     if len(paths) != len(set(paths)) or set(paths) != allowed:

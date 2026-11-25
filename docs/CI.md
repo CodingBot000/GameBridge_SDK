@@ -34,4 +34,4 @@ PR과 기본 `workflow_dispatch`는 hosted 네 job 및 basic-ci만 결과를 판
 
 ## Batch A와 Batch B 검증 범위
 
-Batch A 후보 `026716f`의 [Hosted 검증](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45574448608)이 통과했다. Batch B의 버전 교체 및 Unity Player는 별도 로컬 시험으로 기록한다. [로컬 증거](evidence/batch-b48-compatibility.md).
+Batch A 후보 `026716f`의 [수동 Hosted 검증](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45574448608)과 [PR #13 필수 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45577041949)가 통과했다. Batch A는 main `35cddc1`로 병합했다. Batch B의 버전 교체 및 Unity Player는 별도 로컬 시험으로 기록한다. [로컬 증거](evidence/batch-b48-compatibility.md).

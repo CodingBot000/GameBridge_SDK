@@ -2,6 +2,10 @@
 
 > 최신 0.1.1-dev 검증을 먼저 정리하고, 이전 소셜 확장과 DEV_RC의 역사적 검증을 보존합니다. 서로 다른 소스의 증거를 합쳐 한 번의 테스트 PASS로 표시하지 않습니다.
 
+## 공개 버전과 로컬 리팩토링 후보
+
+공개 패키지는 [v0.1.1-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev)입니다. 로컬 리팩토링 후보는 `0.1.2-dev`이며 Bridge Protocol은 v1입니다. 최신 소스에서 직접 빌드할 때는 Maven·XCFramework·UPM을 모두 같은 버전으로 생성하세요. 플랫폼별 실제 검증 범위는 [후보 증거](evidence/bridge-client-refactor-verification.md)에 기록합니다.
+
 ## 현재 통합 상태 — 0.1.1-dev (2026-11-25)
 
 | 영역 | 확인된 범위 | 근거·제한 |

@@ -2118,3 +2118,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - RF-06 (PX-T25) 기존 전이를 고정 기준에 재실행하고 현재 shipping 경로·SHA-256을 독립 비교한다.
 - RF-06 (PX-T25) 0.1.1-dev 내부 구조 전이 및 신규 음성 시험 8개 PASS. 기준과 후보의 shipping 경로 집합·해시, managed 공개 선언, C ABI 이름을 판정한다. 다음은 승인된 0.1.2-dev 후보 버전 동기화다.
 - RF-06 버전 표기를 로컬 0.1.2-dev 후보로 동기화한다. RF-07 (PX-T26) 독립 Maven/R8, XCFramework, UPM의 새 빌드 및 공개 0.1.1-dev와 비교를 시작한다.
+- RF-07 로컬 후보 빌드. Maven/R8, iOS XCFramework, 라이선스가 포함된 UPM·Standalone ZIP, staging 168개 및 아카이브 SHA-256을 검증했다. 선정 JVM 클래스 5개, C# 공개 메타데이터 383줄, iOS C ABI 5개/3개 아키텍처 및 header 대조 PASS.
+- RF-07 Android API 34 및 iOS 18.6 실제 LOCAL_MOCK 업데이트 PASS. Android build 2→3, iOS 0→1. 앱과 DB 보존, 회수·재동기화, 원장 각 1/100, 로그아웃 확인. [검증](evidence/bridge-client-refactor-verification.md)
+- RF-07 추가 PII 및 종료 단언은 현지 환경에서 검증 중이다. 최초 Android PII는 Backend health timeout, iOS PII는 Simulator 설치 실패. 두 플랫폼의 기존 업데이트 PASS와 세션 폐기 집계는 별도로 확보했다.
+- RF-08 (PX-T27) 초안 PR로 검토 인계 및 새 Hosted CI를 시작한다. 추가 실측 또는 CI 미완료 항목은 완료 상태와 구분한다.

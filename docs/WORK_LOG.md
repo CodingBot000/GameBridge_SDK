@@ -4486,3 +4486,9 @@
 - RF-06의 버전 커밋은 VERSION, Native 버전 문자열 2개, Unity 모델·Offline 상태와 package.json만 동기화한다. 공개 0.1.1-dev와 Bridge v1이 비교 기준이다.
 - RF-07. 공개 앱보다 높은 Android versionCode 및 iOS build number를 지정할 수 있도록 현지 소비 테스트 fixture에 선택적 입력을 추가했다. 없는 입력에서 기존 fixture 정책을 유지한다.
 - RF-06 재검증 첫 실행에서 병행 Gradle의 미추적 Kotlin compiler session(.salive)이 제품 파일로 잡혔다. 미추적 생성 세션만 제외하며 해당 위치의 추적 파일은 이전과 같이 비교한다.
+- RF-07. 추적 파일이 깨끗한 별도 검증 checkout에서 `7b6430e`의 Android Maven/R8·iOS XCFramework 및 0.1.2-dev UPM 생성 종료 0. 공개 매니페스트와 ABI를 비교했다. 독립 스테이징·패키지 SHA-256 및 라이선스 사본, C# reflection, 선정 JVM/JNI descriptor, C ABI/header 확인. `test_bridge_schema` 2개 및 OpenAPI 검증 종료 0.
+- RF-07. 독립 worktree의 실제 Player 소스 `f42276f`/tracked-clean. Android API 34 signed APK의 동일 application ID/서명 및 versionCode 2→3를 확인했다. iOS 18.6 bundle ID 일치, build 0→1, 양 Simulator 앱 및 Meta 동적 framework 4개 서명 검증. Android/iOS restart/update 하네스 종료 0, 데이터 보존 및 원장 각 1/100.
+- Editor Offline 첫 실행은 PYTHONPATH 부재로 테스트 전 종료했다. 기존 의존 경로 지정 후 독립 Import, EditMode 1개 및 동 프로젝트 재Import GUID 검증 종료 0. Maven 전이 core JAR 누락과 iOS simulator slice/device symbol 누락 음성 시험 종료 0.
+- 기존 restart fixture가 로그아웃은 실행했지만 이후 복원 불가와 명시적 shutdown을 단언하지 않았다. RF-07의 마지막 단계 확인을 두 fixture에 추가했다. 첫 Android/iOS 업데이트 DB는 읽기 전용 집계에서 세션 1개·폐기 1개·활성 0개였다.
+- RF-07 추가 검증. 보강 Android 빌드의 ADB 소유권 도구가 두 번 시간 초과했다. 새 Android AVD 부팅도 제한시간을 넘겼다. 추가 PII의 첫 Android APK 빌드와 iOS Xcode 빌드는 생성됐으나 Backend health timeout과 Simulator 앱 설치 실패로 각 Player 검증은 미완료였다. 동시에 증가한 호스트 부하를 관찰했으며 플랫폼 환경을 변경하지 않고 소유 리소스만 종료한다.
+- RF-08. 공개 Release ID·태그·공개 시각·6자산 digest를 재조회하여 작업 전 snapshot과 일치함을 확인했다. 기준 main과 후보의 라이선스, 승인된 역사적 baseline, 기존 Backend·wire 계약은 동일하다.

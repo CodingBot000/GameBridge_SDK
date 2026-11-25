@@ -38,6 +38,12 @@ C# public result에는 access/refresh token, ID token, purchase proof, Push toke
 
 LOCAL_MOCK은 개발 auth·가짜 proof·simulated Push로 위 계층 경계를 확인한다. 실제 Provider의 키·서명·계정·원격 전달 성공은 별도다.
 
+## BridgeFacade와 GameBridgeClient의 내부 책임
+
+Android의 Google과 Apple/Facebook adapter는 각자 StoreLifecycle을 소유합니다. 공통 수명주기는 첫 접근의 구매 이벤트 구독, 매 접근의 Host 연결, Store 정리를 맡습니다. FCM 공통 함수도 permission·token callback·timeout까지만 처리하고 공급자별 오류의 상세와 등록 HTTP 호출 경계는 유지합니다.
+
+Unity는 기존 public 상태 모델을 같은 assembly의 `SdkStatusModels.cs`에 두고 diagnostics와 capability의 JSON 변환을 두 내부 Decoder로 분리합니다. 초기화·종료, 요청 세대, Host 이벤트 큐는 기존 Facade에서 관리합니다. [리팩토링 검증](evidence/bridge-client-refactor-verification.md)
+
 ## 대표 Edge Case
 
 | 입력·상황 | 방어 조건 / 기대 동작 | 실제 근거·관측 |

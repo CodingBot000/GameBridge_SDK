@@ -1,0 +1,71 @@
+GameBridge SDK 0.1.1-dev — Third-party notices
+
+The following components retain their upstream licenses. LICENSE covers
+GameBridge's own code and binaries.
+
+iOS XCFramework and Unity UPM tarball
+
+The GameBridgeNative static archive includes the following code or
+interfaces. The Unity UPM tarball contains this same XCFramework.
+
+- GoogleSignIn-iOS 9.2.0 (GoogleSignIn.o), Apache-2.0
+  https://github.com/google/GoogleSignIn-iOS/blob/08d8dcecafb575f98879ffdbb8302c1b9ad65d19/LICENSE
+- AppAuth-iOS 2.1.0 (AppAuth.o, AppAuthCore.o), Apache-2.0
+  https://github.com/openid/AppAuth-iOS/blob/a7caeda164dc5108bf4649472b28a5af65dc6f33/LICENSE
+- App Check 11.3.2 (AppCheckCore.o), Apache-2.0
+  https://github.com/google/app-check/blob/97f7d74dd0e8f3d0fe5fc75cc8957aa73bdc948a/LICENSE
+- Promises 2.4.1 (FBLPromises.o), Apache-2.0
+  https://github.com/google/promises/blob/f4a19a3c313dc2616c70bb49d29a799fb16be837/LICENSE
+- GoogleUtilities 8.1.5 (Environment, Logger, UserDefaults), Apache-2.0
+  https://github.com/google/GoogleUtilities/blob/5459ee5603def3db0fe14ca522185f42c48d978e/LICENSE
+- IsAppEncrypted (third-party-IsAppEncrypted.o, via GoogleUtilities),
+  MIT terms of the original component
+  https://github.com/google/GoogleUtilities/blob/5459ee5603def3db0fe14ca522185f42c48d978e/third_party/IsAppEncrypted/LICENSE
+- GTMAppAuth 5.0.0 (GTMAppAuth.o), Apache-2.0
+  https://github.com/google/GTMAppAuth/blob/56e0ccf09a6dd29dc7e68bdf729598240ca8aa16/LICENSE
+- GTMSessionFetcher 3.5.0 (GTMSessionFetcherCore.o), Apache-2.0
+  https://github.com/google/gtm-session-fetcher/blob/a2ab612cb980066ee56d90d60d8462992c07f24b/LICENSE
+- Interop for Google SDKs 101.0.0 (build-time App Check interface),
+  Apache-2.0
+  https://github.com/google/interop-ios-for-google-sdks/blob/040d087ac2267d2ddd4cca36c757d1c6a05fdbfe/LICENSE
+- Meta iOS SDK 18.1.1 (FacebookLogin.o, FacebookCore.o, FacebookAEM.o)
+  https://github.com/facebook/facebook-ios-sdk/blob/80d0ee82f6370d1bace1431a80cb80575f98ee90/LICENSE
+  https://github.com/facebook/facebook-ios-sdk/blob/80d0ee82f6370d1bace1431a80cb80575f98ee90/NOTICE
+
+The Apache-2.0 components listed above use the text in
+third-party-licenses/Apache-2.0.txt. The original GoogleUtilities LICENSE,
+which also contains the IsAppEncrypted notice, is preserved alongside the
+separately provided original IsAppEncrypted license.
+
+Copyright (c) Meta Platforms, Inc. and affiliates. All rights reserved.
+Meta's bundled Swift wrappers are provided for use with Facebook's web
+services and APIs, subject to the Meta license and Platform Terms. See
+third-party-licenses/Meta-iOS-SDK-18.1.1-LICENSE.txt and its accompanying
+NOTICE. Xcode obtains the Meta dynamic frameworks from Meta when building
+the consumer app. https://developers.facebook.com/terms/
+
+Android Maven and Unity UPM tarball
+
+The Maven repository contains GameBridge's sdk-core, sdk-android, and
+sdk-unity-bridge modules. Those compiled modules include inlined code from:
+
+- Kotlin standard library 2.1.20, Apache-2.0
+  https://github.com/JetBrains/kotlin/tree/v2.1.20/license
+- kotlinx.coroutines 1.10.2, Apache-2.0
+  https://github.com/Kotlin/kotlinx.coroutines/blob/1.10.2/LICENSE.txt
+- kotlinx.serialization 1.8.1, Apache-2.0
+  https://github.com/Kotlin/kotlinx.serialization/blob/v1.8.1/LICENSE.txt
+
+The applicable license texts and upstream notices are in
+third-party-licenses/. Gradle resolves the separate Kotlin, AndroidX,
+Google, and other dependency artifacts from their configured registries
+using the published Maven metadata. Unity Package Manager resolves the
+Unity package dependencies using package.json.
+
+Repository source archives
+
+The Android and Backend build trees include the Gradle 8.13 Wrapper JAR
+and Gradle scripts, under Apache-2.0. See the upstream wrapper license
+included in the JAR and copied to
+third-party-licenses/Gradle-8.13-Wrapper-LICENSE.txt.
+https://github.com/gradle/gradle/blob/v8.13.0/LICENSE

@@ -4482,3 +4482,4 @@
 - RF-03 시작. FCM class load, adapter 동기 LinkageError 및 callback nativeCode 경계, timeout/cancel, 기존 provider HTTP 등록 범위를 그대로 둔다.
 - RF-03. Native 및 Bridge 단위 검사 종료 0. Firebase class 미포함/LinkageError, 권한 거부, callback 상세·중복·늦은 도달, caller 취소·timeout을 fixture로 확인했다. token 요청만 공통화해 Backend 등록 호출과 직접 token 전달 경로를 유지했다.
 - RF-05. `SocialAuthContract`, `check-csharp-compile.sh`, `smoke-csharp-registry.sh`(418 assertion), `stress-csharp-lifecycle.sh`, `smoke-unity-ios-host-queue.sh` 종료 0. 누락/null, 열거/타입, 시간대/정확 UUID, 200/201 경계, 추가 속성 무시 및 read-only snapshot을 검사했다. Native/Unity 실제 Player 증거는 RF-07에서 별도 수집한다.
+- RF-06. 범위 검사의 첫 실행은 직접 영향받는 Android Bridge 단위시험 3개를 제품 파일로 보아 실패했다. 테스트 디렉터리를 shipping 경로에서 분리한 후 신규 단위 8개 및 고정 기준의 원본 과거 Guard 실행이 종료 0이었다. 기존 승인 JSON과 스크립트는 그대로이며, 새 CI 진입에서 실제 과거 검사 실패를 전파한다.

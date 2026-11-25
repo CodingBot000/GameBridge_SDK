@@ -2116,3 +2116,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - RF-03 (PX-T22) FCM 토큰 획득 추출 및 정책/취소/timeout 회귀 통과. 실제 Firebase 호출은 검증 범위 밖이다.
 - RF-05 (PX-T24) Strict diagnostics/capability decoder 추출 및 .NET fixture·등록/종료·늦은 callback·iOS Host queue 시험 통과.
 - RF-06 (PX-T25) 기존 전이를 고정 기준에 재실행하고 현재 shipping 경로·SHA-256을 독립 비교한다.
+- RF-06 (PX-T25) 0.1.1-dev 내부 구조 전이 및 신규 음성 시험 8개 PASS. 기준과 후보의 shipping 경로 집합·해시, managed 공개 선언, C ABI 이름을 판정한다. 다음은 승인된 0.1.2-dev 후보 버전 동기화다.

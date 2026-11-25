@@ -23,6 +23,7 @@ cat > "$root/artifacts/csharp-check/BridgeCheck.csproj" <<'PROJECT'
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Models.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/SdkStatusModels.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeSdk.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/IWireTransport.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs" />

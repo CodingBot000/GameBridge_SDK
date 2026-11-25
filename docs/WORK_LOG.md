@@ -4476,3 +4476,7 @@
 - RF-04 (PX-T23) 시작. 상태 모델을 같은 namespace/assembly 안에서 이동하며 Facade 수명주기와 AuthProvider ordinal을 유지한다.
 - RF-01. 기존 대비 adapter Host/상품 확인 순서, event Job 취소·Store close, Firebase optional class 검사, provider별 LinkageError 경계를 조사했다. Google/Apple/Facebook 가짜 adapter에서 dispatcher 입력을 검증하는 새 시험을 제품 변경 전에 실행했다. Bridge 단위 `testDebugUnitTest` 종료 0. Core 기준은 35개 기록 중 네트워크 자원이 필요한 7개 skip, Android Native 47·Bridge 9는 skip 0이었다.
 - RF-04. 상태 모델 7개와 GUID를 추가하고 명시적 C# 컴파일 목록 7곳을 갱신했다. `check-csharp-compile.sh`, `check-unity-meta.py` 및 baseline/후보 public assembly reflection 대조 종료 0. 복사·읽기 전용 유지와 Editor 실제 경로는 RF-05/07에서 확인한다. 두 gradlew.bat은 Git text 속성으로 status에서 달라 보이나 HEAD blob과 작업 파일 bytes는 동일하다.
+- RF-02 (PX-T21) 시작. 기존 호출부에서 Host 및 매핑 확인 위치를 유지하고, adapter별 독립 Store·event Job 정리 순서를 공통화한다.
+- RF-05 (PX-T24) 시작. diagnostics.get await 뒤 변환과 초기화 판정 뒤 capability 변환을 같은 호출 위치에서 분리한다.
+- RF-02. Google/Social의 독립 Store scope, emitter 생성·UNDISPATCHED·Host attach·drop 순서를 보존했다. Bridge 단위 `testDebugUnitTest` 종료 0. 소유 Store 재사용/재생성, 교체 Host 재부착, 두 번 정리, 구독 취소와 close 실패 전파 검증.
+- RF-03 시작. FCM class load, adapter 동기 LinkageError 및 callback nativeCode 경계, timeout/cancel, 기존 provider HTTP 등록 범위를 그대로 둔다.

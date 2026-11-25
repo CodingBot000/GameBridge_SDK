@@ -20,7 +20,6 @@ import com.gamebridge.PushEventKind
 import com.gamebridge.PushRouteEvent
 import com.gamebridge.PushEnqueueResult
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.serialization.json.*
 import java.time.Instant
 import java.util.UUID
@@ -51,27 +50,20 @@ object BridgeFacade {
         val push = installationId?.let { GooglePushClient.create(provider, config, it) }
         val serviceSession = GoogleStoreSession.create(activity.applicationContext, config, provider)
         object : GoogleAuthBridgeApi {
-            private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-            private var store: GooglePlayStore? = null
-            private var eventJob: Job? = null
-            private fun dropStore() { eventJob?.cancel(); eventJob = null; store?.close(); store = null }
+            private val storeLifecycle = BridgeStoreLifecycle(GooglePlayStore::events, ::purchaseEmitter)
             private fun activeStore(): GooglePlayStore {
                 val current = host?.get() ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "HOST_ACTIVITY")
                 val ids = productIds ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
-                return (store ?: serviceSession.createStore(ids).also { created ->
-                    val emitter = purchaseEmitter()
-                    eventJob = scope.launch(start = CoroutineStart.UNDISPATCHED) { created.events.collect { emitter(it) } }
-                    store = created
-                }).also { it.attachHost(current) }
+                return storeLifecycle.activeStore({ serviceSession.createStore(ids) }) { it.attachHost(current) }
             }
             override suspend fun signIn(): com.gamebridge.UserProfile {
-                dropStore()
+                storeLifecycle.dropStore()
                 val current = host?.get() ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "HOST_ACTIVITY")
                 provider.attachHost(current)
                 return provider.signIn()
             }
             override suspend fun restore() = provider.restore()
-            override suspend fun signOut() { dropStore(); provider.signOut() }
+            override suspend fun signOut() { storeLifecycle.dropStore(); provider.signOut() }
             override suspend fun products() = activeStore().products()
             override suspend fun purchase(productId: String) = activeStore().purchase(productId)
             override suspend fun entitlements() = activeStore().entitlements()
@@ -98,7 +90,7 @@ object BridgeFacade {
             }
             override suspend fun registerPushToken(token: String): String = (push ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).register(token)
             override suspend fun unregisterPush() = (push ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).unregister()
-            override fun close() { dropStore(); scope.cancel(); provider.detachHost() }
+            override fun close() { storeLifecycle.close(); provider.detachHost() }
         }
     }
     @Volatile private var activeSocial:com.gamebridge.android.auth.PlatformAuthProvider?=null
@@ -112,19 +104,16 @@ object BridgeFacade {
         provider.attachHost(activity);activeSocial=provider
         val session=provider.storeSession();val push=installation?.let {provider.pushClient(it)}
         return object:GoogleAuthBridgeApi {
-            private val scope=CoroutineScope(SupervisorJob()+Dispatchers.Default)
-            private var store:GooglePlayStore?=null
-            private var events:Job?=null
-            private fun drop(){events?.cancel();events=null;store?.close();store=null}
-            private fun currentStore():GooglePlayStore {
-                val target=host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
-                return (store ?:session.createStore(ids ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).also {next->
-                    val emit=purchaseEmitter();events=scope.launch(start=CoroutineStart.UNDISPATCHED){next.events.collect {emit(it)}};store=next
-                }).also {it.attachHost(target)}
+            private val storeLifecycle = BridgeStoreLifecycle(GooglePlayStore::events, ::purchaseEmitter)
+            private fun currentStore(): GooglePlayStore {
+                val target = host?.get() ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
+                return storeLifecycle.activeStore(
+                    { session.createStore(ids ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")) },
+                ) { it.attachHost(target) }
             }
-            override suspend fun signIn():com.gamebridge.UserProfile {drop();provider.attachHost(host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED"));return provider.signIn()}
+            override suspend fun signIn():com.gamebridge.UserProfile {storeLifecycle.dropStore();provider.attachHost(host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED"));return provider.signIn()}
             override suspend fun restore()=provider.restore()
-            override suspend fun signOut(){drop();provider.signOut()}
+            override suspend fun signOut(){storeLifecycle.dropStore();provider.signOut()}
             override suspend fun products()=currentStore().products()
             override suspend fun purchase(productId:String)=currentStore().purchase(productId)
             override suspend fun entitlements()=currentStore().entitlements()
@@ -142,7 +131,7 @@ object BridgeFacade {
             }
             override suspend fun registerPushToken(token:String)=(push ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).register(token)
             override suspend fun unregisterPush()=(push ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).unregister()
-            override fun close(){drop();scope.cancel();provider.close();if(activeSocial===provider)activeSocial=null}
+            override fun close(){storeLifecycle.close();provider.close();if(activeSocial===provider)activeSocial=null}
         }
     }
     private val platform=PlatformAuthBridgeHandler(google,object:com.gamebridge.TokenStore {

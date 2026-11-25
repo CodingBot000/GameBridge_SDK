@@ -2113,3 +2113,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - RF-01 (PX-T20) 기준 특성 검증 PASS. Google/Social의 wire nativeCode와 timeout retryable, Social 동기 LinkageError의 dispatcher 경계를 fixture로 고정했다. 실제 Android adapter 경계는 소스를 대조했고 RF-02/03 내부 테스트에서 보강한다.
 - RF-04 (PX-T23) 상태 모델 이동. C# 4개 조건 컴파일·Unity 메타데이터 검사 및 383줄 reflection 표면 대조가 통과했다. 실제 Editor 소비 검증은 RF-07에서 진행한다.
 - RF-02 (PX-T21) 독립 StoreLifecycle 추출 및 Bridge 회귀 PASS. RF-03 (PX-T22) optional Firebase 검사를 포함한 토큰 획득 공통화를 진행한다.
+- RF-03 (PX-T22) FCM 토큰 획득 추출 및 정책/취소/timeout 회귀 통과. 실제 Firebase 호출은 검증 범위 밖이다.

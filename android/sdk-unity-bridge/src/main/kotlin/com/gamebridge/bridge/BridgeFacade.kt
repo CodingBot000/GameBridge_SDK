@@ -9,9 +9,6 @@ import com.gamebridge.android.purchase.GooglePlayStore
 import com.gamebridge.android.purchase.GoogleStoreSession
 import com.gamebridge.android.purchase.GoogleStoreEvent
 import com.gamebridge.android.push.GooglePushClient
-import com.gamebridge.android.push.AndroidPushHostAdapter
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import com.gamebridge.BridgeProtocol
 import com.gamebridge.PurchaseStatus
 import com.gamebridge.PushPayload
@@ -19,7 +16,6 @@ import com.gamebridge.PushRouter
 import com.gamebridge.PushEventKind
 import com.gamebridge.PushRouteEvent
 import com.gamebridge.PushEnqueueResult
-import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import java.time.Instant
 import java.util.UUID
@@ -72,20 +68,7 @@ object BridgeFacade {
             override suspend fun registerPush(): String {
                 val target = push ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
                 val current = host?.get() ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "HOST_ACTIVITY")
-                try { Class.forName("com.google.firebase.messaging.FirebaseMessaging") }
-                catch (_: ClassNotFoundException) { throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST") }
-                catch (_: LinkageError) { throw com.gamebridge.SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST") }
-                val token = try { withTimeout(config.requestTimeoutMs) {
-                    suspendCancellableCoroutine<String> { continuation ->
-                        try {
-                            val adapter = AndroidPushHostAdapter(
-                                { if (continuation.isActive) continuation.resume(it) }, { _, _ -> },
-                                { if (continuation.isActive) continuation.resumeWithException(com.gamebridge.SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST")) })
-                            if (!adapter.hasNotificationPermission(current)) continuation.resumeWithException(com.gamebridge.SdkFailure("PERMISSION_DENIED"))
-                            else adapter.register()
-                        } catch (_: LinkageError) { if (continuation.isActive) continuation.resumeWithException(com.gamebridge.SdkFailure("CONFIG_REQUIRED", "FIREBASE_HOST")) }
-                    }
-                } } catch (_: TimeoutCancellationException) { throw com.gamebridge.SdkFailure("TIMEOUT", retryable = true) }
+                val token = requestBridgeFcmToken(current, config.requestTimeoutMs, BridgeFcmPolicy.GOOGLE)
                 return target.register(token)
             }
             override suspend fun registerPushToken(token: String): String = (push ?: throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).register(token)
@@ -122,11 +105,7 @@ object BridgeFacade {
             override suspend fun registerPush():String {
                 val target=push ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
                 val activity=host?.get() ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")
-                try {Class.forName("com.google.firebase.messaging.FirebaseMessaging")}catch(_:ClassNotFoundException){throw com.gamebridge.SdkFailure("CONFIG_REQUIRED","FIREBASE_HOST")}catch(_:LinkageError){throw com.gamebridge.SdkFailure("CONFIG_REQUIRED","FIREBASE_HOST")}
-                val token=try {withTimeout(config.requestTimeoutMs){suspendCancellableCoroutine<String>{completion->
-                    val adapter=AndroidPushHostAdapter({if(completion.isActive)completion.resume(it)},{_,_->},{if(completion.isActive)completion.resumeWithException(com.gamebridge.SdkFailure("CONFIG_REQUIRED"))})
-                    if(!adapter.hasNotificationPermission(activity))completion.resumeWithException(com.gamebridge.SdkFailure("PERMISSION_DENIED")) else adapter.register()
-                }}}catch(_:TimeoutCancellationException){throw com.gamebridge.SdkFailure("TIMEOUT",retryable=true)}
+                val token = requestBridgeFcmToken(activity, config.requestTimeoutMs, BridgeFcmPolicy.SOCIAL)
                 return target.register(token)
             }
             override suspend fun registerPushToken(token:String)=(push ?:throw com.gamebridge.SdkFailure("CONFIG_REQUIRED")).register(token)

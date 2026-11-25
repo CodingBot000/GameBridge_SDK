@@ -2086,3 +2086,7 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - Batch A CI와 체크섬을 확인하고 PR #13을 열었다. 0.1.1-dev 패키지 기준으로 Android 업데이트, Unity/OS 대표 조합과 실제 Google 설정을 준비한다.
 - Unity 6000.5 샘플 import/reimport, Android API 34 덮어 설치와 API 30·36, iOS 26.5 LOCAL_MOCK PASS. API 36 최초 스트리밍 설치 실패와 보호 가드 중단 및 새 AVD 비스트리밍 통과를 기록했다. Unity 6000.4는 모듈·의존성 제한으로 DEFERRED_ENV. Android Google 두 APK와 HTTPS Sandbox를 준비했고 사용자 콘솔 설정·직접 인증은 WAITING_USER다. [증거](evidence/batch-b48-compatibility.md).
+
+## Android Google 실제 계정 후속 검증 (2026-11-25)
+
+- PR #14 병합 main 949d4e0 기준. Native/Unity API 34에서 실계정 로그인, UI 취소 후 재시도, 프로세스 재시작 후 복원, 로그아웃과 지정 세션 폐기 PASS. 단일 identity에 독립 세션 2개, 폐기 2개. Unity URL 이벤트 0 및 프로세스 로그 민감 패턴 검사 통과. [실행 증거](evidence/android-google-live-20261125.md).

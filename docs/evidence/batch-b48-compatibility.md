@@ -19,3 +19,5 @@ Android Maven R8 및 기존 Host/PBX 충돌 음성 검사는 Batch A의 동일 �
 Native `com.gamebridge.sample`, Unity `com.gamebridge.sdk.googleoauth.androidtest` APK를 각각 빌드·서명 검증하고 전용 API 34 AVD에 설치했다. 두 APK의 실제 SHA-1은 `48:14:A5:59:DE:D1:61:1F:5F:E5:47:09:36:86:E9:29:8D:9A:A6:36`이다. 별도 DB의 HTTPS Sandbox는 CA와 호스트 이름 검증을 통과했다. 시험용 APK만 localhost에 대해 테스트 CA를 신뢰하도록 구성했다.
 
 Google Cloud의 패키지·서명별 Android OAuth 클라이언트 등록과 테스트 계정 인증은 WAITING_USER다. 실제 로그인·취소 후 재시도·세션 복원·로그아웃 및 실제 인증정보의 Unity 이벤트·로그 점검은 미실행이다. 사용자 설정은 [Android 설정 절차](../USER_SETUP.md)를 따른다.
+
+후속 실제 계정 시험 결과는 [Android Google 검증](android-google-live-20261125.md)에 기록했다. 위 WAITING_USER는 Batch B 당시 상태다.

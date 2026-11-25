@@ -6,6 +6,7 @@ import json
 import plistlib
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -37,15 +38,26 @@ def main() -> int:
         maven = package/'Editor/GameBridgeArtifacts~/Android/maven-repo/com/gamebridge'
         for module, ext in (('sdk-core','jar'),('sdk-android','aar'),('sdk-unity-bridge','aar')):
             folder = maven/module/version
-            for suffix in ('pom', ext):
-                if not (folder/f'{module}-{version}.{suffix}').is_file(): raise ValueError(f'{module} {suffix} missing')
+            pom = folder/f'{module}-{version}.pom'
+            if not pom.is_file() or not (folder/f'{module}-{version}.{ext}').is_file():
+                raise ValueError(f'{module} Maven artifact missing')
+            coordinate = ET.parse(pom).getroot()
+            if [coordinate.findtext('{*}'+key) for key in ('groupId','artifactId','version')] != ['com.gamebridge', module, version]:
+                raise ValueError(f'{module} POM coordinate mismatch')
+            for dependency in coordinate.findall('.//{*}dependency'):
+                if dependency.findtext('{*}groupId') == 'com.gamebridge' and dependency.findtext('{*}version') != version:
+                    raise ValueError(f'{module} depends on a different GameBridge version')
         framework = package/'Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework'
-        info = plistlib.loads((framework/'Info.plist').read_bytes()); found = set()
+        info = plistlib.loads((framework/'Info.plist').read_bytes())
+        if info.get('GameBridgeSDKVersion') != version: raise ValueError('XCFramework version mismatch')
+        found = set()
         for library in info['AvailableLibraries']:
             if library.get('SupportedPlatform') == 'ios' and (framework/library['LibraryIdentifier']/library['LibraryPath']/'GameBridgeNative').is_file():
+                slice_info = plistlib.loads((framework/library['LibraryIdentifier']/library['LibraryPath']/'Info.plist').read_bytes())
+                if slice_info.get('GameBridgeSDKVersion') != version: raise ValueError('XCFramework slice version mismatch')
                 found.add(library.get('SupportedPlatformVariant','device'))
         if not {'device','simulator'} <= found: raise ValueError('iOS slice missing')
-    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, plistlib.InvalidFileException) as exc:
+    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, plistlib.InvalidFileException, ET.ParseError) as exc:
         print(f'STAGING_FAIL: {exc}', file=sys.stderr); return 1
     print(f'Staging integrity PASS: {len(expected)} files; Unity import/export not tested.')
     return 0

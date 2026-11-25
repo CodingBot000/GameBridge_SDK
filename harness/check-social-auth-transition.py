@@ -18,6 +18,13 @@ BEFORE = 'dc3ed4224d1c676e33ee92e8aa7aa6ceaa3c7855'
 APPROVED = '23536d22ed5a11c919c65b411c8807ff07e42b37'
 LOGOUT_BASE = '09db0706f0e53693d9fd44df290d9da4c49aba6b'
 LOGOUT_FILES = {'ios/UnityBridge/AppleAuthBridgeHandler.swift', 'ios/UnityBridge/PlatformAuthBridgeHandler.swift'}
+VERSION_BASE = '3d9d5b8e6e906c78affd4d53444c544b762afe30'
+VERSION_FILES = (
+    'android/sdk-core/src/main/kotlin/com/gamebridge/Version.kt',
+    'ios/Sources/GameBridgeCore/Version.swift',
+    'unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs',
+    'unity/Packages/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs',
+)
 RECORD = ROOT / 'contracts/social-auth-transition.json'
 spec = importlib.util.spec_from_file_location('feature_closed_transition', ROOT/'harness/check-feature-refactor-transition.py')
 legacy = importlib.util.module_from_spec(spec)
@@ -71,7 +78,7 @@ def main():
         record = json.loads(RECORD.read_text())
         if record.get('before') != BEFORE or record.get('approvedSource') != APPROVED:
             raise ValueError('fixed social authorization source mismatch')
-        for ref in (BEFORE, APPROVED, LOGOUT_BASE):
+        for ref in (BEFORE, APPROVED, LOGOUT_BASE, VERSION_BASE):
             subprocess.run(['git', 'merge-base', '--is-ancestor', ref, 'HEAD'], cwd=ROOT, check=True, capture_output=True)
         # Frozen guards and every frozen baseline file must remain byte-identical.
         frozen = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', BEFORE, '--', 'contracts/baseline'], cwd=ROOT, text=True).splitlines()
@@ -87,7 +94,18 @@ def main():
         closed = legacy.snapshot_at(LOGOUT_BASE)
         errors = check_transition(before, approved, closed, record)
         transition = json.loads((ROOT/'contracts/ios-logout-transition.json').read_text())
-        errors += check_logout_transition(closed, current, transition)
+        version_base = legacy.snapshot_at(VERSION_BASE)
+        errors += check_logout_transition(closed, version_base, transition)
+        version = (ROOT/'VERSION').read_text().strip()
+        expected = dict(version_base['files'])
+        for name in VERSION_FILES:
+            old = subprocess.check_output(['git', 'show', VERSION_BASE+':'+name], cwd=ROOT)
+            if old.count(b'"0.1.0-dev"') != 1 or not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+-dev', version):
+                raise ValueError('invalid SDK version transition')
+            data = old.replace(b'"0.1.0-dev"', ('"' + version + '"').encode())
+            expected[name] = dict(expected[name], sha256=hashlib.sha256(data).hexdigest())
+        if current['files'] != expected or current['swiftCExports'] != version_base['swiftCExports']:
+            errors.append('shipping source, public contract or C ABI drift outside reviewed SDK version files')
         for name in current['files']:
             if (ROOT/name).is_symlink():
                 errors.append('shipping source symlink refused: '+name)

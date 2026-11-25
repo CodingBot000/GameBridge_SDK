@@ -137,3 +137,9 @@ Backend `GAMEBRIDGE_AUTH_AUDIENCES_JSON`에 앱별 FACEBOOK App ID를 추가하�
 ## 문서43 — iOS Google 실제 OAuth 사전 준비
 
 독립 Native Host와 Unity iOS 앱은 별도 iOS Client ID와 콜백 Scheme을 사용한다. 로컬 HTTPS 백엔드와 전용 sandbox DB 준비 명령은 [IOS_GOOGLE_OAUTH_PREP](IOS_GOOGLE_OAUTH_PREP.md)에 있다. 두 앱의 실계정 로그인 결과와 현재 Unity Export 절차는 [IOS_GOOGLE_OAUTH_VERIFICATION](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 있다.
+
+## Batch A 다음 Android Google 계정 시험
+
+- 설치할 앱의 실제 `applicationId`와 APK 서명 인증서 SHA-1을 확인해 해당 Android OAuth 클라이언트에 등록한다. 독립 샘플의 앱 ID는 `com.gamebridge.sample`이다. Unity 소비 앱의 ID와 서명은 실제 Export를 기준으로 확인한다.
+- 기존 테스트 Google 프로젝트의 Web Client ID를 앱의 Google server client ID와 Backend의 해당 `appId` Google audience 양쪽에서 일치시킨다. 테스트 계정을 허용 목록에 추가한다.
+- Google Play 서비스가 있는 Android 기기 또는 Google APIs AVD, 기기가 신뢰하는 HTTPS를 제공하는 Sandbox Backend를 사용한다. Native 샘플 화면에서 appId, HTTPS URL, Web Client ID와 샘플 구성이 요구하는 상품 ID를 입력한다. 본인 인증과 동의는 사용자가 진행한다.

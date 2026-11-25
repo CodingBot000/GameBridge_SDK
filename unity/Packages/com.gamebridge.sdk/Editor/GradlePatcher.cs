@@ -14,9 +14,13 @@ namespace GameBridge.Editor
         {
             return Insert(settings, "repositories", "    maven { url = uri(\"${settingsDir}/gamebridge-maven\") }", "dependencyResolutionManagement");
         }
-        internal static string AddDependency(string library)
+        internal static bool IsSdkVersion(string version) =>
+            version != null && Regex.IsMatch(version, @"\A[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)*)?\z");
+
+        internal static string AddDependency(string library, string version)
         {
-            return Insert(library, "dependencies", "    implementation 'com.gamebridge:sdk-unity-bridge:0.1.0-dev'", null);
+            if (!IsSdkVersion(version)) throw new InvalidOperationException("Invalid GameBridge Maven version");
+            return Insert(library, "dependencies", $"    implementation 'com.gamebridge:sdk-unity-bridge:{version}'", null);
         }
         private static string Insert(string source, string block, string statement, string parent)
         {

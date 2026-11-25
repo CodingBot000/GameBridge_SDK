@@ -2,8 +2,10 @@
 # Fresh isolated coordinate-only Maven consumer; does not install the APK.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
+version="$(cat "$root/VERSION")"
+export GAMEBRIDGE_SDK_VERSION="$version"
 repo="${GAMEBRIDGE_MAVEN_REPO:-}"
-if [[ "$repo" != /* || ! -f "$repo/com/gamebridge/sdk-unity-bridge/0.1.0-dev/sdk-unity-bridge-0.1.0-dev.pom" ]]; then echo 'DEFERRED_ENV: absolute Maven staging repository required' >&2; exit 2; fi
+if [[ "$repo" != /* || ! -f "$repo/com/gamebridge/sdk-unity-bridge/$version/sdk-unity-bridge-$version.pom" ]]; then echo 'DEFERRED_ENV: absolute Maven staging repository required' >&2; exit 2; fi
 : "${ANDROID_HOME:=$HOME/Library/Android/sdk}"; export ANDROID_HOME GAMEBRIDGE_MAVEN_REPO="$repo"
 mkdir -p "$root/artifacts"; output="$(mktemp -d "$root/artifacts/android-maven-consumer.XXXXXX")"
 python3 - "$root/android/consumer-check" "$output/project" <<'PY'

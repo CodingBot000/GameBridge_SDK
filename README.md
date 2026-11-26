@@ -15,6 +15,7 @@
 
 - **구매 복구:** Android API 34 AVD·iOS 18.6 Simulator의 LOCAL_MOCK에서 지급 응답 유실 후 SDK를 덮어 설치해 복구했습니다. 재동기화 후 각 원장 1건·100코인, 추가 회수 0건. [결과](docs/VERIFICATION_EVIDENCE.md#구매-데이터-정합성과-업데이트-복구)
 - **Export 중단 복구:** 4개 쓰기 지점 장애 주입, PBX·콜백 검사 157개, 동일 폴더 재시도와 Host 편집 보호. [PR #11](https://github.com/CodingBot000/GameBridge_SDK/pull/11)
+- **실제 플랫폼 인증:** 이전 버전의 Android API 34 AVD 및 iOS 18.6 Simulator에서 Native·Unity Google 실계정 로그인, 재실행 후 세션 복원, 인증 UI 취소 및 로그아웃을 확인했습니다. 0.1.2-dev 실계정 재검증은 미실행입니다. [Android 기록](docs/evidence/android-google-live-20261125.md) · [iOS 기록](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md#session-lifecycle-and-automatic-callback-2026-11-23-kst)
 - **검증 신뢰성·호환성:** DB 원장 제약 및 중복 응답 guard의 Mutation Test, C# 공개 메타데이터 383줄 동일, 선정 JVM/JNI·C ABI 비교. [검증 근거](docs/VERIFICATION_EVIDENCE.md)
 
 **바로가기:** [아키텍처](#구조-한눈에-보기) · [기술적 핵심](#기술적-핵심) · [주요 기능](#주요-기능) · [검증 범위](#검증-현황과-제한사항) · [설치](#개발자용-pre-release-설치) · [Quick Start](#quick-start--unity-editor-offline)
@@ -71,7 +72,7 @@ Android Google Credential Manager·Apple 웹 OAuth/Custom Tabs·Meta Classic, iO
 | --- | --- |
 | **양 플랫폼 버전 교체** | Unity 6000.5.8f1 · Android API 34 AVD · iOS 18.6 Simulator, LOCAL_MOCK `0.1.1-dev → 0.1.2-dev` 덮어 설치·세션 및 미완료 구매 복구. [결과](docs/evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트) |
 | **0.1.2-dev 회귀 및 배포** | 양 플랫폼 합성 PII·로그아웃 후 복원 차단/종료, iOS LOCAL_MOCK Push, 선정 API/ABI·Maven/R8·XCFramework·UPM 검증. [호환성](docs/COMPATIBILITY.md) |
-| **Hosted CI** | [PR #21 HEAD 기본 5개 Job SUCCESS](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45868483182), Unity E2E·Release Readiness SKIPPED. [CI Job 및 배포 기준 실행](docs/VERIFICATION_EVIDENCE.md#github-hosted-ci) |
+| **Hosted CI** | [PR #22 HEAD 기본 5개 Job SUCCESS (재실행)](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45872763875), Unity E2E·Release Readiness SKIPPED. [CI 이력 및 배포 기준 실행](docs/VERIFICATION_EVIDENCE.md#github-hosted-ci) |
 
 `EDITOR_OFFLINE`은 메모리 Fake, `LOCAL_MOCK`은 로컬 Native·Backend 개발 경로입니다. 가상 구매는 실제 스토어 거래가 아닙니다. 이전 Android API 34 AVD 및 iOS 18.6 Simulator의 Google 실계정 검증이 있으나 0.1.2-dev 재검증은 미실행입니다. 실제 Google token refresh/replay, Apple·Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs, 실기기, Unity 6000.4, 전체 Strict/Hosted Unity E2E·Release 검증은 미완료입니다. 기존 StoreKit 26.5 실패 및 weak client 1개 원인 미확정도 유지합니다.
 

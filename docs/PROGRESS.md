@@ -2124,3 +2124,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - RF-08 (PX-T27) 초안 PR로 검토 인계 및 새 Hosted CI를 시작한다. 추가 실측 또는 CI 미완료 항목은 완료 상태와 구분한다.
 - RF-07 후속 실제 Player 5개 PASS (2026-11-26). Android API 34·iOS 18.6 합성 PII, iOS LOCAL_MOCK Push, 양 플랫폼 로그아웃 후 복원 차단·SDK 종료를 같은 `0.1.2-dev` staging에서 확인했다. 대기 요청과 활성 세션은 각 시험에서 0개였다. 덮어 설치·구매 복구 결과는 기존 실행을 사용했다. [원본 결과 식별자 및 SHA-256](evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증)
 - RF-08 문서50의 로컬 필수 항목을 충족했다. 이전 HEAD `bc3d81ba`의 기본 CI 5개는 성공했다. 이번 문서 Push의 현재 HEAD에서 기본 CI 5개가 성공하면 `REFACTORING_VERIFIED_FOR_REVIEW`를 확정한다. 확정 판정과 CI 링크는 [PR #18](https://github.com/CodingBot000/GameBridge_SDK/pull/18)에 기록한다.
+
+## 0.1.2-dev 개발자용 Pre-release
+
+- PX-T28 시작. PR #18 병합과 최신 main `5c899be`, 동일 PR HEAD 기본 CI 5개 성공을 확인했다. 검증된 후보, 라이선스, 최신 main의 패키징 입력을 대조한다.
+- PX-T28 공개 배포 PASS. 검증 후보의 아카이브 3개를 사용해 [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)를 공개했다. 자산 6개 다운로드, 체크섬, 소스 매니페스트를 대조했고 이전 공개 태그와 자산 digest의 일치를 확인했다.
+- README·API·FEATURE_MATRIX·COMPATIBILITY·INTEGRATION·CHANGELOG·FINAL_REPORT·CI·START_HERE에 최신 배포와 리팩토링 검증 범위를 반영했다. 문서 PR의 현재 HEAD CI를 확인한다.

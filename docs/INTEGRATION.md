@@ -1,13 +1,13 @@
 # Quick Start와 Host 통합
 
-> 현재 소셜 인증·Unity LOCAL_MOCK 상태는 [기능 매트릭스](FEATURE_MATRIX.md), 이전 이력은 [SOCIAL_AUTH_HANDOFF](SOCIAL_AUTH_HANDOFF.md), Meta Embed는 [IOS_META_EMBED_FIX](IOS_META_EMBED_FIX.md)를 참고하세요. 실제 Google 계정 결과는 [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)에 기록되어 있습니다.
+> 개발자용 [`v0.1.2-dev`](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)와 Bridge v1 기준입니다. [리팩토링·업데이트 검증](evidence/bridge-client-refactor-verification.md) · [기능 매트릭스](FEATURE_MATRIX.md)
 
 
 목표는 기존 샘플을 통해 LOCAL_MOCK의 초기화→로그인→상품/구매→서버 잔액→Push→종료 경계를 확인하는 것입니다. 실제 스토어 거래·원격 푸시를 실행하지 않습니다. 검증된 환경은 [COMPATIBILITY](COMPATIBILITY.md), 내부 소유권은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)을 따릅니다.
 
 ## 어디서 시작하나요?
 
-**처음 방문했다면** [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 먼저 살펴보세요. 별도 **Android/iOS Unity LOCAL_MOCK Player는 확장 이후 실제 실행 PASS**했지만, 이 결과 자체는 실계정 OAuth UI 성공을 의미하지 않습니다. Google 실계정 결과는 [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)를 따릅니다.
+처음 방문했다면 [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 확인하세요. 0.1.2-dev는 Android·iOS Unity LOCAL_MOCK Player에서 실행했습니다. Google 실계정 증거는 이전 버전 결과이며 이번 배포에서는 재검증하지 않았습니다. [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)
 
 | 하려는 일 | 먼저 읽을 곳 |
 | --- | --- |
@@ -21,15 +21,15 @@
 
 ## 1. 패키지 준비
 
-패키지를 바로 설치하려면 [GitHub Pre-release v0.1.1-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev)에서 내려받으세요. Unity는 Package Manager의 **Add package from tarball**로 설치합니다. Android Maven과 iOS XCFramework는 ZIP을 푼 뒤 [Native 소비 절차](#6-native-단독-앱과-host-연결)를 따릅니다. 호스트 설정은 설치 방식에 관계없이 적용됩니다.
+패키지는 [GitHub Pre-release v0.1.2-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)에서 내려받습니다. 자산 6개를 같은 디렉터리에 두고 `shasum -a 256 -c SHA256SUMS`로 확인하세요. Unity는 Package Manager의 **Add package from tarball**로 설치합니다. Android Maven과 iOS XCFramework는 ZIP을 푼 뒤 [Native 소비 절차](#6-native-단독-앱과-host-연결)를 따릅니다.
 
 ### 소스에서 빌드하거나 기존 로컬 staging 사용
 
-저장소 루트에서 작업합니다. 현재 개발자용 SDK는 `0.1.1-dev`입니다. Batch A/B 최신 staging은 소스·checksum을 확인한 경우에만 재사용합니다. staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있고 Unity 설치 파일은 `com.gamebridge.sdk/package.json`입니다. 예전 `artifacts/meta-embed.wu_f4khd/upm`, `artifacts/portfolio-final/DEV_RC`, `artifacts/social-login/upm-handoff`는 최신 후보가 아닙니다.
+저장소 루트에서 작업합니다. 로컬 staging은 0.1.2-dev Maven·XCFramework·UPM의 소스와 체크섬을 확인한 뒤 사용합니다. staging 루트에는 `SHA256SUMS`와 `com.gamebridge.sdk/`가 있고 Unity 설치 파일은 `com.gamebridge.sdk/package.json`입니다.
 
 ```sh
-# 최신 0.1.1-dev staging이 실제 존재할 때 해당 절대 경로를 지정
-export GAMEBRIDGE_UPM_STAGING="/absolute/path/to/verified-0.1.1-dev-staging"
+# 확인한 0.1.2-dev staging의 절대 경로를 지정
+export GAMEBRIDGE_UPM_STAGING="/absolute/path/to/verified-0.1.2-dev-staging"
 python3 harness/check-staging.py "$GAMEBRIDGE_UPM_STAGING"
 ```
 
@@ -173,7 +173,7 @@ finally { client.Dispose(); }
 
 ### Android Maven/AAR
 
-AAR 하나만 복사하면 전이 의존성이 빠질 수 있으므로 제공 Maven repository를 권장합니다.
+공개 Maven ZIP을 풀면 `maven-repo/`가 나옵니다. 해당 디렉터리를 Gradle 저장소로 사용합니다. 로컬 Unity staging을 사용한다면 아래 경로를 지정합니다.
 
 ```sh
 export GAMEBRIDGE_MAVEN_REPO="$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk/Editor/GameBridgeArtifacts~/Android/maven-repo"
@@ -182,8 +182,8 @@ export GAMEBRIDGE_MAVEN_REPO="$GAMEBRIDGE_UPM_STAGING/com.gamebridge.sdk/Editor/
 Host의 `dependencyResolutionManagement.repositories`에 해당 local Maven 경로와 `google()`/`mavenCentral()`을 추가합니다. 아래 coordinate는 [독립 소비 앱](../android/consumer-check/app/build.gradle.kts)과 같습니다.
 
 ```kotlin
-implementation("com.gamebridge:sdk-android:0.1.1-dev")
-implementation("com.gamebridge:sdk-unity-bridge:0.1.1-dev")
+implementation("com.gamebridge:sdk-android:0.1.2-dev")
+implementation("com.gamebridge:sdk-unity-bridge:0.1.2-dev")
 ```
 
 네이티브 기본 흐름은 [Compose sample](../android/sample-app)을 참고합니다. Unity의 Activity attach/callback 등록은 `AndroidTransport`가 담당합니다. Native Host가 bridge를 직접 소비한다면 `BridgeFacade.attachHost(activity)`/`detachHost()`와 `setCallback` 수명을 맞춥니다.
@@ -192,7 +192,7 @@ implementation("com.gamebridge:sdk-unity-bridge:0.1.1-dev")
 
 ### iOS Swift Package/XCFramework
 
-Swift source 소비는 [기존 consumer](../ios/consumer-source-check/Package.swift)의 `GameBridgeCore`/`GameBridgeApple`을 참고합니다. binary 소비는 staging의 `Editor/GameBridgeArtifacts~/iOS/GameBridgeNative.xcframework`를 연결하고 module `GameBridgeNative`를 사용합니다. static framework이므로 **Do Not Embed** 대상이며, slice·link 설정은 [기존 iOS hook](../unity/Packages/com.gamebridge.sdk/Editor/IosXcodeBuildHook.cs)과 검증된 소비 예시를 따릅니다.
+Swift source 소비는 [기존 consumer](../ios/consumer-source-check/Package.swift)의 `GameBridgeCore`/`GameBridgeApple`을 참고합니다. 공개 iOS ZIP의 `GameBridgeNative.xcframework` 또는 staging의 같은 항목을 앱 대상에 연결하고 module `GameBridgeNative`를 사용합니다. static framework이므로 **Do Not Embed** 대상이며, slice·link 설정은 [기존 iOS hook](../unity/Packages/com.gamebridge.sdk/Editor/IosXcodeBuildHook.cs)과 검증된 소비 예시를 따릅니다.
 
 Host는 window, `UIApplicationDelegate`, `UNUserNotificationCenterDelegate`를 소유합니다. [SwiftUI sample AppDelegate](../ios/SampleApp/GameBridgeSampleApp.swift)처럼 등록 성공/실패·수신/열기 callback을 `ApplePushHostAdapter`에 전달하고 completion handler를 완료합니다. SDK는 Host delegate를 대체하지 않습니다.
 
@@ -203,7 +203,7 @@ Unity의 실제 APNs host 경로는 `NativeDemoIosPush`/`IosPushHostAdapter`를 
 | 증상 | 확인할 근거 | 조치와 재확인 |
 | --- | --- | --- |
 | 초기화 `CONFIG_REQUIRED` | mode·URL·LocalMock key 길이·subject·installation UUID. 값 자체는 로그로 출력하지 않음 | Native Demo 런타임 입력과 `GameBridgeConfig.Validate()` 대조. capability와 `GetStatus()` 확인 |
-| hook의 Maven/XCFramework missing | Git 소스 설치인지, 완결 staging인지와147 checksum | 올바른 `package.json` 경로를 설치하고 `check-staging.py` 재확인 |
+| hook의 Maven/XCFramework missing | 설치 출처와 0.1.2-dev 패키지 체크섬 | 올바른 `package.json` 경로를 설치하고 `check-staging.py` 재확인 |
 | Android build 성공, 설치/실행 전 중단 | APK 존재와 별도로 ADB exe/PID·runtime/build port·AVD name·serial/양 port | 사용 중인 사용자 서버를 종료하지 않음. 전용 환경에서 소유권 guard를 통과한 뒤 실행. [실제 사례](ENGINEERING_NOTES.md) |
 | Player marker/상품/잔액이 오지 않음 | Native Demo 모드, target module, 서버 health·loopback 주소·서버 requestId | Editor Offline/LOCAL_MOCK/실Provider 혼동을 해소. `purchase` marker만 보지 말고 서버 잔액/원장을 확인 |
 | 구매 `TIMEOUT`/`VERIFICATION_PENDING` | requestId·session·attempt와 서버 grant/finalization 상태 | 같은 거래 복구·조회로 확인. 멱등키를 다른 body에 재사용하거나 구매 UI를 자동 재오픈하지 않음 |
@@ -274,9 +274,9 @@ Unity Export Hook은 FacebookLogin 18.1.1을 UnityFramework와 Host App 양쪽�
 - Bundle별 iOS OAuth Client ID·reversed scheme, Backend Web Client ID/audience, 신뢰 가능한 HTTPS를 설정합니다. 새로운 checkout에서는 최신 소스로 Native/UPM을 생성하고 예전 로컬 staging을 자동 재사용하지 않습니다.
 - 실제 계정 로그인·복원·UI 취소·로그아웃은 iOS 18.6 Simulator Native/Unity에서 PASS했습니다. 합성 warm URL Native ABI 처리와 실제 로그인은 별도 증거이며 cold URL 주입/실계정 refresh는 미실행입니다. [재현 및 검증 범위](IOS_GOOGLE_OAUTH_VERIFICATION.md) · [사용자 설정](USER_SETUP.md).
 
-## 0.1.1-dev 업데이트 확인
+## 0.1.2-dev 업데이트 확인
 
-같은 applicationId와 서명을 유지하면 Android에서 앱을 지우지 않고 후보 APK를 설치할 수 있다. 실제 소비 앱은 새 Unity Export에서 후보 Maven 좌표를 받는다. 이전 Export에 Package Manager의 버전만 바꾸고 기존 Android Gradle 패치를 재사용하는 방식은 피한다. [실제 덮어 설치 기록](evidence/batch-b48-compatibility.md).
+0.1.1-dev에서 이동할 때 Unity UPM과 Native 패키지를 모두 0.1.2-dev로 맞춘 뒤 Player를 새로 Export합니다. Android는 동일 applicationId·서명, iOS는 동일 bundle ID를 사용한 LOCAL_MOCK 덮어 설치를 검증했습니다. 세션·미완료 구매 복구와 재동기화 뒤 원장 1건·100코인을 확인했습니다. [실제 업데이트 기록](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트)
 
 ## Android Google 실제 계정 검증
 

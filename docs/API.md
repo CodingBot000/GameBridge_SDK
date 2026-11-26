@@ -1,8 +1,8 @@
 # Unity C# API 안내
 
-> GameBridge SDK `0.1.1-dev`의 **현재 공개 소스 기준**입니다. 아래 메서드가 존재한다는 사실과 실제 Unity Player/스토어에서 동작이 검증되었다는 사실은 다릅니다. 검증 상태는 [기능 매트릭스](FEATURE_MATRIX.md), [진행 원장](PROGRESS.md)을 확인하세요.
+> GameBridge SDK [`0.1.2-dev`](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)와 Bridge Protocol v1 기준입니다. 기존 Unity C# 공개 메타데이터와 Android JNI·iOS C ABI의 선정 표면을 대조했습니다. [리팩토링 검증](evidence/bridge-client-refactor-verification.md) · [기능 매트릭스](FEATURE_MATRIX.md)
 
-> 양 플랫폼 GOOGLE/APPLE/FACEBOOK은 Native로 분기하며 원본 증명은 Unity에 노출하지 않습니다. Android API 34 AVD와 iOS 18.6 Simulator의 Native·Unity Google 실제 로그인·복원·UI 취소·로그아웃 및 서버 세션 폐기를 확인했습니다. Android 취소 후 재로그인 성공은 확인했으나 iOS Native의 해당 성공은 미확인입니다. 실제 갱신/replay와 다른 Provider는 별도 판정입니다. [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)
+> 양 플랫폼 GOOGLE/APPLE/FACEBOOK은 Native로 분기하며 원본 증명은 Unity에 노출하지 않습니다. Google 실계정 재검증은 0.1.2-dev에서 미실행입니다. 이전 Android API 34 AVD 및 iOS 18.6 Simulator의 실제 로그인·복원·취소·로그아웃은 해당 검증 기록에 있습니다. [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)
 
 [README로 돌아가기](../README.md) · [통합 가이드](INTEGRATION.md) · [샘플 코드](../unity/Packages/com.gamebridge.sdk/Samples~/Offline%20Demo/OfflineDemo.cs)
 

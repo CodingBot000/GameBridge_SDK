@@ -2,7 +2,20 @@
 
 > 아래 원래의 종료 판정과 64개 Task 집계는 **문서36 당시 포트폴리오 스냅샷**으로 보존합니다. 이후 사용자 승인으로 별도 소셜 로그인 확장·iOS 패키징 보완을 진행했습니다. 과거 수치·FAIL/WAITING_USER를 소급 변경하지 않습니다.
 
-## 현재 포트폴리오 종료 판정 — 2026-11-25
+## 현재 포트폴리오 종료 판정 — 2026-11-26
+
+**포트폴리오 `PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS`. 리팩토링 `REFACTORING_VERIFIED_FOR_REVIEW`.** SDK 0.1.2-dev / Bridge v1. 전체 SDK 제품화의 판정은 `BLOCKED_INTERNAL`이며 기존 64개 Task 원장을 유지합니다.
+
+| 영역 | 확인한 결과 |
+| --- | --- |
+| 공개 배포 | [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)의 Unity UPM·Android Maven·iOS XCFramework와 검증 파일 3개를 공개했습니다. 비로그인 다운로드로 SHA-256, 매니페스트, 검증 후보와의 바이트 일치를 확인했습니다. |
+| 리팩토링 | Android Store 수명주기·FCM 토큰 획득 공통화, Unity 상태 모델·진단·Capability Decoder 분리. C# 공개 메타데이터와 선정 JVM/JNI·iOS C ABI 비교를 통과했습니다. |
+| 실제 Player | Android API 34와 iOS 18.6에서 0.1.1-dev → 0.1.2-dev 덮어 설치 후 세션과 미완료 구매 복구, 각 원장 1건·100코인. 합성 PII 2건, iOS LOCAL_MOCK Push 1건, 로그아웃 후 복원 차단·종료 2건 성공. [실행 근거](evidence/bridge-client-refactor-verification.md) |
+| Hosted CI | PR #18 HEAD `46988f8`의 기본 5개 성공. Unity E2E와 Release Readiness SKIPPED. [CI 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546) |
+
+0.1.2-dev의 Google 실계정 재검증은 미실행입니다. 기존 실계정 증거는 아래 기록을 따릅니다. StoreKit 26.5 FAIL, 전체 Strict 및 weak client 원인 미확정과 실제 원격 Push·스토어·실기기 제한이 남아 있습니다. [기능 매트릭스](FEATURE_MATRIX.md) · [알려진 제한](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)
+
+## 0.1.1-dev 포트폴리오 판정 — 2026-11-25
 
 **포트폴리오: PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS.** SDK 0.1.1-dev / Bridge v1. PR #13·#14 통합 및 Android Google 후속 실계정 검증을 완료했다. SDK 제품화는 기존 BLOCKED_INTERNAL을 유지한다.
 

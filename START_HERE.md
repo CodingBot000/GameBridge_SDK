@@ -1,6 +1,6 @@
 # GameBridge 포트폴리오 읽기·사용 안내
 
-[README](README.md) → [Quick Start](docs/INTEGRATION.md) → [설계·문제 해결](docs/ENGINEERING_NOTES.md) → [검증/호환성](docs/COMPATIBILITY.md) 순서로 읽으면 됩니다. 면접 검토에 WORK_LOG 전체를 먼저 읽을 필요는 없습니다.
+[README](README.md) → [Quick Start](docs/INTEGRATION.md) → [설계·문제 해결](docs/ENGINEERING_NOTES.md) → [검증/호환성](docs/COMPATIBILITY.md) 순서로 읽으면 됩니다. 단계별 실행 기록은 [WORK_LOG](docs/WORK_LOG.md)에 있습니다.
 
 이 저장소는 Android·iOS·Unity와 Backend가 이미 구현된 개인 SDK 포트폴리오입니다. 빈 프로젝트/초기 계획으로 가정하지 않습니다. 최종 상태와 선택적 후속 범위는 [FINAL_REPORT](docs/FINAL_REPORT.md)를 따릅니다.
 

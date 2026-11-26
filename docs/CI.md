@@ -2,6 +2,8 @@
 
 > **0.1.2-dev 배포 기준** PR #18 HEAD `46988f8` (main 병합 `5c899be`)에서 `inventory-contracts`, `backend-postgres`, `android-native`, `swift-ios-simulator`, `basic-ci` **SUCCESS**. `unity-e2e`와 `release-readiness`는 **SKIPPED**입니다. [Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546)
 
+**후속 문서 PR 확인:** PR #21 HEAD `c84b0bf`의 [CI 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45868483182)에서 기본 5개 Job SUCCESS, Unity E2E·Release Readiness SKIPPED를 확인했습니다. Job별 접근 경로와 공개 증거의 범위는 [VERIFICATION_EVIDENCE](VERIFICATION_EVIDENCE.md)를 참고하세요. 이 실행을 신규 Player나 실계정 검증으로 간주하지 않습니다.
+
 **후속 main 확인:** 검토 기준 main `536ab987`의 [수동 CI 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45863332014)에서도 위 기본 5개 Job SUCCESS, `unity-e2e`와 `release-readiness` SKIPPED를 확인했습니다. 배포 기준 PR 실행과 구분하며 이후 문서 변경의 CI 결과로 소급하지 않습니다.
 
 Android·iOS의 실제 Unity Player와 업데이트 결과는 로컬에서 확보했습니다. 공개 Pre-release는 검증된 패키지의 SHA-256과 매니페스트를 대조하여 배포했습니다. [로컬 검증](evidence/bridge-client-refactor-verification.md) · [v0.1.2-dev 배포](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)

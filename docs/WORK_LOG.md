@@ -4281,10 +4281,10 @@
 ## 포트폴리오 최종화 시작 — 사용자 문서36 / [P11-T01] [P11-T02] [P11-T03]
 
 - 시작beba1ff949dc42721d3bb43cdd7727cff41ca1fc/handoff. tracked-clean, 기존미추적harness/cache·scripts/cache·unity/Demo 보존.
-- 로컬 Recruit2개회사.md의 W/G 자격/우대·직무를 확인했다. 경력3/7년·상용/출시·대외협업·해외근무조건은 이개인프로젝트로증명하지않는다. Kotlin/Swift/C#/SDK/Bridge/REST/연동문서·선정호환성의실제근거를중심으로재구성한다.
+- Kotlin·Swift·C# SDK, Bridge·REST 연동 문서와 선정 호환성의 실제 근거를 중심으로 포트폴리오 설명을 정리한다. 상용 운영·출시·외부 협업은 이 프로젝트의 검증 범위 밖이다.
 - 기존README/INTEGRATION/CHANGELOG 등에배치34성과와이전Unity미검증문구가혼재하고USER_SETUP의초기계획NOT_STARTED/계획변수명이남아있음을확인했다. 최신설명은현재문서에통합하고과거실행/실패원본은evidence/Git/WORK_LOG에보존한다.
 - weak1은 기존120cycle/마지막weakcount1/pending0와cleanup소스를우선검토한다. async계측프레임이살아있는시점GC이며heap root/증가곡선이없어누수원인은미확정이다. 새로운P0재현근거가없으므로무근거제품수정/성능프로젝트를추가하지않고제한조사결과를기록한다.
-- [P11-T01] 조사결과확정: SDK static active/driver·iOS static transport/current/Message/queue와request pending/cancel 등록정리 경로를현재소스로대조했다. 테스트async Run이반환하기전GC/weak count라는참조가설을분리했고heap root/시간곡선/clean-stack 대조가없는한근본원인을확정하지않았다. 추가재현0/제품수정0,신규P0확인없음(누수없다는증명아님). 제공공고fingerprint·검토소스hash와관측범위를portfolio-finalization.json에기록,3사례·EdgeCase·미확정위험은ENGINEERING_NOTES에통합했다.
+- [P11-T01] 조사결과확정: SDK static active/driver·iOS static transport/current/Message/queue와request pending/cancel 등록정리 경로를현재소스로대조했다. 테스트async Run이반환하기전GC/weak count라는참조가설을분리했고heap root/시간곡선/clean-stack 대조가없는한근본원인을확정하지않았다. 추가재현0/제품수정0,신규P0확인없음(누수없다는증명아님). 검토소스hash와관측범위를portfolio-finalization.json에기록,3사례·EdgeCase·미확정위험은ENGINEERING_NOTES에통합했다.
 - [P11-T02] Quick Start와설계문서확정: 신규SDKAPI를만들지않고현재constructor10인자·facade11호출·기존NativeDemo/consumer/scripts를대조했다. MonoBehaviour context에서await·서버entitlement·명시적Push·Shutdown/Dispose를설명했다. MockPushBroker의user/app/installation scope와DevPushHTTP시험을검토해별도A sender session의개발발송설명을연결했고UI/Native token을추출하라고안내하지않는다.
 - SSE의ready/push/heartbeat·session ownership,Map catalog/purchase/device/send 필드를Controller와대조해API.md에보강했다. 기계schema/하네스는변경하지않고BUG-017 OPEN/세부자동검사잔여를KnownLimitation으로둔다.
 - 정적문서검토: local링크150 모두존재,SDK호출이름11개가현재source에존재,Python발송예제AST문법PASS. 이예제를실행했다고세지않는다. `python3 scripts/verify-progress.py`0,`git diff --check`0. Native/Backend/Unity/harness/tests/contracts/workflow는CI648과diff0이므로기존263·Core/원장/ABI/Player검증을날짜갱신목적으로반복하지않는다.
@@ -4303,7 +4303,7 @@
 - `git fetch origin handoff/p09-resume-20261113`0,originancestor검사0,`git push origin HEAD:handoff/p09-resume-20261113`0. beba1ff→e45188b FF이며main/force/Release/runner/실Provider변경없음.
 - `git rev-parse HEAD`와`git ls-remote origin refs/heads/handoff/p09-resume-20261113`가e45188b73b70f3e54061f9ed5298ec9207903d62로일치했다. tracked-clean,기존harness/cache·scripts/cache·unity/Demo3경로비추적상태보존.
 - 이번전체diff는Markdown/정제portfolio JSON뿐이고기존evidence파일및제품/Native/Unity/Backend/harness/tests/contracts/workflow를수정하지않았다. 제한된credential패턴검사0·diff0·원장0,문서169link/11anchor와RC상위160/SDK147checksum검토PASS. 새테스트/Player/CI0이며마지막code648bb80의Hosted44287600414 SUCCESS근거를유지한다.
-- 문서최종화commit7a575b7(설계/제한조사),c744d29(통합가이드/공고대응),e45188b(판정/종료정책)을보존한다. 이번인계기록commit은Git이력에서별도조회하고동일handoff FFpush후최종local/remote를확인한다. PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS로개발을종료하며선택적backlog를자동재개하지않는다.
+- 문서최종화commit7a575b7(설계/제한조사),c744d29(통합가이드/SDK 검증 정리),e45188b(판정/종료정책)을보존한다. 이번인계기록commit은Git이력에서별도조회하고동일handoff FFpush후최종local/remote를확인한다. PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS로개발을종료하며선택적backlog를자동재개하지않는다.
 
 ## 사용자 문서37 / 소셜 확장 A 시작
 

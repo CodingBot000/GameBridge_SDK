@@ -1,11 +1,6 @@
 {
   "portfolioStatus": "PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS",
   "startingHead": "beba1ff949dc42721d3bb43cdd7727cff41ca1fc",
-  "requirementsSource": {
-    "providedFile": "Recruit2개회사.md",
-    "sha256": "6aafff5c5a17ffcb2cc6a7e560e8f9a6bc635575f27157c082605d9214356c8e",
-    "companyMapping": "Provided W/G requirements mapped to Webzen/Gravity per user instruction36; no claim of employment/years inferred"
-  },
   "sdkStatus": "BLOCKED_INTERNAL",
   "developmentTaskCount": 64,
   "weakClientReview": {
@@ -165,7 +160,7 @@
     "Android JNI heap/iOS continuation/Unity CPU blocking not run; no paired performance improvement claim"
   ],
   "optionalBacklog": "docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업",
-  "careerEvidenceBoundary": "No employment duration, commercial releases, external-team cooperation or cloud operation inferred from this project.",
+  "operationalEvidenceBoundary": "No commercial releases, external-team cooperation or cloud operation inferred from this project.",
   "finalCandidate": {
     "path": "artifacts/portfolio-final/DEV_RC",
     "sdkFiles": 147,

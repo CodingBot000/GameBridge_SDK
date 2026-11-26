@@ -4496,3 +4496,11 @@
 - `resume50/build-logout-player.py` 및 `resume50/run-logout-player.py`로 Android·iOS 종료 시험을 각각 실행했다. Android 첫 빌드는 테스트 fixture의 `GameBridge.Core` import 누락으로 C# 컴파일이 실패했으며 수정 후 빌드·실행 종료 0이었다. 양 플랫폼에서 로그아웃 후 복원 차단, `SHUTDOWN`, 대기 요청 0, 격리 DB 세션 폐기 1·활성 0을 확인했다. 업그레이드와 구매 복구는 기존 PASS 실행을 사용했다.
 - RF-08 문서 정리. `resume50/verification.json`과 실제 `result.json`·marker 로그를 대조해 보고서를 갱신했다. 각 실행이 동일 staging 매니페스트를 쓰고, 검증 checkout과 PR 후보의 제품·Backend·wire 계약 경로에 차이가 없음을 확인했다. 이전 HEAD `bc3d81ba`의 기본 CI 5개 성공을 확인했다. [이전 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45654121957)
 - 문서만 커밋하고 Push한다. 현재 HEAD의 기본 CI 5개가 모두 성공하면 `REFACTORING_VERIFIED_FOR_REVIEW`를 PR 설명에 기록하고 Draft를 해제한다.
+
+## PX-T28 — 0.1.2-dev 개발자용 Pre-release
+
+- 2026-11-26. PR #18은 `5c899be`로 main에 병합됐으며 검토 HEAD `46988f8`의 기본 CI 5개 모두 성공이다. 공개 `v0.1.1-dev`의 태그와 6개 자산 digest는 기존 기록과 일치했다. 별도 docs worktree에서 배포 준비를 시작했다.
+- PX-T28 패키지 검증. 후보 `7b6430e`는 배포 태그 `5c899be`의 조상이다. VERSION·SDK·Backend·계약·빌드 스크립트·라이선스 diff 0. 기존 아카이브 `shasum -a 256 -c SHA256SUMS`, `harness/check-staging.py` 종료 0. UPM staging 168개와 Maven 60개·XCFramework 21개 파일을 아카이브와 맞췄다.
+- 기존 Evaluation License 및 Unity 13개·Android 9개·iOS 7개 라이선스/고지 파일을 대조했다. Android Maven POM과 JAR/AAR 클래스·Kotlin 인라인 출처, iOS 3개 아키텍처의 정적 archive 목록 54개를 이전 검토 목록과 대조했다. SDK 의존성 고지 누락은 발견되지 않았다.
+- `gh release create --draft --prerelease`로 자산 6개를 등록하고 서버 digest를 대조한 뒤 `gh release edit --draft=false --prerelease --latest=false` 종료 0. 2026-11-26 23:19:26 KST 공개. 공개 다운로드는 6개 모두 업로드본과 일치했다. 공개 환경의 `shasum -a 256 -c SHA256SUMS` 5개 항목, 매니페스트, ZIP/TGZ 구성을 확인했다. 공개 매니페스트 SHA-256 `98bf0701a8aee8bb87e0f9574ed932d602954b9472ce8018ba74fe1573438312`. `v0.1.1-dev` 태그·자산 digest는 작업 전후 일치했다.
+- 공개 링크와 설치·검증 문서 9개 및 진행·작업 원장을 갱신했다. 새 로컬 빌드·Player 테스트는 실행하지 않았다. Google 실계정 재검증 미실행과 StoreKit 26.5 실패·전체 Strict·weak client 제한은 이전 증거에 유지했다.

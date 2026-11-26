@@ -1,16 +1,25 @@
 # 버전·호환성·검증 범위
 
-> 최신 0.1.1-dev 검증을 먼저 정리하고, 이전 소셜 확장과 DEV_RC의 역사적 검증을 보존합니다. 서로 다른 소스의 증거를 합쳐 한 번의 테스트 PASS로 표시하지 않습니다.
+> 현재 공개 개발자용 버전은 [`0.1.2-dev`](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)이며 Bridge Protocol은 v1입니다.
 
-## 공개 버전과 로컬 리팩토링 후보
+## 0.1.2-dev 공개 Pre-release
 
-공개 패키지는 [v0.1.1-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev)입니다. 로컬 리팩토링 후보는 `0.1.2-dev`이며 Bridge Protocol은 v1입니다. 최신 소스에서 직접 빌드할 때는 Maven·XCFramework·UPM을 모두 같은 버전으로 생성하세요. 플랫폼별 실제 검증 범위는 [후보 증거](evidence/bridge-client-refactor-verification.md)에 기록합니다.
+| 영역 | 확인한 결과 |
+| --- | --- |
+| 패키지 출처 | 패키징 커밋 `7b6430e`와 배포 태그 `5c899be`의 SDK·Backend·계약·빌드 입력 일치. 기존 검증 패키지 바이트를 사용했고 공개 자산 6개의 SHA-256과 매니페스트를 대조했습니다. |
+| API·ABI | C# 공개 메타데이터, 선정 JVM 클래스 5개·JNI descriptor, iOS C ABI 심볼 5개와 헤더 확인. iOS 비교 범위는 device arm64 및 Simulator arm64·x86_64입니다. |
+| 업데이트 | Unity 6000.5.8f1 · Android API 34 AVD 및 iOS 18.6 Simulator에서 0.1.1-dev → 0.1.2-dev 덮어 설치. 세션과 미완료 구매 복구 및 원장 각 1건·100코인을 확인했습니다. |
+| Player 회귀 | 양 플랫폼 합성 PII, 로그아웃 후 복원 차단·SDK 종료, iOS LOCAL_MOCK Push 통과. 종료 시 활성 세션·대기 요청 각 0개입니다. |
+| Hosted CI | PR #18 HEAD `46988f8`의 기본 CI 5개 성공, Unity E2E 및 Release Readiness SKIPPED. [실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546) |
+| 제한 | 실제 Google 계정 재검증 미실행. 기존 StoreKit 26.5 실패, weak client 원인 미확정, 전체 Strict 및 실제 원격 Push·스토어·실기기 제한을 유지합니다. |
 
-## 현재 통합 상태 — 0.1.1-dev (2026-11-25)
+[리팩토링 검증 기록](evidence/bridge-client-refactor-verification.md) · [공개 SHA256SUMS](https://github.com/CodingBot000/GameBridge_SDK/releases/download/v0.1.2-dev/SHA256SUMS) · [소스 매니페스트](https://github.com/CodingBot000/GameBridge_SDK/releases/download/v0.1.2-dev/SOURCE_MANIFEST.json)
+
+## 이전 통합 기록 — 0.1.1-dev (2026-11-25)
 
 | 영역 | 확인된 범위 | 근거·제한 |
 | --- | --- | --- |
-| SDK 소스·버전 | 패키지 소스 026716f, PR #13 병합 35cddc1, PR #14 통합 949d4e0; SDK 0.1.1-dev / Bridge v1 | Batch B 패키지 바이트는 Batch A와 동일; 로컬 후보, 공개 Release 없음 |
+| SDK 소스·버전 | 패키징 소스 468da05, Batch A 검증 026716f, PR #13 병합 35cddc1, PR #14 통합 949d4e0; SDK 0.1.1-dev / Bridge v1 | Batch B는 Batch A와 동일 패키지로 검증했으며, 이후 별도 고지를 포함해 공개했습니다. [v0.1.1-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev) |
 | 패키징 | Maven 3개 모듈, XCFramework, UPM; SHA-256 및 source manifest | [Batch A](evidence/batch-a47-dev-compatibility.md); 배포 권리·프로젝트 라이선스 별도 결정 필요 |
 | 선정 API/ABI | 기존 C# 소비자, JVM 클래스 4개 공개 서명, iOS 3 slice의 C ABI 심볼 5개 비교 PASS | 전체 Kotlin metadata·API 호환 보증 아님 |
 | 버전 교체 | Android API 34·iOS 18.6에서 0.1.0-dev → 0.1.1-dev, 앱/DB 보존, 세션·미완료 구매 복구, 각 원장 1건/100코인 | [Batch A](evidence/batch-a47-dev-compatibility.md) · [Batch B](evidence/batch-b48-compatibility.md); LOCAL_MOCK |
@@ -87,7 +96,7 @@ StoreKit 26.5 기존 FAIL 및 전체 Strict 제한은 유지합니다. iOS 26.5 
 
 ## 버전 변경 시 Host 확인 원칙
 
-개발자용 0.1.0-dev 및 0.1.1-dev 사이의 실제 LOCAL_MOCK 버전 교체를 Android/iOS에서 검증했습니다. 공개 배포 및 정식 제품 버전 간 마이그레이션 실적은 없습니다. 후속 배포 시 다음을 확인합니다.
+Android·iOS에서 0.1.0-dev → 0.1.1-dev와 공개 0.1.1-dev → 0.1.2-dev의 LOCAL_MOCK 덮어 설치를 검증했습니다. SDK를 교체할 때는 아래 조건을 확인합니다.
 
 1. `VERSION`, Maven coordinate, UPM `package.json`, Native version 표면과 manifest/checksum을 함께 대조합니다. wire protocol 버전은 SDK 버전과 별개입니다.
 2. 공개 API·필수 모델·error/async 의미, min OS/Unity·의존성, Host Activity/Delegate와 build hook 변경을 비교합니다.

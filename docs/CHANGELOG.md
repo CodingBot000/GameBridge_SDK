@@ -1,8 +1,17 @@
 # 변경 이력
 
-> 개발 버전 `0.1.0-dev` 및 `0.1.1-dev`의 변경 기록입니다. **병합됐다는 사실과 실제 Provider·Release 검증 완료는 다릅니다.** 최초 포트폴리오 DEV_RC의 동결 근거는 보존하고, 이후 승인된 확장을 아래에 별도로 기록합니다.
+> 버전별 패키지 변경과 실제 검증 범위를 기록합니다. 최초 포트폴리오 DEV_RC와 각 후속 검증의 근거를 보존합니다.
 
-## 0.1.1-dev 개발자용 후보
+## 0.1.2-dev 개발자용 Pre-release
+
+- Android `BridgeFacade`의 Store 수명주기와 FCM 토큰 획득을 공통화하고 공급자 오류와 세션 경계를 보존했습니다. Unity `GameBridgeClient`의 상태 모델·진단·Capability Decoder를 분리했습니다. [PR #18](https://github.com/CodingBot000/GameBridge_SDK/pull/18)
+- 기존 C# 공개 표면, 선정 JVM/JNI, iOS C ABI 5개 심볼·헤더, Bridge v1 계약을 대조했습니다. Android API 34·iOS 18.6에서 0.1.1-dev → 0.1.2-dev 업데이트, 합성 PII, 로그아웃 후 복원 차단·종료 및 iOS LOCAL_MOCK Push가 통과했습니다. [검증 근거](evidence/bridge-client-refactor-verification.md)
+- Evaluation License와 외부 고지를 포함한 기존 검증 패키지를 배포하고, 공개 자산 6개의 checksum과 소스 매니페스트를 확인했습니다. [v0.1.2-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)
+- 후보 Google 실계정 재검증은 미실행입니다. 기존 StoreKit 26.5 실패, 전체 Strict, weak client 및 실 Provider 제한은 [알려진 제한](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)을 따릅니다.
+
+## 0.1.1-dev 개발자용 Pre-release
+
+[이전 공개 패키지](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev)의 준비와 단계별 검증 기록입니다.
 
 - SDK 버전 메타데이터를 맞추고 Android 및 iOS Simulator의 호환성을 검사했다. Android API 34와 iOS 18.6에서 이전 SDK 위에 후보를 설치해 세션과 미완료 구매를 복구했다. [Batch A](evidence/batch-a47-dev-compatibility.md) · [Batch B](evidence/batch-b48-compatibility.md).
 

@@ -1,22 +1,22 @@
 # 기능별 구현·검증 현황
 
-> **기준:** 2026-11-25, SDK `0.1.1-dev` / Bridge v1, PR #14 병합 `949d4e0` 및 후속 Android Google 증거. **구현, 합성 시험, LOCAL_MOCK Player, 실제 계정 로그인은 별도 판정**입니다.
+> [`0.1.2-dev` 공개 Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev) / Bridge v1, PR #18 병합 `5c899be`가 현재 기준입니다. [리팩토링·Player 근거](evidence/bridge-client-refactor-verification.md)
 
 ## 실제 확인한 기능
 
 | 기능 | 공개 API·구성 | 확인된 범위 | 아직 확인하지 않은 범위 |
 | --- | --- | --- | --- |
-| 초기화·세션 | `GameBridgeSdk`, `SignInAsync`, `RestoreSessionAsync`, `SignOutAsync` | Android/iOS Native·Unity Google 실제 로그인·복원·취소·로그아웃 PASS; Android 취소 후 재시도 성공 | 양 플랫폼 Apple/Facebook 실계정, 실제 토큰 갱신/replay, iOS Native 취소 후 재로그인 성공 및 실기기 |
-| 상품·구매·재화 | `GetProductsAsync`, `PurchaseAsync`, `GetEntitlementsAsync`, `SyncPurchasesAsync` | LOCAL_MOCK Player→Backend→PostgreSQL 원장 **플랫폼별 1건/100코인**; 기존 멱등·복원 테스트 | 실제 Google Play/Apple Sandbox 거래, 일부 StoreKit 문제 |
-| 푸시 | `RequestPushPermissionAsync`, `RegisterPushAsync`, `UnregisterPushAsync`, `PushReceived/Opened` | Host adapter·Native/Mock 등록·수신·중복 억제의 선정 기존 시험 | FCM/APNs 실제 원격 전달·실기기 |
-| 설정·진단 | `GetServiceConfigAsync`, `GetStatus`, `GetCapabilities`, `GetDiagnostics` | Native·Fake/HTTP·선정 Player 진단, 정제 검사 | 운영 수준의 전체 장애·PII 감사 |
-| 샘플·패키지 | NativeDemo/OfflineDemo, Android Maven/AAR, iOS static XCFramework, Unity UPM | 0.1.1-dev 패키지·checksum·R8·Swift 소비·선정 API/ABI, 양 플랫폼 LOCAL_MOCK 버전 교체 및 복구 | 공개 배포, Unity 6000.4, 기타 조합 및 실기기 |
+| 초기화·세션 | `GameBridgeSdk`, `SignInAsync`, `RestoreSessionAsync`, `SignOutAsync`, `ShutdownAsync` | 0.1.2-dev Android·iOS LOCAL_MOCK 업데이트 후 세션 복구. 독립 Player의 로그아웃 뒤 복원 차단, SDK 종료, 대기 요청·활성 세션 각각 0개 | 0.1.2-dev Google 실계정 재검증, Apple/Facebook 실계정, 실제 토큰 갱신/replay, 실기기 |
+| 상품·구매·재화 | `GetProductsAsync`, `PurchaseAsync`, `GetEntitlementsAsync`, `SyncPurchasesAsync` | 양 플랫폼 0.1.1-dev → 0.1.2-dev LOCAL_MOCK 덮어 설치 및 미완료 구매 복구, 재동기화 후 원장 각 1건·100코인 | Google Play·App Store 실제 거래, 기존 StoreKit 26.5 실패 |
+| 푸시 | `RequestPushPermissionAsync`, `RegisterPushAsync`, `UnregisterPushAsync`, `PushReceived/Opened` | Android FCM 토큰 획득·정책 회귀, iOS LOCAL_MOCK 중복 제거·로컬 재연결·세션 교체와 늦은 콜백 차단 | FCM/APNs 실제 원격 전달·실기기 |
+| 설정·진단 | `GetServiceConfigAsync`, `GetStatus`, `GetCapabilities`, `GetDiagnostics` | Unity 진단·Capability Decoder 회귀, Android·iOS 실제 Player의 합성 PII와 로그 정제 | 운영 수준의 장애·PII 감사 |
+| 샘플·패키지 | NativeDemo/OfflineDemo, Android Maven/AAR, iOS static XCFramework, Unity UPM | [0.1.2-dev 개발자용 자산](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)·SHA-256·R8·선정 API/ABI | Unity 6000.4, 기타 조합 및 실기기 |
 
 ## 플랫폼별 소셜 인증
 
 | Provider | Android | iOS | 실제 계정 검증 |
 | --- | --- | --- | --- |
-| Google | Credential Manager·Backend ID Token 검증 | GoogleSignIn **9.2.0**, custom nonce 및 자동 Export 콜백 | Android API 34 AVD / iOS 18.6 Simulator **Native·Unity 실계정 로그인/복원/취소/로그아웃 PASS** |
+| Google | Credential Manager·Backend ID Token 검증 | GoogleSignIn **9.2.0**, custom nonce 및 자동 Export 콜백 | 이전 Android API 34 AVD·iOS 18.6 Simulator Native·Unity 실계정 로그인/복원/취소/로그아웃 PASS, 0.1.2-dev 재검증 미실행 |
 | Apple | 웹 OAuth·Custom Tabs·서버 code 교환 구현·보안 테스트 PASS | 기존 AuthenticationServices 구현 | 두 플랫폼 모두 **WAITING_USER** |
 | Facebook | Meta **18.3.0** Classic, Backend token debug 검증 구현 | Meta **18.1.1** Limited/Classic·JWT 검증 분리 구현 | 두 플랫폼 모두 **WAITING_USER** |
 | 개발용 Mock | LOCAL_MOCK Player PASS | LOCAL_MOCK Player PASS | 실계정 Provider와 무관 |
@@ -25,7 +25,11 @@ iOS Google 최신 실계정 증거는 [iOS Google 검증 기록](IOS_GOOGLE_OAUT
 
 Android Google은 API 34 AVD Native·Unity에서 취소 후 재로그인 성공, 앱 재실행 후 신규 인증 요청/세션 없이 복원, 동일 identity의 독립 세션 2개 모두 폐기, C# URL 이벤트 0건 및 시험 프로세스 로그 민감 패턴 미검출을 확인했습니다. [Android Google 검증](evidence/android-google-live-20261125.md). 실제 토큰 갱신·재사용은 미실행입니다.
 
-## 현재 통합 회귀 증거
+## 0.1.2-dev 통합 회귀
+
+새 로컬 Player에서 합성 PII 2건, iOS LOCAL_MOCK Push 1건, 로그아웃 후 복원 차단·SDK 종료 2건이 통과했습니다. PR #18의 기본 Hosted CI 5개가 성공했고 Unity E2E·Release Readiness는 SKIPPED입니다. [실행 증거](evidence/bridge-client-refactor-verification.md) · [Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546)
+
+## 이전 통합 회귀 증거
 
 | 영역 | 결과 및 근거 |
 | --- | --- |

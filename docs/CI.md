@@ -1,6 +1,8 @@
 # CI 검증 범위
 
-> **현재 기준:** [PR #14 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45578953794) (head 6c3eacf, main 병합 949d4e0)에서 `inventory-contracts`, `backend-postgres`, `android-native`, `swift-ios-simulator`, `basic-ci` **SUCCESS**, `unity-e2e`·`release-readiness` **SKIPPED**. Android/iOS 실제 Google 및 LOCAL_MOCK Player 검증은 로컬에서 별도로 수행했습니다. [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md). Hosted Unity E2E나 Release 성공으로 표기하지 않습니다.
+> **0.1.2-dev 배포 기준** PR #18 HEAD `46988f8` (main 병합 `5c899be`)에서 `inventory-contracts`, `backend-postgres`, `android-native`, `swift-ios-simulator`, `basic-ci` **SUCCESS**. `unity-e2e`와 `release-readiness`는 **SKIPPED**입니다. [Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546)
+
+Android·iOS의 실제 Unity Player와 업데이트 결과는 로컬에서 확보했습니다. 공개 Pre-release는 검증된 패키지의 SHA-256과 매니페스트를 대조하여 배포했습니다. [로컬 검증](evidence/bridge-client-refactor-verification.md) · [v0.1.2-dev 배포](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)
 
 ## 기존 게이트 설명 및 과거 실행 기록
 

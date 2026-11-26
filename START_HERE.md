@@ -6,9 +6,11 @@
 
 ## 설치·시연
 
-- 최신 개발자용 배포본은 [v0.1.1-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev)입니다. 설치와 체크섬 확인은 [README](README.md#개발자용-pre-release-설치)를 따릅니다. 이전 `artifacts/portfolio-final/DEV_RC`는 역사적 후보입니다.
-- 다른 checkout에는 Native 생성 바이너리가 없으므로 [기존 build/package 절차](docs/INTEGRATION.md#1-패키지-준비)를 사용합니다.
+- 최신 개발자용 배포본은 [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)입니다. 패키지 설치와 SHA-256 확인은 [README](README.md#개발자용-pre-release-설치)를 따릅니다.
+- 직접 빌드하려면 [0.1.2-dev 패키징 절차](docs/INTEGRATION.md#1-패키지-준비)를 따릅니다. 이전 DEV_RC는 개발 이력에 보존돼 있습니다.
 - Editor Offline Demo는 fake UI, Native Demo는 Android/iOS LOCAL_MOCK 또는 명시한 Sandbox용입니다. 실제 Provider는 [USER_SETUP](docs/USER_SETUP.md)의 별도 사용자 준비와 승인이 필요합니다.
+
+0.1.2-dev의 내부 책임 분리, API·ABI, 양 플랫폼 업데이트와 로컬 회귀 결과는 [리팩토링 검증 기록](docs/evidence/bridge-client-refactor-verification.md)에 있습니다.
 
 ## 개발 종료와 재개 경계
 

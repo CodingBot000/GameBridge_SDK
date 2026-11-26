@@ -8,9 +8,10 @@
 | --- | --- |
 | 패키지 출처 | 패키징 커밋 `7b6430e`와 배포 태그 `5c899be`의 SDK·Backend·계약·빌드 입력 일치. 기존 검증 패키지 바이트를 사용했고 공개 자산 6개의 SHA-256과 매니페스트를 대조했습니다. |
 | API·ABI | C# 공개 메타데이터, 선정 JVM 클래스 5개·JNI descriptor, iOS C ABI 심볼 5개와 헤더 확인. iOS 비교 범위는 device arm64 및 Simulator arm64·x86_64입니다. |
-| 업데이트 | Unity 6000.5.8f1 · Android API 34 AVD 및 iOS 18.6 Simulator에서 0.1.1-dev → 0.1.2-dev 덮어 설치. 세션과 미완료 구매 복구 및 원장 각 1건·100코인을 확인했습니다. |
+| 업데이트 | Unity 6000.5.8f1 · Android API 34 AVD 및 iOS 18.6 Simulator의 LOCAL_MOCK에서 0.1.1-dev → 0.1.2-dev 덮어 설치. 세션과 미완료 구매 복구 및 원장 각 1건·100코인을 확인했습니다. |
 | Player 회귀 | 양 플랫폼 합성 PII, 로그아웃 후 복원 차단·SDK 종료, iOS LOCAL_MOCK Push 통과. 종료 시 활성 세션·대기 요청 각 0개입니다. |
 | Hosted CI | PR #18 HEAD `46988f8`의 기본 CI 5개 성공, Unity E2E 및 Release Readiness SKIPPED. [실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546) |
+| 후속 main CI | 검토 기준 `536ab987`의 기본 5개 SUCCESS, Unity E2E·Release Readiness SKIPPED. [실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45863332014). 배포 기준 PR과 별도 기록. |
 | 제한 | 실제 Google 계정 재검증 미실행. 기존 StoreKit 26.5 실패, weak client 원인 미확정, 전체 Strict 및 실제 원격 Push·스토어·실기기 제한을 유지합니다. |
 
 [리팩토링 검증 기록](evidence/bridge-client-refactor-verification.md) · [공개 SHA256SUMS](https://github.com/CodingBot000/GameBridge_SDK/releases/download/v0.1.2-dev/SHA256SUMS) · [소스 매니페스트](https://github.com/CodingBot000/GameBridge_SDK/releases/download/v0.1.2-dev/SOURCE_MANIFEST.json)

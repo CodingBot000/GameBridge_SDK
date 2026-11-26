@@ -29,6 +29,9 @@ Android Google은 API 34 AVD Native·Unity에서 취소 후 재로그인 성공,
 
 새 로컬 Player에서 합성 PII 2건, iOS LOCAL_MOCK Push 1건, 로그아웃 후 복원 차단·SDK 종료 2건이 통과했습니다. PR #18의 기본 Hosted CI 5개가 성공했고 Unity E2E·Release Readiness는 SKIPPED입니다. [실행 증거](evidence/bridge-client-refactor-verification.md) · [Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546)
 
+
+후속 검토 기준 main `536ab987`에서도 [기본 Hosted CI 5개 SUCCESS](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45863332014), Unity E2E·Release Readiness SKIPPED를 확인했습니다. 이 결과는 실계정·Player 신규 검증이 아닙니다. 설계·사례의 진입점은 [TECHNICAL_OVERVIEW](TECHNICAL_OVERVIEW.md)입니다.
+
 ## 이전 통합 회귀 증거
 
 | 영역 | 결과 및 근거 |

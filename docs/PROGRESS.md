@@ -2122,3 +2122,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - RF-07 Android API 34 및 iOS 18.6 실제 LOCAL_MOCK 업데이트 PASS. Android build 2→3, iOS 0→1. 앱과 DB 보존, 회수·재동기화, 원장 각 1/100, 로그아웃 확인. [검증](evidence/bridge-client-refactor-verification.md)
 - RF-07 추가 PII 및 종료 단언은 현지 환경에서 검증 중이다. 최초 Android PII는 Backend health timeout, iOS PII는 Simulator 설치 실패. 두 플랫폼의 기존 업데이트 PASS와 세션 폐기 집계는 별도로 확보했다.
 - RF-08 (PX-T27) 초안 PR로 검토 인계 및 새 Hosted CI를 시작한다. 추가 실측 또는 CI 미완료 항목은 완료 상태와 구분한다.
+- RF-07 후속 실제 Player 5개 PASS (2026-11-26). Android API 34·iOS 18.6 합성 PII, iOS LOCAL_MOCK Push, 양 플랫폼 로그아웃 후 복원 차단·SDK 종료를 같은 `0.1.2-dev` staging에서 확인했다. 대기 요청과 활성 세션은 각 시험에서 0개였다. 덮어 설치·구매 복구 결과는 기존 실행을 사용했다. [원본 결과 식별자 및 SHA-256](evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증)
+- RF-08 문서50의 로컬 필수 항목을 충족했다. 이전 HEAD `bc3d81ba`의 기본 CI 5개는 성공했다. 이번 문서 Push의 현재 HEAD에서 기본 CI 5개가 성공하면 `REFACTORING_VERIFIED_FOR_REVIEW`를 확정한다. 확정 판정과 CI 링크는 [PR #18](https://github.com/CodingBot000/GameBridge_SDK/pull/18)에 기록한다.

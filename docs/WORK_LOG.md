@@ -4492,3 +4492,7 @@
 - 기존 restart fixture가 로그아웃은 실행했지만 이후 복원 불가와 명시적 shutdown을 단언하지 않았다. RF-07의 마지막 단계 확인을 두 fixture에 추가했다. 첫 Android/iOS 업데이트 DB는 읽기 전용 집계에서 세션 1개·폐기 1개·활성 0개였다.
 - RF-07 추가 검증. 보강 Android 빌드의 ADB 소유권 도구가 두 번 시간 초과했다. 새 Android AVD 부팅도 제한시간을 넘겼다. 추가 PII의 첫 Android APK 빌드와 iOS Xcode 빌드는 생성됐으나 Backend health timeout과 Simulator 앱 설치 실패로 각 Player 검증은 미완료였다. 동시에 증가한 호스트 부하를 관찰했으며 플랫폼 환경을 변경하지 않고 소유 리소스만 종료한다.
 - RF-08. 공개 Release ID·태그·공개 시각·6자산 digest를 재조회하여 작업 전 snapshot과 일치함을 확인했다. 기준 main과 후보의 라이선스, 승인된 역사적 baseline, 기존 Backend·wire 계약은 동일하다.
+- RF-07 후속 결과, 2026-11-26. 검증된 빌드에서 `resume50/continue-pii.py android`, `resume50/continue-pii.py ios`, `resume50/continue-ios-push.py`를 순차 실행해 각 종료 0을 확인했다. 시험 marker는 Android PII 34개, iOS PII 24개다. iOS Push의 재연결 거부 6회와 종료 시 device token 0개를 확인했다.
+- `resume50/build-logout-player.py` 및 `resume50/run-logout-player.py`로 Android·iOS 종료 시험을 각각 실행했다. Android 첫 빌드는 테스트 fixture의 `GameBridge.Core` import 누락으로 C# 컴파일이 실패했으며 수정 후 빌드·실행 종료 0이었다. 양 플랫폼에서 로그아웃 후 복원 차단, `SHUTDOWN`, 대기 요청 0, 격리 DB 세션 폐기 1·활성 0을 확인했다. 업그레이드와 구매 복구는 기존 PASS 실행을 사용했다.
+- RF-08 문서 정리. `resume50/verification.json`과 실제 `result.json`·marker 로그를 대조해 보고서를 갱신했다. 각 실행이 동일 staging 매니페스트를 쓰고, 검증 checkout과 PR 후보의 제품·Backend·wire 계약 경로에 차이가 없음을 확인했다. 이전 HEAD `bc3d81ba`의 기본 CI 5개 성공을 확인했다. [이전 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45654121957)
+- 문서만 커밋하고 Push한다. 현재 HEAD의 기본 CI 5개가 모두 성공하면 `REFACTORING_VERIFIED_FOR_REVIEW`를 PR 설명에 기록하고 Draft를 해제한다.

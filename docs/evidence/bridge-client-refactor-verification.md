@@ -44,3 +44,33 @@ Maven·XCFramework·UPM 패키지 소스는 추적 파일이 깨끗한 `7b6430e8
 - 추가 Android 업데이트 빌드는 소유 ADB 확인의 `lsof` 시간제한에 두 차례 걸렸고 새 AVD 부팅도 제한시간을 넘겼다. 기존 업데이트 성공과 보강 단계의 재실행은 각각 기록한다.
 - GitHub PR의 동일 HEAD 기본 CI 및 추가 Player 결과를 확인한 뒤 최종 완료를 판정한다.
 - Android의 `Version.CURRENT`는 Kotlin 상수다. 이미 이 값을 인라인한 소비자 바이트코드는 재컴파일 전까지 빌드 당시의 버전 문자열을 가질 수 있다.
+
+## 2026-11-26 후속 실제 Player 검증
+
+미완료 시험 다섯 개를 전용 Android API 34 AVD와 iOS 18.6 Simulator에서 순차 실행했다. 후보는 Unity 6000.5.8f1과 로컬 SDK `0.1.2-dev`이며, 다섯 실행의 staging 매니페스트 SHA-256은 위 기록과 일치한다. 합성 PII와 Push 시험은 선행 빌드 증거의 바이너리와 소스를 대조한 뒤 runtime부터 재개했다. 종료 시험은 같은 후보를 탑재한 독립 Player에서 실행했다. 앞서 통과한 덮어 설치·구매 복구 결과는 기존 실행을 근거로 삼았다.
+
+| 시험 | 실제로 관측한 결과 |
+| --- | --- |
+| Android 합성 PII | `GB_PII_PROBE PASS`, `GB_MOCK_REDACTION PASS` 각 1회, 전체 Unity marker 34개. Backend 검증과 원장 1건·100코인 PASS |
+| iOS 합성 PII | `GB_PII_PROBE PASS`, `GB_MOCK_REDACTION PASS` 각 1회, 전체 Unity marker 24개. Backend 검증과 원장 1건·100코인 PASS |
+| iOS LOCAL_MOCK Push | `GB_PUSH_RESULT PASS LOCAL_MOCK`. 중복 제거, 백그라운드·포그라운드 전환, 로컬 전송 단절 후 재연결, 등록 해제·로그아웃과 세션 교체 뒤 늦은 콜백 차단 PASS. 재연결 거부 관측 6회, 종료 시 device token 0개 |
+| Android 로그아웃 후 복원·종료 | `GB_RF50_LOGGED_IN_SESSION PASS`, `GB_RF50_LOGGED_OUT_RESTORE_BLOCKED PASS`, `GB_RF50_LOGOUT_SHUTDOWN PASS`. `SHUTDOWN` 및 대기 요청 0개. 격리 DB 세션 1개·폐기 1개·활성 0개 |
+| iOS 로그아웃 후 복원·종료 | Android와 같은 세 marker PASS. `SHUTDOWN` 및 대기 요청 0개. 격리 DB 세션 1개·폐기 1개·활성 0개 |
+
+아래 경로는 로컬 `artifacts/refactor50/` 기준이다. 각 결과에 기록된 checkout은 tracked-clean이었다. 합성 PII와 Push에 사용한 Player 소스는 `f42276f595f090b4d8bf94a0f3b145cda8bb3abd`, 종료 시험 소스는 `a7c02733b958c99e5c6513d6dce04159107eaa7a`다. 두 소스와 PR 후보의 SDK·Backend·wire 계약 파일을 대조했다. 위 판정은 로컬 실제 실행 결과와 marker 로그를 근거로 한다.
+
+| 시험 | 원본 결과 파일 | 원본 SHA-256 |
+| --- | --- | --- |
+| Android 합성 PII | `pii-android/artifacts/unity-android-e2e-_nf2ouus/result.json` | `ef02ecac47fb437caae1659616c35b3c05ec8000f0e9a7078201f8981fed63db` |
+| iOS 합성 PII | `pii-ios/artifacts/unity-ios-e2e-2fl56ph1/result.json` | `ff0c8062bc5e0711ba23fd10964d1b582e98a4f4546f77a5c16f06695ec8ea73` |
+| iOS Push | `push-ios/artifacts/unity-ios-push-crz5_na8/result.json` | `4860a73fe423394d88c364e3d2f04751be57a4a8728b4ccbcb837d9e11377cf9` |
+| Android 복원·종료 | `resume50/focused-logout-android/result.json` | `22de8752d82dde587df565a974b9f16bde58c1a085f622c1373b1c0908e5e9a4` |
+| iOS 복원·종료 | `resume50/focused-logout-ios/result.json` | `405df6bccb26e4769b7e33790bc63fbc0be8e643777fe57af42a3b53ffc44229` |
+
+합성 PII의 marker는 각 실행 디렉터리의 `unity-test-markers.log`, iOS Push는 `unity-push-markers.log`, 복원·종료는 `markers.log`에 있다. 원본 경로와 판정은 `resume50/verification.json`에 모았다. 위 후속 결과는 초기 Android Backend health timeout, iOS Simulator 설치 실패, Android 소유권 조회 및 AVD 부팅 시간 초과 이후의 성공 기록이다.
+
+## 리뷰 판정
+
+문서50 §11의 로컬 필수 항목은 실제 Player·업데이트 증거, 선정 API/ABI 대조, 전이 가드 및 패키지 검증으로 충족했다. 문서 변경 전 PR HEAD `bc3d81ba45b7b5e6982143d626cb8d7ce4d1934f`의 기본 CI는 5개 모두 성공했다. [문서 변경 전 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45654121957)
+
+`REFACTORING_VERIFIED_FOR_REVIEW` 확정 조건은 PR #18의 현재 HEAD에서 `inventory-contracts`, `backend-postgres`, `android-native`, `swift-ios-simulator`, `basic-ci`가 모두 성공하는 것이다. 확정 판정과 CI 실행 링크는 PR 설명에서 확인할 수 있다. 후보의 실제 계정 인증, 원격 Push, 스토어 거래는 미실행이며 기존 StoreKit 26.5 실패와 전체 Strict 제한은 위 기록을 따른다. [PR #18 및 현재 검사](https://github.com/CodingBot000/GameBridge_SDK/pull/18/checks)

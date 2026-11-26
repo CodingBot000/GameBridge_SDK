@@ -3,7 +3,7 @@
 > **Unity · Android · iOS 게임 플랫폼 SDK의 설계, 기술적 의사결정, 실패 대응 및 검증 근거**
 >
 > 개인 기술 포트폴리오 · [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev) · Bridge Protocol v1  
-> 검토 기준 소스: [main `99b1575`](https://github.com/CodingBot000/GameBridge_SDK/commit/99b157546c7a7f76d65f7678b7a3dca4f19b7efd). 기존 소스와 검증 기록을 설명하며 새 제품 기능이나 실행 결과를 추가하지 않습니다.
+> 검토 기준 소스: [main `d37e8a1`](https://github.com/CodingBot000/GameBridge_SDK/commit/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4). 기존 소스와 검증 기록을 설명하며 새 제품 기능이나 실행 결과를 추가하지 않습니다.
 >
 > **[공개 검증 근거 바로가기](VERIFICATION_EVIDENCE.md)** — 주장별 소스·테스트·실행 결과를 연결하고, 공개 기록과 비공개 로컬 원본의 범위를 구분합니다.
 
@@ -108,7 +108,19 @@ sequenceDiagram
 | 선정 API·ABI 및 독립 소비자 검증 | 내부 빌드 성공만 확인 | 소비 경계의 회귀 탐지 / 버전·비교 범위 관리 및 검증 비용 |
 | 명시적 LOCAL_MOCK / Sandbox 분리 | 실제 Provider 실패 시 Mock fallback | 실패 원인과 증거 의미 보존 / 별도 환경 및 설정 준비 |
 
-기록에 남은 구체 정책의 예: refresh 기본 7일 만료의 최초 발급 기준 고정, 로그아웃 시 해당 session의 Push token 삭제, 점검 여부 미설정 시 신규 구매 차단, Testcontainers의 전용 DB 격리. 정책 근거와 시점은 [DECISIONS](DECISIONS.md), 현재 보안 계약은 [SECURITY](SECURITY.md)를 참조하세요.
+### 개발 당시 기록된 기술 결정
+
+아래 5개는 2026-11-10의 실제 [DECISIONS](DECISIONS.md) 기록과 현재 구현을 연결한 것입니다. 효과·비용은 해당 정책의 기술적 해석이며 새 벤치마크나 실Provider 시험 결과가 아닙니다.
+
+| 기록된 정책 | 설계 의미와 비용 | 구현 및 검증 근거 |
+| --- | --- | --- |
+| **점검·설정 실패 시 신규 구매만 차단** — USER-CONFIG-DEFAULT / TTL / MAINTENANCE-UNSET | 유효 설정 없이 새 거래를 시작하지 않는 Fail-closed 정책. 기존 검증·복구·로그아웃은 허용해 미완료 거래 처리를 막지 않음. 설정 cache 유효기간 기본 5분 정책 | [결정](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/docs/DECISIONS.md#L28-L31) · [Android Gate](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/android/sdk-core/src/main/kotlin/com/gamebridge/MaintenanceGate.kt#L3-L7) / [iOS Gate](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/ios/Sources/GameBridgeCore/MaintenanceGate.swift#L3-L8) · [cache 유효성](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/android/sdk-core/src/main/kotlin/com/gamebridge/ServiceConfigurationRepository.kt#L16-L26) · [Android 테스트](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/android/sdk-core/src/test/kotlin/com/gamebridge/MaintenanceGateTest.kt#L6-L13) / [iOS 테스트](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/ios/Tests/GameBridgeCoreTests/MaintenanceGateTests.swift#L4-L13) |
+| **Refresh 만료 최초 발급 기준 7일 고정** — USER-SESSION-TTL | 회전 시 만료 연장을 하지 않아 재인증 시점을 제한. 지속 사용 편의보다 refresh 세션 수명 상한을 우선 | [결정](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/docs/DECISIONS.md#L20) · [발급](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/session/Sessions.kt#L45-L75) / [회전](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/session/Sessions.kt#L81-L101) · [DB 만료 assertion](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/test/kotlin/com/gamebridge/session/SessionExpiryDatabaseTest.kt#L18-L32) |
+| **기기 내 구매 증빙 검증 동시성 기본 1건** — USER-VERIFY-CONCURRENCY | 설정 가능한 제한으로 검증 동시 실행을 통제. 처리량과 대기 시간의 Trade-off이며 서버 전역의 동시성 보장은 아님 | [결정](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/docs/DECISIONS.md#L21) · [Android Semaphore](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/android/sdk-android/src/main/kotlin/com/gamebridge/android/purchase/GooglePlayBillingProvider.kt#L54-L76) / [iOS limiter](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/ios/Sources/GameBridgeApple/StoreKitBillingProvider.swift#L76-L95) · [직렬화 시험](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/android/sdk-android/src/test/kotlin/com/gamebridge/android/purchase/GooglePlayBillingProviderTest.kt#L59-L79) / [취소·permit 시험](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/ios/Tests/GameBridgeCoreTests/StoreKitBillingProviderTests.swift#L7-L25) |
+| **Push 중복 제거 범위를 최근 messageId 200개로 제한** — USER-PUSH-DEDUP | 수신과 열기 이벤트를 구분하고 오래된 항목을 제거해 메모리 범위를 제한. eviction·앱 재시작 이후까지 중복 제거를 보장하지 않음 | [결정](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/docs/DECISIONS.md#L27) · [Android Router](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/android/sdk-core/src/main/kotlin/com/gamebridge/PushRouter.kt#L8-L26) / [iOS Router](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/ios/Sources/GameBridgeCore/PushRouter.swift#L10-L34) · [Android bounded recency 시험](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/android/sdk-core/src/test/kotlin/com/gamebridge/PushRouterTest.kt#L8-L25) / [iOS 시험](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/ios/Tests/GameBridgeCoreTests/PushRouterTests.swift#L8-L24) |
+| **Google 구매 증빙의 완료 확인 전 보관·완료 후 삭제** — USER-GOOGLE-EVIDENCE | 재시도 가능한 암호화 증빙을 보관하고 완료 확인 시 삭제. 복구 가능성과 민감정보 보관 최소화 사이의 균형 | [결정](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/docs/DECISIONS.md#L26) · [암호화 저장](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/GoogleGrantService.kt#L36-L39) / [완료 후 삭제](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/GoogleFinalizationWorker.kt#L84-L91) · [격리 DB·fake finalizer 시험](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/test/kotlin/com/gamebridge/purchase/GoogleGrantDatabaseTest.kt#L74-L103) |
+
+현재 구현·시험 소스의 기준은 위 고정 커밋입니다. 실제 실행 결과는 [검증 전략](#6-검증-전략)과 [공개 증거](VERIFICATION_EVIDENCE.md)를 따릅니다. 실계정 SDK token refresh/replay·실스토어 최종 완료 검증으로 확대하지 않습니다. 나머지 정책은 [DECISIONS](DECISIONS.md), [SECURITY](SECURITY.md)를 참조하세요.
 
 ## 4. Failure Model과 불변조건
 
@@ -118,7 +130,7 @@ sequenceDiagram
 | 이전 세션 callback / Dispose 이후 이벤트 | 현재 SDK 세대·세션으로만 전달 | [LateCallback 시험](../tests/UnityLateCallback/Program.cs), [기존 회귀 JSON](evidence/p10-batch34-regression.json) |
 | 요청 폭주·비정상 JSON | pending 최대 100, wire 256KiB 제한, 형식·상관관계 검사 | [Registry](../unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs) |
 | 동시 초기화 / 다른 설정 | 동일 설정 작업 공유, 다른 설정 거부 | [Client](../unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs), [기존 회귀 JSON](evidence/p10-batch34-regression.json) |
-| 같은 거래·다른 키 / 같은 키·다른 body | 거래 UNIQUE·body hash·원장 제약, 충돌 시 추가 지급 금지 | [Google Grant](../backend/src/main/kotlin/com/gamebridge/purchase/GoogleGrantService.kt), [DB 시험](../backend/src/test/kotlin/com/gamebridge/purchase/LedgerInvariantDatabaseTest.kt) |
+| 같은 거래·다른 키 / 같은 키·다른 body | 거래 UNIQUE·body hash·원장 제약, 충돌 시 추가 지급 금지 | [LOCAL_MOCK 지급](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt#L35-L69), [Google 지급 구현](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/GoogleGrantService.kt#L20-L58), [DB 원장 시험](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/test/kotlin/com/gamebridge/purchase/LedgerInvariantDatabaseTest.kt#L29-L39) |
 | 서버 지급 후 응답 유실 | 기존 거래 조회·복구, 추가 지급 없음 | [버전 교체·복구 결과](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트) |
 | Push 중복·계정 변경·로그아웃 | route allowlist, messageId dedupe, session/token 소유권 | [Android 기존 Player](evidence/p10-batch32-android-push-c.json), [iOS 후속 Player](evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증) |
 | raw credential·PII 포함 callback | typed 허용 필드만 공개, 민감 원문 정제 | [양 플랫폼 합성 PII Player](evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증) |
@@ -133,7 +145,16 @@ sequenceDiagram
 
 **문제:** 서버가 지급을 commit했지만 응답이 유실되면 클라이언트의 요청 결과는 불명확합니다. 재시도·재시작·SDK 교체로 같은 거래가 다시 제출될 수 있습니다.
 
-**설계:** Google 지급 경로의 `GoogleGrantService`는 Transaction 안에서 세션·계정 binding을 검사하고, attempt ID와 body hash를 대조합니다. 거래 증빙 hash의 app/environment/platform 단위 유일성 및 `wallet_ledger.purchase_id` UNIQUE를 적용하고 새 거래에만 원장·권한·완료 작업을 기록합니다. 이미 등록된 거래는 기존 사용자·상품 결속을 확인합니다. Google 실제 지급 구현과 아래 LOCAL_MOCK 복구 시험의 증거는 구분합니다.
+**설계 — 실제 LOCAL_MOCK 실행 경로:** `MockPurchaseController.verify`는 테스트 전용 proof를 사용자·상품에 결속해 검증하고, DB Transaction 내에서 다음 네 가지 방어를 수행합니다.
+
+| 처리 경계 | 구현 |
+| --- | --- |
+| 동일 멱등키에 다른 요청 | body hash를 비교해 충돌 시 거부. [L45–47](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt#L45-L47) |
+| 동일 거래에 다른 멱등키 | 거래 hash UNIQUE 및 기존 구매의 사용자·상품 대조. [L49–52](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt#L49-L52) |
+| 중복 지급 | 새 구매가 삽입된 경우에만 원장 또는 권한을 기록. [L53–62](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt#L53-L62) · [DB UNIQUE](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/resources/db/migration/V1__initial_schema.sql#L30-L39) |
+| 완료 처리·재요청 | 신규 거래의 finalization job 기록, 멱등 기록 완료, 기존 거래에는 ALREADY_GRANTED 반환. [L63–69](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt#L63-L69) |
+
+**실 Provider 경계:** [GoogleGrantService](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/GoogleGrantService.kt#L20-L58)에도 세션·계정 binding, attempt ID/body hash, 거래 UNIQUE, 원장·권한·완료 작업 기록 및 암호화 증빙 저장이 구현되어 있습니다. 아래 양 플랫폼 업데이트 결과는 Google Play 실거래가 아니라 LOCAL_MOCK 경로에서 확보한 증거입니다.
 
 ```mermaid
 sequenceDiagram
@@ -157,7 +178,11 @@ sequenceDiagram
     Note over B,D: One ledger row / +100 coins<br/>No additional grant
 ```
 
-**검증:** Unity 6000.5.8f1, Android API 34 AVD 및 iOS 18.6 Simulator 각각에서 앱·DB 데이터 유지, 덮어 설치, 세션·미완료 구매 복구, 두 번째 동기화 회수 0건, 원장 순증 1건·100코인을 확인했습니다(LOCAL_MOCK). 원장 Mutation Test는 별도 격리 schema의 UNIQUE 제약을 제거하여 중복 INSERT가 허용되면 기대 assertion이 실패하는지 확인하고, 정상 schema에서는 해당 INSERT가 거부되는지 대조합니다.
+**검증:** Unity 6000.5.8f1, Android API 34 AVD 및 iOS 18.6 Simulator 각각에서 앱·DB 데이터 유지, 덮어 설치, 세션·미완료 구매 복구, 두 번째 동기화 회수 0건, 원장 순증 1건·100코인을 확인했습니다(LOCAL_MOCK).
+
+현재 공개 Player fixture의 핵심 assertion은 첫 복구에서 examined/recovered 각각 1, deferred/failure 각각 0, 잔액 100 및 재동기화 examined 0·잔액 100입니다. [Android assertion](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/tests/UnityAndroidRestartConsumer/MockPlayerScenario.cs#L25-L40) · [iOS assertion](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/tests/UnityIosRestartConsumer/MockIosPlayerScenario.cs#L23-L38). 이 코드는 재현·검증 기준이며, 실제 실행 관측은 별도 [업데이트 기록](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트)을 따릅니다.
+
+원장 Mutation Test는 격리 schema의 UNIQUE 제약을 제거하여 중복 INSERT가 허용되면 기대 assertion이 실패하는지 확인하고, 정상 schema에서는 해당 INSERT가 거부되는지 대조합니다.
 
 | 정상 / 변이 대조 | 기록된 결과 |
 | --- | --- |
@@ -166,7 +191,7 @@ sequenceDiagram
 
 **한계:** 실제 Play/App Store 구매·환불·장애율 또는 분산 시스템 전체의 exactly-once 보증이 아닙니다.
 
-[지급 소스](../backend/src/main/kotlin/com/gamebridge/purchase/GoogleGrantService.kt) · [Schema](../backend/src/main/resources/db/migration/V1__initial_schema.sql) · [Mutation 소스](../harness/check-ledger-mutation.py) · [격리 DB Mutation 기록](evidence/p09-ledger-mutation-20261113.md) · [업데이트 결과](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트).
+[LOCAL_MOCK 구현](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt#L35-L69) · [DB assertion](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/test/kotlin/com/gamebridge/purchase/LedgerInvariantDatabaseTest.kt#L29-L39) · [Mutation 판정](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/harness/check-ledger-mutation.py#L45-L65) · [격리 DB Mutation 기록](evidence/p09-ledger-mutation-20261113.md) · [구현·시험·실행 근거](VERIFICATION_EVIDENCE.md#구매-데이터-정합성과-업데이트-복구).
 
 ### 5.2 Unity iOS Export — 중단 복구 및 Host 변경 보호
 
@@ -193,7 +218,7 @@ flowchart TD
 
 **한계:** 개발 환경의 파일 쓰기 중단 복구에 대한 시험입니다. 모든 파일시스템 장애나 운영 장애 복구 보증으로 확대하지 않습니다.
 
-[PR #11 — 증상·수정·결과](https://github.com/CodingBot000/GameBridge_SDK/pull/11) · [Recovery 코드](../unity/Packages/com.gamebridge.sdk/Editor/IosExportFiles.cs) · [Export Hook](../unity/Packages/com.gamebridge.sdk/Editor/IosXcodeBuildHook.cs) · [장애 주입 소스](../tests/UnityIosHook/Program.cs).
+[PR #11 — 증상·수정·결과](https://github.com/CodingBot000/GameBridge_SDK/pull/11) · [Journal 기록·해시 복구·충돌 검사](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/unity/Packages/com.gamebridge.sdk/Editor/IosExportFiles.cs#L75-L118) · [Export Hook](../unity/Packages/com.gamebridge.sdk/Editor/IosXcodeBuildHook.cs) · [4개 지점 장애 주입 및 Host 보존 assertion](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/tests/UnityIosHook/Program.cs#L178-L203).
 
 ### 5.3 비동기 요청 경쟁과 지연 callback
 
@@ -205,7 +230,7 @@ flowchart TD
 
 **한계:** 클라이언트 Task 완료 계약은 실제 구매의 완료 또는 취소 보장이 아닙니다. weak client 1개 관측은 원인이 확정되지 않았습니다.
 
-[Registry](../unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs) · [LateCallback](../tests/UnityLateCallback/Program.cs) · [Bridge Mutation](../harness/check-bridge-mutation.py) · [기존 회귀 JSON](evidence/p10-batch34-regression.json) · [후속 회귀](evidence/bridge-client-refactor-verification.md).
+[응답 상관관계 검사](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs#L107-L126) · [pending 원자적 소유권 제거·완료](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs#L183-L205) · [지연 응답 assertion](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/tests/UnityLateCallback/Program.cs#L23-L36) · [Bridge Mutation 판정](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/harness/check-bridge-mutation.py#L37-L58) · [기존 회귀 JSON](evidence/p10-batch34-regression.json) · [후속 회귀](evidence/bridge-client-refactor-verification.md).
 
 ### 5.4 iOS Native 의존성과 OAuth callback 장애 분석
 
@@ -214,7 +239,11 @@ flowchart TD
 | Meta Framework Embed | 런타임 UnityFramework dlopen/FBAEMKit lookup 실패 → 강한 동적 의존성 4개가 Host 앱에 미포함, runpath·서명 자체는 정상 → SPM 제품의 Host 대상 연결, 기존 강한 링크 유지 → 이전 실패 앱 거부, 새 앱 Framework 4개 존재·서명 및 LOCAL_MOCK Player 통과 |
 | Google OAuth 경로 | 합성 등록 URL에서 Native ABI 0건·Unity URL event 1건 → stock UnityScene의 독립 URL 경로 → AppController와 Scene의 opt-in forwarding 및 충돌 감지 → 합성 warm URL Native ABI 1회·Unity event 0건, 당시 71개 PBX/URL 검사·새 Export 빌드 통과 |
 
-PR #11에는 별도의 합성 cold/warm URL 및 정상 Host URL 시험도 기록되어 있습니다. 실제 Google 로그인·복원·취소·로그아웃 결과는 이전 버전의 실계정 증거로, 실제 OAuth callback ABI 진입 및 cold Scene URL 직접 주입 검증과 동일하지 않습니다. 당시 iOS Native 취소 후 재로그인 성공은 미확인이고, 0.1.2-dev 실계정 재검증은 미실행입니다.
+PR #11에는 별도의 합성 cold/warm URL 및 정상 Host URL 시험도 기록되어 있습니다.
+
+**실제 외부 플랫폼 인증(이전 버전):** Android API 34 AVD의 0.1.1-dev Native/Unity 앱과 iOS 18.6 Simulator의 2026-11-23 Native/Unity 앱에서 실제 Google 로그인·인증 UI 취소·재실행 후 SDK 세션 복원·로그아웃을 확인했습니다. Android는 취소 후 재시도 로그인도 성공했고 기존 identity에 별도 세션이 발급되어 로그아웃 시 해당 세션만 폐기되었습니다. iOS Native의 취소 후 재로그인 성공은 미확인입니다. 양 플랫폼의 복원 시험과 실제 SDK token refresh/replay, iOS 합성 URL forwarding·실제 OAuth ABI 진입은 별도 범위입니다. 0.1.2-dev 실계정 재검증은 미실행입니다.
+
+[Android 실계정 결과](evidence/android-google-live-20261125.md) · [iOS 실계정 결과](IOS_GOOGLE_OAUTH_VERIFICATION.md#session-lifecycle-and-automatic-callback-2026-11-23-kst).
 
 [Meta 원인 분석](IOS_META_EMBED_FIX.md) · [정제 JSON](evidence/ios-meta-embed-fix.json) · [Google OAuth 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md) · [정제 JSON](evidence/ios-google-oauth-verification.json) · [PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8) · [PR #11](https://github.com/CodingBot000/GameBridge_SDK/pull/11).
 
@@ -262,11 +291,12 @@ flowchart TB
 
 | 실행 | 기본 Hosted 검사 | Unity E2E / Release Readiness |
 | --- | --- | --- |
+| [PR #22 HEAD d3b7aa2 — 재실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45872763875) | 5개 SUCCESS | SKIPPED / SKIPPED |
 | [PR #21 HEAD c84b0bf](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45868483182) | 5개 SUCCESS | SKIPPED / SKIPPED |
 | [main 536ab987 수동 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45863332014) | 5개 SUCCESS | SKIPPED / SKIPPED |
 | [PR #18 HEAD 46988f8](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546) | 5개 SUCCESS | SKIPPED / SKIPPED |
 
-기본 5개는 inventory-contracts, backend-postgres, android-native, swift-ios-simulator, basic-ci입니다. Android 별도 R8 소비와 PostgreSQL Testcontainers 구매 불변조건/변이, 합성 iOS Simulator Host 시험 등이 포함됩니다. 기본 gate의 성공을 전체 Strict·실Provider·Hosted Unity E2E의 성공으로 바꾸지 않습니다. [CI 범위](CI.md).
+PR #22 최초 시도에서 Maven Central HTTP 429로 Android 의존성 다운로드가 실패했으나 같은 HEAD의 2차 실행에서 정상 통과했습니다. 실패 이력과 재실행 결과는 [CI](CI.md)에 보존합니다. 기본 5개는 inventory-contracts, backend-postgres, android-native, swift-ios-simulator, basic-ci입니다. Android 별도 R8 소비와 PostgreSQL Testcontainers 구매 불변조건/변이, 합성 iOS Simulator Host 시험 등이 포함됩니다. 기본 gate의 성공을 전체 Strict·실Provider·Hosted Unity E2E의 성공으로 바꾸지 않습니다. [CI 범위](CI.md).
 
 **증거 접근성:** [공개 검증 근거](VERIFICATION_EVIDENCE.md)에서 주장별 테스트 소스·실행·공개 기록을 확인할 수 있습니다. 0.1.2-dev 후속 로컬 Player의 일부 원본 로그/result.json은 Git에 포함되지 않습니다. 기록된 SHA-256은 해당 원본의 식별 정보일 뿐 외부 독립 재검증을 뜻하지 않습니다. GitHub CI의 로그·다운로드는 서비스의 로그인·보존 정책에 따라 제한될 수 있습니다.
 

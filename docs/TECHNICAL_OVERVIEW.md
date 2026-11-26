@@ -3,7 +3,9 @@
 > **Unity · Android · iOS 게임 플랫폼 SDK의 설계, 기술적 의사결정, 실패 대응 및 검증 근거**
 >
 > 개인 기술 포트폴리오 · [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev) · Bridge Protocol v1  
-> 검토 기준 소스: [main `536ab987`](https://github.com/CodingBot000/GameBridge_SDK/commit/536ab9874097adfa6119c8aefe79178fd5b1f571). 이 문서는 기존 소스와 검증 기록을 설명하며 새로운 제품 기능·시험 결과를 추가하지 않습니다.
+> 검토 기준 소스: [main `99b1575`](https://github.com/CodingBot000/GameBridge_SDK/commit/99b157546c7a7f76d65f7678b7a3dca4f19b7efd). 기존 소스와 검증 기록을 설명하며 새 제품 기능이나 실행 결과를 추가하지 않습니다.
+>
+> **[공개 검증 근거 바로가기](VERIFICATION_EVIDENCE.md)** — 주장별 소스·테스트·실행 결과를 연결하고, 공개 기록과 비공개 로컬 원본의 범위를 구분합니다.
 
 [아키텍처](#2-아키텍처) · [설계 선택](#3-설계-선택과-trade-off) · [Edge Case](#4-failure-model과-불변조건) · [문제 해결](#5-대표-기술-사례) · [검증 전략](#6-검증-전략) · [배포와 호환성](#7-sdk-배포와-호환성) · [제한사항](#8-검증-한계와-미해결-사항)
 
@@ -13,10 +15,10 @@ GameBridge는 Unity 게임이 Android·iOS의 인증·결제·푸시 기능을 �
 
 | 기술적 위험 | 설계 목표 | 대표 관측 |
 | --- | --- | --- |
-| 비동기 응답 경쟁, 지연 콜백 | 요청 소유권·SDK 세션 격리 및 최대 한 번 Task 완료 | 중복 응답 방어 제거 시 예상 실패, 정상 대조 통과 |
-| 지급 후 응답 유실·앱 재시작 | 서버 원장 권위, 중복 지급 방어, 미완료 구매 복구 | 양 플랫폼 LOCAL_MOCK 업데이트 후 각 원장 1건·100코인 |
-| Unity iOS Export 중단·Host 충돌 | 변경 복구, 반복 적용, 외부 변경 보호 | PBX·콜백 검사 157개, 4개 쓰기 지점 중단 주입 |
-| SDK 내부 변경 | 공개 계약과 소비자 호환성 유지 | C# 공개 메타데이터 383줄 동일, 선정 JVM·JNI·C ABI 비교 |
+| 비동기 응답 경쟁, 지연 콜백 | 요청 소유권·SDK 세션 격리 및 최대 한 번 Task 완료 | 중복 응답 방어 제거 시 예상 실패, 정상 대조 통과. [사례](#53-비동기-요청-경쟁과-지연-callback) |
+| 지급 후 응답 유실·앱 재시작 | 서버 원장 권위, 중복 지급 방어, 미완료 구매 복구 | 양 플랫폼 LOCAL_MOCK 업데이트 후 각 원장 1건·100코인. [사례](#51-구매-응답-유실과-중복-지급-방어) |
+| Unity iOS Export 중단·Host 충돌 | 변경 복구, 반복 적용, 외부 변경 보호 | PBX·콜백 검사 157개, 4개 쓰기 지점 중단 주입. [사례](#52-unity-ios-export--중단-복구-및-host-변경-보호) |
+| SDK 내부 변경 | 공개 계약과 소비자 호환성 유지 | C# 공개 메타데이터 383줄 동일, 선정 JVM·JNI·C ABI 비교. [사례](#55-sdk-리팩토링과-소비자-호환성) |
 
 위 결과는 서로 다른 버전과 환경에서 확보한 증거입니다. 각 사례의 상세 범위를 아래에 명시합니다.
 
@@ -26,71 +28,27 @@ GameBridge는 Unity 게임이 Android·iOS의 인증·결제·푸시 기능을 �
 
 ```mermaid
 flowchart TB
-    subgraph HOST["Host / Game"]
-        GAME["Unity Game · UI"]
-        NATIVE["Native 앱 · Activity / Delegate"]
-    end
-    subgraph UNITY["Unity SDK · C#"]
-        API["GameBridgeSdk / GameBridgeClient"]
-        REG["RequestRegistry<br/>Correlation · Timeout · Cancellation"]
-        PUMP["GameBridgeDriver / Main-thread Pump"]
-        AT["AndroidTransport"]
-        IT["IosTransport"]
-        OFF["EditorOfflineTransport<br/>Memory Fake"]
-        API --> REG
-        REG --> OFF
-        OFF -. "response / event" .-> REG
-        REG --> AT
-        REG --> IT
-        PUMP --> API
-        AT -. "response / event" .-> REG
-        IT -. "response / event" .-> REG
-    end
-    subgraph ANDROID["Android · Kotlin"]
-        JNI["JNI · BridgeFacade"]
-        ACORE["sdk-core<br/>Session / HTTP / Config"]
-        AN["sdk-android<br/>Auth / Store / Push"]
-        KS[("Keystore-backed<br/>Token Store")]
-        JNI --> ACORE
-        JNI --> AN
-        AN --> ACORE
-        AN --- KS
-    end
-    subgraph IOS["iOS · Swift"]
-        CABI["C ABI · Bridge.swift"]
-        ICORE["GameBridgeCore<br/>Session / HTTP / Config"]
-        IN["GameBridgeApple<br/>Auth / Store / Push"]
-        KC[("Keychain")]
-        CABI --> ICORE
-        CABI --> IN
-        IN --> ICORE
-        ICORE --- KC
-    end
-    subgraph SERVER["Backend · Spring Boot"]
-        ID["Identity / Session"]
-        BUY["Purchase Verification / Grant<br/>Finalization"]
-        PUSH["Push Registration / Delivery"]
-        DB[("PostgreSQL<br/>Session · Ledger · Entitlement")]
-        ID --> DB
-        BUY --> DB
-        PUSH --> DB
-    end
-    PA["Android Providers<br/>Google / Apple / Meta · Billing · FCM"]
-    PI["iOS Providers<br/>Google / Apple / Meta · StoreKit · APNs"]
-    GAME --> API
-    NATIVE --> AN
-    NATIVE --> IN
-    AT <-->|"JNI / JSON v1"| JNI
-    IT <-->|"C ABI / UTF-8 JSON v1"| CABI
-    AN --> PA
-    IN --> PI
-    ACORE -->|"HTTP"| SERVER
-    ICORE -->|"HTTP"| SERVER
-    AN -->|"Provider / session API"| SERVER
-    IN -->|"Provider / session API"| SERVER
+    C["GameBridgeSdk / GameBridgeClient"] --> R["RequestRegistry<br/>IDs · timeout · cancel"]
+    P["GameBridgeDriver<br/>Update / Pump"] -.-> C
+    R --> T["IWireTransport"]
+    T --> AT["AndroidTransport"]
+    T --> IT["IosTransport"]
+    AT <-->|JNI| A["BridgeFacade · sdk-android<br/>Provider adapters"]
+    IT <-->|C ABI| I["Bridge.swift · GameBridgeApple<br/>Provider adapters"]
+    A --> AK["sdk-core<br/>HTTP · Session · Config"]
+    I --> IK["GameBridgeCore<br/>HTTP · Session · Config"]
+    AK --> B["Spring Boot<br/>Identity · Grant · Finalization · Push"]
+    IK --> B
+    B --> D[("PostgreSQL · Server state")]
+    classDef unity fill:#e8efff,stroke:#5374bd,color:#182b50
+    classDef native fill:#e1f4ef,stroke:#428878,color:#143b34
+    classDef server fill:#f0e9ff,stroke:#8971b6,color:#38255a
+    class C,R,P,T,AT,IT unity
+    class A,I,AK,IK native
+    class B,D server
 ```
 
-개념적 책임 관계도입니다. 모든 호출·의존성을 나타낸 컴파일 모듈 그래프는 아닙니다. Host의 실제 Activity/window·Delegate·권한과 Provider 설정은 플랫폼별 통합 지침에 따릅니다. EditorOfflineTransport는 메모리 Fake이며 Native·Backend와 연결되지 않습니다.
+실제 코드의 주요 경계를 압축한 개념도입니다. 파란색은 Unity 관리 코드, 녹색은 Native, 보라색은 Backend 및 DB입니다. 모든 호출·컴파일 의존성을 나타내지는 않습니다. JNI/C ABI는 각각 C# Transport와 Kotlin/Swift Bridge 사이의 경계입니다. `EditorOfflineTransport`는 별도 메모리 Fake이며 Native·Backend와 연결되지 않습니다. Native 앱은 Unity를 거치지 않고 플랫폼 SDK를 직접 소비할 수 있습니다. Host와 Provider 설정은 아래 책임표 및 통합 지침을 따릅니다.
 
 | 경계 | 소유 책임 / 데이터 | 소스 |
 | --- | --- | --- |
@@ -112,28 +70,25 @@ flowchart TB
 
 ```mermaid
 sequenceDiagram
-    participant G as Unity Game
-    participant C as GameBridgeClient
-    participant R as RequestRegistry
-    participant T as Native Transport
+    participant C as Unity Client
+    participant R as Registry
+    participant T as Transport
     participant N as Native SDK
-    G->>C: Typed API
-    C->>R: Register request / SDK session
-    R->>T: JSON v1 + requestId + operation
-    T->>N: JNI or C ABI
-    alt Native response wins
+    C->>R: Register request
+    R->>T: JSON v1 + IDs
+    T->>N: JNI / C ABI
+    alt Response wins
         N-->>T: Callback / enqueue
-        Note over C,T: Unity Update → Pump
-        T->>R: Decode / correlate response
-        R->>R: RemoveOwned atomically
+        Note over C,T: Unity Update / Pump
+        T->>R: Correlate response
+        R->>R: RemoveOwned
         R-->>C: Complete Task
-        C-->>G: Typed result
-    else Timeout / cancellation wins
-        R->>R: RemoveOwned atomically
+    else Timeout or cancel wins
+        R->>R: RemoveOwned
         R-->>C: TIMEOUT / CANCELED
-        N-->>T: Late response
-        T->>R: Callback after Pump
-        R->>R: Ignore retired or stale request
+        N-->>T: Late callback
+        T->>R: After Pump
+        R->>R: Ignore stale request
     end
 ```
 
@@ -188,18 +143,18 @@ sequenceDiagram
     participant D as PostgreSQL
     U->>N: PurchaseAsync
     N->>B: Mock proof / Attempt ID
-    B->>D: Verify / Grant transaction
+    B->>D: Verify / Grant
     D-->>B: Commit
     B--xN: Proxy drops response
-    Note over U,N: Keep app / DB data; install 0.1.2-dev over 0.1.1-dev
-    U->>N: RestoreSession / SyncPurchases
+    Note over U,N: Retain app and DB data<br/>0.1.1-dev to 0.1.2-dev
+    U->>N: RestoreSession / Sync
     N->>B: Recover pending purchase
-    B->>D: Read existing transaction / grant
-    D-->>B: Existing grant
+    B->>D: Read existing grant
+    D-->>B: Already granted
     B-->>N: Existing result
     N-->>U: Recovered
-    U->>N: SyncPurchases again
-    Note over B,D: No additional grant
+    U->>N: Sync again
+    Note over B,D: One ledger row / +100 coins<br/>No additional grant
 ```
 
 **검증:** Unity 6000.5.8f1, Android API 34 AVD 및 iOS 18.6 Simulator 각각에서 앱·DB 데이터 유지, 덮어 설치, 세션·미완료 구매 복구, 두 번째 동기화 회수 0건, 원장 순증 1건·100코인을 확인했습니다(LOCAL_MOCK). 원장 Mutation Test는 별도 격리 schema의 UNIQUE 제약을 제거하여 중복 INSERT가 허용되면 기대 assertion이 실패하는지 확인하고, 정상 schema에서는 해당 INSERT가 거부되는지 대조합니다.
@@ -221,13 +176,17 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    A["Validate PBX / callback / ownership"] --> B["Publish recovery journal<br/>Original + planned hashes"]
-    B --> C["Write files individually"]
+    A["Validate PBX / Host"] --> B["Publish journal<br/>Before + planned hashes"]
+    B --> C["Publish each file"]
     C -->|Complete| F["Clear journal"]
-    C -->|Interrupted| D["Retry same directory"]
-    D --> E{"All targets original or planned?"}
+    C -->|Interrupted| D["Retry same folder"]
+    D --> E{"Hashes match<br/>before or planned?"}
     E -->|Yes| C
-    E -->|No| G["Fail closed<br/>Preserve Host edits"]
+    E -->|No| G["Stop / preserve Host edits"]
+    classDef verified fill:#e1f4ef,stroke:#428878,color:#143b34
+    classDef conflict fill:#fff0d9,stroke:#ac7931,color:#5c3816
+    class F verified
+    class G conflict
 ```
 
 **검증:** PR #11의 PBX·callback 검사 157개(독립 테스트 케이스 수와 다름), 4개 쓰기 지점 중단 주입, 동일 폴더 재시도, Host 편집 보존, 반복 Hook 실행 및 새 Unity Export·Simulator 빌드를 확인했습니다.
@@ -273,18 +232,20 @@ Android는 Google 및 Apple/Facebook adapter의 Store 수명주기와 FCM token 
 
 ```mermaid
 flowchart TB
-    A["Public API / Wire / Error Contract"]
-    A --> B["Platform unit + Fake tests"]
-    A --> C["Contract / Transition checks"]
-    B --> D["Fault injection / Mutation probes"]
-    D --> E["Isolated PostgreSQL<br/>Invariant + HTTP"]
-    C --> F["Package + Selected API / ABI<br/>Independent consumers"]
-    E --> G["Local Unity Player E2E<br/>LOCAL_MOCK"]
-    F --> G
-    G -. "Additional conditions" .-> H["Strict / Release readiness<br/>Not complete"]
+    A["Contracts & invariants"] --> H["Hosted CI<br/>Contracts · Native · DB · R8"]
+    A --> L["Local validation<br/>Mutation · Package · ABI"]
+    L --> P["Local Unity Player<br/>LOCAL_MOCK / update / recovery"]
+    H --> E["Basic CI: PASS"]
+    P --> V["Recorded local evidence"]
+    E -.-> S["Full Strict / Release<br/>Not complete"]
+    V -.-> S
+    classDef verified fill:#e1f4ef,stroke:#428878,color:#143b34
+    classDef incomplete fill:#fff0d9,stroke:#ac7931,color:#5c3816
+    class E,V verified
+    class S incomplete
 ```
 
-검증 층위와 관계를 설명한 개념도입니다. Hosted CI의 실제 순차 실행 DAG가 아닙니다.
+공개 Hosted CI와 로컬 시험을 별도의 증거 경로로 표현한 개념도입니다. 화살표는 검증 범위의 관계이며 실제 CI 실행 순서가 아닙니다. 기본 CI 성공이 Unity Player나 전체 Strict/Release Readiness의 성공을 의미하지 않습니다.
 
 | 검증 층위 | 확인 대상과 증거 |
 | --- | --- |
@@ -301,12 +262,13 @@ flowchart TB
 
 | 실행 | 기본 Hosted 검사 | Unity E2E / Release Readiness |
 | --- | --- | --- |
+| [PR #21 HEAD c84b0bf](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45868483182) | 5개 SUCCESS | SKIPPED / SKIPPED |
 | [main 536ab987 수동 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45863332014) | 5개 SUCCESS | SKIPPED / SKIPPED |
 | [PR #18 HEAD 46988f8](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546) | 5개 SUCCESS | SKIPPED / SKIPPED |
 
 기본 5개는 inventory-contracts, backend-postgres, android-native, swift-ios-simulator, basic-ci입니다. Android 별도 R8 소비와 PostgreSQL Testcontainers 구매 불변조건/변이, 합성 iOS Simulator Host 시험 등이 포함됩니다. 기본 gate의 성공을 전체 Strict·실Provider·Hosted Unity E2E의 성공으로 바꾸지 않습니다. [CI 범위](CI.md).
 
-**증거 접근성:** 공개 PR/CI/소스·정제 JSON은 외부에서 직접 확인할 수 있습니다. 0.1.2-dev 후속 로컬 Player의 일부 원본 로그/result.json은 Git에 포함되지 않아, 문서의 요약·경로·SHA-256만으로 외부 독립 재검증을 완료할 수 없습니다. 원본이 없는 자료를 공개된 실행 원본처럼 표시하지 않습니다.
+**증거 접근성:** [공개 검증 근거](VERIFICATION_EVIDENCE.md)에서 주장별 테스트 소스·실행·공개 기록을 확인할 수 있습니다. 0.1.2-dev 후속 로컬 Player의 일부 원본 로그/result.json은 Git에 포함되지 않습니다. 기록된 SHA-256은 해당 원본의 식별 정보일 뿐 외부 독립 재검증을 뜻하지 않습니다. GitHub CI의 로그·다운로드는 서비스의 로그인·보존 정책에 따라 제한될 수 있습니다.
 
 ## 7. SDK 배포와 호환성
 

@@ -1,6 +1,6 @@
 # GameBridge 포트폴리오 읽기·사용 안내
 
-기술 검토: [README](README.md) → **[TECHNICAL_OVERVIEW](docs/TECHNICAL_OVERVIEW.md)** → [상세 설계·문제 해결](docs/ENGINEERING_NOTES.md) · [검증/호환성](docs/COMPATIBILITY.md). 실제 SDK 사용은 [통합 가이드](docs/INTEGRATION.md)를 따릅니다.
+기술 검토: [README](README.md) → **[TECHNICAL_OVERVIEW](docs/TECHNICAL_OVERVIEW.md)** → [상세 설계·문제 해결](docs/ENGINEERING_NOTES.md) · [검증/호환성](docs/COMPATIBILITY.md) · [공개 검증 근거](docs/VERIFICATION_EVIDENCE.md). 실제 SDK 사용은 [통합 가이드](docs/INTEGRATION.md)를 따릅니다.
 
 이 저장소는 Android·iOS·Unity와 Backend가 이미 구현된 개인 SDK 포트폴리오입니다. 빈 프로젝트/초기 계획으로 가정하지 않습니다. 최종 상태와 선택적 후속 범위는 [FINAL_REPORT](docs/FINAL_REPORT.md)를 따릅니다.
 

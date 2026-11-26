@@ -6,7 +6,7 @@
 
 `.github/workflows/verify.yml`은 PR과 수동 실행에서 다음 결과를 분리한다. hosted CI는 소스 `2af863b`에서 네 hosted job과 basic-ci가 원격 통과했다 ([증거](evidence/p09-hosted-ci.md)). Unity self-hosted는 SKIPPED이며 로컬 정적·음성 시험을 원격 Unity 성공으로 기록하지 않는다.
 
-- `inventory-contracts`: 진행 원장·manifest·집계와 fail-closed gate 단위 검사 및 `harness/requirements-schema.txt`의 검증 라이브러리로 bridge Draft 2020-12 schema/fixture 검사. 로컬에서는 가상환경 설치 후 `python -m unittest discover -s harness -p test_bridge_schema.py -v`를 실행한다.
+- `inventory-contracts`: 진행 원장·manifest·집계와 fail-closed gate 단위 검사 및 `harness/requirements-schema.txt`의 검증 라이브러리로 bridge Draft 2020-12 schema/fixture 검사. 로컬에서는 가상환경 설치 후 `python -m unittest discover -s harness -p test_bridge_schema.py -v`를 실행한다. 리팩토링 전 고정 Git tree에서 기존 전이 가드를 실행하고 현재 소스에는 정확한 승인 경로 및 preimage/postimage 검사와 음성 시험을 적용한다. [현재 전이 기록](../contracts/bridge-client-refactor-transition.json)
 - `backend-postgres`: GitHub 호스팅 Linux의 전용 PostgreSQL과 Backend fixture. Google 세션 수명과 challenge 재사용 거부 HTTP 시험은 별도 sandbox DB에서 실행하고 두 테스트의 실행 및 skip 0을 확인한다. 테스트 전용 자격값이며 외부 서비스 계정이 아니다.
 - `android-native`: GitHub 호스팅 Linux의 Android 단위/fake 검사와 별도 Maven/R8 consumer 빌드.
 - `swift-ios-simulator`: GitHub 호스팅 macOS의 Swift 단위/fake(Provider 선택 및 소셜 인증 수명 포함), 독립 SwiftPM source consumer 및 합성 iOS host callback 시험. 실제 Provider 계정 로그인·APNs 전송은 아니다.

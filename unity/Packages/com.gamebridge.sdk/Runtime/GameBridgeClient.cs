@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using GameBridge.Core;
@@ -9,55 +8,6 @@ using Newtonsoft.Json.Linq;
 namespace GameBridge
 {
     public enum AuthProvider { MOCK, GOOGLE, APPLE, FACEBOOK }
-    public sealed class CapabilityStatus
-    {
-        public bool Supported { get; }
-        public bool Configured { get; }
-        public ProviderMode Mode { get; }
-        public string Reason { get; }
-        internal CapabilityStatus(bool supported, bool configured, ProviderMode mode, string reason)
-        { Supported = supported; Configured = configured; Mode = mode; Reason = reason; }
-    }
-    public sealed class SdkCapabilities
-    {
-        public bool Known { get; }
-        public IReadOnlyDictionary<string, CapabilityStatus> Features { get; }
-        public DateTimeOffset SnapshotAt { get; }
-        internal SdkCapabilities(bool known, IDictionary<string, CapabilityStatus> features, DateTimeOffset snapshotAt)
-        { Known = known; Features = new ReadOnlyDictionary<string, CapabilityStatus>(new Dictionary<string, CapabilityStatus>(features)); SnapshotAt = snapshotAt; }
-    }
-    public sealed class DiagnosticsSnapshot
-    {
-        public ProviderMode? Mode { get; }
-        public int PendingCount { get; }
-        public int IgnoredMessages { get; }
-        public DateTimeOffset SnapshotAt { get; }
-        internal DiagnosticsSnapshot(ProviderMode? mode, int pending, int ignored, DateTimeOffset snapshotAt)
-        { Mode = mode; PendingCount = pending; IgnoredMessages = ignored; SnapshotAt = snapshotAt; }
-    }
-    public enum DiagnosticKind { INITIALIZE, AUTH, PURCHASE, PUSH, SHUTDOWN }
-    public enum DiagnosticOutcome { STARTED, SUCCEEDED, FAILED, PENDING }
-    public sealed class NativeDiagnosticEvent
-    {
-        public DiagnosticKind Kind { get; }
-        public DiagnosticOutcome Outcome { get; }
-        public DateTimeOffset Timestamp { get; }
-        public Guid? RequestId { get; }
-        internal NativeDiagnosticEvent(DiagnosticKind kind, DiagnosticOutcome outcome, DateTimeOffset timestamp, Guid? requestId)
-        { Kind = kind; Outcome = outcome; Timestamp = timestamp; RequestId = requestId; }
-    }
-    public sealed class SdkStatus
-    {
-        public string State { get; }
-        public string SdkVersion { get; }
-        public string Platform { get; }
-        public ProviderMode? Mode { get; }
-        public DateTimeOffset? InitializedAt { get; }
-        public DateTimeOffset SnapshotAt { get; }
-        public SdkCapabilities Capabilities { get; }
-        internal SdkStatus(string state, ProviderMode? mode, DateTimeOffset? initialized, DateTimeOffset snapshot, SdkCapabilities capabilities)
-        { State = state; Mode = mode; InitializedAt = initialized; SnapshotAt = snapshot; Capabilities = capabilities; SdkVersion = "0.1.1-dev"; Platform = "Unity"; }
-    }
     public sealed class InitResult { public SdkStatus Status { get; } internal InitResult(SdkStatus status) { Status = status; } }
 
     internal interface IHostPushPermissionDriver
@@ -138,25 +88,7 @@ namespace GameBridge
         public async Task<IReadOnlyList<NativeDiagnosticEvent>> GetNativeDiagnosticsAsync(CancellationToken cancellation = default)
         {
             var result = await Invoke("diagnostics.get", new JObject(), false, cancellation);
-            if (!(result is JObject obj) || !(obj["events"] is JArray events) || events.Count > 200)
-                throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
-            var parsed = new List<NativeDiagnosticEvent>(events.Count);
-            foreach (var item in events)
-            {
-                if (!(item is JObject value) || value["kind"]?.Type != JTokenType.String || value["outcome"]?.Type != JTokenType.String ||
-                    value["timestamp"]?.Type != JTokenType.String ||
-                    !Enum.TryParse((string)value["kind"], out DiagnosticKind kind) || !Enum.IsDefined(typeof(DiagnosticKind), kind) || kind.ToString() != (string)value["kind"] ||
-                    !Enum.TryParse((string)value["outcome"], out DiagnosticOutcome outcome) || !Enum.IsDefined(typeof(DiagnosticOutcome), outcome) || outcome.ToString() != (string)value["outcome"] ||
-                    !DateTimeOffset.TryParse((string)value["timestamp"], System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind, out var timestamp))
-                    throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
-                Guid? requestId = null;
-                if (value["requestId"] == null || (value["requestId"].Type != JTokenType.Null &&
-                    (value["requestId"].Type != JTokenType.String || !Guid.TryParseExact((string)value["requestId"], "D", out _))))
-                    throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
-                if (value["requestId"].Type == JTokenType.String) requestId = Guid.Parse((string)value["requestId"]);
-                parsed.Add(new NativeDiagnosticEvent(kind, outcome, timestamp, requestId));
-            }
-            return parsed.AsReadOnly();
+            return DiagnosticDecoder.Decode(result);
         }
         public Task<InitResult> InitializeAsync(GameBridgeConfig value, CancellationToken cancellation = default)
         {
@@ -191,7 +123,7 @@ namespace GameBridge
         {
             try
             {
-                var payload = new JObject { ["appId"] = value.AppId, ["providerMode"] = ModeString(value.Mode), ["backendBaseUrl"] = value.BackendBaseUrl == null ? JValue.CreateNull() : (JToken)value.BackendBaseUrl, ["requestTimeoutMs"] = value.RequestTimeoutMs };
+                var payload = new JObject { ["appId"] = value.AppId, ["providerMode"] = CapabilityDecoder.ModeString(value.Mode), ["backendBaseUrl"] = value.BackendBaseUrl == null ? JValue.CreateNull() : (JToken)value.BackendBaseUrl, ["requestTimeoutMs"] = value.RequestTimeoutMs };
                 if (value.Mode == ProviderMode.LocalMock || value.Mode == ProviderMode.XcodeStoreKit)
                 {
                     payload["developmentKey"] = value.DevelopmentKey;
@@ -202,8 +134,8 @@ namespace GameBridge
                     payload["storeProductIds"] = new JObject { ["coins_100"] = value.CoinsStoreProductId, ["premium_unlock"] = value.PremiumStoreProductId };
                 if ((value.Mode == ProviderMode.PlatformSandbox || value.Mode == ProviderMode.LocalMock) && value.InstallationId != null) payload["installationId"] = value.InstallationId;
                 var result = await request.RequestAsync("sdk.initialize", payload, TimeSpan.FromMilliseconds(value.RequestTimeoutMs)).ConfigureAwait(false);
-                if (!(result is JObject obj) || obj["state"]?.Type != JTokenType.String || (string)obj["state"] != "READY" || obj["mode"]?.Type != JTokenType.String || (string)obj["mode"] != ModeString(value.Mode)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
-                var nextCapabilities = ReadCapabilities(obj["capabilities"], value.Mode);
+                if (!(result is JObject obj) || obj["state"]?.Type != JTokenType.String || (string)obj["state"] != "READY" || obj["mode"]?.Type != JTokenType.String || (string)obj["mode"] != CapabilityDecoder.ModeString(value.Mode)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
+                var nextCapabilities = CapabilityDecoder.Decode(obj["capabilities"], value.Mode);
                 InitResult snapshot;
                 lock (gate)
                 {
@@ -334,25 +266,7 @@ namespace GameBridge
             lock (gate) { if (disposed) return; disposed = true; generation++; pendingPushEvents.Clear(); state = "SHUTDOWN"; snapshotAt = DateTimeOffset.UtcNow; request = registry; registry = null; }
             request?.Dispose(); transport.Message -= OnMessage; transport.Dispose(); Disposed?.Invoke(this);
         }
-        private static SdkCapabilities ReadCapabilities(JToken token, ProviderMode mode)
-        {
-            if (!(token is JObject root)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
-            var result = new Dictionary<string, CapabilityStatus>();
-            foreach (var name in new[] { "auth", "store", "push", "config" })
-            {
-                if (!(root[name] is JObject feature) || feature["supported"]?.Type != JTokenType.Boolean || feature["configured"]?.Type != JTokenType.Boolean ||
-                    feature["mode"]?.Type != JTokenType.String || (string)feature["mode"] != ModeString(mode) || !feature.ContainsKey("reason") ||
-                    (feature["reason"].Type != JTokenType.String && feature["reason"].Type != JTokenType.Null)) throw new SdkException("BRIDGE_PROTOCOL_MISMATCH");
-                result[name] = new CapabilityStatus((bool)feature["supported"], (bool)feature["configured"], mode,
-                    feature["reason"].Type == JTokenType.Null ? null : (string)feature["reason"]);
-            }
-            return new SdkCapabilities(true, result, DateTimeOffset.UtcNow);
-        }
         private static bool SameConfig(GameBridgeConfig a, GameBridgeConfig b) => a != null && a.AppId == b.AppId && a.Mode == b.Mode && a.BackendBaseUrl == b.BackendBaseUrl && a.RequestTimeoutMs == b.RequestTimeoutMs && a.DevelopmentKey == b.DevelopmentKey && a.MockSubject == b.MockSubject && a.GoogleServerClientId == b.GoogleServerClientId && a.CoinsStoreProductId == b.CoinsStoreProductId && a.PremiumStoreProductId == b.PremiumStoreProductId && a.InstallationId == b.InstallationId;
-        private static string ModeString(ProviderMode mode)
-        {
-            switch (mode) { case ProviderMode.EditorOffline: return "EDITOR_OFFLINE"; case ProviderMode.LocalMock: return "LOCAL_MOCK"; case ProviderMode.XcodeStoreKit: return "XCODE_STOREKIT"; case ProviderMode.PlatformSandbox: return "PLATFORM_SANDBOX"; default: throw new SdkException("INVALID_ARGUMENT"); }
-        }
         private static async Task<T> WaitForCaller<T>(Task<T> shared, CancellationToken cancellation)
         {
             if (!cancellation.CanBeCanceled) return await shared;

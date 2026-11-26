@@ -2105,3 +2105,22 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - iOS 세 ABI의 정적 아카이브 항목 54개가 서로 일치하며 빌드의 링크 입력 목록과 대조했다. 저장소에 사용 범위 `LICENSE`, `THIRD_PARTY_NOTICES`와 해당 공급자의 라이선스 원문을 추가했다. Gradle Wrapper는 저장소와 GitHub 소스 아카이브에 포함된다.
 - [v0.1.1-dev 개발자용 Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.1-dev) 공개 완료. PR #16의 기본 CI 5개가 통과했으며 merge `055c5ee`에 사용 조건과 원본 고지가 포함된다. 태그 `e8f2f55`는 그 병합의 조상이다.
 - 공개 자산 6개를 인증 없이 내려받아 GitHub digest, 로컬 업로드본, SHA-256과 매니페스트를 대조했다. 원본 아카이브 파일 149/60/21개가 그대로이며 추가 고지 13/9/7개를 검증했다. README 및 통합 안내에 실제 링크와 패키지별 설치 방법을 반영했다. StoreKit 26.5 실패와 전체 Strict 제한은 유지한다.
+
+## 문서50 — BridgeFacade / GameBridgeClient 리팩토링
+
+- RF-00 (PX-T19) 기준 `6ff2cafa1c54863720ffccd17c2164c30a119bfd`. 별도 worktree에서 Android·Unity 범위, 공개 태그 및 6개 자산 digest를 확정했다. 작업 ID는 RF-00~RF-08을 PX-T19~PX-T27에 대응한다.
+- RF-00 기준 Android Core/Native/Bridge 테스트와 C# 4개 조건 컴파일, 과거 소스 전이 및 원장 검사를 통과했다. RF-01 Adapter 정책 조사와 RF-04 선언 이동을 시작한다.
+- RF-01 (PX-T20) 기준 특성 검증 PASS. Google/Social의 wire nativeCode와 timeout retryable, Social 동기 LinkageError의 dispatcher 경계를 fixture로 고정했다. 실제 Android adapter 경계는 소스를 대조했고 RF-02/03 내부 테스트에서 보강한다.
+- RF-04 (PX-T23) 상태 모델 이동. C# 4개 조건 컴파일·Unity 메타데이터 검사 및 383줄 reflection 표면 대조가 통과했다. 실제 Editor 소비 검증은 RF-07에서 진행한다.
+- RF-02 (PX-T21) 독립 StoreLifecycle 추출 및 Bridge 회귀 PASS. RF-03 (PX-T22) optional Firebase 검사를 포함한 토큰 획득 공통화를 진행한다.
+- RF-03 (PX-T22) FCM 토큰 획득 추출 및 정책/취소/timeout 회귀 통과. 실제 Firebase 호출은 검증 범위 밖이다.
+- RF-05 (PX-T24) Strict diagnostics/capability decoder 추출 및 .NET fixture·등록/종료·늦은 callback·iOS Host queue 시험 통과.
+- RF-06 (PX-T25) 기존 전이를 고정 기준에 재실행하고 현재 shipping 경로·SHA-256을 독립 비교한다.
+- RF-06 (PX-T25) 0.1.1-dev 내부 구조 전이 및 신규 음성 시험 8개 PASS. 기준과 후보의 shipping 경로 집합·해시, managed 공개 선언, C ABI 이름을 판정한다. 다음은 승인된 0.1.2-dev 후보 버전 동기화다.
+- RF-06 버전 표기를 로컬 0.1.2-dev 후보로 동기화한다. RF-07 (PX-T26) 독립 Maven/R8, XCFramework, UPM의 새 빌드 및 공개 0.1.1-dev와 비교를 시작한다.
+- RF-07 로컬 후보 빌드. Maven/R8, iOS XCFramework, 라이선스가 포함된 UPM·Standalone ZIP, staging 168개 및 아카이브 SHA-256을 검증했다. 선정 JVM 클래스 5개, C# 공개 메타데이터 383줄, iOS C ABI 5개/3개 아키텍처 및 header 대조 PASS.
+- RF-07 Android API 34 및 iOS 18.6 실제 LOCAL_MOCK 업데이트 PASS. Android build 2→3, iOS 0→1. 앱과 DB 보존, 회수·재동기화, 원장 각 1/100, 로그아웃 확인. [검증](evidence/bridge-client-refactor-verification.md)
+- RF-07 추가 PII 및 종료 단언은 현지 환경에서 검증 중이다. 최초 Android PII는 Backend health timeout, iOS PII는 Simulator 설치 실패. 두 플랫폼의 기존 업데이트 PASS와 세션 폐기 집계는 별도로 확보했다.
+- RF-08 (PX-T27) 초안 PR로 검토 인계 및 새 Hosted CI를 시작한다. 추가 실측 또는 CI 미완료 항목은 완료 상태와 구분한다.
+- RF-07 후속 실제 Player 5개 PASS (2026-11-26). Android API 34·iOS 18.6 합성 PII, iOS LOCAL_MOCK Push, 양 플랫폼 로그아웃 후 복원 차단·SDK 종료를 같은 `0.1.2-dev` staging에서 확인했다. 대기 요청과 활성 세션은 각 시험에서 0개였다. 덮어 설치·구매 복구 결과는 기존 실행을 사용했다. [원본 결과 식별자 및 SHA-256](evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증)
+- RF-08 문서50의 로컬 필수 항목을 충족했다. 이전 HEAD `bc3d81ba`의 기본 CI 5개는 성공했다. 이번 문서 Push의 현재 HEAD에서 기본 CI 5개가 성공하면 `REFACTORING_VERIFIED_FOR_REVIEW`를 확정한다. 확정 판정과 CI 링크는 [PR #18](https://github.com/CodingBot000/GameBridge_SDK/pull/18)에 기록한다.

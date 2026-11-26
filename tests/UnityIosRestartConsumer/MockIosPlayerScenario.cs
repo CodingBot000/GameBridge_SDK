@@ -37,6 +37,11 @@ public sealed class MockIosPlayerScenario : MonoBehaviour
             stage = "resync"; var again = await client.SyncPurchasesAsync(SyncReason.APP_RESUME); Check(main);
             if (again.examinedCount != 0 || again.entitlements.coinBalance != "100") throw new InvalidOperationException("DUPLICATE_RECOVERY");
             stage = "logout"; await client.SignOutAsync(); Check(main);
+            stage = "restore after logout"; var signedOut = await client.RestoreSessionAsync(); Check(main);
+            if (signedOut.signedIn || signedOut.sessionRestored) throw new InvalidOperationException("LOGGED_OUT_SESSION_RESTORED");
+            stage = "shutdown"; await client.ShutdownAsync(); Check(main);
+            if (client.GetStatus().State != "SHUTDOWN") throw new InvalidOperationException("SHUTDOWN_STATUS_MISMATCH");
+            Debug.Log("GB_RESTART_LOGOUT_SHUTDOWN PASS");
             Debug.Log("GB_RESTART_RESULT PASS LOCAL_MOCK MAIN_THREAD pid=" + getpid());
         }
         catch (SdkException error) { Debug.LogError("GB_RESTART_RESULT FAIL stage=" + stage + " code=" + error.Code); }

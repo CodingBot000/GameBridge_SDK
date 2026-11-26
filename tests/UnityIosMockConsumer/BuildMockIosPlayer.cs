@@ -19,6 +19,13 @@ public static class BuildMockIosPlayer
         const string scenePath = "Assets/GameBridgeMockIosScenario.unity";
         if (!EditorSceneManager.SaveScene(scene, scenePath)) throw new InvalidOperationException("scene save failed");
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, "com.gamebridge.sdk.mockiosconsumer");
+        var buildNumber = Environment.GetEnvironmentVariable("GAMEBRIDGE_TEST_IOS_BUILD_NUMBER");
+        if (buildNumber != null)
+        {
+            if (!int.TryParse(buildNumber, out var number) || number <= 0)
+                throw new InvalidOperationException("GAMEBRIDGE_TEST_IOS_BUILD_NUMBER must be positive");
+            PlayerSettings.iOS.buildNumber = buildNumber;
+        }
         PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
         PlayerSettings.iOS.simulatorSdkArchitecture = AppleMobileArchitectureSimulator.ARM64;
         var result = BuildPipeline.BuildPlayer(new[] { scenePath }, output, BuildTarget.iOS, BuildOptions.Development);

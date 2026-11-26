@@ -4468,3 +4468,31 @@
 - [PR #16 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45604127932) 기본 5개 작업 성공, Unity E2E·Release Readiness 건너뜀. 병합 `055c5ee8388f80574d52a4f903e1e99d5e2890af`. 패키지 소스와 최신 main의 VERSION·SDK·Backend·계약·빌드 스크립트 diff 0.
 - `gh release create --draft --prerelease` 및 draft의 자산 6개 digest 확인 후 `gh release edit --draft=false --prerelease --latest=false` 종료 0. GitHub 공개 시각 2026-11-25 20:32:50 KST. 실제 태그 `e8f2f55c47798cd99afaea1a81e03a01a39d1121`과 매니페스트 일치. 공개 API의 Pre-release 상태, 비로그인 직접 다운로드 6개, `shasum -a 256 -c SHA256SUMS` 5개 항목, 매니페스트 및 추가 고지 검증 종료 0. 태그가 생성한 GitHub 소스 아카이브의 라이선스·고지 14개도 대조했다.
 - 실제 Release 링크와 Unity TGZ·Android Maven ZIP·iOS XCFramework ZIP 설치 절차를 README와 진입/통합 문서에 반영했다. 상용 Release 검증 및 전체 Strict는 기존 상태를 유지한다.
+
+## 문서50 — BridgeFacade / GameBridgeClient 리팩토링
+
+- RF-00 (PX-T19), 2026-11-26. main `6ff2cafa1c54863720ffccd17c2164c30a119bfd`의 전용 worktree 생성. `gh release view v0.1.1-dev`와 `git ls-remote`로 공개 대상 `e8f2f55c47798cd99afaea1a81e03a01a39d1121`, 6개 자산 digest 및 공개 매니페스트를 기록했다.
+- JDK 21.0.10, Xcode 26.6 17F113, Unity 6000.5.8f1의 Android/iOS 모듈 및 번들 .NET을 확인했다. 기존 Gradle 캐시로 `android/gradlew -p android --offline :sdk-core:test :sdk-android:testDebugUnitTest :sdk-unity-bridge:testDebugUnitTest` 종료 0. `scripts/check-csharp-compile.sh` 4개 조건 및 기존 `check-social-auth-transition.py`, `verify-progress.py` 종료 0.
+- RF-04 (PX-T23) 시작. 상태 모델을 같은 namespace/assembly 안에서 이동하며 Facade 수명주기와 AuthProvider ordinal을 유지한다.
+- RF-01. 기존 대비 adapter Host/상품 확인 순서, event Job 취소·Store close, Firebase optional class 검사, provider별 LinkageError 경계를 조사했다. Google/Apple/Facebook 가짜 adapter에서 dispatcher 입력을 검증하는 새 시험을 제품 변경 전에 실행했다. Bridge 단위 `testDebugUnitTest` 종료 0. Core 기준은 35개 기록 중 네트워크 자원이 필요한 7개 skip, Android Native 47·Bridge 9는 skip 0이었다.
+- RF-04. 상태 모델 7개와 GUID를 추가하고 명시적 C# 컴파일 목록 7곳을 갱신했다. `check-csharp-compile.sh`, `check-unity-meta.py` 및 baseline/후보 public assembly reflection 대조 종료 0. 복사·읽기 전용 유지와 Editor 실제 경로는 RF-05/07에서 확인한다. 두 gradlew.bat은 Git text 속성으로 status에서 달라 보이나 HEAD blob과 작업 파일 bytes는 동일하다.
+- RF-02 (PX-T21) 시작. 기존 호출부에서 Host 및 매핑 확인 위치를 유지하고, adapter별 독립 Store·event Job 정리 순서를 공통화한다.
+- RF-05 (PX-T24) 시작. diagnostics.get await 뒤 변환과 초기화 판정 뒤 capability 변환을 같은 호출 위치에서 분리한다.
+- RF-02. Google/Social의 독립 Store scope, emitter 생성·UNDISPATCHED·Host attach·drop 순서를 보존했다. Bridge 단위 `testDebugUnitTest` 종료 0. 소유 Store 재사용/재생성, 교체 Host 재부착, 두 번 정리, 구독 취소와 close 실패 전파 검증.
+- RF-03 시작. FCM class load, adapter 동기 LinkageError 및 callback nativeCode 경계, timeout/cancel, 기존 provider HTTP 등록 범위를 그대로 둔다.
+- RF-03. Native 및 Bridge 단위 검사 종료 0. Firebase class 미포함/LinkageError, 권한 거부, callback 상세·중복·늦은 도달, caller 취소·timeout을 fixture로 확인했다. token 요청만 공통화해 Backend 등록 호출과 직접 token 전달 경로를 유지했다.
+- RF-05. `SocialAuthContract`, `check-csharp-compile.sh`, `smoke-csharp-registry.sh`(418 assertion), `stress-csharp-lifecycle.sh`, `smoke-unity-ios-host-queue.sh` 종료 0. 누락/null, 열거/타입, 시간대/정확 UUID, 200/201 경계, 추가 속성 무시 및 read-only snapshot을 검사했다. Native/Unity 실제 Player 증거는 RF-07에서 별도 수집한다.
+- RF-06. 범위 검사의 첫 실행은 직접 영향받는 Android Bridge 단위시험 3개를 제품 파일로 보아 실패했다. 테스트 디렉터리를 shipping 경로에서 분리한 후 신규 단위 8개 및 고정 기준의 원본 과거 Guard 실행이 종료 0이었다. 기존 승인 JSON과 스크립트는 그대로이며, 새 CI 진입에서 실제 과거 검사 실패를 전파한다.
+- RF-06의 버전 커밋은 VERSION, Native 버전 문자열 2개, Unity 모델·Offline 상태와 package.json만 동기화한다. 공개 0.1.1-dev와 Bridge v1이 비교 기준이다.
+- RF-07. 공개 앱보다 높은 Android versionCode 및 iOS build number를 지정할 수 있도록 현지 소비 테스트 fixture에 선택적 입력을 추가했다. 없는 입력에서 기존 fixture 정책을 유지한다.
+- RF-06 재검증 첫 실행에서 병행 Gradle의 미추적 Kotlin compiler session(.salive)이 제품 파일로 잡혔다. 미추적 생성 세션만 제외하며 해당 위치의 추적 파일은 이전과 같이 비교한다.
+- RF-07. 추적 파일이 깨끗한 별도 검증 checkout에서 `7b6430e`의 Android Maven/R8·iOS XCFramework 및 0.1.2-dev UPM 생성 종료 0. 공개 매니페스트와 ABI를 비교했다. 독립 스테이징·패키지 SHA-256 및 라이선스 사본, C# reflection, 선정 JVM/JNI descriptor, C ABI/header 확인. `test_bridge_schema` 2개 및 OpenAPI 검증 종료 0.
+- RF-07. 독립 worktree의 실제 Player 소스 `f42276f`/tracked-clean. Android API 34 signed APK의 동일 application ID/서명 및 versionCode 2→3를 확인했다. iOS 18.6 bundle ID 일치, build 0→1, 양 Simulator 앱 및 Meta 동적 framework 4개 서명 검증. Android/iOS restart/update 하네스 종료 0, 데이터 보존 및 원장 각 1/100.
+- Editor Offline 첫 실행은 PYTHONPATH 부재로 테스트 전 종료했다. 기존 의존 경로 지정 후 독립 Import, EditMode 1개 및 동 프로젝트 재Import GUID 검증 종료 0. Maven 전이 core JAR 누락과 iOS simulator slice/device symbol 누락 음성 시험 종료 0.
+- 기존 restart fixture가 로그아웃은 실행했지만 이후 복원 불가와 명시적 shutdown을 단언하지 않았다. RF-07의 마지막 단계 확인을 두 fixture에 추가했다. 첫 Android/iOS 업데이트 DB는 읽기 전용 집계에서 세션 1개·폐기 1개·활성 0개였다.
+- RF-07 추가 검증. 보강 Android 빌드의 ADB 소유권 도구가 두 번 시간 초과했다. 새 Android AVD 부팅도 제한시간을 넘겼다. 추가 PII의 첫 Android APK 빌드와 iOS Xcode 빌드는 생성됐으나 Backend health timeout과 Simulator 앱 설치 실패로 각 Player 검증은 미완료였다. 동시에 증가한 호스트 부하를 관찰했으며 플랫폼 환경을 변경하지 않고 소유 리소스만 종료한다.
+- RF-08. 공개 Release ID·태그·공개 시각·6자산 digest를 재조회하여 작업 전 snapshot과 일치함을 확인했다. 기준 main과 후보의 라이선스, 승인된 역사적 baseline, 기존 Backend·wire 계약은 동일하다.
+- RF-07 후속 결과, 2026-11-26. 검증된 빌드에서 `resume50/continue-pii.py android`, `resume50/continue-pii.py ios`, `resume50/continue-ios-push.py`를 순차 실행해 각 종료 0을 확인했다. 시험 marker는 Android PII 34개, iOS PII 24개다. iOS Push의 재연결 거부 6회와 종료 시 device token 0개를 확인했다.
+- `resume50/build-logout-player.py` 및 `resume50/run-logout-player.py`로 Android·iOS 종료 시험을 각각 실행했다. Android 첫 빌드는 테스트 fixture의 `GameBridge.Core` import 누락으로 C# 컴파일이 실패했으며 수정 후 빌드·실행 종료 0이었다. 양 플랫폼에서 로그아웃 후 복원 차단, `SHUTDOWN`, 대기 요청 0, 격리 DB 세션 폐기 1·활성 0을 확인했다. 업그레이드와 구매 복구는 기존 PASS 실행을 사용했다.
+- RF-08 문서 정리. `resume50/verification.json`과 실제 `result.json`·marker 로그를 대조해 보고서를 갱신했다. 각 실행이 동일 staging 매니페스트를 쓰고, 검증 checkout과 PR 후보의 제품·Backend·wire 계약 경로에 차이가 없음을 확인했다. 이전 HEAD `bc3d81ba`의 기본 CI 5개 성공을 확인했다. [이전 CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45654121957)
+- 문서만 커밋하고 Push한다. 현재 HEAD의 기본 CI 5개가 모두 성공하면 `REFACTORING_VERIFIED_FOR_REVIEW`를 PR 설명에 기록하고 Draft를 해제한다.

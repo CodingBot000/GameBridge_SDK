@@ -17,6 +17,9 @@ cat > "$root/artifacts/registry-smoke/RegistrySmoke.csproj" <<'PROJECT'
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Models.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeConfig.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/GameBridgeClient.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/SdkStatusModels.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/DiagnosticDecoder.cs" />
+    <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/CapabilityDecoder.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/scripts/registry-smoke.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/IWireTransport.cs" />
     <Compile Include="$(GAMEBRIDGE_ROOT)/unity/Packages/com.gamebridge.sdk/Runtime/Core/EditorOfflineTransport.cs" />

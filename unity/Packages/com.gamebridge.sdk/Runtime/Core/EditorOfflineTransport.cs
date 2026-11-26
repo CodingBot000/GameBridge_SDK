@@ -37,7 +37,7 @@ namespace GameBridge.Core
                     else if (initialized && !JToken.DeepEquals(initialization, payload)) error = "ALREADY_INITIALIZED_DIFFERENT_CONFIG";
                     else { initialized = true; wasShutdown = false; initialization = (JObject)payload.DeepClone(); result = new JObject { ["state"] = "READY", ["mode"] = "EDITOR_OFFLINE", ["provider"] = "FAKE", ["capabilities"] = Capabilities() }; }
                 }
-                else if (operation == "sdk.status") result = new JObject { ["state"] = initialized ? "READY" : wasShutdown ? "SHUTDOWN" : "UNINITIALIZED", ["sdkVersion"] = "0.1.1-dev", ["mode"] = "EDITOR_OFFLINE" };
+                else if (operation == "sdk.status") result = new JObject { ["state"] = initialized ? "READY" : wasShutdown ? "SHUTDOWN" : "UNINITIALIZED", ["sdkVersion"] = "0.1.2-dev", ["mode"] = "EDITOR_OFFLINE" };
                 else if (operation == "sdk.shutdown") { initialized = false; signedIn = false; pushRegistered = false; wasShutdown = true; initialization = null; result = new JObject { ["state"] = "SHUTDOWN" }; }
                 else if (!initialized) error = "NOT_INITIALIZED";
                 else switch (operation)

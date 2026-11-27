@@ -4504,3 +4504,15 @@
 - 기존 Evaluation License 및 Unity 13개·Android 9개·iOS 7개 라이선스/고지 파일을 대조했다. Android Maven POM과 JAR/AAR 클래스·Kotlin 인라인 출처, iOS 3개 아키텍처의 정적 archive 목록 54개를 이전 검토 목록과 대조했다. SDK 의존성 고지 누락은 발견되지 않았다.
 - `gh release create --draft --prerelease`로 자산 6개를 등록하고 서버 digest를 대조한 뒤 `gh release edit --draft=false --prerelease --latest=false` 종료 0. 2026-11-26 23:19:26 KST 공개. 공개 다운로드는 6개 모두 업로드본과 일치했다. 공개 환경의 `shasum -a 256 -c SHA256SUMS` 5개 항목, 매니페스트, ZIP/TGZ 구성을 확인했다. 공개 매니페스트 SHA-256 `98bf0701a8aee8bb87e0f9574ed932d602954b9472ce8018ba74fe1573438312`. `v0.1.1-dev` 태그·자산 digest는 작업 전후 일치했다.
 - 공개 링크와 설치·검증 문서 9개 및 진행·작업 원장을 갱신했다. 새 로컬 빌드·Player 테스트는 실행하지 않았다. Google 실계정 재검증 미실행과 StoreKit 26.5 실패·전체 Strict·weak client 제한은 이전 증거에 유지했다.
+
+## PX-T29 — 포트폴리오 문서 정보 구조 개편 (2026-11-27)
+
+- [PX-T29] 사용자 승인: 앞서 제안한 GitHub 포트폴리오 문서 개편을 적용한다. main `3e74df567e55b725468803f28ac31c3baea90cd4`를 API와 `git ls-remote`로 확인하고 별도 clone/작업 브랜치를 만들었다.
+- AGENTS, START_HERE, 계획 0~4장, 진행 원장과 최신 작업 기록, 주요 기술·검증 문서를 확인했다. 첨부 경력기술서의 기술 사례 링크를 보존 대상으로 확인했다.
+- clone 직후 두 `gradlew.bat`이 수정으로 표시되지만 HEAD blob과 작업 파일 바이트가 동일함을 Python 비교로 확인했다. 문서 작업 대상과 staging에서 제외한다.
+
+- 공개 문서 6개를 수정했다. README는 구매 복구·요청/세션 격리·Export 복구·소비자 호환성을 먼저 제시하고, 기술 개요는 해결 과정과 검증 결과를 유지하며 반복 상태/한계 목록을 상세 근거로 연결했다. 근거 인덱스는 성과→구현→실행 순서로 진입하게 구성하고 유지보수 안내는 접을 수 있게 했다.
+- 별도 읽기 전용 검토 후 RequestRegistry의 Dispose 경로와 PushRouter의 SDK 세션 범위를 코드와 대조해 문구를 수정했다. PBX/callback 157개는 검사 항목, C# reflection 383줄은 메타데이터 출력으로 표기했다.
+- `python3 /workspace/scratch/593923f570a7/check_portfolio_docs.py` 종료 0: 수정 공개 문서의 로컬/고정 커밋 대상 및 저장소 Markdown의 수신 링크 343곳(수신 29, 고정 소스 30), 기존 heading anchor, 핵심 수신 anchor 6개를 대조했다. 경로·anchor 오류 0, 제거된 기존 heading anchor 0. 임시 점검 스크립트는 문서 변경에 포함하지 않았다.
+- `python3 scripts/verify-progress.py` 종료 0: 기존 64개 Task 원장·집계·근거 경로 일관성 통과. 최초 문서 `git diff --check`의 README hard-break 공백 1곳을 빈 인용줄로 수정한 뒤 재실행 종료 0.
+- 제품 코드·계약·workflow·FEATURE_MATRIX·COMPATIBILITY·CI·FINAL_REPORT·기존 evidence 원본의 변경 없음. 제품 테스트·계정/스토어 연동·패키징·배포는 실행하지 않았다. 커밋 대상은 공개 문서 6개와 PROGRESS/WORK_LOG 2개다.

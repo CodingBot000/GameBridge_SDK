@@ -1,6 +1,6 @@
 # 설계·Edge Case·문제 해결
 
-개인 SDK 포트폴리오의 기술 설명이다. 상용 서비스 적용·고객 지원·운영 장애 대응 실적으로 제시하지 않는다. 실행 범위와 제한의 기준은 [호환성·검증 범위](COMPATIBILITY.md)다. 대표 설계 선택·구매 복구·Export 복구·검증 전략은 [TECHNICAL_OVERVIEW](TECHNICAL_OVERVIEW.md)에서 먼저 확인할 수 있으며, 이 문서는 기존 상세 구현·분석·실패 이력을 보존한다.
+Unity·Native·Backend의 데이터 소유권, 비동기 요청 수명주기와 플랫폼 연동 문제를 구현 코드와 연결해 설명한다. 대표 설계 선택·구매 복구·Export 복구는 [기술 개요](TECHNICAL_OVERVIEW.md), 실행 환경과 버전별 결과는 [호환성·검증 범위](COMPATIBILITY.md)에서 확인할 수 있다.
 
 ## 구조와 데이터의 권위
 
@@ -26,7 +26,7 @@ flowchart LR
 
 C# public result에는 access/refresh token, ID token, purchase proof, Push token 원문을 반환하지 않는다. Native가 토큰 갱신·보안 저장소를 소유한다. 서버는 세션 token hash와 환경·계정 범위를 확인하고, 필요한 Push token/구매 증빙은 서버 암호화 경계 안에서 관리한다. UI는 스토어 callback만으로 코인을 더하지 않고 서버 entitlement를 표시한다. 세부 저장·삭제 정책은 [SECURITY](SECURITY.md)에 있다.
 
-공통 wire는 UTF-8 JSON과 `protocolVersion`, `sdkSessionId`, `requestId`를 사용한다. Android는 C# `AndroidJavaProxy`→Kotlin callback, iOS는 Swift `@_cdecl`→AOT delegate→즉시 byte 복사→main-thread pump다. 생성된 IL2CPP/C++ 코드를 직접 개발한 C++ SDK로 제시하지 않는다. [AndroidTransport](../unity/Packages/com.gamebridge.sdk/Runtime/Platforms/AndroidTransport.cs), [IosTransport](../unity/Packages/com.gamebridge.sdk/Runtime/Platforms/IosTransport.cs), [wire schema](../contracts/bridge.schema.json)를 함께 읽으면 경계를 확인할 수 있다.
+공통 wire는 UTF-8 JSON과 `protocolVersion`, `sdkSessionId`, `requestId`를 사용한다. Android는 C# `AndroidJavaProxy`→Kotlin callback, iOS는 Swift `@_cdecl`→AOT delegate→즉시 byte 복사→main-thread pump다. [AndroidTransport](../unity/Packages/com.gamebridge.sdk/Runtime/Platforms/AndroidTransport.cs), [IosTransport](../unity/Packages/com.gamebridge.sdk/Runtime/Platforms/IosTransport.cs), [wire schema](../contracts/bridge.schema.json)를 함께 읽으면 경계를 확인할 수 있다.
 
 ## 인증·구매·Push의 데이터 흐름
 

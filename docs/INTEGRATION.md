@@ -275,8 +275,8 @@ Unity Export Hook은 FacebookLogin 18.1.1을 UnityFramework와 Host App 양쪽�
 
 ## 0.1.2-dev 업데이트 확인
 
-0.1.1-dev에서 이동할 때 Unity UPM과 Native 패키지를 모두 0.1.2-dev로 맞춘 뒤 Player를 새로 Export합니다. Android는 동일 applicationId·서명, iOS는 동일 bundle ID를 사용한 LOCAL_MOCK 덮어 설치를 검증했습니다. 세션·미완료 구매 복구와 재동기화 뒤 원장 1건·100코인을 확인했습니다. [실제 업데이트 기록](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트)
+0.1.1-dev에서 이동할 때 Unity UPM과 Native 패키지를 모두 0.1.2-dev로 맞춘 뒤 Player를 새로 Export합니다. Android는 동일 applicationId·서명, iOS는 동일 bundle ID를 사용한 LOCAL_MOCK 덮어 설치를 검증했습니다. 세션·미완료 구매 복구와 재동기화 뒤 원장 1건·100코인을 확인했습니다. [Android 실기기 업데이트](evidence/android-physical-followup-20261127.md) · [AVD·Simulator 업데이트 기록](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트)
 
 ## Android Google 실제 계정 검증
 
-Android API 34 AVD Native/Unity 실제 로그인·취소 후 재시도·앱 재실행 후 복원·로그아웃을 확인했다. 앱별 applicationId·APK 서명 SHA-1 등록, Web Client ID/Backend audience 일치 및 신뢰할 수 있는 HTTPS Sandbox가 필요하다. [Android Google 검증](evidence/android-google-live-20261125.md) · [사용자 설정](USER_SETUP.md). 시험용 CA 설정을 상용 Host에 복사하지 않는다.
+v0.1.2-dev Android 12 실기기(SM-G975N) Native·Unity의 Google 실제 로그인·UI 취소·재실행 후 기존 세션 복원·로그아웃 후 복원 차단을 확인했습니다. [실기기 검증](evidence/android-physical-followup-20261127.md). 이전 0.1.1-dev Android API 34 AVD Native/Unity 실제 로그인·취소 후 재시도·앱 재실행 후 복원·로그아웃을 확인했다. 앱별 applicationId·APK 서명 SHA-1 등록, Web Client ID/Backend audience 일치 및 신뢰할 수 있는 HTTPS Sandbox가 필요하다. [이전 AVD 검증](evidence/android-google-live-20261125.md) · [사용자 설정](USER_SETUP.md). 시험용 CA 설정을 상용 Host에 복사하지 않는다.

@@ -4,10 +4,11 @@
 
 ## 0.1.2-dev 개발자용 Pre-release
 
+- 2026-11-27 후속 검증: Android 12 실기기(SM-G975N)의 v0.1.2-dev Native·Unity Google 실계정·앱 수명주기, LOCAL_MOCK 구매 복구·버전 교체·PII·Push PASS. [기본 검증](evidence/android-physical-local-mock-20261127.md) · [추가 검증](evidence/android-physical-followup-20261127.md). SDK 공개 패키지는 변경하지 않았습니다.
 - Android `BridgeFacade`의 Store 수명주기와 FCM 토큰 획득을 공통화하고 공급자 오류와 세션 경계를 보존했습니다. Unity `GameBridgeClient`의 상태 모델·진단·Capability Decoder를 분리했습니다. [PR #18](https://github.com/CodingBot000/GameBridge_SDK/pull/18)
 - 기존 C# 공개 표면, 선정 JVM/JNI, iOS C ABI 5개 심볼·헤더, Bridge v1 계약을 대조했습니다. Android API 34·iOS 18.6에서 0.1.1-dev → 0.1.2-dev 업데이트, 합성 PII, 로그아웃 후 복원 차단·종료 및 iOS LOCAL_MOCK Push가 통과했습니다. [검증 근거](evidence/bridge-client-refactor-verification.md)
 - Evaluation License와 외부 고지를 포함한 기존 검증 패키지를 배포하고, 공개 자산 6개의 checksum과 소스 매니페스트를 확인했습니다. [v0.1.2-dev](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)
-- 후보 Google 실계정 재검증은 미실행입니다. 기존 StoreKit 26.5 실패, 전체 Strict, weak client 및 실 Provider 제한은 [알려진 제한](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)을 따릅니다.
+- 배포 후 Android Google 실계정은 실기기에서 재검증했습니다. iOS Google 실계정 재검증은 미실행입니다. 기존 StoreKit 26.5 실패, 전체 Strict, weak client 및 실 Provider 제한은 [알려진 제한](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)을 따릅니다.
 
 ## 0.1.1-dev 개발자용 Pre-release
 

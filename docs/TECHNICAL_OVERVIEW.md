@@ -11,12 +11,14 @@
 
 GameBridge는 Unity 게임에서 Android·iOS의 인증·결제·푸시를 동일한 C# 인터페이스로 사용하는 SDK입니다. 플랫폼 연결뿐 아니라 **응답 유실 후 구매 복구, 비동기 요청의 중복 완료 방어, Unity Export 중단 복구, SDK 업데이트 시 소비자 호환성**을 구현하고 검증했습니다.
 
+**Android 실기기 검증(2026-11-27):** Android 12(API 31) 실기기(SM-G975N)에서 v0.1.2-dev Native·Unity Google 실계정 인증, LOCAL_MOCK 구매 복구·버전 교체·Push·개인정보 검사를 수행했습니다. [기본 검증](evidence/android-physical-local-mock-20261127.md) · [추가 검증](evidence/android-physical-followup-20261127.md).
+
 | 핵심 과제 | 설계와 확인한 결과 | 상세 |
 | --- | --- | --- |
-| 지급 후 응답 유실·앱 재시작 | 서버 원장을 기준으로 복구. 양 플랫폼 LOCAL_MOCK 업데이트에서 기존 세션·미완료 구매를 복구하고 재동기화 시 추가 지급 방지 | [구매 정합성](#51-구매-응답-유실과-중복-지급-방어) |
+| 지급 후 응답 유실·앱 재시작 | 서버 원장을 기준으로 복구. Android 실기기 LOCAL_MOCK 업데이트에서 지급 1건·100코인 유지 및 추가 회수 0건; AVD·iOS Simulator 결과 별도 | [구매 정합성](#51-구매-응답-유실과-중복-지급-방어) |
 | 비동기 응답 경쟁·지연 callback | 요청 소유권과 SDK 세션 격리로 Task 최대 한 번 완료. 중복 응답 방어를 제거한 변이와 정상 소스를 대조 | [요청 수명주기](#53-비동기-요청-경쟁과-지연-callback) |
 | Unity iOS Export 중단·Host 충돌 | journal로 같은 폴더에서 변경 재개, 외부 Host 편집 보호. 쓰기 중단 주입과 재Export·Simulator 빌드 확인 | [Export 복구](#52-unity-ios-export--중단-복구-및-host-변경-보호) |
-| SDK 내부 리팩토링·배포 | 선정 API·ABI 대조와 독립 소비자 검증, Android AVD·iOS Simulator의 버전 교체 및 세션·구매 복구 | [소비자 호환성](#55-sdk-리팩토링과-소비자-호환성) |
+| SDK 내부 리팩토링·배포 | 선정 API·ABI 대조와 독립 소비자 검증, Android 실기기에서 버전 교체·세션·구매 복구 및 기존 AVD·iOS Simulator 회귀 | [소비자 호환성](#55-sdk-리팩토링과-소비자-호환성) |
 
 ## 2. 아키텍처
 
@@ -118,7 +120,7 @@ sequenceDiagram
 | 이전 세션 callback·Dispose 이후 이벤트 | 현재 SDK 세대·세션에만 전달 | [LateCallback 시험](../tests/UnityLateCallback/Program.cs) |
 | 요청 폭주·비정상 JSON | pending 최대 100, wire 256KiB 제한, 형식·상관관계 검사 | [Registry](../unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs) |
 | 같은 거래·다른 키 / 같은 키·다른 body | 거래 UNIQUE·body hash·원장 제약으로 충돌 시 추가 지급 방지 | [LOCAL_MOCK 지급](../backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt), [DB 원장 시험](../backend/src/test/kotlin/com/gamebridge/purchase/LedgerInvariantDatabaseTest.kt) |
-| 지급 후 응답 유실 | 기존 거래를 조회·복구하고 지급 결과 재사용 | [업데이트 복구 기록](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트) |
+| 지급 후 응답 유실 | 기존 거래를 조회·복구하고 지급 결과 재사용 | [실기기 업데이트 복구](evidence/android-physical-followup-20261127.md) · [AVD·iOS Simulator 기록](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트) |
 | Push 중복·계정 변경·로그아웃 | route allowlist, messageId 중복 제거, session/token 소유권 | [Android Player](evidence/p10-batch32-android-push-c.json), [iOS 후속 Player](evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증) |
 | raw credential·PII 포함 callback | typed 허용 필드만 공개, 민감 원문 정제 | [양 플랫폼 합성 PII Player](evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증) |
 | Export 중단·외부 Host 편집 | original/planned hash 일치 시 복구, 외부 변경 시 중단 | [IosExportFiles](../unity/Packages/com.gamebridge.sdk/Editor/IosExportFiles.cs), [PR #11](https://github.com/CodingBot000/GameBridge_SDK/pull/11) |
@@ -163,7 +165,9 @@ sequenceDiagram
     Note over B,D: One ledger row / 100 coins
 ```
 
-**업데이트 복구 결과:** Unity 6000.5.8f1, Android API 34 AVD와 iOS 18.6 Simulator에서 각각 앱·DB 데이터를 유지한 채 0.1.1-dev → 0.1.2-dev 덮어 설치 후 세션과 미완료 구매를 복구했습니다. 각 DB 원장은 순증 1건·100코인이었고 두 번째 동기화에서 추가로 복구된 구매는 0건이었습니다. [실행 기록](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트)과 [Android](../tests/UnityAndroidRestartConsumer/MockPlayerScenario.cs)·[iOS fixture](../tests/UnityIosRestartConsumer/MockIosPlayerScenario.cs)에 복구 건수·잔액·재동기화 assertion을 연결했습니다.
+**실기기 업데이트 복구 결과:** Android 12(API 31) 실기기(SM-G975N)에서 동일 applicationId·서명의 APK를 versionCode 1 → 102, SDK 0.1.1-dev → 0.1.2-dev로 덮어 설치했습니다. LOCAL_MOCK 서버의 첫 지급 응답 유실 후 세션과 미완료 구매 1건을 복구했습니다. 서버 구매 검증 2회, 최종 원장 1건·100코인, 두 번째 동기화 회수 0건을 확인했습니다. [실기기 추가 검증](evidence/android-physical-followup-20261127.md).
+
+**AVD·Simulator 교차 검증:** Unity 6000.5.8f1, Android API 34 AVD와 iOS 18.6 Simulator에서 각각 앱·DB 데이터를 유지한 채 0.1.1-dev → 0.1.2-dev 덮어 설치 후 세션과 미완료 구매를 복구했습니다. 각 DB 원장은 순증 1건·100코인이었고 두 번째 동기화에서 추가로 복구된 구매는 0건이었습니다. [실행 기록](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트)과 [Android](../tests/UnityAndroidRestartConsumer/MockPlayerScenario.cs)·[iOS fixture](../tests/UnityIosRestartConsumer/MockIosPlayerScenario.cs)에 복구 건수·잔액·재동기화 assertion을 연결했습니다.
 
 **원장 방어 검증:** 격리 schema에서 원장의 UNIQUE 제약을 제거하면 중복 INSERT를 허용하므로 기대 assertion이 실패해야 합니다. 정상 schema에서는 같은 INSERT를 거부하는지 대조했습니다.
 
@@ -214,9 +218,11 @@ pending 등록과 소유자 제거를 lock으로 보호합니다. 응답·timeou
 
 PR #11의 별도 회귀에는 합성 cold/warm URL과 정상 Host URL 시험도 포함됩니다. [PR #8](https://github.com/CodingBot000/GameBridge_SDK/pull/8) · [PR #11](https://github.com/CodingBot000/GameBridge_SDK/pull/11).
 
+**최신 Android 실기기 인증:** 2026-11-27 KST, Android 12(API 31) 실기기(SM-G975N)에서 v0.1.2-dev Native·Unity와 HTTPS PLATFORM_SANDBOX의 Google 실계정 로그인·UI 취소·프로세스 재시작 후 기존 세션 복원·로그아웃 후 복원 차단을 확인했습니다. 복원 중 신규 challenge/세션 발급 없이 동일 세션을 사용했고, 완료 실행에서 서버 세션은 폐기되어 활성 0개였습니다. [실기기 실행 기록](evidence/android-physical-followup-20261127.md).
+
 **이전 버전의 Google 실계정 인증 기록:** Android는 **2026-11-25 KST**, 0.1.1-dev Native/Unity 앱과 API 34 AVD에서 로그인·UI 취소·취소 후 재로그인·재실행 후 SDK 세션 복원·로그아웃을 확인했습니다. 로그아웃 시 해당 시험 세션만 폐기됐습니다. iOS는 **2026-11-23 KST**의 Native/Unity iOS 18.6 Simulator 앱에서 로그인·UI 취소·재실행 후 SDK 세션 복원·로그아웃을 확인했습니다. 세션 복원, SDK token refresh/replay 및 합성 URL forwarding의 실행 범위는 각 기록에 구분되어 있습니다.
 
-[Android 실계정 결과](evidence/android-google-live-20261125.md) · [iOS 실계정 결과](IOS_GOOGLE_OAUTH_VERIFICATION.md#session-lifecycle-and-automatic-callback-2026-11-23-kst).
+[이전 Android AVD 실계정 결과](evidence/android-google-live-20261125.md) · [iOS 실계정 결과](IOS_GOOGLE_OAUTH_VERIFICATION.md#session-lifecycle-and-automatic-callback-2026-11-23-kst).
 
 ### 5.5 SDK 리팩토링과 소비자 호환성
 
@@ -234,10 +240,12 @@ Android의 Google·Apple/Facebook adapter에서 Store 수명주기와 FCM token 
 flowchart TB
     A["계약과 불변조건"] --> H["Hosted CI: 계약 / Native / DB / R8"]
     A --> L["로컬 검증: Mutation / 패키지 / API·ABI"]
+    A --> D["Android 실기기: Google 인증 / 업데이트 / 복구 / PII / Push"]
     A --> P["로컬 Unity Player: 업데이트 / 복구 / PII"]
     H --> HR["커밋별 CI 실행 기록"]
     L --> LR["환경·소스별 로컬 실행 기록"]
     P --> LR
+    D --> LR
     HR --> E["검증 근거 인덱스"]
     LR --> E
 ```
@@ -254,8 +262,9 @@ flowchart TB
 
 | 실행 경로 | 기록된 범위 | 근거 |
 | --- | --- | --- |
-| Hosted CI | inventory-contracts, backend-postgres, android-native, swift-ios-simulator, basic-ci. PR #22 `d3b7aa2` 재실행에서 기본 5개 검사 성공 | [해당 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45872763875), [CI 구성·실행 이력](CI.md) |
-| 로컬 검증 | Unity 6000.5.8f1, Android API 34 AVD·iOS 18.6 Simulator에서 0.1.2-dev LOCAL_MOCK 업데이트·복구 및 후속 PII·종료 시험 | [환경·소스·결과 기록](evidence/bridge-client-refactor-verification.md) |
+| Hosted CI | inventory-contracts, backend-postgres, android-native, swift-ios-simulator, basic-ci. PR #24 기본 5개 검사 성공 | [해당 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45980838197), [CI 구성·실행 이력](CI.md) |
+| Android 실기기 | Android 12(API 31) 실기기(SM-G975N), v0.1.2-dev Native·Unity: Google 실계정(HTTPS PLATFORM_SANDBOX), LOCAL_MOCK 버전 교체·구매 복구·합성 PII·Push·종료 | [기본 검증](evidence/android-physical-local-mock-20261127.md) · [추가 검증](evidence/android-physical-followup-20261127.md) |
+| AVD·Simulator 로컬 검증 | Unity 6000.5.8f1, Android API 34 AVD·iOS 18.6 Simulator에서 0.1.2-dev LOCAL_MOCK 업데이트·복구 및 후속 PII·종료 시험 | [환경·소스·결과 기록](evidence/bridge-client-refactor-verification.md) |
 
 [공개 검증 근거](VERIFICATION_EVIDENCE.md)는 각 주장에 구현·시험 소스와 실제 실행 기록을 연결합니다. 공개 요약과 로컬 원본의 제공 범위도 이 인덱스에서 확인할 수 있습니다.
 
@@ -267,8 +276,8 @@ flowchart TB
 | JVM / JNI | 선정 JVM 클래스 5개의 공개 descriptor와 BridgeFacade/BridgeCallback JNI 대조 |
 | iOS C ABI | GB 심볼 5개와 header, device arm64·Simulator arm64/x86_64 slice의 바이너리 비교 |
 | 배포·소비 | UPM TGZ·Maven ZIP·static XCFramework ZIP, 독립 R8·Swift 소비·Unity import 및 체크섬 |
-| SDK 업데이트 | Unity 6000.5.8f1, Android API 34 AVD·iOS 18.6 Simulator에서 0.1.1-dev → 0.1.2-dev LOCAL_MOCK 덮어 설치·데이터 복구 |
-| 후속 Player | 양 플랫폼 합성 PII와 로그아웃 후 복원 차단·종료, iOS LOCAL_MOCK Push |
+| SDK 업데이트 | Android 실기기 및 이전 Android API 34 AVD·iOS 18.6 Simulator에서 0.1.1-dev → 0.1.2-dev LOCAL_MOCK 덮어 설치·데이터 복구 |
+| 후속 Player | Android 실기기 합성 PII·LOCAL_MOCK Push·세션 전이·Google 실계정, 기존 양 플랫폼 합성 PII와 로그아웃 후 복원 차단·종료 및 iOS LOCAL_MOCK Push |
 
 [공개 Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)는 패키지 3종과 `RELEASE_NOTES.md`, `SHA256SUMS`, `SOURCE_MANIFEST.json`으로 구성됩니다. 패키지별 SHA-256과 검증 후보의 대응은 [공개 배포 근거](VERIFICATION_EVIDENCE.md#sdk-배포와-선정-apiabi-검증)에 연결했습니다. 바이너리 대조와 OS·기기 실행 환경은 [COMPATIBILITY](COMPATIBILITY.md)에 구분했습니다.
 
@@ -278,7 +287,7 @@ flowchart TB
 
 ## 8. 검증 환경과 상세 기록
 
-구현·시험 소스 기준은 [main `d37e8a1`](https://github.com/CodingBot000/GameBridge_SDK/commit/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4)이며, 기능·버전·실행별 상세 기록은 다음 문서에 정리했습니다.
+구현·시험 소스 기준은 [main `d37e8a1`](https://github.com/CodingBot000/GameBridge_SDK/commit/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4)입니다. Android 실기기 시험은 v0.1.2-dev 배포 기준과 [실기기 추가 검증](evidence/android-physical-followup-20261127.md)의 환경·fixture를 따릅니다. 기능·버전·실행별 상세 기록은 다음 문서에 정리했습니다.
 
 | 확인 목적 | 문서 |
 | --- | --- |

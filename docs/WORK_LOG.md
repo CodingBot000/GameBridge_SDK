@@ -4516,3 +4516,31 @@
 - `python3 /workspace/scratch/593923f570a7/check_portfolio_docs.py` 종료 0: 수정 공개 문서의 로컬/고정 커밋 대상 및 저장소 Markdown의 수신 링크 343곳(수신 29, 고정 소스 30), 기존 heading anchor, 핵심 수신 anchor 6개를 대조했다. 경로·anchor 오류 0, 제거된 기존 heading anchor 0. 임시 점검 스크립트는 문서 변경에 포함하지 않았다.
 - `python3 scripts/verify-progress.py` 종료 0: 기존 64개 Task 원장·집계·근거 경로 일관성 통과. 최초 문서 `git diff --check`의 README hard-break 공백 1곳을 빈 인용줄로 수정한 뒤 재실행 종료 0.
 - 제품 코드·계약·workflow·FEATURE_MATRIX·COMPATIBILITY·CI·FINAL_REPORT·기존 evidence 원본의 변경 없음. 제품 테스트·계정/스토어 연동·패키징·배포는 실행하지 않았다. 커밋 대상은 공개 문서 6개와 PROGRESS/WORK_LOG 2개다.
+
+## PX-T29 — Android 실기기 LOCAL_MOCK 검증
+
+- 2026-11-27 KST. `adb devices -l`과 기기 속성 조회는 종료 0. 삼성 SM-G975N, Android 12/API 31, arm64-v8a, `ro.kernel.qemu=0`을 확인했다. 시험 전 Native 및 기존 Unity 검증 앱 패키지는 설치되어 있지 않았다. 기준은 `v0.1.2-dev`의 SDK 및 Backend 소스다.
+- `apksigner verify` 및 두 APK의 USB 설치는 종료 0. Unity 6000.5.8f1에서 기존 재시작 fixture의 시험 앱 주소를 USB용 `127.0.0.1`로 바꾸고, 실기기용 패키지와 백그라운드 콜백을 추가해 빌드했다. SDK 모듈은 `0.1.2-dev` staging을 사용했다. 두 로컬 Backend `/health`는 HTTP 200이다.
+- Native UI 검증과 Unity Player 검증은 각각 종료 0. Native는 화면 및 별도 DB, Unity는 두 프로세스의 SDK 결과 마커 및 별도 DB에서 확인했다. Unity 구매 응답은 한 번 유실시켰고 복구 후 서버 검증 요청은 두 건, 지급은 한 건이었다. 각 DB는 원장 1건·100코인, 세션 1개·폐기 1개·활성 0개다.
+- 별도 읽기 전용 쿼리로 두 DB의 최종 집계와 Backend 응답을 재확인했다. 기기의 USB reverse 매핑은 0건이다. 시험 결과는 docs/evidence/android-physical-local-mock-20261127.md에 정리했다.
+- 테스트 Backend와 전용 PostgreSQL 컨테이너 정리는 종료 0. scripts/verify-progress.py 및 git diff --check를 통과했다.
+
+## PX-T30 — Android 실기기 추가 검증
+
+- 2026-11-27 KST. USB ADB와 SM-G975N Android 12/API 31, 에뮬레이터 플래그 0을 재확인했다. 덮어 설치는 v0.1.1-dev → v0.1.2-dev를 사용한다. 각 시나리오에 독립 테스트 DB를 사용하며 기존 PX-T29 결과를 보존한다.
+- 합성 개인정보 시험과 LOCAL_MOCK 푸시 시험은 각각 종료 0. 앱 PID 로그와 시험 Backend 로그에서 합성 개인정보·자격정보 패턴 0건을 확인했다. 푸시는 수신 1회, 중복 억제, 백그라운드 복귀, 시험 연결 재접속, 로그아웃·세션 교체 뒤 지난 이벤트 차단을 확인했다. 최종 푸시 토큰 0개.
+- 이전 SDK staging 검사는 v0.1.1-dev 태그의 VERSION 기준으로 실행했다. 첫 준비에서는 현재 VERSION으로 이전 staging을 검사해 실패했다. 이전 APK의 실제 versionCode 1과 새 APK의 102를 확인했다. 두 APK는 동일 applicationId·서명으로 설치했고, 덮어 설치와 재시작·세션·미완료 구매 복구 시험은 종료 0.
+- Google은 기존 두 Android OAuth 앱 ID와 서명이 일치하는 v0.1.2-dev 시험 APK를 준비했다. 새 localhost 인증서 및 시험 CA로 독립 Sandbox의 호스트 이름 검증과 HTTP 200을 확인했다. Native의 최초 인증 취소는 Backend challenge 미소비와 세션 0개를 확인했다.
+- Native Google 최초 취소 및 Unity 취소 assertion 통과. Native 재시도의 5분 challenge는 계정 선택 없이 만료됐다. Unity 취소까지만 실행하는 확인 단계는 계정 선택 대기 상태로 종료했다. 최종 읽기 전용 Google 집계는 challenge 3건·소비 0건·identity 0건·세션 0건. 로그에 계정 입력값이나 원본 응답은 보존하지 않았다. [실기기 추가 실행 증거](evidence/android-physical-followup-20261127.md)
+- 두 시험 Backend 경로와 전용 PostgreSQL 정리를 확인했다. 실기기 USB reverse 매핑은 0건이다. 진행 원장 검사와 문서 diff 검사를 통과했다.
+- PX-T30 재개. 이전 실행 종료 시 닫은 localhost HTTPS 서버와 USB reverse를 다시 설정했다. 사용자가 Native Google 계정을 선택한 뒤 challenge 1건 소비, Google identity 1개, 세션 1개를 확인했다. 재시작 후 같은 세션을 복원했고 로그아웃 뒤 서버 폐기 및 새 프로세스에서 No saved session을 확인했다. 화면 상태 문구는 스크롤 위치의 영향을 받아 서버 집계와 재시작 후 복원 결과를 근거로 판정했다.
+- Unity는 같은 로컬 Sandbox에서 계정 선택 창을 열었고 선택 없이 요청이 만료됐다. 재개 실행의 최종 DB는 challenge 2건·소비 1건·identity 1개·세션 1개·폐기 1개·활성 0개다. Native 종료 상태를 재확인했다. 시험 Backend와 전용 PostgreSQL을 종료했고 USB reverse 매핑은 0건이다.
+- PX-T30 마지막 재개. 지정된 테스트 계정을 Unity 앱의 Google 선택 창에서 선택했다. 실계정 실행 종료 0. 새 프로세스에서 같은 세션 복원과 로그아웃 후 RESTORE NO_SESSION을 확인했다. 별도 DB 재검증은 challenge 소비 1건·identity 1개·세션 발급 1개·폐기 1개·활성 0개였다. 앱 로그의 민감 패턴 및 Unity 원본 URL 이벤트는 각각 0건이다.
+- 마지막 실행 종료 후 임시 HTTPS Sandbox와 테스트 PostgreSQL을 정리했다. 실기기 USB reverse 매핑과 서버 활성 세션은 각각 0개다.
+- PX-T30 화면 후속. 기존 화면을 캡처해 초기화·복원·로그아웃 문구가 한 위치에 남는 것을 확인했다. 테스트 씬에 프레임 배경을 지우는 단색 카메라를 넣고 제목·상태·버튼을 별도 행에 배치했다. Unity 빌드, APK 서명 확인, 같은 앱 위 설치, 실기기 화면 회귀는 종료 0. 상태 반복, Google 창 취소 및 백그라운드 복귀 후 RESTORE NO_SESSION 캡처 4장의 SHA-256이 일치했다.
+- 저장소 인계 범위의 UI 소스 두 파일을 검증 APK의 소비 프로젝트에서 테스트 디렉터리로 복사했다. 빌더와 실행 소스의 바이트 일치, 문서 링크, 진행 원장, staged diff를 확인했다. 시험 APK와 실기기 캡처는 로컬 실행 폴더에 있다.
+
+## Android 실기기 검증 문서 통합 (2026-11-27)
+
+- 기존 PR #24는 기본 5개 CI Job SUCCESS 확인 후 main `392e98f`에 병합했다. 별도 시험 브랜치 `test/android-physical-20261127`의 `1d48124`에서 위 PX-T29/PX-T30 실기기 기록과 증거·시험 fixture를 보존한다. 두 브랜치에서 독립적으로 사용한 PX-T29 제목은 과거 기록으로 유지한다.
+- 현재 문서의 최신 Android 근거를 실기기로 변경하고 기존 AVD·Simulator, 미완료 실 Provider·Strict·제품화 판정은 보존했다. 새 SDK 제품 코드·패키지 변경 및 실기기/제품 재실행은 하지 않았다. 원격 문서 통합 및 참조 경로 점검은 별도 수행하며 새 PR CI에서 진행 원장을 검증한다.

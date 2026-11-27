@@ -8,6 +8,8 @@ Kotlin·Swift Native와 Spring Boot·PostgreSQL Backend를 연결하고, **비�
 
 개인 기술 포트폴리오 · [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev) · Bridge Protocol v1
 
+**Android 실기기 검증 — v0.1.2-dev:** 삼성 SM-G975N(Android 12/API 31)에서 Native·Unity Google 실계정 인증과 세션 수명주기, SDK 업데이트·구매 복구(LOCAL_MOCK)를 확인했습니다. [실기기 실행 기록](docs/evidence/android-physical-followup-20261127.md)
+
 > **[기술 설계 및 문제 해결](docs/TECHNICAL_OVERVIEW.md)** — 상세 아키텍처 · 설계 선택 · 대표 기술 사례 5개
 >
 > **[구현과 검증 근거](docs/VERIFICATION_EVIDENCE.md)** — 소스 코드 · 테스트 · 실행 기록 · PR
@@ -17,7 +19,7 @@ Kotlin·Swift Native와 Spring Boot·PostgreSQL Backend를 연결하고, **비�
 
 ## 핵심 엔지니어링 성과
 
-- **응답 유실 후 구매 복구:** 멱등 처리와 DB 원장으로 중복 지급을 방어했습니다. Android AVD·iOS Simulator의 **LOCAL_MOCK**에서 SDK 업데이트 후 세션·미완료 구매를 복구하고 재동기화 시 추가 지급이 없음을 확인했습니다. [구매 복구 사례](docs/TECHNICAL_OVERVIEW.md#51-구매-응답-유실과-중복-지급-방어)
+- **응답 유실 후 구매 복구:** Android 12 실기기의 **LOCAL_MOCK**에서 0.1.1-dev → 0.1.2-dev 덮어 설치 후 세션과 미완료 구매를 복구했습니다. 검증 요청 2회에도 지급 원장 **1건·100코인**, 추가 회수 0건을 확인했습니다. [구매 복구 사례](docs/TECHNICAL_OVERVIEW.md#51-구매-응답-유실과-중복-지급-방어)
 - **비동기 요청과 세션 격리:** callback·timeout·cancel의 요청 소유권 제거 경로를 통합해 Task를 최대 한 번 완료하고, 이전 SDK 세션의 지연 응답을 차단합니다. 중복 응답 방어를 제거하는 Mutation Test로 결함 탐지 여부를 확인했습니다. [요청 수명주기](docs/TECHNICAL_OVERVIEW.md#53-비동기-요청-경쟁과-지연-callback)
 - **iOS Export 중단 복구:** 파일 해시와 Recovery Journal로 동일 폴더 재시도와 Host 편집 보호를 구현했습니다. **4개 쓰기 지점 장애 주입**으로 복구·충돌 처리를 확인했습니다. [Export 복구 사례](docs/TECHNICAL_OVERVIEW.md#52-unity-ios-export--중단-복구-및-host-변경-보호)
 - **SDK 변경 후 소비자 호환성:** C# 공개 메타데이터와 선정 JVM/JNI·C ABI를 비교하고, Maven/R8·Swift/XCFramework·Unity UPM 독립 소비 및 LOCAL_MOCK 버전 교체를 검증했습니다. [리팩토링과 호환성](docs/TECHNICAL_OVERVIEW.md#55-sdk-리팩토링과-소비자-호환성)
@@ -48,7 +50,7 @@ Unity는 요청 수명주기·정제 이벤트, Native는 Provider 연동·Keyst
 
 <a id="지원-로그인"></a>
 
-이전 버전의 Android API 34 AVD·iOS 18.6 Simulator에서는 Native·Unity의 Google 실계정 로그인·세션 복원·UI 취소·로그아웃을 확인했습니다. [Android 기록](docs/evidence/android-google-live-20261125.md) · [iOS 기록](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md#session-lifecycle-and-automatic-callback-2026-11-23-kst) · [기능별 구현·검증 범위](docs/FEATURE_MATRIX.md)
+Android 12 실기기의 **0.1.2-dev Native·Unity**에서 Google 실계정 로그인·인증 UI 취소·재실행 후 기존 세션 복원·로그아웃 및 복원 차단을 확인했습니다. [Android 실기기](docs/evidence/android-physical-followup-20261127.md) · [이전 Android AVD](docs/evidence/android-google-live-20261125.md) · [이전 iOS Simulator](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md#session-lifecycle-and-automatic-callback-2026-11-23-kst) · [기능별 구현·검증 범위](docs/FEATURE_MATRIX.md)
 
 <a id="검증-현황과-제한사항"></a>
 
@@ -57,7 +59,7 @@ Unity는 요청 수명주기·정제 이벤트, Native는 Provider 연동·Keyst
 AI 코딩 에이전트의 [작업 규칙](AGENTS.md), [공개 API](contracts/public-api.md), [wire 계약](contracts/bridge.schema.json)을 문서화하고, 계약·변경 범위·테스트 결과를 검토 기준으로 사용합니다.
 
 - **Fault Injection·Mutation Testing:** 응답 유실과 Export 중단을 재현하고, 중복 응답 guard·원장 UNIQUE 제약을 제거했을 때 테스트가 결함을 탐지하는지 정상 대조와 함께 확인합니다.
-- **Hosted CI와 로컬 검증:** 계약·격리 PostgreSQL·Native·Maven/R8 검사는 GitHub Actions로, Unity Player·SDK 업데이트·구매 복구는 로컬 실행 기록으로 연결합니다. [검증 전략과 자동화 구조](docs/TECHNICAL_OVERVIEW.md#6-검증-전략) · [CI 실행 근거](docs/VERIFICATION_EVIDENCE.md#github-hosted-ci)
+- **실기기·Hosted CI 검증:** Android 실기기의 합성 개인정보·로그 검사와 LOCAL_MOCK Push 중복 억제·재연결·세션 교체를 확인했습니다. 계약·격리 PostgreSQL·Native·Maven/R8 검사는 GitHub Actions로 연결합니다. [실기기 상세](docs/evidence/android-physical-followup-20261127.md) · [검증 전략](docs/TECHNICAL_OVERVIEW.md#6-검증-전략) · [CI 실행 근거](docs/VERIFICATION_EVIDENCE.md#github-hosted-ci)
 
 ## 개발자용 Pre-release 설치
 

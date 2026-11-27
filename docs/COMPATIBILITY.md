@@ -11,7 +11,7 @@
 | 업데이트 | Unity 6000.5.8f1 · Android API 34 AVD 및 iOS 18.6 Simulator에서 0.1.1-dev → 0.1.2-dev 덮어 설치. 세션과 미완료 구매 복구 및 원장 각 1건·100코인을 확인했습니다. |
 | Player 회귀 | 양 플랫폼 합성 PII, 로그아웃 후 복원 차단·SDK 종료, iOS LOCAL_MOCK Push 통과. 종료 시 활성 세션·대기 요청 각 0개입니다. |
 | Hosted CI | PR #18 HEAD `46988f8`의 기본 CI 5개 성공, Unity E2E 및 Release Readiness SKIPPED. [실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546) |
-| 제한 | 실제 Google 계정 재검증 미실행. 기존 StoreKit 26.5 실패, weak client 원인 미확정, 전체 Strict, 실제 원격 Push·스토어와 추가 실기기 조합의 제한을 유지합니다. |
+| 제한 | v0.1.2-dev Google 실계정 재검증은 Android Unity와 iOS에서 대기 중입니다. 기존 StoreKit 26.5 실패, weak client 원인 미확정, 전체 Strict, 실제 원격 Push·스토어와 추가 실기기 조합의 제한을 유지합니다. |
 
 [리팩토링 검증 기록](evidence/bridge-client-refactor-verification.md) · [공개 SHA256SUMS](https://github.com/CodingBot000/GameBridge_SDK/releases/download/v0.1.2-dev/SHA256SUMS) · [소스 매니페스트](https://github.com/CodingBot000/GameBridge_SDK/releases/download/v0.1.2-dev/SOURCE_MANIFEST.json)
 
@@ -19,7 +19,7 @@
 
 삼성 SM-G975N Android 12(API 31), arm64-v8a에서 Native와 Unity 6000.5.8f1의 v0.1.2-dev를 LOCAL_MOCK으로 확인했습니다. 두 앱의 설치·실행, 모의 로그인·구매, 백그라운드 복귀, 앱 재시작 후 세션 복원과 로그아웃 후 복원 차단을 통과했습니다. Unity는 미완료 구매를 회수한 뒤 서버 원장 1건·100코인을 유지했습니다. [실기기 실행 증거](evidence/android-physical-local-mock-20261127.md)
 
-같은 실기기에서 Unity v0.1.1-dev → v0.1.2-dev 덮어 설치, 합성 개인정보 로그 검사, 모의 푸시 등록·수신·재연결을 확인했습니다. Native·Unity Google은 HTTPS 연결과 계정 선택 취소까지 확인했고 실계정 로그인은 사용자 계정 선택 대기입니다. [추가 검증](evidence/android-physical-followup-20261127.md)
+같은 실기기에서 Unity v0.1.1-dev → v0.1.2-dev 덮어 설치, 합성 개인정보 로그 검사, 모의 푸시 등록·수신·재연결을 확인했습니다. Android Native Google 실계정 로그인·재시작 복원·로그아웃·복원 차단을 통과했습니다. Unity Google은 HTTPS 연결과 계정 선택 취소를 확인했고 실계정 로그인은 계정 선택 대기입니다. [추가 검증](evidence/android-physical-followup-20261127.md)
 
 ## 이전 통합 기록 — 0.1.1-dev (2026-11-25)
 

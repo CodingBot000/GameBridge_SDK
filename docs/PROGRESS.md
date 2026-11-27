@@ -2143,3 +2143,5 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - Android Player의 합성 개인정보 노출 검사와 LOCAL_MOCK 푸시 PASS. 푸시는 시험 앱의 TCP 프록시에서 재접속을 거부한 뒤 연결을 복구했다. 덮어 설치 및 Google 실계정 검증은 진행 중이다.
 - v0.1.1-dev → v0.1.2-dev 덮어 설치 PASS. 설치 상태와 세션·구매 데이터를 유지했고 재시작 후 복구해도 최종 원장은 1건·100코인이다. Google Native·Unity 시험 APK의 등록 서명 일치와 로컬 HTTPS Sandbox를 확인했다. Native 인증 취소 뒤 실계정 선택 대기 중이다.
 - 추가 검증의 덮어 설치·개인정보 로그·모의 푸시는 PASS. Google은 Native·Unity 모두 HTTPS 실행과 실제 계정 선택 창 취소를 확인했다. Native 재시도 요청은 계정 선택 전에 만료되어 실계정 로그인·복원·로그아웃은 WAITING_USER다. [추가 실기기 증거](evidence/android-physical-followup-20261127.md)
+- 계정 선택 가능 상태에서 HTTPS Sandbox와 USB reverse를 다시 띄웠다. Native v0.1.2-dev 실계정 로그인, 앱 재시작 후 같은 세션 복원, 로그아웃과 복원 차단 PASS. Unity 계정 선택 창을 열었다.
+- 재개 결과 Native Google 실계정 전체 흐름 PASS. Unity 계정 선택 요청은 선택 전 만료됐고 Unity의 실계정 흐름은 WAITING_USER다. [추가 실기기 증거](evidence/android-physical-followup-20261127.md)

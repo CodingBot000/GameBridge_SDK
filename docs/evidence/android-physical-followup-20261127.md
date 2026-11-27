@@ -7,7 +7,7 @@
 | 이전 버전 위 덮어 설치 | Unity Player, LOCAL_MOCK | **PASS.** 앱 데이터 유지, 기존 세션과 미완료 구매 복구, 로그아웃 뒤 복원 차단. 지급 원장 1건·100코인. |
 | 로그의 개인정보 노출 검사 | Unity Android 콜백, 앱 PID logcat, 시험 Backend 로그 | **PASS.** 합성 이메일·전화번호가 공개 콜백 결과와 검사한 로그에 노출되지 않았다. 시험 자격값·토큰 패턴도 0건이다. |
 | 모의 푸시 | Unity Player, LOCAL_MOCK SSE | **PASS.** 등록·수신, 중복 억제, 복귀, 재연결, 등록 해제와 세션 교체 후 이전 이벤트 차단. 종료 시 푸시 토큰 0개. |
-| Google 실계정 로그인 | Native·Unity, HTTPS PLATFORM_SANDBOX | **사용자 계정 선택 대기.** 설치·시험 서버 연결·계정 선택 창·취소는 두 앱에서 확인했다. |
+| Google 실계정 로그인 | Native·Unity, HTTPS PLATFORM_SANDBOX | **Native PASS.** 로그인·재시작 복원·로그아웃·복원 차단. **Unity 계정 선택 대기.** 계정 선택 창과 취소는 확인했다. |
 
 ## 덮어 설치
 
@@ -23,8 +23,14 @@
 
 기존 Google Cloud Android OAuth 등록의 applicationId와 APK 서명에 맞춘 v0.1.2-dev Native·Unity 시험 빌드를 설치했다. localhost 이름과 시험 CA를 검증하는 별도 HTTPS Sandbox를 USB로 연결했다. Native와 Unity 모두 Google 계정 선택 창을 열고 뒤로 가기에서 CANCELED를 확인했다. Native의 재시도는 테스트 계정을 선택하기 전에 challenge 유효시간이 끝났다. 최종 DB 집계는 Google challenge 3건, 소비 0건, Google identity 0건, SDK 세션 0건이다.
 
-실계정 로그인 완료, 앱 재시작 후 Google 세션 복원, 실제 계정의 SDK 로그아웃은 사용자 계정 선택 대기 상태다. 이전 Android API 34 AVD의 v0.1.1-dev 실계정 결과는 해당 실행의 독립 근거로 보존한다. [이전 Android Google 실계정 증거](android-google-live-20261125.md)
+### 사용자 계정 선택 후 재개
+
+localhost HTTPS Sandbox와 USB reverse를 다시 연결했다. Native에서 사용자가 계정을 선택한 뒤 로그인했다. 앱 프로세스를 바꿔도 동일 세션이 복원됐고, 로그인 challenge나 세션은 추가 발급되지 않았다. 로그아웃 뒤 서버에서 세션을 폐기했고 다시 실행한 앱은 No saved session을 표시했다. 로그인과 재실행의 앱 로그를 검사해 이메일·OAuth 토큰 패턴 0건을 확인했다.
+
+Unity에서도 같은 Sandbox로 계정 선택 창을 다시 열었다. Unity 요청은 계정 선택 전에 유효시간이 끝났다. 재개 실행의 최종 집계는 Google challenge 2건, 소비 1건, Google identity 1개, 세션 1개·폐기 1개·활성 0개다. Unity 실계정 로그인·복원·로그아웃은 사용자 계정 선택 대기 상태다.
+
+이전 Android API 34 AVD의 v0.1.1-dev 실계정 결과는 해당 실행의 근거로 보존한다. [이전 Android Google 실계정 증거](android-google-live-20261125.md)
 
 ## 원본 기록
 
-로컬 실행 폴더 artifacts/android-physical-followup-20261127.tURKWe에 upgrade-result.json, pii-result.json, push-result.json, google-native-result.json, google-unity-result.json을 보존했다. 덮어 설치의 전후 Player, 개인정보 검사, 푸시의 결과 마커와 각 시험 APK 체크섬도 같은 폴더에 있다. 본문은 검사한 한 기기와 시나리오의 범위를 나타낸다.
+로컬 실행 폴더 artifacts/android-physical-followup-20261127.tURKWe에 upgrade-result.json, pii-result.json, push-result.json, google-native-result.json, google-unity-result.json과 재개 실행의 google-native-resumed-result.json, google-unity-resumed-result.json을 보존했다. 덮어 설치의 전후 Player, 개인정보 검사, 푸시의 결과 마커와 각 시험 APK 체크섬도 같은 폴더에 있다. 본문은 검사한 한 기기와 시나리오의 범위를 나타낸다.

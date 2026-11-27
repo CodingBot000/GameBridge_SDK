@@ -4521,3 +4521,5 @@
 - Google은 기존 두 Android OAuth 앱 ID와 서명이 일치하는 v0.1.2-dev 시험 APK를 준비했다. 새 localhost 인증서 및 시험 CA로 독립 Sandbox의 호스트 이름 검증과 HTTP 200을 확인했다. Native의 최초 인증 취소는 Backend challenge 미소비와 세션 0개를 확인했다.
 - Native Google 최초 취소 및 Unity 취소 assertion 통과. Native 재시도의 5분 challenge는 계정 선택 없이 만료됐다. Unity 취소까지만 실행하는 확인 단계는 계정 선택 대기 상태로 종료했다. 최종 읽기 전용 Google 집계는 challenge 3건·소비 0건·identity 0건·세션 0건. 로그에 계정 입력값이나 원본 응답은 보존하지 않았다. [실기기 추가 실행 증거](evidence/android-physical-followup-20261127.md)
 - 두 시험 Backend 경로와 전용 PostgreSQL 정리를 확인했다. 실기기 USB reverse 매핑은 0건이다. 진행 원장 검사와 문서 diff 검사를 통과했다.
+- PX-T30 재개. 이전 실행 종료 시 닫은 localhost HTTPS 서버와 USB reverse를 다시 설정했다. 사용자가 Native Google 계정을 선택한 뒤 challenge 1건 소비, Google identity 1개, 세션 1개를 확인했다. 재시작 후 같은 세션을 복원했고 로그아웃 뒤 서버 폐기 및 새 프로세스에서 No saved session을 확인했다. 화면 상태 문구는 스크롤 위치의 영향을 받아 서버 집계와 재시작 후 복원 결과를 근거로 판정했다.
+- Unity는 같은 로컬 Sandbox에서 계정 선택 창을 열었고 선택 없이 요청이 만료됐다. 재개 실행의 최종 DB는 challenge 2건·소비 1건·identity 1개·세션 1개·폐기 1개·활성 0개다. Native 종료 상태를 재확인했다. 시험 Backend와 전용 PostgreSQL을 종료했고 USB reverse 매핑은 0건이다.

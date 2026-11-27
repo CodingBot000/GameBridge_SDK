@@ -19,6 +19,8 @@
 
 삼성 SM-G975N Android 12(API 31), arm64-v8a에서 Native와 Unity 6000.5.8f1의 v0.1.2-dev를 LOCAL_MOCK으로 확인했습니다. 두 앱의 설치·실행, 모의 로그인·구매, 백그라운드 복귀, 앱 재시작 후 세션 복원과 로그아웃 후 복원 차단을 통과했습니다. Unity는 미완료 구매를 회수한 뒤 서버 원장 1건·100코인을 유지했습니다. [실기기 실행 증거](evidence/android-physical-local-mock-20261127.md)
 
+같은 실기기에서 Unity v0.1.1-dev → v0.1.2-dev 덮어 설치, 합성 개인정보 로그 검사, 모의 푸시 등록·수신·재연결을 확인했습니다. Native·Unity Google은 HTTPS 연결과 계정 선택 취소까지 확인했고 실계정 로그인은 사용자 계정 선택 대기입니다. [추가 검증](evidence/android-physical-followup-20261127.md)
+
 ## 이전 통합 기록 — 0.1.1-dev (2026-11-25)
 
 | 영역 | 확인된 범위 | 근거·제한 |

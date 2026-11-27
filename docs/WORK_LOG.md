@@ -4512,3 +4512,12 @@
 - Native UI 검증과 Unity Player 검증은 각각 종료 0. Native는 화면 및 별도 DB, Unity는 두 프로세스의 SDK 결과 마커 및 별도 DB에서 확인했다. Unity 구매 응답은 한 번 유실시켰고 복구 후 서버 검증 요청은 두 건, 지급은 한 건이었다. 각 DB는 원장 1건·100코인, 세션 1개·폐기 1개·활성 0개다.
 - 별도 읽기 전용 쿼리로 두 DB의 최종 집계와 Backend 응답을 재확인했다. 기기의 USB reverse 매핑은 0건이다. 시험 결과는 docs/evidence/android-physical-local-mock-20261127.md에 정리했다.
 - 테스트 Backend와 전용 PostgreSQL 컨테이너 정리는 종료 0. scripts/verify-progress.py 및 git diff --check를 통과했다.
+
+## PX-T30 — Android 실기기 추가 검증
+
+- 2026-11-27 KST. USB ADB와 SM-G975N Android 12/API 31, 에뮬레이터 플래그 0을 재확인했다. 덮어 설치는 v0.1.1-dev → v0.1.2-dev를 사용한다. 각 시나리오에 독립 테스트 DB를 사용하며 기존 PX-T29 결과를 보존한다.
+- 합성 개인정보 시험과 LOCAL_MOCK 푸시 시험은 각각 종료 0. 앱 PID 로그와 시험 Backend 로그에서 합성 개인정보·자격정보 패턴 0건을 확인했다. 푸시는 수신 1회, 중복 억제, 백그라운드 복귀, 시험 연결 재접속, 로그아웃·세션 교체 뒤 지난 이벤트 차단을 확인했다. 최종 푸시 토큰 0개.
+- 이전 SDK staging 검사는 v0.1.1-dev 태그의 VERSION 기준으로 실행했다. 첫 준비에서는 현재 VERSION으로 이전 staging을 검사해 실패했다. 이전 APK의 실제 versionCode 1과 새 APK의 102를 확인했다. 두 APK는 동일 applicationId·서명으로 설치했고, 덮어 설치와 재시작·세션·미완료 구매 복구 시험은 종료 0.
+- Google은 기존 두 Android OAuth 앱 ID와 서명이 일치하는 v0.1.2-dev 시험 APK를 준비했다. 새 localhost 인증서 및 시험 CA로 독립 Sandbox의 호스트 이름 검증과 HTTP 200을 확인했다. Native의 최초 인증 취소는 Backend challenge 미소비와 세션 0개를 확인했다.
+- Native Google 최초 취소 및 Unity 취소 assertion 통과. Native 재시도의 5분 challenge는 계정 선택 없이 만료됐다. Unity 취소까지만 실행하는 확인 단계는 계정 선택 대기 상태로 종료했다. 최종 읽기 전용 Google 집계는 challenge 3건·소비 0건·identity 0건·세션 0건. 로그에 계정 입력값이나 원본 응답은 보존하지 않았다. [실기기 추가 실행 증거](evidence/android-physical-followup-20261127.md)
+- 두 시험 Backend 경로와 전용 PostgreSQL 정리를 확인했다. 실기기 USB reverse 매핑은 0건이다. 진행 원장 검사와 문서 diff 검사를 통과했다.

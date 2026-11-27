@@ -8,13 +8,19 @@
 | --- | --- |
 | 패키지 출처 | 패키징 커밋 `7b6430e`와 배포 태그 `5c899be`의 SDK·Backend·계약·빌드 입력 일치. 기존 검증 패키지 바이트를 사용했고 공개 자산 6개의 SHA-256과 매니페스트를 대조했습니다. |
 | API·ABI | C# 공개 메타데이터, 선정 JVM 클래스 5개·JNI descriptor, iOS C ABI 심볼 5개와 헤더 확인. iOS 비교 범위는 device arm64 및 Simulator arm64·x86_64입니다. |
-| 업데이트 | Unity 6000.5.8f1 · Android API 34 AVD 및 iOS 18.6 Simulator의 LOCAL_MOCK에서 0.1.1-dev → 0.1.2-dev 덮어 설치. 세션과 미완료 구매 복구 및 원장 각 1건·100코인을 확인했습니다. |
-| Player 회귀 | 양 플랫폼 합성 PII, 로그아웃 후 복원 차단·SDK 종료, iOS LOCAL_MOCK Push 통과. 종료 시 활성 세션·대기 요청 각 0개입니다. |
+| 업데이트 | Android 실기기(SM-G975N, API 31) LOCAL_MOCK 0.1.1-dev → 0.1.2-dev 덮어 설치·세션 및 미완료 구매 복구, 원장 1건·100코인. 기존 Android API 34 AVD 및 iOS 18.6 Simulator(Unity 6000.5.8f1)의 결과도 보존. |
+| Player 회귀 | Android 12 실기기 Native·Unity 앱 수명주기·구매 복구, Unity 합성 PII·LOCAL_MOCK Push 및 Google 실계정 인증; 기존 양 플랫폼 합성 PII, 로그아웃 후 복원 차단·SDK 종료, iOS LOCAL_MOCK Push 통과. |
 | Hosted CI | PR #18 HEAD `46988f8`의 기본 CI 5개 성공, Unity E2E 및 Release Readiness SKIPPED. [실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546) |
 | 후속 main CI | 검토 기준 `536ab987`의 기본 5개 SUCCESS, Unity E2E·Release Readiness SKIPPED. [실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45863332014). 배포 기준 PR과 별도 기록. |
-| 제한 | 실제 Google 계정 재검증 미실행. 기존 StoreKit 26.5 실패, weak client 원인 미확정, 전체 Strict 및 실제 원격 Push·스토어·실기기 제한을 유지합니다. |
+| 제한 | 0.1.2-dev Google 실계정 재검증은 iOS에서 미실행. 기존 StoreKit 26.5 실패, weak client 원인 미확정, 전체 Strict, 실제 원격 Push·스토어, iOS 실기기·추가 Android 단말/OS 조합의 제한을 유지합니다. |
 
 [리팩토링 검증 기록](evidence/bridge-client-refactor-verification.md) · [공개 SHA256SUMS](https://github.com/CodingBot000/GameBridge_SDK/releases/download/v0.1.2-dev/SHA256SUMS) · [소스 매니페스트](https://github.com/CodingBot000/GameBridge_SDK/releases/download/v0.1.2-dev/SOURCE_MANIFEST.json)
+
+### Android 12 실기기 (2026-11-27)
+
+Android 12(API 31) 실기기(SM-G975N), arm64-v8a에서 USB ADB 및 비에뮬레이터 속성을 확인했습니다. v0.1.2-dev Native와 Unity 6000.5.8f1 LOCAL_MOCK 앱에서 설치·실행, 모의 로그인·구매, 백그라운드 복귀, 프로세스 재시작·세션 복원, 로그아웃 후 복원 차단을 통과했습니다. [실기기 기본 실행](evidence/android-physical-local-mock-20261127.md)
+
+같은 실기기에서 Unity 0.1.1-dev → 0.1.2-dev 덮어 설치와 구매 복구(원장 1건·100코인), 합성 개인정보 로그 검사, LOCAL_MOCK Push 중복 억제·재연결·세션 교체, Native·Unity Google 실계정 인증(HTTPS PLATFORM_SANDBOX)을 확인했습니다. [추가 검증](evidence/android-physical-followup-20261127.md). 이전 AVD·Simulator 결과는 해당 버전·환경별 기록입니다.
 
 ## 이전 통합 기록 — 0.1.1-dev (2026-11-25)
 

@@ -6,6 +6,7 @@
 
 | 확인할 내용 | 바로가기 |
 | --- | --- |
+| Android 실기기 인증·구매 복구·Push·PII | [최신 실기기 검증](docs/evidence/android-physical-followup-20261127.md) · [기본 실기기 실행](docs/evidence/android-physical-local-mock-20261127.md) |
 | 요청 경쟁·구매 복구·Export 복구 | [대표 기술 사례](docs/TECHNICAL_OVERVIEW.md#5-대표-기술-사례) |
 | 설계 선택과 데이터 소유권 | [기술적 의사결정](docs/TECHNICAL_OVERVIEW.md#3-설계-선택과-trade-off) · [구현 상세](docs/ENGINEERING_NOTES.md) · [보안 설계](docs/SECURITY.md) |
 | 구현과 테스트·실행의 연결 | [검증 근거](docs/VERIFICATION_EVIDENCE.md) · [CI 구성](docs/CI.md) |

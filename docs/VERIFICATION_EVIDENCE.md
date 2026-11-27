@@ -6,6 +6,7 @@
 
 | 확인할 내용 | 구현 | 시험·실행 |
 | --- | --- | --- |
+| **Android 실기기 검증(v0.1.2-dev)** | [Native·Unity 기본 실행](evidence/android-physical-local-mock-20261127.md) · [Google 시험 UI fixture](../tests/UnityAndroidGoogleConsumer/MockPlayerScenario.cs) | [Google 실계정·구매 복구·PII·LOCAL_MOCK Push](evidence/android-physical-followup-20261127.md) |
 | **응답 유실 후 구매 복구·중복 지급 방어** | [지급·멱등 처리](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/MockPurchaseController.kt#L35-L69) | [양 플랫폼 LOCAL_MOCK 업데이트·복구와 원장 Mutation](#구매-데이터-정합성과-업데이트-복구) |
 | **요청 경쟁 제어·이전 세션 응답 격리** | [RequestRegistry](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/unity/Packages/com.gamebridge.sdk/Runtime/Core/RequestRegistry.cs) | [지연 callback·중복 응답 Mutation·종료 시험](#비동기-요청과-세션-격리) |
 | **iOS Export 복구·Native 장애 해결** | [Recovery Journal](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/unity/Packages/com.gamebridge.sdk/Editor/IosExportFiles.cs#L75-L118) | [장애 주입·Host 편집 보호·Framework 및 OAuth 분석](#unity-ios-export-및-native-연동-문제-해결) |
@@ -15,7 +16,9 @@
 
 ## 구매 데이터 정합성과 업데이트 복구
 
-**관측 범위:** Unity 6000.5.8f1 · Android API 34 AVD · iOS 18.6 Simulator · LOCAL_MOCK. 지급 commit 후 응답 유실, 기존 앱/DB 데이터 유지 및 `0.1.1-dev → 0.1.2-dev` 덮어 설치, 기존 세션·미완료 구매 복구, 두 번째 동기화 회수 0건, 플랫폼별 원장 1건·100코인.
+**실기기 관측:** Android 12(API 31) 실기기(SM-G975N)에서 LOCAL_MOCK 0.1.1-dev → 0.1.2-dev 덮어 설치, 첫 지급 응답 유실 후 세션·미완료 구매 1건 복구. 서버 검증 2회, 원장 1건·100코인, 재동기화 회수 0건. [실기기 추가 검증](evidence/android-physical-followup-20261127.md).
+
+**이전 AVD·Simulator 관측 범위:** Unity 6000.5.8f1 · Android API 34 AVD · iOS 18.6 Simulator · LOCAL_MOCK. 지급 commit 후 응답 유실, 기존 앱/DB 데이터 유지 및 `0.1.1-dev → 0.1.2-dev` 덮어 설치, 기존 세션·미완료 구매 복구, 두 번째 동기화 회수 0건, 플랫폼별 원장 1건·100코인.
 
 | 확인 대상 | 공개 근거 |
 | --- | --- |
@@ -23,7 +26,8 @@
 | 별도 실 Provider 지급 구현 | [GoogleGrantService](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/main/kotlin/com/gamebridge/purchase/GoogleGrantService.kt#L20-L58) — 실제 Play 스토어 거래 성공 근거가 아님 |
 | **복구 시험 assertion** | [Android: 최초·재동기화](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/tests/UnityAndroidRestartConsumer/MockPlayerScenario.cs#L25-L40) · [iOS: 최초·재동기화](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/tests/UnityIosRestartConsumer/MockIosPlayerScenario.cs#L23-L38) — 최초 examined/recovered 1, deferred/failure 0, 잔액 100; 재동기화 examined 0, 잔액 100. 현재 fixture의 기대값이며 실제 관측은 다음 기록을 따름 |
 | 실제 복구 실행 진입점 | [Android runner](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/harness/run-unity-android-mock-restart-e2e.py) · [iOS runner](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/harness/run-unity-ios-mock-restart-e2e.py) |
-| 0.1.2-dev 관측 결과 | [버전 교체 결과](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트) · [PR #18](https://github.com/CodingBot000/GameBridge_SDK/pull/18) — 로컬 실행 공개 요약 |
+| 0.1.2-dev Android 실기기 관측 | [실기기 기본](evidence/android-physical-local-mock-20261127.md) · [실기기 버전 교체·구매 복구](evidence/android-physical-followup-20261127.md) — 로컬 실행 공개 요약 |
+| 0.1.2-dev AVD·Simulator 관측 결과 | [버전 교체 결과](evidence/bridge-client-refactor-verification.md#이전-공개-버전에서-업데이트) · [PR #18](https://github.com/CodingBot000/GameBridge_SDK/pull/18) — 로컬 실행 공개 요약 |
 | 과거 기준 실행 | [Android 정제 JSON](evidence/p10-batch34-unity-android.json) · [iOS 정제 JSON](evidence/p10-batch34-unity-ios.json) · [0.1.1-dev Batch A](evidence/batch-a47-dev-compatibility.md) · [Batch B](evidence/batch-b48-compatibility.md) — 각각 당시 버전의 별도 기록 |
 | 원장 제약의 결함 탐지 | [격리 schema·중복 INSERT assertion](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/backend/src/test/kotlin/com/gamebridge/purchase/LedgerInvariantDatabaseTest.kt#L29-L39) · [예상 실패와 정상 대조 판정](https://github.com/CodingBot000/GameBridge_SDK/blob/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4/harness/check-ledger-mutation.py#L45-L65) · [실행 기록](evidence/p09-ledger-mutation-20261113.md) · [Hosted Backend Job — PR #21](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45868483182/job/140077417070) |
 
@@ -65,6 +69,7 @@ PR #11의 157개 PBX/콜백 검사는 독립 test case 157개라는 뜻이 아�
 
 | 실행 | 검증 결과 |
 | --- | --- |
+| [PR #24 — HEAD 527eef8](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45980838197) | 기본 5개 SUCCESS, Unity E2E·Release Readiness SKIPPED |
 | [PR #22 — HEAD d3b7aa2](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45872763875) | 최초 Android 의존성 다운로드 HTTP 429 FAIL → 2차 기본 5개 SUCCESS, Unity E2E·Release Readiness SKIPPED |
 | [PR #21 — HEAD c84b0bf](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45868483182) | 기본 5개 SUCCESS, Unity E2E·Release Readiness SKIPPED |
 | [main — 536ab987](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45863332014) | 기본 5개 SUCCESS, Unity E2E·Release Readiness SKIPPED |
@@ -90,15 +95,17 @@ PR #21의 Job별 접근 경로:
 
 | 실행 | 공개 기록과 경계 |
 | --- | --- |
+| 최신 Android 실기기 Google 실계정 | [2026-11-27 실기기 기록](evidence/android-physical-followup-20261127.md). v0.1.2-dev Native·Unity HTTPS PLATFORM_SANDBOX 로그인·UI 취소·재시작 복원·로그아웃 및 복원 차단 |
+| 최신 Android 실기기 LOCAL_MOCK | [기본 실행](evidence/android-physical-local-mock-20261127.md) · [추가 검증](evidence/android-physical-followup-20261127.md). Native·Unity 앱 수명주기·구매 복구, Unity 덮어 설치·합성 PII·모의 Push 및 시험 UI 회귀 |
 | 이전 Android Google 실계정 | [2026-11-25 AVD 기록](evidence/android-google-live-20261125.md). 0.1.1-dev Native/Unity 로그인·취소 후 재시도·재시작 복원·로그아웃 |
 | 이전 iOS Google 실계정 | [2026-11-23 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md#session-lifecycle-and-automatic-callback-2026-11-23-kst) · [정제 JSON](evidence/ios-google-oauth-verification.json). 18.6 Simulator Native/Unity 실계정 로그인·복원·취소·로그아웃. Native 취소 후 재로그인 성공 미확인 |
 | 0.1.2-dev 후속 Player | [2026-11-26 요약과 원본 식별자](evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증) · [PR #18](https://github.com/CodingBot000/GameBridge_SDK/pull/18). Android/iOS 합성 PII·로그아웃 후 복원 차단/종료, iOS LOCAL_MOCK Push |
 
-0.1.2-dev Google 실계정 재검증, 실제 Google refresh/replay, Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs, 실기기, 전체 Strict는 미완료입니다. 기존 StoreKit 26.5 FAIL 및 weak client 원인 미확정을 유지합니다. [기능별 상태](FEATURE_MATRIX.md) · [호환성](COMPATIBILITY.md) · [최종 판정](FINAL_REPORT.md).
+0.1.2-dev iOS Google 실계정 재검증, 양 플랫폼 실제 Google refresh/replay, Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs, iOS 실기기와 추가 Android 단말·OS 조합, 전체 Strict는 미완료입니다. 기존 StoreKit 26.5 FAIL 및 weak client 원인 미확정을 유지합니다. [기능별 상태](FEATURE_MATRIX.md) · [호환성](COMPATIBILITY.md) · [최종 판정](FINAL_REPORT.md).
 
 ## 증거를 읽는 기준
 
-근거 조회 기준은 **2026-11-27**, 공개 저장소 [main `d37e8a1`](https://github.com/CodingBot000/GameBridge_SDK/commit/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4), 당시 GitHub PR/Actions 및 [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)입니다. 이 인덱스는 기존 구현·검증 기록을 연결하며 제품 검증의 새 실행이나 완료 상태 변경을 의미하지 않습니다.
+근거 조회 기준은 **2026-11-27**, 공개 저장소 [main `d37e8a1`](https://github.com/CodingBot000/GameBridge_SDK/commit/d37e8a105d3f47d25a24ccb2e44c7ef97f1cc3b4), 당시 GitHub PR/Actions 및 [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)입니다. 이 인덱스는 기존 구현·검증 기록을 연결하며 제품 검증의 새 실행이나 완료 상태 변경을 의미하지 않습니다. Android 실기기 추가 기록은 [시험 브랜치의 고정 커밋 `1d48124`](https://github.com/CodingBot000/GameBridge_SDK/commit/1d4812459874d6856be9db7e04064b78ec06027e)의 공개 요약과 fixture를 근거로 연결했습니다.
 
 | 증거 구분 | 확인 가능한 내용과 적용 범위 |
 | --- | --- |

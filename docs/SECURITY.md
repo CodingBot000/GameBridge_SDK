@@ -36,4 +36,6 @@ Native 저장 session은 app ID·모드·Backend에 결속됩니다. refresh 이
 
 형식이 맞는 requestId·허용 operation·정제된 상태를 사용해 추적합니다. HTTP 공통 오류는 sanitized message와 requestId를 반환합니다. PII callback·server trace·synthetic 응답의 문자열 제거와 예외 원문 비노출을 [실제 증거](evidence/p11-batch34-openapi-synthetic.json) 및 [오류 시험](../backend/src/test/kotlin/com/gamebridge/config/HttpInfrastructureTest.kt)으로 확인했습니다.
 
-양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 실기기·키 rotation·운영 보안 심사는 미검증입니다. Android/iOS Google 실계정 token refresh/replay 및 iOS cold Scene URL 직접 주입도 미실행입니다. RTDN/Apple Server Notifications 운영, 환불 자동화·SLA는 범위 밖입니다. 로컬 StoreKit의 개발 서버 지급은 Apple JWS 서버 검증이 아니며 P05-T03의 실패/환경 위험을 유지합니다. 전체 Strict가 통과했다는 주장도 하지 않습니다.
+Android 12 실기기 v0.1.2-dev Unity 합성 이메일·전화번호와 시험 자격정보 패턴을 공개 콜백, 앱 PID 및 Backend 로그에서 검사했고, Google 실계정 시험 로그의 민감 패턴과 Unity 원본 URL 이벤트도 0건을 확인했습니다. [실기기 검증](evidence/android-physical-followup-20261127.md).
+
+양 플랫폼 Apple/Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs 및 iOS 실기기·추가 Android 조합·키 rotation·운영 보안 심사는 미검증입니다. Android/iOS Google 실계정 token refresh/replay 및 iOS cold Scene URL 직접 주입도 미실행입니다. RTDN/Apple Server Notifications 운영, 환불 자동화·SLA는 범위 밖입니다. 로컬 StoreKit의 개발 서버 지급은 Apple JWS 서버 검증이 아니며 P05-T03의 실패/환경 위험을 유지합니다. 전체 Strict가 통과했다는 주장도 하지 않습니다.

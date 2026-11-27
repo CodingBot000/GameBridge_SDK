@@ -2,6 +2,8 @@
 
 > **0.1.2-dev 배포 기준** PR #18 HEAD `46988f8` (main 병합 `5c899be`)에서 `inventory-contracts`, `backend-postgres`, `android-native`, `swift-ios-simulator`, `basic-ci` **SUCCESS**. `unity-e2e`와 `release-readiness`는 **SKIPPED**입니다. [Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546)
 
+**PR #24 문서 변경:** HEAD `527eef8`의 [Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45980838197) 기본 5개 Job SUCCESS, Unity E2E·Release Readiness SKIPPED. main `392e98f`에 병합했습니다. Android 실기기 후속 시험은 [별도 로컬 실행 기록](evidence/android-physical-followup-20261127.md)입니다.
+
 **PR #22 재실행 및 병합:** HEAD `d3b7aa2`의 [최초 Android Job](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45872763875/job/140092120780)은 Maven Central HTTP 429(Too Many Requests)로 Gradle 의존성 다운로드에 실패했고 `basic-ci`도 실패했습니다. 테스트 assertion 실패는 확인되지 않았습니다. 같은 HEAD의 [2차 Android Job](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45872763875/job/140100260083)에서 contract/provider fake, Backend transport, standalone fake, Maven/R8 단계가 성공했고 [기본 5개 Job](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45872763875) 모두 SUCCESS, Unity E2E·Release Readiness SKIPPED를 확인했습니다. 제품 코드나 workflow를 바꾸지 않고 재실행으로 해소했으며 PR #22는 main `d37e8a1`에 병합했습니다. 첫 실패를 삭제하거나 새 실Provider 검증으로 계산하지 않습니다.
 
 **후속 문서 PR 확인:** PR #21 HEAD `c84b0bf`의 [CI 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45868483182)에서 기본 5개 Job SUCCESS, Unity E2E·Release Readiness SKIPPED를 확인했습니다. Job별 접근 경로와 공개 증거의 범위는 [VERIFICATION_EVIDENCE](VERIFICATION_EVIDENCE.md)를 참고하세요. 이 실행을 신규 Player나 실계정 검증으로 간주하지 않습니다.

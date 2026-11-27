@@ -2,6 +2,12 @@
 
 > 아래 원래의 종료 판정과 64개 Task 집계는 **문서36 당시 포트폴리오 스냅샷**으로 보존합니다. 이후 사용자 승인으로 별도 소셜 로그인 확장·iOS 패키징 보완을 진행했습니다. 과거 수치·FAIL/WAITING_USER를 소급 변경하지 않습니다.
 
+## Android 실기기 후속 검증 — 2026-11-27
+
+Android 12(API 31) 실기기(SM-G975N)에서 v0.1.2-dev Native·Unity의 앱 수명주기와 Google 실계정 로그인·취소·재실행 복원·로그아웃 후 복원 차단을 확인했습니다. Unity LOCAL_MOCK의 SDK 덮어 설치·구매 응답 유실 복구(지급 원장 1건·100코인), 합성 PII 검사 및 모의 Push 재연결·세션 교체도 통과했습니다. [기본 실행](evidence/android-physical-local-mock-20261127.md) · [추가 검증](evidence/android-physical-followup-20261127.md).
+
+포트폴리오 및 전체 제품화 판정은 아래와 같이 유지합니다. 실제 Google 갱신/replay, iOS 0.1.2-dev 실계정 재검증, 실제 스토어 거래·원격 Push, iOS 실기기·추가 Android 조합, 전체 Strict 및 기존 미해결 항목은 별도 범위입니다.
+
 ## 현재 포트폴리오 종료 판정 — 2026-11-26
 
 **포트폴리오 `PORTFOLIO_READY_WITH_KNOWN_LIMITATIONS`. 리팩토링 `REFACTORING_VERIFIED_FOR_REVIEW`.** SDK 0.1.2-dev / Bridge v1. 전체 SDK 제품화의 판정은 `BLOCKED_INTERNAL`이며 기존 64개 Task 원장을 유지합니다.
@@ -15,7 +21,7 @@
 
 후속 검토 기준 main `536ab987`의 [기본 Hosted CI](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45863332014) 역시 5개 SUCCESS, Unity E2E·Release Readiness SKIPPED입니다. [TECHNICAL_OVERVIEW](TECHNICAL_OVERVIEW.md)는 기존 증거를 설계·문제 해결 중심으로 정리한 외부 기술 설명이며 이 종료 판정·Task 상태·검증 범위를 변경하지 않습니다.
 
-0.1.2-dev의 Google 실계정 재검증은 미실행입니다. 기존 실계정 증거는 아래 기록을 따릅니다. StoreKit 26.5 FAIL, 전체 Strict 및 weak client 원인 미확정과 실제 원격 Push·스토어·실기기 제한이 남아 있습니다. [기능 매트릭스](FEATURE_MATRIX.md) · [알려진 제한](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)
+2026-11-26 당시에는 0.1.2-dev Google 실계정 재검증이 미실행이었습니다. 11-27 Android 실기기 후속 결과는 위에 별도 기록했습니다. 아래 제한은 당시 판정의 기록입니다. StoreKit 26.5 FAIL, 전체 Strict 및 weak client 원인 미확정과 실제 원격 Push·스토어·실기기 제한이 남아 있습니다. [기능 매트릭스](FEATURE_MATRIX.md) · [알려진 제한](ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)
 
 ## 0.1.1-dev 포트폴리오 판정 — 2026-11-25
 

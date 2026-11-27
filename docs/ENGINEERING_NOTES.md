@@ -92,6 +92,10 @@ Unity는 기존 public 상태 모델을 같은 assembly의 `SdkStatusModels.cs`�
 - **검증:** signed Player 합성 warm URL ABI 1회, Unity URL 이벤트·신규 Backend 세션 0건. 71개 PBX/URL 검사·새 Export/빌드 통과. 같은 자동 Export 앱의 실제 Google 로그인·복원·취소·로그아웃도 확인했다.
 - **경계:** 실제 OAuth ABI 진입은 0건. cold Scene URL 직접 주입·실계정 refresh/replay는 NOT_RUN이며 실제 로그인 성공과 합성 callback 검증을 구분한다. [iOS Google 검증 기록](IOS_GOOGLE_OAUTH_VERIFICATION.md).
 
+## 문제 해결 5 — Android 실기기 Unity 시험 UI 렌더링
+
+Android 12 실기기에서 상태 전환 후 이전 문구가 겹치는 현상을 재현했습니다. OnGUI가 프레임 배경을 지우는 카메라 없이 그리는 문제에 대응해 단색 지우기 카메라와 안전 영역 내 개별 행을 적용했습니다. 동일 applicationId·서명의 수정 APK를 덮어 설치해 상태 전환·Google UI 취소·백그라운드 복귀 뒤 RESTORE NO_SESSION 캡처 4장이 바이트 단위로 일치함을 확인했습니다. 이 시험은 SDK 제품 UI가 아닌 별도 검증 앱의 화면 회귀입니다. [실기기 화면 검증](evidence/android-physical-followup-20261127.md#unity-테스트-앱-화면-글자-겹침) · [fixture](../tests/UnityAndroidGoogleConsumer/MockPlayerScenario.cs).
+
 ## 제한 조사 — weak client1개
 
 조사 범위는 기존 [Player 실측](evidence/p10-batch34-unity-performance.json)과 현재 cleanup 소스다. 추가 재현·제품 수정 시도는 **0회**다. 동일 실험을 반복해 성공 수를 늘리지 않았다.
@@ -109,9 +113,9 @@ Unity는 기존 public 상태 모델을 같은 assembly의 `SdkStatusModels.cs`�
 | --- | --- | --- |
 | 전체 Strict | NOT_RUN, 기존 E1 DEFERRED_ENV/2·E2 생성/전 lane 소유권 배선 미완료 | 안전한 별도 환경에서 계약 완성 후 최대1회. 기존 P05 실패 유지 |
 | StoreKit | P05-T03 FAIL, ENV-STOREKIT-26 OPEN,18.6 간헐 위험 | 전용 Runtime·테스트 계정·시나리오별 재현. LOCAL_MOCK 통과로 덮지 않음 |
-| 외부 Provider (기존 13건 원장) | 문서36 당시 WAITING_USER 집계 보존. Android API 34 AVD와 iOS 18.6 Simulator Native/Unity Google 실제 인증 수명주기 PASS (세부 범위는 [기능 매트릭스](FEATURE_MATRIX.md)) | 실제 갱신/replay·실기기·다른 Provider는 별도 승인된 환경에서 검증 |
+| 외부 Provider (기존 13건 원장) | 문서36 당시 WAITING_USER 집계 보존. v0.1.2-dev Android 12 실기기와 이전 iOS 18.6 Simulator Native/Unity Google 실제 인증 수명주기 PASS (세부 범위는 [기능 매트릭스](FEATURE_MATRIX.md)) | 실제 갱신/replay·iOS 실기기·추가 Android 조합·다른 Provider는 별도 승인된 환경에서 검증 |
 | weak1 / 추가 profiling | 미확정 / Android JNI heap·iOS continuation·CPU blocking NOT_RUN | 실제 심각한 결함 조사가 필요할 때만 측정. 지금 자동 필수 배치로 넘기지 않음 |
 | OpenAPI |24 operation/DTO23·실제/합성 응답 구조 대조, BUG-017 OPEN | 문서의 SSE/Map 세부 계약을 기계 검사에 더 연결할 수 있음 |
-| 환경·출시 | Unity 한 버전·일부 OS, self-hosted/Release·실기기 미검증 | 지원 확대 또는 출시를 별도로 결정한 경우에만 진행 |
+| 환경·출시 | Unity 한 버전·일부 OS, Android 12 실기기 확인; self-hosted/Release·iOS 실기기·추가 Android 조합 미검증 | 지원 확대 또는 출시를 별도로 결정한 경우에만 진행 |
 
 개발 종료 판정은 [FINAL_REPORT](FINAL_REPORT.md), 실현된 호환 범위는 [COMPATIBILITY](COMPATIBILITY.md)를 따른다. 위 목록은 선택적 backlog이며 자동 재개 계획이 아니다.

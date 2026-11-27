@@ -2138,3 +2138,26 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 
 - README·기술 개요·근거 인덱스·문서 안내·통합 가이드·구현 상세의 서술과 탐색 경로를 정리했다. 대표 성과를 먼저 보여주고 결과 해석에 필요한 LOCAL_MOCK·버전·선정 API/ABI 조건을 유지했다. 기존 제한·실패·실행 기록은 상세 문서에 보존했다.
 - 문서 구현 IMPLEMENTED, 문서 검증 PASS: 로컬/고정 소스 링크 343곳(외부 문서의 수신 링크 29곳 포함), 기존 heading anchor 보존, `verify-progress.py`, 문서 `git diff --check` 통과. 제품 검증은 NOT_RUN이며 기존 판정을 변경하지 않는다.
+
+## PX-T29 — Android 실기기 LOCAL_MOCK 검증
+
+- 2026-11-27 KST. 삼성 SM-G975N, Android 12(API 31), arm64-v8a의 USB ADB 인식과 물리 기기 속성을 확인했다. `0.1.2-dev`의 Native 샘플과 Unity Player에서 세션, 앱 복귀, 모의 구매 및 로그아웃을 검증한다. 현재 상태는 진행 중이다.
+- Native APK와 Unity 실기기용 APK의 서명을 확인하고 두 패키지를 실기기에 설치했다. Native와 Unity는 별도 LOCAL_MOCK DB로 동작하며, USB를 통해 각 테스트 서버에 연결한다. 앱 동작 검증은 진행 중이다.
+- **PASS.** 삼성 SM-G975N Android 12 실기기에서 Native·Unity의 앱 실행, 백그라운드 복귀, 모의 로그인·구매, 프로세스 재시작 후 세션 복원, 로그아웃 뒤 복원 차단을 확인했다. Unity 응답 유실 후 미완료 구매 복구도 통과했고, 각 원장은 1건·100코인이다. [실기기 실행 증거](evidence/android-physical-local-mock-20261127.md)
+
+## PX-T30 — Android 실기기 추가 검증
+
+- 2026-11-27 KST. 같은 삼성 SM-G975N(Android 12/API 31)을 USB로 확인했다. 이전 SDK 위 덮어 설치와 구매 복구, 합성 개인정보 로그 검사, 모의 푸시, 실제 Google 계정 로그인을 실기기에서 검증한다. 현재 진행 중이다.
+- Android Player의 합성 개인정보 노출 검사와 LOCAL_MOCK 푸시 PASS. 푸시는 시험 앱의 TCP 프록시에서 재접속을 거부한 뒤 연결을 복구했다. 덮어 설치 및 Google 실계정 검증은 진행 중이다.
+- v0.1.1-dev → v0.1.2-dev 덮어 설치 PASS. 설치 상태와 세션·구매 데이터를 유지했고 재시작 후 복구해도 최종 원장은 1건·100코인이다. Google Native·Unity 시험 APK의 등록 서명 일치와 로컬 HTTPS Sandbox를 확인했다. Native 인증 취소 뒤 실계정 선택 대기 중이다.
+- 추가 검증의 덮어 설치·개인정보 로그·모의 푸시는 PASS. Google은 Native·Unity 모두 HTTPS 실행과 실제 계정 선택 창 취소를 확인했다. Native 재시도 요청은 계정 선택 전에 만료되어 실계정 로그인·복원·로그아웃은 WAITING_USER다. [추가 실기기 증거](evidence/android-physical-followup-20261127.md)
+- 계정 선택 가능 상태에서 HTTPS Sandbox와 USB reverse를 다시 띄웠다. Native v0.1.2-dev 실계정 로그인, 앱 재시작 후 같은 세션 복원, 로그아웃과 복원 차단 PASS. Unity 계정 선택 창을 열었다.
+- 재개 결과 Native Google 실계정 전체 흐름 PASS. Unity 계정 선택 요청은 선택 전 만료됐고 Unity의 실계정 흐름은 WAITING_USER다. [추가 실기기 증거](evidence/android-physical-followup-20261127.md)
+- **PX-T30 완료.** 삼성 SM-G975N 실기기에서 v0.1.2-dev Unity Google 실계정 로그인·재시작 복원·로그아웃·복원 차단 PASS. 앞선 Native 실계정 결과와 함께 요청한 추가 검증 네 항목을 완료했다. [실기기 추가 검증](evidence/android-physical-followup-20261127.md)
+- PX-T30 화면 후속 PASS. Android 12 실기기에서 Unity 시험 앱의 이전 프레임 글자 겹침을 재현하고 수정 APK를 적용했다. 제목·상태·세 버튼의 배치와 상태 전환 후 캡처를 확인했다. [화면 검증](evidence/android-physical-followup-20261127.md#unity-테스트-앱-화면-글자-겹침)
+- PX-T30 화면 수정에 사용한 Unity 테스트 소스를 tests/UnityAndroidGoogleConsumer에 보존했다. 실기기 설치본을 빌드한 파일과 바이트 일치를 확인했다.
+
+## Android 실기기 검증 문서 통합 (2026-11-27)
+
+- 기존 PR #24는 기본 5개 CI Job SUCCESS 확인 후 main `392e98f`에 병합했다. 별도 시험 브랜치 `test/android-physical-20261127`의 `1d48124`에서 위 PX-T29/PX-T30 실기기 기록과 증거·시험 fixture를 보존한다. 두 브랜치에서 독립적으로 사용한 PX-T29 제목은 과거 기록으로 유지한다.
+- 현재 문서의 최신 Android 근거를 실기기로 변경하고 기존 AVD·Simulator, 미완료 실 Provider·Strict·제품화 판정은 보존했다. 새 SDK 제품 코드·패키지 변경 및 실기기/제품 재실행은 하지 않았다. 원격 문서 통합 및 참조 경로 점검은 별도 수행하며 새 PR CI에서 진행 원장을 검증한다.

@@ -4523,3 +4523,5 @@
 - 두 시험 Backend 경로와 전용 PostgreSQL 정리를 확인했다. 실기기 USB reverse 매핑은 0건이다. 진행 원장 검사와 문서 diff 검사를 통과했다.
 - PX-T30 재개. 이전 실행 종료 시 닫은 localhost HTTPS 서버와 USB reverse를 다시 설정했다. 사용자가 Native Google 계정을 선택한 뒤 challenge 1건 소비, Google identity 1개, 세션 1개를 확인했다. 재시작 후 같은 세션을 복원했고 로그아웃 뒤 서버 폐기 및 새 프로세스에서 No saved session을 확인했다. 화면 상태 문구는 스크롤 위치의 영향을 받아 서버 집계와 재시작 후 복원 결과를 근거로 판정했다.
 - Unity는 같은 로컬 Sandbox에서 계정 선택 창을 열었고 선택 없이 요청이 만료됐다. 재개 실행의 최종 DB는 challenge 2건·소비 1건·identity 1개·세션 1개·폐기 1개·활성 0개다. Native 종료 상태를 재확인했다. 시험 Backend와 전용 PostgreSQL을 종료했고 USB reverse 매핑은 0건이다.
+- PX-T30 마지막 재개. 지정된 테스트 계정을 Unity 앱의 Google 선택 창에서 선택했다. 실계정 실행 종료 0. 새 프로세스에서 같은 세션 복원과 로그아웃 후 RESTORE NO_SESSION을 확인했다. 별도 DB 재검증은 challenge 소비 1건·identity 1개·세션 발급 1개·폐기 1개·활성 0개였다. 앱 로그의 민감 패턴 및 Unity 원본 URL 이벤트는 각각 0건이다.
+- 마지막 실행 종료 후 임시 HTTPS Sandbox와 테스트 PostgreSQL을 정리했다. 실기기 USB reverse 매핑과 서버 활성 세션은 각각 0개다.

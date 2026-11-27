@@ -6,7 +6,7 @@
 
 | 기능 | 공개 API·구성 | 확인된 범위 | 아직 확인하지 않은 범위 |
 | --- | --- | --- | --- |
-| 초기화·세션 | `GameBridgeSdk`, `SignInAsync`, `RestoreSessionAsync`, `SignOutAsync`, `ShutdownAsync` | 0.1.2-dev Android·iOS LOCAL_MOCK 업데이트 후 세션 복구. 독립 Player의 로그아웃 뒤 복원 차단, SDK 종료, 대기 요청·활성 세션 각각 0개 | 0.1.2-dev Google 실계정 재검증, Apple/Facebook 실계정, 실제 토큰 갱신/replay, 실기기 |
+| 초기화·세션 | `GameBridgeSdk`, `SignInAsync`, `RestoreSessionAsync`, `SignOutAsync`, `ShutdownAsync` | 0.1.2-dev Android·iOS LOCAL_MOCK 업데이트 후 세션 복구. 독립 Player의 로그아웃 뒤 복원 차단, SDK 종료, 대기 요청·활성 세션 각각 0개 | 0.1.2-dev iOS Google 실계정 재검증, Apple/Facebook 실계정, 실제 토큰 갱신/replay, 추가 실기기 조합 |
 | 상품·구매·재화 | `GetProductsAsync`, `PurchaseAsync`, `GetEntitlementsAsync`, `SyncPurchasesAsync` | 양 플랫폼 0.1.1-dev → 0.1.2-dev LOCAL_MOCK 덮어 설치 및 미완료 구매 복구, 재동기화 후 원장 각 1건·100코인 | Google Play·App Store 실제 거래, 기존 StoreKit 26.5 실패 |
 | 푸시 | `RequestPushPermissionAsync`, `RegisterPushAsync`, `UnregisterPushAsync`, `PushReceived/Opened` | Android FCM 토큰 획득·정책 회귀, iOS LOCAL_MOCK 중복 제거·로컬 재연결·세션 교체와 늦은 콜백 차단 | FCM/APNs 실제 원격 전달·실기기 |
 | 설정·진단 | `GetServiceConfigAsync`, `GetStatus`, `GetCapabilities`, `GetDiagnostics` | Unity 진단·Capability Decoder 회귀, Android·iOS 실제 Player의 합성 PII와 로그 정제 | 운영 수준의 장애·PII 감사 |
@@ -16,7 +16,7 @@
 
 | Provider | Android | iOS | 실제 계정 검증 |
 | --- | --- | --- | --- |
-| Google | Credential Manager·Backend ID Token 검증 | GoogleSignIn **9.2.0**, custom nonce 및 자동 Export 콜백 | 이전 Android API 34 AVD·iOS 18.6 Simulator Native·Unity 실계정 로그인/복원/취소/로그아웃 PASS, 0.1.2-dev 재검증 미실행 |
+| Google | Credential Manager·Backend ID Token 검증 | GoogleSignIn **9.2.0**, custom nonce 및 자동 Export 콜백 | 0.1.2-dev Android 12 실기기 Native·Unity 로그인·복원·취소·로그아웃 PASS. 이전 iOS 18.6 Simulator 기록 별도. [Android 실기기](evidence/android-physical-followup-20261127.md) |
 | Apple | 웹 OAuth·Custom Tabs·서버 code 교환 구현·보안 테스트 PASS | 기존 AuthenticationServices 구현 | 두 플랫폼 모두 **WAITING_USER** |
 | Facebook | Meta **18.3.0** Classic, Backend token debug 검증 구현 | Meta **18.1.1** Limited/Classic·JWT 검증 분리 구현 | 두 플랫폼 모두 **WAITING_USER** |
 | 개발용 Mock | LOCAL_MOCK Player PASS | LOCAL_MOCK Player PASS | 실계정 Provider와 무관 |

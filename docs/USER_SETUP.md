@@ -11,7 +11,7 @@ Android/iOS LOCAL_MOCK과 실제 Google OAuth 결과를 분리합니다. 양 플
 
 | 시험 경로 | 사용자가 준비해야 하는 사항 | 코드·테스트 준비 상태 |
 | --- | --- | --- |
-| Android Google | APK applicationId·서명 SHA-1, Web Client ID·Backend audience, 테스트 계정·신뢰된 HTTPS | Native/Unity API 34 AVD 로그인·취소 후 재시도·복원·로그아웃 PASS |
+| Android Google | APK applicationId·서명 SHA-1, Web Client ID·Backend audience, 테스트 계정·신뢰된 HTTPS | v0.1.2-dev Android 12 실기기 Native·Unity 로그인·취소·복원·로그아웃 PASS |
 | iOS Google | Bundle별 iOS OAuth Client ID, Backend Web Client ID, URL Scheme·테스트 계정·신뢰된 HTTPS | GoogleSignIn 9.2.0; Native/Unity 실제 Simulator 로그인·복원·UI 취소·로그아웃 PASS (실계정 refresh/replay NOT_RUN) |
 | Android Facebook | Meta App ID/Client Token, Android 패키지·서명 Key Hash·테스트 계정·서버 전용 App Secret | Meta 18.3.0 Classic, Backend debug 검증·Fake/계약 PASS |
 | iOS Facebook | 동일 Meta 앱의 iOS 플랫폼 설정·URL Scheme·테스트 계정 및 Backend App Secret | Meta 18.1.1 Limited/Classic·Backend JWT 검증·Fake/계약 PASS |
@@ -27,9 +27,9 @@ Android/iOS LOCAL_MOCK과 실제 Google OAuth 결과를 분리합니다. 양 플
 | --- | --- | --- | --- |
 | USER-GIT | 실제 identity로 commit/FF 인계 및 Hosted 기록 존재 | 이미 설정된 계정/identity 유지 | 포트폴리오 Git 인계와 Provider 인증은 별개 |
 | USER-UNITY |6000.5.8f1·모듈·새 양 Player 실제 검증 | 자기 환경의 Editor·module·license 준비, 약관/로그인 직접 처리 | 전용 self-hosted/Release는 미검증 |
-| USER-DEVICE | Android API34 AVD/iOS18.6 Simulator, 무서명 archive·ad-hoc Simulator | 실제 단말·앱 ID·서명·capability·기기 신뢰 | 실기기 미검증 |
+| USER-DEVICE | Android API 34 AVD·Android 12 실기기, iOS 18.6 Simulator | 실제 단말·앱 ID·서명·capability·기기 신뢰 | Android 12 삼성 SM-G975N 검증. 추가 Android 조합과 iOS 실기기 미검증 |
 | USER-BACKEND | local/synthetic profile·DB·HTTP·verifier/sender 코드 | sandbox URL·별도 DB/role·secret 범위와 Provider 권한 준비 | 운영/외부 연결 미검증 |
-| USER-AUTH-GOOGLE | Android Credential Manager, iOS GoogleSignIn/nonce·서버 verifier | Bundle/패키지별 Client ID·Web audience·서명 조건·테스트 계정 | Android AVD·iOS Simulator Native/Unity 실계정 및 기본 세션 수명 PASS; 실계정 refresh/replay·실기기 NOT_RUN |
+| USER-AUTH-GOOGLE | Android Credential Manager, iOS GoogleSignIn/nonce·서버 verifier | Bundle/패키지별 Client ID·Web audience·서명 조건·테스트 계정 | Android 12 실기기와 이전 iOS Simulator에서 Native·Unity 실계정 및 기본 세션 수명 PASS. 실계정 refresh/replay와 iOS 실기기 NOT_RUN |
 | USER-AUTH-APPLE | AuthenticationServices·nonce·서버 verifier·fake 경계 | Bundle/App ID·Sign in with Apple capability·audience·서명·계정 | WAITING_USER |
 | USER-BILLING-GOOGLE | Play Billing·검증/Google finalizer·synthetic 회귀 | 앱/internal testing·일회성 두 상품·테스터·서버 서비스 계정 권한 | WAITING_USER |
 | USER-BILLING-APPLE | StoreKit2·검증/finish·Xcode 로컬 일부 | App Store 상품·Sandbox tester·Bundle/환경·검증 신뢰 설정 | WAITING_USER, P05-T03 FAIL 별도 유지 |

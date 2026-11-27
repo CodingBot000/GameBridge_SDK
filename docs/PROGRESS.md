@@ -2145,3 +2145,4 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - 추가 검증의 덮어 설치·개인정보 로그·모의 푸시는 PASS. Google은 Native·Unity 모두 HTTPS 실행과 실제 계정 선택 창 취소를 확인했다. Native 재시도 요청은 계정 선택 전에 만료되어 실계정 로그인·복원·로그아웃은 WAITING_USER다. [추가 실기기 증거](evidence/android-physical-followup-20261127.md)
 - 계정 선택 가능 상태에서 HTTPS Sandbox와 USB reverse를 다시 띄웠다. Native v0.1.2-dev 실계정 로그인, 앱 재시작 후 같은 세션 복원, 로그아웃과 복원 차단 PASS. Unity 계정 선택 창을 열었다.
 - 재개 결과 Native Google 실계정 전체 흐름 PASS. Unity 계정 선택 요청은 선택 전 만료됐고 Unity의 실계정 흐름은 WAITING_USER다. [추가 실기기 증거](evidence/android-physical-followup-20261127.md)
+- **PX-T30 완료.** 삼성 SM-G975N 실기기에서 v0.1.2-dev Unity Google 실계정 로그인·재시작 복원·로그아웃·복원 차단 PASS. 앞선 Native 실계정 결과와 함께 요청한 추가 검증 네 항목을 완료했다. [실기기 추가 검증](evidence/android-physical-followup-20261127.md)

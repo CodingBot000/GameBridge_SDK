@@ -120,11 +120,11 @@ await sdk.SignOutAsync();
 | **Unity·OS 호환성** | 0.1.2-dev는 Unity 6000.5.8f1의 Android API 34 AVD와 iOS 18.6 Simulator에서 실행 검증 | [버전별 근거](docs/COMPATIBILITY.md) |
 | **패키징·계약** | 0.1.2-dev Maven·XCFramework·UPM, SHA-256, C# 공개 메타데이터, 선정 JVM 5개 클래스와 JNI·C ABI 5개 심볼 비교 | [API·ABI 근거](docs/evidence/bridge-client-refactor-verification.md#변경과-호환성) |
 | **후속 Player 회귀** | 양 플랫폼 합성 PII 및 로그아웃 후 복원·종료, iOS LOCAL_MOCK Push 통과 | [실행 근거](docs/evidence/bridge-client-refactor-verification.md#2026-11-26-후속-실제-player-검증) |
-| **Google 실계정** | 이전 Android API 34 AVD·iOS 18.6 Simulator에서 로그인·복원·취소·로그아웃을 확인했습니다. 0.1.2-dev 재검증은 미실행입니다. | [Android](docs/evidence/android-google-live-20261125.md) · [iOS](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md) |
+| **Google 실계정** | 0.1.2-dev Android 12 실기기에서 Native·Unity 로그인·복원·취소·로그아웃을 확인했습니다. iOS 실계정 결과는 이전 18.6 Simulator 기록입니다. | [Android 실기기](docs/evidence/android-physical-followup-20261127.md) · [iOS](docs/IOS_GOOGLE_OAUTH_VERIFICATION.md) |
 | **Unity iOS 콜백·Export 복구** | PBX·콜백 검사 157개, 네 쓰기 지점의 중단 복구, Host 편집 보존, Framework Embed·서명 | [PR #11](https://github.com/CodingBot000/GameBridge_SDK/pull/11) |
 | **Hosted CI** | PR #18 HEAD `46988f8`의 기본 5개 성공. Unity E2E 및 Release Readiness SKIPPED | [CI 실행](https://github.com/CodingBot000/GameBridge_SDK/actions/runs/45812418546) |
 
-`EDITOR_OFFLINE`은 메모리 Fake, `LOCAL_MOCK`은 로컬 Native·Backend 개발 경로입니다. 가상 구매는 실제 스토어 거래가 아닙니다. 실제 Google 토큰 갱신/replay, Apple·Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs, 실기기, Unity 6000.4 및 전체 Strict/Hosted Unity E2E·Release 검증은 미완료이며 기존 StoreKit 26.5 실패도 유지합니다. [검증 범위](docs/FEATURE_MATRIX.md) · [알려진 제한](docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)
+`EDITOR_OFFLINE`은 메모리 Fake, `LOCAL_MOCK`은 로컬 Native·Backend 개발 경로입니다. 가상 구매는 실제 스토어 거래가 아닙니다. 실제 Google 토큰 갱신/replay, Apple·Facebook 실계정, 실제 스토어 거래, 원격 FCM/APNs, 추가 실기기 조합, Unity 6000.4 및 전체 Strict/Hosted Unity E2E·Release 검증은 미완료이며 기존 StoreKit 26.5 실패도 유지합니다. [검증 범위](docs/FEATURE_MATRIX.md) · [알려진 제한](docs/ENGINEERING_NOTES.md#알려진-제한과-선택적-후속-작업)
 
 **0.1.2-dev 검증 환경** Unity 6000.5.8f1 · Android API 34 AVD(빌드 API 36, JDK 21) · iOS 18.6 Simulator(Xcode 26.6) · Spring Boot/PostgreSQL. Android API 30·36 및 iOS 26.5 LOCAL_MOCK은 [이전 Batch B](docs/evidence/batch-b48-compatibility.md)의 실행 기록입니다.
 

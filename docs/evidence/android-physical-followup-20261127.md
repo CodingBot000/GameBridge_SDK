@@ -46,3 +46,5 @@ localhost HTTPS Sandbox와 USB reverse를 다시 연결했다. Native에서 사�
 동일 applicationId·서명의 versionCode 2 시험 APK를 실기기에 덮어 설치했다. 초기 오류와 비활성 버튼, 초기화 성공과 활성 버튼, 복원 결과, 로그아웃 결과, Google 화면 취소 후 복귀, 백그라운드 복귀를 확인했다. 제목, 상태 문구, Google 로그인·세션 복원·로그아웃 버튼, 하단 Development Build 표시는 각각 읽을 수 있었다. 로그아웃·Google 취소·백그라운드 복귀를 거친 뒤 동일한 RESTORE NO_SESSION 화면의 캡처 4장이 바이트 단위로 일치했다. 화면 회귀 시험에서 실제 Google 세션은 0개다.
 
 원본 캡처와 수정 APK, UI 결과는 로컬 artifacts/android-physical-google-ui-20261127.iQzvdj에 있다. 수정 APK SHA-256은 8acca2c0a8b5b130dbadda6e51feed15d9b2d90bbf76c1af93e4f2ccf70ba87c이다.
+
+실기기에 설치한 수정 APK의 [화면 코드](../../tests/UnityAndroidGoogleConsumer/MockPlayerScenario.cs)와 [씬 빌더](../../tests/UnityAndroidGoogleConsumer/BuildMockPlayer.cs)를 테스트 소스로 보존한다. [기존 Android 소비 프로젝트 준비 스크립트](../../scripts/prepare-unity-android-mock.sh)로 만든 프로젝트의 Assets/MockPlayerScenario.cs와 Assets/Editor/BuildMockPlayer.cs에 해당 파일을 각각 사용한다. 패키지 매니페스트에는 com.unity.modules.imgui 1.0.0을 포함한다. 앱의 HTTPS Sandbox와 테스트 CA, Google OAuth 등록은 [사용자 설정](../USER_SETUP.md)의 기존 시험 환경을 사용한다.

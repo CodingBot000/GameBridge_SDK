@@ -4525,3 +4525,4 @@
 - Unity는 같은 로컬 Sandbox에서 계정 선택 창을 열었고 선택 없이 요청이 만료됐다. 재개 실행의 최종 DB는 challenge 2건·소비 1건·identity 1개·세션 1개·폐기 1개·활성 0개다. Native 종료 상태를 재확인했다. 시험 Backend와 전용 PostgreSQL을 종료했고 USB reverse 매핑은 0건이다.
 - PX-T30 마지막 재개. 지정된 테스트 계정을 Unity 앱의 Google 선택 창에서 선택했다. 실계정 실행 종료 0. 새 프로세스에서 같은 세션 복원과 로그아웃 후 RESTORE NO_SESSION을 확인했다. 별도 DB 재검증은 challenge 소비 1건·identity 1개·세션 발급 1개·폐기 1개·활성 0개였다. 앱 로그의 민감 패턴 및 Unity 원본 URL 이벤트는 각각 0건이다.
 - 마지막 실행 종료 후 임시 HTTPS Sandbox와 테스트 PostgreSQL을 정리했다. 실기기 USB reverse 매핑과 서버 활성 세션은 각각 0개다.
+- PX-T30 화면 후속. 기존 화면을 캡처해 초기화·복원·로그아웃 문구가 한 위치에 남는 것을 확인했다. 테스트 씬에 프레임 배경을 지우는 단색 카메라를 넣고 제목·상태·버튼을 별도 행에 배치했다. Unity 빌드, APK 서명 확인, 같은 앱 위 설치, 실기기 화면 회귀는 종료 0. 상태 반복, Google 창 취소 및 백그라운드 복귀 후 RESTORE NO_SESSION 캡처 4장의 SHA-256이 일치했다.

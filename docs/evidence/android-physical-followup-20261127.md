@@ -38,3 +38,11 @@ localhost HTTPS Sandbox와 USB reverse를 다시 연결했다. Native에서 사�
 ## 원본 기록
 
 로컬 실행 폴더 artifacts/android-physical-followup-20261127.tURKWe에 upgrade-result.json, pii-result.json, push-result.json, google-native-result.json, google-unity-result.json과 재개 실행의 google-native-resumed-result.json과 google-unity-resumed-result.json을 보존했다. Unity 완료 결과는 google-unity-physical-completion-result.json에 있다. 덮어 설치의 전후 Player, 개인정보 검사, 푸시의 결과 마커와 각 시험 APK 체크섬도 같은 폴더에 있다. 본문은 검사한 한 기기와 시나리오의 범위를 나타낸다.
+
+## Unity 테스트 앱 화면 글자 겹침
+
+같은 SM-G975N에서 기존 Unity 시험 APK의 상태 문구가 전환 뒤 겹치는 현상을 재현했다. 기존 씬의 OnGUI는 프레임 배경을 지우는 카메라 없이 그렸다. 제목은 고정 문자열이고 버튼은 각자 배경이 있어 겹침은 변화하는 상태 줄에서 보였다. 씬에 단색 지우기를 수행하는 카메라를 추가하고 제목·상태·세 버튼을 안전 영역 안의 개별 행에 배치했다.
+
+동일 applicationId·서명의 versionCode 2 시험 APK를 실기기에 덮어 설치했다. 초기 오류와 비활성 버튼, 초기화 성공과 활성 버튼, 복원 결과, 로그아웃 결과, Google 화면 취소 후 복귀, 백그라운드 복귀를 확인했다. 제목, 상태 문구, Google 로그인·세션 복원·로그아웃 버튼, 하단 Development Build 표시는 각각 읽을 수 있었다. 로그아웃·Google 취소·백그라운드 복귀를 거친 뒤 동일한 RESTORE NO_SESSION 화면의 캡처 4장이 바이트 단위로 일치했다. 화면 회귀 시험에서 실제 Google 세션은 0개다.
+
+원본 캡처와 수정 APK, UI 결과는 로컬 artifacts/android-physical-google-ui-20261127.iQzvdj에 있다. 수정 APK SHA-256은 8acca2c0a8b5b130dbadda6e51feed15d9b2d90bbf76c1af93e4f2ccf70ba87c이다.

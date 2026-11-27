@@ -4504,3 +4504,11 @@
 - 기존 Evaluation License 및 Unity 13개·Android 9개·iOS 7개 라이선스/고지 파일을 대조했다. Android Maven POM과 JAR/AAR 클래스·Kotlin 인라인 출처, iOS 3개 아키텍처의 정적 archive 목록 54개를 이전 검토 목록과 대조했다. SDK 의존성 고지 누락은 발견되지 않았다.
 - `gh release create --draft --prerelease`로 자산 6개를 등록하고 서버 digest를 대조한 뒤 `gh release edit --draft=false --prerelease --latest=false` 종료 0. 2026-11-26 23:19:26 KST 공개. 공개 다운로드는 6개 모두 업로드본과 일치했다. 공개 환경의 `shasum -a 256 -c SHA256SUMS` 5개 항목, 매니페스트, ZIP/TGZ 구성을 확인했다. 공개 매니페스트 SHA-256 `98bf0701a8aee8bb87e0f9574ed932d602954b9472ce8018ba74fe1573438312`. `v0.1.1-dev` 태그·자산 digest는 작업 전후 일치했다.
 - 공개 링크와 설치·검증 문서 9개 및 진행·작업 원장을 갱신했다. 새 로컬 빌드·Player 테스트는 실행하지 않았다. Google 실계정 재검증 미실행과 StoreKit 26.5 실패·전체 Strict·weak client 제한은 이전 증거에 유지했다.
+
+## PX-T29 — Android 실기기 LOCAL_MOCK 검증
+
+- 2026-11-27 KST. `adb devices -l`과 기기 속성 조회는 종료 0. 삼성 SM-G975N, Android 12/API 31, arm64-v8a, `ro.kernel.qemu=0`을 확인했다. 시험 전 Native 및 기존 Unity 검증 앱 패키지는 설치되어 있지 않았다. 기준은 `v0.1.2-dev`의 SDK 및 Backend 소스다.
+- `apksigner verify` 및 두 APK의 USB 설치는 종료 0. Unity 6000.5.8f1에서 기존 재시작 fixture의 시험 앱 주소를 USB용 `127.0.0.1`로 바꾸고, 실기기용 패키지와 백그라운드 콜백을 추가해 빌드했다. SDK 모듈은 `0.1.2-dev` staging을 사용했다. 두 로컬 Backend `/health`는 HTTP 200이다.
+- Native UI 검증과 Unity Player 검증은 각각 종료 0. Native는 화면 및 별도 DB, Unity는 두 프로세스의 SDK 결과 마커 및 별도 DB에서 확인했다. Unity 구매 응답은 한 번 유실시켰고 복구 후 서버 검증 요청은 두 건, 지급은 한 건이었다. 각 DB는 원장 1건·100코인, 세션 1개·폐기 1개·활성 0개다.
+- 별도 읽기 전용 쿼리로 두 DB의 최종 집계와 Backend 응답을 재확인했다. 기기의 USB reverse 매핑은 0건이다. 시험 결과는 docs/evidence/android-physical-local-mock-20261127.md에 정리했다.
+- 테스트 Backend와 전용 PostgreSQL 컨테이너 정리는 종료 0. scripts/verify-progress.py 및 git diff --check를 통과했다.

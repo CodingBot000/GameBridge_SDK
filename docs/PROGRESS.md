@@ -2130,3 +2130,9 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - PX-T28 시작. PR #18 병합과 최신 main `5c899be`, 동일 PR HEAD 기본 CI 5개 성공을 확인했다. 검증된 후보, 라이선스, 최신 main의 패키징 입력을 대조한다.
 - PX-T28 공개 배포 PASS. 검증 후보의 아카이브 3개를 사용해 [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)를 공개했다. 자산 6개 다운로드, 체크섬, 소스 매니페스트를 대조했고 이전 공개 태그와 자산 digest의 일치를 확인했다.
 - README·API·FEATURE_MATRIX·COMPATIBILITY·INTEGRATION·CHANGELOG·FINAL_REPORT·CI·START_HERE에 최신 배포와 리팩토링 검증 범위를 반영했다. 문서 PR의 현재 HEAD CI를 확인한다.
+
+## PX-T29 — Android 실기기 LOCAL_MOCK 검증
+
+- 2026-11-27 KST. 삼성 SM-G975N, Android 12(API 31), arm64-v8a의 USB ADB 인식과 물리 기기 속성을 확인했다. `0.1.2-dev`의 Native 샘플과 Unity Player에서 세션, 앱 복귀, 모의 구매 및 로그아웃을 검증한다. 현재 상태는 진행 중이다.
+- Native APK와 Unity 실기기용 APK의 서명을 확인하고 두 패키지를 실기기에 설치했다. Native와 Unity는 별도 LOCAL_MOCK DB로 동작하며, USB를 통해 각 테스트 서버에 연결한다. 앱 동작 검증은 진행 중이다.
+- **PASS.** 삼성 SM-G975N Android 12 실기기에서 Native·Unity의 앱 실행, 백그라운드 복귀, 모의 로그인·구매, 프로세스 재시작 후 세션 복원, 로그아웃 뒤 복원 차단을 확인했다. Unity 응답 유실 후 미완료 구매 복구도 통과했고, 각 원장은 1건·100코인이다. [실기기 실행 증거](evidence/android-physical-local-mock-20261127.md)

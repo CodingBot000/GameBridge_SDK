@@ -2130,3 +2130,11 @@ Android 전용 emulator와 iOS Simulator에서 등록·중복·main-thread·back
 - PX-T28 시작. PR #18 병합과 최신 main `5c899be`, 동일 PR HEAD 기본 CI 5개 성공을 확인했다. 검증된 후보, 라이선스, 최신 main의 패키징 입력을 대조한다.
 - PX-T28 공개 배포 PASS. 검증 후보의 아카이브 3개를 사용해 [v0.1.2-dev Pre-release](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)를 공개했다. 자산 6개 다운로드, 체크섬, 소스 매니페스트를 대조했고 이전 공개 태그와 자산 digest의 일치를 확인했다.
 - README·API·FEATURE_MATRIX·COMPATIBILITY·INTEGRATION·CHANGELOG·FINAL_REPORT·CI·START_HERE에 최신 배포와 리팩토링 검증 범위를 반영했다. 문서 PR의 현재 HEAD CI를 확인한다.
+
+## PX-T29 — 포트폴리오 문서 정보 구조 개편 (2026-11-27)
+
+- 사용자 요청에 따라 최신 main `3e74df5`에서 문서 개편을 시작했다. README·기술 개요는 대표 성과와 문제 해결을 먼저 보여주고, 상세 검증 조건은 기존 근거 문서로 연결한다. 구현 상태 IN_PROGRESS, 문서 검증 NOT_RUN.
+- 범위는 공개 문서 편집·링크 점검·PR 작성이다. 제품 코드·기존 64개 Task 집계·검증 판정·공개 패키지는 기존 상태를 유지한다.
+
+- README·기술 개요·근거 인덱스·문서 안내·통합 가이드·구현 상세의 서술과 탐색 경로를 정리했다. 대표 성과를 먼저 보여주고 결과 해석에 필요한 LOCAL_MOCK·버전·선정 API/ABI 조건을 유지했다. 기존 제한·실패·실행 기록은 상세 문서에 보존했다.
+- 문서 구현 IMPLEMENTED, 문서 검증 PASS: 로컬/고정 소스 링크 343곳(외부 문서의 수신 링크 29곳 포함), 기존 heading anchor 보존, `verify-progress.py`, 문서 `git diff --check` 통과. 제품 검증은 NOT_RUN이며 기존 판정을 변경하지 않는다.

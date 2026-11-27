@@ -2,12 +2,11 @@
 
 > 개발자용 [`v0.1.2-dev`](https://github.com/CodingBot000/GameBridge_SDK/releases/tag/v0.1.2-dev)와 Bridge v1 기준입니다. [리팩토링·업데이트 검증](evidence/bridge-client-refactor-verification.md) · [기능 매트릭스](FEATURE_MATRIX.md)
 
-
-목표는 기존 샘플을 통해 LOCAL_MOCK의 초기화→로그인→상품/구매→서버 잔액→Push→종료 경계를 확인하는 것입니다. 실제 스토어 거래·원격 푸시를 실행하지 않습니다. 검증된 환경은 [COMPATIBILITY](COMPATIBILITY.md), 내부 소유권은 [ENGINEERING_NOTES](ENGINEERING_NOTES.md), 실제 계정 설정은 [USER_SETUP](USER_SETUP.md)을 따릅니다.
+이 가이드는 샘플 설치부터 Android/iOS Native·로컬 Backend 연결까지 안내합니다. LOCAL_MOCK에서 초기화·로그인·가상 구매·서버 잔액·Push·종료 흐름을 확인할 수 있습니다. [검증 환경](COMPATIBILITY.md) · [내부 소유권](ENGINEERING_NOTES.md) · [실제 Provider 설정](USER_SETUP.md)
 
 ## 어디서 시작하나요?
 
-처음 방문했다면 [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline` 예제를 확인하세요. 0.1.2-dev는 Android·iOS Unity LOCAL_MOCK Player에서 실행했습니다. Google 실계정 증거는 이전 버전 결과이며 이번 배포에서는 재검증하지 않았습니다. [Android Google 검증](evidence/android-google-live-20261125.md) · [iOS Google 검증](IOS_GOOGLE_OAUTH_VERIFICATION.md)
+공통 C# API는 [README의 Quick Start](../README.md#quick-start--unity-editor-offline)에서 `EditorOffline`으로 시작하세요. Android/iOS Player 연동은 아래 패키지·Host·Backend 설정을 따라 진행합니다.
 
 | 하려는 일 | 먼저 읽을 곳 |
 | --- | --- |
@@ -15,9 +14,9 @@
 | Android/iOS Native와 로컬 Backend 연결 준비 | 아래 **1. 패키지 준비**와 **3. LOCAL_MOCK Backend** |
 | Google/Apple/Facebook 인증·스토어·푸시 샌드박스 설정 | [USER_SETUP](USER_SETUP.md) |
 | C# 메서드·이벤트·오류 확인 | [API](API.md) |
-| 실제 완료/실패/미실행 확인 | [기능 매트릭스](FEATURE_MATRIX.md) · [진행 원장](PROGRESS.md) |
+| 기능별 구현·검증 범위 확인 | [기능 매트릭스](FEATURE_MATRIX.md) · [검증 근거](VERIFICATION_EVIDENCE.md) |
 
-> 이 페이지는 **Native/Host 통합 세부사항**을 다룹니다. Unity 패키지 소스만 가져온다고 Android AAR, iOS XCFramework 및 Host 설정이 자동으로 모두 준비되지는 않습니다. 실제 계정·스토어·원격 푸시의 검증 여부는 [기능 매트릭스](FEATURE_MATRIX.md)에서 각각 확인합니다.
+> **Android/iOS Player 준비:** Unity 패키지와 함께 Android AAR 또는 iOS XCFramework, 해당 플랫폼 Host와 Backend 설정이 필요합니다. Editor Offline은 메모리 Fake, LOCAL_MOCK은 로컬 Native·Backend 시험 경로입니다. 실제 계정·스토어·원격 푸시의 검증 상태는 [기능 매트릭스](FEATURE_MATRIX.md)에서 확인하세요.
 
 ## 1. 패키지 준비
 
